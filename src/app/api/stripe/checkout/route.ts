@@ -3,6 +3,7 @@ import { stripe } from '@/lib/stripe/client';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createClient } from '@supabase/supabase-js';
 import { getArtistFeePercent } from '@/lib/platformTier';
+import { resolveReserveForSale, reserveToStripeMetadata } from '@/lib/teamSplits/reserve';
 import { checkRateLimit } from '@/lib/rateLimit';
 import { validateAndApplyDiscount } from '@/lib/discountCodes';
 import { resolveClipperRate } from '@/lib/clipperRate';
@@ -192,6 +193,47 @@ export async function POST(req: NextRequest) {
     }
     const effectiveFeePercent = platformFeePercent + attributedCut;
 
+    // -----------------------------------------------------------------------
+    // TEAM SPLIT RESERVE ON THE INITIAL SUBSCRIPTION INVOICE (TS-MONEY-011).
+    // -----------------------------------------------------------------------
+    // The renewal path funds on `invoice.created`, while the invoice is a DRAFT. The FIRST invoice
+    // cannot use that path, and this is a Stripe property, not a CRWN one:
+    //
+    //   "For subscriptions with collection_method set to charge_automatically, Stripe creates an
+    //    invoice with the status OPEN when you create the subscription."
+    //   "For Stripe Checkout integrations, you can't update the subscription or its invoice if the
+    //    session's subscription is incomplete."
+    //
+    // So there is no draft window and no update window for the first charge. The only lever that
+    // exists at creation is `subscription_data.application_fee_percent`, which is why the reserve
+    // is expressed as a PERCENT here and as exact cents on every later invoice.
+    //
+    // Rounding: the percent is carried to two decimals (Stripe's limit), so the withheld cents can
+    // differ from the intended reserve by at most a rounding step on the first invoice. That
+    // direction is handled by the accrual guard, which clamps the accrual to what was ACTUALLY
+    // withheld, so a collaborator can never be credited more than the money that exists.
+    //
+    // The percent also applies to later invoices until `invoice.created` overrides it with an
+    // exact amount. Over-withholding on a renewal is the safe direction (it becomes D3 surplus owed
+    // back to the artist), never under-withholding.
+    const firstInvoiceGrossCents = interval === 'year'
+      ? ((tier as { annual_price?: number }).annual_price ?? tier.price * 12)
+      : tier.price;
+    const subReserve = await resolveReserveForSale(svcConnect, {
+      artistId: tier.artist_id,
+      sourceType: 'tier',
+      sourceId: tierId,
+      grossCents: firstInvoiceGrossCents,
+      platformFeePercent,
+      attributedCutPercent: attributedCut,
+    });
+    // computeFunding already returns platform + attributed + reserve as one percent, clamped to
+    // 100. Falls back to the unchanged fee when nothing qualifies, so a subscription with no Team
+    // Split is byte-for-byte the economics it had before this existed.
+    const subscriptionFeePercent = subReserve.reserveCents > 0
+      ? subReserve.breakdown.applicationFeePercent
+      : effectiveFeePercent;
+
     // Get fan profile
     const { data: fan } = await supabase
       .from('profiles')
@@ -253,7 +295,7 @@ export async function POST(req: NextRequest) {
         discounts: [{ coupon: discountResult.stripeCouponId }],
       } : {}),
       subscription_data: {
-        application_fee_percent: effectiveFeePercent,
+        application_fee_percent: subscriptionFeePercent,
         transfer_data: {
           destination: artistStripeAccountId,
         },
@@ -265,6 +307,9 @@ export async function POST(req: NextRequest) {
         ? `${process.env.NEXT_PUBLIC_BASE_URL}${returnUrl}?subscription=canceled`
         : `${process.env.NEXT_PUBLIC_BASE_URL}/${artistSlugValue}?subscription=canceled`,
       metadata: {
+        // Proof of what the FIRST invoice withheld. The initial earnings writer reads this from the
+        // session, because the first invoice was never a draft we could tag.
+        ...reserveToStripeMetadata(subReserve.reservedByDeal),
         fan_id: fanId,
         artist_id: tier.artist_id,
         tier_id: tierId,

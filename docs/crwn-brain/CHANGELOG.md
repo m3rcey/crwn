@@ -1,5 +1,34 @@
 # CRWN Brain — Changelog
 
+## 2026-08-13 - Correction: the first subscription invoice never had a draft window
+
+The previous entry claimed one `invoice.created` path funded every subscription invoice class. That
+was wrong for the FIRST invoice, and the error was mine.
+
+- Stripe: "For subscriptions with collection_method set to charge_automatically, Stripe creates an
+  invoice with the status OPEN when you create the subscription", and "For Stripe Checkout
+  integrations, you can't update the subscription or its invoice if the session's subscription is
+  incomplete." CRWN creates subscriptions through Checkout, so the first invoice is never a draft
+  and never editable. The one-hour advancement delay applies to subscription-cycle invoices.
+- **Nobody was mispaid.** The handler's draft-only guard meant first charges funded nothing, and the
+  accrual guard refuses to accrue without a recorded reserve, so the failure direction held: a
+  collaborator was never credited money nobody withheld. The defect was that first-charge
+  collaborators would silently never be paid, and that the report said otherwise.
+- Fixed with two paths, because Stripe gives two shapes: the first charge is funded at checkout
+  through `subscription_data.application_fee_percent` (the only lever at creation), and every later
+  invoice keeps the exact `application_fee_amount` while draft. Proof for the first charge lives on
+  the session rather than the invoice.
+- A subscription with NO Team Split sends exactly the fee it sent before, which the F-01 suite now
+  pins by asserting the fallback rather than the old literal.
+- The new invariant is mutation-proven: reverting checkout to the bare fee fails TS-MONEY-011.
+
+Lesson: "one handler covers every case" was a claim about Stripe's behaviour, and verifying it
+needed Stripe's documentation, not the shape of our own code.
+
+Still open and unchanged: cap concurrency locking (new migration), the D3 artist-return transfer,
+dispute reconciliation, and the canary. Cashout stays 503.
+
+
 ## 2026-08-13 - Subscriptions now fund the collaborator reserve
 
 Every payment rail CRWN has is funded. Cashout is still 503; doc 28 section 23.4 lists the three

@@ -788,3 +788,56 @@ Three genuine gaps, and one of them needs the founder:
 
 **No canary has been run.** Nothing has been proved against real Stripe money movement, and by the
 rules of this work that alone keeps the gate shut.
+
+---
+
+## 24. CORRECTION (2026-08-13): the initial subscription invoice has no draft window
+
+Section 23 claimed one `invoice.created` path funded every subscription invoice class. **That was
+wrong for the FIRST invoice**, and the error was mine. Stripe is explicit:
+
+> "For subscriptions with `collection_method` set to `charge_automatically`, Stripe creates an
+> invoice with the status **`open`** when you create the subscription."
+>
+> "For Stripe Checkout integrations, **you can't update the subscription or its invoice** if the
+> session's subscription is `incomplete`."
+
+CRWN creates subscriptions through Checkout in `mode: 'subscription'`, so the first invoice is
+never a draft and can never be updated. The one-hour automatic-advancement delay applies to
+**subscription-cycle** invoices, not to the first one.
+
+### What actually happened, and why nobody was harmed
+
+The handler checks `status !== 'draft'` and returns `not_draft`, so it funded NOTHING on first
+charges. Because the accrual guard refuses to accrue without a recorded reserve, the failure
+direction held: **no collaborator was ever credited money that was not withheld.** The defect was
+that first-charge collaborators would silently never be paid, and that the previous report claimed
+otherwise.
+
+### The fix: two paths, because Stripe gives two shapes
+
+| Invoice | Funded where | Mechanism |
+|---|---|---|
+| **First subscription charge** | `api/stripe/checkout` | `subscription_data.application_fee_percent`, the only lever that exists at creation |
+| Renewal, proration, coupon'd, retry | `invoice.created` | exact `application_fee_amount` while draft |
+
+The percent carries two decimals, so the first charge can differ from the intended reserve by at
+most a rounding step. The accrual guard clamps the accrual to what was ACTUALLY withheld, so a
+collaborator can never be credited more than the money that exists. When no split qualifies, the
+percent falls back to `effectiveFeePercent` unchanged, so a subscription without a Team Split is
+byte-for-byte the economics it had before this existed (pinned by the F-01 suite).
+
+The proof for the first charge therefore lives on the SESSION, not the invoice.
+
+**Lesson worth keeping: "one handler covers every case" is a claim about Stripe's behaviour, and it
+needed Stripe's documentation to verify, not the shape of our own code.**
+
+### Still open (unchanged from 23.4, minus the correction above)
+
+1. Cap concurrency: still safe-direction, not locked. Needs a reservation ledger under a lock,
+   which is a NEW MIGRATION and therefore a founder action.
+2. D3 artist-return transfer: unbuilt.
+3. Stripe dispute reconciliation: unbuilt.
+4. No canary has been run.
+
+Cashout stays 503.

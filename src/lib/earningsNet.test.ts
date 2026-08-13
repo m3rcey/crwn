@@ -117,8 +117,16 @@ describe('F-01 wiring — both subscription paths share the formula', () => {
   });
 
   it('Stripe application-fee semantics are unchanged: checkout still charges base + cut', () => {
+    // The referral cut is still added to the platform fee. That formula is untouched.
     expect(CHECKOUT).toContain('const effectiveFeePercent = platformFeePercent + attributedCut;');
-    expect(CHECKOUT).toContain('application_fee_percent: effectiveFeePercent');
+    // 2026-08-13: the value SENT to Stripe is now `subscriptionFeePercent`, which is
+    // `effectiveFeePercent` plus the Team Split reserve, and falls back to `effectiveFeePercent`
+    // exactly when no split qualifies. The F-01 property this test protects is that the referral
+    // cut is never dropped, so assert the FALLBACK rather than the old literal: a subscription with
+    // no Team Split must be byte-for-byte the economics it had before the reserve existed.
+    expect(CHECKOUT).toContain('application_fee_percent: subscriptionFeePercent');
+    expect(CHECKOUT).toContain(': effectiveFeePercent;');
+    expect(CHECKOUT).toContain('subReserve.breakdown.applicationFeePercent');
   });
 
   it('platform_fee stays the base cut — admin revenue is not polluted by pass-through commission', () => {

@@ -22,12 +22,22 @@
 // D1 enforceable: an invoice that finalized without a reserve can never be back-filled into a
 // collaborator obligation.
 //
-// WHY THIS COVERS EVERY INVOICE CLASS
-// -----------------------------------
-// The initial subscription charge, an ordinary renewal, a proration, a coupon'd invoice and a
-// retried invoice are all just invoices with a draft phase. Keying on the invoice rather than on
-// `billing_reason` means none of them is a special case, and a new billing reason Stripe invents
-// later is funded automatically instead of silently skipped.
+// WHAT THIS COVERS, AND WHAT IT DOES NOT
+// --------------------------------------
+// Renewals, prorations, coupon'd invoices and retried invoices all have a draft phase, so keying on
+// the INVOICE rather than on `billing_reason` covers them uniformly and funds a billing reason
+// Stripe invents later instead of silently skipping it.
+//
+// The FIRST subscription invoice is NOT covered here, and that is a Stripe property rather than an
+// omission:
+//   "For subscriptions with collection_method set to charge_automatically, Stripe creates an
+//    invoice with the status OPEN when you create the subscription."
+//   "For Stripe Checkout integrations, you can't update the subscription or its invoice if the
+//    session's subscription is incomplete."
+// There is no draft window and no update window for the first charge, so it is funded at CHECKOUT
+// through `subscription_data.application_fee_percent` (see api/stripe/checkout). The `not_draft`
+// branch below is what keeps this honest: an already-open invoice funds NOTHING here rather than
+// pretending to.
 //
 // FAILURE DIRECTION
 // -----------------

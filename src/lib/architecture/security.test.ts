@@ -543,6 +543,26 @@ describe('SEC-SPLIT — collaborator identity and funding', () => {
         file: 'src/lib/teamSplits/invoiceFunding.ts',
       }),
     ).toBe(true);
+    // TS-MONEY-011, THE INITIAL CHARGE. Stripe creates the first subscription invoice already
+    // `open`, and Checkout forbids updating it while the subscription is `incomplete`, so there is
+    // no draft window for it. It MUST be funded at checkout through application_fee_percent, and a
+    // previous pass wrongly claimed invoice.created covered it. Pinned so that claim cannot return.
+    const checkout = readStripped('src/app/api/stripe/checkout/route.ts');
+    expect(
+      checkout.includes('resolveReserveForSale(svcConnect, {') && checkout.includes('application_fee_percent: subscriptionFeePercent'),
+      violation('TS-MONEY-011', 'the INITIAL subscription charge no longer withholds a collaborator reserve at checkout. Stripe gives that invoice no draft window, so invoice.created cannot fund it and the first charge would pay the artist money already promised to a collaborator.', {
+        file: 'src/app/api/stripe/checkout/route.ts',
+      }),
+    ).toBe(true);
+    // And the draft-only guard must stay, so an already-open invoice funds nothing instead of
+    // silently appearing to.
+    expect(
+      fund.includes("if (anyInv.status && anyInv.status !== 'draft') return none('not_draft');"),
+      violation('TS-MONEY-011', 'the draft-only guard is gone; an already-open invoice would appear fundable and could create liability nobody withheld.', {
+        file: 'src/lib/teamSplits/invoiceFunding.ts',
+      }),
+    ).toBe(true);
+
     // Referral comes off BEFORE the collaborator share, or a split eats a referrer's commission.
     // The VALUE must reach the calculation. `attributedCutPercent: 0` still contains the
     // identifier and would satisfy a name check while silently letting a split eat a referrer's

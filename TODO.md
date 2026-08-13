@@ -22,22 +22,18 @@ responsible for. Do not work those.
 
 ### P0 — money flows or acquisition are blocked
 
-- [ ] **Team Splits: every payment rail now funds the collaborator. Three things left, one is
-      yours.** Nothing to run today.
-      Subscriptions are now funded, which was the big one: they are 48 of your 55 earnings rows, so
-      until today the reserve covered the minority of your actual revenue. The initial charge and
-      every renewal both fund while Stripe still has the invoice as a draft, and Stripe holds the
-      charge for a full hour after we respond, so it is a comfortable window rather than a race.
-      Still closed, and the honest reasons:
-        1. Two payments landing at the same moment near a spending cap can both reserve the same
-           headroom. Nobody gets underpaid (it over-collects, and the excess is owed back to the
-           artist), but fixing it properly needs a small new table under a lock, which is a new
-           migration I will write and you will run.
-        2. That over-collected money has no way home yet: the artist-return transfer is not built.
-        3. Stripe chargebacks do not yet unwind a reserve.
-      After those three, I run a canary in Stripe test mode covering a subscription, a renewal, a
-      refund, a surplus return, a dispute and a cashout. **I will not open the payout rail before
-      that canary passes**, and I would rather it stay shut than guess.
+- [ ] **Team Splits: I got something wrong last time and have fixed it. Nothing for you to run.**
+      I reported that one handler funded every subscription charge. That was wrong for the FIRST
+      charge. Stripe creates the first subscription invoice already open, and Stripe Checkout
+      forbids editing it, so there was never a draft window to use. First-time subscribers with a
+      Team Split would have quietly funded nobody.
+      Nothing was mispaid: the system refuses to credit a collaborator money it did not withhold, so
+      the failure was "collaborator gets nothing", never "collaborator gets your money". It is fixed
+      now by withholding at checkout instead, which is the only lever Stripe gives at that moment.
+      A subscription with no Team Split is unchanged, down to the fee it sends.
+      Still closed, unchanged from before: cap concurrency needs a small new table under a lock
+      (that will be a migration for you), the artist-return transfer is unbuilt, disputes do not yet
+      unwind a reserve, and no canary has run. I will not open the payout rail before that canary.
 
 ### P1 — real risk or real friction, but nothing is on fire
 

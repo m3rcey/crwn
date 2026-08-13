@@ -176,18 +176,22 @@ export async function handleCheckoutCompleted(supabaseAdmin: AdminClient, sessio
     // artists. Match the renewal/purchase handlers, which use getArtistFeePercent.
     const subStripeId = (session as unknown as { subscription?: string }).subscription;
 
-    // TS-MONEY-009. The first subscription invoice is funded on invoice.created exactly like every
-    // renewal, so the reserve PROOF lives on that invoice. A checkout session carries no reserve
-    // map. Fetched read-only and never fatal: no invoice means no proof, which means no accrual.
-    let initialInvoiceMetadata: unknown = null;
-    try {
-      const invId = (session as unknown as { invoice?: string | null }).invoice;
-      if (invId) {
-        const inv = await stripe.invoices.retrieve(invId);
-        initialInvoiceMetadata = inv.metadata ?? null;
+    // TS-MONEY-009. The FIRST subscription invoice is funded at CHECKOUT, not on invoice.created,
+    // because Stripe creates it already `open` and Checkout forbids updating it while the
+    // subscription is `incomplete`. So the reserve proof lives on the SESSION, which is where
+    // checkout wrote it. The invoice is consulted only as a fallback for sessions created before
+    // this path existed.
+    let initialInvoiceMetadata: unknown = session.metadata ?? null;
+    if (Object.keys(reserveFromStripeMetadata(initialInvoiceMetadata)).length === 0) {
+      try {
+        const invId = (session as unknown as { invoice?: string | null }).invoice;
+        if (invId) {
+          const inv = await stripe.invoices.retrieve(invId);
+          initialInvoiceMetadata = inv.metadata ?? null;
+        }
+      } catch (err) {
+        console.error('Initial subscription invoice lookup failed (no reserve proof):', err);
       }
-    } catch (err) {
-      console.error('Initial subscription invoice lookup failed (no reserve proof):', err);
     }
 
     const feePercent = await getArtistFeePercent(artist_id);
