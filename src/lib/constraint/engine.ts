@@ -88,6 +88,29 @@ function shareHref(slug: string | null): string {
   return slug ? `/${slug}` : '/account/profile';
 }
 
+/**
+ * THE DESTINATION IS PART OF THE ADVICE.
+ *
+ * A corrective action that lands the artist on a general-purpose hub asks them to find, a second
+ * time, the exact thing the engine just named. These helpers point at the most specific state the
+ * EXISTING screens already support: the Promise Calendar's overdue tab and its own event
+ * highlight, the Fan CRM's import dialog, a specific tier's editor.
+ *
+ * Every one of these params is a POINTER, never authority. The destination screens load the
+ * signed-in artist's own rows and match against them, so an id belonging to somebody else matches
+ * nothing and changes no permission. Nothing here decides what the action IS; it only decides
+ * where the artist lands to do it.
+ */
+const PROMISE_OVERDUE = '/studio/promise?tab=overdue';
+function overduePromiseHref(id: string | null | undefined): string {
+  return id ? `${PROMISE_OVERDUE}&event=${encodeURIComponent(id)}` : PROMISE_OVERDUE;
+}
+/** The Fan CRM with its import dialog already open. */
+const CONTACTS_IMPORT = '/studio/fans?import=1';
+function tierHref(tierId?: string | null): string {
+  return tierId ? `/account/tiers?tier=${encodeURIComponent(tierId)}` : '/account/tiers';
+}
+
 // ---------------------------------------------------------------------------
 // The engine
 // ---------------------------------------------------------------------------
@@ -165,7 +188,9 @@ export function readConstraint(
         action: {
           label: oldest ? `Deliver "${oldest.title}"` : 'Open your Promise Calendar',
           why: 'A kept promise is a renewed subscription. A broken one is a cancellation with a delay on it.',
-          href: '/studio/promise',
+          // Straight to the overdue list, with this exact promise highlighted. Naming a promise
+          // and then dropping the artist on the "This week" tab made them hunt for it again.
+          href: overduePromiseHref(oldest?.id),
           verifiedBy: 'artist_promise_fulfilled',
         },
       },
@@ -300,7 +325,7 @@ export function readConstraint(
             ? {
                 label: 'Import your fan contacts',
                 why: 'The fans scattered across your other platforms cannot join a page they have never been sent.',
-                href: '/studio/fans',
+                href: CONTACTS_IMPORT,
                 verifiedBy: 'artist_has_fan_contacts',
               }
             : {
@@ -422,7 +447,9 @@ export function readConstraint(
             action: {
               label: `Review what ${rung.tierName} promises`,
               why: 'The benefits are what a fan is weighing at this moment. Make the first one concrete enough to picture.',
-              href: '/account/tiers',
+              // The engine already knows WHICH rung is failing, so open that rung's editor
+              // rather than a list of tiers the artist has to re-identify.
+              href: tierHref(rung.tierId),
               verifiedBy: null,
             },
           },

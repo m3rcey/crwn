@@ -120,7 +120,11 @@ export function buildRoadmapDefs(opts: {
           key: 'foundation-stripe',
           label: 'Connect Stripe',
           detail: 'Fans cannot pay you without it. Five minutes, once.',
-          href: '/account/payouts',
+          // /account/tiers, NOT /account/payouts. The ONLY Connect Stripe control in the product
+          // (with its Artist Agreement gate) lives in TierManager; the payouts screen shows an
+          // unconnected artist "$0.00, no earnings yet" and no way to fix it, so this step used to
+          // dead-end on the one requirement that decides whether a fan can pay at all.
+          href: '/account/tiers',
           source: { kind: 'check', check: 'artist_stripe_connected' },
         },
         {
@@ -137,7 +141,9 @@ export function buildRoadmapDefs(opts: {
           key: 'audience-contacts',
           label: 'Import your fan contacts',
           detail: 'The fans scattered across your other platforms become a list you own. The private launch invites the warmest of them.',
-          href: '/studio/fans',
+          // Opens the Fan CRM with the import dialog already up: the importer is a button inside
+          // the fans table, and "go to the Fan CRM and find Import" is a step CRWN can spend.
+          href: '/studio/fans?import=1',
           source: { kind: 'check', check: 'artist_has_fan_contacts' },
         },
         {

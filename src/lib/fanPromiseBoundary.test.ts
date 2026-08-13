@@ -79,7 +79,9 @@ describe('every reader that means "owed to a fan" applies the boundary', () => {
     const src = read('src/lib/constraint/assembler.ts');
     expect(src).toContain('onlyFanPromises');
     // It must also SELECT the column the filter reads, or the filter is a no-op that passes.
-    expect(src).toMatch(/select\('title, status, due_at, completed_at, metadata'\)/);
+    // `id` joined the list on 2026-08-13 so the corrective action can deep-link to the exact
+    // overdue obligation; `metadata` is the one the boundary itself depends on.
+    expect(src).toMatch(/select\('id, title, status, due_at, completed_at, metadata'\)/);
   });
 
   it('the Manager fulfillment insights filter before telling the artist fans are owed', () => {

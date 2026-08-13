@@ -27,19 +27,27 @@ export function AudienceTab() {
   const [statsCampaignId, setStatsCampaignId] = useState<string | null>(null);
   const [editSequenceId, setEditSequenceId] = useState<string | null>(null);
   const [editLinkId, setEditLinkId] = useState<string | null>(null);
+  /** Rise Mode's "Import your fan contacts" CTA (?import=1) opens the dialog on arrival. */
+  const [openImportOnMount, setOpenImportOnMount] = useState(false);
   // Bumped when the Launch Kit creates drafts, so the campaign list refetches.
   const [campaignListKey, setCampaignListKey] = useState(0);
 
   // Deep links from the launch flow ("choose who sees it first"): /studio/fans?view=campaigns
   // opens the campaign list, ?view=compose opens a fresh composer (which reads its own
   // ?audience=contacts prefill). Unknown values fall back to the normal fans view.
+  //
+  // ?import=1 comes from Rise Mode. "Import your fan contacts" used to land here on the fans
+  // table, where the importer is a button the artist still had to find; the flag opens the
+  // dialog that IS the instruction. It opens a form, it imports nothing on its own.
   useEffect(() => {
-    const v = new URLSearchParams(window.location.search).get('view');
+    const params = new URLSearchParams(window.location.search);
+    const v = params.get('view');
     if (v === 'campaigns') setSubView('campaigns');
     if (v === 'compose') {
       setEditCampaignId(null);
       setSubView('compose');
     }
+    if (params.get('import') === '1') setOpenImportOnMount(true);
   }, []);
 
   useEffect(() => {
@@ -157,7 +165,7 @@ export function AudienceTab() {
       {subView === 'fans' && artistId && (
         <>
           <TrueRegulars artistId={artistId} />
-          <FanTable artistId={artistId} tiers={tiers} />
+          <FanTable artistId={artistId} tiers={tiers} openImportOnMount={openImportOnMount} />
         </>
       )}
       {subView === 'campaigns' && artistId && (

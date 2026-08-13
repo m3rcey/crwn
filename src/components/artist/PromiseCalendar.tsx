@@ -6,7 +6,7 @@
 // livestreams. Artists can create a tracked promise and mark each cycle complete;
 // completing a recurring promise auto-schedules the next cycle.
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Loader2, CalendarClock, AlertTriangle, CheckCircle2, ArrowRight, CalendarCheck, Plus, X,
@@ -102,6 +102,21 @@ export function PromiseCalendar() {
   const [ramp, setRamp] = useState<RampSummary | null>(null);
   const [seedingRamp, setSeedingRamp] = useState(false);
   const [progress, setProgress] = useState<RampProgressSummary | null>(null);
+  // Deep link from Rise Mode: ?tab=overdue opens the overdue list, ?event=<fulfillment_events.id>
+  // highlights and scrolls to that promise. The id is a POINTER, not authority: the list below is
+  // this artist's own /api/promise-calendar payload, so an id belonging to anyone else matches
+  // nothing, reveals nothing and changes no permission. Read from window.location the same way
+  // AudienceTab reads its ?view=, which keeps this component out of a Suspense boundary.
+  const [highlightEventId, setHighlightEventId] = useState<string | null>(null);
+  const highlightRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const t = params.get('tab');
+    if (t === 'overdue' || t === 'completed' || t === 'week') setTab(t);
+    const ev = params.get('event');
+    if (ev) setHighlightEventId(ev);
+  }, []);
 
   useEffect(() => {
     fetch('/api/promise-calendar/health')
@@ -450,9 +465,9 @@ export function PromiseCalendar() {
           </div>
 
           {/* Lists */}
-          {tab === 'week' && <ItemList items={thisWeek} emptyLabel="Nothing due this week." onOpen={router.push} onComplete={completeEvent} onReschedule={rescheduleEvent} onCancel={cancelEvent} busyId={busyId} />}
-          {tab === 'overdue' && <ItemList items={buckets.overdue} emptyLabel="Nothing overdue. You're on top of it." onOpen={router.push} onComplete={completeEvent} onReschedule={rescheduleEvent} onCancel={cancelEvent} busyId={busyId} />}
-          {tab === 'completed' && <ItemList items={buckets.completed} emptyLabel="No completed promises yet." onOpen={router.push} onComplete={completeEvent} onReschedule={rescheduleEvent} onCancel={cancelEvent} busyId={busyId} />}
+          {tab === 'week' && <ItemList items={thisWeek} emptyLabel="Nothing due this week." onOpen={router.push} onComplete={completeEvent} onReschedule={rescheduleEvent} onCancel={cancelEvent} busyId={busyId} highlightEventId={highlightEventId} highlightRef={highlightRef} />}
+          {tab === 'overdue' && <ItemList items={buckets.overdue} emptyLabel="Nothing overdue. You're on top of it." onOpen={router.push} onComplete={completeEvent} onReschedule={rescheduleEvent} onCancel={cancelEvent} busyId={busyId} highlightEventId={highlightEventId} highlightRef={highlightRef} />}
+          {tab === 'completed' && <ItemList items={buckets.completed} emptyLabel="No completed promises yet." onOpen={router.push} onComplete={completeEvent} onReschedule={rescheduleEvent} onCancel={cancelEvent} busyId={busyId} highlightEventId={highlightEventId} highlightRef={highlightRef} />}
         </>
       )}
 
@@ -468,6 +483,7 @@ export function PromiseCalendar() {
 
 function ItemList({
   items, emptyLabel, onOpen, onComplete, onReschedule, onCancel, busyId,
+  highlightEventId, highlightRef,
 }: {
   items: CalendarItem[];
   emptyLabel: string;
@@ -476,10 +492,22 @@ function ItemList({
   onReschedule: (item: CalendarItem, dueAt: string) => void;
   onCancel: (item: CalendarItem) => void;
   busyId: string | null;
+  /** `fulfillment_events.id` named by the Rise Mode CTA, or null. */
+  highlightEventId?: string | null;
+  highlightRef?: React.MutableRefObject<HTMLDivElement | null>;
 }) {
   const [menuId, setMenuId] = useState<string | null>(null);
   const [rescheduleId, setRescheduleId] = useState<string | null>(null);
   const [rescheduleDate, setRescheduleDate] = useState('');
+
+  // Bring the named promise into view once it has actually rendered. Same treatment the payouts
+  // screen already gives ?earning=<id>, so the two deep links behave identically.
+  useEffect(() => {
+    if (highlightEventId && highlightRef?.current) {
+      highlightRef.current.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    }
+  }, [highlightEventId, highlightRef, items]);
+
   if (items.length === 0) {
     return (
       <div className="neu-raised rounded-xl p-8 text-center">
@@ -496,8 +524,17 @@ function ItemList({
           const done = it.status === 'completed';
           const isPromise = it.sourceType === 'fulfillment_event';
           const busy = busyId === it.id;
+          // Match on the SOURCE row id, never the composite `${sourceType}:${sourceId}` key.
+          const highlighted =
+            !!highlightEventId && isPromise && it.sourceId === highlightEventId;
           return (
-            <div key={it.id} className="py-3 first:pt-1 last:pb-0">
+            <div
+              key={it.id}
+              ref={highlighted ? highlightRef : null}
+              className={`py-3 first:pt-1 last:pb-0 ${
+                highlighted ? 'rounded-xl ring-2 ring-crwn-gold px-3 -mx-1' : ''
+              }`}
+            >
               <div className="flex items-center justify-between gap-3">
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">

@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { useToast } from '@/components/shared/Toast';
 import { DollarSign, TrendingUp, Users, Filter, ChevronDown, ChevronUp, ShoppingBag, Calendar, Banknote, Loader2 } from 'lucide-react';
 
@@ -44,6 +45,8 @@ export function PayoutDashboard() {
   const [typeFilter, setTypeFilter] = useState<string>('all');
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [stripeLoginUrl, setStripeLoginUrl] = useState<string | null>(null);
+  /** Null until /api/stripe/connect/status answers, so the empty state never accuses too early. */
+  const [stripeConnected, setStripeConnected] = useState<boolean | null>(null);
   const [availableBalance, setAvailableBalance] = useState<number | null>(null);
   const [pendingBalance, setPendingBalance] = useState<number | null>(null);
   const [isCashingOut, setIsCashingOut] = useState(false);
@@ -124,6 +127,7 @@ export function PayoutDashboard() {
       const connectStatus = await fetch('/api/stripe/connect/status')
         .then((r) => (r.ok ? r.json() : null))
         .catch(() => null);
+      setStripeConnected(connectStatus?.connected === true);
       if (connectStatus?.connected) {
         try {
           const response = await fetch('/api/stripe/login-link', {
@@ -277,6 +281,26 @@ export function PayoutDashboard() {
 
   return (
     <div className="stagger-fade-in space-y-6">
+      {/* An artist with no Stripe account used to read "$0.00 / No earnings yet" here with no way
+          to fix it: the only Connect Stripe control in the product (with its Artist Agreement
+          gate) is on the tiers screen. Rather than duplicating a legal control, point at the
+          authoritative one. Rise Mode's own Stripe move now routes there directly. */}
+      {stripeConnected === false && (
+        <div className="neu-raised rounded-xl p-4 border border-crwn-gold/30">
+          <p className="text-sm text-crwn-text font-medium">You cannot be paid yet.</p>
+          <p className="text-sm text-crwn-text-secondary mt-1">
+            Stripe is not connected, so a fan who wants to pay you has nowhere to send the money.
+          </p>
+          <Link
+            prefetch
+            href="/account/tiers"
+            className="inline-flex items-center gap-2 mt-3 bg-crwn-gold text-crwn-bg text-sm font-semibold px-5 py-2 rounded-full hover:bg-crwn-gold/90 transition-colors"
+          >
+            Connect Stripe
+          </Link>
+        </div>
+      )}
+
       {/* Stats Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="neu-raised rounded-xl p-4">

@@ -34,9 +34,16 @@ type SortField = 'display_name' | 'tier_name' | 'total_spent' | 'subscribed_at' 
 interface FanTableProps {
   artistId: string;
   tiers: { id: string; name: string }[];
+  /**
+   * Open the import dialog on first render. Set by AudienceTab from /studio/fans?import=1, which
+   * is where Rise Mode's "Import your fan contacts" move lands. It opens the same dialog the
+   * Import button opens, with the same permission attestation; nothing is imported without the
+   * artist choosing a file and confirming.
+   */
+  openImportOnMount?: boolean;
 }
 
-export function FanTable({ artistId, tiers }: FanTableProps) {
+export function FanTable({ artistId, tiers, openImportOnMount = false }: FanTableProps) {
   const { showToast } = useToast();
   const [data, setData] = useState<AudienceResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -50,7 +57,7 @@ export function FanTable({ artistId, tiers }: FanTableProps) {
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
   const [page, setPage] = useState(1);
   const [showFilters, setShowFilters] = useState(false);
-  const [showImport, setShowImport] = useState(false);
+  const [showImport, setShowImport] = useState(openImportOnMount);
   const [selectedFan, setSelectedFan] = useState<AudienceFan | null>(null);
 
   // Saved segments

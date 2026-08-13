@@ -236,7 +236,7 @@ export async function assembleConstraintEvidence(
 
   // ---- Promises, through the shared health summary ----
   let promiseSummary: ReturnType<typeof summarizePromiseHealth> | null = null;
-  let oldestOverdue: { title: string; dueAt: string } | null = null;
+  let oldestOverdue: { id: string; title: string; dueAt: string } | null = null;
   // Still PENDING and already past due. Counted straight off the rows rather than out of the
   // health summary, because the summary folds past-grace pending events in with rows the cron
   // already swept to `missed`, and those are different facts: one is still deliverable today,
@@ -245,7 +245,8 @@ export async function assembleConstraintEvidence(
   try {
     const { data, error } = await db
       .from('fulfillment_events')
-      .select('title, status, due_at, completed_at, metadata')
+      // `id` is selected so the corrective action can point at the exact obligation.
+      .select('id, title, status, due_at, completed_at, metadata')
       .eq('artist_id', artistId)
       .gte('due_at', promiseFrom.toISOString())
       .order('due_at', { ascending: true })
@@ -258,6 +259,7 @@ export async function assembleConstraintEvidence(
       // diagnosis indefinitely. See `isFanPromiseEvent` in src/lib/fulfillment.ts.
       const events = onlyFanPromises(
         (data ?? []) as {
+          id: string;
           title: string;
           status: string | null;
           due_at: string | null;
@@ -273,7 +275,9 @@ export async function assembleConstraintEvidence(
       overdueNow = stillOverdue.length;
       // Rows arrive ordered by due_at ascending, so the first is the oldest.
       const oldest = stillOverdue[0];
-      if (oldest?.due_at) oldestOverdue = { title: oldest.title, dueAt: oldest.due_at };
+      if (oldest?.due_at) {
+        oldestOverdue = { id: oldest.id, title: oldest.title, dueAt: oldest.due_at };
+      }
     }
   } catch {
     /* leave null */

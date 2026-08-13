@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { readStripped } from './architecture/sourceScan';
 import { resolveRiseNextMove } from './riseNextMove';
-import { resolveOperatingFlow } from './constraint/presentation';
+import { resolveOperatingFlow, withReturnTo } from './constraint/presentation';
 import { readConstraint } from './constraint/engine';
 import { assembleRoadmap, buildRoadmapDefs, type RoadmapStepResult } from './artistRoadmap';
 import type { ConstraintEvidence } from './constraint/types';
@@ -72,7 +72,7 @@ describe('an overdue promise to paying supporters beats a roadmap milestone', ()
         promises: {
           resolved: 0, completed: 0, missed: 0, completionRate: null,
           overdueNow: 2,
-          oldestOverdue: { title: 'August vault drop', dueAt: '2026-08-01T00:00:00.000Z' },
+          oldestOverdue: { id: 'fe-1', title: 'August vault drop', dueAt: '2026-08-01T00:00:00.000Z' },
           lookbackDays: 90,
         },
       }),
@@ -93,7 +93,7 @@ describe('an overdue promise to paying supporters beats a roadmap milestone', ()
         promises: {
           resolved: 0, completed: 0, missed: 0, completionRate: null,
           overdueNow: 2,
-          oldestOverdue: { title: 'August vault drop', dueAt: '2026-08-01T00:00:00.000Z' },
+          oldestOverdue: { id: 'fe-1', title: 'August vault drop', dueAt: '2026-08-01T00:00:00.000Z' },
           lookbackDays: 90,
         },
       }),
@@ -122,7 +122,7 @@ describe('an overdue promise to paying supporters beats a roadmap milestone', ()
         promises: {
           resolved: 0, completed: 0, missed: 0, completionRate: null,
           overdueNow: 1,
-          oldestOverdue: { title: 'Members-only demo', dueAt: '2026-08-02T00:00:00.000Z' },
+          oldestOverdue: { id: 'fe-1', title: 'Members-only demo', dueAt: '2026-08-02T00:00:00.000Z' },
           lookbackDays: 90,
         },
       }),
@@ -233,6 +233,153 @@ describe('exactly one instruction, whatever the inputs', () => {
     const next = resolveRiseNextMove(resolveOperatingFlow(readConstraint(evidence())), assembleRoadmap(defs, all));
     expect(next.move).toBeNull();
     expect(next.allComplete).toBe(true);
+  });
+});
+
+describe('the CTA lands on the exact task, not the hub that contains it', () => {
+  const roadmap = roadmapWithOpenProfileStep();
+
+  const overdue = (id: string | null) =>
+    readConstraint(
+      evidence({
+        promises: {
+          resolved: 0, completed: 0, missed: 0, completionRate: null,
+          overdueNow: 1,
+          oldestOverdue: id ? { id, title: 'August vault drop', dueAt: '2026-08-01T00:00:00.000Z' } : null,
+          lookbackDays: 90,
+        },
+      }),
+    );
+
+  it('an overdue promise opens the overdue list with that promise named', () => {
+    const next = resolveRiseNextMove(resolveOperatingFlow(overdue('fe-42')), roadmap);
+    expect(next.move?.href).toContain('/studio/promise?tab=overdue');
+    expect(next.move?.href).toContain('event=fe-42');
+    // And the return path survives the extra query string.
+    expect(next.move?.href).toContain('returnTo=%2Fprofile%2Fartist');
+  });
+
+  it('falls back to the plain overdue list when no obligation id is available', () => {
+    const next = resolveRiseNextMove(resolveOperatingFlow(overdue(null)), roadmap);
+    expect(next.move?.href).toContain('/studio/promise?tab=overdue');
+    expect(next.move?.href).not.toContain('event=');
+  });
+
+  it('an obligation id is URL-encoded, never interpolated raw', () => {
+    const weird = readConstraint(
+      evidence({
+        promises: {
+          resolved: 0, completed: 0, missed: 0, completionRate: null,
+          overdueNow: 1,
+          oldestOverdue: { id: 'a b&c=d', title: 'x', dueAt: '2026-08-01T00:00:00.000Z' },
+          lookbackDays: 90,
+        },
+      }),
+    );
+    const next = resolveRiseNextMove(resolveOperatingFlow(weird), roadmap);
+    expect(next.move?.href).toContain('event=a%20b%26c%3Dd');
+  });
+
+  it('contacts import opens the importer, from both the engine and the roadmap', () => {
+    const reach = readConstraint(
+      evidence({
+        reach: { uniqueVisits: 1, lookbackDays: 30 },
+        membership: {
+          freeMembers: 0, paidMembers: 0, freeJoinsInWindow: 0, daysSinceFirstFreeMember: null,
+          hasFirstPaidConversion: false, mrrCents: 0, premiumMrrShare: null,
+        },
+      }),
+    );
+    expect(resolveRiseNextMove(resolveOperatingFlow(reach), roadmap).move?.href).toContain(
+      '/studio/fans?import=1',
+    );
+    const step = buildRoadmapDefs({ slug: 'someone' })
+      .flatMap((s) => s.steps)
+      .find((s) => s.key === 'audience-contacts');
+    expect(step?.href).toBe('/studio/fans?import=1');
+  });
+
+  it('a failing paid rung opens THAT rung, using its id and never its name', () => {
+    const tierIssue = readConstraint(
+      evidence({
+        tiers: {
+          interactionDataAvailable: true,
+          lookbackDays: 30,
+          paidRungs: [
+            { tierId: 'tier-abc', tierName: 'Silver', priceCents: 1000, views: 200, checkoutStarts: 1, joins: 0 },
+          ],
+        },
+      }),
+    );
+    expect(tierIssue.status === 'diagnosed' && tierIssue.constraint).toBe('PAID_TIER_INTEREST');
+    const next = resolveRiseNextMove(resolveOperatingFlow(tierIssue), roadmap);
+    expect(next.move?.href).toContain('/account/tiers?tier=tier-abc');
+    expect(next.move?.href).not.toContain('Silver');
+  });
+
+  it('Connect Stripe points at the screen that actually has the control', () => {
+    // /account/payouts shows an unconnected artist "$0.00, no earnings yet" and no way to fix it:
+    // the only Connect Stripe control (with its Artist Agreement gate) is on the tiers screen.
+    const steps = buildRoadmapDefs({ slug: 'someone' }).flatMap((s) => s.steps);
+    expect(steps.find((s) => s.key === 'foundation-stripe')?.href).toBe('/account/tiers');
+    const tiers = readStripped('src/components/artist/TierManager.tsx');
+    expect(tiers).toContain('Connect with Stripe');
+    const payouts = readStripped('src/components/artist/PayoutDashboard.tsx');
+    expect(payouts).not.toContain('Connect with Stripe');
+    // ...and the payouts screen sends anyone who lands there to that one control.
+    expect(payouts).toContain("href=\"/account/tiers\"");
+  });
+
+  it('every destination stays a same-site path that returnTo can be appended to', () => {
+    const hrefs = new Set<string>();
+    for (const s of buildRoadmapDefs({ slug: 'someone' }).flatMap((st) => st.steps)) hrefs.add(s.href);
+    const diagnosed = overdue('fe-1');
+    if (diagnosed.status === 'diagnosed') hrefs.add(diagnosed.action.href);
+    for (const href of hrefs) {
+      expect(href.startsWith('/')).toBe(true);
+      expect(href.startsWith('//')).toBe(false);
+      expect(withReturnTo(href)).toContain('returnTo=%2Fprofile%2Fartist');
+    }
+  });
+});
+
+describe('the accelerated destinations read their pointer without trusting it', () => {
+  it('the Promise Calendar matches the event id against the artist OWN loaded rows', () => {
+    const src = readStripped('src/components/artist/PromiseCalendar.tsx');
+    expect(src).toContain("params.get('event')");
+    expect(src).toContain("params.get('tab')");
+    // Matched against the source row id of items the artist's own API returned. No fetch by id,
+    // no ownership decision taken from the URL.
+    expect(src).toContain('it.sourceId === highlightEventId');
+    expect(src).not.toMatch(/\.eq\('id',\s*highlightEventId/);
+  });
+
+  it('the tier deep link resolves against the artist own tier list, so a foreign id finds nothing', () => {
+    const src = readStripped('src/components/artist/TierManager.tsx');
+    expect(src).toContain("new URLSearchParams(window.location.search).get('tier')");
+    expect(src).toContain('tiers.find((t) => t.id === wanted)');
+    // The list it searches is artist-scoped at load time.
+    expect(src).toContain("from('subscription_tiers')");
+    expect(src).toContain("eq('artist_id', artistProfile.id)");
+  });
+
+  it('the import deep link opens a dialog and imports nothing on its own', () => {
+    const tab = readStripped('src/components/artist/AudienceTab.tsx');
+    expect(tab).toContain("params.get('import') === '1'");
+    const table = readStripped('src/components/artist/FanTable.tsx');
+    expect(table).toContain('useState(openImportOnMount)');
+    // The flag only opens the same modal the button opens. No auto-import, no auto-send.
+    expect(table).not.toMatch(/openImportOnMount\s*&&\s*(handleImport|doImport|submit)/);
+  });
+
+  it('the Stripe round trip carries a same-site returnTo and nothing else', () => {
+    // Read RAW: the shared comment stripper treats the `//` inside a "protocol-relative" string
+    // literal as the start of a line comment, so a stripped read cannot see this guard at all.
+    const src = readFileSync('src/components/artist/TierManager.tsx', 'utf8');
+    expect(src).toContain("rt.startsWith('/') && !rt.startsWith('//')");
+    const route = readFileSync('src/app/api/stripe/connect/route.ts', 'utf8');
+    // The server remains the boundary: it re-validates and falls back on anything else.
+    expect(route).toContain("rawReturnTo.startsWith('/') && !rawReturnTo.startsWith('//')");
   });
 });
 

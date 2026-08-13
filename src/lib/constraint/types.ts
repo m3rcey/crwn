@@ -161,8 +161,14 @@ export interface ConstraintEvidence {
     completionRate: number | null;
     /** Pending and past due right now, whatever the grace period. */
     overdueNow: number | null;
-    /** Title and due date of the oldest overdue promise, for the action. */
-    oldestOverdue: { title: string; dueAt: string } | null;
+    /**
+     * The oldest overdue promise, for the action. `id` is the `fulfillment_events` row id, and
+     * it is here so the corrective action can deep-link to the exact obligation instead of
+     * dropping the artist on a calendar to find again what CRWN just named for them. It is a
+     * pointer, never authority: the Promise Calendar loads the artist's OWN events and matches,
+     * so an id that is not theirs simply matches nothing.
+     */
+    oldestOverdue: { id: string; title: string; dueAt: string } | null;
     lookbackDays: number;
   };
 

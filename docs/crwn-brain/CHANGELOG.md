@@ -1,5 +1,44 @@
 # CRWN Brain — Changelog
 
+## 2026-08-13 - Rise Mode, Accelerate pass: the destination is part of the advice
+
+**The principle: once Rise Mode identifies the correct next move, its CTA takes the artist to the
+most specific SAFE EXISTING completion surface, preserves the path back, and does not ask them to
+rediscover information CRWN already holds.** No automation was added: every accelerated link opens
+a form, a list or an editor that the artist still drives.
+
+**The defect this pass found, which was not a speed problem at all:** the roadmap's `Connect Stripe`
+step pointed at `/account/payouts`, and **the payouts screen has no Stripe connect control**. The
+only one in the product (carrying the Artist Agreement checkbox) lives in `TierManager` on
+`/account/tiers`. An artist following CRWN's own instruction on the single requirement that decides
+whether a fan can pay at all landed on "$0.00, no earnings yet" with nothing to click. Corrected in
+the roadmap step and the launch-partner condition; `/account/payouts` now shows an unconnected
+artist a short "You cannot be paid yet" panel linking to that one authoritative control, rather than
+a second copy of a legal gate.
+
+Accelerated, all through parameters the destination screens already had or now read:
+
+| Move | Before | After |
+|---|---|---|
+| `Deliver "<promise>"` | `/studio/promise`, opening the **This week** tab, promise not shown | `/studio/promise?tab=overdue&event=<id>`: the overdue list with that promise ringed and scrolled to |
+| `Import your fan contacts` | `/studio/fans`, importer is a button inside the fans table | `/studio/fans?import=1`: the import dialog open |
+| `Review what <tier> promises` | `/account/tiers`, artist re-identifies the rung | `/account/tiers?tier=<id>`: that rung's editor open |
+| `Connect Stripe` | `/account/payouts`, **no control there** | `/account/tiers`, where the control is |
+
+`ConstraintEvidence.promises.oldestOverdue` gained an `id` (the `fulfillment_events` row) so the
+action can name the obligation. **Every one of these params is a pointer, never authority.** The
+Promise Calendar matches the id against the artist's own `/api/promise-calendar` payload;
+`TierManager` matches against tiers loaded with `.eq('artist_id', <this artist>)`. An id belonging
+to someone else is simply absent, so it opens nothing and reveals nothing. `TierManager` now also
+forwards a same-site `returnTo` into `/api/stripe/connect`, which re-validates it server-side.
+
+Deliberately NOT accelerated: per-field routing into the profile editor (`ArtistProfileForm` has no
+section anchors, so it would mean inventing them), and a `?new=1` tier-create shortcut (the roadmap
+already lands on the screen whose primary control is creation). Both would be new architecture, not
+wiring.
+
+`npm test` 2171 pass, `verify:architecture` 812 pass, build clean, lint at the repo baseline.
+
 ## 2026-08-13 - Rise Mode, Simplify pass: four survivors questioned, three simplified
 
 The deletion pass (below) left four things on the surface. Each was re-asked "does this change what

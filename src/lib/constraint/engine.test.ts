@@ -128,12 +128,14 @@ describe('stage 1: fulfillment outranks everything downstream', () => {
       readConstraint(
         merge(healthy(), {
           reach: { uniqueVisits: 0 },
-          promises: { overdueNow: 1, oldestOverdue: { title: 'August vault drop', dueAt: '2026-07-20T00:00:00.000Z' } },
+          promises: { overdueNow: 1, oldestOverdue: { id: 'fe-1', title: 'August vault drop', dueAt: '2026-07-20T00:00:00.000Z' } },
         }),
       ),
     );
     expect(r.constraint).toBe('FULFILLMENT');
-    expect(r.action.href).toBe('/studio/promise');
+    // The destination is part of the advice: the overdue list, with THIS promise named, rather
+    // than a calendar opened on "This week" for the artist to search again.
+    expect(r.action.href).toBe('/studio/promise?tab=overdue&event=fe-1');
     expect(r.action.label).toContain('August vault drop');
   });
 
@@ -297,7 +299,8 @@ describe('stage 3: reach wins before any conversion analysis', () => {
     const noMembers = asDiagnosed(
       readConstraint(merge(healthy(), { reach: { uniqueVisits: 5 }, membership: { freeMembers: 0 } })),
     );
-    expect(noMembers.action.href).toBe('/studio/fans');
+    // ?import=1 opens the import dialog itself, not the CRM page it hides behind.
+    expect(noMembers.action.href).toBe('/studio/fans?import=1');
     const withMembers = asDiagnosed(
       readConstraint(merge(healthy(), { reach: { uniqueVisits: 5 }, membership: { freeMembers: 40 } })),
     );

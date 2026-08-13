@@ -281,6 +281,13 @@ information already exists.
   tested) flattens that answer into one title, one reason, one fact, one destination and the LABEL
   of the next move. It holds no threshold and compares nothing. **Do not add a second priority
   engine, and do not re-derive the override in a component.**
+- **The destination is part of the advice.** The CTA goes to the most specific SAFE EXISTING
+  completion surface, never a hub the artist must search: `/studio/promise?tab=overdue&event=<id>`,
+  `/studio/fans?import=1`, `/account/tiers?tier=<id>`. Every such param is a POINTER, never
+  authority: the destination matches it against rows it already loaded for the signed-in artist, so
+  a foreign id opens nothing. Never fetch by a URL id, and never let one decide a permission.
+  Before adding a step's `href`, open the destination and confirm the control is actually there:
+  `Connect Stripe` pointed at `/account/payouts` for months, which has no connect control.
 - The losing move appears as a plain `After this:` line, never a second button.
 - Stage context is discrete (`Foundation · 2 of 7 complete`), never a percentage.
 - The fact is stated ONCE, from `evidence[0]`. The constraint's `title` is a summary of that same

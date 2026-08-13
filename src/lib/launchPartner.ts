@@ -94,7 +94,9 @@ export function buildLaunchPartnerDefs(opts: { slug?: string | null }): LaunchPa
       key: 'lp-stripe',
       label: 'Stripe connected',
       detail: 'Nobody can become a paid member of a page that cannot take a payment.',
-      href: '/account/payouts',
+      // The Connect Stripe control lives on the tiers screen, not the payouts screen. See the
+      // same correction on the roadmap's `foundation-stripe` step.
+      href: '/account/tiers',
       role: 'required',
       source: { kind: 'check', check: 'artist_stripe_connected' },
     },
@@ -118,7 +120,7 @@ export function buildLaunchPartnerDefs(opts: { slug?: string | null }): LaunchPa
       key: 'lp-contacts',
       label: `${GUARANTEE_MIN_CONTACTS} contacts imported, or ${GUARANTEE_MIN_PROVEN_BUYERS} proven buyers`,
       detail: 'The warm list the private launch invites. A smaller list of fans who already paid you counts on its own.',
-      href: '/studio/fans',
+      href: '/studio/fans?import=1',
       role: 'required',
       source: { kind: 'query', query: 'eligible_contacts' },
     },

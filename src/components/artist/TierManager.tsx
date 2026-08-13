@@ -120,8 +120,16 @@ export function TierManager() {
     
     setIsConnectingStripe(true);
     try {
+      // Carry the caller's returnTo through Stripe's onboarding round trip. Rise Mode's "Connect
+      // Stripe" move arrives here as /account/tiers?returnTo=/profile/artist, and without this the
+      // artist is returned to the route's default instead of where they started. The route itself
+      // is the security boundary: it accepts same-site relative paths only and falls back to
+      // /profile/artist, so nothing here can turn into an open redirect.
+      const rt = new URLSearchParams(window.location.search).get('returnTo');
+      const q = new URLSearchParams({ artist_id: artistProfileId });
+      if (rt && rt.startsWith('/') && !rt.startsWith('//')) q.set('returnTo', rt);
       // This will redirect to Stripe onboarding
-      window.location.href = `/api/stripe/connect?artist_id=${artistProfileId}`;
+      window.location.href = `/api/stripe/connect?${q.toString()}`;
     } catch (error) {
       console.error('Stripe connect error:', error);
       showToast('Failed to connect Stripe', 'error');
@@ -364,6 +372,24 @@ export function TierManager() {
       }
     }, 200);
   };
+
+  // Deep link from Rise Mode: /account/tiers?tier=<id> opens that tier's editor (it already
+  // scrolls itself into view). The Constraint Engine knows exactly which rung is failing, so
+  // landing the artist on a list of tiers to re-identify it is a step CRWN can spend for them.
+  //
+  // NOT an authorization path. `tiers` was loaded with .eq('artist_id', <this artist>), so an id
+  // belonging to someone else is simply absent from the list: no row, no editor, no leak, and the
+  // normal tiers screen renders. Runs once, so closing the editor does not reopen it.
+  const appliedTierParamRef = useRef(false);
+  useEffect(() => {
+    if (appliedTierParamRef.current || isLoading || tiers.length === 0) return;
+    const wanted = new URLSearchParams(window.location.search).get('tier');
+    if (!wanted) return;
+    const match = tiers.find((t) => t.id === wanted);
+    appliedTierParamRef.current = true;
+    if (match) handleEdit(match);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoading, tiers]);
 
   const handleCancelEdit = () => {
     setEditingTier(null);
