@@ -1253,6 +1253,10 @@ export const EXPECTED_MIGRATION_STATE: ReadonlyArray<{
     note: 'Founder-applied 2026-08-13; sql-check returned applied=true, and the BEHAVIOUR was then proved live with the anon key against a throwaway canary track on the founder test artist (inserted, probed, deleted). In-window: can_play=false with audio_url_128 AND audio_url_320 both NULL. After the window: can_play=true and the locator returns. In-window with an EMPTY tier list: can_play=true, matching classifyTrack (a stray date must not lock out paying members). No regression: all 44 anon-visible free tracks still play and all 11 member-only tracks stay denied and redacted.',
   },
   { file: 'schema-phase2-track-waterfall.sql', state: 'applied', note: 'Founder-applied 2026-08-13, AFTER the early-access oracle as required (it schedules the very content class that oracle gates). Probe-verified: tracks.waterfall selectable and NULL on existing rows, so the daily cron\'s .not(waterfall,is,null) filter skips every current track and no in-flight release changed.' },
+  // Drops the retired Manager outcome-scoring schema (view + three never-written columns).
+  // 'sql-check' because a dropped column is invisible to an anon probe: the tables it lived on
+  // are service-role-only, so 42501 reads the same before and after.
+  { file: 'schema-phase2-drop-manager-outcome-schema.sql', state: 'pending', liveCheck: 'sql-check', note: 'Zero rows ever held outcome data (guarded in-file: it ABORTS if any row does). Dropping it closes K-11 from the surface-reduction audit.' },
   { file: 'schema-phase3-fan-campaigns.sql', state: 'applied', note: 'probe-verified 2026-08-12' },
   { file: 'schema-phase3-recommendation-outcomes.sql', state: 'applied', note: 'probe-verified 2026-08-11' },
   { file: 'schema-phase3-tier-transitions.sql', state: 'applied' },

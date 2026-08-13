@@ -54,14 +54,16 @@ interface ArtistFormData {
 }
 
 /**
- * @param mode  'full' (default) renders every field for the Profile dashboard tab.
+ * Renders every field for the Profile dashboard tab. (An 'onboarding' mode existed for the
+ * retired /welcome flow; its last call site vanished with that flow and the branch was removed
+ * in the 2026-08-13 cleanup.)
  *              'onboarding' renders only the focused set the setup wizard needs —
  *              avatar + name + slug + tagline — and defers banner, bio, socials,
  *              cal.com, location and genres to the full form later. See the
  *              onboarding field-scoping rationale in the artist setup wizard.
  */
-export function ArtistProfileForm({ mode = 'full' }: { mode?: 'full' | 'onboarding' } = {}) {
-  const onboarding = mode === 'onboarding';
+export function ArtistProfileForm() {
+  const onboarding = false as const; // branch retired; kept as a constant so the JSX below stays diff-minimal
   const { user, profile } = useAuth();
   const supabase = createBrowserSupabaseClient();
   const { showToast } = useToast();

@@ -122,3 +122,16 @@ SELECT 'schema-phase2-early-access-window-enforcement.sql' AS migration,
          AND has_function_privilege('anon', 'public.can_play_track(uuid,uuid)', 'EXECUTE')
          AND has_function_privilege('authenticated', 'public.can_play_track(uuid,uuid)', 'EXECUTE')
        ) AS applied;
+
+-- 7. Manager outcome-schema drop (2026-08-13). 'sql-check' because the parent tables are
+--    service-role-only, so an anon probe reads 42501 whether or not the columns exist.
+--    Expect applied = true after running supabase/schema-phase2-drop-manager-outcome-schema.sql.
+SELECT 'schema-phase2-drop-manager-outcome-schema.sql' AS migration,
+       (
+         to_regclass('public.artist_action_outcomes') IS NULL
+         AND NOT EXISTS (
+           SELECT 1 FROM information_schema.columns
+            WHERE table_name = 'artist_agent_actions'
+              AND column_name IN ('baseline_metrics', 'outcome_metrics', 'outcome_delta')
+         )
+       ) AS applied;
