@@ -267,6 +267,44 @@ export async function GET(req: NextRequest) {
         });
       }
     }
+    // ── 8b. An EARLY-ACCESS window must be enforced by the DATABASE ──────────
+    // "Members first, public later" is stored as is_free = true + a FUTURE
+    // public_release_date + a tier list, because is_free staying true is what
+    // makes "public later" real with no second write. can_play_track used to
+    // short-circuit on is_free alone and never read the date, so for the whole
+    // window the oracle answered true to EVERY reader and tracks_public handed
+    // anon the audio locator. The window was enforced only in React.
+    //
+    // This is the anon-visible half of schema-phase2-early-access-window-
+    // enforcement.sql (the behavioural half is
+    // supabase/verify-early-access-window.sql, which rolls back). It stays
+    // VACUOUS until an artist actually schedules one, which is honest: there is
+    // no in-window track to leak yet. The moment there is, this starts asserting
+    // daily, and a regression pages the founder instead of a fan finding it.
+    {
+      const nowIso = new Date().toISOString();
+      const { status, body } = await rest(
+        `tracks_public?select=id,audio_url_128&public_release_date=gt.${nowIso}&limit=5`
+      );
+      const rows = status === 200 ? (JSON.parse(body) as { id: string; audio_url_128: string | null }[]) : [];
+      if (rows.length === 0) {
+        checks.push({
+          name: 'early_access_window_enforced',
+          ok: true,
+          detail: 'no track inside an early-access window to probe (vacuous)',
+        });
+      } else {
+        const leaked = rows.filter((r) => r.audio_url_128);
+        checks.push({
+          name: 'early_access_window_enforced',
+          ok: leaked.length === 0,
+          detail:
+            leaked.length > 0
+              ? `LEAK: ${leaked.length}/${rows.length} in-window track(s) served audio to anon (first: ${leaked[0].id})`
+              : `${rows.length} in-window track(s), all redacted for anon`,
+        });
+      }
+    }
     // ── 9. The `audio` Storage bucket must stay PRIVATE ──────────────────────
     // Column redaction stopped enumeration but revoked nothing: while the bucket
     // was public, any url scraped beforehand resolved forever, to anyone. Only a

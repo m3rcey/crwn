@@ -15,6 +15,17 @@ CRWN is **live in production** (`thecrwn.app`) and the core money loop is real a
   members only, 2026-08-01): `fieldsForClass()` derives the stored fields, the old two-toggle UI
   is gone, and a staggered members-first release rides `tracks.waterfall`, opened additively by
   the daily cron (entitlement gate untouched).
+- **Early access: server enforcement shipped 2026-08-13, MIGRATION PENDING.** Four states, not
+  collapsed. (1) The promise is LIVE and sold: 9 `tier_benefits` rows advertise 7-day and 14-day
+  early access. (2) The enforcement code is in the repo:
+  `supabase/schema-phase2-early-access-window-enforcement.sql` makes `can_play_track` read
+  `public_release_date`, so `is_free` no longer short-circuits inside the window. (3) It is **not
+  yet applied in production**, so today a members-first track would still serve its audio to an
+  anonymous reader through `tracks_public`. (4) Nobody has been exposed: production has **zero**
+  tracks with a `public_release_date`, so the paid-first class has never been used. Behavioural
+  proof is `supabase/verify-early-access-window.sql` (transactional, rolls back); the daily
+  `rls-canary` check `early_access_window_enforced` is vacuous until an artist schedules one.
+  Day counts come from `tier_benefits.config.days_early`, the same value the fan is shown.
 - **Membership strategy layer (2026-08-01):** deterministic Release Club vs Vault brain
   (`src/lib/membershipStrategy.ts`), derived on read at `/api/artist/strategy`, surfaced by
   `StrategyCard` on the command screen with the two declared questions that can flip the pick;

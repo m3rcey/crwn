@@ -1,5 +1,59 @@
 # CRWN Brain — Changelog
 
+## 2026-08-13 - Early access becomes server-enforced (the window was a React decision)
+
+**The invariant: no client-only visibility decision may be the authority for protected audio.**
+Early access was the one place CRWN broke it.
+
+**What was wrong.** `fieldsForClass('paid_first')` encodes "members first, public later" as
+`is_free = true` + a non-empty `allowed_tier_ids` + a FUTURE `public_release_date`. `is_free`
+staying true is deliberate and correct: it is what makes "public later" real with no second write
+and no scheduler. But `can_play_track` short-circuited on `IF t.is_free THEN RETURN true` and never
+read `public_release_date`. `tracks_public` serves `audio_url_128/320` on exactly that boolean and
+is granted to `anon`, so for a members-first track's entire window:
+
+- `GET /api/tracks/[id]/stream` minted a signed URL for a logged-out visitor
+- `/embed/[trackId]` passed its own `is_free` guard, because paid-first IS `is_free`
+- every browser read of `tracks_public` carried the locator in the payload
+
+Only `GatedTrackPlayer` hid the track, plus `/api/explore`, which already filters in-window rows out
+of its listings (a visibility filter, not a gate). Nine live `tier_benefits` rows advertise 7-day
+and 14-day early access, so this was a sold promise with no server enforcement behind it.
+
+The header of `schema-phase2-track-waterfall.sql` asserted that `can_play_track` already saw
+`public_release_date`. It did not. That comment is corrected in place.
+
+**Nobody was exposed.** Production has **zero** tracks with a `public_release_date` (anon probe
+2026-08-13), so the paid-first class has never been used and the hole was never reachable. That is
+why the fix lands now, before a pilot artist schedules the first members-first release.
+
+**The fix.** `supabase/schema-phase2-early-access-window-enforcement.sql` changes ONE line of
+behaviour in the ONE canonical oracle: the `is_free` short-circuit no longer applies while a track
+is inside its window. No second resolver, no new column, no view change, no grant change, no RLS
+change. "Inside the window" is defined EXACTLY as `classifyTrack` defines `paid_first`, including
+the clause that a future date with an EMPTY tier list stays PUBLIC: treating that as a locked window
+would lock out every paying member for the whole window, which is the precise failure the
+content-class refactor exists to make unrepresentable.
+
+**One source for the day count.** `LADDER_EARLY_DAYS` (positional: 30/14/7) and
+`tier_benefits.config.days_early` (per-tier, artist-editable, and what the fan is actually shown)
+could diverge, so a tier could advertise 7 days and open on day 14. The benefit config is now
+canonical: `earlyAccessDaysByTier()` reads it, `buildWaterfall` schedules from it, and
+`LADDER_EARLY_DAYS` survives only as the fallback for a tier carrying no early-access benefit.
+`waterfall.test.ts` asserts displayed promise == scheduled opening for every rung of the recommended
+ladder; the assertion was mutation-tested (forcing the config to be ignored fails it with
+"vault displays 14d but opens 30d early").
+
+**Verification layers, because a function body is invisible to PostgREST.** The migration
+self-verifies its own DEFINITION. `supabase/verify-early-access-window.sql` proves BEHAVIOUR: it
+creates a members-first track, a members-only track, a public track and two subscriptions, asks the
+oracle as anonymous / non-entitled fan / entitled payer / owner, and ROLLBACKs everything. The daily
+`rls-canary` gains `early_access_window_enforced`, vacuous until a real in-window track exists.
+
+**Migration state: PENDING.** Both this and `schema-phase2-track-waterfall.sql` are in TODO.md, in
+that order. The order is not cosmetic: the waterfall schedules exactly the content class this oracle
+gates, so applying it first would make an unreachable hole reachable.
+
 ## 2026-08-13 - Fulfillment urgency now requires a recipient (empty-room promises are not broken promises)
 
 **The invariant: an overdue fan obligation is evidence that an artist broke a promise only when at

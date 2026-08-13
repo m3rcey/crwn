@@ -44,6 +44,30 @@ responsible for. Do not work those.
       replay, the artist surplus return, a dispute, and a collaborator cashout), then reconcile every
       cent and decide whether payouts turn on. **They stay off until that passes.**
 
+- [ ] **Run TWO migrations, IN THIS ORDER, to make early access real. Order is not cosmetic.**
+      Early access ("Members first, public later") is sold on 9 live tier rows as 7-day and 14-day
+      access, and until step 1 runs the database does not enforce it: `can_play_track` returned
+      true on `is_free` alone, and a members-first track is `is_free = true` for its whole window.
+      So the audio was reachable by a logged-out visitor through `/api/tracks/[id]/stream` and
+      `/embed/[trackId]`. Nobody has hit it (production has zero tracks with a release date), which
+      is exactly why it is safe to fix now, before a pilot artist schedules one.
+      **1. Open and run:**
+        supabase/schema-phase2-early-access-window-enforcement.sql
+      **2. Then prove it BEHAVED, not just deployed. Open and run:**
+        supabase/verify-early-access-window.sql
+      Expect nine `PASS` notices then `ROLLBACK`. It creates a members-first track, a members-only
+      track, a public track and two subscriptions, asks the oracle as anonymous / non-entitled fan /
+      paying fan / owner, and destroys all of it. Nothing persists. If any line says FAIL, stop and
+      send me the output: that means the fix is wrong and I would rather know before you keep going.
+      **3. Only if step 2 is all PASS, open and run:**
+        supabase/schema-phase2-track-waterfall.sql
+      That is the tier-by-tier stagger (Gold hears it 14 days early, Silver 7). It schedules exactly
+      the content class step 1 gates, which is why it goes last.
+      **4. Paste me the output of:**
+        supabase/check-unverified-feature-state.sql
+      I need the `schema-phase2-early-access-window-enforcement.sql` row to read `applied = true`.
+      Until you paste that, I have to keep reporting early access as unenforced in production.
+
 ### P1 — real risk or real friction, but nothing is on fire
 
 - [ ] **RE-RUN the earnings/recruiters SELECT policy migration (the fixed version).** Open and run:

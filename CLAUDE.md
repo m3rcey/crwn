@@ -51,6 +51,21 @@ class** (free forever / paid first / member only, how one piece of content is ga
   the whole window. `paid_first` keeps `is_free: true` (that is what makes "public later" real)
   and degrades to free when no tiers are selected. Editing a mid-window paid-first track keeps
   its existing date, or every unrelated edit would silently extend the window.
+- **`can_play_track` is the ONE oracle, and it reads the WINDOW, not just `is_free`.** Because
+  `paid_first` keeps `is_free: true`, the old `IF t.is_free THEN RETURN true` handed anonymous
+  readers the audio for a members-first track's whole window (`tracks_public` serves
+  `audio_url_*` on that boolean and is granted to `anon`, so `/api/tracks/[id]/stream` signed a
+  URL and `/embed/[trackId]` passed its own `is_free` guard). Fixed by
+  `schema-phase2-early-access-window-enforcement.sql`. "Inside the window" is defined EXACTLY as
+  `classifyTrack` defines `paid_first`: future `public_release_date` AND a non-empty
+  `allowed_tier_ids`. A future date with NO tiers stays public on both sides, because treating it
+  as a locked window is the lock-out bug above. Never add a second window check in a route: the
+  window belongs to the oracle, and every playback path already reads it through the view.
+- **Early-access DAYS come from `tier_benefits.config.days_early`, never from a positional
+  constant.** That value is what the fan is shown (`getBenefitDisplayText`), it is per-tier, and
+  the artist can edit it, so it is what the scheduler must execute. `LADDER_EARLY_DAYS` in
+  `waterfall.ts` is the FALLBACK for a tier carrying no `early_access` benefit. `waterfall.test.ts`
+  asserts displayed promise == scheduled opening for every rung, so drift fails `npm test`.
 - **The release waterfall NEVER touches the entitlement gate.** "Higher tiers first" stores a
   schedule in `tracks.waterfall` (`src/lib/waterfall.ts`, migration
   `schema-phase2-track-waterfall.sql`), and the daily scheduled-releases cron ADDS each tier to

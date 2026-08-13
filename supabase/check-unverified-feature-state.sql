@@ -92,3 +92,33 @@ SELECT 'schema-phase2-team-split-cap-reservations.sql' AS migration,
          AND NOT has_function_privilege('anon', 'public.return_team_split_surplus(uuid,integer,text,text)', 'EXECUTE')
          AND EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_tscr_money_identity')
        ) AS applied;
+
+-- 6. Early-access window enforcement (2026-08-13). Declares liveCheck 'sql-check' because the
+--    change is a FUNCTION BODY, and PostgREST cannot see one: an anon probe could only report
+--    that some track is readable, which says nothing about whether the window is gated. So ask
+--    the catalog for the property directly.
+--
+--    `applied` here means all four at once: can_play_track exists, it READS
+--    public_release_date, its is_free short-circuit is WINDOW-GUARDED (the bare
+--    `IF t.is_free THEN RETURN true` is gone), and it kept the two properties that make it safe
+--    to expose through the views (SECURITY DEFINER with a pinned search_path, and EXECUTE for
+--    the Data API roles the views run as).
+--
+--    Expect applied = true after running
+--    supabase/schema-phase2-early-access-window-enforcement.sql, then run
+--    supabase/verify-early-access-window.sql for the BEHAVIOURAL proof (it creates each reader
+--    shape, asserts, and rolls everything back).
+SELECT 'schema-phase2-early-access-window-enforcement.sql' AS migration,
+       (
+         to_regprocedure('public.can_play_track(uuid,uuid)') IS NOT NULL
+         AND pg_get_functiondef(to_regprocedure('public.can_play_track(uuid,uuid)')::oid) LIKE '%public_release_date%'
+         AND pg_get_functiondef(to_regprocedure('public.can_play_track(uuid,uuid)')::oid) LIKE '%NOT v_in_window%'
+         AND EXISTS (
+           SELECT 1 FROM pg_proc
+           WHERE oid = to_regprocedure('public.can_play_track(uuid,uuid)')::oid
+             AND prosecdef
+             AND 'search_path=public' = ANY(COALESCE(proconfig, ARRAY[]::text[]))
+         )
+         AND has_function_privilege('anon', 'public.can_play_track(uuid,uuid)', 'EXECUTE')
+         AND has_function_privilege('authenticated', 'public.can_play_track(uuid,uuid)', 'EXECUTE')
+       ) AS applied;

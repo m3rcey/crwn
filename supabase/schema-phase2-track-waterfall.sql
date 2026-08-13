@@ -5,12 +5,21 @@
 -- members-first track can open tier by tier: the top tier hears it on upload,
 -- lower tiers as their window opens, everyone when it closes.
 --
--- THE ENTITLEMENT GATE IS UNCHANGED. can_play_track and every reader still see
--- only is_free / allowed_tier_ids / public_release_date. This column is a
--- SCHEDULE: the daily scheduled-releases cron ADDS a tier id to
--- allowed_tier_ids when its entry comes due and removes the entry. Adding a
--- tier only ever grants access, so scheduler failure cannot lock out a paying
--- member; the worst case is a tier opening late.
+-- THE ENTITLEMENT GATE IS UNCHANGED by this file. This column is a SCHEDULE:
+-- the daily scheduled-releases cron ADDS a tier id to allowed_tier_ids when its
+-- entry comes due and removes the entry. Adding a tier only ever grants access,
+-- so scheduler failure cannot lock out a paying member; the worst case is a
+-- tier opening late.
+--
+-- CORRECTION (2026-08-13). This header used to claim "can_play_track and every
+-- reader still see only is_free / allowed_tier_ids / public_release_date". The
+-- first half was right, the list was WRONG: can_play_track read is_free and
+-- allowed_tier_ids only, never public_release_date, and it returned true on
+-- is_free alone. Since fieldsForClass('paid_first') sets is_free = true for the
+-- whole window, the oracle handed anonymous readers the audio for every
+-- members-first track. That is fixed in
+-- schema-phase2-early-access-window-enforcement.sql, which MUST BE APPLIED
+-- FIRST: this file schedules exactly the content class that oracle gates.
 --
 -- Shape: jsonb array of { "tier_id": uuid-string, "opens_at": ISO timestamp }.
 -- Entries are consumed as they open; NULL or [] means no pending openings.

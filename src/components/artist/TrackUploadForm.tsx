@@ -23,7 +23,7 @@ import {
   fieldsForClass,
   type ContentClass,
 } from '@/lib/membershipStrategy';
-import { buildWaterfall, type WaterfallEntry } from '@/lib/waterfall';
+import { buildWaterfall, earlyAccessDaysByTier, type WaterfallEntry } from '@/lib/waterfall';
 import { ReleaseCreditsModal } from './ReleaseCreditsModal';
 import { Edit2, X, Upload, Plus, Loader2, Music, Award } from 'lucide-react';
 import { hapticMedium } from '@/lib/haptics';
@@ -75,6 +75,8 @@ export function TrackUploadForm() {
   const [isLoadingTracks, setIsLoadingTracks] = useState(true);
   const [artistProfileId, setArtistProfileId] = useState<string | null>(null);
   const [tiers, setTiers] = useState<SubscriptionTier[]>([]);
+  /** tier id -> the head start that tier's early_access benefit promises the fan. */
+  const [earlyDaysByTier, setEarlyDaysByTier] = useState<Record<string, number>>({});
   const [editingTrack, setEditingTrack] = useState<Track | null>(null);
   // Track whose fan-credits modal is open (feature: credits on releases).
   const [creditsTrack, setCreditsTrack] = useState<Track | null>(null);
@@ -162,8 +164,23 @@ export function TrackUploadForm() {
       }
 
       // (The old early-access toggle read tier_benefits to decide whether to
-      // render; the content class replaced it, so "members first" is available
-      // whenever paid tiers exist and no benefits query is needed here.)
+      // RENDER; the content class replaced that, so "members first" is available
+      // whenever paid tiers exist.)
+      //
+      // The benefits are read again here for a different reason: `days_early` on
+      // each tier's early_access benefit is the head start the FAN WAS PROMISED,
+      // and it is the one source the staggered rollout schedules from. Without
+      // it the waterfall fell back to a positional default and a tier could
+      // advertise 7 days while opening on day 14. Best-effort: a failed read
+      // leaves the map empty and buildWaterfall uses the ladder default, which
+      // is the previous behaviour, never a broken schedule.
+      const { data: benefitRows } = await supabase
+        .from('tier_benefits')
+        .select('tier_id, benefit_type, config')
+        .eq('benefit_type', 'early_access')
+        .in('tier_id', (tiersData ?? []).map((t) => t.id));
+      setEarlyDaysByTier(earlyAccessDaysByTier(benefitRows));
+
       // Fetch tracks. tracks_public: the audio columns are not selectable on
       // `tracks` any more, and the owner is entitled so the view returns them.
       const { data: tracksData } = await supabase
@@ -343,7 +360,10 @@ export function TrackUploadForm() {
         .sort((a, b) => b.price - a.price);
       if (selectedPaidDesc.length > 1) {
         const w = buildWaterfall({
-          paidTiersByPriceDesc: selectedPaidDesc,
+          // Each tier opens on the day ITS OWN benefit promised, not on a
+          // positional default. `daysEarly` undefined = no early_access benefit
+          // on that tier = nothing was promised, so the ladder default applies.
+          paidTiersByPriceDesc: selectedPaidDesc.map((t) => ({ id: t.id, daysEarly: earlyDaysByTier[t.id] })),
           windowDays: formData.earlyAccessDays,
         });
         access.allowed_tier_ids = w.immediateTierIds;

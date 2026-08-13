@@ -1207,7 +1207,26 @@ export const EXPECTED_MIGRATION_STATE: ReadonlyArray<{
   },
 
   { file: 'schema-phase2-membership-strategy.sql', state: 'pending', note: 'fail-soft; only the strategy override save is blocked' },
-  { file: 'schema-phase2-track-waterfall.sql', state: 'pending', note: 'fail-soft; upload falls back to all-at-once' },
+
+  // Early access becomes server-enforced. 'sql-check' because the change is a
+  // FUNCTION BODY: PostgREST cannot see one, so an anon probe could only ever
+  // certify that some track is readable, which proves nothing about the window.
+  // Two live layers cover it instead: supabase/verify-early-access-window.sql
+  // (transactional, creates each reader shape, asserts, ROLLBACKs) and the daily
+  // rls-canary check `early_access_window_enforced`, which is vacuous until an
+  // artist schedules a members-first release and asserts every day after that.
+  //
+  // Ordering matters and is not cosmetic: this must be applied BEFORE
+  // track-waterfall below. The waterfall only ever schedules paid_first tracks,
+  // which is precisely the state the oracle failed to gate, so applying the
+  // waterfall first would make an unreachable hole reachable.
+  {
+    file: 'schema-phase2-early-access-window-enforcement.sql',
+    state: 'pending',
+    liveCheck: 'sql-check',
+    note: 'PENDING. Blast radius at apply time is ZERO rows: production has no track with a public_release_date (anon probe 2026-08-13), so the predicate is false everywhere and behaviour is byte-identical on the day it lands. Until it is applied, a members-first track would serve its audio to anonymous readers through tracks_public for the whole window, while 9 live tier_benefits rows advertise 7-day and 14-day early access.',
+  },
+  { file: 'schema-phase2-track-waterfall.sql', state: 'pending', note: 'fail-soft; upload falls back to all-at-once (strictly MORE access than the stagger, never less). Apply only AFTER schema-phase2-early-access-window-enforcement.sql: this schedules the very content class that oracle gates.' },
   { file: 'schema-phase3-fan-campaigns.sql', state: 'applied', note: 'probe-verified 2026-08-12' },
   { file: 'schema-phase3-recommendation-outcomes.sql', state: 'applied', note: 'probe-verified 2026-08-11' },
   { file: 'schema-phase3-tier-transitions.sql', state: 'applied' },
