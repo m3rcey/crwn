@@ -979,9 +979,17 @@ export const FEATURES: readonly FeatureContract[] = [
     expectedState: 'live',
     flag: 'quest_engine',
     gateModule: 'src/lib/quests/index.ts',
-    surfaces: [{ file: 'src/app/(main)/profile/artist/page.tsx', mustContain: 'RiseMode' }],
+    surfaces: [
+      // TWO surfaces since 2026-08-13, and the split is load-bearing. /quests renders the
+      // BOARD. /profile/artist mounts the same component as `variant="driver"`, which renders
+      // nothing and exists only to call /api/quests: that route ASSIGNS eligible quests and
+      // auto-completes them server-side, so a Rise Mode that no longer showed the board but
+      // also stopped calling it would have frozen every artist's quests and XP silently.
+      { file: 'src/app/(main)/quests/page.tsx', mustContain: 'RiseMode' },
+      { file: 'src/app/(main)/profile/artist/page.tsx', mustContain: "variant=\"driver\"" },
+    ],
     migration: null,
-    notes: 'Flag verified ON in production 2026-08-11 (326 quest_instances). Code default false.',
+    notes: 'Flag verified ON in production 2026-08-11 (326 quest_instances). Code default false. The board moved off the Rise Mode surface 2026-08-13 (one-next-move simplification); the engine still runs on every Rise Mode load.',
   },
   {
     key: 'fan_drives',
@@ -1002,9 +1010,9 @@ export const FEATURES: readonly FeatureContract[] = [
     expectedState: 'live',
     flag: null,
     gateModule: null,
-    surfaces: [{ file: 'src/app/(main)/profile/artist/page.tsx', mustContain: 'StrategyCard' }],
+    surfaces: [{ file: 'src/app/(main)/account/tiers/page.tsx', mustContain: 'StrategyCard' }],
     migration: 'schema-phase2-membership-strategy.sql',
-    notes: 'Derived on read; the PENDING migration only blocks saving the override, fail-soft.',
+    notes: 'Derived on read; the PENDING migration only blocks saving the override, fail-soft. Moved off Rise Mode to /account/tiers 2026-08-13: the strategy explains what each ladder rung is FOR, so it belongs where the ladder is edited, not on the screen that answers "what do I do next".',
   },
   {
     key: 'track_waterfall',

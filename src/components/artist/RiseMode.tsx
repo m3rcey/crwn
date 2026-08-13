@@ -61,7 +61,16 @@ const OPEN = ['available', 'active', 'in_progress', 'ready_to_complete', 'locked
 // Rise Mode — the artist's guided career board. Consumes /api/quests (which assigns
 // eligible quests + auto-completes server-side) and lays out Main Quest / Daily Move /
 // Weekly Goal / Side Quests / Movement Map. Degrades gracefully while dark-launched.
-export function RiseMode() {
+//
+// TWO VARIANTS since the 2026-08-13 simplification:
+//   'board'  — everything below. It lives at /quests now, not on /profile/artist.
+//   'driver' — renders NOTHING. It exists because /api/quests is not a read: the route
+//              assigns eligible quests and auto-completes them server-side, and it had
+//              exactly two callers. Removing the board from the artist's landing screen
+//              without keeping this call would have silently frozen every artist's quests
+//              and XP until they went looking for a board they no longer knew about.
+//              Deleting UI must not delete the engine behind it.
+export function RiseMode({ variant = 'board' }: { variant?: 'board' | 'driver' } = {}) {
   const router = useRouter();
   const [data, setData] = useState<QuestsResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -155,6 +164,9 @@ export function RiseMode() {
   useEffect(() => {
     const xp = data?.progression?.xp;
     if (xp == null) return;
+    // The driver renders no celebration, so it must not CONSUME one either: advancing
+    // `rise_last_xp` here would mean the board never celebrates the XP this load earned.
+    if (variant === 'driver') return;
 
     if (!initedXpRef.current) {
       initedXpRef.current = true;
@@ -195,7 +207,7 @@ export function RiseMode() {
     } catch {
       /* ignore */
     }
-  }, [data]);
+  }, [data, variant]);
 
   // Animate the progress bar filling on each render of the board (a visible "boost"
   // on return). Sets width one frame after data arrives so the CSS transition runs.
@@ -206,6 +218,10 @@ export function RiseMode() {
     const id = requestAnimationFrame(() => requestAnimationFrame(() => setBarWidth(pct)));
     return () => cancelAnimationFrame(id);
   }, [data]);
+
+  // Engine only. The load above already ran the assignment + completion cascade, which is the
+  // entire job here; XP, levels, builds and the board itself belong to /quests.
+  if (variant === 'driver') return null;
 
   if (loading) {
     return (

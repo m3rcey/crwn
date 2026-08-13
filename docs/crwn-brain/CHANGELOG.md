@@ -1,5 +1,56 @@
 # CRWN Brain — Changelog
 
+## 2026-08-13 - Rise Mode is one next move: the competing surfaces were deleted, not the engines
+
+**The product decision (founder, 2026-08-13): Rise Mode is the single-next-move execution surface.
+Supporting systems may inform the decision but may not compete visually for artist attention. An
+overdue fulfillment promise owed to paying supporters outranks a normal roadmap milestone.**
+
+The screen had become a collage of CRWN's own architecture. One load could present a launch-blocker
+panel, the Constraint Engine's card, the roadmap card (its own next milestone, a percentage, a
+progress bar, three stat tiles, an upcoming-promises list), the membership strategy card (revenue
+model, a "why this was recommended" line, three suggested action pills) and then the quest board
+(artist build, level, XP total, XP bar, Focus mode, an AI recommended quest, a daily move, a weekly
+goal, six side quests, a movement map). CRWN had already decided what mattered; the interface then
+asked the artist to arbitrate between four subsystems, none of which knew about the others.
+
+**No priority engine was added.** The precedence already existed and was already correct: Stage 1 of
+`readConstraint` evaluates FULFILLMENT before reach, capture, first-paid and depth, and fires at
+n = 1 because an overdue promise is a breach happening now rather than a pattern inferred from a
+sample. `resolveOperatingFlow` already read back which owner holds the primary action. The new
+`src/lib/riseNextMove.ts` is pure presentation assembly on top of those two: it flattens the winner
+into one title, one reason, one fact, one destination, plus the label of the move after it. It
+contains no threshold, no lookback and no comparison between systems, and its test asserts the
+override end to end through the real engine rather than a stubbed diagnosis.
+
+What the primary surface renders now: `Rise Mode` + its purpose line, `Foundation · 2 of 7 complete`
+(discrete milestones, because a whole-roadmap percentage is precision the model does not have), ONE
+dominant move with ONE gold CTA carrying `returnTo`, `After this: <next step>` as a line rather than
+a second button, and `View full roadmap` as a disclosure.
+
+Removed from the surface, with where each system now lives:
+
+| Removed | The system underneath |
+|---|---|
+| Level, XP total, XP bar, `% to next level`, artist build, Focus, side quests, movement map | Quest Engine, **unchanged**. Board moved to `/quests` (AccountHub → Grow). `/profile/artist` mounts `RiseMode variant="driver"`, which renders nothing and exists solely to keep calling `/api/quests`, the route that ASSIGNS and auto-completes quests server-side. Deleting the board without that call would have frozen every artist's quests and XP silently. The driver also deliberately does not advance `rise_last_xp`, so the board still celebrates. |
+| `YOUR MEMBERSHIP STRATEGY`, `RECOMMENDED`, the revenue model panel, the monthly-promise explainer, the "why this was recommended" line, three action pills, the tier-education link | Membership strategy engine, **unchanged** (`/api/artist/strategy`, derived on read). `StrategyCard` moved to `/account/tiers`, where the ladder it describes is edited. |
+| Members / Paying / Monthly stat tiles and the revenue-goal line | Still computed by `/api/artist/roadmap`; owned for display by `/studio/analytics`. |
+| The Upcoming Promises list | Promise Calendar (`/studio/promise`) owns it. A promise reappears on Rise Mode only when it IS the diagnosed constraint. |
+| `68%` and the progress bar | `progressPercent` still returned by the API; the surface uses per-stage `doneCount/total`. |
+| Repeated blocker copy (headline, body, bullet and nested card all naming the same overdue promise) | The fact is stated once, from `evidence[0]`. The constraint's `title`, which was a summary of that same fact, is no longer rendered. |
+| `Early signal` confidence footnote | `confidenceLabel` still exists for other consumers; a known-overdue promise is not a signal. |
+| `View as fan` pill | Already in the AccountHub identity header with the same `?preview=visitor` destination. The dashboard tour step that anchored to the pill folded into its account-hub step. |
+
+Deleted files: `ConstraintCard.tsx`, `RoadmapCard.tsx` (both were used only by this page; their
+content is absorbed by `NextMoveCard.tsx` + `FullRoadmap.tsx`). No migration, no data change, no
+API change: `/api/artist/constraint`, `/api/artist/roadmap`, `/api/artist/strategy` and
+`/api/quests` all return exactly what they returned before.
+
+Registry: `quest_engine` now lists two surfaces (the board and the driver) and `membership_strategy`
+points at `/account/tiers`. Tests: new `src/lib/riseNextMove.test.ts` (17); `operatingFlow.test.ts`
+updated from pinning the three-card composition to pinning that the decision still comes from the
+engine. `npm test` 2150 pass, `verify:architecture` 812 pass, build clean.
+
 ## 2026-08-13 - Complete feature inventory, with live usage counts, for a delete/keep review
 
 New doc `29-COMPLETE-FEATURE-INVENTORY.md`. Every feature listed once (what it does, why it exists,

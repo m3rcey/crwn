@@ -72,8 +72,8 @@ Managers under `src/components/artist/`: `MusicManager` (`TrackUploadForm`), `Al
 ## Gamified growth & fan engagement
 | Feature | Routes / files | Status |
 |---|---|---|
-| Quest Engine / Rise Mode / Supporter Mode | `RiseMode`, `SupporterMode`, `src/lib/quests/*`, `/api/quests/*`; `admin_settings.quest_engine` is **ON in production** (verified 2026-08-11, 326 `quest_instances` rows) | **LIVE.** The code default is `false`, which is why this row said dark-launched long after the flag was flipped. The quest-catalog realignment to the membership strategies is still outstanding, but it is not gating anything |
-| Membership strategy (Release Club / Vault) | `src/lib/membershipStrategy.ts` (pure, tested, deterministic), `/api/artist/strategy` (derived on read; override + declared facts stored on `artist_profiles`, migration `schema-phase2-membership-strategy.sql`), `StrategyCard` on `/profile/artist`, `announce_membership_strategy` pop-up. Spec tier names are ROLES mapped onto the pinned Bronze/Silver/Gold/Platinum rungs | **Live** (2026-08-01) |
+| Quest Engine / Rise Mode / Supporter Mode | `RiseMode` (board at `/quests`; `/profile/artist` mounts it as `variant="driver"` so the engine keeps running with no board), `SupporterMode`, `src/lib/quests/*`, `/api/quests/*`; `admin_settings.quest_engine` is **ON in production** (verified 2026-08-11, 326 `quest_instances` rows) | **LIVE.** The code default is `false`, which is why this row said dark-launched long after the flag was flipped. The quest-catalog realignment to the membership strategies is still outstanding, but it is not gating anything |
+| Membership strategy (Release Club / Vault) | `src/lib/membershipStrategy.ts` (pure, tested, deterministic), `/api/artist/strategy` (derived on read; override + declared facts stored on `artist_profiles`, migration `schema-phase2-membership-strategy.sql`), `StrategyCard` on `/account/tiers` (moved off Rise Mode 2026-08-13), `announce_membership_strategy` pop-up. Spec tier names are ROLES mapped onto the pinned Bronze/Silver/Gold/Platinum rungs | **Live** (2026-08-01) |
 | Content classes (free forever / paid first / member only) | `classifyTrack`/`fieldsForClass` in `membershipStrategy.ts`; the ONE access control in `TrackUploadForm` (OptionSelect), encoded onto existing `is_free`/`allowed_tier_ids`/`public_release_date`. Replaced the two-toggle UI whose free+early-access combo locked a track for EVERYONE during the window | **Live** (2026-08-01) |
 | Release waterfall (higher tiers first) | `src/lib/waterfall.ts` (spec offsets 30/14/7 by PRICE order, tested), schedule on `tracks.waterfall` (migration `schema-phase2-track-waterfall.sql`), opened ADDITIVELY by the daily scheduled-releases cron; entitlement gate untouched by design. Upload form offers all-at-once vs staggered; fail-soft pre-migration | **Live** (2026-08-01) |
 | Live-session templates | `src/lib/liveSessionTemplates.ts` (7 formats incl. free monthly check-in + Executive Producer small room), OptionSelect picker in `LivestreamManager`, prefill-only over existing fields, `audienceTierIds` resolves top/paid/everyone against the real ladder | **Live** (2026-08-01) |
@@ -145,8 +145,9 @@ complete from it.
 - **Pure brain** `src/lib/constraint/engine.ts` (`readConstraint(evidence)`), thresholds in ONE
   policy object (`thresholds.ts`, founder-adjustable, no migration to change), evidence
   assembled server-side by `assembler.ts`, surfaced by `GET /api/artist/constraint` (session-only
-  ownership, no `artistId` parameter by design) and rendered by `ConstraintCard` **above**
-  `RoadmapCard` on `/profile/artist`.
+  ownership, no `artistId` parameter by design) and rendered as the ONE next move by
+  `NextMoveCard` on `/profile/artist` (2026-08-13: it used to be `ConstraintCard` stacked above
+  `RoadmapCard`, and both of those files are gone).
 - **Order:** launch gate (delegated to the Roadmap) → FULFILLMENT → RETENTION → REACH →
   FREE_CAPTURE → FIRST_PAID → PAID_TIER_INTEREST → CHECKOUT_COMPLETION → DEPTH → none.
   Fulfillment and retention run FIRST because they protect revenue already earned, while
@@ -328,7 +329,7 @@ its route, tour steps and analytics are unchanged.
   still ONE logical recommendation), turn `insufficient_evidence` into confident generic advice, or
   touch product state. `constraintRank`/`outranks`/`protectsEarnedRevenue` derive from the ORDER OF
   `CONSTRAINT_TYPES`, so there is no second threshold system to drift.
-  **Current readers:** `ConstraintCard` (via `/api/artist/constraint`), the `constraint-outcomes`
+  **Current readers:** `NextMoveCard` (via `/api/artist/constraint`), the `constraint-outcomes`
   cron (Z3 measurement), the **AI Manager** (BOTH model calls, see below), and the **Manager
   screen itself**, which renders the canonical priority above its own output and links back to
   Rise Mode rather than duplicating the gold CTA. Growth actions are explicitly forbidden while

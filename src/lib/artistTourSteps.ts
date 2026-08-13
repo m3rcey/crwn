@@ -58,18 +58,8 @@ export function getPostSetupTourSteps(platformTier: string = 'starter'): DriveSt
       popover: {
         title: 'Your money and your account',
         description: isStarter
-          ? 'Payouts, tiers and pricing, your plan, and your artist page settings are all in this menu. Your plan is the free one, so CRWN takes 12%. Pro drops that to 8%.'
-          : 'Payouts, tiers and pricing, your plan, and your artist page settings are all in this menu.',
-        side: 'bottom',
-        align: 'start',
-      },
-    },
-    {
-      element: '[data-tour="view-as-fan"]',
-      popover: {
-        title: 'Check your own front door',
-        description:
-          'Tap here anytime to see exactly what a fan sees when they land on your page. Most artists never look, and never find out what is broken.',
+          ? 'Payouts, tiers and pricing, your plan, and your artist page settings are all in this menu, and so is "View as fan": tap it to see exactly what a fan sees when they land on your page. Your plan is the free one, so CRWN takes 12%. Pro drops that to 8%.'
+          : 'Payouts, tiers and pricing, your plan, and your artist page settings are all in this menu, and so is "View as fan": tap it to see exactly what a fan sees when they land on your page.',
         side: 'bottom',
         align: 'start',
       },

@@ -73,6 +73,7 @@ import {
   Clapperboard,
   ClipboardList,
   BookOpen,
+  Trophy,
 } from 'lucide-react';
 
 interface HubLink {
@@ -189,6 +190,10 @@ export function AccountHub({ open, onClose }: { open: boolean; onClose: () => vo
       title: 'Grow',
       links: [
         { label: 'Rise Mode', href: '/profile/artist', icon: TrendingUp },
+        // The quest board (levels, XP, daily and weekly moves) left Rise Mode on 2026-08-13 so
+        // that screen holds one move. The engine still runs on every Rise Mode load; this is
+        // where an artist goes to LOOK at it.
+        { label: 'Quest board', href: '/quests', icon: Trophy, hub: true },
         { label: 'Studio (all tools)', href: '/studio', icon: LayoutDashboard },
         { label: 'Manager', href: '/studio/manager', icon: Sparkles, hub: true },
         { label: 'Needs You', href: '/action-plan', icon: ClipboardList, hub: true },

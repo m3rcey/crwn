@@ -127,12 +127,13 @@ calculator assumptions.
 
 | Surface | Route | What it reads | What it never reads |
 |---|---|---|---|
-| `RoadmapCard` | `/api/artist/roadmap` | 43 DomainChecks + 3 promise facts + members/paid/MRR | conversion, churn, promise health, tier mix |
+| `NextMoveCard` (was `RoadmapCard`) | `/api/artist/roadmap` + `/api/artist/constraint` | 43 DomainChecks + 3 promise facts (stats and promises still returned, no longer rendered) | conversion, churn, promise health, tier mix, except as the diagnosed constraint |
 | `RiseMode` | `/api/quests` (dark flag) | quest instances, lead-magnet mission | any performance metric |
-| `StrategyCard` | `/api/artist/strategy` | declared unreleased count, release cadence, catalog size | whether the chosen strategy is working |
+| `StrategyCard` (on `/account/tiers` since 2026-08-13) | `/api/artist/strategy` | declared unreleased count, release cadence, catalog size | whether the chosen strategy is working |
 
-`RoadmapCard.tsx:26` fetches one endpoint. `RiseMode.tsx:99` fetches one endpoint. The command
-screen an artist looks at every day cannot see the analytics the platform already computes.
+As of 2026-08-13 the page fetches both endpoints ONCE and resolves them into a single move; the
+quest board moved to `/quests`. The command screen an artist looks at every day still cannot see
+the analytics the platform already computes.
 
 ---
 
@@ -710,7 +711,7 @@ Ranked by probability the artist acts:
 
 | Rank | Placement | Why | What goes there |
 |---|---|---|---|
-| 1 | **Rise Mode next-action slot** (`RoadmapCard` above `RiseMode`) | It is the artist's landing screen and the one place they already look for "what now" | The single constraint reading with one action and its evidence. Replaces `nextStep` when confidence is sufficient |
+| 1 | **Rise Mode next-action slot** (`NextMoveCard`, the whole surface since 2026-08-13) | It is the artist's landing screen and the one place they already look for "what now" | The single constraint reading with one action and its evidence. Replaces `nextStep` when confidence is sufficient |
 | 2 | **Monday email** (`cron/weekly-report` exists at `0 14 * * 1`) | The only channel that reaches an artist who has stopped opening the app, which is exactly the artist a feedback loop must reach | One constraint, one action, one link. Not a metrics digest |
 | 3 | **Promise Calendar** | The artist is already there with the intent to deliver | Completion rate, per-tier health (already computed), the "remove a promise" recommendation |
 | 4 | **In-context, at the moment of the decision** | Highest conversion, lowest reach | Per-rung conversion on the tier editor; open rate on the campaign composer; "your last 3 sends did best on Thursday" |

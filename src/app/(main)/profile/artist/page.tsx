@@ -1,35 +1,36 @@
 'use client';
 
-// /profile/artist — Rise Mode, and nothing else.
+// /profile/artist — Rise Mode: ONE next move, and nothing else.
 //
-// This route used to be the whole artist dashboard: 16 lazy tabs behind a
-// horizontal scroll strip, every visited tab kept mounted so its state survived
-// a tab switch. Three things were wrong with that:
-//   1. On a phone, tabs 8 through 16 (Sync, Profile, Albums, Shop, Billing,
-//      Tiers, Payouts, Referrals) were off-screen and effectively unreachable.
-//   2. Only SEVEN of the sixteen ?tab= values were honored from the URL, so 40+
-//      internal deep links, including the account menu's own "Payouts and tax",
-//      silently dumped the artist on Rise Mode.
-//   3. Switching to a tab downloaded its chunk right then, at tap time, behind a
-//      spinner. Nothing could be prefetched, because nothing was a route.
+// This route used to be the whole artist dashboard: 16 lazy tabs behind a horizontal scroll
+// strip. Every tab is now a real route (see src/lib/dashboardRoutes.ts), and this page keeps the
+// URL because the bottom tab bar points at it and 40+ legacy ?tab= links still arrive here.
 //
-// Every tab is now a real route (see src/lib/dashboardRoutes.ts). Management
-// screens live under /account and are reached from the hamburger; work screens
-// live under /studio. Both are prefetched by <Link>, so the chunk is already in
-// the browser before the tap. This page keeps the /profile/artist URL because
-// the bottom tab bar points at it, and it redirects every legacy ?tab= link to
-// wherever that tab went.
+// THE 2026-08-13 SIMPLIFICATION, and the measured problem behind it.
+// The screen had become a collage of CRWN's own architecture. On one load an artist could meet:
+// a launch-blocker panel, the Constraint Engine's card, the roadmap's card (with its own next
+// milestone, a percentage, a progress bar, three stat tiles and an upcoming-promises list), the
+// membership strategy card (with a revenue model, a "why this was recommended" line and three
+// suggested action pills), then the quest board (artist build, level, XP total, XP bar, Focus
+// mode, an AI recommended quest, a daily move, a weekly goal, six side quests and a movement
+// map). CRWN had already decided what mattered most; the interface then asked the artist to
+// decide again, between four subsystems, none of which knew about the others.
+//
+// The page now fetches the two canonical answers (the Constraint Engine's diagnosis and the
+// roadmap), resolves them into ONE move with `resolveRiseNextMove`, and renders that. Nothing
+// underneath was removed: the quest board moved to /quests (and this page still MOUNTS the
+// engine, because /api/quests is what assigns and completes quests), the membership strategy
+// moved to /account/tiers where the ladder it describes is edited, and the stats and promises
+// are still owned by /studio/analytics and /studio/promise.
 
 import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Eye, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { RiseMode } from '@/components/artist/RiseMode';
-import { RoadmapCard } from '@/components/artist/RoadmapCard';
-import { ConstraintCard } from '@/components/artist/ConstraintCard';
+import { NextMoveCard } from '@/components/artist/NextMoveCard';
 import { LaunchPartnerChecklist } from '@/components/artist/LaunchPartnerChecklist';
-import { StrategyCard } from '@/components/artist/StrategyCard';
 import { PlatformTierModal } from '@/components/onboarding/PlatformTierModal';
 import { BackgroundImage } from '@/components/ui/BackgroundImage';
 import { TourReplayButton } from '@/components/shared/TourReplayButton';
@@ -38,7 +39,9 @@ import { usePageTour } from '@/hooks/usePageTour';
 import { useArtistContext } from '@/hooks/useArtistContext';
 import { resolveTabRoute } from '@/lib/dashboardRoutes';
 import { resolveOperatingFlow } from '@/lib/constraint/presentation';
+import { resolveRiseNextMove } from '@/lib/riseNextMove';
 import type { ConstraintResult } from '@/lib/constraint/types';
+import type { ArtistRoadmap } from '@/lib/artistRoadmap';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 
 function ArtistDashboardContent() {
@@ -48,35 +51,43 @@ function ArtistDashboardContent() {
   const { status, context } = useArtistContext();
   const [showPlatformTierModal, setShowPlatformTierModal] = useState(false);
   const [constraintResult, setConstraintResult] = useState<ConstraintResult | null>(null);
+  const [roadmap, setRoadmap] = useState<ArtistRoadmap | null>(null);
+  const [resolved, setResolved] = useState(false);
 
-  // ONE read of the canonical diagnosis for the whole screen. The cards used to fetch
-  // independently, which is how each of them came to believe it was the most important thing on
-  // the page. A failure leaves `null`, which resolves to the pre-existing behavior (roadmap leads).
+  // ONE read of each canonical answer for the whole screen, resolved into one move. The cards
+  // used to fetch independently, which is how each of them came to believe it was the most
+  // important thing on the page. A failure on either side leaves null, and the resolver falls
+  // back to whatever the other one still knows.
   useEffect(() => {
-    if (status !== 'artist') return;
+    // A signed-in non-artist can reach this URL. Both routes would 403, so settle immediately
+    // rather than leaving the surface on a spinner that never resolves.
+    if (status !== 'artist') {
+      if (status !== 'loading') setResolved(true);
+      return;
+    }
     let active = true;
-    fetch('/api/artist/constraint')
-      .then((r) => (r.ok ? r.json() : null))
-      .then((j) => {
-        if (active) setConstraintResult(j?.constraint ?? null);
-      })
-      .catch(() => {
-        /* Silent: the roadmap is unaffected. */
-      });
+    const json = (r: Response) => (r.ok ? r.json() : null);
+    Promise.all([
+      fetch('/api/artist/constraint').then(json).catch(() => null),
+      fetch('/api/artist/roadmap').then(json).catch(() => null),
+    ]).then(([c, r]) => {
+      if (!active) return;
+      setConstraintResult(c?.constraint ?? null);
+      setRoadmap(r?.roadmap ?? null);
+      setResolved(true);
+    });
     return () => {
       active = false;
     };
   }, [status]);
 
   const flow = resolveOperatingFlow(constraintResult);
+  const nextMove = resolveRiseNextMove(flow, roadmap);
 
-  // Legacy ?tab= forwarding, computed during render rather than in an effect:
-  // Rise Mode is expensive to mount and must not paint for a frame just to
-  // navigate away. Every param except `tab` is carried across, because links
-  // already sitting in artists' notification rows and inboxes look like
-  // ?tab=payouts&earning=<id>, and dropping `earning` would land them on the
-  // payouts screen with nothing highlighted. Stripe's Connect return carries no
-  // tab at all (?stripe=success) and used to mean "open the Tiers tab".
+  // Legacy ?tab= forwarding, computed during render rather than in an effect: Rise Mode is
+  // expensive to mount and must not paint for a frame just to navigate away. Every param except
+  // `tab` is carried across, because links already sitting in artists' notification rows look
+  // like ?tab=payouts&earning=<id>. Stripe's Connect return carries no tab at all.
   const extra = new URLSearchParams(searchParams.toString());
   extra.delete('tab');
   const query = extra.toString();
@@ -131,77 +142,46 @@ function ArtistDashboardContent() {
       <BackgroundImage src="/backgrounds/bg-dashboard.jpg" overlayOpacity="bg-black/80" />
       <div className="relative z-10">
         <div className="border-b border-crwn-elevated">
-          <div className="px-4 sm:px-6 lg:px-8 pt-4 pb-2 flex items-start justify-between gap-3">
+          <div className="px-4 sm:px-6 lg:px-8 pt-4 pb-4 flex items-start justify-between gap-3">
             <div>
               <h1 className="text-2xl font-bold text-crwn-text">Rise Mode</h1>
               <p className="text-crwn-text-secondary mt-1">Your next move, and what skipping it costs.</p>
             </div>
             <TourReplayButton onClick={replayDashboardTour} className="shrink-0 mt-1" />
           </div>
-
-          {context?.slug && (
-            <div className="px-4 sm:px-6 lg:px-8 pb-3">
-              <Link
-                href={`/${context.slug}?preview=visitor`}
-                data-tour="view-as-fan"
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-crwn-text-secondary hover:text-crwn-gold border border-crwn-elevated rounded-full transition-colors"
-              >
-                <Eye className="w-4 h-4" />
-                View as fan
-              </Link>
-            </div>
-          )}
         </div>
 
         <div className="px-4 sm:px-6 lg:px-8 py-8">
-          {/* ONE PRIMARY ACTION.
-              The canonical diagnosis is fetched once here and handed down, so exactly one card
-              renders a gold CTA. Before this, the constraint, the roadmap and the strategy card
-              each rendered their own primary button (two of them labelled "Do it now") pointing at
-              different destinations, and the artist had to decide which CRWN subsystem to believe.
-              `resolveOperatingFlow` adds no opinion: it reads back which canonical owner should
-              hold the action from what the engine already returned. */}
-          {flow.phase === 'launch' && flow.launchBlockers.length > 0 && (
-            <div className="neu-raised rounded-2xl p-5 mb-6 border border-crwn-gold/40">
-              <p className="text-[11px] uppercase tracking-wide text-crwn-text-secondary">
-                Finish launching first
-              </p>
-              <h3 className="font-bold text-crwn-text mt-1">
-                Your page cannot take money yet, so there is nothing to grow.
-              </h3>
-              <p className="text-xs text-crwn-text-secondary mt-1">
-                CRWN is holding back growth advice on purpose. Until this is done, any number it
-                showed you would be measuring a business that does not exist yet.
-              </p>
-              <ul className="mt-3 space-y-1.5">
-                {flow.launchBlockers.map((b) => (
-                  <li key={b} className="flex items-start gap-2 text-xs text-crwn-text">
-                    <span className="mt-1.5 w-1 h-1 rounded-full bg-crwn-gold shrink-0" />
-                    {b}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
+          <div className="max-w-2xl mx-auto space-y-6">
+            {resolved ? (
+              <NextMoveCard next={nextMove} roadmap={roadmap} />
+            ) : (
+              <div className="flex justify-center py-16">
+                <Loader2 className="w-6 h-6 animate-spin text-crwn-gold" />
+              </div>
+            )}
 
-          {/* Renders nothing unless a constraint was diagnosed. */}
-          <ConstraintCard constraint={flow.constraint} />
+            {/* Cohort-only: the First Paid Member Guarantee made visible. Renders nothing
+                unless the founder flipped launch_partner for this artist, and it is a
+                contractual checklist rather than a competing recommendation. */}
+            <LaunchPartnerChecklist />
 
-          {/* Cohort-only: the First Paid Member Guarantee made visible. Renders
-              nothing unless the founder flipped launch_partner for this artist. */}
-          <LaunchPartnerChecklist />
-
-          {/* Launch-gated or steady: the roadmap leads. Diagnosed: it recedes to context. */}
-          <RoadmapCard emphasis={flow.primary === 'roadmap' ? 'primary' : 'secondary'} />
-
-          {/* The membership strategy sits between the roadmap (what to do next)
-              and Rise Mode (the quests): it is the WHY behind both. Deliberately UNCHANGED: its
-              only gold control sits behind a collapsed disclosure, so it never competed for the
-              primary action on first paint and needed no emphasis prop. */}
-          <StrategyCard />
-          <RiseMode />
+            <p className="text-xs text-crwn-text-secondary">
+              Milestones and rewards keep counting on your{' '}
+              <Link prefetch href="/quests" className="text-crwn-gold hover:underline">
+                quest board
+              </Link>
+              . You never have to open it: Rise Mode names the move.
+            </p>
+          </div>
         </div>
       </div>
+
+      {/* The Quest Engine, mounted with no board. /api/quests assigns eligible quests and
+          auto-completes them server-side, so this call is the engine running, not a render.
+          Removing it along with the board would have frozen XP for every artist who does not
+          go looking for /quests. */}
+      <RiseMode variant="driver" />
 
       <PlatformTierModal
         isOpen={showPlatformTierModal}

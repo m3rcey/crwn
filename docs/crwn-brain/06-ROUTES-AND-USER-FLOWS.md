@@ -119,7 +119,8 @@ Artist accepts agreement → `/api/live/session` (Pro-gated) starts room + best-
 `(public)/link/[slug]` → `SmartLinkCapture`/`PreSaveCapture` collects email/phone → `/api/smart-links/capture` → `smart_link_captures`; pre-save release-day email via `scheduled-releases` cron. The SMS consent checkbox on lead capture was removed 2026-07-31 with the SMS feature. `Confirmed`.
 
 ### Artist next action (Constraint Engine, shipped 2026-08-03)
-`/profile/artist` mounts `ConstraintCard` above `RoadmapCard`. It calls `GET
+`/profile/artist` renders ONE next move (`NextMoveCard`, 2026-08-13; `ConstraintCard` and
+`RoadmapCard` are deleted). It calls `GET
 /api/artist/constraint`, which takes **no parameters**: the artist is resolved from the SESSION,
 so the request cannot name a subject and one artist can never read another's evidence (a fan
 session has no `artist_profiles` row and gets 403). The route assembles evidence

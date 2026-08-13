@@ -245,13 +245,17 @@ get, and at launch the artist is already looking at the finished page.
   promise by platform plan, what each rung means in this strategy, the two declared questions
   (unreleased depth, release cadence) that can flip the recommendation live, and a switch stored
   as the artist's override.
-- **The landing is Rise Mode** (`/profile/artist`), topped by `RoadmapCard`: the 5-stage
+- **The landing is Rise Mode** (`/profile/artist`), which since 2026-08-13 renders ONE next move
+  (`NextMoveCard`) resolved from the Constraint Engine and the 5-stage
   personalized roadmap (Foundation → Private launch → Audience launch → Deliver and retain →
   Expand, `src/lib/artistRoadmap.ts` + `/api/artist/roadmap`), derived through the Quest
-  Engine's own `evaluateCondition` so roadmap and quests can never disagree; current stage,
-  ONE next milestone with a deep link, real stats (members / paying / MRR against THEIR
-  calculator goal), and the next three upcoming promises. Rise Mode below it: XP/level header
-  (always visible, even before an artist build is chosen), quests, recap.
+  Engine's own `evaluateCondition` so roadmap and quests can never disagree. The surface shows
+  the current stage as discrete milestones (`Foundation · 2 of 7 complete`), the one move, one
+  gold CTA, `After this: <next step>` and a `View full roadmap` disclosure. The stats
+  (members / paying / MRR against THEIR calculator goal) and the upcoming promises are still
+  returned by the route but are owned for display by `/studio/analytics` and `/studio/promise`.
+  The quest board (XP, level, artist build, daily and weekly moves) moved to `/quests`; Rise Mode
+  still mounts the engine as `variant="driver"` so quests keep assigning and completing.
 - **Promise reminders deliver**: `src/lib/promiseReminders.ts`, piggybacked on the 6am
   scheduled-releases cron; one digest email per artist when promises cross their 7/3/1-day
   offsets, deduped per event+offset in `metadata.reminded_offsets`.

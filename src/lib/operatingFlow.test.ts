@@ -204,31 +204,38 @@ describe('the resume prompt behaves', () => {
 });
 
 describe('the composition is wired, and nothing else became a priority engine', () => {
+  // The three-card composition this block used to pin (ConstraintCard above RoadmapCard, one of
+  // them handed `emphasis="primary"`) was replaced on 2026-08-13 by a single resolved move. Both
+  // card files are gone; their content is absorbed by NextMoveCard, which renders whatever
+  // `resolveRiseNextMove` hands it. The property being protected is unchanged and now stronger:
+  // one instruction, from one canonical owner, with one button. The rendering assertions live in
+  // riseNextMove.test.ts; what stays here is that the DECISION still comes from the engine.
   const page = readFileSync('src/app/(main)/profile/artist/page.tsx', 'utf8');
-  const constraintCard = readFileSync('src/components/artist/ConstraintCard.tsx', 'utf8');
-  const roadmapCard = readFileSync('src/components/artist/RoadmapCard.tsx', 'utf8');
+  const card = readFileSync('src/components/artist/NextMoveCard.tsx', 'utf8');
+  const resolver = readFileSync('src/lib/riseNextMove.ts', 'utf8');
 
   it('the page reads the diagnosis ONCE and hands it down', () => {
     expect(page).toContain('resolveOperatingFlow');
     expect(page).toContain("fetch('/api/artist/constraint')");
-    // The cards must not fetch for themselves any more: two components each deciding they are the
-    // most important thing on the page is how the competing CTAs appeared.
-    expect(constraintCard).not.toContain("fetch('/api/artist/constraint')");
-    expect(roadmapCard).not.toContain("fetch('/api/artist/constraint')");
+    // The card must not fetch for itself: a component that decides it is important is how the
+    // competing CTAs appeared in the first place.
+    expect(card).not.toContain("fetch('/api/artist/constraint')");
+    expect(card).not.toContain("fetch('/api/artist/roadmap')");
   });
 
-  it('only ONE gold primary button can render at a time', () => {
-    expect(page).toContain("emphasis={flow.primary === 'roadmap' ? 'primary' : 'secondary'}");
-    expect(roadmapCard).toContain("emphasis === 'primary'");
+  it('the resolver picks the owner from the flow, it does not re-rank anything', () => {
+    expect(resolver).toContain("flow.primary === 'constraint'");
+    // No threshold, no lookback, no comparison of one system's output against another's.
+    expect(resolver).not.toMatch(/overdueNow|churnRate|uniqueVisits|CONSTRAINT_THRESHOLDS/);
   });
 
-  it('both canonical CTAs carry a returnTo', () => {
-    expect(constraintCard).toContain('withReturnTo(c.action.href)');
-    expect(roadmapCard).toContain('withReturnTo(next.href)');
+  it('the canonical CTA carries a returnTo', () => {
+    expect(resolver).toContain('withReturnTo(c.action.href)');
+    expect(resolver).toContain('withReturnTo(step.href)');
   });
 
   it('adds no persisted current-constraint state anywhere', () => {
-    for (const src of [page, constraintCard, roadmapCard]) {
+    for (const src of [page, card, resolver]) {
       expect(src).not.toMatch(/current_constraint|active_priority|operating_state/);
     }
   });
@@ -236,7 +243,7 @@ describe('the composition is wired, and nothing else became a priority engine', 
   it('does not issue a second Z3 recommendation', () => {
     // Only /api/artist/constraint issues. The page READS the same route; it never records.
     expect(page).not.toContain('recordIssuedRecommendation');
-    expect(constraintCard).not.toContain('recordIssuedRecommendation');
+    expect(card).not.toContain('recordIssuedRecommendation');
   });
 
   it('keeps the legacy decideNextAction contract working for any existing caller', () => {
