@@ -1,5 +1,35 @@
 # CRWN Brain — Changelog
 
+## 2026-08-13 - Cap-reservation migration verified live; canary blocked on a live-only Stripe key
+
+The founder-applied migration is verified and the registry is flipped to APPLIED. **Collaborator
+cashout stays 503**, and the blocker is now environmental rather than architectural.
+
+- **Verified behaviourally, not by object existence.** 28 checks against the INSTALLED production
+  primitive, using a canary deal that was deleted afterwards (Team Splits back to 0 rows). The
+  headline: two payments racing a 1000c cap got 800 and **200**, aggregate exactly 1000, and the
+  clamp held ACROSS RAILS (payment_intent vs invoice). A re-grant on the same money identity
+  returned the existing 800 and consumed no new headroom.
+- Release returns headroom and a later payment reuses it; a FUNDED reservation refuses release,
+  because real money moved. Surplus refuses provisional, refuses a second return on the same
+  reservation, refuses more than reserved, and refuses frozen money. Freeze and unfreeze are both
+  idempotent, so a dispute cannot clawback or restore twice.
+- Security probed with the anon key: cannot read the ledger, cannot forge a row, cannot execute any
+  of the six money functions. 401 on all.
+- D4 re-verified live: 89% of GROSS still reads as 101.14% of net and is rejected.
+- Five post-flip mutations proven applied and caught, including opening the cashout gate.
+
+**The canary cannot run.** CRWN has only a `sk_live` Stripe key; no test-mode key exists. A canary
+would therefore move real money through a real artist's Connect account. And the webhook correctly
+refuses `livemode: false` events when the live key is configured, so even a test key would need a
+non-production Supabase project. Unblocking needs a Stripe test-mode key plus a test Connect
+account: a founder environment decision, not an engineering one.
+
+Proven in unit/integration form and NOT against real Stripe cents: first-charge withholding, the
+draft-invoice fee, refund transfer reversal, dispute freezing, the D3 transfer landing, and a
+collaborator cashout transferring exactly once. The gate reflects that.
+
+
 ## 2026-08-13 - Team Split final controls: cap reservations, D3 returns, disputes
 
 Code complete. ONE migration pending founder application, and the canary after it. Cashout is still

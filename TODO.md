@@ -22,22 +22,22 @@ responsible for. Do not work those.
 
 ### P0 — money flows or acquisition are blocked
 
-- [ ] **Run the Team Split cap-reservation migration. This is the last piece of schema.** Open and run:
-        supabase/schema-phase2-team-split-cap-reservations.sql
-      Everything else is built. This adds one small ledger that stops two payments landing at the
-      same moment from both reserving the same remaining spend cap, plus the pieces for returning
-      unowed money to the artist and for freezing a collaborator's balance when a fan disputes a
-      charge.
-      It proves itself when it runs: the self-check reserves 800 then 800 against a 1000 cap and
-      fails loudly if the total ever exceeds 1000, then rolls that test back so nothing is left
-      behind. Expect a NOTICE starting "OK: team split cap reservations". Verify with the last query
-      block in supabase/check-unverified-feature-state.sql (expect applied = true), then tell me.
-      **Collaborator cashout stays at 503 even after this runs.** The next task is a Stripe
-      test-mode canary covering a first subscription charge, a renewal, a one-time purchase, two
-      payments racing a cap, a refund, a dispute, an artist surplus return, and a cashout. I will
-      not open a payout rail on arithmetic alone, and the first-charge case in particular has to be
-      seen moving real cents, because Stripe only lets us withhold a percentage there and I want to
-      watch the rounding land on the safe side.
+- [ ] **Team Splits are built and the schema is verified. One environment decision is all that is
+      left, and it is yours.** Nothing to run in SQL.
+      Your migration applied correctly. I proved it against the live database rather than trusting
+      it: two payments racing the same 1000c spend cap now get 800 and 200, never 800 and 800, and
+      that holds across different payment types. Twenty-eight checks passed, the test rows were
+      deleted, and Team Splits are back to zero rows everywhere.
+      **Collaborator payouts stay switched off**, and the reason is no longer code. CRWN has only a
+      LIVE Stripe key. There is no test-mode key, so the only way I could "prove" the money moves
+      correctly would be to move real money through a real artist's account, which I am not going to
+      do to prove a point. Separately, the webhook deliberately refuses test-mode events when the
+      live key is configured, which is a guard you want to keep.
+      To finish this I need a Stripe TEST-MODE secret key and a test-mode Connect account, ideally
+      pointed at a non-production Supabase project. With that I can run the eight-step canary (first
+      subscription charge, renewal, one-time purchase, two payments racing a cap, refund, dispute,
+      artist surplus return, collaborator cashout) and then, only if every step passes, turn payouts
+      on. Without it the honest answer is that the arithmetic is proven and the plumbing is not.
 
 ### P1 — real risk or real friction, but nothing is on fire
 

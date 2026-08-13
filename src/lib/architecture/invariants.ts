@@ -1181,9 +1181,9 @@ export const EXPECTED_MIGRATION_STATE: ReadonlyArray<{
   // answer "denied", which is indistinguishable from "not created".
   {
     file: 'schema-phase2-team-split-cap-reservations.sql',
-    state: 'pending',
+    state: 'applied',
     liveCheck: 'sql-check',
-    note: 'authored 2026-08-13. Adds team_split_cap_reservations (closed to client roles) plus grant/fund/release/return/freeze/unfreeze functions, all service-role only. The grant locks the DEAL row and counts accruals AND live reservations, so two rails cannot reserve the same cap headroom. Its self-verify proves cap safety behaviourally (800 + 200 <= 1000 against a 1000c cap, with an idempotent re-grant) inside a rolled-back probe.',
+    note: 'founder-applied 2026-08-13, live-verified the same day against the INSTALLED primitive (28 checks, all pass, canary rows deleted, production back to 0 deals / 0 reservations / 0 accruals). Proven BEHAVIOURALLY, not by object existence: the 800+800 race against a 1000c cap clamps the second grant to 200 ACROSS RAILS (payment_intent + invoice); a re-grant on the same money identity returns the existing 800 and consumes no new headroom; a third rail gets 0 once exhausted; release returns headroom and a FUNDED reservation refuses release; surplus refuses provisional, refuses a second return on the same reservation, refuses more than reserved, and refuses frozen money; freeze/unfreeze are both idempotent; an uncapped deal grants in full. Security: anon cannot read, cannot forge a row, and cannot execute any of the six money functions (401 on all). Original note: authored 2026-08-13. Adds team_split_cap_reservations (closed to client roles) plus grant/fund/release/return/freeze/unfreeze functions, all service-role only. The grant locks the DEAL row and counts accruals AND live reservations, so two rails cannot reserve the same cap headroom. Its self-verify proves cap safety behaviourally (800 + 200 <= 1000 against a 1000c cap, with an idempotent re-grant) inside a rolled-back probe.',
   },
 
   // Fan Testimonials V1. Its live check INVERTS the usual contract on the base tables (42501 is

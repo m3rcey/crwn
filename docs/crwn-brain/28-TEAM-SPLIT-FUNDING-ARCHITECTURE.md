@@ -937,3 +937,70 @@ Only after all eight may `cashoutFundingReady` be flipped.
 ### 25.6 What is left
 
 **One migration, and the canary.** Nothing else is outstanding in the application code.
+
+---
+
+## 26. Cap migration VERIFIED (2026-08-13). Canary blocked. Cashout stays 503.
+
+`schema-phase2-team-split-cap-reservations.sql` is **APPLIED and live-verified**. The registry is
+flipped. The payout rail is still shut, and section 26.3 is the exact reason.
+
+### 26.1 Verified BEHAVIOURALLY against the installed primitive
+
+28 checks, all passing, run against production with a canary deal on the documented test artist and
+deleted afterwards. Production is back to **0 deals / 0 reservations / 0 accruals**.
+
+| Property | Evidence |
+|---|---|
+| **The 800 + 800 race** | grant A (payment_intent) = 800, grant B (invoice) = **200**, aggregate exactly 1000. Clamped ACROSS RAILS |
+| Idempotent grant | re-grant on the same money identity returned the existing 800 and consumed no new headroom |
+| Cap exhausted | a third rail got 0 |
+| Release | returned headroom, and a later payment reused it |
+| Funded is not releasable | releasing a FUNDED reservation returned 0. Real money moved |
+| Surplus refuses provisional | 0 |
+| Surplus idempotent | first return 100c, second return on the same reservation 0 |
+| Surplus bounded | a return larger than the reservation returned 0 |
+| Frozen is not surplus | a disputed reservation refused the return |
+| Freeze / unfreeze | both idempotent on a second call, so a dispute cannot clawback or restore twice |
+| Uncapped deal | granted in full |
+| Security | anon cannot read the ledger, cannot forge a row, and cannot execute ANY of the six money functions (401 on all) |
+
+D4 re-verified live at the same time: 101% of net rejected, 100% allowed, 89% of GROSS correctly
+read as 101.14% of net and rejected, unfenced sources commit 0.
+
+### 26.2 Registry
+
+`state: 'applied'`, `liveCheck: 'sql-check'`, with the evidence above recorded inline. The only
+migrations still pending are the two unrelated ones (membership-strategy, track-waterfall).
+
+### 26.3 THE CANARY IS BLOCKED, and it is an environment fact
+
+**CRWN has no Stripe test-mode key.** `.env.local` carries `STRIPE_SECRET_KEY=sk_live...` and there
+is no test key configured anywhere. Two consequences, both hard:
+
+1. Every Stripe call this codebase can make is **live mode**. A "canary" would move real money
+   through a real Connect account.
+2. Even with a test key, the production webhook would refuse the events. CRWN deliberately rejects
+   any event with `livemode: false` when the live key or the production Supabase project is
+   configured, because a test-mode checkout once wrote a phantom Pro plan into production. That
+   guard is correct and stays.
+
+So the eight canary steps in section 25.5 cannot be run from here. **This is not "probably safe".
+It is unverified**, and the gate reflects that.
+
+### 26.4 What remains unproven, precisely
+
+Everything below is proven in unit and integration form and unproven against real Stripe cents:
+
+- the first subscription charge actually withholding the ceiling percentage
+- a renewal invoice actually accepting the exact `application_fee_amount` while draft
+- a refund actually reversing the artist transfer end to end
+- a Stripe dispute actually freezing the right reserve
+- a D3 return actually landing in the artist's Connect account
+- a collaborator cashout actually transferring once and only once
+
+### 26.5 What would unblock it
+
+A Stripe **test-mode** secret key plus a test-mode Connect account, pointed at a non-production
+Supabase project (so the `livemode: false` guard is not fighting the test). That is a founder
+environment decision, not an engineering one, and it is the single remaining item.
