@@ -1,5 +1,33 @@
 # CRWN Brain — Changelog
 
+## 2026-08-12 - The Claude Code subagents were outside every gate
+
+Twelve `.claude/agents/**.md` development agents had never been reviewed against the repository.
+All twelve read end to end; eight corrected. New gate
+`src/lib/architecture/agentContracts.test.ts` (14 tests) inside `verify:architecture` and inside
+`REQUIRED_SECURITY_SUITES`.
+
+- **Orion's job description contradicted a ratified invariant.** It still instructed an agent to
+  build "the cross-artist context that gets injected into each artist's prompt", carrying another
+  artist's MRR in dollars. `crossArtistEvidence.ts` exists precisely to make that impossible and
+  its header names those defects. Orion also sent the agent to two deleted modules and told it to
+  update one. Rewritten: same job, founder-facing evidence, privacy/evidence/reliability gates
+  kept separate, no money aggregated, never artist-facing. Reese carried the same dead pointers
+  and causal phrasing.
+- **Nadia taught a ladder that never shipped** ("Free / $15 / $30") and cited CLAUDE.md as the
+  source. CLAUDE.md never said it. The ladder is Bronze/Silver/Gold/Platinum in `tierTemplate.ts`.
+- **Kai read status codes as proof.** With deployment protection on, this origin answers 200 HTML
+  for every path including nonexistent ones, so a 200 could certify an endpoint that is not there.
+  It now checks the body, and uses `sw.js` `CACHE_NAME` as the real deployment check.
+- Devon now runs npm through WSL (the Marcus lesson). Luna pointed at the pre-wizard onboarding
+  page rather than `/setup`. Miles quoted recruiter rates inline instead of reading them from
+  code. Sage handed out a legacy `?tab=` URL.
+- The gate tests falsifiable operational claims only: file exists, npm script exists, cited `src/`
+  path exists, build invoked through WSL, no retired fact repeated. It deliberately does not
+  assert prose. It also deliberately does NOT ban naming the deleted modules, because Orion and
+  Reese must be able to warn about them and a rule forbidding the name forbids the warning; being
+  SENT there is the harm, and the path-existence check covers that.
+
 ## 2026-08-12 - Agent reconciliation: what a compromised model can actually do
 
 Reconciled every AI surface against the ratified product, drift and security contracts. No new

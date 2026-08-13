@@ -364,6 +364,16 @@ Full manual: `docs/crwn-brain/15-AI-AGENT-INSTRUCTIONS.md`. Provider table:
 - **Team Splits are ARTIST-funded.** CRWN platform revenue never subsidizes a collaborator share,
   and collaborator authority is the authenticated `collaborator_user_id`, never a mutable email.
 
+## The Claude Code subagents are covered too
+
+`.claude/agents/**.md` (Marcus, Priya, Sage, Devon, Kai, Amara, Zara, Luna, Miles, Nadia, Reese,
+Orion) are gated by `src/lib/architecture/agentContracts.test.ts`, inside `verify:architecture`.
+If you add or edit one: any agent that runs `npm run build`/`test`/`verify:architecture` must
+invoke it through `wsl.exe` (direct invocation FAKE-PASSES here, which is how the build agent
+came to certify builds it never ran), every `npm run <script>` it names must exist, every
+backticked `src/` path it cites must exist, and it must not repeat a retired fact. Keep shared
+rules as references to canonical docs, not copies.
+
 ## Security: prove the authority SOURCE, and probe production separately
 
 - **Middleware deliberately excludes `/api/`, so every API route establishes its own authority.**
