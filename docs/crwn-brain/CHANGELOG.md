@@ -1,5 +1,43 @@
 # CRWN Brain — Changelog
 
+## 2026-08-12 - Agent reconciliation: what a compromised model can actually do
+
+Reconciled every AI surface against the ratified product, drift and security contracts. No new
+AI capability, no provider change, no autonomy enabled.
+
+- **The security gate was protected by convention, not by a test.** `vitest.architecture.config.ts`
+  claimed `architecture.test.ts` asserted manifest parity "so removing a line fails the suite". That
+  was false for the two files it mattered most for: no invariant names `security.test.ts` or
+  `headers.test.ts` in `enforcedBy`, so the parity check never covered them. Mutation-verified by
+  deleting the `security.test.ts` line, at which point the parity assertion still PASSED. Added
+  `REQUIRED_SECURITY_SUITES`, which fails.
+- **CRWN uses THREE model providers, not two.** The Anthropic acquisition lead decision
+  (`claudeDecisionService.ts`, reached from the ManyChat inbound webhook) was live and
+  undocumented. Investigated for defect and found none: the tool call is forced so prose is not a
+  legal output, output is validated against server-side allowlists, history is bounded to 6 turns,
+  the context carries no secrets or cross-artist data, provider errors are categorized without
+  logging raw text (which can echo the lead's DM), and `decide()` cannot throw.
+- **A retired payout schedule was still being taught in three places.** Stripe Express pays
+  automatically on a rolling schedule and the `weekly-payout` cron was retired 2026-08-11 having
+  never created a payout, yet the getting-started guide, the artist `PayoutDashboard` and the admin
+  Sage prompt all promised money "every Monday". The guide feeds the support prompt, so support
+  repeated it. An artist waiting for a Monday that never arrives reads as CRWN not paying them.
+- **New suite `src/lib/ai/agentSecurityBoundaries.test.ts`** asserts the non-model control behind
+  each AI security claim rather than prompt wording, and runs adversarial payloads against the real
+  validators as pure functions. Mutation testing found a gap in it before it shipped: the support
+  ownership assertion used `toMatch`, and `loadConversation` has TWO branches carrying
+  `.eq('user_id')`, so deleting the filter from the caller-supplied `conversationId` branch (the
+  only one an attacker controls) still passed. Now counted and re-mutated.
+- **Support and admin-support prompts hardened** with an untrusted-data contract, no authority from
+  role claims, and an explicit ban on claiming a refund/payout/plan change was performed. The
+  prompts are defense in depth; the boundary is that the support model has no tools and every
+  conversation read is scoped by the session user id.
+- **Exception liveness generalized.** Path-shaped exception subjects must still exist, and an
+  AUTH-001 exception whose route now calls `requireAdmin` fails as stale.
+- **`15-AI-AGENT-INSTRUCTIONS.md` rewritten**, not appended to. Removed the founding-artist 5%
+  override (retired 2026-07-15), Quest Engine as the dark-feature example (flag probes ON), and the
+  hardcoded "820 tests across 50 files".
+
 ## 2026-08-12 - Security migrations verified in production, and the open redirect closed
 
 The founder applied the four security migrations. They were verified by REPLAYING each

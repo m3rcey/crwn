@@ -101,6 +101,34 @@
 - **Logging:** `console.error` in 142 files, `console.log` in 18; no external log sink. Spot-check did not find secrets logged, but there is no policy preventing it. `Low`.
 - **No rate limit / signature on the unauthenticated webhooks** compounds HIGH-1.
 
+## AI surfaces — the model is never the security boundary (2026-08-12)
+
+Full inventory in `10-INTEGRATIONS.md`; operating rules in `15-AI-AGENT-INSTRUCTIONS.md`. Nine
+model call sites, three providers (DeepSeek, OpenAI, Anthropic). The governing rule: **a security
+property that disappears when the model ignores its system prompt was never a security property.**
+Every claim below names its non-model control, and `src/lib/ai/agentSecurityBoundaries.test.ts`
+asserts those controls rather than prompt wording.
+
+| Claim | Non-model control |
+|---|---|
+| Support cannot read another user's conversation | every `support_conversations` read is `.eq('user_id', <session user>)`; the caller-supplied `conversationId` is ANDed with it, never trusted alone |
+| Support cannot perform a privileged action | the completion is given **no tools**; its only outputs are `reply` and `needs_human` |
+| Support cannot seize a thread from a human | `escalate()` returns early unless status is `ai`/`closed`, so the model can only move toward a human, never away |
+| Admin agent cannot exceed approved capability | action-type allowlist → `validateActionParams` → `verifyActionSignature` → human approval showing the actual params → authorization rechecked at execution |
+| Acquisition model cannot escalate | forced `tool_choice` (prose is not a legal output) → `validateDecision` against server-side allowlists → deterministic `fallbackDecision` |
+| Sync opportunities cannot inject a link | `registration_url` comes from the server-side `SYNC_PLATFORMS` constant; `event_url` is pinned `null` |
+| No provider receives secrets | no `process.env` value, service-role key, admin dataset or cross-artist row is assembled into any model context |
+
+**Jailbreak blast radius.** If the support model is fully compromised, it can produce misleading
+TEXT within one authenticated user's own conversation, and it can summon a human. It cannot read
+another user or artist, reach admin data, move money, change a subscription or Team Split, flip a
+flag, or invoke a tool, because it has none. That is a property of the route, not of the prompt.
+The prompt rules exist because misleading text is itself harmful: a bot that says it issued a
+refund stops the user chasing a real one.
+
+**Autonomous Manager remains DORMANT** (the activation query selects on a column that does not
+exist in production). Re-enabling it is a founder decision, guarded by `managerBoundaries.test.ts`.
+
 ## Dependency / supply-chain notes
 - No `npm audit`/lockfile-scan output in repo; `package-lock.json` present. (The raw-fetch Twilio note that used to live here is moot: Twilio was removed entirely 2026-07-31.) `@google/genai` is an unused dependency (attack surface with no benefit) — candidate for removal. `Informational`.
 
