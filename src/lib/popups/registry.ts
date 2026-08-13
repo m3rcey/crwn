@@ -334,7 +334,10 @@ export const POPUPS: PopupDef[] = [
     goal: 'Artist previews their page as a visitor and each tier, and finds the locks they set wrong before a fan does.',
     title: 'You have never seen your own page the way a fan does.',
     body: 'Everything looks unlocked to you because you own it. So the two ways a ladder breaks stay invisible: a free visitor hits a wall where your best song should be, or your paid catalog is sitting there free and nobody needs to subscribe. Either way you only find out from the money that never arrives. Open your page and switch between a visitor and each tier to see the real locks.',
-    cta: { label: 'View my page as a fan', href: '/profile/artist' },
+    // /preview resolves the artist's own slug and opens the visitor lens. It used to point at
+    // /profile/artist and lean on a "View as fan" pill that lived there; the pill moved to the
+    // AccountHub identity header on 2026-08-13, which would have left this CTA landing nowhere.
+    cta: { label: 'View my page as a fan', href: '/preview' },
     dismissLabel: 'Later',
   },
 
@@ -352,8 +355,29 @@ export const POPUPS: PopupDef[] = [
     announcedAt: '2026-08-01',
     goal: 'Artist opens their strategy card, classifies their catalog, and gives fans a reason to join beyond songs they can already stream.',
     title: 'Fans will not pay for music they can already stream.',
-    body: 'If your membership only offers the same songs Spotify has, joining buys nothing and your tiers stall. Your command screen now carries your membership strategy: what each tier promises, your monthly promise, and a new way to mark every track as free forever, members first, or members only. The archive and the early window are what fans pay for.',
-    cta: { label: 'See my strategy', href: '/profile/artist' },
+    body: 'If your membership only offers the same songs Spotify has, joining buys nothing and your tiers stall. Your tiers screen now carries your membership strategy: what each tier promises, your monthly promise, and a new way to mark every track as free forever, members first, or members only. The archive and the early window are what fans pay for.',
+    // Was /profile/artist. The strategy card moved to the tiers screen on 2026-08-13, so this
+    // CTA now opens the screen that actually carries it.
+    cta: { label: 'See my strategy', href: '/account/tiers' },
+    dismissLabel: 'Later',
+  },
+
+  // ---- Announcement: Rise Mode is one next move (artists only) ----
+  // Not feature-flagged: the surface changed for everyone at once. Loss-framed on the real cost
+  // of the screen it replaces, which is that four competing instructions produce zero actions.
+  // Skipped for accounts created on or after announcedAt: they met the one-move screen at signup.
+  {
+    key: 'announce_rise_one_move',
+    kind: 'modal',
+    pages: ['/home', '/studio', '/profile/artist'],
+    audience: (c) => c.isArtist,
+    frequency: { type: 'once' },
+    priority: 56,
+    announcedAt: '2026-08-13',
+    goal: 'Artist opens Rise Mode, sees a single action, and does it instead of choosing between four.',
+    title: 'Four things to do next is the same as none.',
+    body: 'Rise Mode was showing you a roadmap milestone, a diagnosis, a strategy and a quest board at the same time, each pointing somewhere different, so the screen you opened to stop deciding made you decide again. It now names ONE move, why it matters, and what comes after it. A promise your paying supporters are still owed always beats a setup step. Your levels and quests moved to the quest board and are still counting.',
+    cta: { label: 'See my next move', href: '/profile/artist' },
     dismissLabel: 'Later',
   },
 

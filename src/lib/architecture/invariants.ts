@@ -869,6 +869,7 @@ export const FROZEN_POPUP_KEYS: readonly string[] = [
   'announce_launch_limits',
   'announce_fan_preview',
   'announce_membership_strategy',
+  'announce_rise_one_move',
   'fan_first_support',
   'survey_artist_experience',
   'announce_live_tips',
