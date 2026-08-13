@@ -325,6 +325,22 @@ responsible for. Do not work those.
       rate. Tell me which and I will make all eight strings plus the legal pages agree in one pass.
       Found in the Z2B-2 homepage audit; nothing is broken today, the page is just inconsistent.
 
+- [ ] **Ratify (or reject) the four Automated Fan Testimonials decisions, or the design stays on
+      the shelf.** Architecture only, nothing was built and no migration exists:
+      [docs/crwn-brain/27-AUTOMATED-FAN-TESTIMONIALS-ARCHITECTURE.md](docs/crwn-brain/27-AUTOMATED-FAN-TESTIMONIALS-ARCHITECTURE.md),
+      section 23 has the full trade-off for each. The short version, with my recommendation:
+        1. **Build now, or wait for more paying fans?** The eligible population is fans who paid
+           AND then experienced value, which is small while `first_paid_conversion` is still the
+           constraint. I say build the small version now, because proof is perishable and the
+           asset compounds. Waiting is a defensible call and is the strongest argument against.
+        2. **Does V1 show featured testimonials on the public artist page, or stop at the private
+           library?** I say show them. A library nobody can see is inventory, not value.
+        3. **Fan deletes their account: delete their testimonials, or keep them anonymized?** I say
+           delete, matching every other fan table and "the fan owns the statement."
+        4. **Can an artist switch the automation off?** I say on by default with one toggle.
+      Answer those four and the build is mechanical. Everything else in that document is already
+      settled by repository evidence.
+
 - [ ] **Add the FREE keyword to ManyChat before posting the Akeem Ali all-in video.** The
       script ([videos/scripts/lead-magnets/free-akeem-ali.md](videos/scripts/lead-magnets/free-akeem-ali.md))
       says "Comment FREE and I'll DM you the link", and ManyChat keywords are pills configured
