@@ -50,9 +50,22 @@ creates a members-first track, a members-only track, a public track and two subs
 oracle as anonymous / non-entitled fan / entitled payer / owner, and ROLLBACKs everything. The daily
 `rls-canary` gains `early_access_window_enforced`, vacuous until a real in-window track exists.
 
-**Migration state: PENDING.** Both this and `schema-phase2-track-waterfall.sql` are in TODO.md, in
-that order. The order is not cosmetic: the waterfall schedules exactly the content class this oracle
-gates, so applying it first would make an unreachable hole reachable.
+**Migration state: APPLIED 2026-08-13**, in the required order (oracle first, then the waterfall,
+because the waterfall schedules exactly the content class this oracle gates).
+
+**Proved live, with the anon key, on a throwaway canary track** (inserted on the founder test
+artist, probed, deleted) rather than by trusting the migration report. A definition check cannot
+prove behaviour, and with zero in-window tracks in production a passive probe would have been
+vacuous:
+
+- in-window, anonymous: `can_play = false`, `audio_url_128` AND `audio_url_320` both NULL
+- after the window: `can_play = true`, locator returns, so "public later" still works
+- in-window with an EMPTY tier list: `can_play = true`, matching `classifyTrack`, so a stray date
+  cannot lock out paying members
+
+**No regression:** all 44 anon-visible free tracks still play, all 11 member-only tracks stay
+denied and redacted. `tracks.waterfall` is NULL on every existing row, so the daily cron's
+`.not(waterfall, is, null)` filter skips them all and nothing in flight changed.
 
 ## 2026-08-13 - Fulfillment urgency now requires a recipient (empty-room promises are not broken promises)
 

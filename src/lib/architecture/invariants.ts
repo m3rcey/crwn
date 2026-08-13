@@ -1222,11 +1222,11 @@ export const EXPECTED_MIGRATION_STATE: ReadonlyArray<{
   // waterfall first would make an unreachable hole reachable.
   {
     file: 'schema-phase2-early-access-window-enforcement.sql',
-    state: 'pending',
+    state: 'applied',
     liveCheck: 'sql-check',
-    note: 'PENDING. Blast radius at apply time is ZERO rows: production has no track with a public_release_date (anon probe 2026-08-13), so the predicate is false everywhere and behaviour is byte-identical on the day it lands. Until it is applied, a members-first track would serve its audio to anonymous readers through tracks_public for the whole window, while 9 live tier_benefits rows advertise 7-day and 14-day early access.',
+    note: 'Founder-applied 2026-08-13; sql-check returned applied=true, and the BEHAVIOUR was then proved live with the anon key against a throwaway canary track on the founder test artist (inserted, probed, deleted). In-window: can_play=false with audio_url_128 AND audio_url_320 both NULL. After the window: can_play=true and the locator returns. In-window with an EMPTY tier list: can_play=true, matching classifyTrack (a stray date must not lock out paying members). No regression: all 44 anon-visible free tracks still play and all 11 member-only tracks stay denied and redacted.',
   },
-  { file: 'schema-phase2-track-waterfall.sql', state: 'pending', note: 'fail-soft; upload falls back to all-at-once (strictly MORE access than the stagger, never less). Apply only AFTER schema-phase2-early-access-window-enforcement.sql: this schedules the very content class that oracle gates.' },
+  { file: 'schema-phase2-track-waterfall.sql', state: 'applied', note: 'Founder-applied 2026-08-13, AFTER the early-access oracle as required (it schedules the very content class that oracle gates). Probe-verified: tracks.waterfall selectable and NULL on existing rows, so the daily cron\'s .not(waterfall,is,null) filter skips every current track and no in-flight release changed.' },
   { file: 'schema-phase3-fan-campaigns.sql', state: 'applied', note: 'probe-verified 2026-08-12' },
   { file: 'schema-phase3-recommendation-outcomes.sql', state: 'applied', note: 'probe-verified 2026-08-11' },
   { file: 'schema-phase3-tier-transitions.sql', state: 'applied' },

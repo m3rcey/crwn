@@ -44,29 +44,20 @@ responsible for. Do not work those.
       replay, the artist surplus return, a dispute, and a collaborator cashout), then reconcile every
       cent and decide whether payouts turn on. **They stay off until that passes.**
 
-- [ ] **Run TWO migrations, IN THIS ORDER, to make early access real. Order is not cosmetic.**
-      Early access ("Members first, public later") is sold on 9 live tier rows as 7-day and 14-day
-      access, and until step 1 runs the database does not enforce it: `can_play_track` returned
-      true on `is_free` alone, and a members-first track is `is_free = true` for its whole window.
-      So the audio was reachable by a logged-out visitor through `/api/tracks/[id]/stream` and
-      `/embed/[trackId]`. Nobody has hit it (production has zero tracks with a release date), which
-      is exactly why it is safe to fix now, before a pilot artist schedules one.
-      **1. Open and run:**
-      [`supabase/schema-phase2-early-access-window-enforcement.sql`](supabase/schema-phase2-early-access-window-enforcement.sql)
-      **2. Then prove it BEHAVED, not just deployed. Open and run:**
+- [ ] **One 30-second run to close out early access: prove a PAYING fan is not locked out.**
+      Open and run:
       [`supabase/verify-early-access-window.sql`](supabase/verify-early-access-window.sql)
-      Expect nine `PASS` notices then `ROLLBACK`. It creates a members-first track, a members-only
-      track, a public track and two subscriptions, asks the oracle as anonymous / non-entitled fan /
-      paying fan / owner, and destroys all of it. Nothing persists. If any line says FAIL, stop and
-      send me the output: that means the fix is wrong and I would rather know before you keep going.
-      **3. Only if step 2 is all PASS, open and run:**
-      [`supabase/schema-phase2-track-waterfall.sql`](supabase/schema-phase2-track-waterfall.sql)
-      That is the tier-by-tier stagger (Gold hears it 14 days early, Silver 7). It schedules exactly
-      the content class step 1 gates, which is why it goes last.
-      **4. Paste me the output of:**
-      [`supabase/check-unverified-feature-state.sql`](supabase/check-unverified-feature-state.sql)
-      I need the `schema-phase2-early-access-window-enforcement.sql` row to read `applied = true`.
-      Until you paste that, I have to keep reporting early access as unenforced in production.
+      Expect nine `PASS` notices then `ROLLBACK`. Nothing persists (it creates a members-first
+      track, a members-only track, a public track and two throwaway subscriptions, asks the oracle
+      as each kind of reader, and destroys all of it).
+      Both migrations are already applied and I have proved the SECURITY half live with the anon
+      key: a track inside its window returns `can_play = false` with both audio columns NULL, and it
+      opens to everyone once the window passes. What I could NOT prove from outside is the opposite
+      direction, because it needs a logged-in paying fan's session: that an entitled member CAN
+      still play an in-window track (its check 3). Every signal says it is fine (the tier branch of
+      the function is unchanged, and all 11 member-only tracks still behave), but "locked out a
+      paying fan" is the one failure worth 30 seconds of certainty.
+      If any line says FAIL, send me the output and stop.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
