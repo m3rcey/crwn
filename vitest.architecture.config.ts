@@ -82,6 +82,8 @@ export default defineConfig({
       // TS-MONEY-006 (D4): over-commitment refusal. In the GATE because accepting an
       // unhonourable percentage is a money defect that reaches two real people.
       'src/lib/teamSplits/commitment.test.ts',
+      'src/lib/teamSplits/feePercent.test.ts',
+      'src/lib/teamSplits/cashoutBalance.test.ts',
       'src/lib/stripe/refundRecovery.test.ts',
       'src/lib/teamSplits/funding.test.ts',
       'src/lib/architecture/testimonials.test.ts',

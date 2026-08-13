@@ -505,7 +505,7 @@ describe('SEC-SPLIT — collaborator identity and funding', () => {
     for (const f of rails) {
       const src = readStripped(f);
       expect(
-        /resolveReserveForSale\(/.test(src) && /application_fee_amount:\s*applicationFeeAmount/.test(src),
+        src.includes('reserveForSaleAtomic(') && /application_fee_amount:\s*applicationFeeAmount/.test(src),
         violation('TS-MONEY-002', `${f} does not withhold the collaborator reserve in its application fee. The artist would be paid money already promised to a collaborator.`, { file: f }),
       ).toBe(true);
       expect(
@@ -549,7 +549,7 @@ describe('SEC-SPLIT — collaborator identity and funding', () => {
     // previous pass wrongly claimed invoice.created covered it. Pinned so that claim cannot return.
     const checkout = readStripped('src/app/api/stripe/checkout/route.ts');
     expect(
-      checkout.includes('resolveReserveForSale(svcConnect, {') && checkout.includes('application_fee_percent: subscriptionFeePercent'),
+      checkout.includes('reserveForSaleAtomic(') && checkout.includes('application_fee_percent: subscriptionFeePercent'),
       violation('TS-MONEY-011', 'the INITIAL subscription charge no longer withholds a collaborator reserve at checkout. Stripe gives that invoice no draft window, so invoice.created cannot fund it and the first charge would pay the artist money already promised to a collaborator.', {
         file: 'src/app/api/stripe/checkout/route.ts',
       }),
@@ -575,7 +575,7 @@ describe('SEC-SPLIT — collaborator identity and funding', () => {
     ).toBe(true);
     // One canonical calculation: no bespoke split math on this rail.
     expect(
-      /resolveReserveForSale\(/.test(fund),
+      fund.includes('reserveForSaleAtomic('),
       violation('TS-MONEY-011', 'invoice funding computes its own split math instead of the canonical calculation.', {
         file: 'src/lib/teamSplits/invoiceFunding.ts',
       }),
@@ -597,6 +597,148 @@ describe('SEC-SPLIT — collaborator identity and funding', () => {
       /\.\.\.settledReserveFor\(initialInvoiceMetadata\)/.test(wh),
       violation('TS-MONEY-009', 'the INITIAL subscription earnings writer records no funded reserve, so a first-charge collaborator can never be paid.', {
         file: 'src/lib/webhookHandlers.ts',
+      }),
+    ).toBe(true);
+  });
+
+  // TS-MONEY-012/013. Cap headroom is raced between rails, and the race is invisible in any table:
+  // money is WITHHELD at charge time but only ACCRUES after settlement. Every rail must therefore
+  // take an ATOMIC grant, and a payment that never settles must give the headroom back.
+  it('TS-MONEY-012 every payment rail reserves cap through the atomic grant', () => {
+    const rails = [
+      'src/app/api/stripe/track-checkout/route.ts',
+      'src/app/api/stripe/product-checkout/route.ts',
+      'src/app/api/stripe/booking-checkout/route.ts',
+      'src/app/api/stripe/live-checkout/route.ts',
+      'src/app/api/stripe/live-tip-checkout/route.ts',
+      'src/app/api/stripe/checkout/route.ts',
+      'src/lib/teamSplits/invoiceFunding.ts',
+    ];
+    for (const f of rails) {
+      const src = readStripped(f);
+      expect(
+        src.includes('reserveForSaleAtomic('),
+        violation('TS-MONEY-012', f + ' reserves cap without the atomic grant, so two concurrent payments can both take the same remaining headroom.', { file: f }),
+      ).toBe(true);
+      expect(
+        src.includes('resolveReserveForSale('),
+        violation('TS-MONEY-012', f + ' still calls the non-atomic reserve directly. Desired cents are not granted cents.', { file: f }),
+      ).toBe(false);
+    }
+    const mig = readFileSync('supabase/schema-phase2-team-split-cap-reservations.sql', 'utf8');
+    expect(
+      mig.includes('FROM team_split_deals WHERE id = p_deal_id FOR UPDATE'),
+      violation('TS-MONEY-012', 'the grant no longer locks the deal row, so concurrent grants can exceed the cap.', {
+        file: 'supabase/schema-phase2-team-split-cap-reservations.sql',
+      }),
+    ).toBe(true);
+    expect(
+      mig.includes("status IN ('provisional', 'funded')") && mig.includes('v_headroom :='),
+      violation('TS-MONEY-012', 'headroom ignores live reservations, so the pre-settlement window is unprotected.', {
+        file: 'supabase/schema-phase2-team-split-cap-reservations.sql',
+      }),
+    ).toBe(true);
+  });
+
+  it('TS-MONEY-013 an unsettled terminal payment releases its cap headroom', () => {
+    const wh = readStripped('src/app/api/stripe/webhook/route.ts');
+    expect(
+      wh.includes("releaseReserves(supabaseAdmin, { kind: 'checkout_session', id: expiredKey }, 'checkout_expired')"),
+      violation('TS-MONEY-013', 'an expired checkout no longer releases its reservation, so a payment that never happened holds cap headroom forever.', {
+        file: 'src/app/api/stripe/webhook/route.ts',
+      }),
+    ).toBe(true);
+    const mig = readFileSync('supabase/schema-phase2-team-split-cap-reservations.sql', 'utf8');
+    const rel = mig.slice(mig.indexOf('FUNCTION public.release_team_split_reservation'));
+    expect(
+      rel.slice(0, 900).includes("status = 'provisional'"),
+      violation('TS-MONEY-013', 'release is no longer provisional-only; funded money could be given back as headroom while the collaborator is still owed it.', {
+        file: 'supabase/schema-phase2-team-split-cap-reservations.sql',
+      }),
+    ).toBe(true);
+  });
+
+  it('TS-MONEY-014/015 the first charge over-retains rather than underfunding', () => {
+    const co = readStripped('src/app/api/stripe/checkout/route.ts');
+    expect(
+      co.includes('firstChargeFeePlan(') && co.includes('feePlan.safe'),
+      violation('TS-MONEY-014', 'the first subscription charge no longer uses the ceiling fee plan, so two-decimal rounding could retain fewer cents than the collaborator accepted.', {
+        file: 'src/app/api/stripe/checkout/route.ts',
+      }),
+    ).toBe(true);
+    const fp = readStripped('src/lib/teamSplits/feePercent.ts');
+    expect(
+      fp.includes('Math.ceil((required / gross)'),
+      violation('TS-MONEY-014', 'the fee percentage is no longer rounded UP, so a first charge can underfund the collaborator.', {
+        file: 'src/lib/teamSplits/feePercent.ts',
+      }),
+    ).toBe(true);
+    expect(
+      co.includes('team_split_rounding_surplus'),
+      violation('TS-MONEY-015', 'rounding over-retention is no longer recorded, so artist-owned surplus would silently stay with CRWN.', {
+        file: 'src/app/api/stripe/checkout/route.ts',
+      }),
+    ).toBe(true);
+  });
+
+  it('TS-MONEY-016 the artist surplus return is idempotent and never CRWN revenue', () => {
+    const sp = readStripped('src/lib/teamSplits/surplus.ts');
+    expect(
+      sp.includes('crwn_tssurplus_'),
+      violation('TS-MONEY-016', 'the surplus transfer lost its durable idempotency key, so a crash between Stripe and the ledger could pay the artist twice.', {
+        file: 'src/lib/teamSplits/surplus.ts',
+      }),
+    ).toBe(true);
+    expect(
+      sp.includes("res.status !== 'funded'") && sp.includes('res.frozen_at'),
+      violation('TS-MONEY-016', 'surplus no longer refuses unfunded or disputed reserve, so money still at risk could be returned.', {
+        file: 'src/lib/teamSplits/surplus.ts',
+      }),
+    ).toBe(true);
+    expect(
+      sp.includes('artist_owned_reserve_return'),
+      violation('TS-MONEY-015', 'the surplus accounting class is gone; a report could book an artist return as CRWN revenue.', {
+        file: 'src/lib/teamSplits/surplus.ts',
+      }),
+    ).toBe(true);
+  });
+
+  it('TS-MONEY-017/018 a disputed source is frozen, and resolution cannot apply twice', () => {
+    const wh = readStripped('src/app/api/stripe/webhook/route.ts');
+    expect(
+      wh.includes("case 'charge.dispute.closed'") && wh.includes('handleTeamSplitDispute('),
+      violation('TS-MONEY-017', 'dispute reconciliation is not wired, so disputed funding could still reach a collaborator cashout.', {
+        file: 'src/app/api/stripe/webhook/route.ts',
+      }),
+    ).toBe(true);
+    const d = readStripped('src/lib/teamSplits/disputes.ts');
+    expect(
+      d.includes('freezeReservesForEarning(') && d.includes('unfreezeReservesForEarning('),
+      violation('TS-MONEY-017', 'the dispute path no longer freezes or restores reservations.', {
+        file: 'src/lib/teamSplits/disputes.ts',
+      }),
+    ).toBe(true);
+    expect(
+      d.includes('recoverArtistShareOnRefund('),
+      violation('TS-MONEY-018', 'the dispute path no longer recovers the ARTIST transfer, leaving CRWN funding the disputed artist proceeds.', {
+        file: 'src/lib/teamSplits/disputes.ts',
+      }),
+    ).toBe(true);
+  });
+
+  it('TS-MONEY-019 the cashout gate stays shut until the ledger, the rails and a canary all pass', () => {
+    const cashout = readStripped(CASHOUT);
+    expect(
+      cashout.includes('cashoutFundingReady: boolean = false'),
+      violation('TS-MONEY-019', 'the collaborator cashout gate was opened. It may only open after the cap-reservation migration is applied AND a Stripe canary proves conservation end to end.', {
+        file: CASHOUT,
+      }),
+    ).toBe(true);
+    const bal = readStripped('src/lib/teamSplits/cashoutBalance.ts');
+    expect(
+      bal.includes('frozenCents') && bal.includes('negativeCarryCents'),
+      violation('TS-MONEY-019', 'the cashout balance stopped deducting frozen or carried-negative amounts, so disputed or already-lost money could be withdrawn.', {
+        file: 'src/lib/teamSplits/cashoutBalance.ts',
       }),
     ).toBe(true);
   });

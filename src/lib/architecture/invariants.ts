@@ -1173,6 +1173,19 @@ export const EXPECTED_MIGRATION_STATE: ReadonlyArray<{
     note: 'founder-applied 2026-08-12, live-verified 2026-08-13 through the service role (the two functions are REVOKED from anon/authenticated, so an anon probe cannot distinguish denied from absent). Verified BEHAVIOUR, not existence: team_split_committed_percent returns 101 for 101% of net, 100 for 100%, and converts 89% of GROSS to 101.14% of net at the Launch fee while 88% lands exactly on 100; custom/unfenced sources return 0; anon execution of both functions is denied; accept_team_split_deal returns no row for an unknown deal. Columns funded_reserve_cents, payee_kind, artist_id, idempotency_key all present. Superseded note: authored 2026-08-12. Adds accept_team_split_deal (advisory-locked D4 enforcement), team_split_committed_percent, team_split_earnings.funded_reserve_cents, and the artist_surplus payout kind with a durable idempotency key. Until it runs, deal ACCEPTANCE returns 503 rather than binding an unenforceable commitment.',
   },
 
+  // Team Split cap reservations. The last financial control: atomic, cross-rail cap grants plus
+  // the provisional/funded distinction, D3 surplus linkage and the dispute freeze. PENDING: until
+  // it runs, every grant returns ZERO, which funds no split and creates no liability, and the
+  // collaborator cashout rail stays 503 regardless. liveCheck is 'sql-check' because all six
+  // functions are REVOKED from anon and authenticated by design, so an anon probe can only ever
+  // answer "denied", which is indistinguishable from "not created".
+  {
+    file: 'schema-phase2-team-split-cap-reservations.sql',
+    state: 'pending',
+    liveCheck: 'sql-check',
+    note: 'authored 2026-08-13. Adds team_split_cap_reservations (closed to client roles) plus grant/fund/release/return/freeze/unfreeze functions, all service-role only. The grant locks the DEAL row and counts accruals AND live reservations, so two rails cannot reserve the same cap headroom. Its self-verify proves cap safety behaviourally (800 + 200 <= 1000 against a 1000c cap, with an idempotent re-grant) inside a rolled-back probe.',
+  },
+
   // Fan Testimonials V1. Its live check INVERTS the usual contract on the base tables (42501 is
   // the PASS, because they are closed to every client role) and runs the normal way on the public
   // view (200 is the PASS, because the artist page must be able to read it). BOTH probe lines are

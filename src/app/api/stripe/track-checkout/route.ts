@@ -4,7 +4,8 @@ import { createClient } from '@supabase/supabase-js';
 import Stripe from 'stripe';
 import { getArtistFeePercent } from '@/lib/platformTier';
 import { checkRateLimit } from '@/lib/rateLimit';
-import { resolveReserveForSale, reserveToStripeMetadata } from '@/lib/teamSplits/reserve';
+import { reserveForSaleAtomic, reserveToStripeMetadata } from '@/lib/teamSplits/reserve';
+import { teamSplitMoneyKey } from '@/lib/teamSplits/moneyKey';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_dummy_key_for_build');
 
@@ -95,14 +96,20 @@ export async function POST(request: NextRequest) {
     // application fee to the artist, so a reserve taken any later would be CRWN's own money.
     // resolveReserveForSale never throws and returns 0 on any failure, so a checkout can never fail
     // because a split could not be computed; reserving nothing simply means nobody can accrue.
-    const reserve = await resolveReserveForSale(svcConnect, {
+    // The reservation is bound to a canonical money identity so a retry or a redelivered
+    // webhook resolves to the SAME grant instead of consuming the cap twice. The Checkout
+    // Session id does not exist yet, so the key is server-minted here and written into the
+    // session metadata, which settlement reads back.
+    const tsMoneyKey = teamSplitMoneyKey();
+
+    const reserve = await reserveForSaleAtomic(svcConnect, {
       artistId: track.artist_id,
       sourceType: 'track',
       sourceId: trackId,
       grossCents: unitAmount,
       platformFeePercent,
       attributedCutPercent: 0,
-    });
+    }, { kind: 'checkout_session', id: tsMoneyKey });
     const applicationFeeAmount = platformFee + reserve.reserveCents;
 
     const artistDisplayName = artist.profile?.display_name || '';
@@ -140,6 +147,7 @@ export async function POST(request: NextRequest) {
           // The per-deal reserve rides with the charge so settlement can record PROVEN funding on
           // the earnings row rather than recomputing what checkout merely intended.
           ...reserveToStripeMetadata(reserve.reservedByDeal),
+          ...(reserve.reserveCents > 0 ? { team_split_money_key: tsMoneyKey } : {}),
           fan_id: fanId,
           track_id: trackId,
           artist_id: track.artist_id,

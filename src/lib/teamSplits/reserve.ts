@@ -19,6 +19,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { computeFunding, reconciles, type FundingDeal, type FundingBreakdown } from './funding';
 import { resolveScope, scopesOverlap, type Scope } from './commitment';
+import { grantReserves, type MoneyIdentity } from './reservations';
 import type { RevenueSourceType } from './types';
 
 type Admin = SupabaseClient | any;
@@ -256,4 +257,61 @@ export function reserveFromStripeMetadata(metadata: unknown): Record<string, num
   } catch {
     return {};
   }
+}
+
+/**
+ * THE RAIL ENTRY POINT (TS-MONEY-012).
+ *
+ * `resolveReserveForSale` says what the deals are OWED. This says what the cap can still AFFORD,
+ * by taking an ATOMIC grant per deal under a row lock, and then rebuilds the breakdown from the
+ * GRANTED cents rather than the desired ones.
+ *
+ * The difference is the whole point. Two payments landing together used to read the same remaining
+ * cap and both reserve against it; over-collection was safe for the collaborator but left artist
+ * money CRWN could not give back. Now the second charge gets only what is left.
+ *
+ * Fails CLOSED: if the reservation ledger is not there yet, nothing is granted and no split is
+ * funded, so no liability can exist.
+ */
+export async function reserveForSaleAtomic(
+  admin: Admin,
+  sale: SaleContext,
+  money: MoneyIdentity,
+  now: Date = new Date(),
+): Promise<ResolvedReserve & { schemaPending: boolean }> {
+  const desired = await resolveReserveForSale(admin, sale, now);
+  if (desired.reserveCents <= 0) return { ...desired, schemaPending: false };
+
+  const granted = await grantReserves(admin, money, desired.reservedByDeal);
+  if (granted.schemaPending || granted.totalCents <= 0) {
+    const empty = emptyReserve(sale, granted.schemaPending ? 'schema_pending' : 'no_deals');
+    return { ...empty, schemaPending: granted.schemaPending };
+  }
+
+  // Rebuild the breakdown from what was ACTUALLY granted, so the Stripe fee, the ledger and the
+  // reservation row all describe the same cents. Re-running computeFunding with the granted amounts
+  // as hard caps keeps conservation exact rather than patched.
+  const perDeal = Object.entries(granted.byDeal).map(([dealId, reserveCents]) => ({ dealId, reserveCents }));
+  const collaboratorReserveCents = granted.totalCents;
+  const breakdown: FundingBreakdown = {
+    ...desired.breakdown,
+    collaboratorReserveCents,
+    perDeal,
+    artistProceedsCents: desired.breakdown.artistNetCents - collaboratorReserveCents,
+    applicationFeePercent: desired.breakdown.applicationFeePercent,
+  };
+
+  if (!reconciles(breakdown)) {
+    console.error('[teamSplits/reserve] granted breakdown failed conservation, funding nothing', {
+      artistId: sale.artistId, granted: granted.totalCents,
+    });
+    return { ...emptyReserve(sale, 'not_reconciled'), schemaPending: false };
+  }
+
+  return {
+    breakdown,
+    reservedByDeal: granted.byDeal,
+    reserveCents: collaboratorReserveCents,
+    schemaPending: false,
+  };
 }

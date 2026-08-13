@@ -22,18 +22,22 @@ responsible for. Do not work those.
 
 ### P0 — money flows or acquisition are blocked
 
-- [ ] **Team Splits: I got something wrong last time and have fixed it. Nothing for you to run.**
-      I reported that one handler funded every subscription charge. That was wrong for the FIRST
-      charge. Stripe creates the first subscription invoice already open, and Stripe Checkout
-      forbids editing it, so there was never a draft window to use. First-time subscribers with a
-      Team Split would have quietly funded nobody.
-      Nothing was mispaid: the system refuses to credit a collaborator money it did not withhold, so
-      the failure was "collaborator gets nothing", never "collaborator gets your money". It is fixed
-      now by withholding at checkout instead, which is the only lever Stripe gives at that moment.
-      A subscription with no Team Split is unchanged, down to the fee it sends.
-      Still closed, unchanged from before: cap concurrency needs a small new table under a lock
-      (that will be a migration for you), the artist-return transfer is unbuilt, disputes do not yet
-      unwind a reserve, and no canary has run. I will not open the payout rail before that canary.
+- [ ] **Run the Team Split cap-reservation migration. This is the last piece of schema.** Open and run:
+        supabase/schema-phase2-team-split-cap-reservations.sql
+      Everything else is built. This adds one small ledger that stops two payments landing at the
+      same moment from both reserving the same remaining spend cap, plus the pieces for returning
+      unowed money to the artist and for freezing a collaborator's balance when a fan disputes a
+      charge.
+      It proves itself when it runs: the self-check reserves 800 then 800 against a 1000 cap and
+      fails loudly if the total ever exceeds 1000, then rolls that test back so nothing is left
+      behind. Expect a NOTICE starting "OK: team split cap reservations". Verify with the last query
+      block in supabase/check-unverified-feature-state.sql (expect applied = true), then tell me.
+      **Collaborator cashout stays at 503 even after this runs.** The next task is a Stripe
+      test-mode canary covering a first subscription charge, a renewal, a one-time purchase, two
+      payments racing a cap, a refund, a dispute, an artist surplus return, and a cashout. I will
+      not open a payout rail on arithmetic alone, and the first-charge case in particular has to be
+      seen moving real cents, because Stripe only lets us withhold a percentage there and I want to
+      watch the rounding land on the safe side.
 
 ### P1 — real risk or real friction, but nothing is on fire
 

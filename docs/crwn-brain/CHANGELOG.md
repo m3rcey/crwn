@@ -1,5 +1,37 @@
 # CRWN Brain — Changelog
 
+## 2026-08-13 - Team Split final controls: cap reservations, D3 returns, disputes
+
+Code complete. ONE migration pending founder application, and the canary after it. Cashout is still
+503, now enforced by an invariant rather than by a comment.
+
+- **Atomic cross-rail cap reservations.** The race was invisible in any table: money is withheld at
+  charge time but only accrues after settlement, so the cap was being consumed by something with no
+  row. `team_split_cap_reservations` gives that interval a row, and the grant locks the DEAL and
+  counts accruals AND live reservations, so a track purchase and a subscription invoice contend on
+  the same row. Deals lock in sorted id order (no deadlock), and the grant is idempotent on the
+  money identity, so a retried invoice reuses its own reservation.
+- **Provisional is not funded.** A provisional reservation holds cap headroom and has ZERO
+  collaborator value. Release is provisional-only: funded money is never handed back as headroom,
+  because real money moved.
+- **First-charge precision (the subtle one).** Stripe caps the percentage at two decimals, and
+  nearest-rounding is subsidy-safe but CONTRACT-unsafe: it can retain fewer cents than the
+  collaborator accepted, and the accrual guard would then clamp them DOWN to the short amount. The
+  percentage now rounds UP, always. The overage is artist-owned surplus and returns through D3, and
+  an unrepresentable target funds no split rather than underfunding one.
+- **D3 implemented.** Reservation release (nothing settled, give back headroom) and surplus return
+  (settled money now unowed, real transfer to the artist) are separate paths. The transfer carries a
+  deterministic idempotency key and the RPC refuses a reservation that already has a transfer id.
+- **Disputes.** Stripe debits the platform on a destination-charge dispute and leaves the artist
+  holding their share, while the collaborator reserve is already platform-held. Those are two
+  different recoveries: the artist transfer may be reversed, the collaborator reserve is FROZEN in
+  the ledger and never "recovered" from Stripe, because that would fabricate a recovery. Won
+  disputes unfreeze; the artist transfer is not auto-re-sent, since Stripe warns re-transfers can
+  hit cross-border limits.
+- **One cashout balance formula**, deducting paid, clawbacks, negative carry and frozen amounts.
+- Eleven mutations proven applied and caught, including flipping the cashout gate.
+
+
 ## 2026-08-13 - Correction: the first subscription invoice never had a draft window
 
 The previous entry claimed one `invoice.created` path funded every subscription invoice class. That

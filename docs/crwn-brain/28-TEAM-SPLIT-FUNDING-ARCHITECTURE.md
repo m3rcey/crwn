@@ -841,3 +841,99 @@ needed Stripe's documentation to verify, not the shape of our own code.**
 4. No canary has been run.
 
 Cashout stays 503.
+
+---
+
+## 25. Phase 4 (2026-08-13): the final controls. Code complete, one migration pending.
+
+Everything Team Splits needs is now built. The only thing between here and an open payout rail is a
+migration the founder runs, and a canary that proves the money moves correctly.
+
+### 25.1 First-charge precision (TS-MONEY-014, TS-MONEY-015)
+
+Stripe caps `application_fee_percent` at TWO DECIMALS, and the first subscription invoice can only
+be funded through that percentage (section 24). An exact cent target usually cannot be expressed.
+
+Nearest-rounding would have been subsidy-safe but **contract-unsafe**: it can retain fewer cents
+than the collaborator's accepted split, and the accrual guard would then clamp the collaborator DOWN
+to the short amount. A collaborator would have quietly received less than the deal they signed,
+because of a rounding artefact in an API they have never heard of.
+
+`firstChargeFeePlan` rounds the percentage **UP**, always. The first charge may retain a cent or two
+more than required, never fewer. The overage is **artist-owned surplus**, recorded as
+`team_split_rounding_surplus` and returned through D3. If even 100% cannot cover the target, the
+charge funds NO split rather than underfunding one.
+
+### 25.2 Atomic cross-rail cap reservations (TS-MONEY-012, TS-MONEY-013)
+
+The race was invisible in any table: money is WITHHELD at charge time but only ACCRUES after
+settlement, so between those two moments the cap was being consumed by something with no row.
+`team_split_cap_reservations` gives that interval a row.
+
+| State | Meaning | Cashout value |
+|---|---|---|
+| `provisional` | the payment intends to retain these cents | **zero** |
+| `funded` | Stripe settled it; settlement proof exists | may accrue |
+| `released` | terminal non-payment; headroom returns | zero |
+| `returned` | funded cents went home to the artist (D3) | zero |
+
+`grant_team_split_reservation` locks the DEAL row and counts accruals **and** live reservations, so
+a track purchase and a subscription invoice contend on the same row rather than on two independent
+reads. Deals are locked in sorted id order, so two charges touching the same pair cannot deadlock.
+The grant is idempotent on the money identity, so a retried invoice or a redelivered webhook reuses
+its own reservation instead of taking the cap twice.
+
+Release is **provisional-only**. Funded money is never given back as headroom: real money moved, so
+its disposition is a D3 return or a clawback.
+
+### 25.3 D3 artist surplus return (TS-MONEY-016)
+
+Two things that look alike and are not:
+
+- **Reservation release**: the payment never settled. No money moved. Give back cap HEADROOM.
+- **Surplus return**: the payment settled, CRWN physically holds artist-owned cents, and they are now
+  definitively unowed. This is a real platform-to-artist TRANSFER.
+
+Only the second is D3. The transfer carries a deterministic idempotency key derived from the
+reservation, and the RPC refuses a reservation that already carries a transfer id, so a crash
+between Stripe and the ledger cannot pay the artist twice. Frozen (disputed) and unfunded
+reservations are refused outright.
+
+### 25.4 Stripe disputes (TS-MONEY-017, TS-MONEY-018)
+
+Stripe debits the PLATFORM for a destination-charge dispute, does not automatically pull the
+artist's proceeds back, and the collaborator reserve is already sitting in CRWN's balance. That
+produces **two different recoveries**, and treating them the same would double count:
+
+- the ARTIST's transferred proceeds may need a transfer reversal
+- the COLLABORATOR reserve is already platform-held, so it is FROZEN in the ledger and no Stripe
+  call is made for it. Reversing it too would be fabricating a recovery.
+
+Won disputes unfreeze. The artist's transfer is deliberately NOT re-sent automatically: Stripe warns
+that re-transferring a previous reversal can hit cross-border restrictions, so a failed restoration
+surfaces as reconciliation work rather than a fabricated artist payment.
+
+A Stripe chargeback and a Team Split BUSINESS dispute are different things and never share a path.
+
+### 25.5 The canary, prepared but NOT run
+
+Run in Stripe TEST MODE with dedicated canary identities, after the migration is applied. Each step
+must inspect actual Stripe objects and integer cents, not just success.
+
+1. **Initial subscription** — prove the granted reservation, the ceiling percentage, the ACTUAL
+   application fee withheld, the funded cents, the rounding surplus, the artist proceeds, and CRWN's
+   fee. This one is mandatory and cannot be inferred from a renewal.
+2. **Renewal** — draft invoice, atomic grant, exact `application_fee_amount`, settlement proof, and
+   no duplicate on webhook redelivery.
+3. **One-time purchase** — same chain on a track or product.
+4. **Cap concurrency** — cap 1000, two parallel 800 grants across different rails, aggregate <= 1000.
+5. **Partial refund** — artist transfer recovery, immediate clawback, no double reversal.
+6. **Dispute** — freeze, artist recovery, no collaborator availability, idempotent resolution.
+7. **D3 surplus** — exact artist transfer, CRWN revenue unchanged, retry sends nothing.
+8. **Collaborator cashout** — funded released balance only, idempotent retry, balance falls once.
+
+Only after all eight may `cashoutFundingReady` be flipped.
+
+### 25.6 What is left
+
+**One migration, and the canary.** Nothing else is outstanding in the application code.

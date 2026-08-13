@@ -48,7 +48,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type Stripe from 'stripe';
 import { getArtistFeePercent } from '@/lib/platformTier';
-import { resolveReserveForSale, reserveToStripeMetadata } from './reserve';
+import { reserveForSaleAtomic, reserveToStripeMetadata } from './reserve';
 
 type Admin = SupabaseClient | any;
 
@@ -132,14 +132,22 @@ export async function fundSubscriptionInvoice(
       .maybeSingle();
     const attributedCutPercent = Math.max(0, Number(referral?.commission_rate ?? 0));
 
-    const reserve = await resolveReserveForSale(admin, {
-      artistId: sub.artist_id,
-      sourceType: 'tier',
-      sourceId: sub.tier_id,
-      grossCents,
-      platformFeePercent,
-      attributedCutPercent,
-    });
+    // Keyed on the INVOICE, which is stable across Stripe's payment retries. A retried invoice
+    // therefore reuses its own reservation instead of releasing the cap and racing another charge
+    // for it, which is exactly the case that would have left an already-promised collaborator
+    // unfundable.
+    const reserve = await reserveForSaleAtomic(
+      admin,
+      {
+        artistId: sub.artist_id,
+        sourceType: 'tier',
+        sourceId: sub.tier_id,
+        grossCents,
+        platformFeePercent,
+        attributedCutPercent,
+      },
+      { kind: 'invoice', id: anyInv.id as string },
+    );
     if (reserve.reserveCents <= 0) return { ...none('no_deals'), reservedByDeal: {} };
 
     // The EXACT retained amount, in integer cents. This overrides application_fee_percent for this

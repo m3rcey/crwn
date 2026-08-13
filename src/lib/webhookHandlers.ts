@@ -2,6 +2,8 @@ import Stripe from 'stripe';
 import { stripe } from '@/lib/stripe/client';
 import { createPurchaseObligation } from '@/lib/purchaseObligations';
 import { reserveFromStripeMetadata } from '@/lib/teamSplits/reserve';
+import { fundReserves, freezeReservesForEarning } from '@/lib/teamSplits/reservations';
+import { moneyKeyFromMetadata } from '@/lib/teamSplits/moneyKey';
 import { recoverArtistShareOnRefund } from '@/lib/stripe/refundRecovery';
 import { createNotification, notifyNewSubscriber, notifyNewPurchase, notifySubscriptionCanceled } from '@/lib/notifications';
 import { resend, FROM_EMAIL } from '@/lib/resend';
@@ -83,6 +85,34 @@ function extractShippingAddress(session: Stripe.Checkout.Session) {
  * Returns {} when nothing was reserved, which is the overwhelmingly common case and the safe one:
  * no proof, no accrual.
  */
+/**
+ * TS-MONEY-009 + TS-MONEY-012. Promote this payment's PROVISIONAL cap reservation to FUNDED, now
+ * that Stripe has actually settled it, and bind it to the canonical earnings row.
+ *
+ * Until this runs the reservation holds cap headroom but has ZERO collaborator value: it is an
+ * intention, not money. Never fatal, and idempotent, because the RPC only moves rows that are
+ * still provisional.
+ */
+async function fundSettledReservation(
+  supabaseAdmin: AdminClient,
+  stripeMetadata: unknown,
+  invoiceId: string | null,
+  earningId: string | null,
+): Promise<void> {
+  if (!earningId) return;
+  try {
+    const key = moneyKeyFromMetadata(stripeMetadata);
+    if (key) {
+      await fundReserves(supabaseAdmin, { kind: 'checkout_session', id: key }, earningId);
+    }
+    if (invoiceId) {
+      await fundReserves(supabaseAdmin, { kind: 'invoice', id: invoiceId }, earningId);
+    }
+  } catch (err) {
+    console.error('Funding the Team Split reservation failed (cap stays reserved):', err);
+  }
+}
+
 function settledReserveFor(stripeMetadata: unknown): Record<string, unknown> {
   const map = reserveFromStripeMetadata(stripeMetadata);
   const total = Object.values(map).reduce((a, b) => a + b, 0);
@@ -256,6 +286,9 @@ export async function handleCheckoutCompleted(supabaseAdmin: AdminClient, sessio
       })
       .select('id')
       .single();
+
+  // TS-MONEY-012: the provisional cap reservation becomes FUNDED now that Stripe settled.
+  await fundSettledReservation(supabaseAdmin, initialInvoiceMetadata, (session as unknown as { invoice?: string | null }).invoice ?? null, earning?.id ?? null);
 
     // Notify artist of new subscriber and earning
     const { data: artistProfile } = await supabaseAdmin
@@ -606,6 +639,9 @@ export async function handleSubscriptionRenewal(supabaseAdmin: AdminClient, invo
     })
     .select('id')
     .single();
+
+  // TS-MONEY-012: the provisional cap reservation becomes FUNDED now that Stripe settled.
+  await fundSettledReservation(supabaseAdmin, invoice.metadata, invoice.id as string, earning?.id ?? null);
 
   // Update subscription periods
   await supabaseAdmin
@@ -998,6 +1034,9 @@ export async function handleProductPurchase(supabaseAdmin: AdminClient, session:
     .select('id')
     .single();
 
+  // TS-MONEY-012: the provisional cap reservation becomes FUNDED now that Stripe settled.
+  await fundSettledReservation(supabaseAdmin, session.metadata, null, earning?.id ?? null);
+
   // Notify artist of new purchase and earning
   if (artistProfile) {
     await notifyNewPurchase(
@@ -1304,6 +1343,9 @@ export async function handleTrackPurchase(supabaseAdmin: AdminClient, session: S
     .select('id')
     .single();
 
+  // TS-MONEY-012: the provisional cap reservation becomes FUNDED now that Stripe settled.
+  await fundSettledReservation(supabaseAdmin, session.metadata, null, earning?.id ?? null);
+
   if (artistProfile) {
     await notifyNewPurchase(supabaseAdmin, artistProfile.user_id, fanName, trackTitle);
 
@@ -1500,6 +1542,9 @@ export async function handleBookingPurchase(supabaseAdmin: AdminClient, session:
     .select('id')
     .single();
 
+  // TS-MONEY-012: the provisional cap reservation becomes FUNDED now that Stripe settled.
+  await fundSettledReservation(supabaseAdmin, session.metadata, null, earning?.id ?? null);
+
   // Notify artist of booking and earning
   if (artistProfile) {
     await createNotification(supabaseAdmin, artistProfile.user_id, 'new_booking', '📅 New Booking', `${fanName} booked: ${bookingTitle}`, `/studio`);
@@ -1606,6 +1651,9 @@ export async function handleLiveTicketPurchase(supabaseAdmin: AdminClient, sessi
     })
     .select('id')
     .single();
+
+  // TS-MONEY-012: the provisional cap reservation becomes FUNDED now that Stripe settled.
+  await fundSettledReservation(supabaseAdmin, session.metadata, null, earning?.id ?? null);
 
   if (artistProfile) {
     await createNotification(supabaseAdmin, artistProfile.user_id, 'live_ticket', '🎟️ Ticket sold', `${fanName} bought a ticket to ${liveTitle}`, `/studio/live`);
@@ -1750,6 +1798,9 @@ export async function handleLiveTip(supabaseAdmin: AdminClient, session: Stripe.
     })
     .select('id')
     .single();
+
+  // TS-MONEY-012: the provisional cap reservation becomes FUNDED now that Stripe settled.
+  await fundSettledReservation(supabaseAdmin, session.metadata, null, earning?.id ?? null);
 
   if (artistProfile) {
     await createNotification(supabaseAdmin, artistProfile.user_id, 'live_tip', `💸 ${fanName} tipped $${(grossAmount / 100).toFixed(2)}!`, tip.message ? `"${tip.message}"` : `During ${liveTitle}`, `/studio/live`);

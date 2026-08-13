@@ -68,3 +68,27 @@ SELECT 'schema-phase2-team-split-funded-reserve.sql' AS migration,
          AND NOT has_function_privilege('authenticated', 'public.accept_team_split_deal(uuid,uuid,boolean,numeric)', 'EXECUTE')
          AND NOT has_function_privilege('anon', 'public.accept_team_split_deal(uuid,uuid,boolean,numeric)', 'EXECUTE')
        ) AS applied;
+
+-- 5. Team Split cap reservations (2026-08-13). Declares liveCheck 'sql-check' because all six
+--    functions are deliberately REVOKED from anon and authenticated, so an anonymous probe can only
+--    answer "denied", which is indistinguishable from "never created". This asks the catalog for
+--    the objects AND for the security property that matters, so it can tell applied-correctly from
+--    applied-insecurely.
+--    Expect applied = true after running supabase/schema-phase2-team-split-cap-reservations.sql.
+SELECT 'schema-phase2-team-split-cap-reservations.sql' AS migration,
+       (
+         to_regclass('public.team_split_cap_reservations') IS NOT NULL
+         AND EXISTS (SELECT 1 FROM pg_class WHERE relname = 'team_split_cap_reservations'
+                       AND relnamespace = 'public'::regnamespace AND relrowsecurity)
+         AND 0 = (SELECT count(*) FROM information_schema.role_table_grants
+                   WHERE table_schema = 'public' AND table_name = 'team_split_cap_reservations'
+                     AND grantee IN ('anon', 'authenticated'))
+         AND to_regprocedure('public.grant_team_split_reservation(uuid,text,text,integer)') IS NOT NULL
+         AND to_regprocedure('public.fund_team_split_reservation(text,text,uuid)') IS NOT NULL
+         AND to_regprocedure('public.release_team_split_reservation(text,text,text)') IS NOT NULL
+         AND to_regprocedure('public.return_team_split_surplus(uuid,integer,text,text)') IS NOT NULL
+         AND to_regprocedure('public.freeze_team_split_reservations(uuid,text)') IS NOT NULL
+         AND NOT has_function_privilege('authenticated', 'public.grant_team_split_reservation(uuid,text,text,integer)', 'EXECUTE')
+         AND NOT has_function_privilege('anon', 'public.return_team_split_surplus(uuid,integer,text,text)', 'EXECUTE')
+         AND EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_tscr_money_identity')
+       ) AS applied;

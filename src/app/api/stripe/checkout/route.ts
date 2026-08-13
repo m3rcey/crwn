@@ -3,7 +3,9 @@ import { stripe } from '@/lib/stripe/client';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createClient } from '@supabase/supabase-js';
 import { getArtistFeePercent } from '@/lib/platformTier';
-import { resolveReserveForSale, reserveToStripeMetadata } from '@/lib/teamSplits/reserve';
+import { reserveForSaleAtomic, reserveToStripeMetadata } from '@/lib/teamSplits/reserve';
+import { teamSplitMoneyKey } from '@/lib/teamSplits/moneyKey';
+import { firstChargeFeePlan } from '@/lib/teamSplits/feePercent';
 import { checkRateLimit } from '@/lib/rateLimit';
 import { validateAndApplyDiscount } from '@/lib/discountCodes';
 import { resolveClipperRate } from '@/lib/clipperRate';
@@ -219,20 +221,43 @@ export async function POST(req: NextRequest) {
     const firstInvoiceGrossCents = interval === 'year'
       ? ((tier as { annual_price?: number }).annual_price ?? tier.price * 12)
       : tier.price;
-    const subReserve = await resolveReserveForSale(svcConnect, {
-      artistId: tier.artist_id,
-      sourceType: 'tier',
-      sourceId: tierId,
-      grossCents: firstInvoiceGrossCents,
-      platformFeePercent,
-      attributedCutPercent: attributedCut,
-    });
+    const tsMoneyKey = teamSplitMoneyKey();
+    const subReserve = await reserveForSaleAtomic(
+      svcConnect,
+      {
+        artistId: tier.artist_id,
+        sourceType: 'tier',
+        sourceId: tierId,
+        grossCents: firstInvoiceGrossCents,
+        platformFeePercent,
+        attributedCutPercent: attributedCut,
+      },
+      { kind: 'checkout_session', id: tsMoneyKey },
+    );
     // computeFunding already returns platform + attributed + reserve as one percent, clamped to
     // 100. Falls back to the unchanged fee when nothing qualifies, so a subscription with no Team
     // Split is byte-for-byte the economics it had before this existed.
-    const subscriptionFeePercent = subReserve.reserveCents > 0
-      ? subReserve.breakdown.applicationFeePercent
-      : effectiveFeePercent;
+    // TS-MONEY-014 / TS-MONEY-015. Stripe caps application_fee_percent at TWO DECIMALS, so an exact
+    // cent target usually cannot be expressed. Nearest-rounding would be subsidy-safe but
+    // CONTRACT-unsafe: it can retain fewer cents than the collaborator's accepted split, and the
+    // accrual guard would then clamp the collaborator DOWN to the short amount. So the percentage
+    // is rounded UP, never to nearest. Any overage is ARTIST-owned surplus and returns through D3.
+    //
+    // `safe: false` means even 100% cannot retain the target, so we fund NO split rather than
+    // underfund one.
+    const feePlan = firstChargeFeePlan({
+      grossCents: firstInvoiceGrossCents,
+      platformFeeCents: subReserve.breakdown.platformFeeCents,
+      attributedCutCents: subReserve.breakdown.attributedCutCents,
+      grantedReserveCents: subReserve.reserveCents,
+    });
+    const fundFirstCharge = subReserve.reserveCents > 0 && feePlan.safe;
+    const subscriptionFeePercent = fundFirstCharge ? feePlan.percent : effectiveFeePercent;
+    if (subReserve.reserveCents > 0 && !feePlan.safe) {
+      console.error('[checkout] first-charge fee percent not representable; funding no Team Split', {
+        gross: firstInvoiceGrossCents, required: feePlan.requiredCents,
+      });
+    }
 
     // Get fan profile
     const { data: fan } = await supabase
@@ -309,7 +334,11 @@ export async function POST(req: NextRequest) {
       metadata: {
         // Proof of what the FIRST invoice withheld. The initial earnings writer reads this from the
         // session, because the first invoice was never a draft we could tag.
-        ...reserveToStripeMetadata(subReserve.reservedByDeal),
+        ...(fundFirstCharge ? reserveToStripeMetadata(subReserve.reservedByDeal) : {}),
+        ...(fundFirstCharge ? { team_split_money_key: tsMoneyKey } : {}),
+        ...(fundFirstCharge && feePlan.overageCents > 0
+          ? { team_split_rounding_surplus: String(feePlan.overageCents) }
+          : {}),
         fan_id: fanId,
         artist_id: tier.artist_id,
         tier_id: tierId,

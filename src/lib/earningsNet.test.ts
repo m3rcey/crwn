@@ -126,7 +126,11 @@ describe('F-01 wiring — both subscription paths share the formula', () => {
     // no Team Split must be byte-for-byte the economics it had before the reserve existed.
     expect(CHECKOUT).toContain('application_fee_percent: subscriptionFeePercent');
     expect(CHECKOUT).toContain(': effectiveFeePercent;');
-    expect(CHECKOUT).toContain('subReserve.breakdown.applicationFeePercent');
+    // 2026-08-13: the reserve percentage now comes from the CEILING plan (firstChargeFeePlan), not
+    // from computeFunding's percent, because Stripe's two-decimal limit could otherwise retain
+    // fewer cents than the collaborator accepted. The F-01 property is unchanged: no split still
+    // means exactly effectiveFeePercent.
+    expect(CHECKOUT).toContain('firstChargeFeePlan({');
   });
 
   it('platform_fee stays the base cut — admin revenue is not polluted by pass-through commission', () => {

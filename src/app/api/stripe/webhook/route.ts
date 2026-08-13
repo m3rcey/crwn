@@ -3,6 +3,9 @@ import Stripe from 'stripe';
 import { stripe } from '@/lib/stripe/client';
 import { createClient } from '@supabase/supabase-js';
 import { fundSubscriptionInvoice } from '@/lib/teamSplits/invoiceFunding';
+import { releaseReserves } from '@/lib/teamSplits/reservations';
+import { moneyKeyFromMetadata } from '@/lib/teamSplits/moneyKey';
+import { handleTeamSplitDispute } from '@/lib/teamSplits/disputes';
 import {
   handleCheckoutCompleted,
   handleCheckoutExpired,
@@ -249,14 +252,35 @@ export async function POST(req: NextRequest) {
         break;
       }
 
+      // TS-MONEY-013. A payment that will never settle must not hold cap headroom forever. Release
+      // is provisional-only: the RPC refuses to release a FUNDED reservation, because real money
+      // moved and its disposition is a D3 return or a clawback, never a headroom give-back.
       case 'checkout.session.expired': {
         const session = event.data.object as Stripe.Checkout.Session;
+        // TS-MONEY-013. A payment that will never settle must not hold cap headroom forever.
+        // Release is PROVISIONAL-ONLY: the RPC refuses to release a funded reservation, because
+        // real money moved and its disposition is a D3 return or a clawback, never a give-back.
+        const expiredKey = moneyKeyFromMetadata(session.metadata);
+        if (expiredKey) {
+          await releaseReserves(supabaseAdmin, { kind: 'checkout_session', id: expiredKey }, 'checkout_expired');
+        }
         await handleCheckoutExpired(supabaseAdmin, session);
+        break;
+      }
+
+      // TS-MONEY-017/018. A disputed source has ZERO collaborator availability, and resolution
+      // must never apply twice. Separate from an artist/collaborator BUSINESS dispute, which is a
+      // contract disagreement and has nothing to do with a chargeback.
+      case 'charge.dispute.closed':
+      case 'charge.dispute.updated': {
+        const dispute = event.data.object as Stripe.Dispute;
+        await handleTeamSplitDispute(supabaseAdmin, stripe, dispute);
         break;
       }
 
       case 'charge.dispute.created': {
         const dispute = event.data.object as Stripe.Dispute;
+        await handleTeamSplitDispute(supabaseAdmin, stripe, dispute);
         await handleDisputeCreated(supabaseAdmin, dispute);
         break;
       }

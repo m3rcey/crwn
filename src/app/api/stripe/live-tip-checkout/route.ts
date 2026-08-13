@@ -3,7 +3,8 @@ import { createClient } from '@supabase/supabase-js';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import Stripe from 'stripe';
 import { getArtistFeePercent } from '@/lib/platformTier';
-import { resolveReserveForSale, reserveToStripeMetadata } from '@/lib/teamSplits/reserve';
+import { reserveForSaleAtomic, reserveToStripeMetadata } from '@/lib/teamSplits/reserve';
+import { teamSplitMoneyKey } from '@/lib/teamSplits/moneyKey';
 import { checkRateLimit } from '@/lib/rateLimit';
 import { isLiveTipsEnabled, normalizeTipAmount, normalizeTipMessage } from '@/lib/live/tips';
 
@@ -95,14 +96,20 @@ export async function POST(request: NextRequest) {
     // later would be CRWN's own money. ONE canonical calculation: this route does no split math.
     // Never throws, and returns 0 on any failure, so a checkout cannot fail because a split could
     // not be computed. Reserving nothing simply means nobody can accrue.
-    const reserve = await resolveReserveForSale(supabaseAdmin, {
+    // The reservation is bound to a canonical money identity so a retry or a redelivered
+    // webhook resolves to the SAME grant instead of consuming the cap twice. The Checkout
+    // Session id does not exist yet, so the key is server-minted here and written into the
+    // session metadata, which settlement reads back.
+    const tsMoneyKey = teamSplitMoneyKey();
+
+    const reserve = await reserveForSaleAtomic(supabaseAdmin, {
       artistId: session.artist_id,
       sourceType: 'live_session',
       sourceId: session.id,
       grossCents: amount,
       platformFeePercent,
       attributedCutPercent: 0,
-    });
+    }, { kind: 'checkout_session', id: tsMoneyKey });
     const applicationFeeAmount = platformFee + reserve.reserveCents;
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://thecrwn.app';
@@ -110,6 +117,7 @@ export async function POST(request: NextRequest) {
       // The per-deal reserve rides WITH the charge so settlement records PROVEN funding on the
       // earnings row rather than recomputing what checkout merely intended.
       ...reserveToStripeMetadata(reserve.reservedByDeal),
+          ...(reserve.reserveCents > 0 ? { team_split_money_key: tsMoneyKey } : {}),
       type: 'live_tip',
       live_session_id: session.id,
       buyer_id: user.id,
