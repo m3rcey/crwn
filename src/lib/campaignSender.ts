@@ -295,17 +295,22 @@ export async function resolveAudienceAndSend(
         // The mail header below carries the same signature: RFC 8058 one-click posts to the URL
         // itself, not to the confirm form, so the token has to survive in the query string.
         const unsubscribeSigning = { recipient: fanRecipient(send.fan_id), artistId: campaign.artist_id };
-        const unsubscribeUrl = appendUnsubscribeToken(
-          `${BASE_URL}/api/campaigns/unsubscribe/${send.id}`,
-          { kind: 'campaign-artist', id: send.id, artistId: campaign.artist_id, recipient: unsubscribeSigning.recipient },
-        );
+        const unsubscribeBase = `${BASE_URL}/api/campaigns/unsubscribe/${send.id}`;
+        // campaignEmail signs the body links itself (it also builds the "unsubscribe from all"
+        // link), so it takes the unsigned base. The header needs its own signed copy.
+        const unsubscribeUrl = appendUnsubscribeToken(unsubscribeBase, {
+          kind: 'campaign-artist',
+          id: send.id,
+          artistId: campaign.artist_id,
+          recipient: unsubscribeSigning.recipient,
+        });
         const trackingPixelUrl = `${BASE_URL}/api/campaigns/track/${send.id}?pixel=1`;
 
         const html = campaignEmail({
           body: personalizedBody,
           artistName,
           sendId: send.id,
-          unsubscribeUrl: `${BASE_URL}/api/campaigns/unsubscribe/${send.id}`,
+          unsubscribeUrl: unsubscribeBase,
           trackingPixelUrl,
           platformTier,
           unsubscribeSigning,

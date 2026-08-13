@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { checkRateLimit } from '@/lib/rateLimit';
-import { canSubmitToSession, isProducerSessionsEnabled } from '@/lib/producer/access';
+import { canSubmitToSession, ownsSession, isProducerSessionsEnabled } from '@/lib/producer/access';
+import { hasTierAccess, hasPaidLiveTicket } from '@/lib/live/access';
 
 // A fan casts one vote in an open poll. Access is the SAME gate as submitting: you
 // must be able to get into the session (free, allowed tier, or paid ticket). One
@@ -40,12 +41,52 @@ export async function POST(req: NextRequest) {
   const optionIds: string[] = Array.isArray(poll.options) ? poll.options.map((o: { id: string }) => o.id) : [];
   if (!optionIds.includes(optionId)) return NextResponse.json({ error: 'Invalid option' }, { status: 400 });
 
-  // Same access gate as submitting. (Deadline does not apply to live voting, but
-  // the session/access/flag checks do; a closed session's poll is already 'closed'.)
+  // Access gate for live voting. A deadline or a closed submission window must not
+  // block a vote, but ACCESS still has to hold.
+  //
+  // SECURITY: tolerating a reason is not the same as tolerating a stage of the
+  // check. canSubmitToSession returns `not_accepting` at
+  // src/lib/producer/access.ts:69, BEFORE it evaluates is_free / tier / ticket at
+  // :78-91. So the old `gate.reason !== 'not_accepting'` tolerance meant that on any
+  // session with accepts_submissions = false the access check was never reached,
+  // and any signed-in user could vote in a PAID or tier-restricted session. The
+  // same shape does not apply to `closed`, which is returned at :75 after the
+  // session is resolved but still before access, so it is tolerated only alongside
+  // the explicit access re-check below.
   const gate = await canSubmitToSession(supabaseAdmin, poll.session_id, user.id);
   if (!gate.ok && gate.reason !== 'closed' && gate.reason !== 'not_accepting') {
     const status = gate.reason === 'no_access' ? 403 : gate.reason === 'not_found' ? 404 : 409;
     return NextResponse.json({ error: gate.reason }, { status });
+  }
+
+  // Re-derive ACCESS independently for the two tolerated reasons, so a tolerated
+  // window state can never double as a tolerated access state. The owner always
+  // passes; everyone else needs the session to be free, or their tier, or a ticket.
+  if (!gate.ok) {
+    const owner = await ownsSession(supabaseAdmin, poll.session_id, user.id);
+    if (!owner) {
+      const { data: s } = await supabaseAdmin
+        .from('producer_sessions')
+        .select('id, is_active, is_free, allowed_tier_ids, artist_id')
+        .eq('id', poll.session_id)
+        .maybeSingle();
+      if (!s || !s.is_active) return NextResponse.json({ error: 'not_found' }, { status: 404 });
+
+      let allowed = !!s.is_free;
+      if (!allowed) {
+        const { data: sub } = await supabaseAdmin
+          .from('subscriptions')
+          .select('tier_id')
+          .eq('fan_id', user.id)
+          .eq('artist_id', s.artist_id)
+          .eq('status', 'active')
+          .maybeSingle();
+        allowed =
+          hasTierAccess(s.allowed_tier_ids, sub?.tier_id || null) ||
+          (await hasPaidLiveTicket(supabaseAdmin, s.id, user.id));
+      }
+      if (!allowed) return NextResponse.json({ error: 'no_access' }, { status: 403 });
+    }
   }
 
   const { error } = await supabaseAdmin
