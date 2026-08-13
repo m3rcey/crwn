@@ -515,6 +515,72 @@ describe('SEC-SPLIT — collaborator identity and funding', () => {
     }
   });
 
+  // TS-MONEY-011. Subscriptions are the large majority of CRWN's earnings rows, so an unfunded
+  // subscription rail means the reserve covers the minority of real revenue. The reserve must be
+  // set while the invoice is a DRAFT: Stripe makes monetary fields immutable at finalization, which
+  // is also what makes D1 enforceable (a finalized invoice can never be back-filled into liability).
+  it('TS-MONEY-011 every qualifying subscription invoice funds before finalization or funds nothing', () => {
+    const wh = readStripped('src/app/api/stripe/webhook/route.ts');
+    expect(
+      /case 'invoice\.created'/.test(wh) && /fundSubscriptionInvoice\(/.test(wh),
+      violation('TS-MONEY-011', 'the invoice.created handler is gone, so subscription charges fund no collaborator reserve and the majority of CRWN revenue silently pays nobody.', {
+        file: 'src/app/api/stripe/webhook/route.ts',
+      }),
+    ).toBe(true);
+
+    const fund = readStripped('src/lib/teamSplits/invoiceFunding.ts');
+    // Draft-only, or the update is a no-op against an immutable invoice.
+    expect(
+      /!== 'draft'/.test(fund),
+      violation('TS-MONEY-011', 'invoice funding no longer checks that the invoice is a draft; a finalized invoice cannot accept a fee and must create zero liability.', {
+        file: 'src/lib/teamSplits/invoiceFunding.ts',
+      }),
+    ).toBe(true);
+    // The fee may never exceed the invoice total.
+    expect(
+      /applicationFeeAmount > grossCents/.test(fund),
+      violation('TS-MONEY-011', 'invoice funding no longer bounds the application fee by the invoice total.', {
+        file: 'src/lib/teamSplits/invoiceFunding.ts',
+      }),
+    ).toBe(true);
+    // Referral comes off BEFORE the collaborator share, or a split eats a referrer's commission.
+    // The VALUE must reach the calculation. `attributedCutPercent: 0` still contains the
+    // identifier and would satisfy a name check while silently letting a split eat a referrer's
+    // commission. Found by mutation on 2026-08-13.
+    expect(
+      fund.includes('      attributedCutPercent,'),
+      violation('TS-MONEY-011', 'invoice funding no longer passes the real referral/clipper cut into the reserve calculation, so a Team Split could consume money already owed to a referrer.', {
+        file: 'src/lib/teamSplits/invoiceFunding.ts',
+      }),
+    ).toBe(true);
+    // One canonical calculation: no bespoke split math on this rail.
+    expect(
+      /resolveReserveForSale\(/.test(fund),
+      violation('TS-MONEY-011', 'invoice funding computes its own split math instead of the canonical calculation.', {
+        file: 'src/lib/teamSplits/invoiceFunding.ts',
+      }),
+    ).toBe(true);
+  });
+
+  // TS-MONEY-009 extended: BOTH subscription earnings writers record the proof, not just renewals.
+  // The initial charge and every renewal are funded by the same invoice.created path, so a proof
+  // on only one of them strands the other's collaborators.
+  it('TS-MONEY-009 both subscription earnings writers record settlement proof', () => {
+    const wh = readStripped('src/lib/webhookHandlers.ts');
+    expect(
+      /\.\.\.settledReserveFor\(invoice\.metadata\)/.test(wh),
+      violation('TS-MONEY-009', 'the renewal earnings writer no longer records the funded reserve from the settled invoice.', {
+        file: 'src/lib/webhookHandlers.ts',
+      }),
+    ).toBe(true);
+    expect(
+      /\.\.\.settledReserveFor\(initialInvoiceMetadata\)/.test(wh),
+      violation('TS-MONEY-009', 'the INITIAL subscription earnings writer records no funded reserve, so a first-charge collaborator can never be paid.', {
+        file: 'src/lib/webhookHandlers.ts',
+      }),
+    ).toBe(true);
+  });
+
   // F-3 / TS-MONEY-005: destination charges settle the artist's share into the
   // artist's Connect account, so a transfer to a collaborator with no reserve
   // withheld draws on CRWN's own balance. Until the reserve is wired into

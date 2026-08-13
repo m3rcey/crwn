@@ -3,7 +3,6 @@ import { stripe } from '@/lib/stripe/client';
 import { createPurchaseObligation } from '@/lib/purchaseObligations';
 import { reserveFromStripeMetadata } from '@/lib/teamSplits/reserve';
 import { recoverArtistShareOnRefund } from '@/lib/stripe/refundRecovery';
-import { stripe as stripeClient } from '@/lib/stripe/client';
 import { createNotification, notifyNewSubscriber, notifyNewPurchase, notifySubscriptionCanceled } from '@/lib/notifications';
 import { resend, FROM_EMAIL } from '@/lib/resend';
 import { recruiterArtistSignupEmail } from '@/lib/emails/recruiterArtistSignup';
@@ -176,6 +175,21 @@ export async function handleCheckoutCompleted(supabaseAdmin: AdminClient, sessio
     // code always fell back to 8% and under-reported the fee for Free-tier (12%)
     // artists. Match the renewal/purchase handlers, which use getArtistFeePercent.
     const subStripeId = (session as unknown as { subscription?: string }).subscription;
+
+    // TS-MONEY-009. The first subscription invoice is funded on invoice.created exactly like every
+    // renewal, so the reserve PROOF lives on that invoice. A checkout session carries no reserve
+    // map. Fetched read-only and never fatal: no invoice means no proof, which means no accrual.
+    let initialInvoiceMetadata: unknown = null;
+    try {
+      const invId = (session as unknown as { invoice?: string | null }).invoice;
+      if (invId) {
+        const inv = await stripe.invoices.retrieve(invId);
+        initialInvoiceMetadata = inv.metadata ?? null;
+      }
+    } catch (err) {
+      console.error('Initial subscription invoice lookup failed (no reserve proof):', err);
+    }
+
     const feePercent = await getArtistFeePercent(artist_id);
     const platformFee = Math.round(grossAmount * (feePercent / 100));
 
@@ -222,6 +236,9 @@ export async function handleCheckoutCompleted(supabaseAdmin: AdminClient, sessio
           // F-01 audit trail: the pass-through commission subtracted from net, so a
           // reconciliation can always recompute gross - platform_fee - this = net.
           ...(attributedCommission > 0 ? { attributed_commission: attributedCommission } : {}),
+          // TS-MONEY-009. The FIRST subscription invoice is funded by the same invoice.created
+          // path as every renewal, so its proof lives on the invoice, not on the checkout session.
+          ...settledReserveFor(initialInvoiceMetadata),
         },
         fan_city: fanCity,
         fan_state: fanState,
@@ -573,6 +590,10 @@ export async function handleSubscriptionRenewal(supabaseAdmin: AdminClient, invo
         fanDisplayName: fanName,
         renewal: true,
         ...(referralCommission > 0 ? { attributed_commission: referralCommission } : {}),
+        // TS-MONEY-009. Proof of what the DRAFT invoice actually withheld, read off the settled
+        // invoice rather than recomputed from deal terms that may have changed since. Without this
+        // a funded renewal could never pay its collaborator.
+        ...settledReserveFor(invoice.metadata),
       },
       fan_city: fanCity,
       fan_state: fanState,
@@ -2158,7 +2179,7 @@ export async function handleChargeRefunded(supabaseAdmin: AdminClient, charge: S
   //
   // Deliberately BEFORE the ledger writes and never fatal: an unrecovered refund must still be
   // recorded, because a ledger that drops a refund is worse than one that records a loss.
-  const recovery = await recoverArtistShareOnRefund(stripeClient, charge);
+  const recovery = await recoverArtistShareOnRefund(stripe, charge);
   if (recovery.shortfall > 0) {
     console.error('[refund] UNRECOVERED artist share', {
       charge: charge.id, shortfall: recovery.shortfall, reason: recovery.reason,

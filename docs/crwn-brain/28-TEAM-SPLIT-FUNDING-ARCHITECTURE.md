@@ -725,3 +725,66 @@ Not superstition, and not the refund defect any more. These are genuinely unbuil
 
 Flipping `cashoutFundingReady` with 1, 2 and 3 open would pay collaborators from a rail whose
 majority revenue source funds nothing.
+
+---
+
+## 23. Phase 3 (2026-08-13): subscriptions funded. Three blockers left.
+
+**Every payment rail CRWN has now funds the collaborator reserve.** Cashout is still 503; section
+23.4 is the honest list of why.
+
+### 23.1 The Stripe premise, re-verified and stronger than assumed
+
+From the invoice lifecycle documentation:
+
+> "Invoices are initially created with `status=draft`, and you can only edit them while they're in
+> this state."
+>
+> "We wait 1 hour after receiving a successful response to the `invoice.created` event from all
+> listening webhooks before attempting payment. If we don't receive a successful response within 72
+> hours, we attempt to finalize and send the invoice."
+>
+> "During that time, we won't attempt to charge the customer unless we receive a successful
+> response."
+
+So the draft window is not a race to be won: Stripe holds the charge for a full hour AFTER a
+successful response. And immutability at finalization is what makes D1 enforceable by Stripe rather
+than by CRWN's bookkeeping, since a finalized invoice can never be back-filled into liability.
+
+### 23.2 One path funds every invoice class
+
+`src/lib/teamSplits/invoiceFunding.ts` keys on the INVOICE, not on `billing_reason`. The initial
+subscription charge, an ordinary renewal, a proration, a coupon'd invoice and a retried invoice are
+all just invoices with a draft phase, so none is a special case and a billing reason Stripe invents
+later is funded automatically instead of silently skipped.
+
+Order is preserved: platform fee, then referral/clipper, then the collaborator share from what
+remains. A split can never consume a referrer's commission. The fee is bounded by the invoice total
+and asserted to be so before the update.
+
+Failure funds NOTHING, always. No reserve means the accrual guard yields zero, so the collaborator
+is owed nothing rather than owed money nobody withheld. The handler never throws, so a split
+calculation can never stop a fan being charged.
+
+### 23.3 Settlement proof on BOTH subscription writers
+
+The initial charge and every renewal are funded by the same `invoice.created` path, so the proof
+lives on the INVOICE. The renewal writer reads `invoice.metadata`; the initial writer fetches the
+session's invoice and reads its metadata. A proof on only one of them would strand the other's
+collaborators, which is now a mutation-tested invariant rather than a comment.
+
+### 23.4 Why the rail is STILL 503
+
+Three genuine gaps, and one of them needs the founder:
+
+1. **Cap concurrency is still safe-direction, not locked.** Two simultaneous charges near a cap can
+   both reserve the same headroom. The result is over-collection, which becomes D3 surplus owed
+   back to the artist, so nobody is underpaid. Closing it properly needs a reservation ledger under
+   a lock, which is a NEW MIGRATION and therefore a founder action.
+2. **D3 surplus is representable but still not returned.** The platform-to-artist transfer does not
+   exist, so over-collected reserve currently has no way home. This is what makes (1) more than
+   cosmetic.
+3. **Stripe dispute lifecycle** (created / won / lost) does not yet reconcile reserves.
+
+**No canary has been run.** Nothing has been proved against real Stripe money movement, and by the
+rules of this work that alone keeps the gate shut.

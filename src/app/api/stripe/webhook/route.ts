@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { stripe } from '@/lib/stripe/client';
 import { createClient } from '@supabase/supabase-js';
+import { fundSubscriptionInvoice } from '@/lib/teamSplits/invoiceFunding';
 import {
   handleCheckoutCompleted,
   handleCheckoutExpired,
@@ -146,6 +147,25 @@ export async function POST(req: NextRequest) {
         // Otherwise it's an artist Connect subscription
         else {
           await handleCheckoutCompleted(supabaseAdmin, session);
+        }
+        break;
+      }
+
+      // TS-MONEY-011. Establish the collaborator reserve while the invoice is still a DRAFT.
+      //
+      // This is the ONLY window: Stripe makes monetary fields immutable at finalization, and waits
+      // one hour after a successful response here before attempting payment. Keyed on the invoice
+      // rather than on billing_reason, so the initial charge, renewals, prorations, coupon'd and
+      // retried invoices are all funded by the same path and a new billing reason cannot silently
+      // skip funding.
+      //
+      // Always returns success. A split that cannot be computed must never stop a fan being
+      // charged; it must only stop a collaborator being owed.
+      case 'invoice.created': {
+        const invoice = event.data.object as Stripe.Invoice;
+        const funding = await fundSubscriptionInvoice(supabaseAdmin, stripe, invoice);
+        if (funding.funded) {
+          console.log('Team Split reserve funded on invoice:', invoice.id, funding.reserveCents);
         }
         break;
       }

@@ -1,5 +1,33 @@
 # CRWN Brain — Changelog
 
+## 2026-08-13 - Subscriptions now fund the collaborator reserve
+
+Every payment rail CRWN has is funded. Cashout is still 503; doc 28 section 23.4 lists the three
+remaining gaps honestly.
+
+- **`invoice.created` funds the reserve while the invoice is a DRAFT.** Re-verified against Stripe:
+  monetary fields are editable only in draft, and Stripe waits one hour after a successful response
+  before attempting payment, and will not charge at all without one. So this is a comfortable
+  window, not a race, and immutability at finalization is what makes D1 enforceable by Stripe rather
+  than by our bookkeeping.
+- **One path funds every invoice class.** Keyed on the invoice, not on `billing_reason`, so the
+  initial charge, renewals, prorations, coupon'd and retried invoices are all covered and a billing
+  reason Stripe adds later cannot silently skip funding.
+- Order preserved: platform fee, then referral/clipper, then the collaborator share from what
+  remains. The fee is bounded by the invoice total and asserted before the update.
+- **Settlement proof on BOTH subscription writers.** The initial charge and renewals are funded by
+  the same path, so the proof lives on the invoice; the initial writer fetches it from the session's
+  invoice. A proof on only one would strand the other's collaborators.
+- Six mutations proven applied and caught. One escaped first and exposed another presence-check of
+  mine: `attributedCutPercent: 0` still contains the identifier, so a name check passed while a
+  split quietly ate the referrer's commission. That is the third time a presence-check has been the
+  weak link, and the assertion is now a literal source check.
+
+Still open, and why the rail stays shut: cap concurrency is safe-direction rather than locked (needs
+a new migration), the D3 artist-return transfer is unbuilt, disputes do not reconcile reserves, and
+no canary has been run.
+
+
 ## 2026-08-13 - The refund hole is closed, and every one-time rail now funds the collaborator
 
 Continuation of the funded reserve. `schema-phase2-team-split-funded-reserve.sql` is APPLIED and

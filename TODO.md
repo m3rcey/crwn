@@ -22,20 +22,22 @@ responsible for. Do not work those.
 
 ### P0 — money flows or acquisition are blocked
 
-- [ ] **Nothing for you here yet on Team Splits. Recorded so you know where it stands.**
-      The migration you ran is verified live (I probed the behaviour, not just the objects: 89% of
-      gross correctly reads as 101% of net and is refused). All five one-time payment rails now
-      withhold the collaborator's share before the artist is paid, settlement records proof of what
-      was actually funded, and the destination-charge refund hole is closed in code.
-      That refund hole was costing you money on ORDINARY refunds, with or without Team Splits: a
-      refund made in the Stripe Dashboard debited CRWN and left the artist holding their share.
-      The webhook now claws the artist's share back automatically, and reports anything it cannot
-      recover instead of hiding it.
-      **Collaborator cashout is still 503**, and the honest reason is that subscription renewals do
-      not fund a reserve yet. Subscriptions are 48 of your 55 earnings rows, so opening the rail now
-      would pay collaborators from a system that funds almost none of your actual revenue. Renewal
-      funding, the surplus return, and disputes are the next task. I will not flip that gate until a
-      canary proves the money moves correctly.
+- [ ] **Team Splits: every payment rail now funds the collaborator. Three things left, one is
+      yours.** Nothing to run today.
+      Subscriptions are now funded, which was the big one: they are 48 of your 55 earnings rows, so
+      until today the reserve covered the minority of your actual revenue. The initial charge and
+      every renewal both fund while Stripe still has the invoice as a draft, and Stripe holds the
+      charge for a full hour after we respond, so it is a comfortable window rather than a race.
+      Still closed, and the honest reasons:
+        1. Two payments landing at the same moment near a spending cap can both reserve the same
+           headroom. Nobody gets underpaid (it over-collects, and the excess is owed back to the
+           artist), but fixing it properly needs a small new table under a lock, which is a new
+           migration I will write and you will run.
+        2. That over-collected money has no way home yet: the artist-return transfer is not built.
+        3. Stripe chargebacks do not yet unwind a reserve.
+      After those three, I run a canary in Stripe test mode covering a subscription, a renewal, a
+      refund, a surplus return, a dispute and a cashout. **I will not open the payout rail before
+      that canary passes**, and I would rather it stay shut than guess.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
