@@ -54,6 +54,17 @@ export interface PopupContext {
    * "the first person who has ever paid this artist": the ICP may already have customers elsewhere.
    */
   hasFirstPaidConversion: boolean;
+  /**
+   * Fans (including artists who support other artists): does this user have an OPEN testimonial
+   * request right now?
+   *
+   * DERIVED server-side from the `fan_testimonial_requests` row the daily generator created, in the
+   * same shape as `resumable`: the registry stays a pure predicate over context and never queries.
+   * A boolean rather than the request itself, because the pop-up is only the interrupt. The artist
+   * name and the actual question live on the fan hub card, which is where the CTA goes, so no
+   * per-user string has to be templated into this catalog.
+   */
+  hasPendingTestimonialRequest: boolean;
 }
 
 export interface PopupCta {
@@ -359,6 +370,35 @@ export const POPUPS: PopupDef[] = [
     body: 'The artists you listen to make almost nothing from streams and follows. Backing one directly is what actually keeps them making music, and it puts you on the inside.',
     cta: { label: 'Find an artist to back', href: '/explore' },
     dismissLabel: 'Maybe later',
+  },
+
+  // ---- Fan: share what supporting this artist has been like ----
+  //
+  // The interrupt half of the testimonial ask. The row was created by the daily generator only
+  // after the fan EXPERIENCED value (a promise delivered to them, or thirty days paid and still
+  // active), so this never fires at checkout.
+  //
+  // PRIORITY 10, the lowest in the catalog, and deliberately so. This is CRWN asking the fan for a
+  // favour; it is not their money, their access, or their obligation. It must lose to Stripe (100),
+  // the first broadcast (80), backing an artist (60), a live-tips announcement (55), resuming Rise
+  // (40), the post-win ask (30) and the artist survey (20). Losing only DEFERS it: `everyN` keeps
+  // it eligible tomorrow, and the fan hub card carries the same request in the meantime, so a fan
+  // who never wins the daily slot can still answer.
+  //
+  // No reward language, ever. A testimonial adjacent to an incentive is discounted by everyone who
+  // reads it, including the venue or brand the artist is trying to convince.
+  {
+    key: 'fan_share_experience',
+    kind: 'modal',
+    pages: ['/home', '/command', '/library'],
+    audience: (c) => c.hasPendingTestimonialRequest,
+    frequency: { type: 'everyN', days: 7, max: 3 },
+    priority: 10,
+    goal: 'Fan turns an experience they already had into proof the artist can actually use.',
+    title: 'What you think stays in your head. It could be the reason someone else joins.',
+    body: 'An artist you support asked one question about what this has been like. Nobody sees your answer unless you say they can, and they can never change your words.',
+    cta: { label: 'Answer it', href: '/command' },
+    dismissLabel: 'Not now',
   },
 
   // ---- Pop-up survey: artist satisfaction (feeds the improvement loop) ----

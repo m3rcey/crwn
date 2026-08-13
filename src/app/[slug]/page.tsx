@@ -10,6 +10,8 @@ import { BackgroundImage } from '@/components/ui/BackgroundImage';
 import { ArtistProfileContent } from '@/components/artist/ArtistProfileContent';
 import { ShareButtons } from '@/components/shared/ShareButtons';
 import { FoundingBadge } from '@/components/shared/FoundingBadge';
+import { PublicTestimonials } from '@/components/artist/PublicTestimonials';
+import { publicTestimonialsFor } from '@/lib/testimonials/publicRead';
 import { ShareEarnWrapper } from '@/components/shared/ShareEarnWrapper';
 import { ClipperProgram } from '@/components/shared/ClipperProgram';
 import { ArtistPreviewProvider } from '@/hooks/useArtistPreview';
@@ -288,6 +290,12 @@ export default async function ArtistPage({ params, searchParams }: ArtistPagePro
     .order('created_at', { ascending: false });
 
 
+  // Featured fan testimonials. ONE bounded query against the public view, which applies the
+  // publication predicate (consented + featured + not withdrawn + not hidden + not blocked) and
+  // derives the verification badge from the live relationship. Returns [] before the migration
+  // runs and on any error, so the section simply does not render.
+  const testimonials = await publicTestimonialsFor(supabase, artist.id);
+
   // The REAL ownership check. Never "does this viewer have an artist row": a
   // rival artist is not the owner of this page, and treating them as one handed
   // them owner-only controls on someone else's community.
@@ -450,6 +458,9 @@ export default async function ArtistPage({ params, searchParams }: ArtistPagePro
           )}
 
         </div>
+
+        {/* What supporters are saying. Self-hides when the artist has featured nothing. */}
+        <PublicTestimonials testimonials={testimonials} />
 
         {/* Content with Tabs */}
         <ArtistProfileContent

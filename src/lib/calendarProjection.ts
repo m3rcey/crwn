@@ -393,8 +393,14 @@ function fanItem(
   };
 }
 
-/** Is the fan eligible for a promised benefit, given the obligation's audience? */
-function fanEligibleForObligation(
+/**
+ * Is the fan eligible for a promised benefit, given the obligation's audience?
+ *
+ * EXPORTED because the testimonial request generator (src/lib/testimonials/server.ts) must answer
+ * the identical question before asking a fan about a delivered promise, and a second copy of this
+ * rule would let the calendar and the ask disagree about who was actually owed something.
+ */
+export function fanEligibleForObligation(
   ob: any,
   fanTierId: string | null,
   fanSquadIds: Set<string>,

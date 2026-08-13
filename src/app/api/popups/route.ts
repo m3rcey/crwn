@@ -11,6 +11,7 @@ import {
 import type { PopupContext } from '@/lib/popups';
 import { resend, FROM_EMAIL } from '@/lib/resend';
 import { buildReferralLink } from '@/lib/postWinReferral';
+import { pendingRequestForFan } from '@/lib/testimonials/server';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -123,9 +124,15 @@ async function buildContext(userId: string): Promise<PopupContext> {
     resumable: null,
     artistSlug: null,
     hasFirstPaidConversion: false,
+    hasPendingTestimonialRequest: false,
   };
 
   try {
+    // An OPEN testimonial ask, if the generator created one. Every user is a potential fan (an
+    // artist can support other artists), so this is read before the artist branch and not inside
+    // it. Reads the row the server already created; the pop-up only announces it.
+    base.hasPendingTestimonialRequest = !!(await pendingRequestForFan(supabaseAdmin, userId));
+
     // Dark-launch flags, so an announcement pop-up cannot fire before the feature
     // it announces is reachable. One query for all of them.
     const { data: flags } = await supabaseAdmin

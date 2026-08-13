@@ -76,6 +76,11 @@ export default defineConfig({
       'src/lib/tierTemplate.test.ts',
       'src/lib/leadMagnets/conversionContract.test.ts',
       'src/lib/leaderboardPrivacy.test.ts',
+      // Fan Testimonials V1. In the GATE and not merely in `npm test`, because two of its nine
+      // invariants are P0: publishing without fan consent, and pairing tier with tenure into a
+      // lifetime-spend disclosure. Both are irreversible for a real fan.
+      'src/lib/architecture/testimonials.test.ts',
+      'src/lib/testimonials/core.test.ts',
       'src/lib/brainContract.test.ts',
     ],
   },

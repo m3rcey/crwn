@@ -697,6 +697,108 @@ export const INVARIANTS: Invariant[] = [
     enforcedBy: ['src/lib/brainContract.test.ts'],
     docs: ['docs/crwn-brain/13-CURRENT-STATE.md', 'TODO.md'],
   },
+
+  // --------------------------------------------------- FAN TESTIMONIALS (V1)
+  // The customer is the ARTIST; the author is the FAN. Everything below protects that split.
+  {
+    id: 'TESTIMONIAL-001',
+    severity: 'P1',
+    category: 'ownership',
+    rule: 'The artist manages VISIBILITY, never AUTHORSHIP. No route, component or query writes fan_testimonials.body after insert; the DB freeze trigger reverts one that tries.',
+    owner: 'src/app/api/artist/testimonials/route.ts + trg_freeze_testimonial_body',
+    sourceOfTruth: 'src/lib/testimonials/server.ts (setTestimonialVisibility has no body parameter)',
+    enforcement: 'test',
+    enforcedBy: ['src/lib/architecture/testimonials.test.ts'],
+    docs: ['docs/crwn-brain/27-AUTOMATED-FAN-TESTIMONIALS-ARCHITECTURE.md'],
+  },
+  {
+    id: 'TESTIMONIAL-002',
+    severity: 'P1',
+    category: 'authorization',
+    rule: 'Artist testimonial management resolves the artist from the SESSION (artist_profiles.user_id = auth user), never from a caller-supplied artistId. Artist A can neither read nor feature Artist B testimonials.',
+    owner: 'src/app/api/artist/testimonials/route.ts',
+    sourceOfTruth: 'ownedArtistId() in that route',
+    enforcement: 'test',
+    enforcedBy: ['src/lib/architecture/testimonials.test.ts'],
+    docs: ['docs/crwn-brain/11-SECURITY-AND-PRIVACY.md', 'docs/crwn-brain/27-AUTOMATED-FAN-TESTIMONIALS-ARCHITECTURE.md'],
+  },
+  {
+    id: 'TESTIMONIAL-003',
+    severity: 'P1',
+    category: 'authorization',
+    rule: 'Submit and withdraw are authorized by the authenticated session only. No token payload, and no fanUserId-style parameter, may name the author. This is the defect POST /api/surveys carries and testimonials must not inherit.',
+    owner: 'src/app/api/testimonials/route.ts',
+    sourceOfTruth: 'session.user.id passed as fanId in that route',
+    enforcement: 'test',
+    enforcedBy: ['src/lib/architecture/testimonials.test.ts'],
+    docs: ['docs/crwn-brain/27-AUTOMATED-FAN-TESTIMONIALS-ARCHITECTURE.md'],
+  },
+  {
+    id: 'TESTIMONIAL-004',
+    severity: 'P0',
+    category: 'ownership',
+    rule: 'Public display requires EXPLICIT fan consent (consent_scope = crwn_only) as well as artist featuring. Automatic collection is never automatic publication.',
+    owner: 'src/lib/testimonials/core.ts (isTestimonialPubliclyEligible) + the fan_testimonials_public view WHERE clause',
+    sourceOfTruth: 'fan_testimonials.consent_scope',
+    enforcement: 'test',
+    enforcedBy: ['src/lib/testimonials/core.test.ts', 'src/lib/architecture/testimonials.test.ts'],
+    docs: ['docs/crwn-brain/27-AUTOMATED-FAN-TESTIMONIALS-ARCHITECTURE.md'],
+  },
+  {
+    id: 'TESTIMONIAL-005',
+    severity: 'P1',
+    category: 'measurement',
+    rule: 'A verification badge derives from canonical relationship evidence at render. No stored label, no artist-set string, and no client-supplied verified flag decides it.',
+    owner: 'src/lib/testimonials/core.ts (deriveVerification) + the view CASE expression',
+    sourceOfTruth: 'subscriptions (status, is_founder, started_at) + subscription_tiers.price',
+    enforcement: 'test',
+    enforcedBy: ['src/lib/testimonials/core.test.ts', 'src/lib/architecture/testimonials.test.ts'],
+    docs: ['docs/crwn-brain/27-AUTOMATED-FAN-TESTIMONIALS-ARCHITECTURE.md'],
+  },
+  {
+    id: 'TESTIMONIAL-006',
+    severity: 'P0',
+    category: 'measurement',
+    rule: 'The public testimonial payload carries no fan financial or PII field, and NEVER pairs a tier name with tenure. Tier and tenure are each safe alone and are a lifetime-spend disclosure together, which is the leaderboardPrivacy defect.',
+    owner: 'src/lib/testimonials/core.ts (PublicTestimonial) + fan_testimonials_public',
+    sourceOfTruth: 'src/lib/testimonials/core.ts',
+    enforcement: 'test',
+    enforcedBy: ['src/lib/testimonials/core.test.ts', 'src/lib/architecture/testimonials.test.ts'],
+    docs: ['docs/crwn-brain/11-SECURITY-AND-PRIVACY.md', 'docs/crwn-brain/27-AUTOMATED-FAN-TESTIMONIALS-ARCHITECTURE.md'],
+  },
+  {
+    id: 'TESTIMONIAL-007',
+    severity: 'P2',
+    category: 'communications',
+    rule: 'A testimonial request is delivered ONLY through the Pop-up Engine and the fan hub card. It sends no email, writes no notification, and never outranks money, access or an obligation (lowest priority in the catalog).',
+    owner: 'src/lib/popups/registry.ts (fan_share_experience) + src/components/fan/TestimonialRequestCard.tsx',
+    sourceOfTruth: 'src/lib/popups/registry.ts',
+    enforcement: 'test',
+    enforcedBy: ['src/lib/architecture/testimonials.test.ts'],
+    docs: ['docs/crwn-brain/27-AUTOMATED-FAN-TESTIMONIALS-ARCHITECTURE.md'],
+  },
+  {
+    id: 'TESTIMONIAL-008',
+    severity: 'P1',
+    category: 'ownership',
+    rule: 'Private loyalty-survey research (survey_responses, survey_type = loyalty_fan) is never read as, promoted into, or migrated to a public testimonial. Answering a survey is not publication consent.',
+    owner: 'src/lib/testimonials/*',
+    sourceOfTruth: 'survey_responses vs fan_testimonials are separate domains',
+    enforcement: 'test',
+    enforcedBy: ['src/lib/architecture/testimonials.test.ts'],
+    docs: ['docs/crwn-brain/27-AUTOMATED-FAN-TESTIMONIALS-ARCHITECTURE.md'],
+  },
+  {
+    id: 'TESTIMONIAL-009',
+    severity: 'P2',
+    category: 'measurement',
+    rule: 'Trigger eligibility reads canonical tables (subscriptions, fulfillment_events) and never fan_events, whose money event types are declared but not written. Every fulfillment read passes isFanPromiseEvent.',
+    owner: 'src/lib/testimonials/server.ts',
+    sourceOfTruth: 'subscriptions + fulfillment_events',
+    enforcement: 'test',
+    enforcedBy: ['src/lib/architecture/testimonials.test.ts'],
+    docs: ['docs/crwn-brain/27-AUTOMATED-FAN-TESTIMONIALS-ARCHITECTURE.md'],
+  },
 ];
 
 // ============================================================================
@@ -775,6 +877,7 @@ export const FROZEN_POPUP_KEYS: readonly string[] = [
   'announce_hub_navigation',
   'announce_support_chat',
   'notice_terms_2026_07_24',
+  'fan_share_experience',
 ];
 
 /** ID-006. Tour anchors that are persistence keys (localStorage dismissal state). */
@@ -1057,6 +1160,13 @@ export const EXPECTED_MIGRATION_STATE: ReadonlyArray<{
   { file: 'schema-phase2-sec-004-007-rls-notifications-tier-benefits.sql', state: 'applied', note: 'SEC-004/007; probe-verified 2026-08-12, anon notifications INSERT 23503 -> 42501 and tier_benefits write 42501 while its public read still works for the storefront' },
   { file: 'schema-phase2-sec-012-money-table-rls-reproducibility.sql', state: 'applied', note: 'SEC-012; probe-verified 2026-08-12, all 15 service-role-only money/CRM tables answer 42501 to anon' },
   { file: 'schema-phase2-sec-earnings-recruiters-select-policies.sql', state: 'applied', note: 'SEC-012 remainder. earnings and recruiters were deliberately excluded from the migration above because a bare RLS enable with no policy would have broken an artist reading their OWN earnings. Run 2026-08-12: the transaction COMMITTED and the probe flipped 200 [] -> 42501 on both tables, which is why this is applied. The post-COMMIT self-verify still raised on assertion 5 (recruiters had a NON-permissive policy naming a Data API role, and the cleanup loop only dropped USING(true) ones, so the file asserted a property it never enforced). The loop now uses assertion 5\'s exact predicate; a re-run to a clean self-verify is open in TODO.md. Access state is closed either way: the REVOKEs committed, and Postgres checks table privileges before RLS, so the surviving policy was already unreachable.' },
+
+  // Fan Testimonials V1. Its live check INVERTS the usual contract on the base tables (42501 is
+  // the PASS, because they are closed to every client role) and runs the normal way on the public
+  // view (200 is the PASS, because the artist page must be able to read it). Shipped code is
+  // fail-soft: the cron reports migration_pending, the fan card and the public section render
+  // nothing, and the artist library shows its empty state.
+  { file: 'schema-phase2-fan-testimonials.sql', state: 'pending', note: 'authored 2026-08-12, awaiting founder apply; every surface degrades to empty until it runs' },
 
   { file: 'schema-phase2-membership-strategy.sql', state: 'pending', note: 'fail-soft; only the strategy override save is blocked' },
   { file: 'schema-phase2-track-waterfall.sql', state: 'pending', note: 'fail-soft; upload falls back to all-at-once' },

@@ -91,6 +91,21 @@ CRWN is **live in production** (`thecrwn.app`) and the core money loop is real a
 
 ## Experimental / dark-launched
 
+- **Automated Fan Testimonials V1 (2026-08-12) — CODE SHIPPED, SCHEMA-GATED.** CRWN asks a fan who has
+  EXPERIENCED value one contextual question, stores their exact words with an explicit permission scope, and
+  puts it in the artist's PRIVATE library; the artist chooses what appears on their public page. Two triggers
+  only (a fan promise delivered +3 days, and 30 days paid and still active), both read from canonical tables
+  (`subscriptions`, `fulfillment_events` through `isFanPromiseEvent`) and never from `fan_events`, whose money
+  event types are declared in its CHECK but written by nobody. Delivery is the Pop-up Engine
+  (`fan_share_experience`, priority 10, the catalog floor) plus a persistent card on `/command`. **No email, no
+  AI, no rewards, no star ratings, no external fans.** Authorship is immutable: the artist manages visibility
+  only, enforced by a route with no body parameter AND a database freeze trigger. The fan may withdraw at any
+  time. **`supabase/schema-phase2-fan-testimonials.sql` is NOT applied** (probe-verified 2026-08-12), and there
+  is deliberately NO feature flag: the migration is the gate, and every surface degrades to empty until it runs.
+  Nine invariants (TESTIMONIAL-001..009) in the verify:architecture gate, all mutation-tested.
+  Full spec: `docs/crwn-brain/27-AUTOMATED-FAN-TESTIMONIALS-ARCHITECTURE.md` (section 28 is what was built).
+  `Confirmed`.
+
 - **Money Model measurement (First Revenue Launch economics, 2026-08-10)** — admin-only
   system for engagement terms, founder labor, guarantee evidence, revenue by source and
   30-day contribution margin per artist (`docs/crwn-brain/21-MONEY-MODEL-MEASUREMENT.md`).

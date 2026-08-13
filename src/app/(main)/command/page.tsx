@@ -18,6 +18,7 @@ import { usePageTour } from '@/hooks/usePageTour';
 import { getCommandTourSteps } from '@/lib/commandTourSteps';
 import { TourReplayButton } from '@/components/shared/TourReplayButton';
 import { UpcomingCalendarCard } from '@/components/fan/UpcomingCalendarCard';
+import { TestimonialRequestCard } from '@/components/fan/TestimonialRequestCard';
 
 interface CommandMission {
   missionId: string;
@@ -245,6 +246,11 @@ export default function CommandPage() {
 
         {/* Upcoming for you — self-hides when the fan's calendar is empty */}
         <UpcomingCalendarCard />
+
+        {/* An artist asked what supporting them has been like. Self-hides when there is no open
+            ask. This is the persistent half of delivery: the pop-up interrupts at most once a day,
+            this card waits. */}
+        <TestimonialRequestCard />
 
         {isBrandNew ? (
           /* Brand-new fan — nothing joined, nothing to share yet */

@@ -1,9 +1,17 @@
 # 27 — Automated Fan Testimonials
 
-> **ARCHITECTURE ONLY - NOT IMPLEMENTED.**
-> No table exists. No route exists. No migration was authored. Nothing in this document is live,
-> dark, or dormant: it is a proposal awaiting founder ratification. Do not add a `FEATURES` row,
-> an `EXPECTED_MIGRATION_STATE` row, or a probe line until implementation actually begins.
+> **V1 CODE IMPLEMENTED 2026-08-12. SCHEMA PENDING.**
+>
+> The four founder decisions (section 23) were ratified on 2026-08-12 and V1 was built to them.
+> Every module, route, cron, pop-up and surface below exists in the repository and ships in the
+> build. **`supabase/schema-phase2-fan-testimonials.sql` has NOT been applied to production**
+> (probe-verified 2026-08-12: `fan_testimonials_public` answers NOT APPLIED), so the feature is
+> SCHEMA-GATED, not live: the cron reports `skipped: 'migration_pending'`, the fan card and the
+> public artist-page section render nothing, and the artist library shows its empty state. No
+> feature flag is used, deliberately (section 28.4) -- the migration is the gate.
+>
+> What was actually built, and the two design corrections the tests forced, are in **section 28**.
+> Read that first if you are about to change any of this.
 >
 > Authored 2026-08-12 on branch `claude/rise-mode-full-journey`, reconciled against the live
 > repository. Source-of-truth order used: founder instruction, then CRWN Brain, then repository
@@ -926,3 +934,81 @@ Implementation is complete when all of the following are observed, not asserted:
 - **Production row counts** for `subscriptions`, `fulfillment_events` and `survey_responses`, which
   would size the eligible population precisely. They were not queried: this task was
   investigation-only and created no production reads or writes.
+
+---
+
+## 28. What was actually built (2026-08-12)
+
+Sections 1 to 27 are the design. This section is the implementation, and where the two disagree,
+this section is right.
+
+### 28.1 Founder decisions, as implemented
+
+| Decision | Ratified | How it shows up in the code |
+|---|---|---|
+| **D1** build the small V1 now | yes | Two triggers only. No email, no AI, no external fans, no manual request link, no rewards, no analytics dashboard, no Press Kit. |
+| **D2** include the public section | yes | `PublicTestimonials` on `src/app/[slug]/page.tsx`, rendering only rows the artist explicitly featured. |
+| **D3** hard-delete removes the statement | yes | `fan_testimonials.fan_id REFERENCES profiles(id) ON DELETE CASCADE`. No general account-deletion surface was built; CRWN still has none. The FK is what makes the rule true when one ships. |
+| **D4** automation ON with one toggle | yes | `artist_profiles.testimonial_requests_enabled`, default `true`. OFF also expires undelivered asks and touches nothing already submitted or featured. |
+
+### 28.2 The pieces
+
+| Concern | File |
+|---|---|
+| Pure decisions (eligibility, verification, projection, validation) | `src/lib/testimonials/core.ts` |
+| Server reads and writes, the generator | `src/lib/testimonials/server.ts` |
+| The one public read | `src/lib/testimonials/publicRead.ts` |
+| Fan API (submit / decline / withdraw) | `src/app/api/testimonials/route.ts` |
+| Artist API (library / feature / hide / toggle) | `src/app/api/artist/testimonials/route.ts` |
+| Daily generator | `src/app/api/cron/testimonial-requests/route.ts`, `0 11 * * *` |
+| Interrupt | `fan_share_experience` in `src/lib/popups/registry.ts`, priority 10 |
+| Persistent fan surface | `src/components/fan/TestimonialRequestCard.tsx` on `/command` |
+| Artist library | `src/components/artist/TestimonialLibrary.tsx`, route `/studio/testimonials` |
+| Public section | `src/components/artist/PublicTestimonials.tsx` |
+| Schema | `supabase/schema-phase2-fan-testimonials.sql` |
+
+Navigation: the library is **hamburger-only**, in the "Reach and fans" group, exactly like
+Analytics, Fan CRM, Team Splits and Promise Calendar. A proof library is a reference screen you
+review, not a destination you make things in. NAV-001 asserts Studio to Hub parity only, so this
+needs no registered exception.
+
+### 28.3 Two corrections the tests forced
+
+Both were caught by the new gate before any of this ran, and both are worth keeping in mind.
+
+1. **The public view read `tier.price` inside its projection.** The price was collapsed to a
+   boolean by a `CASE`, so nothing leaked, but "no price in the SELECT list" was true only by
+   inspection. It is now true by STRUCTURE: a `LEFT JOIN LATERAL` computes `is_paid_tier` and only
+   the boolean reaches the projection, mirroring `verificationEvidenceFor()` in the TypeScript.
+   A price that cannot enter the SELECT list cannot be paired with tenure by anyone later.
+2. **TypeScript and SQL disagreed about tenure after a cancellation.** The view dropped the tenure
+   label when the subscription was not active; `toPublicTestimonial` kept it. The view was right:
+   "Supporter for 6+ months" is present tense, so it dies with the badge. The TypeScript now gates
+   tenure on the badge, and both say the same thing.
+
+A third defect was found in the test suite itself, by mutation: the TESTIMONIAL-002 tenancy check
+counted `eq('artist_id', artistId)` over a slice that ran to end-of-file, so
+`suppressPendingRequests` kept the count above threshold while the visibility UPDATE had lost its
+scope. Counting was the wrong tool; the assertion now pins the literal update chain.
+
+### 28.4 Deliberate non-decisions
+
+- **No feature flag.** The migration is the gate, and it is a better one: a flag can be ON while
+  the tables are absent, which is a broken screen. Every surface degrades to empty instead.
+- **No `fan_events` writes.** The generator reads `subscriptions` and `fulfillment_events`
+  directly. Wiring the Stripe webhook to emit `subscribe`/`purchase` events remains a legitimate
+  separate improvement (section 2.3) and is not a prerequisite here.
+- **No governor change.** V1 sends no email, so the `fan_solicitation` taxonomy gap described in
+  section 8.2 stays open and stays documented. It becomes a prerequisite the moment email is added.
+- **No moderation queue.** `moderation_status` exists with an admin-set `blocked` value, and
+  nothing writes it yet. Artist hide is the publication review boundary at this scale.
+
+### 28.5 What is still not known
+
+Everything in section 27 stands. Two additions:
+
+- **The generator has never run against real data.** Its eligibility logic is unit-tested and its
+  reads are fail-soft, but the first production run is the first evidence.
+- **Whether anyone is eligible at all on day one.** The population is fans who paid AND then
+  experienced value. If the first run creates zero requests, that is the platform's activation
+  constraint showing through, not a bug in this feature.

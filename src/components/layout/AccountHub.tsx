@@ -68,6 +68,7 @@ import {
   Shield,
   ShieldCheck,
   Lightbulb,
+  MessageSquareQuote,
   Tag,
   Clapperboard,
   ClipboardList,
@@ -217,6 +218,10 @@ export function AccountHub({ open, onClose }: { open: boolean; onClose: () => vo
         { label: 'Clip Bounties', href: '/bounties', icon: Scissors, hub: true },
         { label: 'Fan Squads', href: '/squads', icon: Shield, hub: true },
         { label: 'Fan Suggestions', href: '/missions/suggestions', icon: Lightbulb, hub: true },
+        // Hub-only, like Analytics / Fan CRM / Team Splits / Promise Calendar: a proof library is
+        // a reference screen you review, not a destination you make things in, so it stays out of
+        // the Studio grid. NAV-001 asserts Studio -> Hub parity only, so this needs no exception.
+        { label: 'Fan Proof', href: '/studio/testimonials', icon: MessageSquareQuote, hub: true },
       ],
     },
     {

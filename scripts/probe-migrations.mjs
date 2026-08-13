@@ -59,6 +59,13 @@ const PROBES = [
   // correct applied signal here (42703 would mean the column is genuinely absent).
   ['sub-avatar override column', 'artist_profiles?select=sub_avatar_override&limit=1', 'schema-phase2-sub-avatar.sql'],
   ['sub-avatar audit table', 'sub_avatar_audit?select=id&limit=1', 'schema-phase2-sub-avatar.sql'],
+  // Fan Testimonials V1. The PUBLIC VIEW is the probe target, not the base tables: the view is
+  // granted to anon (the artist page reads it), so 200 with [] means applied. The two base tables
+  // are deliberately CLOSED to anon and answer 42501, which this generic loop would file as
+  // "exists, reads revoked" and therefore also read as applied. Both signals are correct here,
+  // and the view is the one that also proves the SELECT list and the publication predicate landed.
+  ['fan testimonials public view', 'fan_testimonials_public?select=id&limit=1', 'schema-phase2-fan-testimonials.sql'],
+  ['fan testimonial requests (closed to anon)', 'fan_testimonial_requests?select=id&limit=1', 'schema-phase2-fan-testimonials.sql'],
   // NOT PROBED HERE, deliberately: schema-phase2-earnings-live-tip-type.sql only widens a CHECK
   // constraint (earnings_type_check), and PostgREST cannot see a constraint. Probing
   // `earnings?select=type` would return 200 whether or not the fix ran, i.e. it would certify

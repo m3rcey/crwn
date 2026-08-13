@@ -1,5 +1,52 @@
 # CRWN Brain — Changelog
 
+## 2026-08-12 - Automated Fan Testimonials V1 (code shipped, schema pending)
+
+CRWN now collects permissioned proof from an artist's own verified fans, automatically, after
+those fans have EXPERIENCED value. The customer is the artist; the author is the fan.
+Spec + what was actually built: `docs/crwn-brain/27-AUTOMATED-FAN-TESTIMONIALS-ARCHITECTURE.md`
+(section 28). `supabase/schema-phase2-fan-testimonials.sql` is **not applied**, so every surface
+degrades to empty. There is deliberately no feature flag: the migration is the gate, because a
+flag can be ON while the tables are absent and that is a broken screen.
+
+- **The earlier reading was backwards for a findable reason.** The only "testimonial" in this
+  repo is `frl_engagements.testimonial_consent`, an ARTIST granting CRWN sales-collateral rights.
+  Anyone searching found that and only that.
+- **The loyalty survey was already 70% of this.** It asks 90-day fans why they stay, over email,
+  on a tokenized link, and stores their exact words. What it lacks is what makes a testimonial a
+  testimonial: display consent, display identity, a verification label, a library, publication.
+  Its DELIVERY and DEDUPE patterns were reused; its TABLE was not. Private research and
+  publishable content in one table means a single mis-scoped query publishes research
+  (TESTIMONIAL-008).
+- **`POST /api/surveys` trusts `respondentId` from the token and never checks the session**, so a
+  forwarded link submits as someone else. Fine for private research, fatal for words published
+  under a "Verified supporter" badge. Testimonials authorize on the session only (TESTIMONIAL-003).
+- **Triggers read canonical tables, never `fan_events`.** That log permits `subscribe`, `purchase`
+  and `live_join` in its CHECK, and `recordFanEvent` has five callers, none of them the Stripe
+  webhook. A trigger built on it would have silently produced nothing forever.
+- **The pair rule.** Tier and tenure are each safe alone; together, beside a public price list,
+  they are lifetime spend to the dollar, which is the defect `leaderboardPrivacy.ts` exists to
+  prevent. The public payload carries bucketed tenure and NO tier. Two corrections the new gate
+  forced before anything ran: the view read `tier.price` inside its projection (now collapsed to a
+  boolean inside a LATERAL join, so a price cannot enter the SELECT list at all), and the
+  TypeScript kept a tenure label after cancellation while the SQL dropped it (the SQL was right;
+  the label is present tense and dies with the badge).
+- **Automatic collection is never automatic publication.** Nothing reaches the public page until
+  the artist explicitly features it, and featuring a response the fan kept private is refused
+  rather than silently ignored.
+- **The artist manages visibility, never authorship.** No route accepts a body, and a database
+  trigger reverts one that tries. Consent narrows only: `crwn_only` to `private_to_artist` is a
+  fan withdrawing permission; widening back requires asking again.
+- **Delivery is the Pop-up Engine at priority 10, the catalog floor**, plus a persistent card on
+  `/command` so a dismissed pop-up does not destroy the request. Asking a fan for a favour never
+  outranks their money, their access or an obligation. No email in V1, which also leaves the
+  `fan_solicitation` governor gap documented rather than quietly worked around.
+- Nine invariants (TESTIMONIAL-001..009), two suites in `verify:architecture`, eleven mutations
+  proven applied and caught. One of those mutations found a defect in the new test suite itself:
+  a tenancy check counted matches over a slice running to end-of-file, so a neighbouring function
+  kept it green while the visibility UPDATE had lost its artist scope.
+
+
 ## 2026-08-12 - The Claude Code subagents were outside every gate
 
 Twelve `.claude/agents/**.md` development agents had never been reviewed against the repository.

@@ -155,6 +155,7 @@ can land in an analytics row. **Forward-looking from 2026-08-03**; there is no h
 | `tracks_public` | `schema-phase2-tracks-audio-view.sql` | nulls `audio_url_*` unless `can_play_track(id, auth.uid())` |
 | `artist_profiles_public` | `schema-phase2-artist-profiles-public-view.sql` | public artist read excluding Stripe id columns |
 | `community_posts_feed` | `schema-phase2-community-posts-rls.sql` | redacted feed with `can_view` flag |
+| `fan_testimonials_public` | `schema-phase2-fan-testimonials.sql` (**NOT APPLIED**, probe-verified 2026-08-12) | the ONLY public surface for fan testimonials. Applies the publication predicate (fan consent + artist featured + not withdrawn/hidden/blocked), derives the verification badge from live `subscriptions` state, and emits bucketed tenure with NO tier name. Both base tables (`fan_testimonials`, `fan_testimonial_requests`) are CLOSED to anon and authenticated (RLS on + grants revoked), so this view is the entire client-readable surface. Never pair tier with tenure here: that is lifetime spend, the `leaderboardPrivacy` defect |
 
 ## 3. Enums / CHECK constraints (representative)
 
