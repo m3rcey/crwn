@@ -22,22 +22,27 @@ responsible for. Do not work those.
 
 ### P0 — money flows or acquisition are blocked
 
-- [ ] **Team Splits are built and the schema is verified. One environment decision is all that is
-      left, and it is yours.** Nothing to run in SQL.
-      Your migration applied correctly. I proved it against the live database rather than trusting
-      it: two payments racing the same 1000c spend cap now get 800 and 200, never 800 and 800, and
-      that holds across different payment types. Twenty-eight checks passed, the test rows were
-      deleted, and Team Splits are back to zero rows everywhere.
-      **Collaborator payouts stay switched off**, and the reason is no longer code. CRWN has only a
-      LIVE Stripe key. There is no test-mode key, so the only way I could "prove" the money moves
-      correctly would be to move real money through a real artist's account, which I am not going to
-      do to prove a point. Separately, the webhook deliberately refuses test-mode events when the
-      live key is configured, which is a guard you want to keep.
-      To finish this I need a Stripe TEST-MODE secret key and a test-mode Connect account, ideally
-      pointed at a non-production Supabase project. With that I can run the eight-step canary (first
-      subscription charge, renewal, one-time purchase, two payments racing a cap, refund, dispute,
-      artist surplus return, collaborator cashout) and then, only if every step passes, turn payouts
-      on. Without it the honest answer is that the arithmetic is proven and the plumbing is not.
+- [ ] **To finish Team Splits I need a test-mode sandbox. This is the only thing left, and it is
+      environment setup, not code.** Nothing to run in SQL.
+      I checked rather than assumed: your Stripe key really is live (I asked Stripe, and the balance
+      came back `livemode: true` on acct_1BO7MsEG40iT0MPS), there is no test key anywhere, there is
+      no `STRIPE_WEBHOOK_SECRET` in .env.local at all, and the Supabase project is production. So the
+      only canary I could run today would move real money through a real artist's Connect account.
+      I did not create a single Stripe object.
+      What I need, in one place that is NOT production:
+        1. A Stripe **test-mode** secret key and publishable key (same Stripe account, just the test
+           side). Put them in the sandbox environment the normal way; do not paste them to me.
+        2. A `STRIPE_WEBHOOK_SECRET` for that environment. `stripe listen --forward-to
+           localhost:3000/api/stripe/webhook` prints one.
+        3. A Supabase project that is NOT ecpqtuidtsncjfwtkvwc. A free one is fine. I will replay the
+           schema files from the repo into it.
+      Why both, not just the Stripe key: the webhook refuses test events if EITHER the key is live OR
+      the database is production. That guard is right and I am not touching it.
+      Once those three exist I do the rest myself: create the test Express account, build the canary
+      artist/fan/collaborator, and run all ten steps (first subscription charge, renewal, one-time
+      purchase, two payments racing a cap, a payment that never settles, a partial refund, a refund
+      replay, the artist surplus return, a dispute, and a collaborator cashout), then reconcile every
+      cent and decide whether payouts turn on. **They stay off until that passes.**
 
 ### P1 — real risk or real friction, but nothing is on fire
 

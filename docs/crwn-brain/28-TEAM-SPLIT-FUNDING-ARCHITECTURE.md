@@ -1004,3 +1004,67 @@ Everything below is proven in unit and integration form and unproven against rea
 A Stripe **test-mode** secret key plus a test-mode Connect account, pointed at a non-production
 Supabase project (so the `livemode: false` guard is not fighting the test). That is a founder
 environment decision, not an engineering one, and it is the single remaining item.
+
+---
+
+## 27. Canary environment preflight (2026-08-13): blocked, and exactly what unblocks it
+
+Verified against the Stripe API rather than the variable name, and against the Supabase project ref
+rather than a guess. **No Stripe object was created.** No code changed.
+
+### 27.1 What the environment actually is
+
+| Component | Finding |
+|---|---|
+| Stripe key | present, `sk_live...`, `balance.livemode: true` -> **LIVE**, account `acct_1BO7MsEG40iT0MPS` (US) |
+| Stripe test-mode variable | **NONE**. The only `STRIPE_*` entries are the live key, the publishable key and six price ids |
+| `STRIPE_WEBHOOK_SECRET` | **not defined in `.env.local`** at all (the code falls back to a dummy, so signature verification would fail locally) |
+| Supabase | project ref `ecpqtuidtsncjfwtkvwc` = **PRODUCTION** |
+| Non-production Supabase var | **NONE** |
+| Local Supabase / docker | `supabase/config.toml`, `docker-compose.yml`, `.env.test` all **absent** |
+| Connect topology | Express (`accounts.create({ type: 'express' })`) |
+
+### 27.2 Why this is a hard stop, not a judgment call
+
+The webhook guard is `!event.livemode && (usingLiveKey || usingProductionDb)`. **Both** disjuncts are
+currently true, so a test-mode event would be refused twice over. Satisfying it requires changing
+BOTH the Stripe key and the database, which is precisely the isolation the canary needs anyway.
+
+Running the canary against what exists would mean either moving **real money through a real artist's
+Connect account**, or weakening a guard that exists because a test-mode checkout once wrote a
+phantom Pro plan into production. Neither is acceptable, and mocks do not satisfy a money canary:
+the whole point is to observe Stripe's own arithmetic.
+
+### 27.3 The minimum environment (variable NAMES only, never values)
+
+A separate non-production runtime carrying:
+
+| Variable | Value shape |
+|---|---|
+| `STRIPE_SECRET_KEY` | a **test-mode** secret (`sk_test_...`) from the same Stripe account |
+| `STRIPE_PUBLISHABLE_KEY` | the matching test publishable key |
+| `STRIPE_WEBHOOK_SECRET` | the `whsec_...` printed by `stripe listen`, or the test endpoint's signing secret |
+| `NEXT_PUBLIC_SUPABASE_URL` | a Supabase project that is **NOT** `ecpqtuidtsncjfwtkvwc` |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | that project's anon key |
+| `SUPABASE_SERVICE_ROLE_KEY` | that project's service-role key |
+| `STRIPE_CRWN_PRO_PRICE_ID` etc. | test-mode price ids, only if a platform-plan path is exercised |
+
+The non-production database must have the schema applied. Every `supabase/schema-*.sql` file is in
+the repo, so this is a replay, not a rewrite.
+
+### 27.4 What is automatable once those exist
+
+Everything except supplying the credentials:
+
+- creating the test Express connected account (`accounts.create({ type: 'express' })`, the same call
+  production uses)
+- creating canary artist / fan / collaborator rows with synthetic identities
+- creating the Team Split and driving the real acceptance flow
+- all ten canary steps, driven through the real CRWN code paths
+- the cent-by-cent reconciliation and the activation decision
+
+### 27.5 The readiness check that will run first
+
+Before creating any Stripe object, the next pass re-runs the preflight and requires all of:
+`balance.livemode === false`, Supabase ref `!== ecpqtuidtsncjfwtkvwc`, and a real
+`STRIPE_WEBHOOK_SECRET`. If any is not satisfied it stops again.

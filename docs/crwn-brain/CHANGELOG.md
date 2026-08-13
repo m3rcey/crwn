@@ -1,5 +1,25 @@
 # CRWN Brain — Changelog
 
+## 2026-08-13 - Canary preflight: blocked on environment, no Stripe object created
+
+Verified against the Stripe API rather than the variable name. **No code changed, no Stripe object
+created, cashout still 503.**
+
+- `balance.livemode: true` on `acct_1BO7MsEG40iT0MPS`: the configured key really is LIVE, not merely
+  named that way. No test-mode Stripe variable exists, and `STRIPE_WEBHOOK_SECRET` is not defined in
+  `.env.local` at all.
+- Supabase project ref is `ecpqtuidtsncjfwtkvwc`, which CLAUDE.md documents as production. No
+  staging/local Supabase exists: `supabase/config.toml`, `docker-compose.yml` and `.env.test` are all
+  absent.
+- The webhook guard is `!event.livemode && (usingLiveKey || usingProductionDb)`. BOTH disjuncts are
+  currently true, so satisfying it requires changing the key AND the database, which is exactly the
+  isolation a money canary needs. The guard exists because a test-mode checkout once wrote a phantom
+  Pro plan into production; it is correct and was not touched.
+- Recorded the minimum environment (doc 28 section 27), by variable NAME only. Once it exists,
+  everything else is automatable: the test Express account, the canary identities, all ten canary
+  steps through the real code paths, and the activation decision.
+
+
 ## 2026-08-13 - Cap-reservation migration verified live; canary blocked on a live-only Stripe key
 
 The founder-applied migration is verified and the registry is flipped to APPLIED. **Collaborator
