@@ -86,12 +86,20 @@ BEGIN
   VALUES (v_fan_out, v_artist, v_tier_out, '__ea_selfcheck_out__', 'active');
 
   -- The three track shapes from the content-class contract.
+  --
+  -- access_level is 'free' on all three ON PURPOSE. It is the LEGACY access model
+  -- (superseded by content classes); can_play_track does not read it, every one of
+  -- the 72 real tracks in production is 'free', and its CHECK only permits
+  -- free/subscriber/purchase. Setting it to anything else here would test the old
+  -- column's constraint instead of the thing under test, which is exactly what a
+  -- first run of this script did ('subscribers' -> 23514, transaction aborted).
   INSERT INTO tracks (artist_id, title, is_free, allowed_tier_ids, public_release_date, is_active, access_level, explicit, ai_generated)
   VALUES (v_artist, '__ea_selfcheck_paid_first__', true, to_jsonb(ARRAY[v_tier_in::text]), now() + interval '7 days', true, 'free', false, false)
   RETURNING id INTO v_track;
 
+  -- is_free = false IS the members-only encoding. access_level plays no part.
   INSERT INTO tracks (artist_id, title, is_free, allowed_tier_ids, public_release_date, is_active, access_level, explicit, ai_generated)
-  VALUES (v_artist, '__ea_selfcheck_member_only__', false, to_jsonb(ARRAY[v_tier_in::text]), NULL, true, 'subscribers', false, false)
+  VALUES (v_artist, '__ea_selfcheck_member_only__', false, to_jsonb(ARRAY[v_tier_in::text]), NULL, true, 'free', false, false)
   RETURNING id INTO v_member_only;
 
   INSERT INTO tracks (artist_id, title, is_free, allowed_tier_ids, public_release_date, is_active, access_level, explicit, ai_generated)

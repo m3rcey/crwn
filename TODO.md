@@ -52,26 +52,26 @@ responsible for. Do not work those.
       `/embed/[trackId]`. Nobody has hit it (production has zero tracks with a release date), which
       is exactly why it is safe to fix now, before a pilot artist schedules one.
       **1. Open and run:**
-        supabase/schema-phase2-early-access-window-enforcement.sql
+      [`supabase/schema-phase2-early-access-window-enforcement.sql`](supabase/schema-phase2-early-access-window-enforcement.sql)
       **2. Then prove it BEHAVED, not just deployed. Open and run:**
-        supabase/verify-early-access-window.sql
+      [`supabase/verify-early-access-window.sql`](supabase/verify-early-access-window.sql)
       Expect nine `PASS` notices then `ROLLBACK`. It creates a members-first track, a members-only
       track, a public track and two subscriptions, asks the oracle as anonymous / non-entitled fan /
       paying fan / owner, and destroys all of it. Nothing persists. If any line says FAIL, stop and
       send me the output: that means the fix is wrong and I would rather know before you keep going.
       **3. Only if step 2 is all PASS, open and run:**
-        supabase/schema-phase2-track-waterfall.sql
+      [`supabase/schema-phase2-track-waterfall.sql`](supabase/schema-phase2-track-waterfall.sql)
       That is the tier-by-tier stagger (Gold hears it 14 days early, Silver 7). It schedules exactly
       the content class step 1 gates, which is why it goes last.
       **4. Paste me the output of:**
-        supabase/check-unverified-feature-state.sql
+      [`supabase/check-unverified-feature-state.sql`](supabase/check-unverified-feature-state.sql)
       I need the `schema-phase2-early-access-window-enforcement.sql` row to read `applied = true`.
       Until you paste that, I have to keep reporting early access as unenforced in production.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
 - [ ] **RE-RUN the earnings/recruiters SELECT policy migration (the fixed version).** Open and run:
-        supabase/schema-phase2-sec-earnings-recruiters-select-policies.sql
+      [`supabase/schema-phase2-sec-earnings-recruiters-select-policies.sql`](supabase/schema-phase2-sec-earnings-recruiters-select-policies.sql)
       Your first run on 2026-08-12 DID take effect: the transaction committed, and both tables now
       answer the anon key with 42501 instead of 200, so the access hole is closed. What failed was
       the self-verify block that runs after COMMIT, on this line:
@@ -234,14 +234,6 @@ responsible for. Do not work those.
       want a visible number back, in which case the options are a bucketed score or a score with
       the spend term removed. Both change what the leaderboard means, so it is your call, not a
       bug fix. No migration.
-
-- [ ] **Run the track-waterfall migration:**
-      [`supabase/schema-phase2-track-waterfall.sql`](supabase/schema-phase2-track-waterfall.sql).
-      Adds `tracks.waterfall` (the staggered tier-by-tier rollout schedule) with its SELECT
-      grant. The entitlement gate is untouched: the daily cron just ADDS tiers to
-      `allowed_tier_ids` as their window opens, so nothing here can lock a paying member out.
-      Until it runs, choosing "Higher tiers first" on an upload falls back to all-at-once and
-      says so. Self-verifies.
 
 - [ ] **Two one-click confirmations only you can do (both need a logged-in session), then tell me
       and I will delete this.**
