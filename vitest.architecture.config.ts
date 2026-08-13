@@ -44,6 +44,9 @@ export default defineConfig({
       // security assertion nobody runs on the way to production is decoration.
       'src/lib/architecture/security.test.ts',
       'src/lib/architecture/headers.test.ts',
+      // What a COMPROMISED model can actually do. Asserts the non-model control behind each
+      // AI security claim, never the wording of a system prompt.
+      'src/lib/ai/agentSecurityBoundaries.test.ts',
       // Existing boundary/contract suites the registry references
       'src/lib/stripe/payoutOwnership.test.ts',
       'src/lib/earningsNet.test.ts',

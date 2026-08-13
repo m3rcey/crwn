@@ -93,7 +93,7 @@ export const guides: GuideData[] = [
       },
       {
         title: 'Set up your payout schedule',
-        content: 'By default, Stripe sends payouts to your bank account every Monday for free. You can also use instant cashout any time for a flat $2 fee. Payouts include all subscription revenue, shop sales, and tips accumulated since your last payout.',
+        content: 'Stripe sends payouts to your bank account automatically and for free, on a rolling schedule (roughly daily, after a short holding period on each payment). There is no fixed payout day to wait for. You can also use instant cashout any time for a flat $2 fee. Payouts include all subscription revenue, shop sales, and tips that have finished clearing.',
       },
       {
         title: 'Monitor your earnings',

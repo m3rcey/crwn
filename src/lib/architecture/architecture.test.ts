@@ -50,6 +50,35 @@ describe('invariant registry integrity', () => {
     }
   });
 
+  // EXCEPTION LIVENESS. An allowlist entry that no longer matches real code is not neutral: it
+  // reads as "reviewed and approved" while describing something that does not exist. The stale
+  // `tracks/check-limit` DELIBERATELY_PUBLIC entry proved that (security.test.ts now checks that
+  // list specifically). These two generalize the rule as far as it stays reliable, which means
+  // only conditions that are cheap and unambiguous to evaluate from source.
+  it('every path-shaped exception subject still exists (a moved or deleted file makes it a claim about nothing)', () => {
+    for (const e of ALL_EXCEPTIONS) {
+      if (!/^src\/.+\.(ts|tsx)$/.test(e.subject)) continue; // value/identifier subjects: not a path
+      expect(
+        existsSync(e.subject),
+        violation('REGISTRY', `exception for ${e.invariant} names ${e.subject}, which no longer exists. Delete the entry or point it at the file's new home; an exception matching nothing still reads as an approved deviation.`, { file: 'src/lib/architecture/exceptions.ts' }),
+      ).toBe(true);
+    }
+  });
+
+  it('every AUTH-001 exception still exhibits the exceptional condition (the route does NOT call requireAdmin)', () => {
+    // The exception exists to say "this admin route carries a DIFFERENT authority". The moment
+    // the route is converted to requireAdmin, the exception is stale and must be deleted, or the
+    // registry keeps claiming an approved gap that was closed.
+    for (const e of ALL_EXCEPTIONS.filter(x => x.invariant === 'AUTH-001')) {
+      if (!existsSync(e.subject)) continue; // covered by the test above
+      const src = readStripped(e.subject);
+      expect(
+        src.includes('requireAdmin('),
+        violation('REGISTRY', `${e.subject} is listed as an AUTH-001 exception but now calls requireAdmin. The gap it describes is closed: delete the exception rather than leaving an approved deviation on a route that no longer deviates.`, { file: 'src/lib/architecture/exceptions.ts' }),
+      ).toBe(false);
+    }
+  });
+
   it('every enforcedBy vitest file is part of the architecture suite (npm run verify:architecture)', () => {
     const config = readRaw('vitest.architecture.config.ts');
     const testFiles = new Set(
@@ -80,6 +109,7 @@ describe('invariant registry integrity', () => {
       'src/lib/architecture/authorization.test.ts',
       'src/lib/ai/actionValidity.test.ts',
       'src/lib/ai/managerBoundaries.test.ts',
+      'src/lib/ai/agentSecurityBoundaries.test.ts',
       'src/lib/stripe/payoutOwnership.test.ts',
     ];
     for (const f of REQUIRED_SECURITY_SUITES) {

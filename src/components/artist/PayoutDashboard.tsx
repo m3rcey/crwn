@@ -443,7 +443,7 @@ export function PayoutDashboard() {
             Cash Out Now
           </button>
         </div>
-        <p className="text-xs text-crwn-text-secondary mt-2">$2.00 fee per instant cashout. Auto-payout every Monday is free.</p>
+        <p className="text-xs text-crwn-text-secondary mt-2">$2.00 fee per instant cashout. Stripe&apos;s automatic payouts are free.</p>
       </div>
 
       {/* Stripe Dashboard Link */}
