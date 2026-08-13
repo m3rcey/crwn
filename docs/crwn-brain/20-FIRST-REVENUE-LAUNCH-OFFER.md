@@ -178,7 +178,9 @@ Commitment.** Once the artist provides required assets and approvals, setup deli
 complete within 14 days; delays caused by CRWN never bill additional implementation fees.
 
 **Conditions are MEASURED, not self-reported** (SHIPPED: `src/lib/launchPartner.ts` +
-`/api/artist/launch-partner` + `LaunchPartnerChecklist` on the command screen, dark behind the
+`/api/artist/launch-partner` + `LaunchPartnerChecklist` on the command screen (2026-08-13: the
+measured STATUS shows on first paint, the conditions sit one tap behind "See what it covers", so
+the guarantee informs Rise Mode without competing with its one next move), dark behind the
 server-only `artist_profiles.launch_partner` flag; migration
 `supabase/schema-phase2-launch-partner.sql`, cohort flips via
 `supabase/enable-launch-partner.sql`):

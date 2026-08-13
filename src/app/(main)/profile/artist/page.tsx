@@ -25,7 +25,6 @@
 
 import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { RiseMode } from '@/components/artist/RiseMode';
@@ -52,19 +51,17 @@ function ArtistDashboardContent() {
   const [showPlatformTierModal, setShowPlatformTierModal] = useState(false);
   const [constraintResult, setConstraintResult] = useState<ConstraintResult | null>(null);
   const [roadmap, setRoadmap] = useState<ArtistRoadmap | null>(null);
-  const [resolved, setResolved] = useState(false);
+  const [fetched, setFetched] = useState(false);
 
   // ONE read of each canonical answer for the whole screen, resolved into one move. The cards
   // used to fetch independently, which is how each of them came to believe it was the most
   // important thing on the page. A failure on either side leaves null, and the resolver falls
   // back to whatever the other one still knows.
   useEffect(() => {
-    // A signed-in non-artist can reach this URL. Both routes would 403, so settle immediately
-    // rather than leaving the surface on a spinner that never resolves.
-    if (status !== 'artist') {
-      if (status !== 'loading') setResolved(true);
-      return;
-    }
+    // A signed-in non-artist can reach this URL, and both routes would 403 for them. That case is
+    // DERIVED below rather than written here: setting state synchronously in an effect body
+    // cascades a render, and there is nothing to wait for.
+    if (status !== 'artist') return;
     let active = true;
     const json = (r: Response) => (r.ok ? r.json() : null);
     Promise.all([
@@ -74,7 +71,7 @@ function ArtistDashboardContent() {
       if (!active) return;
       setConstraintResult(c?.constraint ?? null);
       setRoadmap(r?.roadmap ?? null);
-      setResolved(true);
+      setFetched(true);
     });
     return () => {
       active = false;
@@ -83,6 +80,8 @@ function ArtistDashboardContent() {
 
   const flow = resolveOperatingFlow(constraintResult);
   const nextMove = resolveRiseNextMove(flow, roadmap);
+  // Settled: an artist once both reads land, anyone else as soon as we know they are not one.
+  const resolved = status === 'artist' ? fetched : status !== 'loading';
 
   // Legacy ?tab= forwarding, computed during render rather than in an effect: Rise Mode is
   // expensive to mount and must not paint for a frame just to navigate away. Every param except
@@ -161,18 +160,17 @@ function ArtistDashboardContent() {
               </div>
             )}
 
-            {/* Cohort-only: the First Paid Member Guarantee made visible. Renders nothing
-                unless the founder flipped launch_partner for this artist, and it is a
-                contractual checklist rather than a competing recommendation. */}
+            {/* Cohort-only: the First Paid Member Guarantee made visible. Renders nothing unless
+                the founder flipped launch_partner for this artist. Its status is a CONTRACT the
+                artist is owed, not a recommendation; its conditions sit behind a disclosure so
+                they cannot read as a second task list. */}
             <LaunchPartnerChecklist />
 
-            <p className="text-xs text-crwn-text-secondary">
-              Milestones and rewards keep counting on your{' '}
-              <Link prefetch href="/quests" className="text-crwn-gold hover:underline">
-                quest board
-              </Link>
-              . You never have to open it: Rise Mode names the move.
-            </p>
+            {/* No quest-board link here. It was explaining CRWN's architecture to the artist
+                ("levels and rewards live over there, you never have to open it") on the one
+                screen built to hide it, and it helped nobody finish the move above. The board
+                is indexed in the AccountHub hamburger under Grow, which is where the complete
+                index of destinations belongs. */}
           </div>
         </div>
       </div>

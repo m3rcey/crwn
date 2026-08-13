@@ -1,5 +1,46 @@
 # CRWN Brain — Changelog
 
+## 2026-08-13 - Rise Mode, Simplify pass: four survivors questioned, three simplified
+
+The deletion pass (below) left four things on the surface. Each was re-asked "does this change what
+the artist should do right now, or does it just explain CRWN to them".
+
+- **Launch Partner guarantee: kept, collapsed.** Six of its seven conditions are evaluated by the
+  SAME DomainChecks as roadmap steps (stripe, free tier, purchasable tier, welcome post, campaign
+  sent, first paid member); the seventh is the contacts import at a higher threshold. So an always-
+  open list of seven items, six carrying a "Do it" link, under its own `Next: ...` line, was a
+  duplicate priority queue, and "it has no gold button" was never proof it did not compete. What
+  stays on first paint is the one thing the roadmap does not own and the offer requires: the
+  measured contract status ("3 of 6 required steps done"). Conditions moved behind a `See what it
+  covers` disclosure, one tap from the same evidence. The `Next:` line is deleted from the render.
+  `src/lib/launchPartner.ts`, the cohort flag, the route and the admin Money Model view are
+  untouched, and `nextCondition` is still in the brain.
+- **Quest-board footnote: deleted.** It named a system Rise Mode had just been simplified to hide,
+  and then told the artist not to open it. It helped nobody finish the current move. `/quests`
+  stays indexed in the AccountHub under Grow, which is where the complete index of destinations
+  lives; a test now asserts that entry exists precisely because the footnote no longer does.
+- **`After this`: kept, and a real duplication bug fixed.** It was already one subordinate line with
+  no control. But the constraint and the roadmap can name the SAME work: REACH's action for an
+  artist with no free members is "Import your fan contacts", and the roadmap's `audience-contacts`
+  step is that same job. The screen could print it as the move and again as what follows it.
+  `resolveRiseNextMove` now skips a roadmap step whose `source.check` equals the constraint action's
+  `verifiedBy`. That is the engine's own declaration of which check proves its action was taken, so
+  it is existing semantics, not string matching or new prioritization.
+- **`Foundation · 2 of 7 complete`: audited, unchanged.** Verified in the repository: the numerator
+  is `stage.doneCount` and the denominator `stage.total` for the CURRENT stage only, both derived
+  through the Quest Engine's own `evaluateCondition`. `RoadmapStepDef` has no optional, conditional
+  or plan-gated field at all, so the denominator cannot be mixing "must" with "could": all seven
+  Foundation steps genuinely apply to every artist. Pinned by a test that fails if optionality is
+  ever introduced without the stage line learning the difference.
+- **`NextMoveCard`: one line of repeated copy removed.** The card's `Your next move` eyebrow said
+  the same thing as the page header directly above it ("Your next move, and what skipping it
+  costs"). The action title, the reason (`action.why` / step `detail`) and the fact (`evidence[0]`)
+  were checked for three-way repetition and have none: each says something the other two do not.
+- Also fixed: a `setState` called synchronously in an effect body on the Rise Mode page, introduced
+  by the deletion pass. The settled state is derived instead.
+
+`npm test` 2160 pass, `verify:architecture` 812 pass, build and lint clean.
+
 ## 2026-08-13 - Rise Mode is one next move: the competing surfaces were deleted, not the engines
 
 **The product decision (founder, 2026-08-13): Rise Mode is the single-next-move execution surface.

@@ -111,6 +111,14 @@ export function resolveRiseNextMove(
   // The constraint won. Its action IS the move; the roadmap step becomes "After this".
   if (flow.primary === 'constraint' && flow.constraint) {
     const c = flow.constraint;
+    // The two systems can name the SAME work. REACH's action for an artist with no free members
+    // is "Import your fan contacts", and the roadmap's `audience-contacts` step is the same job;
+    // both were proved done by the same DomainCheck. Printing it as the move AND as what comes
+    // after it splits attention over one task. `verifiedBy` is the engine's own declaration of
+    // which check proves its action was taken, so this is existing semantics, not string matching.
+    const provenBy = c.action.verifiedBy ?? null;
+    const isSameWork = (s: RoadmapStep) =>
+      provenBy !== null && s.source.kind === 'check' && s.source.check === provenBy;
     return {
       ...base,
       move: {
@@ -121,7 +129,7 @@ export function resolveRiseNextMove(
         href: withReturnTo(c.action.href),
         ctaLabel: 'Do it now',
       },
-      afterThis: openSteps[0]?.label ?? null,
+      afterThis: openSteps.find((s) => !isSameWork(s))?.label ?? null,
     };
   }
 

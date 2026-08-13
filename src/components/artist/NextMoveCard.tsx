@@ -41,10 +41,12 @@ export function NextMoveCard({
         <p className="text-xs text-crwn-text-secondary mb-3">{next.launchNote}</p>
       )}
 
+      {/* No "Your next move" eyebrow on the card below: the page header already says "Your next
+          move, and what skipping it costs", and this is the only card. Labelling the one card with
+          the page's own promise is the same sentence twice. */}
       {next.move ? (
         <div className="neu-raised rounded-2xl p-6 border border-crwn-gold/40">
-          <p className="text-[11px] uppercase tracking-wide text-crwn-gold">Your next move</p>
-          <h2 id="rise-next-move-heading" className="text-2xl font-bold text-crwn-text mt-1.5">
+          <h2 id="rise-next-move-heading" className="text-2xl font-bold text-crwn-text">
             {next.move.title}
           </h2>
           <p className="text-sm text-crwn-text-secondary mt-2 leading-relaxed">{next.move.reason}</p>

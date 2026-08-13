@@ -45,18 +45,22 @@ function evidence(over: Partial<ConstraintEvidence> = {}): ConstraintEvidence {
   };
 }
 
-/** A roadmap whose next step is the ordinary Foundation milestone "Complete your public profile". */
-function roadmapWithOpenProfileStep() {
+/** A roadmap where exactly the named Foundation steps are still open, in definition order. */
+function roadmapWithOpen(openKeys: string[]) {
   const defs = buildRoadmapDefs({ slug: 'someone' });
   const results: Record<string, RoadmapStepResult> = {};
   for (const stage of defs) {
     for (const step of stage.steps) {
-      // Everything done except the profile step and everything after it.
-      const done = step.key !== 'foundation-profile' && stage.key === 'foundation';
+      const done = stage.key === 'foundation' && !openKeys.includes(step.key);
       results[step.key] = { done, current: done ? 1 : 0, target: 1 };
     }
   }
   return assembleRoadmap(defs, results);
+}
+
+/** A roadmap whose next step is the ordinary Foundation milestone "Complete your public profile". */
+function roadmapWithOpenProfileStep() {
+  return roadmapWithOpen(['foundation-profile']);
 }
 
 describe('an overdue promise to paying supporters beats a roadmap milestone', () => {
@@ -135,6 +139,42 @@ describe('exactly one instruction, whatever the inputs', () => {
     expect(clean.afterThis).not.toBe(clean.move?.title);
   });
 
+  it('skips a roadmap step that is the SAME WORK as the constraint action', () => {
+    // REACH with no free members tells the artist to import their contacts, and the roadmap's
+    // own `audience-contacts` step is that same job, proved done by the same DomainCheck.
+    // "Import your fan contacts / After this: Import your fan contacts" is one task printed twice.
+    const reach = readConstraint(
+      evidence({
+        reach: { uniqueVisits: 1, lookbackDays: 30 },
+        membership: {
+          freeMembers: 0, paidMembers: 0, freeJoinsInWindow: 0, daysSinceFirstFreeMember: null,
+          hasFirstPaidConversion: false, mrrCents: 0, premiumMrrShare: null,
+        },
+      }),
+    );
+    expect(reach.status === 'diagnosed' && reach.constraint).toBe('REACH');
+    expect(reach.status === 'diagnosed' && reach.action.verifiedBy).toBe('artist_has_fan_contacts');
+
+    const open = roadmapWithOpen(['audience-contacts', 'foundation-promises']);
+    const next = resolveRiseNextMove(resolveOperatingFlow(reach), open);
+    expect(next.move?.title).toBe('Import your fan contacts');
+    expect(next.afterThis).toBe('Get your promises on the calendar');
+  });
+
+  it('still shows the very next step when it is genuinely different work', () => {
+    const reach = readConstraint(
+      evidence({
+        reach: { uniqueVisits: 1, lookbackDays: 30 },
+        membership: {
+          freeMembers: 0, paidMembers: 0, freeJoinsInWindow: 0, daysSinceFirstFreeMember: null,
+          hasFirstPaidConversion: false, mrrCents: 0, premiumMrrShare: null,
+        },
+      }),
+    );
+    const next = resolveRiseNextMove(resolveOperatingFlow(reach), roadmap);
+    expect(next.afterThis).toBe('Complete your public profile');
+  });
+
   it('the CTA always returns the artist to Rise Mode', () => {
     for (const roadmapArg of [roadmap, null]) {
       const next = resolveRiseNextMove(
@@ -196,6 +236,59 @@ describe('exactly one instruction, whatever the inputs', () => {
   });
 });
 
+describe('the stage line counts requirements that all actually apply', () => {
+  it('"2 of 7 complete" is the CURRENT stage, counted over steps that are all mandatory', () => {
+    const open = roadmapWithOpen(['audience-contacts', 'foundation-promises']);
+    const next = resolveRiseNextMove(resolveOperatingFlow(null), open);
+    expect(next.stageTitle).toBe('Foundation');
+    expect(next.stageProgress).toBe('5 of 7 complete');
+
+    const stage = open.stages[open.currentStageIndex];
+    // The denominator is this stage's steps, never the whole roadmap.
+    expect(stage.total).toBe(stage.steps.length);
+    expect(stage.total).toBeLessThan(open.stages.flatMap((s) => s.steps).length);
+  });
+
+  it('the roadmap model has no optional or conditional steps, which is what makes the count honest', () => {
+    // If optionality is ever introduced, the denominator starts mixing "must" with "could" and
+    // this assertion is the reminder that the stage line has to learn the difference first.
+    const src = readStripped('src/lib/artistRoadmap.ts');
+    expect(src).not.toMatch(/\boptional\b|appliesWhen|onlyIf|planGated/);
+    for (const stage of buildRoadmapDefs({ slug: 'someone' })) {
+      for (const step of stage.steps) {
+        expect(Object.keys(step)).toEqual(['key', 'label', 'detail', 'href', 'source']);
+      }
+    }
+  });
+});
+
+describe('the launch-partner guarantee informs Rise Mode without instructing it', () => {
+  const lp = readStripped('src/components/artist/LaunchPartnerChecklist.tsx');
+
+  it('shows the measured contract status, and nothing that reads as a task list, on first paint', () => {
+    // Six of its seven conditions are the same DomainChecks as roadmap steps, so an open list of
+    // them with per-item "Do it" links was a duplicate priority queue, gold button or not.
+    expect(lp).toContain('required steps done');
+    expect(lp).toContain('{expanded && (');
+    const listIndex = lp.indexOf('data.conditions.map');
+    expect(lp.lastIndexOf('{expanded && (', listIndex)).toBeGreaterThan(-1);
+  });
+
+  it('no longer renders its own "Next" recommendation', () => {
+    expect(lp).not.toContain('Next: {data.nextCondition.label}');
+  });
+
+  it('keeps the authoritative evaluator and its verdict untouched', () => {
+    const brain = readStripped('src/lib/launchPartner.ts');
+    expect(brain).toContain('nextCondition');
+    expect(brain).toContain('GUARANTEE_MIN_CONTACTS');
+    expect(brain).toContain('GUARANTEE_MIN_PROVEN_BUYERS');
+    // Still the cohort-gated route, still server-side, still on the Rise Mode surface.
+    expect(lp).toContain("fetch('/api/artist/launch-partner')");
+    expect(readStripped('src/app/(main)/profile/artist/page.tsx')).toContain('<LaunchPartnerChecklist />');
+  });
+});
+
 describe('the Rise Mode surface renders one decision and nothing that competes with it', () => {
   // Comments stripped: these files EXPLAIN what was removed and why, and a scan that counted
   // the explanation as the thing would either fail honest documentation or pressure it out.
@@ -249,6 +342,31 @@ describe('the Rise Mode surface renders one decision and nothing that competes w
     expect(rise).toContain("fetch('/api/quests'");
     const board = readFileSync('src/app/(main)/quests/page.tsx', 'utf8');
     expect(board).toContain('<RiseMode />');
+  });
+
+  it('says nothing twice: the card does not restate the page header', () => {
+    // The header is "Rise Mode / Your next move, and what skipping it costs." Labelling the one
+    // card underneath it "Your next move" is the same sentence at two sizes.
+    expect(page).toContain('Your next move, and what skipping it costs.');
+    expect(card).not.toContain('Your next move');
+  });
+
+  it('carries no quest-board link, and the board stays indexed in the hamburger', () => {
+    // Pointing at the board immediately after removing the board is architecture exposure: it
+    // helps nobody finish the move. Discoverability is the AccountHub's job.
+    expect(page).not.toContain("'/quests'");
+    expect(page).not.toContain('quest board');
+    const hub = readStripped('src/components/layout/AccountHub.tsx');
+    expect(hub).toContain("href: '/quests'");
+  });
+
+  it('the After this line is subordinate: one line, no button, no card', () => {
+    const start = card.indexOf('{next.afterThis && (');
+    expect(start).toBeGreaterThan(-1);
+    const afterBlock = card.slice(start, start + 320);
+    expect(afterBlock).toContain('text-xs');
+    expect(afterBlock).not.toContain('rounded-full');
+    expect(afterBlock).not.toContain('href');
   });
 
   it('stores no second progress or priority state anywhere on the surface', () => {
