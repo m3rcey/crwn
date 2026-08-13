@@ -1,5 +1,39 @@
 # CRWN Brain — Changelog
 
+## 2026-08-12 - Fan Testimonials verified in production (migration applied)
+
+The founder applied `schema-phase2-fan-testimonials.sql`. Verified rather than assumed, then the
+registry and the docs were reconciled to live state. Detail: doc 27 section 29.
+
+- **Both probes flipped**, with deliberately opposite semantics: the public view reads 200, and
+  both base tables answer anon 42501. Both lines are required. The view alone proves objects exist
+  and says nothing about closure; the tables alone cannot tell "closed" from "never created".
+- **Properties, not object existence.** Base tables refuse anon on `select(*)` and on every
+  sensitive column named individually. The public view's PRODUCTION column list is exactly
+  `id, artist_id, body, context_kind, submitted_at, display_name, verification_label, tenure_label`.
+- **Invertibility demonstrated, not asserted.** A canary from a fan on a 1000-cent tier rendered as
+  "Verified supporter" + "Supporter for 3+ months" with no tier name and no price anywhere, so the
+  pair that would reveal lifetime spend cannot be assembled from the public surface.
+- **Authorship freeze proved by read-back.** A service-role rewrite of `body`, `display_identity`
+  and `fan_id` returned success and changed nothing. Consent narrowed and could not re-widen, so a
+  withdrawal cannot be undone by the artist. The canary was deleted and the table is back to 0.
+- **The generator ran live.** Every artist toggled OFF created 0 (D4 at scale). Toggles restored:
+  11 active paid subscriptions scanned, **7 asks created**, immediate re-run created 0.
+- **The promise trigger correctly created nothing.** All three fulfillment events completed in the
+  window carry `metadata.ramp_step_key`, so they are Revenue Ramp steps, not fan promises. The
+  boundary holding in production is a better result than a request would have been.
+- **The cron route could not be invoked**: production's `CRON_SECRET` is a Vercel Sensitive var and
+  does not match `.env.local`, so an authenticated call still 401s locally. The real module was
+  driven directly instead, which is the same code path. Unauthenticated calls to all three routes
+  return JSON 401 in production, so they are real routes, not the HTML auth wall.
+- New behavioural tests exercise the pop-up arbiter rather than only reading the catalog: the
+  testimonial ask wins when nothing competes, LOSES to `fan_first_support`, and is suppressed by
+  the one-per-user-per-day governor.
+- **Feature LIVE. 7 fans asked. 0 testimonials collected.** Those are separate facts and the docs
+  keep them separate; whether fans answer is the riskiest assumption in the design and only fans
+  can settle it.
+
+
 ## 2026-08-12 - Automated Fan Testimonials V1 (code shipped, schema pending)
 
 CRWN now collects permissioned proof from an artist's own verified fans, automatically, after

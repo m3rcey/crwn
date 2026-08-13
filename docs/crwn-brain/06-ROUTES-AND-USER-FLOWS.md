@@ -31,6 +31,20 @@
 | `/api/cron/*` (25) | Vercel Scheduler | `CRON_SECRET` bearer |
 | PKCE auth callback | Supabase (via middleware `exchangeCodeForSession`) | code param |
 
+## 3b. Fan testimonial routes (2026-08-12, live)
+
+| Route | Who | Authority |
+|---|---|---|
+| `GET/POST /api/testimonials` | fan | `session.user.id` IS the author. Actions: `submit`, `decline`, `withdraw`. No parameter can name a different fan; the request row supplies the artist and the context |
+| `GET/POST /api/artist/testimonials` | artist | artist resolved from `artist_profiles.user_id = session.user.id`. Actions: `feature`, `unfeature`, `hide`, `unhide`, `set-automation`. **No body parameter exists**, so an artist can never edit a quote |
+| `GET /api/cron/testimonial-requests` | cron | `Bearer $CRON_SECRET`, fails closed with 401 (verified against production) |
+
+Fan flow: the daily generator creates ONE ask, delivered by the `fan_share_experience` pop-up
+(priority 10, the catalog floor) and by the persistent card on `/command`. The fan answers one
+question, picks a display identity, and ticks (or does not tick) publication consent. Artist flow:
+`/studio/testimonials`, hamburger-only, feature or hide. Public: one section on `/[slug]`, rendered
+only for rows the artist featured AND the fan consented to.
+
 ## 4. Key flows
 
 ### Sign-up → artist activation

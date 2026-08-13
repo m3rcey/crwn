@@ -91,7 +91,7 @@ CRWN is **live in production** (`thecrwn.app`) and the core money loop is real a
 
 ## Experimental / dark-launched
 
-- **Automated Fan Testimonials V1 (2026-08-12) — CODE SHIPPED, SCHEMA-GATED.** CRWN asks a fan who has
+- **Automated Fan Testimonials V1 (2026-08-12) — LIVE, and awaiting its first fan answer.** CRWN asks a fan who has
   EXPERIENCED value one contextual question, stores their exact words with an explicit permission scope, and
   puts it in the artist's PRIVATE library; the artist chooses what appears on their public page. Two triggers
   only (a fan promise delivered +3 days, and 30 days paid and still active), both read from canonical tables
@@ -100,8 +100,15 @@ CRWN is **live in production** (`thecrwn.app`) and the core money loop is real a
   (`fan_share_experience`, priority 10, the catalog floor) plus a persistent card on `/command`. **No email, no
   AI, no rewards, no star ratings, no external fans.** Authorship is immutable: the artist manages visibility
   only, enforced by a route with no body parameter AND a database freeze trigger. The fan may withdraw at any
-  time. **`supabase/schema-phase2-fan-testimonials.sql` is NOT applied** (probe-verified 2026-08-12), and there
-  is deliberately NO feature flag: the migration is the gate, and every surface degrades to empty until it runs.
+  time. **`supabase/schema-phase2-fan-testimonials.sql` was applied by the founder on 2026-08-12 and
+  probe-verified the same day**: the public view reads 200, and both base tables answer anon 42501 on
+  `select(*)` and on every individual sensitive column. There is deliberately NO feature flag; the
+  migration was the gate. The generator has now RUN against production: 11 active paid subscriptions
+  scanned, **7 asks created** (2 artists), an immediate re-run created 0, and the promise trigger
+  correctly created none because all three completed fulfillment events in the window were Revenue Ramp
+  steps rather than fan promises. **Zero testimonials have been collected so far.** That is a
+  fan-response question and cannot be known until fans answer; the feature being live and the feature
+  having produced proof are different facts and must not be reported as one.
   Nine invariants (TESTIMONIAL-001..009) in the verify:architecture gate, all mutation-tested.
   Full spec: `docs/crwn-brain/27-AUTOMATED-FAN-TESTIMONIALS-ARCHITECTURE.md` (section 28 is what was built).
   `Confirmed`.

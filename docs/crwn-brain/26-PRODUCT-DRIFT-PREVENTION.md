@@ -238,3 +238,21 @@ The registry (`INVARIANTS`) is the authoritative list; this is the orientation m
   exceptions (each exception's claimed authority is itself asserted).
 - **Docs** — DOCS-001/002. New: the static migration-state contract wired into
   `brainContract.test.ts` (which caught three stale doc lines the moment it ran).
+
+## Fan testimonials (TESTIMONIAL-001..009, added 2026-08-12)
+
+Nine invariants in `src/lib/architecture/invariants.ts`, enforced by two suites that are BOTH in
+the `verify:architecture` manifest: `src/lib/testimonials/core.test.ts` (pure decisions) and
+`src/lib/architecture/testimonials.test.ts` (source-level boundaries plus a live exercise of the
+pop-up arbiter).
+
+Two are P0: publishing without fan consent (TESTIMONIAL-004) and pairing tier with tenure into a
+lifetime-spend disclosure (TESTIMONIAL-006). Both were mutation-tested again after the migration
+was applied, with the mutation proved present by grep before the suite was run.
+
+The mutation battery found a defect in the NEW SUITE ITSELF, which is the argument for the
+procedure: a tenancy check counted `eq('artist_id', artistId)` over a slice that ran to end of
+file, so a neighbouring function kept the count above threshold while the visibility UPDATE had
+lost its scope. Counting was the wrong tool. The assertion now pins the literal update chain.
+Lesson worth generalizing: **a source-scan assertion must be bounded to the construct it claims to
+be about**, or it silently measures its neighbours.

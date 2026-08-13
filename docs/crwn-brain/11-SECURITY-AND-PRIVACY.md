@@ -88,6 +88,35 @@
 
 ---
 
+## Fan testimonials — verified closed, 2026-08-12
+
+The testimonial base tables are the second family (after the SEC-012 money/CRM tables) shipped
+CLOSED to every browser Data API role rather than RLS-filtered. Probed against production with the
+ANON key on 2026-08-12:
+
+- `fan_testimonials` and `fan_testimonial_requests` answer **42501** to `select(*)` AND to each of
+  `body`, `fan_id`, `consent_scope`, `moderation_status`, `verification_evidence_id` named
+  individually. Naming one revoked column fails the whole statement, which is the intended shape.
+- `fan_testimonials_public` answers **200**. It is the entire client-readable surface, and its
+  production column list is exactly `id, artist_id, body, context_kind, submitted_at, display_name,
+  verification_label, tenure_label`.
+- `artist_profiles.testimonial_requests_enabled` answers **42501** to anon: an artist's operating
+  settings are not public.
+
+**Invertibility, demonstrated rather than asserted.** A canary testimonial from a fan on a
+1000-cent tier rendered publicly as "Verified supporter" + "Supporter for 3+ months". Neither the
+tier name nor the price appears in the payload, so the pair that would reveal lifetime spend
+cannot be assembled. This is the `leaderboardPrivacy.ts` lesson applied structurally: the price is
+collapsed to a boolean inside a LATERAL join and never enters the view's SELECT list.
+
+**Authorship freeze, verified by read-back.** A service-role UPDATE of `body`, `display_identity`
+and `fan_id` returned success and changed nothing. The status code proves nothing here; the
+read-back is the evidence. Same lesson as the SEC-003 identity freeze.
+
+**Not provable through the Data API:** `relrowsecurity` on the two base tables. The grant closure is
+the operative control (Postgres checks table privileges before RLS) and was proved; the RLS enable
+rests on the migration's self-verify block, which raises rather than warns.
+
 ## Privacy & data-handling notes
 
 - **PII stored:** fan/artist email, display name, phone, city/state/country, spend history, engagement scores, IP-derived visitor hashes. Emails/spend are exposed only to the owning artist (audience/CRM routes) or admin. `Confirmed`.

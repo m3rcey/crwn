@@ -51,26 +51,6 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
-- [ ] **Apply the Fan Testimonials migration, or the whole feature stays invisible.** Open and run:
-        supabase/schema-phase2-fan-testimonials.sql
-      All the code shipped and builds. Nothing works until this runs: the daily cron reports
-      `skipped: migration_pending`, the fan card and the public "What supporters are saying"
-      section render nothing, and the artist library shows its empty state. There is no feature
-      flag on purpose, so this file IS the on switch.
-      It creates two tables that are deliberately CLOSED to anon and authenticated (the money-table
-      pattern), one public view that is the only client-readable surface, a trigger that stops an
-      artist editing a fan's words, the dedupe indexes, and
-      `artist_profiles.testimonial_requests_enabled` (default true). It self-verifies and will
-      raise loudly rather than half-apply. Safe to re-run.
-      Expected on success: `NOTICE: OK: fan testimonials V1 (2 tables closed to clients, 1 public
-      view, authorship freeze, dedupe indexes, artist toggle)`.
-      Verify after with: npm run verify:migrations
-      Both "fan testimonials public view" and "fan testimonial requests (closed to anon)" must stop
-      saying NOT APPLIED. Then flip `state: 'pending'` to `'applied'` for that file in
-      EXPECTED_MIGRATION_STATE (src/lib/architecture/invariants.ts) and tell me, so I update the
-      Brain. Note the pop-up engine is already ON in production, so the fan ask goes live the same
-      day the migration lands.
-
 - [ ] **RE-RUN the earnings/recruiters SELECT policy migration (the fixed version).** Open and run:
         supabase/schema-phase2-sec-earnings-recruiters-select-policies.sql
       Your first run on 2026-08-12 DID take effect: the transaction committed, and both tables now

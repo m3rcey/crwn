@@ -1,17 +1,17 @@
 # 27 — Automated Fan Testimonials
 
-> **V1 CODE IMPLEMENTED 2026-08-12. SCHEMA PENDING.**
+> **V1 LIVE IN PRODUCTION 2026-08-12.**
 >
-> The four founder decisions (section 23) were ratified on 2026-08-12 and V1 was built to them.
-> Every module, route, cron, pop-up and surface below exists in the repository and ships in the
-> build. **`supabase/schema-phase2-fan-testimonials.sql` has NOT been applied to production**
-> (probe-verified 2026-08-12: `fan_testimonials_public` answers NOT APPLIED), so the feature is
-> SCHEMA-GATED, not live: the cron reports `skipped: 'migration_pending'`, the fan card and the
-> public artist-page section render nothing, and the artist library shows its empty state. No
-> feature flag is used, deliberately (section 28.4) -- the migration is the gate.
+> The four founder decisions (section 23) were ratified on 2026-08-12, V1 was built to them, and
+> `supabase/schema-phase2-fan-testimonials.sql` was applied by the founder and **probe-verified the
+> same day**. There is no feature flag: the migration was the gate.
 >
-> What was actually built, and the two design corrections the tests forced, are in **section 28**.
-> Read that first if you are about to change any of this.
+> The generator has RUN against production. **Seven asks exist. Zero testimonials have been
+> collected.** Those are different facts and this document keeps them apart: the feature is live,
+> and whether fans answer is not yet known.
+>
+> What was actually built is **section 28**. What was verified against production, and how,
+> is **section 29**. Read both before changing any of this.
 >
 > Authored 2026-08-12 on branch `claude/rise-mode-full-journey`, reconciled against the live
 > repository. Source-of-truth order used: founder instruction, then CRWN Brain, then repository
@@ -1012,3 +1012,91 @@ Everything in section 27 stands. Two additions:
 - **Whether anyone is eligible at all on day one.** The population is fans who paid AND then
   experienced value. If the first run creates zero requests, that is the platform's activation
   constraint showing through, not a bug in this feature.
+
+---
+
+## 29. Production verification (2026-08-12)
+
+The founder applied the migration. This section records what was PROVED against production, and
+what could not be, because "the founder ran it" is a claim and a probe is evidence.
+
+### 29.1 Migration
+
+`npm run verify:migrations` flipped both testimonial probes:
+
+```
+fan testimonials public view               applied (readable)          200
+fan testimonial requests (closed to anon)  applied (reads revoked)     42501
+```
+
+Those two lines carry OPPOSITE semantics on purpose, and both are required. The view alone would
+prove the objects exist while saying nothing about closure; the tables alone cannot distinguish
+"closed" from "never created".
+
+`EXPECTED_MIGRATION_STATE` was then flipped to `applied`. The two unrelated pending migrations
+(membership-strategy, track-waterfall) were left alone.
+
+### 29.2 Properties, not object existence
+
+| Property | How it was proved | Result |
+|---|---|---|
+| Base tables closed to anon | `select(*)` AND each of `body`, `fan_id`, `consent_scope`, `moderation_status`, `verification_evidence_id` named individually | 42501 every time |
+| Public view reachable | anon `select(*)` | 200 |
+| Public view column list | PostgREST schema document | exactly `id, artist_id, body, context_kind, submitted_at, display_name, verification_label, tenure_label` |
+| No invertible pair | scanned the live column list for tier/price/amount | none present, so the pair cannot be assembled |
+| Authorship freeze | service-role UPDATE of `body`, `display_identity`, `fan_id`, then READ BACK | all three unchanged; the write returned success, which is why the read-back is the evidence |
+| Consent narrows only | `crwn_only` to `private_to_artist` then back | narrowing held, re-widening reverted |
+| Dedupe uniqueness | second insert on the same (artist, fan, context) | rejected, 23505 / 409 |
+| Artist toggle | read all 9 artist rows, plus an anon read | all `true`; anon gets 42501 (private operating setting) |
+| Cron fails closed | unauthenticated GET against production | 401 JSON, not the HTML auth wall |
+
+**Not provable from here, and recorded as such:** `relrowsecurity` on the two base tables. The Data
+API cannot see it. The grant closure IS the operative control (Postgres checks table privileges
+before RLS) and that was proved; the RLS enable is belt to its braces and rests on the migration's
+own self-verify block, which raises rather than warns.
+
+### 29.3 Canary lifecycle, against the real public view
+
+One testimonial was created for a SEEDED DEMO fan of the documented test artist (`m3rcey`), walked
+through the lifecycle, and deleted. `fan_testimonials` was back to 0 rows afterwards, and the
+canary subscription was restored to `active`.
+
+- consented but not featured: invisible
+- artist features it: visible, `verification_label = "Verified supporter"`,
+  `tenure_label = "Supporter for 3+ months"`
+- the tier behind that badge costs **1000 cents**, and neither the price nor the tier name appears
+  anywhere in the payload. That is the invertibility property demonstrated rather than asserted
+- subscription set to `canceled`: badge and tenure both became `null` in the same read, and the
+  fan's words were untouched. Restored to `active` immediately
+- fan withdraws: invisible instantly even with `featured_at` still set, and the artist could not
+  re-widen consent to undo it
+
+### 29.4 The generator, run live
+
+Driven through the real module (the production cron secret is a Vercel Sensitive var and does not
+match `.env.local`, so the HTTP route could not be invoked; the module is the same code path).
+
+| Run | Result |
+|---|---|
+| every artist toggled OFF | `created: 0`. D4 proved at scale, not just in a unit test |
+| toggles restored, real run | scanned 11 active paid subscriptions, **created 7**, all `member_30d` |
+| immediate re-run | `created: 0`, row count unchanged |
+
+Distribution: 6 asks on `m3rcey` (the documented test artist), 1 on one other artist. All `pending`,
+all carrying an evidence pointer, all with a 30-day expiry. The generator created **zero**
+testimonials, which is correct: it asks, it does not author.
+
+**The promise trigger correctly produced nothing.** Three `fulfillment_events` completed inside the
+window and all three carry `metadata.ramp_step_key`, so they are Revenue Ramp steps, which are the
+artist's own business tasks and not promises owed to a fan. The fan-promise boundary working in
+production is a better result than a request would have been.
+
+### 29.5 Usage state, stated precisely
+
+- Feature: **LIVE**
+- Fans currently asked: **7** (across 2 artists)
+- Testimonials collected: **0**
+- Testimonials published: **0**
+
+Zero collected is not a defect and must not be reported as one. Whether fans answer, and at what
+rate, is the riskiest assumption in this design (section 27) and only fans can answer it.

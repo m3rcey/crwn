@@ -308,6 +308,33 @@ Internal, admin-only (doc 21 is the full spec). The rules, all `Confirmed` in co
 - **Predictive LTV is unavailable by policy**; lifetime figures are historical sums.
 - Implementation fees are never charged through the app: manual Stripe invoice only.
 
+## 18. Fan testimonial rules (V1, live 2026-08-12)
+
+1. **The fan owns the statement; the artist owns visibility.** No route accepts a testimonial body
+   after insert, and a database trigger reverts one that tries. Verified in production: a
+   service-role rewrite returned success and changed nothing (the read-back is the evidence).
+2. **Automatic collection is never automatic publication.** Public display needs BOTH explicit fan
+   consent (`consent_scope = 'crwn_only'`) and a deliberate artist feature action. Either alone
+   shows nothing.
+3. **Consent only ever narrows.** `crwn_only` to `private_to_artist` is a fan withdrawing
+   permission and is allowed; widening back is reverted, so a withdrawal cannot be undone by the
+   artist. A fan who declined publication at submit cannot later publish that row; they would be
+   asked again, which is deliberate conservatism.
+4. **A verification badge is derived from the live relationship, never stored and never claimed.**
+   When a subscription stops being active the badge and the tenure label both disappear; the fan's
+   words are untouched. Verified in production against a canary.
+5. **Never publish a tier name beside tenure.** Each is safe alone; together, beside the artist's
+   public price list, they are lifetime spend. The public view emits bucketed tenure and no tier.
+6. **Two triggers only**: a fan promise delivered to that fan (+3 days), and 30 days paid and still
+   active. Both read canonical tables. `fulfillment_events` is always filtered through
+   `isFanPromiseEvent`, so a Revenue Ramp step never reaches a fan.
+7. **One ask per fan per artist per trigger, ever**, one outstanding at a time, 180-day cooldown
+   across triggers, enforced by database indexes rather than by the generator.
+8. **The artist toggle is ON by default** and suppresses only FUTURE asks. It never deletes a
+   testimonial, unfeatures one, revokes consent, or touches subscriptions, access or payments.
+9. **No reward, ever.** A testimonial adjacent to an incentive is discounted by everyone who reads
+   it, including the venue or brand the artist is trying to convince.
+
 ## 17. Fan Drive rules (Virality Engine V1, 2026-08-11)
 
 Full architecture: doc 22 section 28. The rules, all `Confirmed` in code + tests

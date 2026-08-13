@@ -387,6 +387,76 @@ describe('the base tables are closed to every client role', () => {
   });
 });
 
+describe('TESTIMONIAL-007 — pop-up arbitration, exercised rather than asserted', () => {
+  // The priority test above reads the catalog. This one RUNS the engine, because "lowest number"
+  // and "actually loses" are different claims. Added 2026-08-12 during production verification.
+  const stubAdmin = (events: Array<{ popup_key: string; action: string; created_at: string }>) => ({
+    from: () => ({
+      select: () => ({
+        eq: () => ({ gte: async () => ({ data: events }) }),
+      }),
+    }),
+  });
+
+  const ctx = (over: Record<string, unknown> = {}) => ({
+    userId: 'u1',
+    role: 'fan' as const,
+    isArtist: false,
+    platformTier: null,
+    stripeConnected: false,
+    supportCount: 3,
+    hasSentBroadcast: false,
+    gmv30dCents: 0,
+    accountCreatedAt: '2026-01-01T00:00:00.000Z',
+    featureFlags: {},
+    resumable: null,
+    artistSlug: null,
+    hasFirstPaidConversion: false,
+    hasPendingTestimonialRequest: true,
+    ...over,
+  });
+
+  it('is chosen when nothing else competes', async () => {
+    const { eligiblePopupFor } = await import('@/lib/popups');
+    const def = await eligiblePopupFor(stubAdmin([]) as never, ctx() as never, '/command');
+    expect(def?.key).toBe('fan_share_experience');
+  });
+
+  it('LOSES to a higher-priority fan pop-up on the same page', async () => {
+    const { eligiblePopupFor } = await import('@/lib/popups');
+    // supportCount 0 arms fan_first_support (priority 60), which is the fan's money and access.
+    const def = await eligiblePopupFor(stubAdmin([]) as never, ctx({ supportCount: 0 }) as never, '/home');
+    expect(
+      def?.key,
+      violation('TESTIMONIAL-007', 'asking a fan for a testimonial outranked activating them. A favour must never beat money or access.', { file: POPUPS, docs: DOC }),
+    ).toBe('fan_first_support');
+  });
+
+  it('respects the one-interruption-per-day governor', async () => {
+    const { eligiblePopupFor } = await import('@/lib/popups');
+    const today = new Date().toISOString();
+    const def = await eligiblePopupFor(
+      stubAdmin([{ popup_key: 'fan_first_support', action: 'shown', created_at: today }]) as never,
+      ctx() as never,
+      '/command',
+    );
+    expect(
+      def,
+      violation('TESTIMONIAL-007', 'the testimonial ask bypassed the one-pop-up-per-user-per-day cap.', { file: POPUPS, docs: DOC }),
+    ).toBeNull();
+  });
+
+  it('does not fire for a fan with no open request', async () => {
+    const { eligiblePopupFor } = await import('@/lib/popups');
+    const def = await eligiblePopupFor(
+      stubAdmin([]) as never,
+      ctx({ hasPendingTestimonialRequest: false }) as never,
+      '/command',
+    );
+    expect(def?.key).not.toBe('fan_share_experience');
+  });
+});
+
 describe('no AI touches a testimonial', () => {
   it('no testimonial module calls a model provider', () => {
     for (const f of [CORE, SERVER, PUBLIC_READ, FAN_ROUTE, ARTIST_ROUTE, CRON, LIBRARY, FAN_CARD, PUBLIC_SECTION]) {

@@ -1163,10 +1163,14 @@ export const EXPECTED_MIGRATION_STATE: ReadonlyArray<{
 
   // Fan Testimonials V1. Its live check INVERTS the usual contract on the base tables (42501 is
   // the PASS, because they are closed to every client role) and runs the normal way on the public
-  // view (200 is the PASS, because the artist page must be able to read it). Shipped code is
-  // fail-soft: the cron reports migration_pending, the fan card and the public section render
-  // nothing, and the artist library shows its empty state.
-  { file: 'schema-phase2-fan-testimonials.sql', state: 'pending', note: 'authored 2026-08-12, awaiting founder apply; every surface degrades to empty until it runs' },
+  // view (200 is the PASS, because the artist page must be able to read it). BOTH probe lines are
+  // required: the view alone would prove the objects exist while saying nothing about closure, and
+  // the tables alone cannot distinguish "closed" from "never created".
+  {
+    file: 'schema-phase2-fan-testimonials.sql',
+    state: 'applied',
+    note: 'founder-applied 2026-08-12; probe-verified the same day. fan_testimonials_public reads 200, both base tables answer anon 42501 on select(*) AND on every individual sensitive column. Properties verified beyond object existence: the public view emits exactly [id, artist_id, body, context_kind, submitted_at, display_name, verification_label, tenure_label] with no tier/price/fan_id; the authorship freeze reverts a service-role body rewrite (read-back is the evidence, not the status code); consent narrows but never re-widens; the (artist, fan, context) unique rejects a duplicate with 23505; artist_profiles.testimonial_requests_enabled exists and is true for all 9 artists. Generator ran live: 7 requests created, immediate re-run created 0.',
+  },
 
   { file: 'schema-phase2-membership-strategy.sql', state: 'pending', note: 'fail-soft; only the strategy override save is blocked' },
   { file: 'schema-phase2-track-waterfall.sql', state: 'pending', note: 'fail-soft; upload falls back to all-at-once' },
