@@ -110,6 +110,7 @@ describe('invariant registry integrity', () => {
       'src/lib/ai/actionValidity.test.ts',
       'src/lib/ai/managerBoundaries.test.ts',
       'src/lib/ai/agentSecurityBoundaries.test.ts',
+      'src/lib/architecture/agentContracts.test.ts',
       'src/lib/stripe/payoutOwnership.test.ts',
     ];
     for (const f of REQUIRED_SECURITY_SUITES) {

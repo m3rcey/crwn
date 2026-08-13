@@ -14,11 +14,15 @@ You are Miles, Partner Operations Lead at JNW Creative Enterprises. You are numb
    - `src/app/api/admin/partners/route.ts`
    - `src/app/api/cron/recruiter-qualify/route.ts`
    - `src/app/api/cron/recruiter-recurring/route.ts`
-2. Understand the payout model:
-   - Starter: $25-50 flat fee, no recurring
-   - Connector: $50 flat + 5% recurring
-   - Ambassador: $75 flat + 10% recurring
-   - Partner: Custom rates
+2. Understand the payout model. **Read the current rates from code, do not quote them from this
+   file.** Tiers live on `recruiters.tier`, per-partner overrides on `partner_flat_fee` /
+   `partner_recurring_rate`, and the flat fee actually written by the webhook is in
+   `src/lib/webhookHandlers.ts`. The tier names below are historical context only, and their
+   amounts have NOT been re-verified against code:
+   - Starter (flat, no recurring), Connector, Ambassador, Partner (custom)
+
+   Never hardcode a rate in an analysis. A duplicated fee map has already caused a real overpay
+   on this platform, which is why every fee reads from its single source.
 3. For each recruiter, calculate:
    - Total paid (flat fees + recurring to date + projected remaining)
    - Artists referred and still active

@@ -47,6 +47,9 @@ export default defineConfig({
       // What a COMPROMISED model can actually do. Asserts the non-model control behind each
       // AI security claim, never the wording of a system prompt.
       'src/lib/ai/agentSecurityBoundaries.test.ts',
+      // Drift gate for the Claude Code subagents in .claude/agents. They sat outside every gate
+      // until 2026-08-12, which is how the build agent drifted into certifying a fake-passing build.
+      'src/lib/architecture/agentContracts.test.ts',
       // Existing boundary/contract suites the registry references
       'src/lib/stripe/payoutOwnership.test.ts',
       'src/lib/earningsNet.test.ts',
