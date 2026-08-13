@@ -1,5 +1,28 @@
 # CRWN Brain — Changelog
 
+## 2026-08-13 - Complete feature inventory, with live usage counts, for a delete/keep review
+
+New doc `29-COMPLETE-FEATURE-INVENTORY.md`. Every feature listed once (what it does, why it exists,
+the benefit claimed, how it works, what it couples to), grouped A to K, plus the decision brief for
+an outside reviewer: four reversibility levels, the constraints a valid recommendation must respect,
+the do-not-cut list with the incident behind each entry, and seven duplication clusters.
+
+**Row counts were read live from production the same day** (service role, read-only, PostgREST
+`count=exact`) rather than inferred, and they are the point of the document:
+
+- 9 artist accounts, **all on the free Launch plan**, so every Pro-gated feature is reachable by nobody.
+- 19 fan subscriptions, 11 active, **7 on a paid tier** at $5 to $10.
+- **0 one-time purchases ever**, 0 live tickets, 0 tips, despite 8 products and 8 live sessions.
+- 0 rows for: team split deals, fan campaigns, clip bounties, city unlocks, smart links, saved
+  segments, imported fan contacts, community channels, DM conversations, mission participants,
+  survey responses, fan referrals, prospect nurture enrollments, testimonials collected.
+- The busiest surfaces after the artist page (1,690 visits) are the acquisition funnel
+  (411 acquisition events, 496 funnel events, 41 calculator results) and Rise Mode (326 quest
+  instances). Promise Calendar is the largest artist-side dataset after quests (97 obligations).
+
+No code changed. `02-FEATURE-MAP.md` remains the architecture-and-rules view per feature; doc 29 is
+the usage-and-cost view, and where they disagree the counts in 29 were measured.
+
 ## 2026-08-13 - Canary preflight: blocked on environment, no Stripe object created
 
 Verified against the Stripe API rather than the variable name. **No code changed, no Stripe object
