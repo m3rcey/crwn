@@ -33,9 +33,13 @@ describe.each(BATCH)('onboarded tool: $slug', (t) => {
     expect(cfg.dmKeywords).toContain(t.keyword);
   });
 
-  it('is active + supported in the funnel layer, public route preserved', () => {
+  it('is supported + reachable in the funnel layer, public route preserved', () => {
     const f = getFunnelByToolKey(t.slug)!;
-    expect(f.lifecycle).toBe('active');
+    // lifecycle is NOT asserted 'active' any more. Both tools onboarded here (fan-mission,
+    // proof-of-demand) were paused from the /tools directory by the 2026-08-13 pre-PMF surface
+    // reduction, which is a PROMOTION decision. Everything this test actually protects — the
+    // route, the keyword, the adapter, the attribution channels, the auth boundary — is
+    // unchanged, and `supported` is the field that would really break an old link.
     expect(f.supported).toBe(true);
     expect(f.promotion).toBe('none'); // available, not promoted (no founder promotion intent)
     expect(f.publicRoute).toBe(`/tools/${t.slug}`);

@@ -133,10 +133,17 @@ describe('lifecycle filtering + promotion behavior (pure)', () => {
 });
 
 describe('live registry integrity', () => {
-  it('every registered funnel is active + supported (nothing hidden by accident)', () => {
+  it('every registered funnel is SUPPORTED (nothing broken by accident)', () => {
+    // `supported` and `anonymousAvailable` are the fields that actually gate behaviour, and they
+    // must stay true for every tool: an old link has to keep returning a truthful result.
+    //
+    // `lifecycle` used to be asserted 'active' here too. It no longer is: the 2026-08-13 pre-PMF
+    // surface reduction pauses every tool outside the promoted six, which removes them from the
+    // /tools directory and NOTHING else. Which tools are active is asserted in promotion.test.ts,
+    // against the promoted set, so this file cannot drift into re-promoting all twenty.
     for (const f of OPPORTUNITY_FUNNELS) {
       expect(f.supported).toBe(true);
-      expect(f.lifecycle).toBe('active');
+      expect(f.anonymousAvailable).toBe(true);
     }
   });
 

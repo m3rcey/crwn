@@ -45,6 +45,37 @@ interface FunnelOverlay {
 // so tool priority is NEVER permanently hardcoded: only Own Your Fans (primary) and the original
 // Worth funnel (secondary) are ranked here; every other tool is neutral 'none' and can be promoted
 // later by editing its overlay (or, in a later phase, an admin_settings override) with no code move.
+/**
+ * PROMOTED SET — the calculators this phase actually drives content to (2026-08-13).
+ *
+ * Derived, not hardcoded per tool: anything NOT in this set defaults to lifecycle 'paused', so
+ * adding the 21st calculator cannot silently promote itself, and removing one from this set is a
+ * one-line decision. Chosen from the CONTENT INVENTORY, not from which features survived the
+ * surface reduction: these six are the only prefixes with scripts driving them (51 scripts across
+ * worth/vault/share/producer/own/free+plan in videos/scripts/lead-magnets).
+ *
+ * PAUSED MEANS REMOVED FROM DISCOVERY. It does NOT mean the route is off, the slug changed, the
+ * DM keyword stopped resolving, a result link broke, or a CTA moved. The ONLY consumer of
+ * `lifecycle` is the /tools directory filter in LeadMagnetDirectory. Keywords are derived from
+ * each config's `dmKeywords` in orchestration.ts and are untouched, so an Instagram comment on a
+ * two-year-old Reel still starts the same conversation and still returns the same tokenized
+ * result. That is the whole point of pausing rather than deleting.
+ */
+export const PROMOTED_TOOL_KEYS: ReadonlySet<string> = new Set([
+  'worth',                      // WORTH / Streaming Loss
+  'vault-revenue-planner',      // VAULT
+  'share-to-earn-planner',      // SHARE
+  'executive-producer-session', // PRODUCER
+  'own-your-fans-calculator',   // OWN
+  'opportunity-calculator',     // FREE / PLAN
+]);
+
+/** A tool's lifecycle: its overlay wins, otherwise promoted -> active, everything else paused. */
+function lifecycleFor(toolKey: string, overlay: FunnelOverlay): OpportunityFunnel['lifecycle'] {
+  if (overlay.lifecycle) return overlay.lifecycle;
+  return PROMOTED_TOOL_KEYS.has(toolKey) ? 'active' : 'paused';
+}
+
 const OVERLAYS: Record<string, FunnelOverlay> = {
   'own-your-fans-calculator': {
     opportunityKey: 'own-your-fans',
@@ -128,7 +159,7 @@ function toFunnelFromLeadMagnet(cfg: (typeof LEAD_MAGNETS)[number]): Opportunity
     resultVersion: o.resultVersion ?? (cfg.usesLossEngine ? 'lossResult@1' : '1.0.0'),
     anonymousAvailable: o.anonymousAvailable ?? true,
     authBoundary: o.authBoundary ?? 'signup_to_save',
-    lifecycle: o.lifecycle ?? 'active',
+    lifecycle: lifecycleFor(cfg.slug, o),
     promotion: o.promotion ?? 'none',
     promotionRank: o.promotionRank ?? 100,
     featureFlag: o.featureFlag ?? null,
@@ -172,7 +203,7 @@ function toFunnelFromExternal(t: (typeof EXTERNAL_TOOLS)[number]): OpportunityFu
     resultVersion: o.resultVersion ?? 'leadCalculator@1',
     anonymousAvailable: o.anonymousAvailable ?? true,
     authBoundary: o.authBoundary ?? 'signup_to_save',
-    lifecycle: o.lifecycle ?? 'active',
+    lifecycle: lifecycleFor(t.key, o),
     promotion: o.promotion ?? 'none',
     promotionRank: o.promotionRank ?? 100,
     featureFlag: o.featureFlag ?? null,
