@@ -9,6 +9,11 @@
 
 import { resend, FROM_EMAIL } from '@/lib/resend';
 import { onlyFanPromises } from '@/lib/fulfillment';
+// The ONE recipient-eligibility rule, shared with the Constraint Engine and the Promise Calendar.
+import {
+  obligationHasNoEligibleRecipient,
+  type EligibilityMember,
+} from '@/lib/calendarProjection';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Admin = any;
@@ -56,21 +61,64 @@ export async function sendPromiseReminders(admin: Admin): Promise<{ artistsEmail
     const fanEvents = onlyFanPromises(events as DueEvent[]);
     if (!fanEvents.length) return { artistsEmailed: 0, reminders: 0 };
 
-    // Offsets + status come from the obligations; paused/archived never remind.
+    // Offsets + status come from the obligations; paused/archived never remind. The audience
+    // fields come along for the empty-room gate below.
     const obIds = [...new Set(fanEvents.map((e) => e.obligation_id))];
     const { data: obs } = await admin
       .from('fulfillment_obligations')
-      .select('id, status, reminder_offsets')
+      .select('id, status, reminder_offsets, audience_kind, audience_id, metadata')
       .in('id', obIds);
-    const obById = new Map<string, { status: string; reminder_offsets: number[] | null }>(
-      (obs ?? []).map((o: { id: string; status: string; reminder_offsets: number[] | null }) => [o.id, o]),
-    );
+    type ObRow = {
+      id: string;
+      status: string;
+      reminder_offsets: number[] | null;
+      audience_kind: string | null;
+      audience_id: string | null;
+      metadata: unknown;
+    };
+    const obById = new Map<string, ObRow>((obs ?? []).map((o: ObRow) => [o.id, o]));
+
+    // ---- The empty-room gate ----
+    // "Promise due in 3 days" is a claim that somebody who paid is waiting. When the obligation's
+    // audience has no active members, nobody is waiting, and an email saying otherwise teaches the
+    // artist to distrust every promise reminder they get afterwards. Same rule object the
+    // Constraint Engine uses, imported rather than re-expressed, because a second interpretation of
+    // "who is owed this" is exactly how the fan/ramp boundary drifted across four readers.
+    //
+    // ONE subscriptions read for every artist in this batch. A failed read leaves the map empty,
+    // which the gate treats as unknown and therefore never suppresses.
+    const artistIds = [...new Set(fanEvents.map((e) => e.artist_id))];
+    const membersByArtist = new Map<string, EligibilityMember[]>();
+    const subsLoaded = { ok: false };
+    try {
+      const { data: subs, error: subErr } = await admin
+        .from('subscriptions')
+        .select('artist_id, tier_id, status')
+        .in('artist_id', artistIds)
+        .eq('status', 'active');
+      if (!subErr) {
+        subsLoaded.ok = true;
+        for (const s of (subs ?? []) as { artist_id: string; tier_id: string | null }[]) {
+          const list = membersByArtist.get(s.artist_id) ?? [];
+          list.push({ tierId: s.tier_id });
+          membersByArtist.set(s.artist_id, list);
+        }
+      }
+    } catch {
+      /* leave subsLoaded false: unknown never suppresses a reminder */
+    }
 
     // Which events cross an offset today, grouped per artist.
     const dueByArtist = new Map<string, { event: DueEvent; offset: number; daysLeft: number }[]>();
     for (const e of fanEvents) {
       const ob = obById.get(e.obligation_id);
       if (!ob || ob.status !== 'active') continue;
+      if (
+        subsLoaded.ok &&
+        obligationHasNoEligibleRecipient(ob, membersByArtist.get(e.artist_id) ?? [])
+      ) {
+        continue;
+      }
       const offsets = Array.isArray(ob.reminder_offsets) && ob.reminder_offsets.length ? ob.reminder_offsets : [7, 3, 1];
       const daysLeft = Math.ceil((new Date(e.due_at).getTime() - now) / 86_400_000);
       const crossing = offsets.filter((o) => o === daysLeft && !remindedOffsetsOf(e.metadata).includes(o));

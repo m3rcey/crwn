@@ -260,6 +260,18 @@ quest, XP or the Revenue Ramp, and it never marks a roadmap step complete.
   categorical signal (one overdue promise is real at n=1 but is not yet a pattern).
 - **Null is not zero.** Every evidence input is nullable, and null means "cannot evaluate this
   stage". A missing table must read as silence, never as a failing artist.
+- **Fulfillment urgency requires a RECIPIENT** (2026-08-13). An overdue fan obligation is evidence
+  that the artist broke a promise only when at least ONE currently eligible member can receive it.
+  The gate is zero versus one; it is not a sample threshold and must never become one. Empty-room
+  obligations stay scheduled on the Promise Calendar (knowing what you promised before the first
+  member arrives is the point of a calendar), but they are not urgency and they trigger no overdue
+  reminder. The rule is `obligationHasNoEligibleRecipient` in `src/lib/calendarProjection.ts`,
+  written as the existential form of `fanEligibleForObligation` so the two cannot drift, and shared
+  by the Constraint Engine's assembler and the promise-reminder cron. It fails SAFE: audience kinds
+  it cannot evaluate from a membership list, and any failed read, keep counting, because suppressing
+  a promise a paying fan IS owed is far worse than letting an empty one through. Eligibility is
+  derived on read from live subscriptions, NEVER from `fulfillment_events.eligible_fan_count`, a
+  column declared "denormalized at materialize time" that nothing has ever written.
 - **Product-failure safety.** Checkout completion refuses to diagnose when joins exceed checkout
   starts, because the two are then not measuring the same population (members from before
   instrumentation, or a fan who started one day and paid the next) and the rate would be a

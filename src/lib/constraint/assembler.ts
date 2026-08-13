@@ -16,6 +16,12 @@ import type { DomainCheck, QuestInstance } from '@/lib/quests/types';
 import { readTierEvidence } from '@/lib/analytics/tierEvidence';
 import { computeChurn } from '@/lib/analytics/retention';
 import { onlyFanPromises, summarizePromiseHealth } from '@/lib/fulfillment';
+// The ONE recipient-eligibility rule, shared with the Promise Calendar and the reminder cron.
+import {
+  obligationHasNoEligibleRecipient,
+  type EligibilityMember,
+  type ObligationAudience,
+} from '@/lib/calendarProjection';
 import { CONSTRAINT_THRESHOLDS, type ConstraintThresholds } from './thresholds';
 import type { ConstraintEvidence } from './types';
 
@@ -134,6 +140,10 @@ export async function assembleConstraintEvidence(
   let churnRatePct: number | null = null;
 
   let tierPriceById = new Map<string, number>();
+  // Hoisted so the promise block below can reuse the SAME subscription read for the empty-room
+  // gate rather than asking the database the same question twice. Null means the read failed, and
+  // the gate treats that as unknown.
+  let subRowsForEligibility: { tier_id: string | null; status: string | null }[] | null = null;
   try {
     const [{ data: tierRows }, { data: subRows }] = await Promise.all([
       db.from('subscription_tiers').select('id, price').eq('artist_id', artistId).eq('is_active', true),
@@ -153,6 +163,7 @@ export async function assembleConstraintEvidence(
       created_at: string;
       canceled_at?: string | null;
     }[];
+    subRowsForEligibility = subs;
 
     const active = subs.filter((s) => s.status === 'active');
     const priceOf = (s: { tier_id: string | null }) =>
@@ -245,8 +256,9 @@ export async function assembleConstraintEvidence(
   try {
     const { data, error } = await db
       .from('fulfillment_events')
-      // `id` is selected so the corrective action can point at the exact obligation.
-      .select('id, title, status, due_at, completed_at, metadata')
+      // `id` is selected so the corrective action can point at the exact obligation;
+      // `obligation_id` so the audience behind it can be read and the empty-room gate applied.
+      .select('id, obligation_id, title, status, due_at, completed_at, metadata')
       .eq('artist_id', artistId)
       .gte('due_at', promiseFrom.toISOString())
       .order('due_at', { ascending: true })
@@ -257,9 +269,10 @@ export async function assembleConstraintEvidence(
       // and counting it here made a stale personal to-do read as a broken promise to someone who
       // had paid. FULFILLMENT outranks every growth stage, so that one row could suppress the real
       // diagnosis indefinitely. See `isFanPromiseEvent` in src/lib/fulfillment.ts.
-      const events = onlyFanPromises(
+      const fanEvents = onlyFanPromises(
         (data ?? []) as {
           id: string;
+          obligation_id: string;
           title: string;
           status: string | null;
           due_at: string | null;
@@ -267,6 +280,46 @@ export async function assembleConstraintEvidence(
           metadata: Record<string, unknown> | null;
         }[],
       );
+
+      // ---- The empty-room gate ----
+      // A scheduled promise nobody can receive is not evidence that this artist failed a fan.
+      // Production held four overdue "fan promises", all auto-created from a tier template, all on
+      // Gold and Platinum, which had zero active subscribers between them. FULFILLMENT fires at
+      // n = 1, so those rows were about to displace the roadmap step that leads to a first paying
+      // member. The obligation stays on the calendar (knowing what you have promised before the
+      // first member arrives is the point of a calendar); it simply stops being urgency.
+      //
+      // Derived on read from live subscriptions, never from `fulfillment_events.eligible_fan_count`
+      // (declared "denormalized at materialize time", never written by any insert, 0 on every row).
+      // Filtering the array ONCE covers both the health summary and the overdue count, so the two
+      // cannot disagree about which promises were real.
+      const activeMembers: EligibilityMember[] = ((subRowsForEligibility ?? []) as {
+        tier_id: string | null;
+        status: string | null;
+      }[])
+        .filter((s) => s.status === 'active')
+        .map((s) => ({ tierId: s.tier_id }));
+
+      let events = fanEvents;
+      const obIds = [...new Set(fanEvents.map((e) => e.obligation_id).filter(Boolean))];
+      if (obIds.length > 0) {
+        const { data: obRows, error: obErr } = await db
+          .from('fulfillment_obligations')
+          .select('id, audience_kind, audience_id, metadata')
+          .in('id', obIds);
+        // On a failed read every promise keeps counting: unknown never suppresses.
+        if (!obErr) {
+          const empty = new Set(
+            (obRows ?? [])
+              .filter((o: ObligationAudience & { id: string }) =>
+                obligationHasNoEligibleRecipient(o, activeMembers),
+              )
+              .map((o: { id: string }) => o.id),
+          );
+          if (empty.size > 0) events = fanEvents.filter((e) => !empty.has(e.obligation_id));
+        }
+      }
+
       promiseSummary = summarizePromiseHealth(events, now);
 
       const stillOverdue = events.filter(

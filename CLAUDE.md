@@ -274,6 +274,14 @@ gold CTA.** If you are about to put a second recommendation, a second CTA, a sta
 explainer, an XP bar or a list on this screen, the answer is no: the surface that owns that
 information already exists.
 
+- **An overdue promise is only urgent if somebody can receive it.** `obligationHasNoEligibleRecipient`
+  (`src/lib/calendarProjection.ts`) is the existential form of `fanEligibleForObligation` and is
+  shared by the Constraint Engine's assembler and the promise-reminder cron. The gate is ZERO versus
+  ONE eligible member, never a sample threshold, and it fails SAFE (unknown audience kinds and failed
+  reads keep counting). Never derive eligibility from `fulfillment_events.eligible_fan_count`:
+  nothing has ever written it and it is 0 on every production row. Empty-room obligations stay on
+  the calendar; they just stop being urgency. Without this, four auto-seeded template promises on
+  tiers with no subscribers were about to outrank the road to a first paying member.
 - **Overdue fulfillment owed to paying supporters outranks a normal roadmap milestone.** That rule
   is NOT in the UI and must never be copied there. It is Stage 1 of `readConstraint`
   (`src/lib/constraint/engine.ts`), which evaluates FULFILLMENT before every growth stage and fires

@@ -1,5 +1,49 @@
 # CRWN Brain — Changelog
 
+## 2026-08-13 - Fulfillment urgency now requires a recipient (empty-room promises are not broken promises)
+
+**The invariant: an overdue fan obligation is evidence that an artist broke a promise only when at
+least one currently eligible member can receive it. The gate is zero versus one, never a sample
+threshold.** Found by the Automation Readiness Audit, which is why the audit's own conclusion was
+"fix this, then stop building Rise Mode".
+
+**What was wrong, measured live.** All four overdue fan promises on the platform were
+`tier_benefit_sync` rows CRWN auto-created from a tier template ("Auto-created from a tier
+benefit"), sitting on Gold ($25) and Platinum ($100), which had **zero active subscribers between
+them**. One of the two artists holding them (`lagoo`) had never had a subscription of any kind.
+FULFILLMENT fires at n = 1 and outranks every growth stage, so Rise Mode was about to displace the
+roadmap milestone that leads to a first paying member in order to demand delivery of a vault unlock
+to an empty room, and the daily reminder cron would have emailed about the same nobody.
+
+**The fix is to the EVIDENCE, not the engine.** Stage order is untouched, FULFILLMENT still fires at
+n = 1, and the founder rule that an overdue promise to a paying supporter outranks a roadmap
+milestone is unchanged. Only obligations somebody is actually entitled to receive now reach it.
+
+- **One rule, shared.** `obligationHasNoEligibleRecipient` (`src/lib/calendarProjection.ts`) is the
+  existential form of the existing per-fan `fanEligibleForObligation`, written in terms of it so a
+  second interpretation of "who is owed this" cannot appear. Both the Constraint Engine's assembler
+  and `sendPromiseReminders` import it. Inheritance is preserved for free: `serves_tier_ids` (dedup
+  merges and "everything in Gold" upward inheritance) counts, an unrelated rung does not.
+- **It fails safe, and the direction is deliberate.** Audience kinds a membership list cannot answer
+  (squad, campaign, anything added later) and any failed read keep counting. Suppressing a promise a
+  paying fan IS owed is far worse than letting one empty-room promise through.
+- **NOT `fulfillment_events.eligible_fan_count`.** That column is declared "denormalized at
+  materialize time" and **nothing has ever written it**: every insert site omits it, so it is 0 on
+  every production row. Gating on it would have silenced every promise on the platform. Eligibility
+  is derived on read from live subscriptions. (The Promise Calendar still renders "N supporters
+  eligible" from that dead column, which is a separate pre-existing display bug, left alone here.)
+- **Obligations are not deleted.** Nothing archives, cancels or removes an empty-room obligation;
+  it stays on the calendar and simply stops being urgency. Ramp-step exclusion is applied BEFORE the
+  recipient gate, so a private ramp step never reaches the right answer for the wrong reason.
+
+**Read-only production verification** (service role, GET only, using the real exported function):
+13 overdue pending events, 4 of them fan promises, **all 4 suppressed, platform `overdueNow` 4 → 0,
+zero real promises suppressed**. The discrimination is on the audience, not the artist: `m3rcey` has
+10 active members and is still correctly suppressed, because none of them hold Gold or Platinum.
+
+New `src/lib/promiseRecipientEligibility.test.ts` (18). `npm test` 2189 pass,
+`verify:architecture` 812 pass, build clean, lint at the repo baseline.
+
 ## 2026-08-13 - Rise Mode, Accelerate pass: the destination is part of the advice
 
 **The principle: once Rise Mode identifies the correct next move, its CTA takes the artist to the

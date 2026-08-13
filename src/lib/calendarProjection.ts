@@ -422,6 +422,58 @@ export function fanEligibleForObligation(
   }
 }
 
+/**
+ * Does ANYBODY currently receive this obligation?
+ *
+ * THE DEFECT THIS EXISTS FOR (measured in production 2026-08-13). All four overdue fan promises
+ * on the platform were `tier_benefit_sync` rows CRWN auto-created from a tier template, sitting on
+ * Gold and Platinum, which had ZERO active subscribers between them. One of the two artists holding
+ * them had no subscriptions at all, ever. The Constraint Engine's stage 1 fires at n = 1 on the
+ * grounds that "these fans have already paid for something they have not received", so Rise Mode
+ * was preparing to displace the roadmap milestone that leads to a first paying member in order to
+ * demand delivery of a vault unlock to an empty room. The promise reminder cron would have emailed
+ * about the same nobody.
+ *
+ * THE RULE IS THE EXISTENTIAL FORM OF `fanEligibleForObligation`, and is written in terms of it on
+ * purpose: a second, separately maintained interpretation of "who is owed this" is precisely how
+ * the ramp-step boundary drifted across four readers before it was consolidated.
+ *
+ * IT FAILS SAFE, AND THE DIRECTION MATTERS. Suppressing a promise that a real paying fan IS owed is
+ * far worse than letting one empty-room promise through, so this returns true ONLY when it can
+ * positively determine the room is empty. Audience kinds it cannot evaluate from a membership list
+ * (squad, campaign, anything added later) return false and keep counting.
+ *
+ * NOT `fulfillment_events.eligible_fan_count`. That column is declared "denormalized at materialize
+ * time" and NOTHING has ever written it: every insert site omits it, so it sits at its DEFAULT of 0
+ * on every row in production. Gating on it would have silenced every promise on the platform,
+ * including the real ones. Eligibility is derived on read, from live subscriptions.
+ */
+export interface ObligationAudience {
+  audience_kind: string | null;
+  audience_id: string | null;
+  metadata?: unknown;
+}
+
+/** One currently-active member of this artist, as the eligibility rule needs to see them. */
+export interface EligibilityMember {
+  tierId: string | null;
+  squadIds?: Set<string>;
+}
+
+const NO_SQUADS: Set<string> = new Set();
+
+export function obligationHasNoEligibleRecipient(
+  ob: ObligationAudience,
+  activeMembers: EligibilityMember[],
+): boolean {
+  // Only the audience kinds a membership list can actually answer. Everything else is UNKNOWN,
+  // and unknown must never suppress a promise.
+  if (ob.audience_kind !== 'tier' && ob.audience_kind !== 'all_supporters') return false;
+  return !activeMembers.some((m) =>
+    fanEligibleForObligation(ob, m.tierId, m.squadIds ?? NO_SQUADS),
+  );
+}
+
 /** live_sessions: free OR no gating list OR the fan's tier is in allowed_tier_ids. */
 function fanCanSeeLive(live: any, fanTierId: string | null): boolean {
   if (live.is_free) return true;
