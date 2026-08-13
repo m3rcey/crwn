@@ -22,32 +22,34 @@ responsible for. Do not work those.
 
 ### P0 — money flows or acquisition are blocked
 
-- [ ] **Decide how Team Split collaborator payouts are FUNDED, then re-enable the cashout rail.**
-      The rail is currently disabled and returns 503 (`TEAM_SPLIT_FUNDING_PENDING`) in
-      src/app/api/stripe/team-split-cashout/route.ts. That is deliberate: today the transfer
-      leaves CRWN's own Stripe balance. On a $100 sale at Launch, CRWN collects $12 in platform
-      fee, the artist's Connect account keeps $88, and a 50% split would transfer $44 out of
-      CRWN's pocket. The platform would subsidise every collaborator, silently. Safe to disable
-      right now because production holds 0 deals, 0 accruals and 0 payouts, so nobody is owed
-      anything and $0 has been lost.
-      The referral rail already solves this and is the model: it adds the commission to
-      `application_fee_percent` at checkout, so the money is withheld into CRWN's balance before
-      it ever reaches the artist. Applying that to splits changes what an artist takes home per
-      sale and cannot retroactively fund accruals from charges that already settled, which is why
-      it is your call and not a refactor. Full trace: docs/CYBERSECURITY_AUDIT_2026-08-12.md (F-3).
-      The arithmetic is now written and proven: src/lib/teamSplits/funding.ts, with 18 tests
-      asserting CRWN revenue + commission + collaborator funding + artist proceeds always equals
-      what the fan paid. What is left is three questions only you can answer, recorded in
-      FUNDING_OPEN_QUESTIONS in that file, because each changes what an artist takes home:
-        1. Do splits apply to subscriptions that ALREADY exist? A subscription's fee percent is
-           fixed at creation, so either CRWN updates every live subscription in Stripe when a deal
-           is accepted (bulk, rate-limited, partially failing), or splits apply only to new
-           subscriptions. The second is safer; the first is what artists will expect.
-        2. Can a deal accrue against earnings that PREDATE it and were never reserved? Those
-           accruals are structurally unfunded.
-        3. When a cap makes reserved money unowed, how does the surplus get back to the artist?
-           That is a platform-to-artist transfer that does not exist today.
-      Answer those three and the wiring is mechanical.
+- [ ] **ONE decision unblocks Team Split funding: what happens when two deals over-commit the
+      same revenue?**
+      The three questions this item used to carry (existing subscriptions, pre-deal earnings,
+      unowed surplus) are RATIFIED and closed. The funding architecture is now written up in
+      [docs/crwn-brain/28-TEAM-SPLIT-FUNDING-ARCHITECTURE.md](docs/crwn-brain/28-TEAM-SPLIT-FUNDING-ARCHITECTURE.md),
+      and the good news is that Stripe supports the safe model directly: CRWN sets an exact
+      `application_fee_amount` on each subscription invoice, so the collaborator's money is
+      withheld BEFORE the artist is paid, existing subscriptions are covered with no change to
+      the fan's price or billing date, and no new money topology is introduced. The rail stays at
+      503 until it is built.
+      What I cannot decide for you: deal creation WARNS about over-commitment but does not block
+      it, so two accepted deals can each claim more of one source than is left. Today the code
+      would allocate in whatever order the rows came back, which silently decides that one
+      collaborator is paid in full and another is short-changed. Two real people, and neither
+      outcome is obviously right. Pick one:
+        1. **Refuse to over-commit** (my recommendation). Block accepting a deal that would push
+           the combined active percentage on a source past 100% of the artist's net. Nobody is
+           ever surprised, and it forces the conversation before the work instead of after.
+        2. **Pro-rata.** Allow it, and scale every collaborator down proportionally when the net
+           runs short. Nobody is refused, but each person's take now depends on deals they cannot
+           see.
+        3. **First accepted wins.** Defensible, and it makes whoever signs last absorb every
+           shortfall.
+      Answer that and the build is mechanical: section 18 of doc 28 is the acceptance criteria.
+      Two things I found on the way that are worth knowing regardless: production still holds 0
+      deals / 0 accruals / 0 payouts, so there is nothing to migrate; and CRWN issues no refunds
+      in code, so whether a refund pulls the artist's share back is currently a checkbox choice in
+      the Stripe Dashboard, which the implementation should make explicit.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
