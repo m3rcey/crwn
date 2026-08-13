@@ -31,3 +31,21 @@ SELECT 'schema-phase2-earnings-live-tip-type.sql',
            AND c.contype = 'c'
            AND pg_get_constraintdef(c.oid) LIKE '%live_tip%'
        );
+
+-- 3. SEC-003 (cybersecurity audit 2026-08-12). The profiles freeze trigger.
+--    This one CANNOT be proved by an anonymous probe, which is why it declares
+--    liveCheck 'sql-check' in EXPECTED_MIGRATION_STATE. Two reasons: the finding is
+--    about what an AUTHENTICATED user may WRITE, not what anon may read, and
+--    PostgREST cannot see a trigger at all. The trigger also reverts silently rather
+--    than raising, so the write returns 204 either way and the status code proves
+--    nothing. Reading the installed function source is the honest check.
+--    Expect applied = true.
+SELECT 'schema-phase2-sec-003-profiles-identity-freeze.sql' AS migration,
+       (
+         SELECT bool_and(position('NEW.' || col IN p.prosrc) > 0)
+         FROM pg_proc p
+         JOIN pg_namespace n ON n.oid = p.pronamespace
+         CROSS JOIN unnest(ARRAY['is_active', 'stripe_connect_id', 'email', 'phone', 'is_approved']) AS col
+         WHERE n.nspname = 'public'
+           AND p.proname = 'freeze_profiles_protected_cols'
+       ) AS applied;

@@ -135,6 +135,16 @@ const SECURITY_PROBES = [
     'schema-phase2-sec-012-money-table-rls-reproducibility.sql'],
   ['SEC-012 crm_contacts grants revoked', 'GET', 'crm_contacts?select=*&limit=1', null,
     'schema-phase2-sec-012-money-table-rls-reproducibility.sql'],
+  // earnings and recruiters were held back from the migration above because both are
+  // read by the browser, so a bare RLS enable with no policy would have broken an
+  // artist reading their OWN earnings. Until this one runs they answer 200 [] to anon
+  // (RLS is on in the live database but the anon GRANT is still there), which is why
+  // "not a live leak, but not reproducible either" is the honest description: rebuild
+  // the database from the repo and they come up open.
+  ['SEC-EARN earnings grants revoked', 'GET', 'earnings?select=*&limit=1', null,
+    'schema-phase2-sec-earnings-recruiters-select-policies.sql'],
+  ['SEC-EARN recruiters grants revoked', 'GET', 'recruiters?select=*&limit=1', null,
+    'schema-phase2-sec-earnings-recruiters-select-policies.sql'],
 ];
 
 console.log('\nSecurity migrations (42501 = denied = PASS):\n');

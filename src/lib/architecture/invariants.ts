@@ -1042,6 +1042,22 @@ export const EXPECTED_MIGRATION_STATE: ReadonlyArray<{
   liveCheck?: 'anon-probe' | 'sql-check';
   note?: string;
 }> = [
+  // Cybersecurity audit 2026-08-12. These are RESTRICTIVE migrations, so their live
+  // check runs the OPPOSITE contract to every other row here: a normal migration is
+  // proved applied by data becoming READABLE, a security migration by access becoming
+  // DENIED. probe-migrations.mjs has a dedicated section where 42501 is the PASS,
+  // because an anon-executable volatile RPC answers 25006 over GET and the generic
+  // loop would file that under "unclear" and stay green over an open hole.
+  { file: 'schema-phase2-sec-002-rpc-execute-lockdown.sql', state: 'applied', note: 'SEC-002/011/V11; probe-verified 2026-08-12, anon EXECUTE 25006 -> 42501 on check_rate_limit, redeem_invite, user_passes_artist_gate; negative window rejected 22023' },
+  // 'sql-check' and not an anon probe, on purpose: this finding is about what an
+  // AUTHENTICATED user may WRITE, PostgREST cannot see a trigger, and the trigger
+  // reverts silently rather than raising, so the write returns 204 whether or not the
+  // migration ran. An anon probe here would certify nothing while looking green.
+  { file: 'schema-phase2-sec-003-profiles-identity-freeze.sql', state: 'applied', liveCheck: 'sql-check', note: 'SEC-003; verified 2026-08-12 with a throwaway authenticated user: self-approve, email rewrite and role promotion each returned 204 and changed nothing, so the READ-BACK is the evidence, never the status code' },
+  { file: 'schema-phase2-sec-004-007-rls-notifications-tier-benefits.sql', state: 'applied', note: 'SEC-004/007; probe-verified 2026-08-12, anon notifications INSERT 23503 -> 42501 and tier_benefits write 42501 while its public read still works for the storefront' },
+  { file: 'schema-phase2-sec-012-money-table-rls-reproducibility.sql', state: 'applied', note: 'SEC-012; probe-verified 2026-08-12, all 15 service-role-only money/CRM tables answer 42501 to anon' },
+  { file: 'schema-phase2-sec-earnings-recruiters-select-policies.sql', state: 'pending', note: 'SEC-012 remainder. earnings and recruiters were deliberately excluded from the migration above because a bare RLS enable with no policy would have broken an artist reading their OWN earnings. Production probe 2026-08-12 returned 200 [] (RLS on, anon grant still present), so this is a reproducibility fix and not a live leak: a branch database or a PITR restore would come up open.' },
+
   { file: 'schema-phase2-membership-strategy.sql', state: 'pending', note: 'fail-soft; only the strategy override save is blocked' },
   { file: 'schema-phase2-track-waterfall.sql', state: 'pending', note: 'fail-soft; upload falls back to all-at-once' },
   { file: 'schema-phase3-fan-campaigns.sql', state: 'applied', note: 'probe-verified 2026-08-12' },

@@ -425,7 +425,6 @@ describe('SEC-SERVICE — service-role routes are the only authorization boundar
     'src/app/api/missions/participant-counts/route.ts',
     'src/app/api/live/thumbnail/route.ts',
     'src/app/api/live/tips/route.ts',
-    'src/app/api/tracks/check-limit/route.ts',
     // Lead capture and public tools (logged-out visitor is the intended caller)
     'src/app/api/lead-magnets/capture/route.ts',
     'src/app/api/lead-magnets/analytics/route.ts',
@@ -456,6 +455,23 @@ describe('SEC-SERVICE — service-role routes are the only authorization boundar
     'src/app/api/outreach/inbound/route.ts',
     'src/app/api/webhooks/resend/route.ts',
   ]);
+
+  // A declaration that outlives the thing it describes is worse than no declaration:
+  // it asserts "this route is deliberately public" about a route that may since have
+  // been locked down, or deleted, or replaced. `tracks/check-limit` sat here after it
+  // had already been given requireArtistOwner, and nothing noticed because the entry
+  // simply stopped matching anything. A registry nobody can trust is how SEC-001
+  // survived, so the allowlist now has to justify its own existence.
+  it('no DELIBERATELY_PUBLIC entry is stale', () => {
+    const stale = [...DELIBERATELY_PUBLIC].filter(f => !serviceRoleRoutes.includes(f));
+    expect(
+      stale,
+      violation(
+        'SEC-SERVICE',
+        `DELIBERATELY_PUBLIC names route(s) that are no longer unauthenticated service-role routes: ${stale.join(', ')}. Either the route was gated (delete the entry, it now misdescribes the code) or it moved or was removed (delete or update it). An allowlist entry that matches nothing is a claim about code that no longer exists.`,
+      ),
+    ).toEqual([]);
+  });
 
   it('every service-role route establishes an identity, a secret, or a signature, or is declared public', () => {
     const ESTABLISHES = /auth\.getUser\s*\(|requireAdmin\s*\(|requireArtistOwner\s*\(|getOwnedArtistIds\s*\(|CRON_SECRET|INTERNAL_[A-Z_]*SECRET|constructEvent\s*\(|verifyWebhookSignature\s*\(|WebhookReceiver|createHmac\s*\(|verifyUnsubscribe\s*\(|verifyCalcomRequest\s*\(|presentedSecret/;
