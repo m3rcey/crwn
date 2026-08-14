@@ -556,7 +556,7 @@ export function WorthExperience({
             the result is on screen (the number is the headline at that point). */}
         {homepage && (
           <div className="text-center mb-8">
-            <SectionImage src="/tool-worth.jpg" alt="An artist alone in a dark studio lit in gold, looking at a phone" />
+            <SectionImage src={SECTION_ART.reveals.src} alt={SECTION_ART.reveals.alt} />
             <h1 className="font-bold mb-3 text-3xl sm:text-4xl">
               Streaming built your reach. It cannot tell you who pays.
             </h1>

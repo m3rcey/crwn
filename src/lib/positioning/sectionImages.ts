@@ -1,16 +1,25 @@
 /**
- * The brand photograph that opens each marketing section.
+ * The artwork that opens each marketing section.
  *
- * Every one is an existing CRWN asset, shot to the house rules (near-black charcoal with warm gold
- * accent light, artists reading 18 to 32), and every one was reviewed before it was assigned here
- * rather than picked off a filename. The pairing is semantic, not decorative: the section about
- * fragmentation opens on an artist buried in paperwork, the path opens on a staircase climbing
- * into gold light, and the close opens on an artist surrounded by the fans the whole argument is
- * about.
+ * Style: flat vector poster illustration, from a founder-supplied reference (2026-08-14). Bold
+ * geometric colour blocks, a near-black silhouette figure with sculpted highlight planes, radiating
+ * sunburst rays and repeating dot rows, hard vector edges, no gradients and no photorealism.
  *
- * Reusing a `tool-*.jpg` outside its own tool page is intentional. These are mood photographs of
- * artists at work, not diagrams of a feature, so they carry the beat rather than the product, and
- * commissioning eleven more would buy nothing a reader could see.
+ * The COMPOSITIONS are unchanged from the photographic set they replaced, deliberately: each one
+ * was chosen to carry its section's beat, and the pairing is semantic rather than decorative. The
+ * fragmentation section opens on an artist buried in paperwork, the path on a staircase climbing
+ * into light, the operating loop on a corridor with one lit way forward, the assisted launch on
+ * two people working a console together, and the close on an artist surrounded by the fans the
+ * whole argument is about.
+ *
+ * PALETTE, the one deliberate adaptation from the reference: the reference runs bright red-orange,
+ * and these sit on a #0D0D0D page beside #D4AF37 gold CTAs, where a second warm brand would fight
+ * the first. So the style is the reference's and the palette is anchored on CRWN gold, amber and
+ * burnt orange over near-black, which is the same warm family the reference works in.
+ *
+ * Every image was generated at 16:9 to match `SectionImage`, carries no text or logo, and was
+ * reviewed individually before being assigned here: the house rule is that anyone shown is a Black
+ * hip hop or R&B artist reading age 18 to 32, and that is checked by looking, not by prompting.
  */
 export interface SectionArt {
   src: string;
@@ -20,64 +29,64 @@ export interface SectionArt {
 export const SECTION_ART = {
   /**
    * "What this reveals", the per-tool section on a calculator page. Shared rather than set to the
-   * tool's OWN hero photograph, because that photograph is already on this page: showing it twice
-   * reads as an oversight. The doorway stays distinct through its copy, which is genuinely per-tool.
+   * tool's OWN hero image, because that image is already on this page: showing it twice reads as
+   * an oversight. The doorway stays distinct through its copy, which is genuinely per-tool.
    */
   reveals: {
-    src: '/tool-live-experience.jpg',
-    alt: 'An artist singing alone to a camera in a dark room lit in gold',
+    src: '/section-reveals.jpg',
+    alt: 'Illustration of an artist singing to a camera under a hard gold key light',
   },
   /** Fragmentation: the cost of running the business across tools that cannot see the same fan. */
   problem: {
-    src: '/tool-royalty-readiness.jpg',
-    alt: 'An artist alone at a desk under a gold lamp, head in hand over scattered paperwork',
+    src: '/section-problem.jpg',
+    alt: 'Illustration of an artist at a desk, head in hand over scattered paperwork under a gold lamp',
   },
   /** The five-step path: climbing out of the dark toward the light at the top. */
   path: {
-    src: '/tool-fan-journey.jpg',
-    alt: 'An artist climbing a dark stairwell toward a doorway of warm gold light',
+    src: '/section-path.jpg',
+    alt: 'Illustration of an artist climbing a staircase toward a bright gold doorway',
   },
   /** The operating loop: one lit way forward instead of a dashboard of options. */
   operatingSystem: {
-    src: '/tool-quest-path.jpg',
-    alt: 'An artist standing in a long corridor lit by receding frames of gold light',
+    src: '/section-operating-system.jpg',
+    alt: 'Illustration of an artist in a corridor of receding gold light frames',
   },
   /** First Revenue Launch: someone working the desk alongside the artist, hands on. */
   launch: {
-    src: '/tool-team-split.jpg',
-    alt: 'Two artists working a mixing console together in a dark studio lit in gold',
+    src: '/section-launch.jpg',
+    alt: 'Illustration of two artists working a mixing console together',
   },
   /** What the product operates: the unglamorous daily work the system keeps track of. */
   operates: {
-    src: '/tool-supporter-promise.jpg',
-    alt: 'An artist writing in a notebook at a studio desk under a gold lamp',
+    src: '/section-operates.jpg',
+    alt: 'Illustration of an artist writing in a notebook at a studio desk beside a microphone',
   },
   /** Pricing: choosing the level you operate at, framed as a threshold. */
   pricing: {
-    src: '/tool-founder-window.jpg',
-    alt: 'An artist stepping out of a warmly lit studio doorway into a dark brick alley',
+    src: '/section-pricing.jpg',
+    alt: 'Illustration of an artist stepping through a doorway of warm gold light',
   },
   /** Questions: the artist facing the room. */
   questions: {
-    src: '/tool-movement-page.jpg',
-    alt: 'An artist singing under a single gold spotlight with the audience in silhouette',
+    src: '/section-questions.jpg',
+    alt: 'Illustration of an artist singing under a gold spotlight above an audience in silhouette',
   },
   /** The homepage close: the fans the entire argument was about. */
   close: {
-    src: '/tool-top-fan.jpg',
-    alt: 'An artist surrounded by a small group of fans in warm gold light',
+    src: '/section-close.jpg',
+    alt: 'Illustration of an artist surrounded by a close group of fans in gold light',
   },
   /** The one fan economy beat on a calculator page: identifiable people, not a follower count. */
   oneEconomy: {
-    src: '/tool-top-fan.jpg',
-    alt: 'An artist surrounded by a small group of fans in warm gold light',
+    src: '/section-close.jpg',
+    alt: 'Illustration of an artist surrounded by a close group of fans in gold light',
   },
   /**
-   * The calculator close. Deliberately NOT the same photograph as `oneEconomy`, which already
-   * renders higher up on that page: a page that shows one image twice looks like a mistake.
+   * The calculator close. Deliberately NOT the same image as `oneEconomy`, which already renders
+   * higher up on that page: a page that shows one image twice looks like a mistake.
    */
   toolClose: {
-    src: '/tool-movement-page.jpg',
-    alt: 'An artist singing under a single gold spotlight with the audience in silhouette',
+    src: '/section-questions.jpg',
+    alt: 'Illustration of an artist singing under a gold spotlight above an audience in silhouette',
   },
 } as const satisfies Record<string, SectionArt>;
