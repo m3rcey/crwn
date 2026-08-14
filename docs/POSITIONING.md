@@ -546,6 +546,27 @@ lost". The rule, for any acquisition surface:
 4. **A tool with no numeric model is still allowed to be valuable.** Give the reader the real thing it
    knows (an order, a checklist, a sequence) instead of a number it does not.
 
+### Implementation: one story, six doors (2026-08-14)
+
+The six PROMOTED calculators are CRWN's public acquisition doors. Each keeps its own hook; none may
+keep its own positioning. Where that lives in code:
+
+- **`src/lib/positioning/story.ts`** is the ONE source for the canonical argument: the five-step path
+  to first revenue, the operating loop, the First Revenue Launch body, the guarantee. `HomeMarketing`
+  and `ToolMarketing` both read it, so the homepage and the calculators cannot drift apart. Changing
+  the story means changing this file, not six pages.
+- **`src/lib/leadMagnets/positioning.ts`** owns only what must stay DIFFERENT: one doorway per
+  promoted tool (`lens`, `revealsTitle`, `revealsBody`, `connectsBody`). Its keys are derived from
+  `PROMOTED_TOOL_KEYS`, so a promoted tool can never lack a story and a paused tool can never carry one.
+- **`ToolMarketing`** renders the shared lower page and is presentation only. A promoted tool renders
+  it INSTEAD of `CrwnShowcase`, which advertises surfaces the pre-PMF reduction hid and is now gated
+  to non-promoted tools.
+- **Every doorway must state that its finding is one lens on one fan economy**, not a standalone
+  revenue line. That sentence is what stops six calculators reading as six businesses.
+- Pinned by `src/lib/leadMagnets/toolPositioning.test.ts`: the promoted set, both drift directions,
+  distinct hooks, no hidden-surface names, no literal ownership of people, streaming never the
+  villain, no passive or guaranteed income, no em or en dashes, and the homepage untouched.
+
 ### Accurate replacements for "own your fans"
 
 - "Own the relationship, not the platform it sits on"

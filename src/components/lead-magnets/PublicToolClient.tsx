@@ -7,6 +7,8 @@ import { smartBack } from '@/lib/navigation';
 import { LeadMagnetWizard } from './LeadMagnetWizard';
 import { CrwnShowcase } from './CrwnShowcase';
 import { ToolShowcase } from './ToolShowcase';
+import { ToolMarketing } from './ToolMarketing';
+import { hasDoorway } from '@/lib/leadMagnets/positioning';
 import { LeadMagnetResult } from './LeadMagnetResult';
 import { ToolHero } from './ToolHero';
 import { buildContinueUrl } from '@/lib/leadMagnets/continuationCta';
@@ -317,7 +319,21 @@ export function PublicToolClient({
   // max-w-lg for a visitor who had just completed the calculator, which made the page 16%
   // longer and visibly weaker for the highest-intent reader. It now renders once, after
   // the funnel, at its own width.
-  const belowContent = typeof below === 'function' ? below({ completed: phase === 'full' && !!result && !editing }) : below;
+  const completed = phase === 'full' && !!result && !editing;
+
+  // A PROMOTED tool owns a Zero to One lower page (`ToolMarketing`) instead of the generic
+  // platform showcase. That showcase's mockups advertise the leaderboard, Sync, the AI actions
+  // feed, the clipper program and email sequences, all of which the pre-PMF product reduction
+  // hid: a promoted acquisition door may not promise a product the visitor cannot then find.
+  // Paused tools keep the showcase untouched; they are out of scope for this pass and their
+  // routes must keep working exactly as they did.
+  const promotedMarketing = surface === 'tool' && hasDoorway(config.slug);
+  const showGenericShowcase = surface === 'tool' && !promotedMarketing;
+
+  const belowContent =
+    typeof below === 'function'
+      ? below({ completed })
+      : (below ?? (promotedMarketing ? <ToolMarketing slug={config.slug} completed={completed} /> : null));
 
   return (
     <>
@@ -364,7 +380,7 @@ export function PublicToolClient({
               (if it has any), then the full CRWN pitch. On the homepage the `below`
               slot (HomeMarketing) owns the entire lower page, so the generic showcase
               stays tool-route chrome and never stacks a second marketing narrative. */}
-          {surface === 'tool' && (
+          {showGenericShowcase && (
             <div className="max-w-2xl mx-auto">
               <ToolShowcase slug={config.slug} />
               <CrwnShowcase claimed={false} claimHref={`/signup?ref=tool-${config.slug}`} />
@@ -481,7 +497,7 @@ export function PublicToolClient({
 
           {/* Supporting content, last: this tool's own mockups, then the CRWN app
               explanation. Tool routes only; the homepage's `below` slot owns its lower page. */}
-          {surface === 'tool' && (
+          {showGenericShowcase && (
             <>
               <ToolShowcase slug={config.slug} />
               <CrwnShowcase claimed={false} claimHref={`/signup?ref=tool-${config.slug}`} />

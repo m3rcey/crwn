@@ -8,11 +8,7 @@ import { LeadMagnetWizard } from '@/components/lead-magnets/LeadMagnetWizard';
 import { ToolHero } from '@/components/lead-magnets/ToolHero';
 import type { LeadMagnetConfig } from '@/lib/leadMagnets/types';
 import { buildContinueUrl } from '@/lib/leadMagnets/continuationCta';
-import {
-  Crown, Sparkles, Check, ChevronDown, ArrowRight,
-  Music, DollarSign, Users, BarChart3, HelpCircle,
-  Disc3, Radio, Video, ShoppingBag, Repeat, X, Star,
-} from 'lucide-react';
+import { Crown, Sparkles, Check, ChevronDown, ArrowRight } from 'lucide-react';
 import {
   calculate,
   getAssumptions,
@@ -23,7 +19,7 @@ import {
   type CalcAssumptions,
 } from '@/lib/leadCalculator';
 
-import { TiersMock, ShopMock } from './mocks';
+import { ToolMarketing } from '@/components/lead-magnets/ToolMarketing';
 import { continueCtaFor } from '@/lib/leadMagnets/continuationCta';
 
 // Primary CTA target: the scheduling page where the artist books a Zoom call.
@@ -35,7 +31,6 @@ const BOOK_CALL_URL = 'https://cal.com/jnwcreative/15min';
 const MEMBERSHIP_CTA = continueCtaFor('worth'); // "Build My Membership"
 
 // Brand gold as RGB for inline opacity steps (single-hue composition bar).
-const GOLD = '212,175,55';
 
 const PRESETS: { key: AggressivenessPreset; label: string }[] = [
   { key: 'conservative', label: 'Conservative' },
@@ -65,46 +60,13 @@ const TIERS: { name: string; price: string; accent: boolean; subs?: 'tier1' | 't
 ];
 
 // Every revenue stream that adds up to the number at the top of the page.
-const MONETIZE_WAYS: { icon: ComponentType<{ className?: string }>; title: string; line: string; tag: string }[] = [
-  { icon: Crown, title: 'Monthly memberships', line: 'Fans subscribe every month for exclusive drops and perks. Up to 3 tiers.', tag: 'Recurring' },
-  { icon: Disc3, title: 'Tracks, stems & remixes', line: 'Sell songs, beat stems, and multitracks as one-off downloads.', tag: 'One-off' },
-  { icon: Radio, title: 'Live sessions', line: 'Charge a ticket to go live, or make it a tier perk.', tag: 'Ticketed' },
-  { icon: Video, title: 'Access to you', line: 'Priority DMs, voice notes, 1-on-1 video calls, custom songs.', tag: 'Premium' },
-  { icon: ShoppingBag, title: 'Shop & merch', line: 'Digital products, sample packs, merch. Members get discounts.', tag: 'Shop' },
-  { icon: Star, title: 'Custom & experiences', line: 'Custom verses, shoutouts, one-of-one experiences. Name your price.', tag: 'Whale' },
-];
 
 // Illustrative revenue composition (a healthy artist's mix). Single-hue bar.
-const REVENUE_MIX = [
-  { label: 'Memberships', pct: 52 },
-  { label: 'Tracks & stems', pct: 16 },
-  { label: 'Access & customs', pct: 16 },
-  { label: 'Live', pct: 9 },
-  { label: 'Shop', pct: 7 },
-];
-const MIX_OPACITY = [1, 0.78, 0.6, 0.44, 0.3];
 
-const COMPARE = [
-  { label: 'Pay per fan', streaming: 'Fractions of a cent', crwn: '$10–$200 / month' },
-  { label: 'Who you reach', streaming: 'The algorithm decides', crwn: 'Every fan, directly' },
-  // The comparison is between two different JOBS, not a villain and a hero: this page says a few
-  // lines down that streaming is how people find you and is good at that. So the rows state the
-  // mechanics ("split before it reaches you", "months later") rather than accusing the DSPs of
-  // keeping money or not paying, neither of which CRWN can evidence.
-  { label: 'Your cut', streaming: 'Split before it reaches you', crwn: 'You keep up to 92%' },
-  { label: 'Fan data', streaming: 'You get none', crwn: 'Names and emails, yours' },
-  { label: 'Payout', streaming: 'Months later', crwn: 'Straight to your bank' },
-];
 
 // Objections written for the artist CRWN is actually for (docs/ICP.md): someone who already
 // sells to their fans and is doing it across five tools that do not talk to each other. They do
 // not need convincing that fans will pay. They already know. The loss is the stack.
-const OBJECTIONS = [
-  { q: 'My fans won’t pay.', a: 'If you have ever sold a ticket, a shirt, or a beat pack, they already did. The number above assumes only a small, realistic slice of your audience ever pays.' },
-  { q: 'I already have a Patreon.', a: 'Then you proved the model works and you are running it on someone else’s terms. Patreon does not sell your stems, ticket your live sessions, or hand you the fan’s email. Everything you sell in five places, you can sell in one, to the same fans, with the data staying yours.' },
-  { q: 'I don’t have time to run all this.', a: 'You are already running it, split across Shopify, Discord, Linktree, Eventbrite and an email tool. The built-in manager and automated sequences take it down to one place. Set your tiers once and it runs in the background.' },
-  { q: 'Is it really free to start?', a: 'Yes. Free to sign up, no card required. You only ever pay a fee on money you actually earn, and nothing on the tools you cancel to move here.' },
-];
 
 // How it ACTUALLY works, which is self-serve.
 //
@@ -114,19 +76,7 @@ const OBJECTIONS = [
 // copy: the artist who will not book is told there is no path for them, and the artist who will book
 // is told to stop building and wait. The launch call is a real offer and it stays on the page, once,
 // framed as help beside the CTA. It is not the first step.
-const STEPS = [
-  { n: '1', title: 'Build your offer here', body: 'Your tiers and prices come prefilled from the numbers you put in above. Edit anything.' },
-  { n: '2', title: 'Publish your page', body: 'Your artist page and tiers go live in minutes. No tech skills, no card required.' },
-  { n: '3', title: 'Point your fans to it', body: 'Drop the link in your bio. Earn from the fans you already have.' },
-];
 
-const FAQS = [
-  { q: 'What does it cost?', a: 'Free to start. You keep 88% to 92% of what you earn depending on your plan, and CRWN only takes a fee on actual sales. Most artists moving here are already paying monthly for a store, a community, an email tool and a ticketing platform before they earn a cent.' },
-  { q: 'How do fans pay me?', a: 'By card through Stripe. Every subscription, sale, and tip is paid straight to your bank account.' },
-  { q: 'Do I keep my masters and rights?', a: 'Yes, 100%. It’s your catalog, your audience, and your data. CRWN is a tool, not a label.' },
-  { q: 'Can I still release on Spotify and Apple?', a: 'Absolutely. CRWN is additive. Use the release waterfall so paying fans get new music first and the DSPs get it last.' },
-  { q: 'How fast can I set up?', a: 'Same day. Most artists are live within an hour of their call.' },
-];
 
 export interface WorthPrefill {
   listeners?: string;
@@ -342,7 +292,7 @@ export function WorthExperience({
         <Stat label="Paying superfans" value={fmtCount(result.payers)} />
         <Stat
           label="vs. streaming income"
-          value={result.multipleVsStreaming ? `${Math.round(result.multipleVsStreaming)}×` : '–'}
+          value={result.multipleVsStreaming ? `${Math.round(result.multipleVsStreaming)}×` : '-'}
         />
         <Stat label="Subscriptions / mo" value={fmtDollars(result.subsMrrCents)} />
         <Stat label="À la carte / mo" value={fmtDollars(result.alacarteMrrCents)} />
@@ -559,7 +509,7 @@ export function WorthExperience({
         You&apos;re leaving roughly
       </div>
       <div className="text-5xl sm:text-6xl font-bold text-crwn-gold mb-1">
-        {hasNumber ? fmtDollars(result.netMrrCents) : '–'}<span className="text-2xl sm:text-3xl font-bold">/mo</span>
+        {hasNumber ? fmtDollars(result.netMrrCents) : '-'}<span className="text-2xl sm:text-3xl font-bold">/mo</span>
       </div>
       <div className="text-crwn-text-secondary mb-6">
         on the table every month{hasNumber ? `. That's ${fmtDollars(result.netAnnualCents)} a year` : ''}
@@ -644,25 +594,22 @@ export function WorthExperience({
           </>
         )}
 
-        {/* Where the number comes from */}
+        {/* THE LADDER, personalized. This section is what survived the 2026-08-14 positioning
+            pass, because it is the ONE place on this page that shows economic depth from the
+            artist's OWN result: their payers, split across the real rungs. That is evidence, not
+            a benchmark, which is exactly the beat POSITIONING.md permits. Everything that used to
+            follow it (the revenue-mix bar, the "what is CRWN" mock, the streaming comparison
+            table, the six-way monetization grid and the shop mock, the objections, the steps and
+            the FAQ) was a feature-led marketing stack from an older era, and two of its entries
+            advertised surfaces the pre-PMF reduction has hidden. The shared Zero to One narrative
+            below replaces all of it. */}
         <section className="mb-14">
-          <SectionHeading icon={BarChart3}>Where {hasNumber ? fmtDollars(result.netMrrCents) + '/mo' : 'the number'} comes from</SectionHeading>
+          <SectionHeading icon={Crown}>The ladder that holds it</SectionHeading>
           <p className="text-crwn-text-secondary text-xl mb-5">
-            It&apos;s not one big thing. It&apos;s a stack of small ones, all from the same fans.
-          </p>
-          <div className="bg-crwn-surface border border-crwn-elevated rounded-2xl p-6">
-            <RevenueStack />
-          </div>
-        </section>
-
-        {/* The setup that captures it, with the live headcount per tier */}
-        <section className="mb-14">
-          <SectionHeading icon={Crown}>The setup that captures it</SectionHeading>
-          <p className="text-crwn-text-secondary text-xl mb-5">
-            A free tier to capture everyone, then three paid tiers so your most committed fans have
-            somewhere to go. The top rung is the smallest and carries the most money, which is why
-            an artist who only launches one flat tier stalls at a fraction of their number.
-            {hasNumber ? ` Here's how your ${fmtCount(result.payers)} paying fans split across them:` : ''}
+            A free front door to identify everyone, then paid rungs so your most committed fans
+            have somewhere to go. The top rung is the smallest group and carries the most money,
+            which is why an artist who launches one flat tier stalls well short of their number.
+            {hasNumber ? ' Here is how your ' + fmtCount(result.payers) + ' paying fans split across them:' : ''}
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {TIERS.map((t) => {
@@ -678,16 +625,14 @@ export function WorthExperience({
                   <div className="font-semibold">{t.name}</div>
                   <div className="flex items-center justify-between mb-3">
                     <span className="text-crwn-gold text-lg font-bold">{t.price}</span>
-                    {count != null && (
-                      <span className="flex items-center gap-1 text-lg text-crwn-text-secondary">
-                        <Users className="w-3.5 h-3.5" /> {count.toLocaleString('en-US')}
-                      </span>
+                    {count !== null && (
+                      <span className="text-xs text-crwn-text-secondary">{count.toLocaleString('en-US')} fans</span>
                     )}
                   </div>
                   <ul className="space-y-1.5">
-                    {t.perks.map((p) => (
-                      <li key={p} className="flex items-start gap-2 text-xl text-crwn-text-secondary">
-                        <Check className="w-4 h-4 text-crwn-gold shrink-0 mt-0.5" /> {p}
+                    {t.perks.map((perk) => (
+                      <li key={perk} className="text-sm text-crwn-text-secondary flex items-start gap-2">
+                        <Check className="w-4 h-4 text-crwn-gold shrink-0 mt-0.5" /> {perk}
                       </li>
                     ))}
                   </ul>
@@ -697,128 +642,34 @@ export function WorthExperience({
           </div>
         </section>
 
-        {/* What is CRWN + product mock */}
-        <section className="mb-14">
-          <SectionHeading icon={Music}>Wait, what is CRWN?</SectionHeading>
-          <p className="text-crwn-text-secondary text-xl mb-6">
-            CRWN runs your fan economy: the people who actually pay you, what you sell them, what
-            you owe them, and what to do next. It shows you which fans create the value, tells you
-            the one move that grows it, and tracks whether it worked. No label. No middleman. You
-            keep up to 92%, paid to your bank. Fans pick a tier and pay you every month:
-          </p>
-          <TiersMock subs={hasNumber ? { t1: result.tier1Subs, t2: result.tier2Subs, t3: result.tier3Subs } : undefined} />
-        </section>
+        {/* The SHARED Zero to One narrative, identical to the one under every other promoted
+            calculator. /worth keeps its own calculator internals (they work, and forcing it into
+            the registry architecture would be risk for no customer gain); what it no longer keeps
+            is its own private story. */}
+        {/* Calculator route only. `homepage` is the degenerate fallback that renders ONLY if the
+            registry ever loses the Opportunity Calculator, and it keeps its original close below
+            rather than inheriting a second one. */}
+        {!homepage && <ToolMarketing slug="worth" completed={hasNumber} />}
 
-        {/* Streaming vs CRWN */}
-        <section className="mb-14">
-          <SectionHeading icon={DollarSign}>Streaming vs. CRWN</SectionHeading>
-          <p className="text-crwn-text-secondary text-xl mb-5">
-            Same fans, two different jobs. Streaming is how people find you, and it is good at that.
-            It just was never built to tell you who among them will pay you directly, or to let you
-            do anything about it.
-          </p>
-          <CompareTable />
-        </section>
-
-        {/* Everything you can charge for */}
-        <section className="mb-14">
-          <SectionHeading icon={Sparkles}>Everything you can charge for</SectionHeading>
-          <p className="text-crwn-text-secondary text-xl mb-5">
-            Each of these is a way the same fans can go deeper with you. They are not separate
-            audiences, so the totals do not simply add up, and we will not pretend they do. The
-            number above already models them together, counting every fan once.
-          </p>
-          <div className="grid sm:grid-cols-2 gap-3">
-            {MONETIZE_WAYS.map((w) => (
-              <div key={w.title} className="bg-crwn-surface border border-crwn-elevated rounded-2xl p-5">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-10 h-10 rounded-full bg-crwn-gold/15 flex items-center justify-center shrink-0">
-                    <w.icon className="w-5 h-5 text-crwn-gold" />
-                  </div>
-                  <div className="font-semibold">{w.title}</div>
-                </div>
-                <p className="text-xl text-crwn-text-secondary leading-relaxed mb-3">{w.line}</p>
-                <span className="inline-block text-[10px] uppercase tracking-wide text-crwn-gold bg-crwn-gold/10 rounded-full px-2 py-1">{w.tag}</span>
-              </div>
-            ))}
-          </div>
-          <p className="text-crwn-text-secondary text-xl mt-6 mb-4">Your storefront, live in minutes:</p>
-          <ShopMock />
-        </section>
-
-        <PrimaryCTA homepage={homepage} claimHref={claimHref} sub="Need help setting this up? A 15-minute call. Qualified artists get hands-on launch help.">
-          {homepage ? 'Start free on CRWN' : 'See it on your own catalog'}
-        </PrimaryCTA>
-
-        {/* Objections */}
-        <section className="mb-14">
-          <SectionHeading icon={HelpCircle}>But will this work for me?</SectionHeading>
-          <div className="space-y-3">
-            {OBJECTIONS.map((o) => (
-              <div key={o.q} className="bg-crwn-surface border border-crwn-elevated rounded-2xl p-5">
-                <div className="font-semibold mb-1">&ldquo;{o.q}&rdquo;</div>
-                <p className="text-xl text-crwn-text-secondary leading-relaxed">{o.a}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Steps */}
-        <section className="mb-14">
-          <SectionHeading icon={Repeat}>How it works</SectionHeading>
-          <div className="grid sm:grid-cols-3 gap-3">
-            {STEPS.map((s) => (
-              <div key={s.n} className="bg-crwn-surface border border-crwn-elevated rounded-2xl p-5">
-                <div className="w-8 h-8 rounded-full bg-crwn-gold text-crwn-bg font-bold flex items-center justify-center mb-3">{s.n}</div>
-                <div className="font-semibold mb-1">{s.title}</div>
-                <p className="text-xl text-crwn-text-secondary">{s.body}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* FAQ */}
-        <section className="mb-14">
-          <SectionHeading icon={HelpCircle}>Questions</SectionHeading>
-          <div className="divide-y divide-crwn-elevated">
-            {FAQS.map((f) => (
-              <div key={f.q} className="py-4">
-                <div className="font-semibold mb-1">{f.q}</div>
-                <p className="text-xl text-crwn-text-secondary leading-relaxed">{f.a}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Final recap CTA */}
-        <div className="bg-gradient-to-b from-crwn-gold/10 to-crwn-surface border border-crwn-gold/30 rounded-2xl p-8 text-center">
-          <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-crwn-gold/20 flex items-center justify-center">
-            <Crown className="w-7 h-7 text-crwn-gold" />
-          </div>
-          <h2 className="text-2xl sm:text-3xl font-bold mb-3">
-            You&apos;re leaving {monthlyLabel} on the table.{hasNumber ? ` That's ${annualLabel} a year.` : ''} Let&apos;s go get it.
-          </h2>
-          <p className="text-crwn-text-secondary">
-            {homepage
-              ? 'Set up your page free and turn on every one of these revenue streams.'
-              : 'Your offer is already built above. Save it whenever you are ready.'}
-          </p>
-          {/* Booking never claims the money, and never competes with the builder. On the calculator
-              the closing action points back to the offer the artist already built; the single
-              optional help CTA lives higher up, framed as help. */}
-          {homepage ? (
+        {/* Final recap CTA, FALLBACK PATH ONLY. On the calculator route `ToolMarketing` owns the
+            close, and stacking a second closing CTA under it is the duplicate-CTA problem this
+            positioning pass exists to remove. */}
+        {homepage && (
+          <div className="bg-gradient-to-b from-crwn-gold/10 to-crwn-surface border border-crwn-gold/30 rounded-2xl p-8 text-center">
+            <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-crwn-gold/20 flex items-center justify-center">
+              <Crown className="w-7 h-7 text-crwn-gold" />
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-bold mb-3">
+              Turn the audience you already built into a business you can operate.
+            </h2>
+            <p className="text-crwn-text-secondary">
+              Set up your page free, identify the fans who actually pay, and work from one next move.
+            </p>
             <PrimaryCTA homepage={homepage} claimHref={claimHref} sub="Free to start. No card required. Keep up to 92%.">
-              {`Start free, claim your ${monthlyLabel}`}
+              Start free on CRWN
             </PrimaryCTA>
-          ) : (
-            <button
-              onClick={() => worthBuilderRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-              className="mt-6 inline-flex items-center justify-center gap-2 bg-crwn-gold text-crwn-bg font-semibold py-4 px-8 rounded-full"
-            >
-              Back to my offer
-            </button>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -908,57 +759,8 @@ function SectionHeading({ icon: Icon, children }: { icon: ComponentType<{ classN
   );
 }
 
-function CompareTable() {
-  return (
-    <div className="bg-crwn-surface border border-crwn-elevated rounded-2xl overflow-hidden">
-      <div className="grid grid-cols-2 text-center">
-        <div className="py-3 text-sm font-semibold text-crwn-text-secondary border-b border-crwn-elevated">Streaming</div>
-        <div className="py-3 text-sm font-semibold text-crwn-gold bg-crwn-gold/5 border-b border-crwn-gold/30">CRWN</div>
-      </div>
-      {COMPARE.map((r) => (
-        <div key={r.label} className="grid grid-cols-2">
-          <div className="px-4 py-3 flex items-start gap-2 border-b border-crwn-elevated/60">
-            <X className="w-4 h-4 text-crwn-text-secondary/50 shrink-0 mt-0.5" />
-            <div>
-              <div className="text-[10px] uppercase tracking-wide text-crwn-text-secondary/50">{r.label}</div>
-              <div className="text-xl text-crwn-text-secondary">{r.streaming}</div>
-            </div>
-          </div>
-          <div className="px-4 py-3 flex items-start gap-2 bg-crwn-gold/5 border-b border-crwn-gold/20">
-            <Check className="w-4 h-4 text-crwn-gold shrink-0 mt-0.5" />
-            <div>
-              <div className="text-[10px] uppercase tracking-wide text-crwn-gold/70">{r.label}</div>
-              <div className="text-sm text-crwn-text">{r.crwn}</div>
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
 
 // Single-hue composition bar (magnitude by opacity step, direct-labeled).
-function RevenueStack() {
-  return (
-    <div>
-      <div className="flex w-full h-8 rounded-full overflow-hidden gap-[2px] bg-crwn-bg">
-        {REVENUE_MIX.map((s, i) => (
-          <div key={s.label} style={{ width: `${s.pct}%`, backgroundColor: `rgba(${GOLD},${MIX_OPACITY[i]})` }} />
-        ))}
-      </div>
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-1.5 mt-4">
-        {REVENUE_MIX.map((s, i) => (
-          <div key={s.label} className="flex items-center gap-2 text-xs">
-            <span className="w-3 h-3 rounded-sm shrink-0" style={{ backgroundColor: `rgba(${GOLD},${MIX_OPACITY[i]})` }} />
-            <span className="text-crwn-text-secondary truncate">{s.label}</span>
-            <span className="text-crwn-text font-medium ml-auto">{s.pct}%</span>
-          </div>
-        ))}
-      </div>
-      <p className="text-[11px] text-crwn-text-secondary/70 mt-4">Illustrative mix. Your split depends on what you turn on.</p>
-    </div>
-  );
-}
 
 function Field({
   label, hint, value, onChange, placeholder, prefix,

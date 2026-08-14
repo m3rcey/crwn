@@ -1,5 +1,50 @@
 # CRWN Brain — Changelog
 
+## 2026-08-14 - The six promoted calculators become six doors into one story
+
+**The homepage was rebuilt on the ratified Zero to One positioning on 2026-08-13. The six promoted
+calculators were not, so CRWN's acquisition surfaces were arguing six different companies. This is
+a positioning, composition and copy pass only: no formula, constant, scenario, price, fee,
+question, funnel contract, qualification rule or route changed.**
+
+- **The generic showcase was the core defect.** `CrwnShowcase` rendered under every promoted tool
+  in both the hero and result phases, and its mockups advertised the **leaderboard, Sync, the AI
+  actions feed, the clipper program and email sequences**: five surfaces the pre-PMF product
+  reduction deliberately hid. A promoted acquisition door may not promise a product the visitor
+  cannot then find. It is now gated to NON-promoted tools, which keep it untouched.
+- **One shared story, six doorways.** `src/lib/positioning/story.ts` owns the canonical argument
+  (the five-step path to first revenue, the operating loop, the First Revenue Launch offer and its
+  guarantee); `src/lib/leadMagnets/positioning.ts` owns only what must stay different, one doorway
+  per promoted tool. **`HomeMarketing` now reads the same module**, so the homepage and the
+  calculators cannot drift apart again. The promoted set is DERIVED from `PROMOTED_TOOL_KEYS`, so
+  promoting or pausing a tool can never leave a page without a story or a story without a page.
+- **`ToolMarketing`** is the shared lower page: what this reveals, one fan economy, the path to a
+  first paid member, First Revenue Launch, one closing CTA. Deliberately shorter than the homepage,
+  because the artist's own number has already made the argument. Presentation only: no second
+  calculator, result, builder, hand-raiser or analytics call, so it cannot double-count.
+- **Six theses, rewritten.** Streaming Loss: reach and direct fan value are two different numbers,
+  and streaming stays the discovery job. Vault: unreleased work is why a committed fan climbs a
+  rung, not idle inventory. Share-to-Earn: advocacy is ACQUISITION into the same ladder, never a
+  second revenue line. Executive Producer: premium participation is how the high-value end reveals
+  itself, and no capacity is implied. Own Your Fans: reach is not a relationship, and the eyebrow
+  stopped asserting ownership of people (the slug, name, route, `featureName` and DM keyword all
+  stay, because campaign links and historical rows are keyed to them). Opportunity Calculator: the
+  complete diagnosis, with the anti-double-counting contract stated in the artist's own words.
+- **`/worth` kept its calculator and lost its era.** Deleted: the revenue-mix bar, the "what is
+  CRWN" mock, the streaming comparison table, the six-way monetization grid and shop mock (which
+  advertised DMs), the objections, the steps and the FAQ, plus a duplicate closing CTA and two en
+  dashes. **Kept: the personalized ladder**, the one place on that page showing economic depth from
+  the artist's OWN result rather than a benchmark. It now renders the shared narrative.
+- **Homepage verified unchanged** in rendered HTML: `HomeMarketing` present, the tool narrative
+  absent, its First Revenue Launch block intact.
+- Tests: `src/lib/leadMagnets/toolPositioning.test.ts` (22 new). Six existing `pageComposition`
+  assertions were **re-pointed at the shared module, not weakened**: the strings they scan for moved,
+  and two got stricter (the showcase gate now also excludes promoted tools; the ownership check now
+  covers the eyebrow). 2,263 tests pass, `verify:architecture` 814 pass, build clean, `sw.js` v403.
+- **Known limitation, pre-existing and unchanged:** the five registry tool routes return early on a
+  `phase === 'loading'` gate, so their body is client-rendered and ships no server-rendered
+  marketing. `/worth` server-renders and was verified directly.
+
 ## 2026-08-14 - Opportunity Calculator pre-traffic fix pass (two answers reach the model, and the headline says what it is)
 
 **A full credibility audit of the Opportunity Calculator found the economics defensible and the

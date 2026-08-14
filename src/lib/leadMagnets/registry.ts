@@ -11,17 +11,21 @@ const VAULT_REVENUE_PLANNER: LeadMagnetConfig = {
   name: 'Vault Revenue Planner',
   featureName: 'Artist Vault',
   category: 'Monetize',
-  description: 'See what the unreleased music sitting on your phone is costing you every month.',
-  videoAngle: 'You already have enough unreleased content to launch a paid fan Vault. It is making nothing on your hard drive.',
+  description: 'See what deeper access to your unreleased catalog would be worth to the fans who pay you most.',
+  videoAngle: 'Your unreleased catalog is the clearest reason a committed fan has to pay you more. It is sitting on a hard drive instead.',
   publicRoute: '/tools/vault-revenue-planner',
   artistRoute: '/artist/tools/vault-revenue-planner',
   icon: '🗝️',
   timeToComplete: '3 min',
   dmKeywords: ['vault'],
   hero: {
+    // Zero to One positioning pass (2026-08-14). The old hero sold idle files as lost money.
+    // The catalog is not the product: deeper ACCESS to it is the clearest reason a committed fan
+    // identifies themselves, pays, and climbs a rung. That is a membership beat, not an
+    // inventory beat, and it is why the vault lives inside the ladder rather than beside it.
     eyebrow: 'Artist Vault',
-    headline: 'The music on your phone is earning you nothing.',
-    subheadline: 'Every demo, voice memo and unreleased track you sit on is money your supporters would already be paying you. The fans who want that access are the ones who pay you most, and right now you have nothing to give them. See what sitting on it costs you, and get a 30-day plan to release it.',
+    headline: 'Your most committed fans have nowhere to go.',
+    subheadline: 'Most of your audience will never want the demos and unreleased work sitting on your phone. The small group who would are already the ones carrying most of your direct revenue, and right now you have nothing deeper to offer them. See what that access is worth, and the ladder it belongs in.',
     primaryCta: 'Plan my Vault',
     image: '/tool-vault.jpg',
     imageAlt: 'An artist in a dim studio surrounded by shelves of unreleased music',
@@ -602,17 +606,19 @@ const SHARE_TO_EARN = lossToolBase({
   name: 'Share-to-Earn Revenue Calculator',
   featureName: 'Fan Referrals',
   category: 'Grow',
-  description: 'See the referred subscribers you lose because your fans have no reason to share you.',
-  videoAngle: 'Your fans already recommend you for free. With no reward and no tracking, none of it converts or scales.',
+  description: 'See what your fans\' advocacy is worth once it is identifiable, attributable and rewarded.',
+  videoAngle: 'A few of your fans already do acquisition for you. Nothing tracks which ones, so it never compounds.',
   icon: '🔗',
   dmKeywords: ['share'],
   hero: {
+    // Zero To One spine beat 3: not every fan is the same. A few bring other people, and that
+    // contribution is economic value nothing in the artist's stack can see. Positioning pass
+    // (2026-08-14): this is ACQUISITION into the same fan economy, so the hero says what the
+    // mechanism produces (supporters) rather than implying a second income stream.
     eyebrow: 'Fan Referrals',
-    headline: 'Your fans would bring their friends, for a cut.',
-    // Zero To One spine beat 3: not every fan is the same. A few bring other people,
-    // and that contribution is economic value nothing in the artist's stack can see.
-    subheadline: 'A handful of your fans already recommend you, and they are worth more than a fan who only listens. Untracked and unpaid, that contribution never scales. See the referred subscribers you are leaving on the table.',
-    primaryCta: 'See what I am leaving',
+    headline: 'Some of your fans are already doing your acquisition.',
+    subheadline: 'A small group recommends you without being asked, and a fan who brings other fans is worth more than one who only listens. Nothing in your stack can tell you which fans those are, so it never compounds and it never gets paid. See what that advocacy is worth once it is tracked.',
+    primaryCta: 'See what my fans bring in',
     image: '/tool-share-to-earn.jpg',
     imageAlt: 'A dim, gold-lit studio with an artist at the center',
   },
@@ -625,15 +631,23 @@ const OWN_YOUR_FANS = lossToolBase({
   name: 'Own Your Fans Calculator',
   featureName: 'Own Your Fans',
   category: 'Grow',
-  description: 'See how much of your fanbase lives on apps you do not control, and could lose overnight.',
-  videoAngle: 'Your whole audience lives on platforms that can change owners or rules overnight. You own almost none of them.',
+  description: 'See how much of your fanbase you can reach directly, and what the relationship is worth once you can.',
+  videoAngle: 'You cannot own a person. You can own the relationship, the data and the permission to make contact, and today almost none of it is yours.',
   icon: '🏠',
   dmKeywords: ['own'],
   hero: {
-    eyebrow: 'Own Your Fans',
-    headline: 'Your whole audience lives on apps you do not own.',
-    subheadline: 'Your distributor, your streaming, your socials all sit between you and your fans, and any of them can change the rules overnight. See how much of your fanbase you could lose, and what it is worth to own it instead.',
-    primaryCta: 'See what I do not own',
+    // Positioning pass (2026-08-14). POSITIONING.md section 24 forbids implying ownership of
+    // people: the artist owns the RELATIONSHIP, the DATA and the CONTACT PERMISSION. The tool
+    // NAME and route stay (campaign links and DM keywords are keyed to them); the customer-facing
+    // claim does not. Reach is never dismissed here either, only distinguished from a relationship.
+    // The tool NAME, slug, route, featureName and DM keyword all stay "Own Your Fans": campaign
+    // links, ManyChat triggers and every historical funnel row are keyed to them. The EYEBROW is
+    // pure display, it sat directly above the headline, and it was the last place on the page
+    // asserting ownership of people. Same precedent as the "Start Owning My Fans" CTA correction.
+    eyebrow: 'Your Direct Fan List',
+    headline: 'You have reach. You do not have the relationship underneath it.',
+    subheadline: 'Your followers are real and they matter. What you do not have is a name, permission to make contact, a record of what they bought, or any way to reach them that an algorithm does not sit in front of. See how much of your audience you can actually reach directly, and what it is worth once you can.',
+    primaryCta: 'See what I can actually reach',
     image: '/tool-own-your-fans.jpg',
     imageAlt: 'An artist alone in a dark studio, his fans behind a glass wall he cannot reach',
   },
@@ -670,15 +684,18 @@ const EXECUTIVE_PRODUCER = lossToolBase({
   name: 'Executive Producer Session Calculator',
   featureName: 'Live Experiences',
   category: 'Monetize',
-  description: 'See what you leave on the table by never selling a seat in your live session.',
-  videoAngle: 'The most valuable thing you own is not the song, it is access to the room that made it. Any artist can sell a seat.',
+  description: 'See what the highest-value end of your fanbase would pay for a real part in the work.',
+  videoAngle: 'A few of your fans want access and a part in the record, not another song. Nothing you run today lets them say so.',
   icon: '🎛️',
   dmKeywords: ['producer'],
   hero: {
+    // Positioning pass (2026-08-14): premium PARTICIPATION, not an expensive ticket. This is the
+    // beat where the top of the fan economy reveals itself, and the copy says "limited" because
+    // the model prices a seat for the artist's audience and never assumes a room without limits.
     eyebrow: 'Live Experiences',
-    headline: 'The highest-leverage thing you can sell is a seat in the room.',
-    subheadline: 'A ticketed, limited-seat live session where fans watch you build the record is your highest-margin offer, at any level. See what not offering it costs you.',
-    primaryCta: 'See what I am leaving',
+    headline: 'Your highest-value fans are invisible until you offer them a way in.',
+    subheadline: 'A small number of fans want access, a part in the work and a say in the record, and they will pay many times what a listener pays for it. A follower count cannot tell you who they are. A limited seat in the room is how they tell you themselves.',
+    primaryCta: 'See what a seat is worth',
     image: '/tool-executive-producer.jpg',
     imageAlt: 'A dim, gold-lit recording studio with an artist at the console',
   },
@@ -1349,7 +1366,10 @@ export const EXTERNAL_TOOLS: ExternalTool[] = [
   {
     key: 'worth',
     name: 'Streaming Loss Calculator',
-    description: 'See how little streaming actually pays you, and what the same fans would be worth on CRWN.',
+    // The SLUG and NAME stay (campaign links, DM keywords and every historical funnel row are
+    // keyed to them). The claim does not: streaming is the discovery job this product depends on,
+    // so the description names the gap it cannot close rather than what it pays.
+    description: 'See the direct fan economy inside the audience streaming and social already built for you.',
     category: 'Monetize',
     timeToComplete: '1 min',
     featureName: 'Worth Calculator',

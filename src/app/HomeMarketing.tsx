@@ -28,6 +28,17 @@
 import { ArrowRight, ArrowDown, Check } from 'lucide-react';
 import { TIER_PRICING, TIER_LIMITS } from '@/lib/platformTier';
 import { PLAN_ANCHOR_ID, QUALIFY_ANCHOR_ID } from '@/components/lead-magnets/PublicToolClient';
+// The canonical story is SHARED with every promoted calculator's lower page
+// (src/lib/positioning/story.ts). Six acquisition doors drifted apart once; the fix is one
+// source for the path, the loop and the First Revenue Launch offer, not six careful copies.
+import {
+  PATH_STEPS,
+  LOOP,
+  FRL_BODY,
+  FRL_CAPACITY_NOTE,
+  GUARANTEE_TITLE,
+  GUARANTEE_BODY,
+} from '@/lib/positioning/story';
 
 // The funnel lives at the top of this page. A visitor who has not run it belongs back
 // there; a visitor who has belongs at the specific control they asked for.
@@ -56,31 +67,6 @@ const CRWN_SIDE = [
   'One next move',
 ];
 
-const PATH_STEPS: { name: string; body: string }[] = [
-  {
-    name: 'Consolidate',
-    body: 'Bring your fan relationships, buyer lists, catalog and offers into one operating system, so the people who already paid you stop living in six disconnected lists.',
-  },
-  {
-    name: 'Build',
-    body: 'Stand up the recurring offer your fans are most likely to buy: a free front door and a paid ladder your most committed fans can climb.',
-  },
-  {
-    name: 'Convert',
-    body: 'Start with your previous buyers, existing members and VIPs, before any public promotion. The warmest fans come first, on purpose.',
-  },
-  {
-    name: 'Prove',
-    body: 'Your first paid CRWN member. That is the bar. Not a published page, not a connected account: a real person paying you on a system you run.',
-  },
-  {
-    name: 'Expand',
-    body: 'Once the first offer is proven, widen it: the next tier, the next campaign, the next segment of your audience.',
-  },
-];
-
-// The operating loop in customer language (POSITIONING.md section 8, compressed form).
-const LOOP = ['See it.', 'Find the block.', 'One move.', 'Deliver it.', 'Know if it worked.'];
 
 // The trust strip under the loop. Every line is on the allowed-today list in
 // POSITIONING.md section 23. Real case studies slot into this section later.
@@ -323,27 +309,12 @@ export function HomeMarketing({ completed = false }: { completed?: boolean }) {
       <section>
         <Eyebrow>First Revenue Launch</Eyebrow>
         <H2>Want us to launch it with you?</H2>
-        <p className="text-crwn-text-secondary text-lg leading-relaxed mb-6">
-          For qualified artists, CRWN works alongside you to consolidate your existing
-          direct-to-fan operation, build the recurring offer best suited to your fans, bring your
-          warmest buyers in first, and launch. What you get is not software access or setup help.
-          It is a consolidated, launched direct-to-fan operation with real paying members.
-        </p>
+        <p className="text-crwn-text-secondary text-lg leading-relaxed mb-6">{FRL_BODY}</p>
         <div className="rounded-2xl border border-crwn-gold/30 bg-crwn-surface p-6 mb-6">
-          <p className="font-semibold mb-2">The First Paid Member Guarantee</p>
-          <p className="text-sm text-crwn-text-secondary leading-relaxed">
-            Qualified artists who complete the documented required actions acquire at least one
-            paid member within 30 days, or CRWN rebuilds and relaunches the offer at no additional
-            service charge. It covers the rebuild and relaunch, not a specific income result. Both
-            sides see the same live checklist, so the guarantee runs on evidence, not
-            self-reporting.
-          </p>
+          <p className="font-semibold mb-2">{GUARANTEE_TITLE}</p>
+          <p className="text-sm text-crwn-text-secondary leading-relaxed">{GUARANTEE_BODY}</p>
         </div>
-        <p className="text-sm text-crwn-text-secondary leading-relaxed mb-8">
-          Launches are capacity-limited because the work is real: each one includes a hands-on
-          audit, migration and launch campaign with the founder. The self-serve product stays open
-          to everyone either way.
-        </p>
+        <p className="text-sm text-crwn-text-secondary leading-relaxed mb-8">{FRL_CAPACITY_NOTE}</p>
         <Cta
           label="See if I qualify"
           onClick={goToQualification}

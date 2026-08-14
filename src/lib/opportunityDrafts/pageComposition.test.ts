@@ -13,6 +13,10 @@ const worth = readFileSync(join(root, 'src/app/(public)/worth/WorthExperience.ts
 const homeFunnel = readFileSync(join(root, 'src/app/HomeFunnel.tsx'), 'utf-8');
 const homePage = readFileSync(join(root, 'src/app/page.tsx'), 'utf-8');
 const homeMarketing = readFileSync(join(root, 'src/app/HomeMarketing.tsx'), 'utf-8');
+// The canonical CRWN story, shared by the homepage and every promoted calculator since the
+// 2026-08-14 positioning pass. Several claims below are asserted at this source of truth.
+const story = readFileSync(join(root, 'src/lib/positioning/story.ts'), 'utf-8');
+const toolMarketing = readFileSync(join(root, 'src/components/lead-magnets/ToolMarketing.tsx'), 'utf-8');
 
 describe('CTA contract: the builder is the CTA', () => {
   it('every deliverable tool has a transition line and a build CTA that never mentions signup', () => {
@@ -123,7 +127,15 @@ describe('Worth page order', () => {
   });
 
   it('exactly one optional help CTA remains on the tool view, framed as help', () => {
-    expect(worth).toContain('Need help setting this up?');
+    // Positioning pass 2026-08-14: the help CTA moved OUT of a feature grid and INTO the shared
+    // First Revenue Launch block, where qualification is scored server-side from the calculator
+    // answers instead of dropping the artist on a scheduling link. Still exactly one, still
+    // framed as help, and now it cannot claim eligibility it has not measured.
+    expect(worth).toContain('<ToolMarketing slug="worth"');
+    expect(toolMarketing).toContain('See if I qualify');
+    expect(toolMarketing).toContain('Want us to launch it with you?');
+    // And it is still SECONDARY: the gold button on that page is the plan, not the call.
+    expect(toolMarketing).toMatch(/bg-crwn-surface border border-crwn-gold\/40[\s\S]{0,200}See if I qualify/);
   });
 
   it('no CTA implies booking a call captures the money', () => {
@@ -133,8 +145,10 @@ describe('Worth page order', () => {
     expect(worth).not.toContain('Book a call, claim your');
     expect(worth).not.toContain('call, keep this money');
     expect(worth).not.toContain('Book a free 15-min call, keep this money');
-    // The calculator's closing action returns to the offer the artist already built.
-    expect(worth).toContain('Back to my offer');
+    // The calculator's closing action still returns to what the artist already built. The
+    // narrative owns the close now, so the label lives there.
+    expect(toolMarketing).toContain('Back to my plan');
+    expect(toolMarketing).toContain('PLAN_ANCHOR_ID');
   });
 });
 
@@ -300,9 +314,13 @@ describe('Homepage funnel reuse', () => {
       expect(at, marker).toBeGreaterThan(-1);
       while (at !== -1) {
         const windowBefore = publicToolClient.slice(Math.max(0, at - 400), at);
-        expect(windowBefore, `${marker} at ${at} must be gated to surface === 'tool'`).toContain("surface === 'tool'");
+        // `showGenericShowcase` IS `surface === 'tool' && !promotedMarketing`: still never on the
+        // homepage, and since 2026-08-14 never under a promoted calculator either, because those
+        // own a Zero to One narrative and this showcase advertises hidden surfaces.
+        expect(windowBefore, `${marker} at ${at} must be gated to the non-promoted tool surface`).toContain('showGenericShowcase');
         at = publicToolClient.indexOf(marker, at + 1);
       }
+      expect(publicToolClient).toContain("const showGenericShowcase = surface === 'tool' && !promotedMarketing");
     }
   });
 
@@ -392,7 +410,11 @@ describe('Homepage marketing narrative (HomeMarketing)', () => {
   });
 
   it('activation is the first paid member, stated on the path', () => {
-    expect(homeMarketing).toContain('first paid CRWN member');
+    // The path moved into the SHARED story (src/lib/positioning/story.ts) on 2026-08-14 so the
+    // promoted calculators tell it identically. Same claim, one source.
+    expect(story).toContain('first paid CRWN member');
+    expect(homeMarketing).toContain("from '@/lib/positioning/story'");
+    expect(homeMarketing).toContain('PATH_STEPS');
   });
 
   it('pricing renders from the canonical constants, never restated from memory', () => {
@@ -416,11 +438,15 @@ describe('Homepage marketing narrative (HomeMarketing)', () => {
   });
 
   it('the First Revenue Launch section keeps the canonical guarantee and reuses the existing qualification path', () => {
-    expect(homeMarketing).toContain('First Paid Member Guarantee');
+    // The guarantee lives in the shared story so the homepage and all six promoted calculators
+    // state it identically; the homepage renders it from there.
+    expect(story).toContain('First Paid Member Guarantee');
+    expect(homeMarketing).toContain('GUARANTEE_TITLE');
     // The boundary is stated as a precise term rather than a defensive aside, but it is
     // still stated: the guarantee covers the relaunch, never an income amount.
-    expect(homeMarketing).toContain('not a specific income result');
-    expect(homeMarketing).toMatch(/rebuilds and relaunches the offer at no additional\s+service charge/);
+    expect(story).toContain('not a specific income result');
+    expect(story).toMatch(/rebuilds and relaunches the offer at no additional\s+service charge/);
+    expect(story).not.toMatch(/guaranteed (income|revenue|earnings)/i);
     expect(homeMarketing).not.toMatch(/guaranteed (income|revenue|earnings)/i);
     // The 14-day implementation commitment is internal, never a second promoted guarantee.
     expect(homeMarketing.toLowerCase()).not.toContain('14-day');
@@ -482,6 +508,7 @@ describe('Homepage marketing narrative (HomeMarketing)', () => {
     // knows. No parallel state machine and no scraping the page for a result.
     expect(homeFunnel).toContain('({ completed })');
     expect(homeFunnel).toContain('completed={completed}');
-    expect(publicToolClient).toMatch(/below\(\{ completed: phase === 'full' && !!result && !editing \}\)/);
+    expect(publicToolClient).toMatch(/const completed = phase === 'full' && !!result && !editing/);
+    expect(publicToolClient).toMatch(/below\(\{ completed \}\)/);
   });
 });
