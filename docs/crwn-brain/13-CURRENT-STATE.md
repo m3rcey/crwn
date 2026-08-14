@@ -8,6 +8,38 @@ CRWN is **live in production** (`thecrwn.app`) and the core money loop is real a
 
 ## Complete & production-ready (Confirmed)
 
+- **PRE-PMF SURFACE REDUCTION (2026-08-13).** The default product was cut to the path that gets
+  3 qualified artists to a first paid member. Four states, never collapsed:
+  - **ACTIVE + visible:** Studio = Music/Albums/Shop/Offer Builder/Live; AccountHub = Rise Mode,
+    Studio, Analytics, Fan CRM, Promise Calendar, Fan Proof, the five core tools, page/tiers/
+    payouts/billing/referrals, account + support; bottom nav = 3 artist slots, 2 fan slots; fan
+    product = Home (next-action), artist pages, Library (with ReferralDashboard = the whole
+    Share-to-Earn loop), notifications; admin = 8 tabs (Dashboard scorecard, Acquisition, Lead
+    Magnets, Funnel, Pipeline, Support, Money Model, Email Health); promoted calculators = the 6
+    with content behind them (worth, vault, share, producer, own, opportunity).
+  - **ACTIVE + hidden (routes work, not indexed):** quests board, AI Manager, Needs You,
+    playbooks, Royalty Readiness (flag still ON), all fan-mobilization mechanics, Campaign Hub,
+    Road To, smart links, Team Splits surfaces, Sync, DMs/broadcast, Explore, fan calendar,
+    /command /earn /impact /my-*, leaderboard, community channels, artist playlists, founder
+    window, discount codes, booking, recruiter program surfaces, admin ?tab= secondaries
+    (avatars, experiments, crm, partners, access, sequences), the 14 paused calculators (routes,
+    slugs, dmKeywords all live; only the /tools directory hides them).
+  - **FLAG OFF (pending founder SQL):** live_tips via supabase/flag-off-live-tips.sql.
+  - **Schedule disabled, code kept (re-enable triggers in UNSCHEDULED_CRON_EXCEPTIONS):**
+    fan-digest, inactive-subscribers, sequence-conversions, lead-scoring, clipper-rate-drops,
+    team-split-accruals, agent-health, admin agent briefing, recruiter-qualify + recruiter-
+    recurring (0 referral rows, 0 payouts, 0 payable claims verified in production).
+  - **Code deleted:** autonomous Manager cron (dormancy was one accidental is_active filter),
+    weekly-report (dead on the same nonexistent column), synthetic sync generator +
+    syncInsights, /api/admin/funnel-events (no consumer), Calendly components, dead onboarding
+    placeholder/tagline step, useContentAccess + GatedCommunityPost (no importers), empty
+    barrels; /artist/[slug] share duplicates are now redirect shims.
+  - **Data deleted:** 126 synthetic sync rows (by source pattern `CRWN Curated via %`); the 24
+    real-source rows (SXSW, Sync Summit, TAXI...) remain. Nothing else.
+  - **Audit corrections found by pre-delete verification:** posts/comments/likes are NOT
+    superseded (the share page + PostCard/PostCreator read and write them), and access_level is
+    still the LIVE access model for products/albums (content classes replaced only tracks).
+    Both stay.
 - **Auth + onboarding + setup wizard** (`/welcome` → `/setup`, DB-derived completion, hard gate, daily canary). `setup_completed` now persists via the service-role `POST /api/artist/complete-setup` route (was a silent client `.update()`).
 - **Fan subscriptions** (paid + free), **track/product/booking/live-ticket purchases**, **discount codes** (end-to-end wired), **Stripe Connect payouts** (weekly cron + on-demand cashout).
 - **Content + gating** via `is_free`/`allowed_tier_ids` (redacting views enforce it). For TRACKS

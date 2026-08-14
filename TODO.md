@@ -61,6 +61,15 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **Two quick SQL runs to finish the surface reduction.** Both self-verify and are safe to
+      run in any order.
+      **1. Turn off live tips** (0 tips ever; the tip bar and checkout stop rendering, nothing
+      is deleted, reversal is the same row). Open and run:
+      [`supabase/flag-off-live-tips.sql`](supabase/flag-off-live-tips.sql)
+      **2. Drop the retired Manager outcome columns** (never written; the file ABORTS if any row
+      unexpectedly holds data, so a surprise is a loud error, not a loss). Open and run:
+      [`supabase/schema-phase2-drop-manager-outcome-schema.sql`](supabase/schema-phase2-drop-manager-outcome-schema.sql)
+
 - [ ] **RE-RUN the earnings/recruiters SELECT policy migration (the fixed version).** Open and run:
       [`supabase/schema-phase2-sec-earnings-recruiters-select-policies.sql`](supabase/schema-phase2-sec-earnings-recruiters-select-policies.sql)
       Your first run on 2026-08-12 DID take effect: the transaction committed, and both tables now

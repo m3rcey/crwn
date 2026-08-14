@@ -1,5 +1,54 @@
 # CRWN Brain — Changelog
 
+## 2026-08-13 - Pre-PMF surface reduction (the default product is the experiment now)
+
+**The decision: the default CRWN experience is exactly the path that gets 3 qualified artists to a
+first paid member, and everything else is preserved but not presented.** Unknown demand was never
+treated as rejection: hides are one-commit reversible, disabled crons carry registered re-enable
+triggers, and only verified-dead or misleading code was deleted.
+
+**Visible after the cut.** Artist: Studio with five tiles (Music, Albums, Shop, Offer Builder,
+Live), a hub indexing Rise Mode + the run-the-business screens, a 3-slot bottom nav. Fan: Home,
+artist pages, Library (ReferralDashboard = the full Share-to-Earn loop), notifications, 2-slot
+nav. Founder: 8 admin tabs, with the Dashboard replaced by a 12-number experiment scorecard
+(/api/admin/scorecard) that reads only canonical stores and renders a failed query as
+"not measured", never 0. Public: 6 promoted calculators (worth, vault, share, producer, own,
+opportunity) matching the 51 content scripts; the other 14 are lifecycle-paused, which touches
+ONLY the /tools directory: routes, slugs, toolIds and dmKeywords are untouched and pinned by
+promotion.test.ts, including the assertion that the ManyChat keyword table derives from
+dmKeywords and never from lifecycle (wiring it to resolveFunnelByKeyword would silently kill
+every paused Reel).
+
+**Deleted, with the reason each beat hiding.** The autonomous Manager cron: its dormancy rested
+on ONE accidental gate (an is_active filter on a column that does not exist) and it would have
+re-armed auto-executing AI across every artist account the moment that column appeared; six test
+files now pin its ABSENCE. weekly-report: dead on the same nonexistent column. The synthetic sync
+generator + syncInsights + 126 production rows: model-fabricated listings presented to artists as
+real briefs, deleted by SOURCE PATTERN (CRWN Curated via %); the 24 real-source rows and the
+founder-authenticated manual ingestion POST remain, and the security suite now rejects any
+sync_opportunities writer that references an AI provider. Plus the long-verified dead list:
+funnel-events admin route, Calendly components, onboarding placeholder/tagline step, empty
+barrels, the importerless useContentAccess + GatedCommunityPost pair, ArtistProfileForm's
+onboarding mode; the /artist/[slug] share duplicates became redirect shims so no old link 404s.
+
+**Two audit rows failed pre-delete verification and were left alone.** posts/comments/likes are
+NOT superseded by community_posts: the live share page, PostCard and PostCreator read and write
+them (5/26/32 rows). access_level is NOT dead: it is the live access model for products and
+albums; content classes replaced only the track model. The point of verifying before deleting is
+that the audit gets corrected instead of production.
+
+**Ratified invariants that genuinely changed** went through the rule-change workflow, each keeping
+its property while its mechanism moved: NAV-002 (a fan can always reach their money -> /library),
+NAV-003 (surviving slots keep their tourIds; retired anchors may never be reused, now a
+RETIRED_TOUR_IDS registry), REACH-001 (hidden features name their ROUTE as the delivery surface),
+REACH-003 (nine deliberately-unscheduled crons registered with re-enable triggers), ID-004 (two
+pop-ups retired by TARGETING, keys frozen), and the Manager/ownership suites (never-duplicated
+holds at zero; the strong new assertion is that hidden ROUTES still exist).
+
+**Founder SQL now pending:** supabase/flag-off-live-tips.sql (0 tips ever) and
+supabase/schema-phase2-drop-manager-outcome-schema.sql (drops the never-written outcome columns,
+aborts if any row unexpectedly holds data). Both linked in TODO.md.
+
 ## 2026-08-13 - Early access becomes server-enforced (the window was a React decision)
 
 **The invariant: no client-only visibility decision may be the authority for protected audio.**

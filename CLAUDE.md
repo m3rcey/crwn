@@ -327,23 +327,28 @@ information already exists.
 The artist dashboard is NO LONGER a tab strip. `/profile/artist` is Rise Mode and nothing else.
 Every one of its old 16 tabs is a real route. Three surfaces, and each one has a single job:
 
-- **Bottom tab bar** (`Navigation.tsx`, `buildNavItems`) — DOING the work. 5 slots:
-  Home, Explore, [Studio|Earn], Messages, [Rise|Library]. Visible on mobile AND desktop
-  (sidebar). Profile is NOT a slot. Do not add management destinations here.
-- **Hamburger AccountHub** (`src/components/layout/AccountHub.tsx`, top-left) — the COMPLETE
-  index. Every old-16 tab AND every Studio connector tool is listed here, in five groups (Grow /
-  Reach and fans / Music and shop / Your business / Account). This is not the "management only"
-  half: an artist who learned the tab strip must find all sixteen without learning a second place
-  to look, and anything in Studio must be findable here too. **If you add a destination to Studio,
-  add it here too** (this is now the ONLY place the reference/config screens Analytics, Fan CRM,
-  Team Splits and Promise Calendar live, since they were pulled out of the Studio grid). First
+- **Bottom tab bar** (`Navigation.tsx`, `buildNavItems`) — DOING the work. Since the 2026-08-13
+  pre-PMF surface reduction: THREE slots for an artist (Home, Studio, Rise) and TWO for a fan
+  (Home, Library). Explore and Messages lost their slots (routes still work); the fan Library
+  slot is the money surface (ReferralDashboard). Visible on mobile AND desktop (sidebar).
+  Profile is NOT a slot. Do not add management destinations here.
+- **Hamburger AccountHub** (`src/components/layout/AccountHub.tsx`, top-left) — the index of the
+  DEFAULT product. Since 2026-08-13 it is no longer the complete index of everything ever built:
+  the pre-PMF surface reduction cut it to the path to a first paying member (Grow: Rise Mode,
+  Studio, Analytics, Fan CRM, Promise Calendar, Fan Proof / Music and shop: the five core tools /
+  Your business: page, tiers, payouts, billing, referrals / Account / Support). Hidden
+  destinations (quests, Manager, Needs You, playbooks, fan mechanics, Team Splits, Sync, DMs...)
+  keep their ROUTES and are reachable by link or calculator CTA; they are simply not indexed.
+  **If you add a destination to Studio, add it here too** (NAV-001 asserts that parity). First
   group renders expanded.
-- **Studio** (`/studio`) — the work destinations you MAKE/ACT in, as a visual grid, plus the
-  connector tools: `/studio/music`, `/studio/albums`, `/studio/shop`, `/studio/live`,
-  `/studio/manager`, `/studio/sync`, plus offers/campaigns/missions/bounties/squads/action-plan/
-  playbooks. Reference/config screens (`/studio/analytics`, `/studio/fans`, `/studio/team`,
-  `/studio/promise`) are intentionally NOT in this grid, only in the hamburger. Neither surface is
-  exclusive, so there is no wrong place to look for a screen.
+- **Studio** (`/studio`) — the work destinations you MAKE/ACT in, as a visual grid. Since
+  2026-08-13: exactly five tiles (Music, Albums, Shop, Offer Builder, Live). Everything else
+  (Manager, Sync, campaigns, missions, bounties, squads, Needs You, playbooks, clip controls,
+  Royalty Readiness) was hidden, NOT deleted: the routes work, and four of them are live
+  calculator CTA destinations (/missions/new, /proof-of-demand/new, /bounties/new,
+  /royalty-readiness). Reference/config screens (`/studio/analytics`, `/studio/fans`,
+  `/studio/promise`) live in the hamburger only. Re-add a tile when a qualified pilot artist
+  needs it to reach a first paying member.
 
 Rules when you touch any of this:
 - **Every ex-tab screen wears `HubPage`** (`src/components/layout/HubPage.tsx`): X in the TOP

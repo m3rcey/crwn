@@ -803,9 +803,9 @@ These are not judgment calls. They are confirmed dead or duplicated in the repo 
 | K-04 | Calendly booking components (`CalendlyBooking`, `SessionManager`, `BookingSettings`) | zero importers, superseded by booking tokens | delete |
 | K-05 | `OnboardingTaglineStep`, `ArtistProfileForm mode="onboarding"` | zero call sites | delete |
 | K-06 | `src/components/ui/index.ts`, `src/hooks/index.ts` | `export {}` placeholders | delete |
-| K-07 | Legacy `access_level` column and types | superseded by content classes; still on tracks/albums/products/posts and in the TS types | drop from types first |
-| K-08 | `useContentAccess` | old access model, one consumer left | migrate that consumer, delete |
-| K-09 | Legacy `posts` / `comments` / `likes` tables | overlap `community_posts` and `community_channels` | confirm live one, drop the other |
+| K-07 | Legacy `access_level` column and types | **CORRECTED 2026-08-13: NOT dead.** Content classes replaced the TRACK model only; `access_level` is still the live access model for products and albums (ShopManager/AlbumManager write it). | keep |
+| K-08 | `useContentAccess` | DELETED 2026-08-13: its one consumer (GatedCommunityPost) itself had zero importers, so the pair went together | done |
+| K-09 | Legacy `posts` / `comments` / `likes` tables | **CORRECTED 2026-08-13: NOT superseded.** The live share page `/[slug]/post/[id]`, PostCard and PostCreator read AND write them (5/26/32 rows). Parallel systems with different jobs, not a duplicate. | keep |
 | K-10 | `sms_*` tables | SMS feature removed 2026-07-31, tables kept for consent history | leave dormant |
 | K-11 | Manager outcome scoring columns (`baseline_metrics`, `outcome_metrics`, `outcome_delta`) and the `artist_action_outcomes` view | retired, zero rows ever written | drop when convenient |
 | K-12 | Crons filtering `artist_profiles.is_active` | that column does not exist; they no-op daily while reporting healthy | fix or delete the crons |
