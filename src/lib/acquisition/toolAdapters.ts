@@ -1670,16 +1670,33 @@ const unifiedOpportunity: AcquisitionTool = {
   requiresEstimateDisclaimer: true,
   destinationId: 'rise_mode',
   execute(profile) {
-    // Map the DM's lead_profiles column names onto the wizard's input keys, then run the one model.
+    // TWO callers arrive here speaking TWO vocabularies, and the model only ever sees one.
+    //
+    // The DM funnel arrives as `lead_profiles` COLUMNS (`email_list_size`, `catalog_size`). The
+    // WIZARD arrives as its own input keys (`owned_contacts`, `unreleased_count`), because
+    // `usesLossEngine` is true for this tool and PublicToolClient / ArtistToolClient hand their raw
+    // answers straight to this adapter. Reading only the DM names overwrote both wizard answers
+    // with zero, so the whole owned-audience screen did nothing, the vault was never eligible from
+    // a browser, and every result page lost its Gold rung while its own assumptions block still
+    // promised a $25 Gold tier. Read the WIZARD key first and fall back to the DM column, so one
+    // adapter serves both without either one silently winning.
+    //
     // `catalog_size` holds the unreleased count in this funnel, the same meaning the Vault tool
     // gives it, so a lead who answered the Vault DM does not get asked again.
+    const raw = profile as unknown as Record<string, unknown>;
+    // Absent, null and empty all mean "the wizard did not answer this", which is when the DM column
+    // is allowed to speak. A real 0 is an answer and is left alone by the model's own coercion.
+    const answered = (key: string): unknown => {
+      const v = raw[key];
+      return v === null || v === undefined || v === '' ? undefined : v;
+    };
     return buildUnifiedResult({
-      ...(profile as unknown as Record<string, unknown>),
+      ...raw,
       social_followers: n(profile.social_followers) || n(profile.monthly_listeners),
       monthly_listeners: n(profile.monthly_listeners),
-      owned_contacts: n(profile.email_list_size),
-      unreleased_count: n(profile.catalog_size),
-      direct_fan_revenue_cents: n(profile.direct_fan_revenue_cents),
+      owned_contacts: answered('owned_contacts') ?? n(profile.email_list_size),
+      unreleased_count: answered('unreleased_count') ?? n(profile.catalog_size),
+      direct_fan_revenue_cents: answered('direct_fan_revenue_cents') ?? n(profile.direct_fan_revenue_cents),
     });
   },
 };

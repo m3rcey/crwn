@@ -13,6 +13,10 @@
 //  - Acquisition systems appear under "growth contribution" as a share of supporters, never as a
 //    dollar line, because their dollars are already inside the membership number.
 //  - The word used is "could build". Never owed, never guaranteed, never current revenue.
+//  - The headline NAMES its own deductions. `netNewMonthlyCents` is gross minus the CRWN fee,
+//    minus the commissions the artist funds, minus what they already earn direct. Calling that
+//    "direct-to-fan revenue" described none of the three, and the last one is the model being
+//    deliberately conservative, so leaving it unsaid gave away the honesty for nothing.
 
 import type { GeneratedResult, ResultSection } from '@/lib/leadMagnets/types';
 import {
@@ -26,6 +30,14 @@ import {
 const usd = (cents: number): string => '$' + Math.round(cents / 100).toLocaleString('en-US');
 const count = (n: number): string => Math.max(0, Math.floor(n)).toLocaleString('en-US');
 const pct = (n: number): string => `${Math.round(n * 100)}%`;
+/**
+ * Percentages that can be smaller than one. `pct` rounds 0.003 to "0%", which reads as "this
+ * assumption does nothing" about a seat rate that can carry 40% of the gross at arena scale.
+ */
+const rate = (n: number): string => {
+  const p = n * 100;
+  return `${p > 0 && p < 1 ? p.toFixed(1) : Math.round(p)}%`;
+};
 
 /** Wizard/DM values are flat strings and numbers. Coerce them into the model's typed inputs. */
 export function toUnifiedInputs(raw: Record<string, unknown>): Partial<UnifiedInputs> {
@@ -67,7 +79,9 @@ function headlineFor(low: number, high: number, expected: number): { headline: s
     };
   }
   return {
-    headline: `You could build an estimated ${usd(low)} to ${usd(high)} a month in direct-to-fan revenue`,
+    headline: `You could build an estimated ${usd(low)} to ${usd(
+      high,
+    )} a month on top of what you already earn direct, after CRWN's fee and any commissions you pay`,
     hero: `${usd(low)} to ${usd(high)}`,
     eyebrow: 'You could build an estimated',
   };
@@ -208,7 +222,9 @@ export function buildUnifiedResult(raw: Record<string, unknown>): GeneratedResul
       metrics: r.incremental.map((i) => ({
         label: i.label,
         value: i.grossCents > 0 ? `${usd(i.grossCents)}` : 'In the membership',
-        note: i.grossCents > 0 ? `${count(i.buyers)} buyers, none of them members` : i.basis,
+        // The unit price is the artist's own sanity check on a buyer count. Without it the seat
+        // line is a dollar figure with no way to see what it is a price of.
+        note: i.grossCents > 0 ? `${count(i.buyers)} buyers at ${usd(i.unitPriceCents)} each, none of them members` : i.basis,
       })),
     });
   }
@@ -293,27 +309,88 @@ export function buildUnifiedResult(raw: Record<string, unknown>): GeneratedResul
   });
 
   // 12. Assumptions (collapsed by the renderer).
-  sections.push({
-    key: 'assumptions',
-    title: 'Assumptions',
-    kind: 'assumptions',
-    items: [
-      `${pct(r.assumptions.reachRate)} of your following is realistically reachable, and contacts you own are counted as fully reachable.`,
-      `${pct(r.assumptions.superfanRate)} of that reachable audience ever pays, capped at ${pct(r.assumptions.maxConversion)} however many growth systems you switch on.`,
-      'Tier prices of $10, $25 and $100, split across a typical supporter curve. Your vault is the $25 Gold tier, not a separate membership.',
-      `${pct(r.assumptions.shareRate)} of fans share for a reward, reaching about ${r.assumptions.reachPerSharer} new people each a month, of whom ${pct(r.assumptions.referredConversion)} subscribe.`,
-      `Clips raise how many of the fans you already reach convert, by about ${pct(r.assumptions.clipConversionLift)}. They do not create separate revenue.`,
-      `Tickets and seats are sold only to reachable fans who are not members. Platform fee of ${r.assumptions.platformFeePercent}% on the CRWN Pro plan.`,
-      'Recurring and one-off revenue are reported separately and only added at the gross line.',
-      'A planning estimate for what you could build. Not money you are owed, not current revenue, and not a guarantee.',
-    ],
-  });
+  //
+  // Every rate that MOVES THIS ARTIST'S MONEY belongs here, and nothing that does not. The member
+  // extras, the live event and the session seats were carrying real money with no rate stated
+  // anywhere on the page: on a ticketed session at arena scale the seat line alone is about 40% of
+  // gross, and its rate, its price, its cadence and the fact that no capacity limit is modeled were
+  // all invisible. A transparent assumption an artist can argue with is the whole product claim.
+  // The reverse also holds, so a layer the artist is not eligible for is not asserted at them.
+  const a = r.assumptions;
+  const ticketItem = r.incremental.find((i) => i.key === 'live_tickets');
+  const seatItem = r.incremental.find((i) => i.key === 'producer_sessions');
+  const hasGold = r.core.tiers.some((t) => t.key === 'vault');
+  const assumptions: string[] = [
+    `${pct(a.reachRate)} of your following is realistically reachable, and contacts you own are counted as fully reachable.`,
+    // The ceiling is real but it never binds at these rates. Saying it "caps" the number implied a
+    // guard doing work it does not do, which is its own small dishonesty.
+    `${pct(a.superfanRate)} of that reachable audience ever pays. A ${pct(
+      a.maxConversion,
+    )} ceiling sits above that so no stack of growth systems can run away, and on these rates it is a guard rather than a limit you would reach.`,
+    hasGold
+      ? 'Tier prices of $10, $25 and $100, split across a typical supporter curve. Your vault is the $25 Gold tier, not a separate membership.'
+      : 'Tier prices of $10, $25 and $100, split across a typical supporter curve. The $25 Gold rung is not in your total, because a vault needs at least five unreleased pieces before it is worth promising.',
+    `Members spend about ${usd(
+      a.memberAlacarteCents,
+    )} a month each beyond their tier, on one-off things like a stem pack or a signed item.`,
+  ];
+  if (r.segments.sharers > 0) {
+    assumptions.push(
+      `${pct(a.shareRate)} of fans share for a reward, reaching about ${a.reachPerSharer} new people each a month, of whom ${pct(
+        a.referredConversion,
+      )} subscribe.`,
+    );
+  }
+  if (r.segments.clippers > 0) {
+    assumptions.push(
+      `Clips raise how many of the fans you already reach convert, by about ${pct(
+        a.clipConversionLift,
+      )}. They do not create separate revenue.`,
+    );
+  }
+  if (ticketItem) {
+    assumptions.push(
+      `One live event a month, at which ${rate(a.ticketRate)} of the fans you can reach who are not members buy a ${usd(
+        a.ticketPriceCents,
+      )} ticket, and ${pct(a.tipRate)} of those tip about ${usd(a.tipCents)}.`,
+    );
+  }
+  if (seatItem && seatItem.grossCents > 0) {
+    assumptions.push(
+      `${rate(a.seatRate)} of the fans you can reach who are not members buy a session seat each month, at ${usd(
+        seatItem.unitPriceCents,
+      )} a seat for your audience size. How many sessions that is, and how many seats you could actually host, is yours to set: we do not model a capacity limit.`,
+    );
+  }
+  // The disjoint-population rule only needs stating to an artist who actually has a second
+  // population. The fee applies to everybody, so it stands on its own line.
+  if (r.oneTimeGrossCents > 0) {
+    assumptions.push('Tickets and seats are sold only to reachable fans who are not members, so no member is counted again as a buyer.');
+  }
+  assumptions.push(
+    `Platform fee of ${a.platformFeePercent}% on the CRWN Pro plan, and you fund any referral or clipper commission on top of it.`,
+    'Recurring and one-off revenue are reported separately and only added at the gross line.',
+    'The headline subtracts what you already earn direct, so it is what you would ADD. It is a planning estimate for what you could build, not money you are owed, not current revenue, and not a guarantee.',
+  );
+  sections.push({ key: 'assumptions', title: 'Assumptions', kind: 'assumptions', items: assumptions });
 
+  // The hero says "/mo", and depending on the answers between a quarter and a half of it can be
+  // one-off ticket, tip and seat money. A reader hears "/mo" as recurring unless the split sits
+  // next to the number, and the tile that carries it is further down the page.
+  // An artist with no event money is told so plainly rather than being read a percentage split of
+  // a thing they do not have. "About 100% of that is recurring, and the rest is events" is the kind
+  // of sentence that quietly tells a careful reader the page is generated and unread.
+  const recurringShare = r.totalGrossCents > 0 ? Math.round((r.recurringGrossCents / r.totalGrossCents) * 100) : 100;
+  const hasOneTime = r.oneTimeGrossCents > 0;
   const summary =
     r.netNewMonthlyCents > 0
       ? `Built from one audience of about ${count(r.audience.primaryReach)}, ${count(
           r.segments.payingSupporters,
-        )} paying supporters across one membership ladder, plus what non-members would pay for events. Nothing is counted twice.`
+        )} paying supporters across one membership ladder${hasOneTime ? ', plus what non-members would pay for events' : ''}. ${
+          hasOneTime
+            ? `About ${recurringShare}% of that is recurring membership and the rest is one-off event and seat purchases.`
+            : 'All of it is recurring membership, so nothing in your total depends on a one-off event.'
+        } Nothing is counted twice.`
       : 'Add your audience numbers and we will model one coordinated system rather than a pile of separate ideas.';
 
   return {

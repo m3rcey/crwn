@@ -257,6 +257,106 @@ describe('the presented result', () => {
       buildUnifiedResult(ANSWERS as Record<string, unknown>).estimatedMonthlyCents!,
     );
   });
+
+  it('says what the headline figure actually is, not merely what it is about', () => {
+    // `netNewMonthlyCents` is gross MINUS the CRWN fee, MINUS the commissions the artist funds,
+    // MINUS what they already earn direct. "in direct-to-fan revenue" described none of that, and
+    // an ICP that reads carefully treats a number whose label is loose as a number that is loose.
+    expect(result.headline).toMatch(/on top of what you already earn direct/);
+    expect(result.headline).toMatch(/after CRWN's fee and any commissions you pay/);
+  });
+
+  it('tells the artist how much of a "/mo" figure is actually recurring', () => {
+    // The hero says "/mo". Between a quarter and a half of it can be one-off event and seat money
+    // depending on the answers, and a reader will hear "/mo" as MRR unless the split is stated
+    // next to the number rather than in a tile further down.
+    expect(result.summary).toMatch(/\d+% of that is recurring membership/);
+  });
+
+  it('does not read an artist a split of event money they have none of', () => {
+    // "About 100% of that is recurring, and the rest is events" is the sentence that tells a
+    // careful reader the page is generated and nobody read it.
+    const allRecurring = buildUnifiedResult({ ...ANSWERS, live_willing: 'no' } as Record<string, unknown>);
+    expect(allRecurring.summary).toMatch(/All of it is recurring membership/);
+    expect(allRecurring.summary).not.toMatch(/the rest is/);
+    expect(allRecurring.sections.find((s) => s.key === 'assumptions')?.items?.join(' ')).not.toMatch(/Tickets and seats are sold/);
+  });
+
+  it('discloses the rates behind every layer that is actually in this artist total', () => {
+    const shown = result.sections.find((s) => s.key === 'assumptions')?.items?.join(' ') ?? '';
+    // Member extras, live and seats were carrying real money with no stated rate at all: on a
+    // ticketed session at 1M followers the seat line alone is about 40% of gross.
+    expect(shown).toMatch(/\$3 a month/);
+    expect(shown).toMatch(/One live event a month/);
+    expect(shown).toMatch(/1% of the fans you can reach who are not members buy a \$15 ticket/);
+    // A sub-1% rate must not round to "0%", which would read as an assumption doing nothing.
+    expect(shown).toMatch(/0\.3% of the fans you can reach who are not members buy a session seat/);
+    expect(shown).toMatch(/we do not model a capacity limit/);
+    // And an assumption that is not in this artist's total may not be asserted at them.
+    const noLive = buildUnifiedResult({ ...ANSWERS, live_willing: 'no' } as Record<string, unknown>);
+    expect(noLive.sections.find((s) => s.key === 'assumptions')?.items?.join(' ')).not.toMatch(/live event a month/i);
+  });
+});
+
+// The wizard does NOT hand its answers to the model directly. `usesLossEngine` is true for this
+// tool, so PublicToolClient and ArtistToolClient both route through the ACQUISITION ADAPTER. Every
+// other test in this file calls `buildUnifiedResult` straight, which is exactly how two wizard
+// answers came to be silently zeroed: the adapter read the DM's `lead_profiles` COLUMN names and
+// overwrote the wizard's own INPUT keys with them. Formula tests cannot see that class of defect.
+// These run the real path, on wizard-shaped values, and are the only ones that can.
+describe('the real browser path carries every answer into the model', () => {
+  const tool = getTool(SLUG)!;
+  type ToolProfile = Parameters<typeof tool.execute>[0];
+
+  /** Exactly what PublicToolClient.onComplete does before calling the tool. */
+  const throughAdapter = (v: LeadMagnetInputValues) => {
+    const profile: Record<string, unknown> = { ...v };
+    for (const inp of config.inputs) {
+      if (inp.type === 'currency' && inp.key.endsWith('_cents') && typeof profile[inp.key] === 'number') {
+        profile[inp.key] = Math.round((profile[inp.key] as number) * 100);
+      }
+    }
+    return tool.execute(profile as ToolProfile);
+  };
+
+  const modelInputs = (r: { conversionPayload: Record<string, unknown> }) =>
+    r.conversionPayload.modelInputs as Record<string, unknown>;
+
+  it('does not drop the owned-contacts answer, which is a whole wizard screen', () => {
+    expect(modelInputs(throughAdapter(ANSWERS)).ownedContacts).toBe(8_000);
+    // Arriving is not the same as being used. Owned contacts are counted as fully reachable, so a
+    // real one has to move the money; if it does not, it was stored and ignored.
+    expect(throughAdapter(ANSWERS).estimatedMonthlyCents!).toBeGreaterThan(
+      throughAdapter({ ...ANSWERS, owned_contacts: 0 }).estimatedMonthlyCents!,
+    );
+  });
+
+  it('does not drop the unreleased-count answer, so the Gold rung survives the trip', () => {
+    expect(modelInputs(throughAdapter(ANSWERS)).unreleasedCount).toBe(30);
+    const { ladder } = throughAdapter(ANSWERS).conversionPayload as { ladder: { name: string }[] };
+    // Zeroed, the vault is ineligible, Gold vanishes, and the assumptions block on the SAME page
+    // still promises a $25 Gold tier while the Vault line tells an artist who typed 30 unreleased
+    // pieces to come back when they have five. The page contradicted itself in three places.
+    expect(ladder.map((t) => t.name)).toContain('Gold');
+  });
+
+  it('still reads the DM column names, so a ManyChat lead is unaffected', () => {
+    const dm = tool.execute({ social_followers: 250_000, email_list_size: 8_000, catalog_size: 30 } as ToolProfile);
+    const mi = (dm.conversionPayload as Record<string, unknown>).modelInputs as Record<string, unknown>;
+    expect(mi.ownedContacts).toBe(8_000);
+    expect(mi.unreleasedCount).toBe(30);
+  });
+
+  it('converts the currency answer from dollars to cents exactly once', () => {
+    // The field renders a "$" and stores DOLLARS; the key says cents. One conversion, in the client.
+    expect(modelInputs(throughAdapter({ ...ANSWERS, direct_fan_revenue_cents: 5_000 })).currentDirectRevenueCents).toBe(
+      500_000,
+    );
+  });
+
+  it('reaches the same number through the adapter as through the model directly', () => {
+    expect(throughAdapter(ANSWERS).heroValue).toBe(buildUnifiedResult(ANSWERS as Record<string, unknown>).heroValue);
+  });
 });
 
 describe('the coordinated system builder', () => {

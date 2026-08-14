@@ -229,6 +229,17 @@ Full spec: `docs/UNIFIED_OPPORTUNITY.md`. `Confirmed`.
   artist already earns is **subtracted**, never added; annualization is x12 and nothing longer.
 - **Language:** a planning estimate of what the artist *could build*. Never owed, never guaranteed,
   never described as current revenue. Ranges where precision is unsupported.
+- **The headline NAMES its own deductions.** `netNewMonthlyCents` is gross minus the CRWN fee,
+  minus the commissions the artist funds, minus what they already earn direct, so it may not be
+  called "direct-to-fan revenue": it is what the artist would ADD, and the copy says all three
+  (fixed 2026-08-14). The last deduction is the model being deliberately conservative, so leaving
+  it unstated gave away the honesty for nothing.
+- **A "/mo" figure states how much of itself is recurring.** Between 7% and 48% of the total can be
+  one-off ticket, tip and seat money depending on the answers, and a reader hears "/mo" as MRR
+  unless the split sits beside the number rather than in a tile further down the page.
+- **Every rate that moves the artist's money is disclosed, and no rate that does not is asserted at
+  them.** Member extras, the live cadence and the session seat rate all carried real money with no
+  stated rate until 2026-08-14; the seat line alone is about 40% of gross at arena scale.
 - **Opportunities that cannot be honestly monetized stay OUT of the dollar total** and are named
   with a reason: Proof of Demand (free by design), retention/churn (no input for it), fan missions
   (their effect is already inside acquisition), royalties (money earned elsewhere, a different

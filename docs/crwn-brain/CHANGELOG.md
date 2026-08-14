@@ -1,5 +1,53 @@
 # CRWN Brain — Changelog
 
+## 2026-08-14 - Opportunity Calculator pre-traffic fix pass (two answers reach the model, and the headline says what it is)
+
+**A full credibility audit of the Opportunity Calculator found the economics defensible and the
+anti-double-counting architecture clean, and found one live implementation defect plus three
+presentation defects. All four fixed. No model constant, scenario value, tier price, fee, version,
+question or qualification behavior changed.**
+
+- **Two wizard answers never reached the model.** `usesLossEngine` is true for this tool, so both
+  browser clients route through `toolAdapters.ts`, which read only the DM's `lead_profiles` column
+  names (`email_list_size`, `catalog_size`) and **overwrote the wizard's own keys**
+  (`owned_contacts`, `unreleased_count`) with zero. From any browser: the owned-audience screen did
+  nothing, the vault was never eligible, the **Gold $25 rung never existed**, and the assumptions
+  block promised a $25 Gold tier the ladder beside it did not contain, while the Vault line told an
+  artist who typed 30 unreleased pieces to come back when they had five. Reproduced on the real
+  path before the fix (`ownedContacts` 0 instead of 8,000, `unreleasedCount` 0 instead of 30,
+  `$24,115 to $89,078` against the model's `$34,236 to $113,696`, a **30% understatement**). Fixed
+  by reading the wizard key first and falling back to the DM column, so one adapter serves both.
+  **Why no test caught it:** every existing test called `buildUnifiedResult` directly and passed
+  throughout. Five new tests in `unifiedFunnel.test.ts` run the ADAPTER on wizard-shaped values.
+- **The headline described the wrong quantity.** `netNewMonthlyCents` is gross minus the CRWN fee,
+  minus artist-funded commissions, minus existing direct revenue; the copy called it
+  "direct-to-fan revenue". Now: *"on top of what you already earn direct, after CRWN's fee and any
+  commissions you pay."* The ratified verb *could build* is unchanged. The existing-revenue
+  subtraction is the model being deliberately conservative, and saying nothing about it gave that
+  away for free.
+- **The "/mo" hero merged recurring and one-time money.** Between 7% and 48% of the figure is
+  one-off ticket, tip and seat revenue depending on the answers. The summary now states the
+  recurring share beside the number, and an artist with no event money is told that plainly rather
+  than read a split of nothing.
+- **Material assumptions were carrying money with no rate disclosed:** member extras ($3/member/mo,
+  11 to 12% of gross), the live cadence (ONE event a month, never stated), and the session seat
+  rate (0.3% of non-members at up to $300, about **40% of gross** at arena scale). All now
+  disclosed, conditionally so a layer the artist is not eligible for is never asserted at them, and
+  the seat line states that **no capacity limit is modeled**. Sub-1% rates render as "0.3%" rather
+  than rounding to "0%". `maxConversion` is described as the guard it is, since it cannot bind at
+  the current knobs. Unit prices now appear beside buyer counts.
+- **Deferred by decision, not oversight:** every calibration finding. No assumption in this model is
+  externally validated ("not yet externally validated", never "benchmark"); `expected` (0.15/0.03)
+  is `leadCalculator`'s **conservative** preset relabelled; `high` pairs `punchy`'s reach with
+  `aggressive`'s superfan rate; the band is a one-factor sweep, not a confidence interval;
+  `liveWilling: 'maybe'` is modeled as `'yes'`. Recorded in `UNIFIED_OPPORTUNITY.md` section 10 and
+  awaiting first-cohort evidence. **Do not "improve" any of them without a founder decision.**
+- Previously stored `unifiedOpportunity@1` results were computed with the two dropped fields at
+  zero, so they understate. Pre-traffic, so no backfill; new runs are correct.
+- Touched: `toolAdapters.ts`, `unifiedAdapter.ts`, `recalcUnified.ts`, `unifiedFunnel.test.ts`,
+  `07-BUSINESS-RULES.md`, `UNIFIED_OPPORTUNITY.md`, `sw.js` (v401 to v402). 2,241 tests pass,
+  `verify:architecture` 814 pass, build clean.
+
 ## 2026-08-14 - Homepage pre-traffic correction pass (the page stops losing convinced readers)
 
 **A browser audit of the shipped homepage found two defects that cost money at the exact moment

@@ -110,6 +110,34 @@ person is in both sets, so no person can pay twice.
 The two new rates are the only numbers not lifted from existing repo models. Both are conservative
 and both are stated in the artist-facing assumptions block.
 
+**"Lifted from an existing repo model" is REUSE, not evidence.** A 2026-08-14 credibility audit
+established that **no assumption in this model is externally validated**; every rate traces either
+to `leadCalculator.ts` (which declares them as first-principles judgements) or to one of the
+single-opportunity adapters this model exists to correct. The correct phrase is **"not yet
+externally validated"**, and it stays that way until first-cohort evidence exists. Do not describe
+any of these rates as a benchmark (`POSITIONING.md` section 23 forbids the claim class).
+
+### Two vocabularies reach one model, and BOTH must be read
+
+`toolAdapters.ts` is the single execution path for this tool (`usesLossEngine` is true, so
+`PublicToolClient` and `ArtistToolClient` both route through it rather than calling the model).
+Two callers arrive speaking different vocabularies:
+
+| Caller | Owned contacts | Unreleased count |
+|---|---|---|
+| DM / ManyChat (`lead_profiles` columns) | `email_list_size` | `catalog_size` |
+| Wizard / homepage (registry input keys) | `owned_contacts` | `unreleased_count` |
+
+The adapter read only the DM names and **overwrote the wizard's answers with zero**, so from any
+browser: the owned-audience screen did nothing, `unreleasedCount` was always 0, the vault was never
+eligible, the **Gold $25 rung never existed**, and the assumptions block promised a $25 Gold tier
+the ladder beside it did not contain. Understated the headline by roughly 30% on the funnel's own
+test answers. Fixed 2026-08-14: **read the wizard key first, fall back to the DM column.** Absent,
+null and empty mean "not answered"; a real 0 is an answer. Tests in `unifiedFunnel.test.ts`
+(`the real browser path carries every answer into the model`) run the ADAPTER on wizard-shaped
+values, which is the only place this class of defect is visible: every other test in the suite
+calls `buildUnifiedResult` directly and passed throughout.
+
 ### The overlap answer
 
 `promoterOverlap` is asked **only** when the artist has both sharers and clippers, and maps to a
@@ -128,6 +156,15 @@ repository-backed overlap rule, so the model asks, and falls back to a documente
   `gross - platformFee`, matching how `checkout/route.ts` charges an `attributedCut`.
 - `currentDirectRevenueCents` is **subtracted**, never added. The headline is what the artist would
   ADD, floored at zero.
+- **The headline sentence names all three deductions.** `netNewMonthlyCents` is gross minus the
+  CRWN fee, minus artist-funded commissions, minus existing direct revenue, so it is not
+  "direct-to-fan revenue". It reads: *"You could build an estimated $X to $Y a month on top of what
+  you already earn direct, after CRWN's fee and any commissions you pay."* The verb stays *could
+  build* (the ratified language rule in `07-BUSINESS-RULES.md`); what changed is that the
+  qualifiers are now present.
+- **The summary states the recurring share** beside the number, because the hero says `/mo` and
+  between 7% and 48% of it is one-off event and seat money depending on the answers. An artist with
+  no event revenue is told that plainly instead of being read a split of nothing.
 - The headline is a **range** (conservative to high) run off one set of inputs, so the three
   scenarios stay internally consistent across every layer.
 - Annualization is `x12` and nothing longer.
@@ -266,5 +303,25 @@ mislabelling the royalty overlay exists to prevent.
 - **The clip conversion lift (0.25) is a judgement call**, not a measured figure. It is the one
   number in the model that would most benefit from real CRWN data.
 - **Churn is not modeled.** Retention is named in the not-in-the-total list for that reason.
+- **No assumption here is externally validated.** See "Where each rate comes from" above. Say "not
+  yet externally validated", never "benchmark".
+- **Fulfillment capacity is not modeled, and the assumptions block now says so.** `seatRate` sells
+  seats out of the non-member pool with no ceiling (about 445 seats a month at $300 for a
+  1M-follower artist on a ticketed session, roughly 40% of gross), and the model never states how
+  many sessions that is. `timeCapacity` reorders recommendations only and can never reduce the
+  money. The artist is told the cadence and the room size are theirs to set.
+- **`liveWilling: 'maybe'` is modeled identically to `'yes'`**, that is, one live event every
+  month. The monthly cadence is now stated in the assumptions block.
+- **The scenario band is a one-factor sensitivity sweep, not a confidence interval.** `reachRate`,
+  `superfanRate` and `referredConversion` move together as a single latent "how well your fans
+  convert" factor, so `high` is the joint case where all three sit at their ceiling. Note also that
+  `expected` (0.15 / 0.03) is `leadCalculator`'s **conservative** preset, and `high` (0.20 / 0.05)
+  pairs `punchy`'s reach with `aggressive`'s superfan rate, a pairing no preset makes. Recalibrating
+  or relabelling any of that is a **founder decision deferred until first-cohort evidence exists**
+  and was explicitly out of scope for the 2026-08-14 fix pass.
+- **`maxConversion` (0.10) can never bind** at the current knobs (max is 0.05 x 1.25 = 0.0625). The
+  copy now describes it as a guard rather than a limit the artist would reach.
+- **`currentPayingSupporters` does not move the money.** Only the dollar input is subtracted; the
+  supporter count feeds `netNewSupporters` for display.
 - **The DM path collects one number**, so a DM-run result is membership-only and conservative. The
   result page is where the artist corrects it.
