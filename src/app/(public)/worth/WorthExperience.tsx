@@ -8,7 +8,8 @@ import { LeadMagnetWizard } from '@/components/lead-magnets/LeadMagnetWizard';
 import { ToolHero } from '@/components/lead-magnets/ToolHero';
 import type { LeadMagnetConfig } from '@/lib/leadMagnets/types';
 import { buildContinueUrl } from '@/lib/leadMagnets/continuationCta';
-import { Crown, Sparkles, Check, ChevronDown, ArrowRight } from 'lucide-react';
+import { Crown, Sparkles, Check, ChevronDown, ArrowRight, TrendingUp } from 'lucide-react';
+import { SectionIcon } from '@/components/ui/SectionIcon';
 import {
   calculate,
   getAssumptions,
@@ -554,9 +555,7 @@ export function WorthExperience({
             the result is on screen (the number is the headline at that point). */}
         {homepage && (
           <div className="text-center mb-8">
-            <div className="w-16 h-16 mx-auto mb-5 rounded-full bg-crwn-gold/20 flex items-center justify-center">
-              <Crown className="w-8 h-8 text-crwn-gold" />
-            </div>
+            <SectionIcon icon={TrendingUp} className="mx-auto" />
             <h1 className="font-bold mb-3 text-3xl sm:text-4xl">
               Streaming built your reach. It cannot tell you who pays.
             </h1>
@@ -574,6 +573,7 @@ export function WorthExperience({
             timeToComplete="1 min"
             image="/tool-worth.jpg"
             imageAlt="An artist alone in a dark studio staring at a disappointing number on his phone"
+            icon={TrendingUp}
             ctaLabel="See what I am worth"
             onStart={() => worthWizardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
           />
@@ -748,12 +748,13 @@ function PrimaryCTA({
   );
 }
 
-function SectionHeading({ icon: Icon, children }: { icon: ComponentType<{ className?: string }>; children: ReactNode }) {
+// The icon STACKS above the heading rather than sitting beside it, and it is the same 64px badge
+// the homepage and every promoted calculator use. Inline at 36px it read as a bullet and did
+// nothing to break a text column; the whole point of the icon is to be findable while scanning.
+function SectionHeading({ icon: Icon, children }: { icon: ComponentType<{ className?: string; strokeWidth?: number }>; children: ReactNode }) {
   return (
-    <div className="flex items-center gap-2 mb-2">
-      <div className="w-9 h-9 rounded-full bg-crwn-gold/15 flex items-center justify-center shrink-0">
-        <Icon className="w-5 h-5 text-crwn-gold" />
-      </div>
+    <div className="mb-2">
+      <SectionIcon icon={Icon} />
       <h2 className="text-2xl sm:text-3xl font-bold">{children}</h2>
     </div>
   );

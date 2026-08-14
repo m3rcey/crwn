@@ -9,6 +9,7 @@ import { CrwnShowcase } from './CrwnShowcase';
 import { ToolShowcase } from './ToolShowcase';
 import { ToolMarketing } from './ToolMarketing';
 import { hasDoorway } from '@/lib/leadMagnets/positioning';
+import { toolIcon } from '@/lib/leadMagnets/toolIcons';
 import { LeadMagnetResult } from './LeadMagnetResult';
 import { ToolHero } from './ToolHero';
 import { buildContinueUrl } from '@/lib/leadMagnets/continuationCta';
@@ -349,6 +350,7 @@ export function PublicToolClient({
       {phase === 'hero' && (
         <>
           <ToolHero
+            icon={toolIcon(config.slug)}
             eyebrow={config.hero.eyebrow}
             headline={config.hero.headline}
             subheadline={config.hero.subheadline}

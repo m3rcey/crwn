@@ -1,6 +1,8 @@
 'use client';
 
 import Image from 'next/image';
+import type { ComponentType } from 'react';
+import { SectionIcon } from '@/components/ui/SectionIcon';
 
 // The shared calculator hero. Extracted from PublicToolClient so /worth renders the IDENTICAL
 // hero as every other tool page: eyebrow, left-aligned headline, subheadline, time + free line,
@@ -20,6 +22,7 @@ export function ToolHero({
   imageAlt,
   ctaLabel,
   onStart,
+  icon,
 }: {
   eyebrow?: string;
   headline: string;
@@ -29,6 +32,15 @@ export function ToolHero({
   imageAlt: string;
   ctaLabel: string;
   onStart: () => void;
+  /**
+   * The tool's vector icon, rendered above the eyebrow on DESKTOP only.
+   *
+   * On mobile the photograph already sits directly above this copy, so an icon between the two
+   * would be a second visual with nothing to separate, and it would cost about 84px of the one
+   * screen that has to hold the headline AND the CTA. The header comment above is not decorative:
+   * the fold here was measured on a 375x667 phone, and the CTA lives below this block.
+   */
+  icon?: ComponentType<{ className?: string; strokeWidth?: number }>;
 }) {
   return (
     <div className="flex flex-col md:grid md:grid-cols-2 md:items-center gap-5 md:gap-10 min-h-[calc(100svh-9rem)] md:min-h-0 md:py-6">
@@ -38,6 +50,7 @@ export function ToolHero({
       </div>
 
       <div className="flex flex-1 flex-col md:block md:order-1">
+        {icon && <SectionIcon icon={icon} className="hidden md:flex mb-4" />}
         {eyebrow && <div className="text-xs font-semibold uppercase tracking-wide text-crwn-gold mb-2">{eyebrow}</div>}
         <h1 className="text-3xl md:text-4xl font-bold text-crwn-text leading-tight">{headline}</h1>
         <p className="text-base text-crwn-text-secondary mt-3 leading-relaxed">{subheadline}</p>
