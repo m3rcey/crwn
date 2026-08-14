@@ -25,10 +25,10 @@
 //     from those answers. It never asserts eligibility or opens a scheduler.
 //   - No hidden surface is named. Feature names stay subordinate to the job they do.
 
-import { ArrowRight, Check, Users, Route, Rocket, Crown } from 'lucide-react';
-import { SectionIcon } from '@/components/ui/SectionIcon';
+import { ArrowRight, Check } from 'lucide-react';
+import { SectionImage } from '@/components/ui/SectionImage';
+import { SECTION_ART } from '@/lib/positioning/sectionImages';
 import { getDoorway } from '@/lib/leadMagnets/positioning';
-import { toolIcon } from '@/lib/leadMagnets/toolIcons';
 import {
   PATH_STEPS,
   LOOP,
@@ -49,12 +49,10 @@ const scrollToAnchor = (id: string): boolean => {
   return true;
 };
 
-type SectionIconType = React.ComponentType<{ className?: string; strokeWidth?: number }>;
-
-function Eyebrow({ children, icon }: { children: React.ReactNode; icon?: SectionIconType }) {
+function Eyebrow({ children, art }: { children: React.ReactNode; art?: { src: string; alt: string } }) {
   return (
     <>
-      {icon && <SectionIcon icon={icon} />}
+      {art && <SectionImage src={art.src} alt={art.alt} />}
       <p className="text-[11px] uppercase tracking-[0.2em] text-crwn-gold font-semibold mb-3">{children}</p>
     </>
   );
@@ -90,7 +88,7 @@ export function ToolMarketing({ slug, completed = false }: { slug: string; compl
 
       {/* A. WHAT THIS REVEALS. The one section that is genuinely different per calculator. */}
       <section>
-        <Eyebrow icon={toolIcon(slug)}>{door.lens}</Eyebrow>
+        <Eyebrow art={SECTION_ART.reveals}>{door.lens}</Eyebrow>
         <H2>{door.revealsTitle}</H2>
         <p className="text-crwn-text-secondary text-lg leading-relaxed">{door.revealsBody}</p>
       </section>
@@ -98,7 +96,7 @@ export function ToolMarketing({ slug, completed = false }: { slug: string; compl
       {/* B. FROM ONE OPPORTUNITY TO ONE SYSTEM. The beat that stops six calculators reading as
           six businesses. The per-tool line carries the specific non-double-counting truth. */}
       <section>
-        <Eyebrow icon={Users}>One fan economy</Eyebrow>
+        <Eyebrow art={SECTION_ART.oneEconomy}>One fan economy</Eyebrow>
         <H2>This is one lens, not a separate business.</H2>
         <p className="text-crwn-text-secondary text-lg leading-relaxed mb-6">{door.connectsBody}</p>
         <ul className="grid sm:grid-cols-2 gap-3">
@@ -116,7 +114,7 @@ export function ToolMarketing({ slug, completed = false }: { slug: string; compl
       {/* C. THE PATH TO FIRST PROOF, compact. Shared with the homepage, so "Prove" means the
           same thing on every surface: a real person paying on a system the artist runs. */}
       <section>
-        <Eyebrow icon={Route}>The path</Eyebrow>
+        <Eyebrow art={SECTION_ART.path}>The path</Eyebrow>
         <H2>From the number above to your first paid member.</H2>
         <div className="space-y-0">
           {PATH_STEPS.map((s, i) => (
@@ -145,7 +143,7 @@ export function ToolMarketing({ slug, completed = false }: { slug: string; compl
 
       {/* D. FIRST REVENUE LAUNCH. Layered on top of the self-serve path, never a gate on it. */}
       <section>
-        <Eyebrow icon={Rocket}>First Revenue Launch</Eyebrow>
+        <Eyebrow art={SECTION_ART.launch}>First Revenue Launch</Eyebrow>
         <H2>Want us to launch it with you?</H2>
         <p className="text-crwn-text-secondary text-lg leading-relaxed mb-6">{FRL_BODY}</p>
         <div className="rounded-2xl border border-crwn-gold/30 bg-crwn-surface p-6 mb-6">
@@ -170,8 +168,7 @@ export function ToolMarketing({ slug, completed = false }: { slug: string; compl
 
       {/* E. FINAL CTA. The gold button on this page, so the assisted path above stays secondary. */}
       <section className="rounded-3xl border border-crwn-gold/25 bg-gradient-to-b from-crwn-gold/10 to-crwn-surface p-8 sm:p-10 text-center">
-        {/* Centered here, unlike the left-aligned section icons, because the whole card is centered. */}
-        <SectionIcon icon={Crown} className="mx-auto" />
+        <SectionImage src={SECTION_ART.toolClose.src} alt={SECTION_ART.toolClose.alt} />
         <H2>{completed ? 'Your plan is already built above.' : 'Start with your own numbers.'}</H2>
         <p className="text-crwn-text-secondary leading-relaxed mb-7 max-w-xl mx-auto">
           {completed

@@ -8,8 +8,9 @@ import { LeadMagnetWizard } from '@/components/lead-magnets/LeadMagnetWizard';
 import { ToolHero } from '@/components/lead-magnets/ToolHero';
 import type { LeadMagnetConfig } from '@/lib/leadMagnets/types';
 import { buildContinueUrl } from '@/lib/leadMagnets/continuationCta';
-import { Crown, Sparkles, Check, ChevronDown, ArrowRight, TrendingUp } from 'lucide-react';
-import { SectionIcon } from '@/components/ui/SectionIcon';
+import { Check, ChevronDown, ArrowRight } from 'lucide-react';
+import { SectionImage } from '@/components/ui/SectionImage';
+import { SECTION_ART } from '@/lib/positioning/sectionImages';
 import {
   calculate,
   getAssumptions,
@@ -387,7 +388,7 @@ export function WorthExperience({
   // context at its highest-intent moment.
   const builderSection = (
     <section ref={worthBuilderRef} className="mb-14 scroll-mt-4">
-      <SectionHeading icon={Sparkles}>Turn this estimate into an offer your fans can join</SectionHeading>
+      <SectionHeading>Turn this estimate into an offer your fans can join</SectionHeading>
       <p className="text-crwn-text-secondary text-xl mb-5">
         We prefilled it from your numbers. Edit anything. Nothing is live until you publish it.
       </p>
@@ -555,7 +556,7 @@ export function WorthExperience({
             the result is on screen (the number is the headline at that point). */}
         {homepage && (
           <div className="text-center mb-8">
-            <SectionIcon icon={TrendingUp} className="mx-auto" />
+            <SectionImage src="/tool-worth.jpg" alt="An artist alone in a dark studio lit in gold, looking at a phone" />
             <h1 className="font-bold mb-3 text-3xl sm:text-4xl">
               Streaming built your reach. It cannot tell you who pays.
             </h1>
@@ -573,7 +574,6 @@ export function WorthExperience({
             timeToComplete="1 min"
             image="/tool-worth.jpg"
             imageAlt="An artist alone in a dark studio staring at a disappointing number on his phone"
-            icon={TrendingUp}
             ctaLabel="See what I am worth"
             onStart={() => worthWizardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
           />
@@ -604,7 +604,7 @@ export function WorthExperience({
             advertised surfaces the pre-PMF reduction has hidden. The shared Zero to One narrative
             below replaces all of it. */}
         <section className="mb-14">
-          <SectionHeading icon={Crown}>The ladder that holds it</SectionHeading>
+          <SectionHeading>The ladder that holds it</SectionHeading>
           <p className="text-crwn-text-secondary text-xl mb-5">
             A free front door to identify everyone, then paid rungs so your most committed fans
             have somewhere to go. The top rung is the smallest group and carries the most money,
@@ -656,9 +656,7 @@ export function WorthExperience({
             positioning pass exists to remove. */}
         {homepage && (
           <div className="bg-gradient-to-b from-crwn-gold/10 to-crwn-surface border border-crwn-gold/30 rounded-2xl p-8 text-center">
-            <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-crwn-gold/20 flex items-center justify-center">
-              <Crown className="w-7 h-7 text-crwn-gold" />
-            </div>
+            <SectionImage src={SECTION_ART.close.src} alt={SECTION_ART.close.alt} />
             <h2 className="text-2xl sm:text-3xl font-bold mb-3">
               Turn the audience you already built into a business you can operate.
             </h2>
@@ -748,16 +746,12 @@ function PrimaryCTA({
   );
 }
 
-// The icon STACKS above the heading rather than sitting beside it, and it is the same 64px badge
-// the homepage and every promoted calculator use. Inline at 36px it read as a bullet and did
-// nothing to break a text column; the whole point of the icon is to be findable while scanning.
-function SectionHeading({ icon: Icon, children }: { icon: ComponentType<{ className?: string; strokeWidth?: number }>; children: ReactNode }) {
-  return (
-    <div className="mb-2">
-      <SectionIcon icon={Icon} />
-      <h2 className="text-2xl sm:text-3xl font-bold">{children}</h2>
-    </div>
-  );
+// These two headings sit INSIDE the calculator flow, beside a result card and the builder, not in
+// the marketing narrative. They stay plain: a full-width photograph between an artist's number and
+// the offer built from it would interrupt the one sequence on this page that must not be
+// interrupted. The section photography belongs to ToolMarketing, below the funnel.
+function SectionHeading({ children }: { children: ReactNode }) {
+  return <h2 className="text-2xl sm:text-3xl font-bold mb-2">{children}</h2>;
 }
 
 

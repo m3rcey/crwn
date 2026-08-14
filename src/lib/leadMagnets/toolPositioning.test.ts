@@ -10,12 +10,12 @@
 // invisible in a build and invisible in a type check, so it gets asserted here.
 
 import { describe, it, expect } from 'vitest';
-import { readFileSync } from 'fs';
+import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 import { TOOL_DOORWAYS, PROMOTED_MARKETING_SLUGS, hasDoorway, getDoorway } from './positioning';
 import { LEAD_MAGNETS, EXTERNAL_TOOLS, getLeadMagnet } from './registry';
 import { PROMOTED_TOOL_KEYS, OPPORTUNITY_FUNNELS } from '@/lib/opportunityFunnels/registry';
-import { toolIcon } from './toolIcons';
+import { SECTION_ART } from '@/lib/positioning/sectionImages';
 import { GUARANTEE_BODY, PATH_STEPS, LOOP, FRL_BODY, FRL_CAPACITY_NOTE, ONE_SYSTEM } from '@/lib/positioning/story';
 
 const root = process.cwd();
@@ -27,7 +27,7 @@ const homeMarketing = read('src/app/HomeMarketing.tsx');
 const homeFunnel = read('src/app/HomeFunnel.tsx');
 const worth = read('src/app/(public)/worth/WorthExperience.tsx');
 const toolHero = read('src/components/lead-magnets/ToolHero.tsx');
-const sectionIcon = read('src/components/ui/SectionIcon.tsx');
+const sectionImage = read('src/components/ui/SectionImage.tsx');
 
 /** Every string a visitor to a promoted calculator can read, from the registry side. */
 function promotedCopy(): string {
@@ -114,46 +114,67 @@ describe('the promoted set and its doorways cannot drift apart', () => {
   });
 });
 
-describe('every headline gets a large vector icon', () => {
-  it('gives all six promoted tools a distinct hero icon, and paused tools a safe default', () => {
-    const icons = PROMOTED_MARKETING_SLUGS.map((s) => toolIcon(s));
-    expect(icons.every(Boolean)).toBe(true);
-    // Six doors, six marks. A shared icon would undo the point of six distinct hooks.
-    expect(new Set(icons).size).toBe(6);
-    // A tool with no entry still renders: never blocked by a missing icon.
-    expect(toolIcon('a-tool-that-does-not-exist')).toBeTruthy();
-  });
-
-  it('opens every marketing section with an icon, not just the first', () => {
+describe('every headline opens on a brand photograph', () => {
+  it('opens every marketing section with an image, not just the first', () => {
     // The wall of text was the reason for this: eyebrow, heading, paragraph, repeat, with only a
-    // small caps line marking where a section began.
-    const homeIcons = homeMarketing.match(/<Eyebrow icon=\{/g) ?? [];
-    const toolIcons = toolMarketing.match(/<Eyebrow icon=\{/g) ?? [];
-    expect(homeIcons.length, 'homepage sections').toBe(7);
-    expect(toolIcons.length, 'calculator sections').toBe(4);
+    // small caps line marking where a section began. A 64px icon badge was tried first and read
+    // as a bullet on a 700px desktop column, so it became a photograph.
+    expect((homeMarketing.match(/<Eyebrow art=\{/g) ?? []).length, 'homepage sections').toBe(7);
+    expect((toolMarketing.match(/<Eyebrow art=\{/g) ?? []).length, 'calculator sections').toBe(4);
     // Plus the closing card on each, which has a heading but no eyebrow.
-    expect(homeMarketing).toMatch(/<SectionIcon icon=\{Crown\} className="mx-auto" \/>/);
-    expect(toolMarketing).toMatch(/<SectionIcon icon=\{Crown\} className="mx-auto" \/>/);
-    // No bare Eyebrow left behind.
+    expect(homeMarketing).toMatch(/<SectionImage src=\{SECTION_ART\.close\.src\}/);
+    expect(toolMarketing).toMatch(/<SectionImage src=\{SECTION_ART\.toolClose\.src\}/);
+    // No bare Eyebrow, and no leftover icon badge, on either surface.
     expect(homeMarketing).not.toMatch(/<Eyebrow>/);
     expect(toolMarketing).not.toMatch(/<Eyebrow>/);
+    expect(`${homeMarketing}${toolMarketing}`).not.toContain('SectionIcon');
   });
 
-  it('uses vectors, never emoji, on an acquisition surface', () => {
+  it('points every section at a real file, with real alt text', () => {
+    // A broken src is invisible in a type check and silent in a build: Next renders an empty box.
+    for (const [key, art] of Object.entries(SECTION_ART)) {
+      expect(art.src, key).toMatch(/^\/[a-z0-9-]+\.jpg$/);
+      expect(existsSync(join(root, 'public', art.src.slice(1))), `${key} -> ${art.src}`).toBe(true);
+      // Alt text describes the photograph for a screen reader, so it may not be a slug or a label.
+      expect(art.alt.split(/\s+/).length, `${key} alt`).toBeGreaterThan(4);
+    }
+  });
+
+  it('never shows the same photograph twice on one page', () => {
+    // Repeating an image within a single page reads as an oversight rather than a system.
+    const home = ['problem', 'path', 'operatingSystem', 'launch', 'operates', 'pricing', 'questions', 'close'] as const;
+    const tool = ['reveals', 'oneEconomy', 'path', 'launch', 'toolClose'] as const;
+    for (const [label, keys] of [['homepage', home], ['calculator', tool]] as const) {
+      const srcs = keys.map((k) => SECTION_ART[k].src);
+      expect(new Set(srcs).size, `${label} has a duplicate image`).toBe(srcs.length);
+    }
+  });
+
+  it('uses photographs, never emoji, on an acquisition surface', () => {
     // The registry still carries an emoji per tool for internal listings. It may not reach a
     // marketing surface: emoji render differently per platform, cannot take the brand gold, and
     // read as clip art beside the hero photograph. Same rule the Studio tiles follow.
     const emoji = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u;
     expect(homeMarketing).not.toMatch(emoji);
     expect(toolMarketing).not.toMatch(emoji);
-    expect(sectionIcon).not.toMatch(emoji);
+    expect(sectionImage).not.toMatch(emoji);
   });
 
-  it('keeps the hero icon off mobile, where the photo already breaks the text', () => {
-    // ToolHero's own header comment records that the fold was measured on a 375x667 phone and
-    // that the CTA sits below this block. A 64px badge plus margin between the photo and the
-    // headline is a second visual with nothing to separate, bought with the CTA's space.
-    expect(toolHero).toMatch(/<SectionIcon icon=\{icon\} className="hidden md:flex mb-4" \/>/);
+  it('leaves the hero to its own photograph', () => {
+    // ToolHero already leads with a full-bleed photo, so it takes no second visual. Its header
+    // comment records that the fold was measured on a 375x667 phone with the CTA below this block.
+    expect(toolHero).toContain('<Image src={image}');
+    expect(toolHero).not.toContain('SectionIcon');
+    expect(toolHero).not.toContain('SectionImage');
+  });
+
+  it('keeps the section images below the fold, so they never race the hero', () => {
+    // Asserted on the JSX, not the file: the doc comment above it explains that `priority` is
+    // deliberately absent, and matching that sentence would fail the test for saying so.
+    expect(sectionImage).toMatch(/<Image[^>]*loading="lazy"/);
+    expect(sectionImage).not.toMatch(/<Image[^>]*\spriority/);
+    // The hero photo keeps its priority: it IS the fold.
+    expect(toolHero).toMatch(/<Image[^>]*\spriority/);
   });
 });
 

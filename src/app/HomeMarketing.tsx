@@ -25,8 +25,9 @@
 //     actually keeps today; real case studies can be added inside that section later.
 //   - The "one next move" claim is made ONCE, in the operating-loop section.
 
-import { ArrowRight, ArrowDown, Check, Puzzle, Route, Compass, Rocket, Boxes, Receipt, HelpCircle, Crown } from 'lucide-react';
-import { SectionIcon } from '@/components/ui/SectionIcon';
+import { ArrowRight, ArrowDown, Check } from 'lucide-react';
+import { SectionImage } from '@/components/ui/SectionImage';
+import { SECTION_ART } from '@/lib/positioning/sectionImages';
 import { TIER_PRICING, TIER_LIMITS } from '@/lib/platformTier';
 import { PLAN_ANCHOR_ID, QUALIFY_ANCHOR_ID } from '@/components/lead-magnets/PublicToolClient';
 // The canonical story is SHARED with every promoted calculator's lower page
@@ -143,12 +144,10 @@ const PLANS: { name: string; monthly: number; feePercent: number; line: string }
   },
 ];
 
-type SectionIconType = React.ComponentType<{ className?: string; strokeWidth?: number }>;
-
-function Eyebrow({ children, icon }: { children: React.ReactNode; icon?: SectionIconType }) {
+function Eyebrow({ children, art }: { children: React.ReactNode; art?: { src: string; alt: string } }) {
   return (
     <>
-      {icon && <SectionIcon icon={icon} />}
+      {art && <SectionImage src={art.src} alt={art.alt} />}
       <p className="text-[11px] uppercase tracking-[0.2em] text-crwn-gold font-semibold mb-3">{children}</p>
     </>
   );
@@ -193,7 +192,7 @@ export function HomeMarketing({ completed = false }: { completed?: boolean }) {
 
       {/* A. THE FRAGMENTATION PROBLEM */}
       <section>
-        <Eyebrow icon={Puzzle}>The problem</Eyebrow>
+        <Eyebrow art={SECTION_ART.problem}>The problem</Eyebrow>
         <H2>Your audience is visible. Your fan economy isn&apos;t.</H2>
         <p className="text-crwn-text-secondary text-lg leading-relaxed mb-8">
           You already sell direct. The proof is spread across a membership tool, a store, an email
@@ -238,7 +237,7 @@ export function HomeMarketing({ completed = false }: { completed?: boolean }) {
 
       {/* B. THE FIRST-REVENUE PATH */}
       <section id="how-it-works" className="scroll-mt-20">
-        <Eyebrow icon={Route}>The path</Eyebrow>
+        <Eyebrow art={SECTION_ART.path}>The path</Eyebrow>
         <H2>Turn the audience you already built into a business you can operate.</H2>
         <div className="space-y-0">
           {PATH_STEPS.map((s, i) => (
@@ -261,7 +260,7 @@ export function HomeMarketing({ completed = false }: { completed?: boolean }) {
       {/* C. THE CRWN OPERATING LOOP, and the trust strip that used to be its own section.
           This is the ONE place the next-move claim is made in full. */}
       <section>
-        <Eyebrow icon={Compass}>The operating system</Eyebrow>
+        <Eyebrow art={SECTION_ART.operatingSystem}>The operating system</Eyebrow>
         <H2>One fan economy. One next move.</H2>
         <p className="text-crwn-text-secondary text-lg leading-relaxed mb-6">
           Most tools give you the numbers and leave the next decision to you. CRWN shows you the one
@@ -313,7 +312,7 @@ export function HomeMarketing({ completed = false }: { completed?: boolean }) {
 
       {/* D. FIRST REVENUE LAUNCH (assisted path). Layered on top of self-serve, never a gate. */}
       <section>
-        <Eyebrow icon={Rocket}>First Revenue Launch</Eyebrow>
+        <Eyebrow art={SECTION_ART.launch}>First Revenue Launch</Eyebrow>
         <H2>Want us to launch it with you?</H2>
         <p className="text-crwn-text-secondary text-lg leading-relaxed mb-6">{FRL_BODY}</p>
         <div className="rounded-2xl border border-crwn-gold/30 bg-crwn-surface p-6 mb-6">
@@ -334,7 +333,7 @@ export function HomeMarketing({ completed = false }: { completed?: boolean }) {
 
       {/* E. CORE CAPABILITIES BY ECONOMIC JOB */}
       <section>
-        <Eyebrow icon={Boxes}>What it operates</Eyebrow>
+        <Eyebrow art={SECTION_ART.operates}>What it operates</Eyebrow>
         <H2>The jobs underneath the promise.</H2>
         <div className="divide-y divide-crwn-elevated">
           {JOBS.map((j) => (
@@ -348,7 +347,7 @@ export function HomeMarketing({ completed = false }: { completed?: boolean }) {
 
       {/* F. PRICING: rendered from the canonical constants, never restated. */}
       <section id="pricing" className="scroll-mt-20">
-        <Eyebrow icon={Receipt}>Pricing</Eyebrow>
+        <Eyebrow art={SECTION_ART.pricing}>Pricing</Eyebrow>
         <H2>What it costs to operate at your size.</H2>
         <div className="grid sm:grid-cols-3 gap-3 mb-4">
           {PLANS.map((p) => (
@@ -377,7 +376,7 @@ export function HomeMarketing({ completed = false }: { completed?: boolean }) {
 
       {/* G. FAQ */}
       <section id="faq" className="scroll-mt-20">
-        <Eyebrow icon={HelpCircle}>Questions</Eyebrow>
+        <Eyebrow art={SECTION_ART.questions}>Questions</Eyebrow>
         <H2>Asked by artists who already run a business.</H2>
         <div className="divide-y divide-crwn-elevated">
           {FAQS.map((f) => (
@@ -391,8 +390,7 @@ export function HomeMarketing({ completed = false }: { completed?: boolean }) {
 
       {/* H. FINAL CTA: one action, back into the funnel or the plan already built. */}
       <section className="rounded-3xl border border-crwn-gold/25 bg-gradient-to-b from-crwn-gold/10 to-crwn-surface p-8 sm:p-10 text-center">
-        {/* Centered here, unlike the left-aligned section icons, because the whole card is centered. */}
-        <SectionIcon icon={Crown} className="mx-auto" />
+        <SectionImage src={SECTION_ART.close.src} alt={SECTION_ART.close.alt} />
         <h2 className="text-2xl sm:text-3xl font-bold leading-tight mb-3">
           You already built the audience. Now operate the part that pays.
         </h2>
