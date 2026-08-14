@@ -1,5 +1,44 @@
 # CRWN Brain — Changelog
 
+## 2026-08-14 - Homepage pre-traffic correction pass (the page stops losing convinced readers)
+
+**A browser audit of the shipped homepage found two defects that cost money at the exact moment
+of intent, plus contained presentation problems. All fixed; strategy and architecture unchanged.**
+
+- **The pricing FAQ was factually wrong.** It concluded "so the software costs nothing until the
+  fan economy is paying you", which is true only of Launch: Pro and Scale are real recurring
+  Stripe subscriptions (`mode: 'subscription'`) billed whether or not the artist earns. Corrected
+  to state the split plainly. A drift test now forbids the phrasing class.
+- **"See if I qualify" did not go to qualification.** Measured live: pressed at y=11538, landed at
+  y=0, with the `CallRequestCard` at y=7178 and off screen. Both lower CTAs called
+  `window.scrollTo(top)`. `PublicToolClient` now exports `PLAN_ANCHOR_ID` / `QUALIFY_ANCHOR_ID`
+  and stamps them on the builder and the hand-raiser; the CTA scrolls to the hand-raiser when a
+  result exists and returns to the calculator when it does not, because qualification is scored
+  server-side from those answers. Verified in a browser: card IN VIEW after the click. No new
+  qualification component, route, scheduler, or scoring change.
+- **The closing CTA is now useful in both states**, reading "Back to my plan" and returning to the
+  builder after completion instead of re-offering a number the visitor already has. Completion is
+  ONE bit: `below` accepts a function and receives `{ completed }` from the funnel component.
+- **The lower page no longer narrows when the visitor converts.** The `below` slot rode inside the
+  funnel's phase-dependent wrapper, rendering the narrative at `max-w-lg` for anyone who finished
+  the calculator. Hoisted out; measured identical at 640px in both states.
+- **Compression, from four repetitions to one.** The "one next move with the evidence" claim
+  appeared in four consecutive sections; it is now made once, in the operating loop, with the
+  Evidence section merged into it as a compact trust strip (claim-maturity safeguards kept,
+  including the insufficient-evidence line). Capabilities 6 to 4 grouped jobs, FAQ 8 to 5. Lower
+  page is roughly 11% shorter on both desktop and mobile.
+- **Mobile fragmentation reads again.** The horizontal arrow was `hidden sm:flex`, so the stacked
+  cards became two unrelated lists on a phone. A downward arrow now renders below `sm`, and the
+  cards are content-aligned rather than stretched, so the shorter CRWN side looks deliberate
+  instead of half empty. No claims were invented to pad it.
+- Guarantee wording tightened from a defensive aside to a precise term ("It covers the rebuild and
+  relaunch, not a specific income result"); the documented terms are unchanged. "Decision layer"
+  jargon replaced with customer language.
+
+Untouched on purpose: hero, calculator questions and math, result, builder, save boundary, result
+tokens, `surface="homepage"` attribution, `decideCallRequest`, guarantee evaluator, pricing,
+Stripe, flags, crons, schema, and every tool route.
+
 ## 2026-08-13 - Zero to One homepage rebuild (the marketing page catches up with the positioning)
 
 **The homepage's lower page is now the ratified Zero to One argument instead of a feature

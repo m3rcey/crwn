@@ -18,10 +18,16 @@
 //   - and the marketing narrative renders BELOW the finished funnel via the
 //     `below` slot. Since the Zero to One homepage rebuild (2026-08-13) that
 //     narrative is `HomeMarketing` (fragmentation -> first-revenue path ->
-//     operating loop -> evidence -> First Revenue Launch -> capabilities ->
-//     pricing -> FAQ -> final CTA), which owns the ENTIRE lower page: the
-//     generic tool-route showcase (CrwnShowcase) does not render on the
-//     homepage surface.
+//     operating loop and its trust strip -> First Revenue Launch ->
+//     capabilities -> pricing -> FAQ -> final CTA), which owns the ENTIRE lower
+//     page: the generic tool-route showcase (CrwnShowcase) does not render on
+//     the homepage surface.
+//
+// `below` is passed as a FUNCTION so the narrative learns one bit from the funnel
+// above it: whether a result is on screen. That is what lets the closing CTA return
+// a finished visitor to the plan they built instead of re-offering a number they
+// already have. It is presentation state only; qualification is still scored
+// server-side from the calculator's answers.
 
 import { WorthExperience } from './(public)/worth/WorthExperience';
 import { HomeNav } from './(public)/worth/WorthExperience';
@@ -45,7 +51,7 @@ export function HomeFunnel() {
       <PublicToolClient
         config={config}
         surface="homepage"
-        below={<HomeMarketing />}
+        below={({ completed }) => <HomeMarketing completed={completed} />}
       />
     </div>
   );

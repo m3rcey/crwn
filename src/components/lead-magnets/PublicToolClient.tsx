@@ -44,6 +44,25 @@ type Phase = 'loading' | 'hero' | 'full';
  */
 export type ToolSurface = 'tool' | 'homepage';
 
+/**
+ * Stable scroll anchors on the two surfaces a supporting section may legitimately
+ * want to send a reader back to. They exist because a CTA that lives BELOW the funnel
+ * (the homepage narrative) cannot otherwise reach the funnel's own controls: it used to
+ * scroll to the top of the page, which left the qualification hand-raiser thousands of
+ * pixels away and off screen while the button claimed to open it.
+ *
+ * They are anchors, never authority: scrolling to the hand-raiser does not qualify
+ * anybody. The server still rescores every request (`decideCallRequest`).
+ */
+export const PLAN_ANCHOR_ID = 'crwn-plan-builder';
+export const QUALIFY_ANCHOR_ID = 'crwn-launch-call';
+
+/** What the `below` slot is told about the funnel above it. One bit, deliberately. */
+export interface BelowContext {
+  /** A result is on screen, so the builder and the hand-raiser are mounted. */
+  completed: boolean;
+}
+
 export function PublicToolClient({
   config,
   surface = 'tool',
@@ -51,8 +70,13 @@ export function PublicToolClient({
 }: {
   config: LeadMagnetConfig;
   surface?: ToolSurface;
-  /** Route-specific supporting sections, rendered AFTER the whole funnel. */
-  below?: ReactNode;
+  /**
+   * Route-specific supporting sections, rendered AFTER the whole funnel, at their own
+   * width. Pass a function to receive the funnel's completion state (the homepage does,
+   * so its closing CTAs can point at the plan the visitor just built instead of
+   * re-offering a number they already have).
+   */
+  below?: ReactNode | ((ctx: BelowContext) => ReactNode);
 }) {
   const router = useRouter();
   // The 'loading' first render exists to avoid flashing the hero at someone who
@@ -284,9 +308,19 @@ export function PublicToolClient({
     return <div className="min-h-[60vh] flex items-center justify-center text-crwn-text-secondary">Loading…</div>;
   }
 
-  // The hero gets a wide two-column canvas; everything after it (wizard, result) stays in
-  // the narrow single-column reading width.
+  // The funnel's own width is phase-dependent: the hero gets a wide two-column canvas,
+  // and everything after it (wizard, result, builder) stays in the narrow single-column
+  // reading width a form and a result card want.
+  //
+  // The `below` slot must NOT inherit that. It is a page, not a card: when it rode inside
+  // this wrapper the homepage narrative rendered at max-w-2xl for a fresh visitor and
+  // max-w-lg for a visitor who had just completed the calculator, which made the page 16%
+  // longer and visibly weaker for the highest-intent reader. It now renders once, after
+  // the funnel, at its own width.
+  const belowContent = typeof below === 'function' ? below({ completed: phase === 'full' && !!result && !editing }) : below;
+
   return (
+    <>
     <div className={`${phase === 'hero' ? 'max-w-5xl' : 'max-w-lg'} mx-auto px-4 py-6`}>
       {surface === 'tool' && (
         <button onClick={() => smartBack(router, '/tools')} className="flex items-center gap-1.5 text-sm text-crwn-text-secondary mb-4">
@@ -330,16 +364,12 @@ export function PublicToolClient({
               (if it has any), then the full CRWN pitch. On the homepage the `below`
               slot (HomeMarketing) owns the entire lower page, so the generic showcase
               stays tool-route chrome and never stacks a second marketing narrative. */}
-          <div className="max-w-2xl mx-auto">
-            {surface === 'tool' && (
-              <>
-                <ToolShowcase slug={config.slug} />
-                <CrwnShowcase claimed={false} claimHref={`/signup?ref=tool-${config.slug}`} />
-              </>
-            )}
-            {/* Route-specific supporting sections, LAST. */}
-            {below}
-          </div>
+          {surface === 'tool' && (
+            <div className="max-w-2xl mx-auto">
+              <ToolShowcase slug={config.slug} />
+              <CrwnShowcase claimed={false} claimHref={`/signup?ref=tool-${config.slug}`} />
+            </div>
+          )}
         </>
       )}
 
@@ -396,8 +426,9 @@ export function PublicToolClient({
             </button>
           )}
 
-          {/* THE BUILDER: the immediate continuation of the result. */}
-          <div ref={builderRef} className="scroll-mt-4 pt-1">
+          {/* THE BUILDER: the immediate continuation of the result. Carries a stable id so a
+              closing CTA below the funnel can return the visitor to the plan they built. */}
+          <div id={PLAN_ANCHOR_ID} ref={builderRef} className="scroll-mt-4 pt-1">
             {config.slug === OYF_TOOL_KEY ? (
               <FanCaptureBuilder
                 mode="anonymous"
@@ -422,12 +453,14 @@ export function PublicToolClient({
               artist can request an immediate launch call. The server alone decides whether a
               founder alert fires; unqualified requests are recorded, never alerted. */}
           {config.slug === 'opportunity-calculator' && (
-            <CallRequestCard
-              toolSlug={config.slug}
-              calculatorInputs={values}
-              planSummary={result.heroValue ? `${result.heroValue}${result.heroSuffix || ''} system` : result.headline}
-              publicToken={publicToken}
-            />
+            <div id={QUALIFY_ANCHOR_ID} className="scroll-mt-4">
+              <CallRequestCard
+                toolSlug={config.slug}
+                calculatorInputs={values}
+                planSummary={result.heroValue ? `${result.heroValue}${result.heroSuffix || ''} system` : result.headline}
+                publicToken={publicToken}
+              />
+            </div>
           )}
 
           {/* Secondary action, BELOW the builder: optional "email my results" with real consent
@@ -454,10 +487,14 @@ export function PublicToolClient({
               <CrwnShowcase claimed={false} claimHref={`/signup?ref=tool-${config.slug}`} />
             </>
           )}
-          {below}
         </div>
       )}
     </div>
+
+    {/* Route-specific supporting sections, LAST and at their own width, so the page
+        below the funnel does not get narrower just because the visitor finished it. */}
+    {belowContent && <div className="max-w-2xl mx-auto px-4 pb-6">{belowContent}</div>}
+    </>
   );
 }
 

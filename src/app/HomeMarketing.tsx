@@ -1,6 +1,7 @@
 'use client';
 
-// The homepage marketing narrative (Zero to One homepage rebuild, 2026-08-13).
+// The homepage marketing narrative (Zero to One homepage rebuild 2026-08-13, tightened
+// after the pre-traffic visual audit 2026-08-14).
 //
 // Renders BELOW the shared Opportunity Calculator funnel via HomeFunnel's `below` slot,
 // so the marketing page begins only after the primary funnel (hero -> wizard -> result ->
@@ -8,27 +9,36 @@
 // showcase is tool-route chrome and does not render on the homepage surface.
 //
 // Contract (pinned by pageComposition.test.ts):
-//   - No second calculator, result, or builder: this component is presentation only and
-//     fires no funnel analytics, so it cannot double-count the events emitted above it.
+//   - No second calculator, result, builder, or qualification component: this file is
+//     presentation only and fires no funnel analytics, so it cannot double-count the
+//     events emitted above it.
 //   - Every claim traces to docs/POSITIONING.md (category, loop, claim-maturity table).
 //     No network-effect or cross-artist intelligence claims until those systems ship.
-//   - Pricing renders from TIER_PRICING / TIER_LIMITS, never restated from memory.
-//   - The First Revenue Launch section reuses the EXISTING qualification architecture:
-//     qualification is scored server-side from calculator answers (decideCallRequest),
-//     and the hand-raiser (CallRequestCard) lives at the calculator's save boundary.
-//     "See if I qualify" therefore returns the visitor to the funnel, never to a new
-//     application system or a scheduling link.
-//   - No fabricated social proof. The evidence section states the principles the product
-//     actually keeps today; real case studies can replace or extend it later without a
-//     redesign (swap the principle cards for case cards inside the same section shell).
+//   - Pricing renders from TIER_PRICING / TIER_LIMITS, never restated from memory, and
+//     never describes a paid plan as costing nothing until the artist earns.
+//   - The First Revenue Launch section reuses the EXISTING qualification architecture.
+//     "See if I qualify" scrolls to the funnel's own hand-raiser (CallRequestCard) when a
+//     result is on screen, and otherwise returns the visitor to the calculator, because
+//     qualification is scored server-side from those answers (decideCallRequest). It
+//     never asserts eligibility, opens a scheduler, or posts an application.
+//   - No fabricated social proof. The trust strip states the principles the product
+//     actually keeps today; real case studies can be added inside that section later.
+//   - The "one next move" claim is made ONCE, in the operating-loop section.
 
-import { ArrowRight, Check } from 'lucide-react';
+import { ArrowRight, ArrowDown, Check } from 'lucide-react';
 import { TIER_PRICING, TIER_LIMITS } from '@/lib/platformTier';
+import { PLAN_ANCHOR_ID, QUALIFY_ANCHOR_ID } from '@/components/lead-magnets/PublicToolClient';
 
-// The whole page asks one thing. Every CTA returns to the funnel at the top: if the
-// visitor has not run the calculator, that is the hero; if they have, it is their result
-// and builder, where the call-request hand-raiser already lives.
+// The funnel lives at the top of this page. A visitor who has not run it belongs back
+// there; a visitor who has belongs at the specific control they asked for.
 const scrollToFunnel = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+
+const scrollToAnchor = (id: string): boolean => {
+  const el = typeof document === 'undefined' ? null : document.getElementById(id);
+  if (!el) return false;
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  return true;
+};
 
 const FRAGMENTED_STACK = [
   'Memberships in one tool',
@@ -65,63 +75,47 @@ const PATH_STEPS: { name: string; body: string }[] = [
   },
   {
     name: 'Expand',
-    body: 'From there, CRWN reads what actually happened and names the next highest-leverage move, with the evidence behind it.',
+    body: 'Once the first offer is proven, widen it: the next tier, the next campaign, the next segment of your audience.',
   },
 ];
 
 // The operating loop in customer language (POSITIONING.md section 8, compressed form).
 const LOOP = ['See it.', 'Find the block.', 'One move.', 'Deliver it.', 'Know if it worked.'];
 
-// Evidence principles: every line here is on the allowed-today list in POSITIONING.md
-// section 23. Real case studies slot into this section later.
-const EVIDENCE = [
-  {
-    name: 'Your numbers',
-    body: 'The result is computed from your inputs, and it changes when they change. Correct an answer and everything recalculates.',
-  },
-  {
-    name: 'The assumptions',
-    body: 'Every rate the math uses is visible and adjustable. The math is yours to check, not a black box to trust.',
-  },
-  {
-    name: 'The reason',
-    body: 'Every recommended move shows the evidence it was chosen on. Not a guess: the recommendation shows its work.',
-  },
+// The trust strip under the loop. Every line is on the allowed-today list in
+// POSITIONING.md section 23. Real case studies slot into this section later.
+const TRUST = [
+  { name: 'Your numbers', body: 'The result is computed from your inputs, and it changes when they change.' },
+  { name: 'Assumptions you can check', body: 'Every rate the math uses is visible and adjustable.' },
+  { name: 'The reason for the move', body: 'Each recommendation shows the evidence it was chosen on.' },
 ];
 
-// Core capabilities mapped to economic jobs (POSITIONING.md section 20: no feature is
-// ever the headline). Feature names stay subordinate to the job.
+// Core capabilities grouped into the four economic jobs required to understand the
+// promise (POSITIONING.md section 20: no feature is ever the headline). Only surfaces in
+// the current default product are described; hidden pre-PMF surfaces are not advertised.
 const JOBS: { job: string; body: string }[] = [
   {
     job: 'Build what fans can buy',
-    body: 'A membership ladder and offer builder, so your most committed fans have somewhere to go. The higher rungs are where most recurring revenue lives.',
+    body: 'An offer builder and a membership ladder, so your most committed fans have somewhere to go. The higher rungs are where most recurring revenue lives.',
   },
   {
-    job: 'Monetize the catalog you already made',
-    body: 'Your music and albums, with premium access for members, so years of work stop earning only streaming rates.',
+    job: 'Monetize the direct fan relationship',
+    body: 'Your music, albums and products in one storefront, with premium access for members, so years of catalog stop earning only streaming rates.',
   },
   {
-    job: 'Sell beyond the membership',
-    body: 'A shop for direct products alongside the membership, sold to the same identifiable fans.',
+    job: 'Deliver what you sold',
+    body: 'Live moments your members show up for, and a running record of what you promised each tier and when it is due.',
   },
   {
-    job: 'Create paid fan moments',
-    body: 'Live sessions your most committed fans show up for, as a ticket or a member benefit.',
-  },
-  {
-    job: 'Know who creates the value',
-    body: 'The fan relationships you own, in one place, with what each one is worth and what you have promised them.',
-  },
-  {
-    job: 'Know what to do next',
-    body: 'One evidence-backed next move, derived from your own account. Not a dashboard that leaves the deciding to you.',
+    job: 'See who creates the value',
+    body: 'Who actually pays you, what each relationship is worth, and what you still owe them, in one place. That record is what your next move is calculated from.',
   },
 ];
 
 const FAQS: { q: string; a: string }[] = [
   {
     q: 'I already use Patreon, Shopify, Discord and a mailing tool.',
-    a: 'Then you already proved the model, and you are running it across tools that cannot see the same fan. Each one does its job. What none of them can do, alone or together, is show you the whole economic relationship or tell you what to do next. CRWN is the layer that operates it whole, and you can keep any tool for as long as it earns its place.',
+    a: 'Then you already proved the model, and you are running it across tools that cannot see the same fan. Each one does its job. What none of them can do, alone or together, is show you the whole economic relationship or tell you what to do next. Keep any tool for as long as it earns its place, and keep releasing on streaming exactly as you do now: that is your discovery engine, and CRWN works on the direct side.',
   },
   {
     q: 'Will I have to move everything at once?',
@@ -129,27 +123,15 @@ const FAQS: { q: string; a: string }[] = [
   },
   {
     q: 'I do not have time to run another platform.',
-    a: 'The time you are spending now is the fragmented version: five logins, no shared record, and every decision made from memory. CRWN is built to hand you one next move instead of another dashboard, and it tracks what you promised fans so keeping your word does not depend on your calendar memory.',
-  },
-  {
-    q: 'Can I keep releasing on Spotify and Apple?',
-    a: 'Yes. Streaming is your discovery engine and it is good at that job. CRWN does a different job: it turns the reach streaming creates into identifiable, paying fan relationships. You can even give paying members new music first and release wide after.',
+    a: 'The time you are spending now is the fragmented version: five logins, no shared record, and every decision made from memory. CRWN hands you one next move instead of another dashboard, and it tracks what you promised fans so keeping your word does not depend on remembering it.',
   },
   {
     q: 'What does CRWN cost?',
-    a: 'A free plan and two paid plans, listed above. Every plan takes its percentage only on money you actually earn, so the software costs nothing until the fan economy is paying you.',
-  },
-  {
-    q: 'What does CRWN replace, and what does it coexist with?',
-    a: 'It coexists with streaming and social: those create reach, and reach matters. Over time it can replace the separate membership tool, store, email list and spreadsheet you use to run the direct side, because those relationships reconcile in one place on CRWN.',
+    a: 'A free plan and two paid plans, listed above. Launch has no monthly fee: you pay the platform percentage only when you earn. Pro and Scale add a monthly subscription and take a lower percentage as the business grows.',
   },
   {
     q: 'What happens first after I sign up?',
-    a: 'A short setup: your artist page, the recommended four-rung ladder with the workload each promise creates shown before you commit, Stripe, and your first import of warm fans. Then the roadmap points you at one thing: your first paid member.',
-  },
-  {
-    q: 'Can CRWN help me launch this?',
-    a: 'For qualified artists, yes: the First Revenue Launch is a founder-assisted launch where CRWN consolidates, builds and launches alongside you. Qualification is measured from your calculator answers, so the way to raise your hand is to run your numbers first.',
+    a: 'A short setup: your artist page, the recommended four-rung ladder with the workload each promise creates shown before you commit, payments, and your first import of warm fans. Then the roadmap points you at one thing: your first paid member.',
   },
 ];
 
@@ -184,11 +166,11 @@ function H2({ children }: { children: React.ReactNode }) {
   return <h2 className="text-2xl sm:text-3xl font-bold leading-tight mb-4">{children}</h2>;
 }
 
-function FunnelCta({ label, sub }: { label: string; sub?: string }) {
+function Cta({ label, sub, onClick }: { label: string; sub?: string; onClick: () => void }) {
   return (
     <div className="text-center">
       <button
-        onClick={scrollToFunnel}
+        onClick={onClick}
         className="inline-flex items-center gap-2 bg-crwn-gold text-crwn-bg font-semibold py-4 px-8 rounded-full hover:bg-crwn-gold/90 transition-colors"
       >
         {label} <ArrowRight className="w-5 h-5" />
@@ -198,7 +180,21 @@ function FunnelCta({ label, sub }: { label: string; sub?: string }) {
   );
 }
 
-export function HomeMarketing() {
+export function HomeMarketing({ completed = false }: { completed?: boolean }) {
+  // The hand-raiser only exists once the calculator has produced a result, which is
+  // exactly the prerequisite for qualification: the score is derived from those answers.
+  // So a fresh visitor is returned to the calculator rather than to a control that would
+  // ask them for a phone number CRWN could not yet score.
+  const goToQualification = () => {
+    if (!scrollToAnchor(QUALIFY_ANCHOR_ID)) scrollToFunnel();
+  };
+
+  // The close. Before completion it re-offers the calculator; after completion it returns
+  // the visitor to the plan they built, because they already have the number.
+  const goToContinuation = () => {
+    if (!completed || !scrollToAnchor(PLAN_ANCHOR_ID)) scrollToFunnel();
+  };
+
   return (
     <div className="mt-20 space-y-24 text-crwn-text">
       <div className="border-t border-crwn-elevated" />
@@ -214,7 +210,11 @@ export function HomeMarketing() {
           lives in your head. The cost is not the software bills. It is the fans who already proved
           they would buy from you, sitting in six lists nobody is deliberately building.
         </p>
-        <div className="grid sm:grid-cols-[1fr_auto_1fr] gap-4 items-stretch">
+        {/* The transformation has to read on a phone too: the horizontal arrow becomes a
+            vertical one when the columns stack, or the two cards read as unrelated lists.
+            Cards are content-aligned rather than stretched, so the shorter CRWN side looks
+            deliberate instead of half empty. */}
+        <div className="grid sm:grid-cols-[1fr_auto_1fr] gap-4 items-start">
           <div className="rounded-2xl bg-crwn-surface border border-crwn-elevated p-5">
             <p className="text-[11px] uppercase tracking-wide text-crwn-text-secondary mb-3">
               The fragmented stack
@@ -227,15 +227,16 @@ export function HomeMarketing() {
               ))}
             </ul>
           </div>
-          <div className="hidden sm:flex items-center">
-            <ArrowRight className="w-6 h-6 text-crwn-gold" />
+          <div className="flex items-center justify-center sm:h-full">
+            <ArrowDown className="w-6 h-6 text-crwn-gold sm:hidden" aria-hidden="true" />
+            <ArrowRight className="hidden sm:block w-6 h-6 text-crwn-gold" aria-hidden="true" />
           </div>
           <div className="rounded-2xl border border-crwn-gold/40 bg-gradient-to-b from-crwn-gold/10 to-crwn-surface p-5">
             <p className="text-[11px] uppercase tracking-wide text-crwn-gold mb-3">CRWN</p>
-            <ul className="space-y-2">
+            <ul className="space-y-3">
               {CRWN_SIDE.map((t) => (
-                <li key={t} className="flex items-start gap-2 text-sm">
-                  <Check className="w-4 h-4 text-crwn-gold shrink-0 mt-0.5" /> {t}
+                <li key={t} className="flex items-start gap-2 text-base font-medium">
+                  <Check className="w-4 h-4 text-crwn-gold shrink-0 mt-1" /> {t}
                 </li>
               ))}
             </ul>
@@ -265,15 +266,14 @@ export function HomeMarketing() {
         </div>
       </section>
 
-      {/* C. THE CRWN OPERATING LOOP */}
+      {/* C. THE CRWN OPERATING LOOP, and the trust strip that used to be its own section.
+          This is the ONE place the next-move claim is made in full. */}
       <section>
         <Eyebrow>The operating system</Eyebrow>
         <H2>One fan economy. One next move.</H2>
         <p className="text-crwn-text-secondary text-lg leading-relaxed mb-6">
-          Every tool you run hands you numbers and leaves the deciding to you. CRWN is a decision
-          layer. It watches the whole fan business in one place, finds the one thing holding it
-          back right now, and puts a single move in front of you with the numbers behind it. Then
-          it tracks what you promised fans, and measures what changed.
+          Most tools give you the numbers and leave the next decision to you. CRWN shows you the one
+          move your numbers support next, tracks what you promised fans, and measures what changed.
         </p>
         <p className="text-lg font-semibold mb-8">
           {LOOP.map((w) => (
@@ -284,51 +284,42 @@ export function HomeMarketing() {
         </p>
         {/* A representative example of the surface, not a diagnosis of the reader: it renders
             no numbers, because a number here would claim CRWN measured this visitor. */}
-        <div className="max-w-md">
-          <div className="rounded-2xl border border-crwn-gold/30 bg-gradient-to-b from-crwn-gold/10 to-crwn-surface p-6">
-            <p className="text-[11px] uppercase tracking-[0.2em] text-crwn-gold font-semibold mb-2">
-              Your next move
-            </p>
-            <p className="text-lg font-semibold leading-snug">
-              Invite the buyers you already have before the public launch
-            </p>
-            <p className="text-[11px] uppercase tracking-wide text-crwn-text-secondary mt-4 mb-1">
-              Why this
-            </p>
-            <p className="text-sm text-crwn-text-secondary leading-relaxed">
-              Fans who bought from you before are the most likely first members, and they cannot
-              join an offer nobody has put in front of them.
-            </p>
-            <p className="text-sm text-crwn-text-secondary mt-4">
-              After this: open the offer to the rest of your list.
-            </p>
-          </div>
-          <p className="text-xs text-crwn-text-secondary/70 mt-3">
-            A representative example. Your move is derived from your own account, and it always
-            shows its evidence.
+        <div className="rounded-2xl border border-crwn-gold/30 bg-gradient-to-b from-crwn-gold/10 to-crwn-surface p-6">
+          <p className="text-[11px] uppercase tracking-[0.2em] text-crwn-gold font-semibold mb-2">
+            Your next move
+          </p>
+          <p className="text-lg font-semibold leading-snug">
+            Invite the buyers you already have before the public launch
+          </p>
+          <p className="text-[11px] uppercase tracking-wide text-crwn-text-secondary mt-4 mb-1">
+            Why this
+          </p>
+          <p className="text-sm text-crwn-text-secondary leading-relaxed">
+            Fans who bought from you before are the most likely first members, and they cannot
+            join an offer nobody has put in front of them.
+          </p>
+          <p className="text-sm text-crwn-text-secondary mt-4">
+            After this: open the offer to the rest of your list.
           </p>
         </div>
-      </section>
+        <p className="text-xs text-crwn-text-secondary/70 mt-3">
+          A representative example. Your move is derived from your own account.
+        </p>
 
-      {/* D. EVIDENCE / PROOF: principles the product actually keeps. Real case studies
-          replace or extend these cards later, inside the same section. */}
-      <section>
-        <Eyebrow>Why trust it</Eyebrow>
-        <H2>Guidance built from your numbers, not a template.</H2>
-        <div className="grid sm:grid-cols-3 gap-3 mb-5">
-          {EVIDENCE.map((e) => (
-            <div key={e.name} className="rounded-2xl bg-crwn-surface border border-crwn-elevated p-5">
-              <p className="text-[11px] uppercase tracking-wide text-crwn-gold mb-2">{e.name}</p>
-              <p className="text-sm text-crwn-text-secondary leading-relaxed">{e.body}</p>
+        <div className="grid sm:grid-cols-3 gap-x-6 gap-y-4 mt-10 pt-8 border-t border-crwn-elevated">
+          {TRUST.map((t) => (
+            <div key={t.name}>
+              <p className="text-[11px] uppercase tracking-wide text-crwn-gold mb-1.5">{t.name}</p>
+              <p className="text-sm text-crwn-text-secondary leading-relaxed">{t.body}</p>
             </div>
           ))}
         </div>
-        <p className="text-crwn-text-secondary text-sm">
-          And when we do not have enough data to be sure, we tell you that instead of guessing.
+        <p className="text-sm text-crwn-text-secondary mt-5">
+          And when there is not enough evidence to be sure, CRWN tells you that instead of guessing.
         </p>
       </section>
 
-      {/* E. FIRST REVENUE LAUNCH (assisted path). Layered on top of self-serve, never a gate. */}
+      {/* D. FIRST REVENUE LAUNCH (assisted path). Layered on top of self-serve, never a gate. */}
       <section>
         <Eyebrow>First Revenue Launch</Eyebrow>
         <H2>Want us to launch it with you?</H2>
@@ -343,7 +334,7 @@ export function HomeMarketing() {
           <p className="text-sm text-crwn-text-secondary leading-relaxed">
             Qualified artists who complete the documented required actions acquire at least one
             paid member within 30 days, or CRWN rebuilds and relaunches the offer at no additional
-            service charge. It is not an income guarantee, and we will not pretend it is. Both
+            service charge. It covers the rebuild and relaunch, not a specific income result. Both
             sides see the same live checklist, so the guarantee runs on evidence, not
             self-reporting.
           </p>
@@ -353,13 +344,18 @@ export function HomeMarketing() {
           audit, migration and launch campaign with the founder. The self-serve product stays open
           to everyone either way.
         </p>
-        <FunnelCta
+        <Cta
           label="See if I qualify"
-          sub="Qualification is measured from your calculator answers, not an application form. Run your numbers; a qualified plan can request a call at the end."
+          onClick={goToQualification}
+          sub={
+            completed
+              ? 'Qualification is measured from the answers you already gave, not an application form.'
+              : 'Qualification is measured from your calculator answers, not an application form. Run your numbers first.'
+          }
         />
       </section>
 
-      {/* F. CORE CAPABILITIES BY ECONOMIC JOB */}
+      {/* E. CORE CAPABILITIES BY ECONOMIC JOB */}
       <section>
         <Eyebrow>What it operates</Eyebrow>
         <H2>The jobs underneath the promise.</H2>
@@ -373,7 +369,7 @@ export function HomeMarketing() {
         </div>
       </section>
 
-      {/* G. PRICING: rendered from the canonical constants, never restated. */}
+      {/* F. PRICING: rendered from the canonical constants, never restated. */}
       <section id="pricing" className="scroll-mt-20">
         <Eyebrow>Pricing</Eyebrow>
         <H2>What it costs to operate at your size.</H2>
@@ -396,13 +392,13 @@ export function HomeMarketing() {
           ))}
         </div>
         <p className="text-sm text-crwn-text-secondary leading-relaxed">
-          Every plan takes its percentage only on money you actually earn. The First Revenue
-          Launch is a separate, qualification-based service priced per engagement; it is not a
-          software plan.
+          Launch has no monthly fee. Pro and Scale add a monthly subscription and take a lower
+          percentage of what you earn. The First Revenue Launch is a separate,
+          qualification-based service priced per engagement, not a software plan.
         </p>
       </section>
 
-      {/* H. FAQ */}
+      {/* G. FAQ */}
       <section id="faq" className="scroll-mt-20">
         <Eyebrow>Questions</Eyebrow>
         <H2>Asked by artists who already run a business.</H2>
@@ -416,15 +412,25 @@ export function HomeMarketing() {
         </div>
       </section>
 
-      {/* I. FINAL CTA: one action, back into the core funnel. */}
+      {/* H. FINAL CTA: one action, back into the funnel or the plan already built. */}
       <section className="rounded-3xl border border-crwn-gold/25 bg-gradient-to-b from-crwn-gold/10 to-crwn-surface p-8 sm:p-10 text-center">
         <h2 className="text-2xl sm:text-3xl font-bold leading-tight mb-3">
           You already built the audience. Now operate the part that pays.
         </h2>
         <p className="text-crwn-text-secondary mb-8">
-          One number from your own inputs, the offer to build first, and the next move after that.
+          {completed
+            ? 'Your plan is ready to finish. Nothing is live until you publish it.'
+            : 'One number from your own inputs, the offer to build first, and the next move after that.'}
         </p>
-        <FunnelCta label="See what my fans are worth" sub="Free to run. Your numbers, your math, one next move." />
+        <Cta
+          label={completed ? 'Back to my plan' : 'See what my fans are worth'}
+          onClick={goToContinuation}
+          sub={
+            completed
+              ? 'Pick up where you left off.'
+              : 'Free to run. Your numbers, your math, one next move.'
+          }
+        />
       </section>
     </div>
   );

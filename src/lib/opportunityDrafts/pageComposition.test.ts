@@ -46,8 +46,10 @@ describe('CTA contract: the builder is the CTA', () => {
 });
 
 describe('PublicToolClient page order (shared template for 16 tools + OYF)', () => {
-  // Slice the full-result phase for order checks.
-  const fullPhase = publicToolClient.slice(publicToolClient.indexOf("phase === 'full'"));
+  // Slice the full-result phase for order checks. Anchored on the JSX guard specifically
+  // (`result`, not `!!result`), so the completion-state computation above the return
+  // cannot become the match and silently widen this window.
+  const fullPhase = publicToolClient.slice(publicToolClient.indexOf("phase === 'full' && result && !editing"));
 
   it('renders the result-to-builder transition in the result afterHero slot (no signup CTA there)', () => {
     expect(fullPhase).toContain('<ResultToBuilder');
@@ -269,15 +271,25 @@ describe('Homepage funnel reuse', () => {
     expect(homeFunnel).toContain('below=');
     expect(homeFunnel).not.toContain('marketingOnly');
     expect(worth).not.toContain('marketingOnly');
-    // Scoped to the RESULT phase: `below` also renders in the hero phase (where
-    // there is no builder yet), so the ordering claim only means anything here.
-    // Nothing marketing may interrupt result -> builder -> save boundary.
-    const full = publicToolClient.slice(publicToolClient.indexOf("phase === 'full'"));
-    const belowAt = full.indexOf('{below}');
-    expect(belowAt).toBeGreaterThan(-1);
-    expect(belowAt).toBeGreaterThan(full.indexOf('ref={builderRef}'));
-    expect(belowAt).toBeGreaterThan(full.indexOf('LeadCaptureForm'));
-    expect(belowAt).toBeGreaterThan(full.indexOf('CallRequestCard'));
+    // The slot renders ONCE, after the funnel's full-result block, so nothing
+    // marketing can interrupt result -> builder -> save boundary.
+    const at = publicToolClient.indexOf('{belowContent}');
+    expect(at).toBeGreaterThan(-1);
+    expect(at).toBeGreaterThan(publicToolClient.indexOf("phase === 'full' && result && !editing"));
+    expect(at).toBeGreaterThan(publicToolClient.indexOf('ref={builderRef}'));
+    expect(at).toBeGreaterThan(publicToolClient.indexOf('LeadCaptureForm'));
+    expect(at).toBeGreaterThan(publicToolClient.indexOf('CallRequestCard'));
+  });
+
+  it('the marketing slot owns its width, so completing the funnel cannot narrow the page', () => {
+    // It used to ride inside the funnel's phase-dependent wrapper, which rendered the
+    // whole lower page at the result card's max-w-lg for anyone who finished the
+    // calculator: 16% longer and visibly weaker for the highest-intent reader.
+    expect(publicToolClient).not.toContain('{below}');
+    const at = publicToolClient.indexOf('{belowContent}');
+    const wrapper = publicToolClient.slice(Math.max(0, at - 220), at);
+    expect(wrapper).toContain('max-w-2xl');
+    expect(wrapper).not.toContain("phase === 'hero' ?");
   });
 
   it('the generic platform showcase is tool-route chrome, never a second homepage narrative', () => {
@@ -308,11 +320,12 @@ describe('Homepage funnel reuse', () => {
   });
 });
 
-// The Zero to One homepage narrative (2026-08-13): fragmentation -> first-revenue path ->
-// operating loop -> evidence -> First Revenue Launch -> capabilities by job -> pricing ->
-// FAQ -> final CTA. These pin the copy and architecture guardrails the rebuild ratified.
+// The Zero to One homepage narrative (2026-08-13, tightened 2026-08-14): fragmentation ->
+// first-revenue path -> operating loop + trust strip -> First Revenue Launch ->
+// capabilities by job -> pricing -> FAQ -> final CTA. These pin the copy and architecture
+// guardrails the rebuild ratified and the pre-traffic audit corrected.
 describe('Homepage marketing narrative (HomeMarketing)', () => {
-  it('is presentation only: no second calculator, result, builder, or analytics', () => {
+  it('is presentation only: no second calculator, result, builder, qualification, or analytics', () => {
     for (const forked of [
       'LeadMagnetWizard',
       'LeadMagnetResult',
@@ -321,12 +334,17 @@ describe('Homepage marketing narrative (HomeMarketing)', () => {
       'trackLeadMagnet',
       'trackOpportunity',
       'CrwnShowcase',
+      // The hand-raiser is the funnel's, reached by anchor. A second copy here would be a
+      // second qualification surface with no server context. (Naming it in a comment is
+      // fine; rendering it or posting to its route is not.)
+      '<CallRequestCard',
+      '/api/lead-magnets/call-request',
     ]) {
       expect(homeMarketing, forked).not.toContain(forked);
     }
   });
 
-  it('carries the nine-section architecture with the nav anchor targets', () => {
+  it('carries the eight-section architecture with the nav anchor targets', () => {
     for (const marker of [
       'id="how-it-works"',
       'id="pricing"',
@@ -334,7 +352,6 @@ describe('Homepage marketing narrative (HomeMarketing)', () => {
       'fan economy isn',
       'Turn the audience you already built into a business you can operate.',
       'One fan economy. One next move.',
-      'Guidance built from your numbers, not a template.',
       'Want us to launch it with you?',
       'You already built the audience. Now operate the part that pays.',
     ]) {
@@ -343,6 +360,35 @@ describe('Homepage marketing narrative (HomeMarketing)', () => {
     // The nav links point at those anchors.
     expect(worth).toContain('href="#how-it-works"');
     expect(worth).toContain('href="#pricing"');
+  });
+
+  it('makes the next-move claim ONCE, in the operating-loop section', () => {
+    // It used to be stated in four consecutive sections (Expand step, loop copy, an
+    // Evidence card, and a capability row), which read as padding and drained the
+    // argument exactly where it should tighten.
+    const fullClaim = /move your numbers support next|next move, with the evidence|with the evidence behind it/gi;
+    expect((homeMarketing.match(fullClaim) || []).length).toBe(1);
+    // The Evidence section was merged into the loop rather than kept as a thin repeat.
+    expect(homeMarketing).not.toContain('Guidance built from your numbers, not a template.');
+    // Its legitimate trust content survives, including the claim-maturity safeguard.
+    for (const kept of ['Your numbers', 'Assumptions you can check', 'The reason for the move']) {
+      expect(homeMarketing, kept).toContain(kept);
+    }
+    expect(homeMarketing).toMatch(/not enough evidence to be sure/i);
+  });
+
+  it('keeps capabilities to four grouped economic jobs, and advertises no hidden surface', () => {
+    const jobs = homeMarketing.slice(homeMarketing.indexOf('const JOBS'), homeMarketing.indexOf('const FAQS'));
+    expect((jobs.match(/^\s{4}job:/gm) || []).length).toBe(4);
+    // Pre-PMF hidden surfaces are reachable by route but are not homepage pillars.
+    for (const hidden of [/AI manager/i, /\bsync\b/i, /clip bount/i, /\bquests?\b/i, /playbook/i, /leaderboard/i]) {
+      expect(jobs, String(hidden)).not.toMatch(hidden);
+    }
+  });
+
+  it('keeps the FAQ to the five objections most likely to block this ICP', () => {
+    const faqs = homeMarketing.slice(homeMarketing.indexOf('const FAQS'), homeMarketing.indexOf('const PLANS'));
+    expect((faqs.match(/^\s{4}q:/gm) || []).length).toBe(5);
   });
 
   it('activation is the first paid member, stated on the path', () => {
@@ -357,9 +403,25 @@ describe('Homepage marketing narrative (HomeMarketing)', () => {
     expect(homeMarketing).not.toMatch(/\$49|\$199|12%|8%|5%/);
   });
 
+  it('never says a PAID plan costs nothing until the artist earns', () => {
+    // Pro and Scale are real recurring subscriptions (platform-checkout opens a Stripe
+    // subscription), billed whether or not the artist earns. The FAQ used to conclude
+    // "so the software costs nothing until the fan economy is paying you", which is true
+    // only of Launch and reads to a buyer as "I am never billed until I earn".
+    expect(homeMarketing).not.toMatch(/software costs nothing/i);
+    expect(homeMarketing).not.toMatch(/costs nothing until/i);
+    // The accurate split is stated instead: free plan has no monthly fee, paid plans add one.
+    expect(homeMarketing).toMatch(/Launch has no monthly fee/);
+    expect(homeMarketing).toMatch(/Pro and Scale add a monthly subscription/);
+  });
+
   it('the First Revenue Launch section keeps the canonical guarantee and reuses the existing qualification path', () => {
     expect(homeMarketing).toContain('First Paid Member Guarantee');
-    expect(homeMarketing).toContain('not an income guarantee');
+    // The boundary is stated as a precise term rather than a defensive aside, but it is
+    // still stated: the guarantee covers the relaunch, never an income amount.
+    expect(homeMarketing).toContain('not a specific income result');
+    expect(homeMarketing).toMatch(/rebuilds and relaunches the offer at no additional\s+service charge/);
+    expect(homeMarketing).not.toMatch(/guaranteed (income|revenue|earnings)/i);
     // The 14-day implementation commitment is internal, never a second promoted guarantee.
     expect(homeMarketing.toLowerCase()).not.toContain('14-day');
     expect(homeMarketing.toLowerCase()).not.toContain('14 days');
@@ -368,6 +430,19 @@ describe('Homepage marketing narrative (HomeMarketing)', () => {
     expect(homeMarketing).toContain('See if I qualify');
     expect(homeMarketing).not.toContain('/apply');
     expect(homeMarketing.toLowerCase()).not.toMatch(/calendly|cal\.com/);
+  });
+
+  it('the qualification CTA targets the funnel\'s own hand-raiser, with an honest fallback', () => {
+    // Anchors are shared constants, so the button cannot drift from the element.
+    expect(homeMarketing).toContain('QUALIFY_ANCHOR_ID');
+    expect(homeMarketing).toContain('PLAN_ANCHOR_ID');
+    expect(publicToolClient).toContain('export const QUALIFY_ANCHOR_ID');
+    expect(publicToolClient).toContain('export const PLAN_ANCHOR_ID');
+    expect(publicToolClient).toContain('id={QUALIFY_ANCHOR_ID}');
+    expect(publicToolClient).toContain('id={PLAN_ANCHOR_ID}');
+    // When the hand-raiser is not mounted (no result yet) the visitor goes back to the
+    // calculator, because qualification is scored from its answers. It is never skipped.
+    expect(homeMarketing).toMatch(/if \(!scrollToAnchor\(QUALIFY_ANCHOR_ID\)\) scrollToFunnel\(\)/);
   });
 
   it('keeps the copy guardrails: no em dashes, no banned frames, no fabricated proof', () => {
@@ -391,10 +466,22 @@ describe('Homepage marketing narrative (HomeMarketing)', () => {
     }
   });
 
-  it('ends on ONE action that returns to the core funnel', () => {
+  it('ends on ONE action that is useful before AND after completion', () => {
+    // Before completion it re-offers the calculator. After completion the visitor already
+    // has the number, so the close returns them to the plan they built instead.
     expect(homeMarketing).toContain('See what my fans are worth');
+    expect(homeMarketing).toContain('Back to my plan');
     expect(homeMarketing).toContain('scrollToFunnel');
+    expect(homeMarketing).toMatch(/if \(!completed \|\| !scrollToAnchor\(PLAN_ANCHOR_ID\)\) scrollToFunnel\(\)/);
     // The narrative never links out to signup directly: the save boundary owns signup.
     expect(homeMarketing).not.toContain('/signup');
+  });
+
+  it('reads its completion state from the funnel, not from guessed DOM state', () => {
+    // One bit, passed down from PublicToolClient, which is the component that actually
+    // knows. No parallel state machine and no scraping the page for a result.
+    expect(homeFunnel).toContain('({ completed })');
+    expect(homeFunnel).toContain('completed={completed}');
+    expect(publicToolClient).toMatch(/below\(\{ completed: phase === 'full' && !!result && !editing \}\)/);
   });
 });
