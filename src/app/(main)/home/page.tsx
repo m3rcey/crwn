@@ -200,12 +200,10 @@ export default function HomePage() {
     markHomeTourComplete();
   };
 
+  // The Explore tile left with the 2026-08-13 surface reduction: nine artists is not a
+  // catalogue, and a discovery tile on the default home implied a marketplace CRWN is not. The
+  // /explore route itself still works for anyone holding a link.
   const quickActions = [
-    {
-      href: '/explore',
-      label: 'Explore Artists',
-      image: '/homepage_explore.jpg',
-    },
     {
       href: '/library',
       label: 'My Library',

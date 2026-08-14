@@ -239,7 +239,12 @@ export const POPUPS: PopupDef[] = [
     key: 'artist_first_broadcast',
     kind: 'modal',
     pages: ['/home', '/studio', '/profile/artist'],
-    audience: (c) => c.isArtist && c.stripeConnected && c.supportCount > 0 && !c.hasSentBroadcast,
+    // RETIRED 2026-08-13 (pre-PMF surface reduction): DM broadcast is hidden, so this pop-up was
+    // driving artists into a hidden surface. Retired by TARGETING, never by key (ID-004:
+    // popup_events history and frequency caps key on the key). Restore the audience line from
+    // git history when broadcast returns:
+    //   (c) => c.isArtist && c.stripeConnected && c.supportCount > 0 && !c.hasSentBroadcast
+    audience: () => false,
     frequency: { type: 'everyN', days: 5, max: 3 },
     priority: 80,
     goal: 'Artist sends their first broadcast so new supporters do not drift.',
@@ -430,7 +435,11 @@ export const POPUPS: PopupDef[] = [
     key: 'survey_artist_experience',
     kind: 'survey',
     pages: ['/studio', '/profile/artist'],
-    audience: (c) => c.isArtist && c.supportCount >= 1,
+    // RETIRED 2026-08-13 (pre-PMF surface reduction): generic surveys are hidden, and during the
+    // three-artist concierge pilot the founder hears sentiment directly on calls, which is the
+    // research. Retired by TARGETING, never by key (ID-004). Previous audience:
+    //   (c) => c.isArtist && c.supportCount >= 1
+    audience: () => false,
     frequency: { type: 'everyN', days: 45, max: 4 },
     priority: 20,
     goal: 'Capture artist sentiment + a low-score alert so we know what to fix.',

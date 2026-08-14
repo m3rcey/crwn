@@ -88,9 +88,8 @@ const STUDIO_CARDS: StudioCard[] = [
 const knownArtists = new Set<string>();
 
 /**
- * Studio — the artist workspace hub. Pure navigation: one card per connector
- * feature (offers, campaigns, missions, clips, action plan, demand tests) so
- * artists reach everything from the nav without typing URLs. No data writes.
+ * Studio — the artist workspace hub. Pure navigation: one card per core work
+ * destination (music, albums, shop, offers, live). No data writes.
  */
 export default function StudioPage() {
   const { user, isLoading: authLoading } = useAuth();
@@ -146,8 +145,8 @@ export default function StudioPage() {
           <Sparkles className="w-12 h-12 text-crwn-gold/30 mx-auto mb-3" />
           <p className="text-crwn-text font-medium">Studio is for artists</p>
           <p className="text-sm text-crwn-text-secondary mt-2 max-w-sm mx-auto">
-            Publish your artist page and this becomes your workspace: offers,
-            campaigns, missions, and more.
+            Publish your artist page and this becomes your workspace: your music,
+            your shop, your offers, and your live room.
           </p>
           <button
             onClick={() => router.push('/home')}

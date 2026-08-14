@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
-import { Loader2, Coins } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { PlaylistManager } from '@/components/library/PlaylistManager';
 import { LikedSongs } from '@/components/library/LikedSongs';
 import { PurchasesSection } from '@/components/library/PurchasesSection';
@@ -113,18 +113,13 @@ export default function LibraryPage() {
           <div className="space-y-4">
             <div className="flex items-center justify-between neu-raised rounded-xl p-4">
               <div>
-                <p className="text-sm font-medium text-crwn-text">Earn Center</p>
+                <p className="text-sm font-medium text-crwn-text">Your referral earnings</p>
                 <p className="text-xs text-crwn-text-secondary mt-0.5">
-                  Your full earnings breakdown, payout history, and share links.
+                  Share links, commissions, and cashout, all below. (The separate Earn Center
+                  page was folded into this tab in the 2026-08-13 simplification; the dashboard
+                  underneath is the same one.)
                 </p>
               </div>
-              <button
-                onClick={() => router.push('/earn')}
-                className="shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold neu-button-accent text-crwn-bg"
-              >
-                <Coins className="w-4 h-4" />
-                Open Earn Center
-              </button>
             </div>
             <ReferralDashboard />
           </div>
