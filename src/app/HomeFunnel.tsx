@@ -15,13 +15,19 @@
 //   - signup refs read `?ref=homepage`,
 //   - funnel events carry `surface: 'homepage'` so homepage and tool traffic
 //     stay separable without renaming or duplicating a single event,
-//   - and every existing homepage marketing section renders BELOW the finished
-//     funnel via the `below` slot.
+//   - and the marketing narrative renders BELOW the finished funnel via the
+//     `below` slot. Since the Zero to One homepage rebuild (2026-08-13) that
+//     narrative is `HomeMarketing` (fragmentation -> first-revenue path ->
+//     operating loop -> evidence -> First Revenue Launch -> capabilities ->
+//     pricing -> FAQ -> final CTA), which owns the ENTIRE lower page: the
+//     generic tool-route showcase (CrwnShowcase) does not render on the
+//     homepage surface.
 
 import { WorthExperience } from './(public)/worth/WorthExperience';
+import { HomeNav } from './(public)/worth/WorthExperience';
+import { HomeMarketing } from './HomeMarketing';
 import { PublicToolClient } from '@/components/lead-magnets/PublicToolClient';
 import { getLeadMagnet } from '@/lib/leadMagnets/registry';
-import { HomeNav } from './(public)/worth/WorthExperience';
 
 const OPPORTUNITY_CALCULATOR = 'opportunity-calculator';
 
@@ -29,8 +35,8 @@ export function HomeFunnel() {
   const config = getLeadMagnet(OPPORTUNITY_CALCULATOR);
 
   // The registry is the source of truth for every tool. If the calculator were
-  // ever removed from it, fall back to the previous homepage experience rather
-  // than rendering a broken page.
+  // ever removed from it, fall back to the standalone Streaming Loss experience
+  // rather than rendering a broken page.
   if (!config) return <WorthExperience homepage />;
 
   return (
@@ -39,13 +45,7 @@ export function HomeFunnel() {
       <PublicToolClient
         config={config}
         surface="homepage"
-        below={
-          // Every marketing section the homepage had, unchanged and in the same
-          // order, now beneath the whole funnel. `marketingOnly` strips this
-          // component's own nav, hero, and Streaming Loss calculator; it fires
-          // no analytics, so nothing double-counts.
-          <WorthExperience homepage marketingOnly />
-        }
+        below={<HomeMarketing />}
       />
     </div>
   );

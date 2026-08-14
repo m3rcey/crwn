@@ -1,5 +1,27 @@
 # CRWN Brain — Changelog
 
+## 2026-08-13 - Zero to One homepage rebuild (the marketing page catches up with the positioning)
+
+**The homepage's lower page is now the ratified Zero to One argument instead of a feature
+parade.** The funnel is untouched and still the shared `PublicToolClient` mount of the
+Opportunity Calculator (hero → one CTA → wizard → result → builder → save boundary, homepage
+surface dimension intact). What changed is everything below it: the old double marketing stack
+(`CrwnShowcase` + `WorthExperience marketingOnly`, roughly forty feature-led sections between
+them) was replaced by `src/app/HomeMarketing.tsx`, nine sections that make one argument:
+fragmentation problem → first-revenue path (activation = first paid member) → operating loop in
+customer language → evidence principles (claim-maturity compliant, no fabricated proof) → First
+Revenue Launch with the canonical First Paid Member Guarantee ("See if I qualify" returns to the
+calculator because `decideCallRequest` scores qualification from its answers; no new application
+system) → capabilities mapped to economic jobs → pricing from `TIER_PRICING`/`TIER_LIMITS` → ICP
+FAQ → one final CTA back into the funnel. `ToolShowcase`/`CrwnShowcase` are now gated to
+`surface === 'tool'` (tool routes unchanged); the `marketingOnly` prop and the homepage-only
+legacy sections in `WorthExperience` were deleted (the `/worth` calculator surfaces are
+byte-identical in behavior); `HomeNav` slimmed to two anchors + Log in + one funnel CTA. The
+registry hero kept its ratified H1 and CTA, gained the fragmentation beat in the subheadline and
+the "already selling direct" eyebrow. Contract pinned in `pageComposition.test.ts` (no second
+calculator, no hardcoded pricing, no banned frames, no em dashes, no fake proof). Routes doc 06
+updated; `POSITIONING.md` section 17 note added.
+
 ## 2026-08-13 - Pre-PMF surface reduction (the default product is the experiment now)
 
 **The decision: the default CRWN experience is exactly the path that gets 3 qualified artists to a

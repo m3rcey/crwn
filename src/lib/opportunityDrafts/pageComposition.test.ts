@@ -12,6 +12,7 @@ const publicToolClient = readFileSync(join(root, 'src/components/lead-magnets/Pu
 const worth = readFileSync(join(root, 'src/app/(public)/worth/WorthExperience.tsx'), 'utf-8');
 const homeFunnel = readFileSync(join(root, 'src/app/HomeFunnel.tsx'), 'utf-8');
 const homePage = readFileSync(join(root, 'src/app/page.tsx'), 'utf-8');
+const homeMarketing = readFileSync(join(root, 'src/app/HomeMarketing.tsx'), 'utf-8');
 
 describe('CTA contract: the builder is the CTA', () => {
   it('every deliverable tool has a transition line and a build CTA that never mentions signup', () => {
@@ -100,20 +101,23 @@ describe('Worth page order', () => {
     expect(worth).toContain("group: 'Review'");
   });
 
-  it('the long marketing tour is gated to the homepage, not the calculator', () => {
-    for (const heading of ['Go live, and get paid for it', 'A gated community they pay to be in', 'Keep up to 92%']) {
-      const i = worth.indexOf(heading);
-      expect(i, heading).toBeGreaterThan(-1);
-      expect(worth.lastIndexOf('{homepage && (', i), heading).toBeGreaterThan(-1);
+  it('the legacy homepage marketing tour was deleted with the Zero to One homepage rebuild', () => {
+    // These sections only ever rendered on homepage surfaces. The homepage now owns its
+    // own narrative (HomeMarketing), so the dead sections are gone rather than dormant.
+    for (const heading of [
+      'Go live, and get paid for it',
+      'A gated community they pay to be in',
+      'Keep up to 92%, paid to your bank',
+      'A manager built in',
+      'Bonus: get your music placed',
+      'Release like the majors',
+    ]) {
+      expect(worth, heading).not.toContain(heading);
     }
   });
 
-  it('the misleading book-a-call CTA is gone and upper marketing CTAs are homepage-only', () => {
+  it('the misleading book-a-call CTA is gone', () => {
     expect(worth).not.toContain('Book a free 15-min call, keep this money');
-    // The two upper PrimaryCTA blocks are gated to the homepage.
-    const first = worth.indexOf('Show me how to capture my');
-    const gate = worth.lastIndexOf('{homepage && (', first);
-    expect(gate).toBeGreaterThan(-1);
   });
 
   it('exactly one optional help CTA remains on the tool view, framed as help', () => {
@@ -257,26 +261,37 @@ describe('Homepage funnel reuse', () => {
     expect(homeFunnel).toContain('surface="homepage"');
   });
 
-  it('keeps every existing homepage marketing section, below the funnel', () => {
-    // The sections live in WorthExperience; the homepage embeds them via the
-    // `below` slot, which PublicToolClient renders AFTER the whole funnel.
-    expect(homeFunnel).toContain('marketingOnly');
+  it('renders the Zero to One marketing narrative below the finished funnel', () => {
+    // The homepage's lower page is HomeMarketing, mounted via the `below` slot,
+    // which PublicToolClient renders AFTER the whole funnel. The old
+    // WorthExperience marketingOnly embed is gone.
+    expect(homeFunnel).toContain('HomeMarketing');
     expect(homeFunnel).toContain('below=');
+    expect(homeFunnel).not.toContain('marketingOnly');
+    expect(worth).not.toContain('marketingOnly');
     // Scoped to the RESULT phase: `below` also renders in the hero phase (where
     // there is no builder yet), so the ordering claim only means anything here.
+    // Nothing marketing may interrupt result -> builder -> save boundary.
     const full = publicToolClient.slice(publicToolClient.indexOf("phase === 'full'"));
     const belowAt = full.indexOf('{below}');
     expect(belowAt).toBeGreaterThan(-1);
     expect(belowAt).toBeGreaterThan(full.indexOf('ref={builderRef}'));
     expect(belowAt).toBeGreaterThan(full.indexOf('LeadCaptureForm'));
-    expect(belowAt).toBeGreaterThan(full.indexOf('<CrwnShowcase'));
+    expect(belowAt).toBeGreaterThan(full.indexOf('CallRequestCard'));
   });
 
-  it('marketingOnly strips the /worth calculator but keeps the sections', () => {
-    // Guards the embed contract: no second calculator and no duplicate nav on
-    // the homepage, while the marketing sections still render.
-    expect(worth).toContain('marketingOnly ? null : (');
-    expect(worth).toContain('{homepage && !marketingOnly && <HomeNav />}');
+  it('the generic platform showcase is tool-route chrome, never a second homepage narrative', () => {
+    // Every render of ToolShowcase/CrwnShowcase must sit behind the tool-surface
+    // gate: the homepage's below slot owns its entire lower page.
+    for (const marker of ['<ToolShowcase', '<CrwnShowcase']) {
+      let at = publicToolClient.indexOf(marker);
+      expect(at, marker).toBeGreaterThan(-1);
+      while (at !== -1) {
+        const windowBefore = publicToolClient.slice(Math.max(0, at - 400), at);
+        expect(windowBefore, `${marker} at ${at} must be gated to surface === 'tool'`).toContain("surface === 'tool'");
+        at = publicToolClient.indexOf(marker, at + 1);
+      }
+    }
   });
 
   it('the tool route keeps its own chrome, so /tools/opportunity-calculator is unchanged', () => {
@@ -290,5 +305,96 @@ describe('Homepage funnel reuse', () => {
     // homepage kept is invisible to crawlers. It shipped that way once. The tool
     // route keeps the gate, because emailed ?result= links land THERE.
     expect(publicToolClient).toContain("useState<Phase>(surface === 'homepage' ? 'hero' : 'loading')");
+  });
+});
+
+// The Zero to One homepage narrative (2026-08-13): fragmentation -> first-revenue path ->
+// operating loop -> evidence -> First Revenue Launch -> capabilities by job -> pricing ->
+// FAQ -> final CTA. These pin the copy and architecture guardrails the rebuild ratified.
+describe('Homepage marketing narrative (HomeMarketing)', () => {
+  it('is presentation only: no second calculator, result, builder, or analytics', () => {
+    for (const forked of [
+      'LeadMagnetWizard',
+      'LeadMagnetResult',
+      'DeliverableBuilder',
+      'generateResult',
+      'trackLeadMagnet',
+      'trackOpportunity',
+      'CrwnShowcase',
+    ]) {
+      expect(homeMarketing, forked).not.toContain(forked);
+    }
+  });
+
+  it('carries the nine-section architecture with the nav anchor targets', () => {
+    for (const marker of [
+      'id="how-it-works"',
+      'id="pricing"',
+      'id="faq"',
+      'fan economy isn',
+      'Turn the audience you already built into a business you can operate.',
+      'One fan economy. One next move.',
+      'Guidance built from your numbers, not a template.',
+      'Want us to launch it with you?',
+      'You already built the audience. Now operate the part that pays.',
+    ]) {
+      expect(homeMarketing, marker).toContain(marker);
+    }
+    // The nav links point at those anchors.
+    expect(worth).toContain('href="#how-it-works"');
+    expect(worth).toContain('href="#pricing"');
+  });
+
+  it('activation is the first paid member, stated on the path', () => {
+    expect(homeMarketing).toContain('first paid CRWN member');
+  });
+
+  it('pricing renders from the canonical constants, never restated from memory', () => {
+    expect(homeMarketing).toContain("from '@/lib/platformTier'");
+    expect(homeMarketing).toContain('TIER_PRICING');
+    expect(homeMarketing).toContain('platformFeePercent');
+    // No hardcoded plan price or fee may appear in the source.
+    expect(homeMarketing).not.toMatch(/\$49|\$199|12%|8%|5%/);
+  });
+
+  it('the First Revenue Launch section keeps the canonical guarantee and reuses the existing qualification path', () => {
+    expect(homeMarketing).toContain('First Paid Member Guarantee');
+    expect(homeMarketing).toContain('not an income guarantee');
+    // The 14-day implementation commitment is internal, never a second promoted guarantee.
+    expect(homeMarketing.toLowerCase()).not.toContain('14-day');
+    expect(homeMarketing.toLowerCase()).not.toContain('14 days');
+    // Qualification runs through the calculator (decideCallRequest at the save boundary),
+    // never a new application system or a scheduling link.
+    expect(homeMarketing).toContain('See if I qualify');
+    expect(homeMarketing).not.toContain('/apply');
+    expect(homeMarketing.toLowerCase()).not.toMatch(/calendly|cal\.com/);
+  });
+
+  it('keeps the copy guardrails: no em dashes, no banned frames, no fabricated proof', () => {
+    expect(homeMarketing).not.toMatch(/[–—]/);
+    for (const banned of [
+      /own your fans/i,
+      /passive income/i,
+      /go(es)? viral/i,
+      /streaming is dead/i,
+      /streaming pays pennies/i,
+      /artists like you/i,
+      /learns from every artist/i,
+      /powered by (data from )?thousands/i,
+      /replace your team/i,
+      /\bsubscribers?\b/i,
+      /\bbeginner/i,
+      /first fans\b/i,
+      /testimonial/i,
+    ]) {
+      expect(homeMarketing, String(banned)).not.toMatch(banned);
+    }
+  });
+
+  it('ends on ONE action that returns to the core funnel', () => {
+    expect(homeMarketing).toContain('See what my fans are worth');
+    expect(homeMarketing).toContain('scrollToFunnel');
+    // The narrative never links out to signup directly: the save boundary owns signup.
+    expect(homeMarketing).not.toContain('/signup');
   });
 });

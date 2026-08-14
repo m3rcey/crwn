@@ -326,14 +326,18 @@ export function PublicToolClient({
             />
           </div>
 
-          {/* Below the tool, this tool's own product mockups first (if it has any),
-              then the full CRWN pitch (what it is, the product mockups, the
-              comparisons, CTAs throughout), the same continuous-funnel model as /worth. */}
+          {/* Below the tool: on the TOOL routes, this tool's own product mockups first
+              (if it has any), then the full CRWN pitch. On the homepage the `below`
+              slot (HomeMarketing) owns the entire lower page, so the generic showcase
+              stays tool-route chrome and never stacks a second marketing narrative. */}
           <div className="max-w-2xl mx-auto">
-            <ToolShowcase slug={config.slug} />
-            <CrwnShowcase claimed={false} claimHref={surface === 'homepage' ? '/signup?ref=homepage' : `/signup?ref=tool-${config.slug}`} />
-            {/* Route-specific supporting sections, LAST: the homepage keeps its
-                existing marketing sections here, below the whole funnel. */}
+            {surface === 'tool' && (
+              <>
+                <ToolShowcase slug={config.slug} />
+                <CrwnShowcase claimed={false} claimHref={`/signup?ref=tool-${config.slug}`} />
+              </>
+            )}
+            {/* Route-specific supporting sections, LAST. */}
             {below}
           </div>
         </>
@@ -442,9 +446,14 @@ export function PublicToolClient({
             </button>
           )}
 
-          {/* Supporting content, last: this tool's own mockups, then the CRWN app explanation. */}
-          <ToolShowcase slug={config.slug} />
-          <CrwnShowcase claimed={false} claimHref={surface === 'homepage' ? '/signup?ref=homepage' : `/signup?ref=tool-${config.slug}`} />
+          {/* Supporting content, last: this tool's own mockups, then the CRWN app
+              explanation. Tool routes only; the homepage's `below` slot owns its lower page. */}
+          {surface === 'tool' && (
+            <>
+              <ToolShowcase slug={config.slug} />
+              <CrwnShowcase claimed={false} claimHref={`/signup?ref=tool-${config.slug}`} />
+            </>
+          )}
           {below}
         </div>
       )}

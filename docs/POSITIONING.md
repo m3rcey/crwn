@@ -288,6 +288,14 @@ Category, moat and intelligence, not marketing claims:
 
 ## 17. Homepage messaging direction
 
+> **Implemented 2026-08-13 (Zero to One homepage rebuild).** The required order below is now the
+> shipped page: the funnel is unchanged, and the lower page is `src/app/HomeMarketing.tsx`
+> (fragmentation → first-revenue path → loop → evidence → First Revenue Launch → capabilities by
+> job → pricing from constants → ICP FAQ → one funnel CTA). The legacy feature-led sections and
+> the generic tool showcase no longer render on the homepage; the paragraph below about the live
+> H1 predates the rebuild and its revision has shipped (H1 kept, fragmentation added to the
+> subheadline).
+
 **Structure is preserved. Copy is what Zero To One changes.**
 
 Founder direction that stays: hero starts with an image and an outcome; one primary CTA; the CTA

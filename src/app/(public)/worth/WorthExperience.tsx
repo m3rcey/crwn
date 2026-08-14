@@ -9,10 +9,9 @@ import { ToolHero } from '@/components/lead-magnets/ToolHero';
 import type { LeadMagnetConfig } from '@/lib/leadMagnets/types';
 import { buildContinueUrl } from '@/lib/leadMagnets/continuationCta';
 import {
-  Crown, TrendingUp, Lock, Sparkles, Check, ChevronDown, ArrowRight,
-  Music, DollarSign, Users, Mail, Zap, Wallet, BarChart3, HelpCircle,
-  Disc3, Radio, Video, ShoppingBag, CreditCard, Landmark, Repeat, X, Star,
-  MessageCircle, Globe, Scissors,
+  Crown, Sparkles, Check, ChevronDown, ArrowRight,
+  Music, DollarSign, Users, BarChart3, HelpCircle,
+  Disc3, Radio, Video, ShoppingBag, Repeat, X, Star,
 } from 'lucide-react';
 import {
   calculate,
@@ -24,11 +23,7 @@ import {
   type CalcAssumptions,
 } from '@/lib/leadCalculator';
 
-import {
-  TiersMock, EarningsMock, LeaderboardMock, AiActionsMock,
-  CommunityMock, ShopMock, SyncMock, SequencesMock, LiveMock, ClipperMock,
-} from './mocks';
-import { IndependenceSection } from '@/components/lead-magnets/IndependenceSection';
+import { TiersMock, ShopMock } from './mocks';
 import { continueCtaFor } from '@/lib/leadMagnets/continuationCta';
 
 // Primary CTA target: the scheduling page where the artist books a Zoom call.
@@ -69,14 +64,6 @@ const TIERS: { name: string; price: string; accent: boolean; subs?: 'tier1' | 't
   },
 ];
 
-const WATERFALL = [
-  { day: 'Day 0', label: 'Platinum gets it first', sub: 'First listen + stems on sale' },
-  { day: 'Day 14', label: 'Gold', sub: 'Second in line' },
-  { day: 'Day 30', label: 'Silver', sub: 'Entry tier unlocks it' },
-  { day: 'Day 45', label: 'Free tier on CRWN', sub: 'Everyone on CRWN, email captured' },
-  { day: 'Day 60', label: 'Spotify / Apple / DSPs', sub: 'The leftovers get the pennies' },
-];
-
 // Every revenue stream that adds up to the number at the top of the page.
 const MONETIZE_WAYS: { icon: ComponentType<{ className?: string }>; title: string; line: string; tag: string }[] = [
   { icon: Crown, title: 'Monthly memberships', line: 'Fans subscribe every month for exclusive drops and perks. Up to 3 tiers.', tag: 'Recurring' },
@@ -107,14 +94,6 @@ const COMPARE = [
   { label: 'Your cut', streaming: 'Split before it reaches you', crwn: 'You keep up to 92%' },
   { label: 'Fan data', streaming: 'You get none', crwn: 'Names and emails, yours' },
   { label: 'Payout', streaming: 'Months later', crwn: 'Straight to your bank' },
-];
-
-const AUDIENCE_TOOLS = [
-  { icon: '✉️', name: 'Email campaigns', desc: 'Reach every fan directly.' },
-  { icon: '🔁', name: 'Automated sequences', desc: 'Welcome & win-back on autopilot.' },
-  { icon: '🔗', name: 'Smart links & presaves', desc: 'Capture emails on every release.' },
-  { icon: '🏷️', name: 'Discount codes', desc: 'Run drops and promos.' },
-  { icon: '🛒', name: 'Cart recovery', desc: 'Win back near-checkouts.' },
 ];
 
 // Objections written for the artist CRWN is actually for (docs/ICP.md): someone who already
@@ -149,12 +128,6 @@ const FAQS = [
   { q: 'How fast can I set up?', a: 'Same day. Most artists are live within an hour of their call.' },
 ];
 
-const FAN_MATH = [
-  { fans: '100', rev: '$1,500' },
-  { fans: '500', rev: '$7,500' },
-  { fans: '1,000', rev: '$15,000' },
-];
-
 export interface WorthPrefill {
   listeners?: string;
   followers?: string;
@@ -162,47 +135,40 @@ export interface WorthPrefill {
 }
 
 /**
- * The calculator. Three surfaces, one implementation, so the numbers can never drift:
+ * The Streaming Loss calculator. Two live surfaces, one implementation:
  *
- *   /              homepage      (homepage: signup CTAs + nav)
  *   /worth         cold outreach (book-a-call CTA)
  *   /tools/worth/result/[token]  a lead's PERSONALIZED result from the Instagram funnel
  *
- * `prefill` seeds the inputs server-side for that third surface, so an artist who answered
+ * (The homepage stopped embedding this component in the 2026-08-13 Zero to One rebuild;
+ * its marketing narrative lives in src/app/HomeMarketing.tsx. `homepage` survives only as
+ * HomeFunnel's registry-missing fallback.)
+ *
+ * `prefill` seeds the inputs server-side for the token surface, so an artist who answered
  * one question in an Instagram DM lands on her own number, in the real calculator, with the
  * presets and sliders live. She can correct an assumption and watch it recalculate, which is
  * the whole point: a number she cannot touch is a number she does not believe.
  *
  * `claimHref` swaps the CTA to "save this to an account" instead of "book a call".
- *
- * Both are OPTIONAL and default to the old behavior exactly, so the homepage and /worth are
- * byte-for-byte unchanged.
  */
 export function WorthExperience({
   homepage = false,
   prefill,
   claimHref,
   resultToken,
-  marketingOnly = false,
 }: {
+  /**
+   * Legacy-fallback flag: HomeFunnel renders `<WorthExperience homepage />` ONLY
+   * if the Opportunity Calculator ever vanished from the registry. The live
+   * homepage no longer embeds this component (the Zero to One rebuild,
+   * 2026-08-13, gave the homepage its own narrative in HomeMarketing), so this
+   * flag now just swaps the CTAs to signup and renders the nav + marketing hero.
+   */
   homepage?: boolean;
   prefill?: WorthPrefill;
   claimHref?: string;
   /** Set only on a personalized result page. Persists her corrections. */
   resultToken?: string;
-  /**
-   * Render ONLY the marketing sections: no nav, no hero, no Streaming Loss
-   * calculator. The homepage uses this to keep every one of its existing
-   * sections, in their existing order, BELOW the shared Opportunity Calculator
-   * funnel, without owning a second calculator. The sections already have a
-   * no-number path (the cold /worth view uses it), so they render unchanged
-   * apart from the personalized figures they cannot have without a result.
-   *
-   * This component fires NO analytics of its own (verified: no trackLeadMagnet
-   * / trackOpportunity call sites), so embedding it cannot double-count the
-   * funnel events the Opportunity Calculator emits above it.
-   */
-  marketingOnly?: boolean;
 }) {
   const router = useRouter();
   const worthBuilderRef = useRef<HTMLDivElement>(null);
@@ -630,21 +596,13 @@ export function WorthExperience({
   ) : null;
 
   return (
-    // Embedded (marketingOnly) it is a section of another page, so it must not
-    // claim a full screen or re-run the page fade.
-    <div className={marketingOnly ? 'text-crwn-text' : 'min-h-screen bg-crwn-bg text-crwn-text'}>
-      {homepage && !marketingOnly && <HomeNav />}
-      <div
-        className={
-          marketingOnly
-            ? 'max-w-3xl mx-auto px-4 pt-4'
-            : 'max-w-3xl mx-auto px-4 page-fade-in py-12 sm:py-16'
-        }
-      >
-        {/* The marketing homepage keeps its centered hero. The CALCULATOR renders the same
-            tool hero as every other funnel on the cold view, and no hero at all once the
-            result is on screen (the number is the headline at that point). */}
-        {homepage && !marketingOnly && (
+    <div className="min-h-screen bg-crwn-bg text-crwn-text">
+      {homepage && <HomeNav />}
+      <div className="max-w-3xl mx-auto px-4 page-fade-in py-12 sm:py-16">
+        {/* The fallback marketing view keeps its centered hero. The CALCULATOR renders the
+            same tool hero as every other funnel on the cold view, and no hero at all once
+            the result is on screen (the number is the headline at that point). */}
+        {homepage && (
           <div className="text-center mb-8">
             <div className="w-16 h-16 mx-auto mb-5 rounded-full bg-crwn-gold/20 flex items-center justify-center">
               <Crown className="w-8 h-8 text-crwn-gold" />
@@ -658,7 +616,7 @@ export function WorthExperience({
           </div>
         )}
 
-        {useEntryWizard && !marketingOnly && (
+        {useEntryWizard && (
           <ToolHero
             eyebrow="Streaming Loss"
             headline="What is the direct fan economy inside the audience you already built?"
@@ -674,22 +632,15 @@ export function WorthExperience({
         {/* Lead view (arrived from an Instagram comment): lead with the loss and the ask,
             then the derivation, then the inputs to adjust. Cold view: inputs first, because
             there is no number yet. */}
-        {/* marketingOnly (homepage embed) renders the sections only: the
-            Opportunity Calculator funnel above owns the calculator there. The
-            /worth flow below is unchanged. */}
-        {marketingOnly ? null : (
+        {useEntryWizard ? (
+          entryWizard
+        ) : (
           <>
-            {useEntryWizard ? (
-              entryWizard
-            ) : (
-              <>
-                {resultCard}
-                {derivationCard}
-                {builderSection}
-                {inputsCard}
-                {emailCaptureCard}
-              </>
-            )}
+            {resultCard}
+            {derivationCard}
+            {builderSection}
+            {inputsCard}
+            {emailCaptureCard}
           </>
         )}
 
@@ -769,33 +720,6 @@ export function WorthExperience({
           <CompareTable />
         </section>
 
-        {/* Fan math */}
-        {homepage && (
-        <section className="mb-6">
-          <SectionHeading icon={Users}>Your income is decided by a fraction of your audience</SectionHeading>
-          <p className="text-crwn-text-secondary text-xl mb-5">
-            Reach is worth having, and more of it helps. It is just not the same number as your
-            income. Only a small, identifiable part of any audience ever pays, and that part is not
-            evenly valuable either. Here is what it looks like at real supporter counts:
-          </p>
-          <div className="grid grid-cols-3 gap-3">
-            {FAN_MATH.map((m) => (
-              <div key={m.fans} className="bg-crwn-surface border border-crwn-elevated rounded-2xl p-5 text-center">
-                <div className="text-2xl sm:text-3xl font-bold text-crwn-gold">{m.fans}</div>
-                <div className="text-lg text-crwn-text-secondary mb-2">fans × $15/mo</div>
-                <div className="text-lg font-semibold">{m.rev}/mo</div>
-              </div>
-            ))}
-          </div>
-        </section>
-        )}
-
-        {homepage && (
-          <PrimaryCTA homepage={homepage} claimHref={claimHref} sub="A 15-minute Zoom. We map your exact setup. Qualified artists get hands-on launch help.">
-            {hasNumber ? `Show me how to capture my ${monthlyLabel}` : 'Show me how it works'}
-          </PrimaryCTA>
-        )}
-
         {/* Everything you can charge for */}
         <section className="mb-14">
           <SectionHeading icon={Sparkles}>Everything you can charge for</SectionHeading>
@@ -822,188 +746,9 @@ export function WorthExperience({
           <ShopMock />
         </section>
 
-        {/* Go live */}
-        {homepage && (
-        <section className="mb-14">
-          <SectionHeading icon={Radio}>Go live, and get paid for it</SectionHeading>
-          <p className="text-crwn-text-secondary text-xl mb-6">
-            Stream live right on your page: listening parties, beat sessions, Q&amp;As. Sell tickets in
-            advance or put it behind a tier. Every stream auto-saves as a recording you can sell, gate,
-            or hand to your clippers.
-          </p>
-          <LiveMock />
-        </section>
-        )}
-
-        {/* Clip & Earn — fans as a paid marketing army */}
-        {homepage && (
-        <section className="mb-14">
-          <SectionHeading icon={Scissors}>Your fans are your marketing team</SectionHeading>
-          <p className="text-crwn-text-secondary text-xl mb-6">
-            Turn on Clip &amp; Earn: your fans download your streams, cut them into clips, and post them
-            across TikTok, Reels, and Shorts, the same loop that blows up streamers. When a clip brings
-            in a subscriber, that clipper earns a recurring commission, a % you set, every month that
-            fan stays. An army of promoters you only pay when they work, and keep paying only while it
-            keeps working.
-          </p>
-          <ClipperMock />
-        </section>
-        )}
-
-        {/* Release waterfall (visual timeline) */}
-        {homepage && (
-        <section className="mb-14">
-          <SectionHeading icon={TrendingUp}>Release like the majors don&apos;t</SectionHeading>
-          <p className="text-crwn-text-secondary text-xl mb-6">
-            The scarce good isn&apos;t the song, it&apos;s time. Every tier is a skip-the-line pass.
-            DSPs get it last, on purpose.
-          </p>
-          <div className="bg-crwn-surface border border-crwn-elevated rounded-2xl p-6">
-            {WATERFALL.map((w, i) => (
-              <div key={w.day} className="flex gap-4">
-                <div className="flex flex-col items-center">
-                  <div className={`w-3.5 h-3.5 rounded-full shrink-0 mt-1 ${i === WATERFALL.length - 1 ? 'bg-crwn-elevated' : 'bg-crwn-gold'}`} />
-                  {i < WATERFALL.length - 1 && <div className="w-0.5 flex-1 bg-crwn-elevated my-1" />}
-                </div>
-                <div className={i < WATERFALL.length - 1 ? 'pb-5' : ''}>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[11px] font-semibold text-crwn-gold bg-crwn-gold/10 rounded-full px-2 py-0.5">{w.day}</span>
-                    <span className="font-medium text-sm flex items-center gap-1">
-                      {i < WATERFALL.length - 1 && <Lock className="w-3 h-3 text-crwn-gold" />}
-                      {w.label}
-                    </span>
-                  </div>
-                  <p className="text-lg text-crwn-text-secondary mt-1">{w.sub}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-        )}
-
-        {homepage && (
-        <PrimaryCTA homepage={homepage} claimHref={claimHref} sub="Free to start. No card required.">
-          {homepage ? 'Start free on CRWN' : 'Book my free 15-min call'}
-        </PrimaryCTA>
-        )}
-
-        {/* Community */}
-        {homepage && (
-        <section className="mb-14">
-          <SectionHeading icon={MessageCircle}>A gated community they pay to be in</SectionHeading>
-          <p className="text-crwn-text-secondary text-xl mb-6">
-            Post exclusive updates, unreleased snippets, and behind-the-scenes only your paying fans can
-            see. It&apos;s the room they subscribe to get into.
-          </p>
-          <CommunityMock fans={hasNumber ? result.payers : undefined} />
-        </section>
-        )}
-
-        {/* Own your audience */}
-        {homepage && (
-        <section className="mb-14">
-          <SectionHeading icon={Mail}>Own your audience, don&apos;t rent it</SectionHeading>
-          <p className="text-crwn-text-secondary text-xl mb-5">
-            Algorithms decide who sees your posts. Your fan list doesn&apos;t. CRWN hands you their
-            contact info and the tools to reach them any time.
-          </p>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            {AUDIENCE_TOOLS.map((t) => (
-              <div key={t.name} className="bg-crwn-surface border border-crwn-elevated rounded-2xl p-4">
-                <div className="text-2xl mb-2">{t.icon}</div>
-                <div className="font-semibold text-sm mb-1">{t.name}</div>
-                <p className="text-lg text-crwn-text-secondary">{t.desc}</p>
-              </div>
-            ))}
-          </div>
-          <p className="text-crwn-text-secondary text-xl mt-6 mb-4">Set your automations once, they run forever:</p>
-          <SequencesMock />
-        </section>
-        )}
-
-        {/* Independence: the apps you built on can change owners overnight */}
-        {homepage && (
-        <section className="mb-14">
-          {/* Not "claim your fans": an artist does not own people. The thing CRWN actually hands
-              them is the list and the relationship (POSITIONING section 24). */}
-          <IndependenceSection href="/signup" ctaLabel="Claim your fan list on CRWN" />
-        </section>
-        )}
-
-        {/* AI manager + mock */}
-        {homepage && (
-        <section className="mb-14">
-          <SectionHeading icon={Zap}>A manager built in</SectionHeading>
-          <p className="text-crwn-text-secondary text-xl mb-6">
-            A manager watches your numbers and hands you decisions to approve, raise a price, email
-            fans, win back churn. You make music; it grows the business.
-          </p>
-          <AiActionsMock />
-        </section>
-        )}
-
-        {/* Money flow + fees */}
-        {homepage && (
-        <section className="mb-14">
-          <SectionHeading icon={Wallet}>Keep up to 92%, paid to your bank</SectionHeading>
-          <p className="text-crwn-text-secondary text-xl mb-6">
-            Streaming pays per play, and it is split several ways before it reaches you. On CRWN a fan
-            pays you directly and the money flows straight to your bank, powered by Stripe. No label
-            cut in the middle.
-          </p>
-          <MoneyFlow />
-          <div className="bg-crwn-surface border border-crwn-elevated rounded-2xl p-6 mt-4">
-            <div className="flex items-center justify-between text-sm mb-2">
-              <span className="text-crwn-text-secondary">You keep</span>
-              <span className="text-crwn-gold font-bold">up to 92%</span>
-            </div>
-            <div className="h-3 rounded-full bg-crwn-elevated overflow-hidden">
-              <div className="h-full bg-crwn-gold rounded-full" style={{ width: '92%' }} />
-            </div>
-            <div className="text-lg text-crwn-text-secondary mt-2">Launch (free) keeps you 88%. Pro keeps 92%, Scale 95%. Every plan pays out straight to your bank.</div>
-          </div>
-        </section>
-        )}
-
-        {/* Payouts mock */}
-        {homepage && (
-        <section className="mb-14">
-          <SectionHeading icon={CreditCard}>Watch it hit your account</SectionHeading>
-          <p className="text-crwn-text-secondary text-xl mb-6">
-            Every subscription and sale lands in your balance in real time. Cash out anytime, or auto-payout
-            every week. No invoices, no waiting on a label.
-          </p>
-          <EarningsMock balanceCents={hasNumber ? result.netMrrCents : undefined} />
-        </section>
-        )}
-
-        {/* Analytics mock */}
-        {homepage && (
-        <section className="mb-14">
-          <SectionHeading icon={Users}>See who actually supports you</SectionHeading>
-          <p className="text-crwn-text-secondary text-xl mb-6">
-            A live leaderboard ranks your biggest supporters by name and spend, so you know exactly who
-            to keep close. Your audience, your data.
-          </p>
-          <LeaderboardMock payers={hasNumber ? result.payers : undefined} />
-        </section>
-        )}
-
         <PrimaryCTA homepage={homepage} claimHref={claimHref} sub="Need help setting this up? A 15-minute call. Qualified artists get hands-on launch help.">
           {homepage ? 'Start free on CRWN' : 'See it on your own catalog'}
         </PrimaryCTA>
-
-        {/* Sync licensing (bonus) */}
-        {homepage && (
-        <section className="mb-14">
-          <SectionHeading icon={Globe}>Bonus: get your music placed</SectionHeading>
-          <p className="text-crwn-text-secondary text-xl mb-6">
-            CRWN surfaces sync licensing briefs, TV, film, games, ads, matched to your genre. One
-            placement can pay more than a year of streaming.
-          </p>
-          <SyncMock />
-        </section>
-        )}
 
         {/* Objections */}
         <section className="mb-14">
@@ -1081,21 +826,31 @@ export function WorthExperience({
 
 // ---- Presentational helpers ----
 
-// Exported so the homepage wrapper can render the SAME nav above the shared
-// Opportunity Calculator funnel (this component no longer renders it there).
+// Exported so the homepage wrapper can render the CRWN nav above the shared
+// Opportunity Calculator funnel. Deliberately small (Zero to One homepage,
+// 2026-08-13): two anchors into the marketing narrative below the funnel, log
+// in, and ONE primary CTA that returns to the funnel at the top of the page
+// (the hero if the visitor has not run the calculator, their result if they
+// have). No features menu, and no hidden pre-PMF surface gets a nav slot.
 export function HomeNav() {
   return (
     <nav className="sticky top-0 z-50 bg-crwn-bg/90 backdrop-blur border-b border-crwn-elevated">
       <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
         <span className="text-xl font-bold text-crwn-gold">CRWN</span>
-        <div className="flex items-center gap-3 text-sm">
-          <a href="/explore" className="hidden sm:inline text-crwn-text-secondary hover:text-crwn-text transition-colors">
-            Discover artists
+        <div className="flex items-center gap-4 text-sm">
+          <a href="#how-it-works" className="hidden sm:inline text-crwn-text-secondary hover:text-crwn-text transition-colors">
+            How it works
+          </a>
+          <a href="#pricing" className="hidden sm:inline text-crwn-text-secondary hover:text-crwn-text transition-colors">
+            Pricing
           </a>
           <a href="/login" className="text-crwn-text hover:text-crwn-gold transition-colors">Log in</a>
-          <a href="/signup" className="bg-crwn-gold text-crwn-bg font-semibold px-4 py-2 rounded-full hover:bg-crwn-gold/90 transition-colors">
-            Get started
-          </a>
+          <button
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            className="bg-crwn-gold text-crwn-bg font-semibold px-4 py-2 rounded-full hover:bg-crwn-gold/90 transition-colors"
+          >
+            See my opportunity
+          </button>
         </div>
       </div>
     </nav>
@@ -1201,30 +956,6 @@ function RevenueStack() {
         ))}
       </div>
       <p className="text-[11px] text-crwn-text-secondary/70 mt-4">Illustrative mix. Your split depends on what you turn on.</p>
-    </div>
-  );
-}
-
-function MoneyFlow() {
-  const nodes = [
-    { icon: CreditCard, label: 'Fan pays', sub: 'by card' },
-    { icon: Repeat, label: 'CRWN', sub: 'handles it' },
-    { icon: Landmark, label: 'Your bank', sub: 'up to 92%' },
-  ];
-  return (
-    <div className="flex items-stretch justify-between gap-2">
-      {nodes.map((n, i) => (
-        <div key={n.label} className="flex items-center gap-2 flex-1">
-          <div className="flex-1 bg-crwn-surface border border-crwn-elevated rounded-2xl p-4 text-center">
-            <div className="w-10 h-10 mx-auto mb-2 rounded-full bg-crwn-gold/15 flex items-center justify-center">
-              <n.icon className="w-5 h-5 text-crwn-gold" />
-            </div>
-            <div className="text-sm font-semibold">{n.label}</div>
-            <div className="text-[11px] text-crwn-text-secondary">{n.sub}</div>
-          </div>
-          {i < nodes.length - 1 && <ArrowRight className="w-4 h-4 text-crwn-gold shrink-0" />}
-        </div>
-      ))}
     </div>
   );
 }

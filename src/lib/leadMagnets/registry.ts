@@ -796,14 +796,18 @@ const UNIFIED_OPPORTUNITY: LeadMagnetConfig = {
   // have never seen reads as being about somebody else. Loss-framed per the
   // copy rule: the cost of not knowing comes first, the fix second.
   hero: {
-    eyebrow: 'For independent artists',
+    // Context qualifier, not an eligibility gate: acquisition is narrow, the product
+    // stays open (POSITIONING.md section 5).
+    eyebrow: 'For independent artists already selling direct',
     // Zero To One positioning (docs/POSITIONING.md section 17). The headline names the
     // LOSS and the concentration: the artist already has the audience, and the part of it
     // that carries the money is the part nothing in their stack can see. Reach is never
-    // dismissed here, because every number in the model scales with it.
+    // dismissed here, because every number in the model scales with it. The subheadline
+    // adds the fragmentation beat: the buyers exist, they are just split across tools
+    // that cannot see the same person.
     headline: 'The fans who would pay you most are the ones you cannot see.',
     subheadline:
-      'You built the audience. Your follower count cannot tell you who inside it actually pays, who stays, or who is worth ten times the rest. Put in your numbers and see what that group is worth.',
+      'You built the audience. But your buyers, members and fan contacts sit in tools that cannot see the same person, and a follower count cannot tell you who actually pays, who stays, or who is worth ten times the rest. Put in your numbers and see what that group is worth.',
     primaryCta: 'See what my fans are worth',
     image: '/tool-opportunity.jpg',
     imageAlt: 'An artist in a dark studio touching the point where gold threads from every part of his plan converge on one wall',
