@@ -37,12 +37,12 @@ export function ToolHero({
         <div className="absolute inset-0 bg-gradient-to-t from-crwn-bg/70 via-transparent to-transparent" />
       </div>
 
-      <div className="flex flex-1 flex-col md:block md:order-1">
+      <div className="flex flex-1 flex-col items-center text-center md:order-1">
         {eyebrow && <div className="text-xs font-semibold uppercase tracking-wide text-crwn-gold mb-2">{eyebrow}</div>}
         <h1 className="text-3xl md:text-4xl font-bold text-crwn-text leading-tight">{headline}</h1>
         <p className="text-base text-crwn-text-secondary mt-3 leading-relaxed">{subheadline}</p>
         <p className="text-xs text-crwn-text-secondary mt-4">Takes about {timeToComplete}. Free.</p>
-        <div className="mt-auto pt-5 md:mt-5 md:pt-0">
+        <div className="w-full mt-auto pt-5 md:mt-5 md:pt-0">
           <button onClick={onStart} className="w-full md:w-auto md:px-12 py-3.5 rounded-full bg-crwn-gold text-crwn-bg font-semibold">
             {ctaLabel}
           </button>

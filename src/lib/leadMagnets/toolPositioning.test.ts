@@ -161,12 +161,38 @@ describe('every headline opens on a brand photograph', () => {
     expect(sectionImage).not.toMatch(emoji);
   });
 
-  it('leaves the hero to its own photograph', () => {
-    // ToolHero already leads with a full-bleed photo, so it takes no second visual. Its header
+  it('leaves the hero to its own single image', () => {
+    // ToolHero already leads with a full-bleed image, so it takes no second visual. Its header
     // comment records that the fold was measured on a 375x667 phone with the CTA below this block.
     expect(toolHero).toContain('<Image src={image}');
     expect(toolHero).not.toContain('SectionIcon');
     expect(toolHero).not.toContain('SectionImage');
+  });
+
+  it('gives all six promoted heroes the illustrated set, each one its own', () => {
+    // Above the fold matters more than below it: a photographic hero over illustrated sections
+    // reads as two brands on one page.
+    const heroes = PROMOTED_MARKETING_SLUGS.map((slug) => {
+      const cfg = getLeadMagnet(slug);
+      if (cfg) return { slug, src: cfg.hero.image, alt: cfg.hero.imageAlt };
+      const ext = EXTERNAL_TOOLS.find((t) => t.key === slug)!;
+      return { slug, src: ext.image, alt: ext.imageAlt };
+    });
+    for (const h of heroes) {
+      expect(h.src, h.slug).toMatch(/^\/hero-[a-z0-9-]+\.webp$/);
+      expect(existsSync(join(root, 'public', h.src.slice(1))), `${h.slug} -> ${h.src}`).toBe(true);
+      // Alt describes an illustration for a screen reader, not a slug.
+      expect(h.alt.split(/\s+/).length, `${h.slug} alt`).toBeGreaterThan(4);
+    }
+    // Six doors, six images.
+    expect(new Set(heroes.map((h) => h.src)).size).toBe(6);
+  });
+
+  it('centres everything above the fold', () => {
+    // The copy column keeps its layout (image beside it on desktop, above it on mobile) so the
+    // measured fold behaviour is untouched; only the alignment changed. `items-center` is what
+    // centres the CTA too: `text-center` alone leaves a `md:w-auto` button hugging the left edge.
+    expect(toolHero).toMatch(/items-center text-center/);
   });
 
   it('keeps the section images below the fold, so they never race the hero', () => {
