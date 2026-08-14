@@ -133,7 +133,8 @@ describe('every headline opens on a brand photograph', () => {
   it('points every section at a real file, with real alt text', () => {
     // A broken src is invisible in a type check and silent in a build: Next renders an empty box.
     for (const [key, art] of Object.entries(SECTION_ART)) {
-      expect(art.src, key).toMatch(/^\/[a-z0-9-]+\.jpg$/);
+      // WebP, not JPEG: flat vector art is the worst case for DCT and the set is 90% smaller this way.
+      expect(art.src, key).toMatch(/^\/[a-z0-9-]+\.webp$/);
       expect(existsSync(join(root, 'public', art.src.slice(1))), `${key} -> ${art.src}`).toBe(true);
       // Alt text describes the photograph for a screen reader, so it may not be a slug or a label.
       expect(art.alt.split(/\s+/).length, `${key} alt`).toBeGreaterThan(4);

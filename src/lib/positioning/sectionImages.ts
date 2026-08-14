@@ -17,6 +17,11 @@
  * the first. So the style is the reference's and the palette is anchored on CRWN gold, amber and
  * burnt orange over near-black, which is the same warm family the reference works in.
  *
+ * Encoded as WebP, not JPEG. Flat colour and hard vector edges are the worst case for DCT: the
+ * generator returned these at 460 to 680 KB each with visible ringing along every edge, and the
+ * same artwork lands at 38 to 84 KB as WebP with no visible loss. That is 4.8 MB to 475 KB across
+ * the set, which also stops the optimizer decoding several megabytes on first paint.
+ *
  * Every image was generated at 16:9 to match `SectionImage`, carries no text or logo, and was
  * reviewed individually before being assigned here: the house rule is that anyone shown is a Black
  * hip hop or R&B artist reading age 18 to 32, and that is checked by looking, not by prompting.
@@ -33,52 +38,52 @@ export const SECTION_ART = {
    * an oversight. The doorway stays distinct through its copy, which is genuinely per-tool.
    */
   reveals: {
-    src: '/section-reveals.jpg',
+    src: '/section-reveals.webp',
     alt: 'Illustration of an artist singing to a camera under a hard gold key light',
   },
   /** Fragmentation: the cost of running the business across tools that cannot see the same fan. */
   problem: {
-    src: '/section-problem.jpg',
+    src: '/section-problem.webp',
     alt: 'Illustration of an artist at a desk, head in hand over scattered paperwork under a gold lamp',
   },
   /** The five-step path: climbing out of the dark toward the light at the top. */
   path: {
-    src: '/section-path.jpg',
+    src: '/section-path.webp',
     alt: 'Illustration of an artist climbing a staircase toward a bright gold doorway',
   },
   /** The operating loop: one lit way forward instead of a dashboard of options. */
   operatingSystem: {
-    src: '/section-operating-system.jpg',
+    src: '/section-operating-system.webp',
     alt: 'Illustration of an artist in a corridor of receding gold light frames',
   },
   /** First Revenue Launch: someone working the desk alongside the artist, hands on. */
   launch: {
-    src: '/section-launch.jpg',
+    src: '/section-launch.webp',
     alt: 'Illustration of two artists working a mixing console together',
   },
   /** What the product operates: the unglamorous daily work the system keeps track of. */
   operates: {
-    src: '/section-operates.jpg',
+    src: '/section-operates.webp',
     alt: 'Illustration of an artist writing in a notebook at a studio desk beside a microphone',
   },
   /** Pricing: choosing the level you operate at, framed as a threshold. */
   pricing: {
-    src: '/section-pricing.jpg',
+    src: '/section-pricing.webp',
     alt: 'Illustration of an artist stepping through a doorway of warm gold light',
   },
   /** Questions: the artist facing the room. */
   questions: {
-    src: '/section-questions.jpg',
+    src: '/section-questions.webp',
     alt: 'Illustration of an artist singing under a gold spotlight above an audience in silhouette',
   },
   /** The homepage close: the fans the entire argument was about. */
   close: {
-    src: '/section-close.jpg',
+    src: '/section-close.webp',
     alt: 'Illustration of an artist surrounded by a close group of fans in gold light',
   },
   /** The one fan economy beat on a calculator page: identifiable people, not a follower count. */
   oneEconomy: {
-    src: '/section-close.jpg',
+    src: '/section-close.webp',
     alt: 'Illustration of an artist surrounded by a close group of fans in gold light',
   },
   /**
@@ -86,7 +91,7 @@ export const SECTION_ART = {
    * higher up on that page: a page that shows one image twice looks like a mistake.
    */
   toolClose: {
-    src: '/section-questions.jpg',
+    src: '/section-questions.webp',
     alt: 'Illustration of an artist singing under a gold spotlight above an audience in silhouette',
   },
 } as const satisfies Record<string, SectionArt>;
