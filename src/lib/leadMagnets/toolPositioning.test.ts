@@ -79,6 +79,36 @@ describe('the promoted set and its doorways cannot drift apart', () => {
     const titles = Object.values(TOOL_DOORWAYS).map((d) => d.revealsTitle);
     expect(new Set(titles).size).toBe(titles.length);
   });
+
+  it('keeps the above-the-fold copy short enough to actually be read', () => {
+    // The 2026-08-14 positioning rewrite made the argument correct and the heroes long: the six
+    // promoted subheadlines ran 46 to 60 words while the PAUSED tools, written earlier, sat at 22
+    // to 28. Above the fold, a paragraph is a bounce. The whole hero has one job, which is to get
+    // a visitor into the wizard, and the page below it is where the argument gets made.
+    const words = (s: string) => s.trim().split(/\s+/).length;
+    for (const slug of PROMOTED_MARKETING_SLUGS) {
+      const cfg = getLeadMagnet(slug);
+      if (!cfg) continue; // /worth is not registry-driven; asserted against its own source below.
+      expect(words(cfg.hero.headline), `${slug} headline`).toBeLessThanOrEqual(14);
+      expect(words(cfg.hero.subheadline), `${slug} subheadline`).toBeLessThanOrEqual(28);
+      expect(words(cfg.hero.primaryCta), `${slug} cta`).toBeLessThanOrEqual(7);
+      // Two sentences is the ceiling: a third is the paragraph creeping back in.
+      expect((cfg.hero.subheadline.match(/[.!?](\s|$)/g) ?? []).length, `${slug} sentences`).toBeLessThanOrEqual(2);
+    }
+  });
+
+  it('holds /worth to the same limit, in both places its hero is written', () => {
+    // The hero exists twice in this file: the ToolHero on the calculator route, and the fallback
+    // block that only renders if the registry ever loses the Opportunity Calculator. They drifted
+    // apart once already, so both are asserted.
+    const heroes = worth.match(/headline="([^"]{10,400})"/g) ?? [];
+    expect(heroes.length).toBeGreaterThan(0);
+    for (const h of heroes) {
+      const text = h.replace(/^.*?headline="/, '').replace(/"$/, '');
+      expect(text.trim().split(/\s+/).length, text).toBeLessThanOrEqual(28);
+    }
+    expect(worth).toContain('Streaming built your reach. It cannot tell you who pays.');
+  });
 });
 
 describe('the canonical story has exactly one source', () => {

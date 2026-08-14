@@ -558,10 +558,10 @@ export function WorthExperience({
               <Crown className="w-8 h-8 text-crwn-gold" />
             </div>
             <h1 className="font-bold mb-3 text-3xl sm:text-4xl">
-              What is the direct fan economy inside the audience you already built?
+              Streaming built your reach. It cannot tell you who pays.
             </h1>
             <p className="text-crwn-text-secondary max-w-xl mx-auto text-xl sm:text-2xl">
-              {"Streaming built your reach. It just cannot tell you which of those listeners would pay you directly, how much, or for how long. Those fans are scattered across a store here, a community there, a link in bio holding it together. Punch in your numbers, see what that group is worth every month, and get the exact offer to launch, what to charge, and what to do first."}
+              {'Put in your listeners and followers, and see what the paying group inside them is worth every month.'}
             </p>
           </div>
         )}
@@ -569,8 +569,8 @@ export function WorthExperience({
         {useEntryWizard && (
           <ToolHero
             eyebrow="Streaming Loss"
-            headline="What is the direct fan economy inside the audience you already built?"
-            subheadline="Streaming built your reach. It just cannot tell you which of those listeners would pay you directly, how much, or for how long. Those fans are scattered across a store here, a community there, a link in bio holding it together. Punch in your numbers and see what that group is worth every month."
+            headline="Streaming built your reach. It cannot tell you who pays."
+            subheadline="Put in your listeners and followers, and see what the paying group inside them is worth every month."
             timeToComplete="1 min"
             image="/tool-worth.jpg"
             imageAlt="An artist alone in a dark studio staring at a disappointing number on his phone"

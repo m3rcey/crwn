@@ -25,7 +25,7 @@ const VAULT_REVENUE_PLANNER: LeadMagnetConfig = {
     // inventory beat, and it is why the vault lives inside the ladder rather than beside it.
     eyebrow: 'Artist Vault',
     headline: 'Your most committed fans have nowhere to go.',
-    subheadline: 'Most of your audience will never want the demos and unreleased work sitting on your phone. The small group who would are already the ones carrying most of your direct revenue, and right now you have nothing deeper to offer them. See what that access is worth, and the ladder it belongs in.',
+    subheadline: 'The unreleased work on your phone is the reason they would pay you more. See what that access is worth.',
     primaryCta: 'Plan my Vault',
     image: '/tool-vault.jpg',
     imageAlt: 'An artist in a dim studio surrounded by shelves of unreleased music',
@@ -617,7 +617,7 @@ const SHARE_TO_EARN = lossToolBase({
     // mechanism produces (supporters) rather than implying a second income stream.
     eyebrow: 'Fan Referrals',
     headline: 'Some of your fans are already doing your acquisition.',
-    subheadline: 'A small group recommends you without being asked, and a fan who brings other fans is worth more than one who only listens. Nothing in your stack can tell you which fans those are, so it never compounds and it never gets paid. See what that advocacy is worth once it is tracked.',
+    subheadline: 'Nothing in your stack tells you which ones, so it never compounds and never gets paid. See what it is worth tracked.',
     primaryCta: 'See what my fans bring in',
     image: '/tool-share-to-earn.jpg',
     imageAlt: 'A dim, gold-lit studio with an artist at the center',
@@ -646,7 +646,7 @@ const OWN_YOUR_FANS = lossToolBase({
     // asserting ownership of people. Same precedent as the "Start Owning My Fans" CTA correction.
     eyebrow: 'Your Direct Fan List',
     headline: 'You have reach. You do not have the relationship underneath it.',
-    subheadline: 'Your followers are real and they matter. What you do not have is a name, permission to make contact, a record of what they bought, or any way to reach them that an algorithm does not sit in front of. See how much of your audience you can actually reach directly, and what it is worth once you can.',
+    subheadline: 'No names, no permission to make contact, no record of what they bought. See how much of your audience you can actually reach.',
     primaryCta: 'See what I can actually reach',
     image: '/tool-own-your-fans.jpg',
     imageAlt: 'An artist alone in a dark studio, his fans behind a glass wall he cannot reach',
@@ -694,7 +694,7 @@ const EXECUTIVE_PRODUCER = lossToolBase({
     // the model prices a seat for the artist's audience and never assumes a room without limits.
     eyebrow: 'Live Experiences',
     headline: 'Your highest-value fans are invisible until you offer them a way in.',
-    subheadline: 'A small number of fans want access, a part in the work and a say in the record, and they will pay many times what a listener pays for it. A follower count cannot tell you who they are. A limited seat in the room is how they tell you themselves.',
+    subheadline: 'A few will pay many times what a listener does for real access. See what a seat in the room is worth.',
     primaryCta: 'See what a seat is worth',
     image: '/tool-executive-producer.jpg',
     imageAlt: 'A dim, gold-lit recording studio with an artist at the console',
@@ -824,7 +824,7 @@ const UNIFIED_OPPORTUNITY: LeadMagnetConfig = {
     // that cannot see the same person.
     headline: 'The fans who would pay you most are the ones you cannot see.',
     subheadline:
-      'You built the audience. But your buyers, members and fan contacts sit in tools that cannot see the same person, and a follower count cannot tell you who actually pays, who stays, or who is worth ten times the rest. Put in your numbers and see what that group is worth.',
+      'Your buyers, members and contacts sit in tools that cannot see the same person. See what that group is worth.',
     primaryCta: 'See what my fans are worth',
     image: '/tool-opportunity.jpg',
     imageAlt: 'An artist in a dark studio touching the point where gold threads from every part of his plan converge on one wall',
