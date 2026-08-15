@@ -148,6 +148,22 @@ GENERATED from now on, and does not license a mass re-shoot nobody asked for.
 
 NEVER use an em dash (—) in ANY user-facing copy, anywhere, ever: UI strings, emails, web/marketing pages, notifications, button labels, tooltips, error messages, docs — all of it. This applies to everything new you write and anything you edit. Do not substitute an en dash (–) either. Rewrite instead: split into two short sentences (also better for readability), or use a comma, colon, or parentheses. Example: "Your front door — the easiest yes" becomes "Your front door: the easiest yes". (Hyphens in compound words like "one-time" are fine; this rule is about the dash punctuation between clauses.)
 
+## Every file path you hand Josh is a MARKDOWN LINK. No exceptions.
+
+The moment you type `supabase/` and `.sql` in the same string, it must already be wrapped as
+`[supabase/schema-phase2-foo.sql](supabase/schema-phase2-foo.sql)`. A backticked path, a bold path,
+or a bare path does NOT count: the VSCode harness renders repo-relative markdown links as clickable
+file links, and backticks render as inert code he then has to hunt for.
+
+**This applies in the CHAT REPLY, not only in TODO.md.** That distinction is the whole reason this
+keeps regressing: the rule below is written about TODO items, so it gets followed there and dropped
+in conversation, which is where Josh actually reads it first. Josh has now asked four times
+(2026-07-11, twice on 2026-08-13, and 2026-08-15). It has never been a missing rule; it is not
+applying it at write time.
+
+Same for any other file you ask him to open: `scripts/*.mjs`, docs, components. When more than one
+SQL file is involved, give the RUN ORDER. Never fence SQL inline (see the TODO.md rule below).
+
 ## TODO.md — you maintain it, Josh works it
 
 `TODO.md` at the repo root is Josh's list. It has three sections: **Do Now** (one-shot,
