@@ -207,16 +207,21 @@ describe('every headline opens on a brand photograph', () => {
     expect(toolHeroCode).not.toMatch(/md:order-/);
   });
 
-  it('keeps the CTA above the fold with a viewport cap on the hero image', () => {
-    // Stacking spends vertical space the old two-column layout got for free. The artwork is drawn
-    // at 16:9 so full column width costs ~378px of height instead of the ~500px a 4:3 image would,
-    // and a max-height in viewport units is the safety net when a short laptop cannot afford that.
-    // Without the cap the image grows with the column and the button falls off the screen.
-    expect(toolHeroCode).toMatch(/w-full aspect-\[16\/9\] max-h-\[\d+vh\] md:max-h-\[\d+vh\]/);
+  it('keeps the CTA above the fold BY CONSTRUCTION, not by a height budget', () => {
+    // Two earlier versions budgeted the fold by hand and both were wrong on a real screen, because
+    // the copy block is not a fixed height: the headline wraps to two or three lines depending on
+    // the tool and the viewport. So on desktop the hero is exactly one viewport tall, the copy is
+    // `shrink-0`, and the image is `flex-1` and absorbs whatever is left. A headline that wraps now
+    // costs the image height, never the button its place on screen.
+    expect(toolHeroCode).toMatch(/md:h-\[calc\(100svh-\d+rem\)\]/);
+    expect(toolHeroCode).toMatch(/md:flex-1 md:min-h-0/);
+    expect(toolHeroCode).toMatch(/shrink-0 flex flex-col items-center text-center/);
+    // The regression to guard against: any fixed or aspect-derived image height on DESKTOP puts
+    // the budget back and the button below the fold with it.
+    expect(toolHeroCode).not.toMatch(/md:max-h-\[\d+vh\]/);
+    expect(toolHeroCode).not.toMatch(/md:h-\[\d+vh\]/);
     expect(toolHeroCode).not.toMatch(/aspect-\[4\/3\]/);
-    // And the button is no longer pushed to the bottom of a full-screen box.
     expect(toolHeroCode).not.toMatch(/mt-auto/);
-    expect(toolHeroCode).not.toMatch(/min-h-\[calc\(100svh/);
   });
 
   it('keeps the section images below the fold, so they never race the hero', () => {

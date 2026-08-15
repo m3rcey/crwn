@@ -100,12 +100,41 @@ not upside. Gain-framed: "One clear mission beats 'please support me.'" Loss-fra
 "'Please support me' is why your fans do nothing." Name the cost of inaction (money not earned,
 fans not converted, reach going to someone else) first, then the fix.
 
-## Brand Photos — dark + gold, artists aged 18-32
+## Brand Imagery — flat vector poster art, dark + gold, artists aged 18-32
 
-Photos must be cinematic and on-brand: near-black charcoal (#0D0D0D) with warm gold (#D4AF37)
-accent light. People are optional, but anyone shown must be a Black (African American) hip hop or
-R&B artist who reads as **age 18 to 32**. State the age explicitly in the generation prompt, or
-the model drifts middle-aged. Always look at the image before shipping it.
+**Every image generated for the app or for an email is a FLAT VECTOR POSTER ILLUSTRATION**
+(founder decision, 2026-08-15, replacing the previous cinematic-photography rule). Bold geometric
+colour blocks, a near-black silhouette figure with a few sculpted flat highlight planes, radiating
+sunburst rays, concentric arcs and repeating dot rows, hard vector edges. **No gradients, no
+photographic texture, no realism, no soft shading, no 3D, no drop shadows.**
+
+- **Palette is exactly five**: near-black `#0D0D0D`, deep charcoal `#1A1A1A`, warm gold `#D4AF37`,
+  amber `#E8A33D`, burnt orange `#C2571A`, on a predominantly near-black background so the art sits
+  on a dark page. Do not introduce a sixth colour, and do not drift to bright red-orange: that
+  fights the gold CTAs and reads as a second brand.
+- **No text, letters, numbers, logos or watermarks inside the image, ever.** The page supplies the
+  words. A model that renders type will render it wrong.
+- **Anyone shown is a Black (African American) hip hop or R&B artist reading age 18 to 32.** State
+  the age explicitly in the prompt or the model drifts middle-aged.
+- **Gender mix is roughly 65% male / 35% female across the set, not per image.** The artist base is
+  expected to run about 65/35, and the imagery should look like the people it is for. The first
+  generated set came out ~93% male purely because every prompt said "artist" and the model defaulted
+  to men, so **name the gender in each prompt** and count the finished set before shipping it.
+  Groups and crowds are mixed by default.
+- **Encode as WebP, never JPEG.** Flat colour and hard edges are the worst case for DCT: the same
+  artwork is ~90% smaller as WebP with no visible loss (4.8 MB to 475 KB across one nine-image set).
+- **Match the aspect ratio to the slot it renders in** (16:9 for the hero and section bands today).
+  Generating 4:3 for a wide slot forces a choice between a crop and an image too small to carry the
+  page.
+- **Always open and look at every image before shipping it.** The age, the gender and the palette
+  are all checked by looking, not by trusting the prompt.
+
+Reference implementation: `src/lib/positioning/sectionImages.ts` (the nine section images and why
+each composition was paired with its section), `public/hero-*.webp` and `public/section-*.webp`.
+
+**Existing photography stays until the surface it sits on is next touched.** The 14 paused
+calculators, `studio_*.jpg` and `homepage_*.jpg` are still photographic; this rule governs what is
+GENERATED from now on, and does not license a mass re-shoot nobody asked for.
 
 ## Copy Rule — NEVER use em dashes
 
