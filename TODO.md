@@ -22,6 +22,27 @@ responsible for. Do not work those.
 
 ### P0 — money flows or acquisition are blocked
 
+- [ ] **The email capture on every calculator has captured ZERO leads, ever. Decide whether the
+      `/worth` form should collect marketing consent.** Nothing to run in SQL. This is a product
+      call only you can make.
+      What I verified in production on 2026-08-15 (service-role query, read-only): `lead_magnet_leads`
+      is **0 rows**, `prospect_nurture_enrollments` is **0**, `prospect_nurture_sends` is **0**, against
+      41 stored results and 244 calculator starts. The 25-email nurture sequence has never sent one
+      email to one person. The migration is applied and the cron runs; there is simply no input.
+      I have already done what I safely could: rewrote the capture card to say what actually arrives
+      instead of "Want a copy of this?", cut three dead form fields (genre, @handle, phone were
+      collected for months and read by nothing), and fired the `lead_magnet_lead_capture_viewed`
+      event, which was defined and allowlisted but never actually called, so the opt-in rate had no
+      denominator.
+      **What needs you:** `/worth` is one of the six promoted tools and it does NOT enroll anyone,
+      because its form (`src/app/(public)/worth/WorthExperience.tsx`) collects **no marketing consent
+      checkbox at all**. Wiring it to nurture would mean inferring marketing permission from someone
+      typing an email, which I will not do on my own. Either:
+        1. Say yes, and I add an explicit unchecked consent box to the `/worth` form and wire it, or
+        2. Say no, and `/worth` stays a `crm_contacts` capture with no nurture, which is fine but
+           should be a decision rather than an accident.
+      Watch after any change: `prospect_nurture_enrolled` / `lead_magnet_result_generated`, today 0/40.
+
 - [ ] **To finish Team Splits I need a test-mode sandbox. This is the only thing left, and it is
       environment setup, not code.** Nothing to run in SQL.
       I checked rather than assumed: your Stripe key really is live (I asked Stripe, and the balance

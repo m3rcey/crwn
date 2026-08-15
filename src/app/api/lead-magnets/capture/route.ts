@@ -11,6 +11,7 @@ import { CONSENT_TEXT_VERSION } from '@/lib/leadMagnets/disclaimers';
 import { recordFunnelEvent } from '@/lib/analytics/funnelEvents';
 import { continueCtaFor } from '@/lib/leadMagnets/continuationCta';
 import { enrollProspect } from '@/lib/prospectNurture/enroll';
+import { NURTURE_ART } from '@/lib/prospectNurture/art';
 import { isSubAvatarId, ENTRY_CONTEXT_INPUT_KEY } from '@/lib/avatars/taxonomy';
 import {
   ATTRIBUTION_INPUT_KEY,
@@ -189,6 +190,9 @@ export async function POST(req: NextRequest) {
           resultUrl: `${APP_URL}${config.publicRoute}?result=${publicToken}`,
           ctaUrl: `${APP_URL}/signup?tool=${config.slug}&result=${publicToken}&ref=lead-magnet`,
           ctaLabel: continueCtaFor(config.slug),
+          // Day 0 is the first email of the nurture journey, so it wears the same banner treatment.
+          bannerUrl: `${APP_URL}${NURTURE_ART.discovery.src}`,
+          bannerAlt: NURTURE_ART.discovery.alt,
         }),
       });
       await supabaseAdmin.from('lead_magnet_results').update({ last_emailed_at: new Date().toISOString() }).eq('id', saved.id);

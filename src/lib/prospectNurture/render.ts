@@ -8,6 +8,7 @@
 // from the stored result's result_data). All interpolated values are HTML-escaped, so a lead's
 // self-entered artist name can never inject markup into an email.
 
+import { NURTURE_ART, artUrl } from './art';
 import type { CalculatorModule, NurtureBlock, NurtureEmail, NurtureTokens } from './types';
 
 export interface RenderInput {
@@ -16,6 +17,11 @@ export interface RenderInput {
   module: CalculatorModule;
   // Whether the lead's result carries a real dollar figure (drives numberOrFallback blocks).
   hasNumber: boolean;
+  // Absolute origin for the banner image. Images are hosted, never inlined: a base64 payload would
+  // bloat the message past the point where Gmail clips it, and clipping hides the unsubscribe link.
+  appUrl: string;
+  // Resolved SERVER-SIDE. `auto` CTAs land here already decided, so the email layer never scores.
+  ctaOverride?: { url: string; label: string };
 }
 
 export interface RenderedEmail {
@@ -109,14 +115,17 @@ function ctaTarget(email: NurtureEmail, tokens: NurtureTokens): { url: string; l
   if (c.kind === 'result') {
     return { url: tokens.result_url, label: c.label || 'Reopen my result' };
   }
+  // 'auto' that reached here was NOT resolved to the qualified branch, so it falls through to the
+  // self-serve ask. That fall-through is deliberate: an unresolved branch must never silently
+  // become the sales path.
   return { url: tokens.signup_url, label: c.label || tokens.cta_label || 'Create my free account' };
 }
 
 export function renderNurtureEmail(input: RenderInput): RenderedEmail {
-  const { email, tokens, module, hasNumber } = input;
+  const { email, tokens, module, hasNumber, appUrl } = input;
   const subject = resolveTokens(email.subject, tokens);
   const preview = resolveTokens(email.preview, tokens);
-  const { url, label } = ctaTarget(email, tokens);
+  const { url, label } = input.ctaOverride ?? ctaTarget(email, tokens);
 
   const bodyHtml = email.body.map((b) => blockToHtml(b, tokens, module, hasNumber)).join('');
   const bodyText = email.body
@@ -131,6 +140,19 @@ export function renderNurtureEmail(input: RenderInput): RenderedEmail {
       </td></tr>`
     : '';
 
+  // The banner. Image-led is the founder decision, so it sits ABOVE the copy and below only the
+  // preheader. It must still degrade: alt text carries the concept, the argument lives in the HTML
+  // text below, and width/height are set so a blocked image reserves its space instead of jumping
+  // the layout. 520px is the card width; 293 is 16:9 at that width.
+  const art = NURTURE_ART[email.art];
+  const src = artUrl(art, appUrl);
+  const bannerHtml = src
+    ? `<tr><td style="padding:0;font-size:0;line-height:0;">
+        <img src="${escapeAttr(src)}" alt="${escapeAttr(art.alt)}" width="520" height="293"
+             style="display:block;width:100%;max-width:520px;height:auto;border:0;outline:none;text-decoration:none;" />
+      </td></tr>`
+    : '';
+
   const html = `<!doctype html>
 <html>
 <body style="margin:0;background:#0f0f0f;font-family:Inter,Arial,sans-serif;">
@@ -139,6 +161,7 @@ export function renderNurtureEmail(input: RenderInput): RenderedEmail {
       <!-- Hidden preview text -->
       <div style="display:none;max-height:0;overflow:hidden;opacity:0;">${escapeHtml(preview)}</div>
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#1a1a1a;border-radius:16px;overflow:hidden;">
+        ${bannerHtml}
         <tr><td style="padding:24px 28px 4px;">
           <div style="color:#D4AF37;font-size:13px;font-weight:700;letter-spacing:2px;">CRWN</div>
         </td></tr>

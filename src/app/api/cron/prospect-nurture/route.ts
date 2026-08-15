@@ -4,11 +4,13 @@ import { resend, FROM_EMAIL } from '@/lib/resend';
 import { getLeadMagnet, EXTERNAL_TOOLS } from '@/lib/leadMagnets/registry';
 import { continueCtaFor } from '@/lib/leadMagnets/continuationCta';
 import { isEmailSuppressed, recordLmEvent } from '@/lib/leadMagnets/server';
-import { PROSPECT_NURTURE_SEQUENCE } from '@/lib/prospectNurture/sequence';
+import { sequenceForVersion } from '@/lib/prospectNurture/sequence';
 import { moduleFor } from '@/lib/prospectNurture/calculatorModules';
 import { deriveAcquisitionAvatar, evidenceFromInputs } from '@/lib/avatars/assignment';
 import { buildNurtureTokens } from '@/lib/prospectNurture/tokens';
 import { renderNurtureEmail } from '@/lib/prospectNurture/render';
+import { sanitizeCalculatorInputs, decideCallRequest } from '@/lib/acquisition/callRequest';
+import { resolveQualifiedCta } from '@/lib/prospectNurture/ctaBranch';
 
 // Daily runner for prospect (pre-signup) nurture. Bearer-protected like every other CRON route.
 // Reuses the same Resend sender, the same suppression gate, and the same lead tables. Idempotent:
@@ -57,7 +59,6 @@ export async function GET(req: NextRequest) {
 
   if (!due || due.length === 0) return NextResponse.json({ processed: 0 });
 
-  const emails = PROSPECT_NURTURE_SEQUENCE.emails;
   let sent = 0;
   let exited = 0;
   let errors = 0;
@@ -65,6 +66,17 @@ export async function GET(req: NextRequest) {
   for (const e of due) {
     try {
       const stepIndex = Number(e.current_step) || 0;
+
+      // Resolve the array THIS enrollment was created against. `current_step` is an index, so
+      // reading it against a different version's array is how a mid-sequence lead receives an
+      // unrelated email. A retired version completes rather than guessing.
+      const seq = sequenceForVersion(Number(e.sequence_version));
+      if (!seq) {
+        await cancel(String(e.id), 'sequence_retired');
+        exited++;
+        continue;
+      }
+      const emails = seq.emails;
 
       // Sequence exhausted -> complete.
       if (stepIndex >= emails.length) {
@@ -153,7 +165,37 @@ export async function GET(req: NextRequest) {
           (evidenceFromInputs(result?.input_data as Record<string, unknown>).entryContexts ?? []) as (string | null)[],
         );
 
-        const rendered = renderNurtureEmail({ email, tokens, module: moduleFor(String(e.tool_slug), subAvatar), hasNumber });
+        // CTA branch. Recomputed here from the STORED calculator answers through the canonical
+        // scorer, so a lead can never route themselves to the assisted path by editing anything.
+        // A missing/unparseable result simply is not qualified, which falls through to self-serve.
+        let qualified = false;
+        try {
+          const rawInputs = (result?.input_data as Record<string, unknown>) || null;
+          // The registry config carries the input DEFS the sanitizer validates against. A tool with
+          // no registry entry (the external `worth` tool) yields no defs, so nothing is qualified,
+          // which falls through to the self-serve ask. That is the correct direction to fail.
+          const defs = getLeadMagnet(String(e.tool_slug))?.inputs;
+          if (rawInputs && defs) qualified = decideCallRequest(sanitizeCalculatorInputs(defs, rawInputs)).qualified;
+        } catch {
+          qualified = false;
+        }
+        const ctaOverride =
+          resolveQualifiedCta({
+            ctaKind: email.primaryCta.kind,
+            toolSlug: String(e.tool_slug),
+            qualified,
+            resultUrl: tokens.result_url,
+            qualifiedLabel: email.primaryCta.qualifiedLabel,
+          }) ?? undefined;
+
+        const rendered = renderNurtureEmail({
+          email,
+          tokens,
+          module: moduleFor(String(e.tool_slug), subAvatar),
+          hasNumber,
+          appUrl: APP_URL,
+          ctaOverride,
+        });
 
         const { data: sendResult, error: sendError } = await resend.emails.send({
           from: FROM_EMAIL,
@@ -178,7 +220,16 @@ export async function GET(req: NextRequest) {
         if (sendResult?.id) {
           await supabaseAdmin.from('prospect_nurture_sends').update({ resend_message_id: sendResult.id }).eq('id', sendRow.id);
         }
-        await recordLmEvent(supabaseAdmin, 'prospect_nurture_email_sent', { toolSlug: String(e.tool_slug), reasonCode: email.id });
+        // reason_code is the email id, which is what makes per-email performance readable.
+        // conversion_target is WHICH ASK was made, so "does the assisted branch convert better than
+        // the self-serve one" is answerable from events already being written. `recordLmEvent` has a
+        // fixed column allowlist, so an ad-hoc metadata bag would be silently dropped: these two
+        // columns are the whole budget, and they are the two dimensions worth having.
+        await recordLmEvent(supabaseAdmin, 'prospect_nurture_email_sent', {
+          toolSlug: String(e.tool_slug),
+          reasonCode: email.id,
+          conversionTarget: ctaOverride ? 'assisted' : email.primaryCta.kind,
+        });
         sent++;
       }
 

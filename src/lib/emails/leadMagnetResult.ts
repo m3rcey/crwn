@@ -10,6 +10,11 @@ interface LeadMagnetResultEmailArgs {
   resultUrl?: string; // secure resume link (optional)
   ctaUrl: string; // signup or feature CTA
   ctaLabel: string;
+  // Absolute URL of the banner. Day 0 is the first email in the nurture journey, so it wears the
+  // same image-led treatment as the rest of the sequence. Optional so a caller without an origin
+  // still renders a valid email rather than a broken image.
+  bannerUrl?: string;
+  bannerAlt?: string;
 }
 
 export function leadMagnetResultEmail({
@@ -21,6 +26,8 @@ export function leadMagnetResultEmail({
   resultUrl,
   ctaUrl,
   ctaLabel,
+  bannerUrl,
+  bannerAlt,
 }: LeadMagnetResultEmailArgs): string {
   const recs = topRecommendations
     .slice(0, 5)
@@ -56,6 +63,14 @@ export function leadMagnetResultEmail({
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#0f0f0f;padding:32px 16px;">
     <tr><td align="center">
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#1a1a1a;border-radius:16px;overflow:hidden;">
+        ${
+          bannerUrl
+            ? `<tr><td style="padding:0;font-size:0;line-height:0;">
+          <img src="${escapeAttr(bannerUrl)}" alt="${escapeAttr(bannerAlt || '')}" width="520" height="293"
+               style="display:block;width:100%;max-width:520px;height:auto;border:0;outline:none;text-decoration:none;" />
+        </td></tr>`
+            : ''
+        }
         <tr><td style="padding:28px 28px 8px;">
           <div style="color:#D4AF37;font-size:13px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;">${escapeHtml(toolName)}</div>
           <h1 style="margin:8px 0 0;color:#f0f0f0;font-size:22px;line-height:1.3;">${escapeHtml(headline)}</h1>

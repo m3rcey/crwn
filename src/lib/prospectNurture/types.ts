@@ -7,17 +7,17 @@
 // Financial numbers are NEVER computed here. They are read from a stored result's result_data
 // (the deterministic calculator output) and passed in as already-formatted strings.
 
+import type { NurtureArtKey } from './art';
+
+// v3 phases. Deliberately FOUR, not eight: the old eight-phase split scheduled a belief by the
+// calendar (objections at day 56, proof at day 150) rather than by when the artist actually has the
+// thought. v3 groups by DECISION STATE, and objections/proof are distributed into whichever phase
+// the objection naturally arises in.
 export type NurturePhase =
-  | 'delivery' //     P1  days 0-3     deliver + immediate momentum
-  | 'belief' //       P2  days 4-14    problem awareness + belief building
-  | 'education' //    P3  weeks 3-6    practical education + quick wins
-  | 'objections' //   P4  weeks 8-12   handle the fragmented-stack objections
-  | 'mechanism' //    P5  months 3-4   how consolidation actually works
-  | 'proof' //        P6  months 5-6   transparent walkthroughs + identity
-  | 'reengagement' // P7  months 7-9   reintroduce the result, ask the blocker
-  | 'authority'; //   P8  months 10-12 cost of delay, one-year contrast, final invite
-// P9 evergreen (a low-frequency post-12-month track) slots in later as more emails with larger
-// dayOffsets, or as a behavior-triggered branch, without any schema change.
+  | 'diagnose' //   days 1-6    the result is real, the problem is fragmentation, one first move
+  | 'believe' //    days 8-18   mechanism, proven buyers, switching risk, effort
+  | 'decide' //     days 24-45  compounding, worked example, cost of "fine", the assisted path
+  | 'evergreen'; // days 60-365 re-run the numbers, ownership, one-reply ask, final invite
 
 // A block of an email body. The renderer turns these into both HTML and plain text.
 // `moduleQuickWin` / `moduleUseCase` inject the calculator-specific module content at render time,
@@ -34,10 +34,17 @@ export type NurtureBlock =
 
 export interface NurtureCta {
   // 'signup' opens the existing /signup handoff carrying the calculator + result token.
-  // 'result' reopens the secure result page. 'route' deep-links a specific app route (post-signup).
-  kind: 'signup' | 'result';
+  // 'result'  reopens the secure result page.
+  // 'auto'    resolves SERVER-SIDE per lead: a canonically-qualified opportunity-calculator lead is
+  //           pointed at the existing launch-call hand-raiser on their own result page; everyone
+  //           else falls through to 'signup'. The lead never self-declares the branch, and the
+  //           hand-raiser itself re-scores server-side before any founder alert fires, so this only
+  //           ever changes which EXISTING surface is linked, never who qualifies.
+  kind: 'signup' | 'result' | 'auto';
   // Optional override label. For 'signup' the default is the calculator's continuation CTA.
   label?: string;
+  // Label used only when 'auto' resolves to the qualified branch.
+  qualifiedLabel?: string;
 }
 
 export interface NurtureEmail {
@@ -52,6 +59,9 @@ export interface NurtureEmail {
   objective: string;
   subject: string; // may contain {{tokens}}
   preview: string; // inbox preview text; may contain {{tokens}}
+  // The banner rendered ABOVE the copy. Required on every v3 email: the founder decision is that
+  // nurture is image-led, and a required field is what stops a future email shipping without one.
+  art: NurtureArtKey;
   body: NurtureBlock[];
   primaryCta: NurtureCta;
   secondaryCta?: NurtureCta;

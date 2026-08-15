@@ -73,7 +73,7 @@ const VAULT_REVENUE_PLANNER: LeadMagnetConfig = {
     { key: 'nextSteps', title: 'Build it in CRWN' },
   ],
   publicPreviewSections: ['readiness', 'inventory'],
-  leadCapture: { required: false, consentCopy: 'Email me my Vault plan and occasional CRWN tips for artists.' },
+  leadCapture: { required: false, consentCopy: 'Email me my Vault plan, plus the follow-up emails on how to launch it. Unsubscribe anytime.' },
   cta: {
     publicPrimary: 'Create your CRWN account and build your Vault',
     publicSecondary: 'Email my Vault plan',
@@ -145,7 +145,7 @@ const PROOF_OF_DEMAND: LeadMagnetConfig = {
     { key: 'assumptions', title: 'Assumptions' },
   ],
   publicPreviewSections: ['structure', 'threshold'],
-  leadCapture: { required: false, consentCopy: 'Email me my demand test and occasional CRWN tips for artists.' },
+  leadCapture: { required: false, consentCopy: 'Email me my demand test, plus the follow-up emails on how to launch it. Unsubscribe anytime.' },
   cta: {
     publicPrimary: 'Create your CRWN account and launch this test',
     publicSecondary: 'Email my demand test',
@@ -221,7 +221,7 @@ const FAN_MISSION: LeadMagnetConfig = {
     { key: 'nextSteps', title: 'Launch in CRWN' },
   ],
   publicPreviewSections: ['summary', 'whatFansDo'],
-  leadCapture: { required: false, consentCopy: 'Email me my mission and occasional CRWN tips for artists.' },
+  leadCapture: { required: false, consentCopy: 'Email me my mission, plus the follow-up emails on how to launch it. Unsubscribe anytime.' },
   cta: {
     publicPrimary: 'Create your CRWN account and launch this mission',
     publicSecondary: 'Email my mission',
@@ -324,7 +324,7 @@ const CLIP_TO_EARN: LeadMagnetConfig = {
     { key: 'nextSteps', title: 'Launch in CRWN' },
   ],
   publicPreviewSections: ['brief', 'rules'],
-  leadCapture: { required: false, consentCopy: 'Email me my campaign and occasional CRWN tips for artists.' },
+  leadCapture: { required: false, consentCopy: 'Email me my campaign, plus the follow-up emails on how to launch it. Unsubscribe anytime.' },
   cta: {
     publicPrimary: 'Create your CRWN account and launch this campaign',
     publicSecondary: 'Email my campaign',
@@ -421,7 +421,7 @@ const FOUNDER_WINDOW: LeadMagnetConfig = {
   usesLossEngine: true,
   resultSections: [],
   publicPreviewSections: [],
-  leadCapture: { required: false, consentCopy: 'Email me my founder window plan and occasional CRWN tips for artists.' },
+  leadCapture: { required: false, consentCopy: 'Email me my founder window plan, plus the follow-up emails on how to launch it. Unsubscribe anytime.' },
   cta: {
     publicPrimary: 'Create your CRWN account and open your window',
     publicSecondary: 'Email my plan',
@@ -443,7 +443,7 @@ function lossToolBase(over: Partial<LeadMagnetConfig> & Pick<LeadMagnetConfig, '
     usesLossEngine: true,
     resultSections: [],
     publicPreviewSections: [],
-    leadCapture: { required: false, consentCopy: 'Email me my result and occasional CRWN tips for artists.' },
+    leadCapture: { required: false, consentCopy: 'Email me my result, plus the follow-up emails on how to launch it. Unsubscribe anytime.' },
     cta: {
       publicPrimary: 'Create your CRWN account and fix this',
       publicSecondary: 'Email my result',
@@ -771,7 +771,7 @@ const ROYALTY_READINESS: LeadMagnetConfig = {
   usesLossEngine: true,
   resultSections: [],
   publicPreviewSections: [],
-  leadCapture: { required: false, consentCopy: 'Email me my result and occasional CRWN tips for artists.' },
+  leadCapture: { required: false, consentCopy: 'Email me my result, plus the follow-up emails on how to launch it. Unsubscribe anytime.' },
   cta: {
     publicPrimary: 'Create your CRWN account and close these gaps',
     publicSecondary: 'Email my result',
@@ -1105,7 +1105,7 @@ const UNIFIED_OPPORTUNITY: LeadMagnetConfig = {
   publicPreviewSections: [],
   leadCapture: {
     required: false,
-    consentCopy: 'Email me my full business plan and occasional CRWN tips for artists.',
+    consentCopy: 'Email me my full business plan, plus the follow-up emails on how to launch it. Unsubscribe anytime.',
   },
   cta: {
     publicPrimary: 'Create your CRWN account and build this',
@@ -1217,7 +1217,7 @@ const FAN_STACK: LeadMagnetConfig = {
   usesLossEngine: true,
   resultSections: [],
   publicPreviewSections: [],
-  leadCapture: { required: false, consentCopy: 'Email me my consolidation plan and occasional CRWN tips for artists.' },
+  leadCapture: { required: false, consentCopy: 'Email me my consolidation plan, plus the follow-up emails on how to launch it. Unsubscribe anytime.' },
   cta: {
     publicPrimary: 'Create your CRWN account and consolidate',
     publicSecondary: 'Email my plan',
@@ -1301,7 +1301,7 @@ const BETWEEN_TOUR: LeadMagnetConfig = {
   usesLossEngine: true,
   resultSections: [],
   publicPreviewSections: [],
-  leadCapture: { required: false, consentCopy: 'Email me my between-tour plan and occasional CRWN tips for artists.' },
+  leadCapture: { required: false, consentCopy: 'Email me my between-tour plan, plus the follow-up emails on how to launch it. Unsubscribe anytime.' },
   cta: {
     publicPrimary: 'Create your CRWN account and open the membership',
     publicSecondary: 'Email my plan',

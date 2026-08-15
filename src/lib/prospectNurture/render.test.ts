@@ -101,6 +101,7 @@ describe('renderNurtureEmail', () => {
       tokens: tokens({ tool_name: '<script>x</script>', first_name: 'A&B' }),
       module: moduleFor('vault-revenue-planner'),
       hasNumber: true,
+      appUrl: 'https://thecrwn.app',
     });
     expect(rendered.html).not.toContain('<script>x</script>');
     expect(rendered.html).toContain('&lt;script&gt;');
@@ -108,12 +109,13 @@ describe('renderNurtureEmail', () => {
   });
 
   it('uses the with-number line when a figure exists and the fallback when it does not', () => {
-    const withNum = renderNurtureEmail({ email, tokens: tokens(), module: moduleFor('vault-revenue-planner'), hasNumber: true });
+    const withNum = renderNurtureEmail({ email, tokens: tokens(), module: moduleFor('vault-revenue-planner'), hasNumber: true, appUrl: 'https://thecrwn.app' });
     const noNum = renderNurtureEmail({
       email,
       tokens: tokens({ monthly_value: '', hero_value: '', annual_value: '' }),
       module: moduleFor('royalty-readiness-check'),
       hasNumber: false,
+      appUrl: 'https://thecrwn.app',
     });
     expect(withNum.text).toContain('$1,240 a month');
     expect(noNum.text).not.toContain('a month');
@@ -122,7 +124,7 @@ describe('renderNurtureEmail', () => {
   });
 
   it('always includes an unsubscribe link', () => {
-    const rendered = renderNurtureEmail({ email, tokens: tokens(), module: moduleFor('vault-revenue-planner'), hasNumber: true });
+    const rendered = renderNurtureEmail({ email, tokens: tokens(), module: moduleFor('vault-revenue-planner'), hasNumber: true, appUrl: 'https://thecrwn.app' });
     expect(rendered.html).toContain('/api/prospect-nurture/unsubscribe/tok');
     expect(rendered.text).toContain('Unsubscribe:');
   });

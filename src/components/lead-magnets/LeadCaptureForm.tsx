@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { LM_EVENTS, trackLeadMagnet } from '@/lib/leadMagnets/analytics';
 import type { LeadMagnetConfig } from '@/lib/leadMagnets/types';
 
 export interface LeadCaptureValues {
@@ -34,6 +35,13 @@ export function LeadCaptureForm({ config, submitting, onSubmit }: { config: Lead
   });
   const [error, setError] = useState('');
 
+  // This event was DEFINED and allowlisted but never fired by anything, so "how many people who saw
+  // a result were even offered the email" was unmeasurable, and the enrollment funnel had no
+  // denominator. Firing it here is the smallest instrumentation that makes the opt-in rate real.
+  useEffect(() => {
+    trackLeadMagnet(LM_EVENTS.leadCaptureViewed, { toolSlug: config.slug, context: 'public' });
+  }, [config.slug]);
+
   const set = <K extends keyof LeadCaptureValues>(k: K, val: LeadCaptureValues[K]) => setV((prev) => ({ ...prev, [k]: val }));
 
   const submit = () => {
@@ -46,21 +54,25 @@ export function LeadCaptureForm({ config, submitting, onSubmit }: { config: Lead
   return (
     <div className="space-y-4">
       {/* NOT a gate. The result is already visible above. This is the optional "send me a
-          copy" ask, the same way /worth does it. */}
+          copy" ask, the same way /worth does it.
+
+          The old version headlined "Want a copy of this?" and offered filing: a plan you can still
+          have later. That is a weak reason to hand over an email, and production agreed (zero leads
+          ever captured). It now names what actually arrives, because the follow-up IS the value and
+          the sequence genuinely delivers these three things. */}
       <div>
-        <h2 className="text-xl font-bold text-crwn-text">Want a copy of this?</h2>
-        <p className="text-sm text-crwn-text-secondary mt-1">Optional. We will email you this plan so you still have it later.</p>
+        <h2 className="text-xl font-bold text-crwn-text">Want the plan behind this number?</h2>
+        <p className="text-sm text-crwn-text-secondary mt-1">
+          We will email you this result, then the three things artists ask us next: the first move for your situation, the order to
+          invite fans so a launch does not land flat, and how to run this alongside the tools you already use.
+        </p>
       </div>
 
+      {/* Two fields. Genre, social handle and phone were collected here for months and read by
+          nothing in the codebase, so they were pure friction on an optional ask. The capture API
+          still accepts them, so nothing server-side changed. */}
       <input className={INPUT} type="text" placeholder="Artist name" value={v.artistName} onChange={(e) => set('artistName', e.target.value)} />
       <input className={INPUT} type="email" placeholder="Email *" value={v.email} onChange={(e) => set('email', e.target.value)} />
-
-      <div className="grid grid-cols-2 gap-3">
-        <input className={INPUT} type="text" placeholder="Genre" value={v.genre} onChange={(e) => set('genre', e.target.value)} />
-        <input className={INPUT} type="text" placeholder="@ handle" value={v.socialHandle} onChange={(e) => set('socialHandle', e.target.value)} />
-      </div>
-
-      <input className={INPUT} type="tel" placeholder="Phone (optional)" value={v.phone} onChange={(e) => set('phone', e.target.value)} />
 
       <label className="flex gap-3 items-start cursor-pointer">
         <input type="checkbox" className="mt-1 accent-[#D4AF37] w-4 h-4" checked={v.emailConsent} onChange={(e) => set('emailConsent', e.target.checked)} />
