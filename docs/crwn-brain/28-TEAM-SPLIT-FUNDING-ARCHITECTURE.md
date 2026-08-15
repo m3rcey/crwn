@@ -33,10 +33,11 @@ The three questions that closed this rail are **RATIFIED** and are no longer ope
 
 `FUNDING_RATIFIED_DECISIONS` in `src/lib/teamSplits/funding.ts` already records these.
 `FUNDING_OPEN_QUESTIONS` in the same file is marked `@deprecated` and is retained only so the
-history reads honestly. **Four places still describe those three items as open questions and are
-now stale:** `CLAUDE.md`, `docs/crwn-brain/15-AI-AGENT-INSTRUCTIONS.md`,
-`docs/CYBERSECURITY_AUDIT_2026-08-12.md` (F-3) and `TODO.md`. Correcting them is part of the
-implementation task, not this one.
+history reads honestly. The stale references that still described these as open were reconciled
+on 2026-08-15: `CLAUDE.md`, `docs/crwn-brain/15-AI-AGENT-INSTRUCTIONS.md`, the audit's F-3
+disposition row and the `funding.ts` header now point at the ratified record. `TODO.md` was
+already accurate (its remaining Team Splits item is the test-mode sandbox, not a decision), and
+`docs/crwn-brain/07-BUSINESS-RULES.md` §8a already carried the ratified state.
 
 ---
 

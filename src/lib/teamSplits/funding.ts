@@ -38,11 +38,13 @@
 // funded, and does every cent reconcile.
 //
 // It is deliberately NOT wired into checkout yet. The cashout rail remains
-// disabled (503) because wiring a charge-time reserve raises three questions with
-// real economic consequences for artists that are the founder's to answer, not
-// an engineer's to assume. They are enumerated in FUNDING_OPEN_QUESTIONS below.
-// Shipping the arithmetic first is what makes that wiring mechanical and testable
-// rather than exploratory.
+// disabled (503). Wiring a charge-time reserve raised three questions with real
+// economic consequences for artists; the founder RATIFIED all three (2026-08-12),
+// recorded in FUNDING_RATIFIED_DECISIONS below (FUNDING_OPEN_QUESTIONS is the
+// deprecated historical record). Settled decisions do not open the rail: it stays
+// closed until the reserve wiring ships and a test-mode canary proves the payout
+// source. Shipping the arithmetic first is what makes that wiring mechanical and
+// testable rather than exploratory.
 //
 // Everything here is INTEGER CENTS. No floats reach a ledger.
 

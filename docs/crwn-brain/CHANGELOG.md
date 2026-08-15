@@ -1,5 +1,18 @@
 # CRWN Brain — Changelog
 
+## 2026-08-15 - Team Split funding decisions: stale "open questions" language reconciled
+
+**Documentation-only pass; no money, Stripe, schema or runtime behavior changed and the cashout
+rail remains 503.** The three funding decisions (no retroactive splits, no pre-deal accrual,
+unowed reserve belongs to the artist) were ratified 2026-08-12 and recorded in
+`FUNDING_RATIFIED_DECISIONS` (`src/lib/teamSplits/funding.ts`), but four places still called them
+open founder questions: `CLAUDE.md`, `15-AI-AGENT-INSTRUCTIONS.md`, the cybersecurity audit's F-3
+disposition row, and the `funding.ts` header comment itself. All four now point at the ratified
+record while preserving the load-bearing distinction: settled decisions do not open the rail,
+which stays closed until the charge-time reserve is wired and a test-mode canary proves the
+payout source (the sandbox item in TODO.md). `TODO.md` and `07-BUSINESS-RULES.md` §8a were already
+accurate. Dated changelog entries were left as honest history.
+
 ## 2026-08-14 - The six promoted calculators become six doors into one story
 
 **The homepage was rebuilt on the ratified Zero to One positioning on 2026-08-13. The six promoted

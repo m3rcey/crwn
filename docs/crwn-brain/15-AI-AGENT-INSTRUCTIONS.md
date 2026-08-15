@@ -191,9 +191,11 @@ upsert); free tier bypasses Stripe; deferred downgrade.
   participate only if properly funded before settlement.
 - Unowed reserve belongs to the **artist**. No payable collaborator balance without funding, and
   cashout may never exceed the funded released balance.
-- **Runtime state (verified 2026-08-12): funding/cashout is deliberately DISABLED (503)**, pending
-  three founder decisions enumerated in `FUNDING_OPEN_QUESTIONS`
-  (`src/lib/teamSplits/funding.ts`). Do not "fix" the 503; it is the safe state.
+- **Runtime state: funding/cashout is deliberately DISABLED (503).** The three funding decisions
+  are RATIFIED (2026-08-12): `FUNDING_RATIFIED_DECISIONS` in `src/lib/teamSplits/funding.ts` is the
+  record, `28-TEAM-SPLIT-FUNDING-ARCHITECTURE.md` the detail. Settled decisions do not open the
+  rail: it stays 503 until the charge-time reserve is wired into checkout and a test-mode canary
+  proves the payout source. Do not "fix" the 503; it is the safe state.
 
 ## AI surfaces (see `10-INTEGRATIONS.md` for the full table)
 

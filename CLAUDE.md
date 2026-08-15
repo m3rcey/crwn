@@ -462,8 +462,11 @@ Full manual: `docs/crwn-brain/15-AI-AGENT-INSTRUCTIONS.md`. Provider table:
   Calendar owns FAN promises. Manager must separate observed / modeled / insufficient evidence and
   must never claim causality from association or surface cross-artist private evidence.
 - **Autonomous Manager is DORMANT and stays dormant.** Do not repair its scheduling, broaden its
-  actions, or enable auto-send. Same for Team Split funding/cashout, which is deliberately
-  disabled (503) pending founder decisions in `FUNDING_OPEN_QUESTIONS`.
+  actions, or enable auto-send. Same for Team Split funding/cashout, which stays deliberately
+  disabled (503): the three funding decisions are RATIFIED (`FUNDING_RATIFIED_DECISIONS` in
+  `src/lib/teamSplits/funding.ts`; detail in `docs/crwn-brain/28-TEAM-SPLIT-FUNDING-ARCHITECTURE.md`),
+  but settled decisions do not open the rail. It stays closed until the charge-time reserve is
+  wired and a test-mode canary proves the payout source.
 - **Team Splits are ARTIST-funded.** CRWN platform revenue never subsidizes a collaborator share,
   and collaborator authority is the authenticated `collaborator_user_id`, never a mutable email.
 
