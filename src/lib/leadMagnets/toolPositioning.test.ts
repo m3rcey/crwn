@@ -207,13 +207,13 @@ describe('every headline opens on a brand photograph', () => {
     expect(toolHeroCode).not.toMatch(/md:order-/);
   });
 
-  it('keeps the CTA above the fold by sizing the hero image from HEIGHT, not width', () => {
-    // Stacking spends vertical space the old two-column layout got for free. `h-[Nvh]` with
-    // `aspect-[4/3]` makes height the fixed side so the artwork can never take more than its share
-    // of a short laptop screen and push the button off. Width-first sizing (`w-full aspect-*`)
-    // would make the image as tall as the column is wide, which is exactly the regression.
-    expect(toolHeroCode).toMatch(/h-\[\d+vh\] md:h-\[\d+vh\] aspect-\[4\/3\]/);
-    expect(toolHeroCode).not.toMatch(/w-full aspect-\[4\/3\]/);
+  it('keeps the CTA above the fold with a viewport cap on the hero image', () => {
+    // Stacking spends vertical space the old two-column layout got for free. The artwork is drawn
+    // at 16:9 so full column width costs ~378px of height instead of the ~500px a 4:3 image would,
+    // and a max-height in viewport units is the safety net when a short laptop cannot afford that.
+    // Without the cap the image grows with the column and the button falls off the screen.
+    expect(toolHeroCode).toMatch(/w-full aspect-\[16\/9\] max-h-\[\d+vh\] md:max-h-\[\d+vh\]/);
+    expect(toolHeroCode).not.toMatch(/aspect-\[4\/3\]/);
     // And the button is no longer pushed to the bottom of a full-screen box.
     expect(toolHeroCode).not.toMatch(/mt-auto/);
     expect(toolHeroCode).not.toMatch(/min-h-\[calc\(100svh/);

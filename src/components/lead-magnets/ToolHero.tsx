@@ -10,14 +10,16 @@ import Image from 'next/image';
 // race and left the CTA hanging off the left edge of a half-width column.
 //
 // THE CONSTRAINT THAT SHAPES EVERYTHING HERE: the CTA must stay above the fold. Stacking the image
-// on top spends vertical space that the side-by-side layout got for free, so the image is sized by
-// HEIGHT in viewport units and lets its width follow the 4:3 ratio, rather than the usual
-// width-first sizing. That is what guarantees it can never grow past its share of the screen on a
-// short laptop. Worst realistic case, a 1366x768 desktop: 34vh image (261px) + ~20px gap + ~320px
-// of copy and button = ~600px inside ~656px of usable height. A 390x844 phone has more room still.
+// on top spends vertical space that the side-by-side layout got for free, so the artwork is drawn
+// at 16:9 and rendered at full column width with a `max-h` viewport cap. 16:9 is the whole trick:
+// at this column width it costs ~378px of height where 4:3 would cost ~500px, which is the
+// difference between the button sitting above the fold and below it.
 //
-// So: before changing any height here, or adding an element, re-measure on a 1366x768 desktop AND a
-// 375x667 phone. Growing the image or the type by a little is exactly how the button falls off.
+// Worst realistic case, a 1366x768 desktop (~660px of viewport): the 42vh cap binds at ~277px of
+// image, plus ~24px gap and ~320px of copy and button, so ~620px inside ~660px. A 390x844 phone has
+// far more room. So: before changing any height here, or adding an element, re-measure on a
+// 1366x768 desktop AND a 375x667 phone. Growing the image or the type a little is exactly how the
+// button falls off.
 export function ToolHero({
   eyebrow,
   headline,
@@ -40,13 +42,21 @@ export function ToolHero({
   return (
     <div className="mx-auto flex max-w-2xl flex-col items-center text-center gap-5 md:gap-6 py-2 md:py-4">
       {/*
-        Height-first sizing: `h-[Nvh]` with `aspect-[4/3]` means the height is the fixed side and
-        the width derives from it, so the artwork always fits its share of the viewport instead of
-        being as tall as the column is wide. `object-cover` on a container already at the source's
-        own 4:3 ratio crops nothing.
+        FULL COLUMN WIDTH at 16:9, with a viewport cap as the safety net.
+
+        The previous version sized by height (`h-[34vh] aspect-[4/3]`) so the artwork could never
+        outgrow the fold, and it worked, but it made the image only about 60% of the column width
+        and it read as small. The real constraint was the RATIO, not the pixel budget: a 4:3 image
+        in this column is either wide enough to fill it and ~500px tall, or short enough to fit and
+        too narrow. The heroes are now drawn at 16:9, so full width costs ~378px of height instead
+        of ~500px and nothing has to be cropped.
+
+        `max-h` is what keeps the CTA above the fold on a short laptop: the aspect ratio sets the
+        natural height, and the cap takes over when the viewport cannot afford it (object-cover
+        trims top and bottom rather than letterboxing).
       */}
-      <div className="relative h-[28vh] md:h-[34vh] aspect-[4/3] shrink-0 rounded-2xl overflow-hidden border border-crwn-elevated">
-        <Image src={image} alt={imageAlt} fill priority sizes="(max-width: 768px) 70vw, 480px" className="object-cover" />
+      <div className="relative w-full aspect-[16/9] max-h-[38vh] md:max-h-[42vh] shrink-0 rounded-2xl overflow-hidden border border-crwn-elevated">
+        <Image src={image} alt={imageAlt} fill priority sizes="(max-width: 768px) 100vw, 672px" className="object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-crwn-bg/70 via-transparent to-transparent" />
       </div>
 
