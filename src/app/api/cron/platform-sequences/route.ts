@@ -4,6 +4,7 @@ import { resend, FROM_EMAIL } from '@/lib/resend';
 import { renderPlatformSequenceEmail } from '@/lib/emails/platformSequenceEmail';
 import { isEmailSuppressed } from '@/lib/leadMagnets/server';
 import { appendUnsubscribeToken, emailRecipient, CRWN_PLATFORM } from '@/lib/emails/unsubscribeToken';
+import { artForTrigger } from '@/lib/emails/platformSequenceArt';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -59,7 +60,7 @@ export async function GET(req: NextRequest) {
       // Check sequence still active
       const { data: sequence } = await supabaseAdmin
         .from('platform_sequences')
-        .select('is_active, name')
+        .select('is_active, name, trigger_type')
         .eq('id', enrollment.sequence_id)
         .single();
 
@@ -133,7 +134,15 @@ export async function GET(req: NextRequest) {
       // ONE renderer, shared with `npm run preview:platform-emails`, so a preview can never show
       // something different from what an artist receives. It also escapes: `first_name` comes from
       // the artist's own display name, and this template used to interpolate it raw.
-      const { subject, html, text } = renderPlatformSequenceEmail(step.subject, step.body, tokens, unsubscribeUrl);
+      const { subject, html, text } = renderPlatformSequenceEmail(
+        step.subject,
+        step.body,
+        tokens,
+        unsubscribeUrl,
+        // Banner resolved from the sequence, not the step: a sequence is one argument escalating
+        // across its steps, so three steps share one picture rather than needing three.
+        artForTrigger(sequence.trigger_type),
+      );
 
       const { error: sendError } = await resend.emails.send({
         from: FROM_EMAIL,

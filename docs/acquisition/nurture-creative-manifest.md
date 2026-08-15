@@ -128,3 +128,36 @@ prompt just says "artist" (a previous CRWN set came out ~93% male for exactly th
 compile without choosing a banner, and `sequence.test.ts` fails if the file behind it is missing,
 is not WebP, is over 200 KB, or has no alt text. That is the mechanism that stops a future email
 shipping without imagery.
+
+---
+
+## The platform-sequence set (post-signup lifecycle)
+
+The 27 onboarding, activation and upgrade emails are image-led too (founder decision 2026-08-15).
+Runtime binding: `src/lib/emails/platformSequenceArt.ts`. Prompts: `generate-platform-art.mjs`.
+
+**Keyed by SEQUENCE, not by step.** The nurture emails are fifteen distinct beats, so each earns a
+picture. A platform sequence is ONE argument escalating across two or three steps, so a per-step
+image would be three pictures of the same idea.
+
+Six new concepts serve ten sequences, plus one asset shared with the nurture set.
+
+| Asset | Used by | Persuasion job | Shows | Size |
+|---|---|---|---|---:|
+| `platform-ladder` | new_signup | There is a shape to this, and the first rung is free. | male | 55 KB |
+| `platform-payment-gate` | onboarding_incomplete, activation_no_stripe | Everything is built except the part that lets money reach you. | female | 53 KB |
+| `platform-empty-stage` | activation_no_track | The room is ready and there is nothing in it yet. | male | 58 KB |
+| `platform-open-the-door` | activation_no_tiers | Fans have no way in until you make one. | male | 43 KB |
+| `platform-first-yes` | activation_no_subscribers | It only takes the first one. | female | 76 KB |
+| `platform-ceiling-lift` | starter_upgrade_nudge, upgrade_abandoned | You are pressing against a limit you can lift. | male | 46 KB |
+| `nurture-return` (shared) | paid_at_risk, paid_churned | The door stayed open. | male | 54 KB |
+
+**Representation: 5 male / 2 female = 71%**, inside the 55-75% band the test enforces. Reuse is only
+where the argument is genuinely identical: two Stripe sequences are the same blocked pipe, two
+upgrade sequences the same ceiling, two win-back sequences the same open door.
+
+`nurture-return` is the ONE asset shared across both sets, because "the path is still lit" is the
+same picture for a churned artist as for a cold lead.
+
+Preview: `npm run preview:platform-emails` renders all 27 from the LIVE database through the same
+renderer the cron sends with.

@@ -13,6 +13,7 @@ import { describe, it, expect } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
 import { renderPlatformSequenceEmail, resolvePlatformTokens } from './platformSequenceEmail';
+import { PLATFORM_ART, ALL_PLATFORM_ART, ART_BY_TRIGGER, artForTrigger } from './platformSequenceArt';
 
 const TOKENS = {
   first_name: 'Ari',
@@ -72,6 +73,75 @@ describe('platform sequence renderer', () => {
   });
 });
 
+describe('every sequence is image-led', () => {
+  const REPO = path.resolve(__dirname, '../../..');
+  const cron = fs.readFileSync(path.resolve(__dirname, '../../app/api/cron/platform-sequences/route.ts'), 'utf-8');
+
+  it('binds art to every live trigger_type, with none left over', () => {
+    // A sequence added without art would send a bare email. A stale key would point at nothing.
+    const triggers = Object.keys(ART_BY_TRIGGER);
+    expect(triggers.length).toBeGreaterThanOrEqual(10);
+    for (const t of triggers) expect(PLATFORM_ART[ART_BY_TRIGGER[t]], `${t} has no art`).toBeTruthy();
+  });
+
+  it('ships every asset as a real WebP file', () => {
+    for (const art of ALL_PLATFORM_ART) {
+      expect(art.src, art.id).toMatch(/\.webp$/);
+      const file = path.join(REPO, 'public', path.basename(art.src));
+      expect(fs.existsSync(file), `${art.id} -> missing ${art.src}`).toBe(true);
+      const buf = fs.readFileSync(file);
+      expect(buf.subarray(0, 4).toString('ascii'), art.id).toBe('RIFF');
+      expect(buf.subarray(8, 12).toString('ascii'), art.id).toBe('WEBP');
+      expect(buf.length, `${art.id} is ${buf.length} bytes`).toBeLessThan(200_000);
+    }
+  });
+
+  it('gives every asset meaningful alt text and a persuasion job', () => {
+    for (const art of ALL_PLATFORM_ART) {
+      expect(art.alt.length, art.id).toBeGreaterThan(20);
+      expect(art.alt, art.id).not.toMatch(/^(image|banner|illustration)$/i);
+      expect(art.job.length, art.id).toBeGreaterThan(15);
+    }
+  });
+
+  it('holds the 65/35 male/female split across the set, per the brand rule', () => {
+    const shown = ALL_PLATFORM_ART.filter((a) => a.shows !== 'none');
+    const ratio = shown.filter((a) => a.shows === 'male').length / shown.length;
+    expect(ratio).toBeGreaterThanOrEqual(0.55);
+    expect(ratio).toBeLessThanOrEqual(0.75);
+  });
+
+  it('uses every asset it defines', () => {
+    const used = new Set(Object.values(ART_BY_TRIGGER));
+    for (const key of Object.keys(PLATFORM_ART)) {
+      expect(used.has(key as keyof typeof PLATFORM_ART), `${key} is defined but unused`).toBe(true);
+    }
+  });
+
+  it('renders the banner ABOVE the copy, hosted and not inlined', () => {
+    const art = { src: '/platform-ladder.webp', alt: 'a ladder of four rungs rising into gold light' };
+    const r = renderPlatformSequenceEmail('s', 'Hey Ari,\n\nBody line', TOKENS, undefined, art);
+    const imgAt = r.html.indexOf('https://thecrwn.app/platform-ladder.webp');
+    expect(imgAt).toBeGreaterThan(-1);
+    expect(r.html.indexOf('Hey Ari')).toBeGreaterThan(imgAt);
+    expect(r.html).toContain(art.alt);
+    expect(r.html).toMatch(/width="552" height="311"/);
+    expect(r.html).not.toMatch(/data:image/);
+  });
+
+  it('still sends a valid email when a trigger has no art', () => {
+    const r = renderPlatformSequenceEmail('s', 'Body', TOKENS, undefined, null);
+    expect(r.html).toContain('Body');
+    expect(r.html).not.toContain('<img');
+  });
+
+  it('resolves the banner from the SEQUENCE, not the step', () => {
+    // Steps within a sequence are one argument escalating, so three steps share one picture.
+    expect(cron).toContain('artForTrigger(sequence.trigger_type)');
+    expect(cron).toMatch(/select\('is_active, name, trigger_type'\)/);
+  });
+});
+
 describe('these emails may never ship without an opt-out or a suppression gate', () => {
   const cron = fs.readFileSync(
     path.resolve(__dirname, '../../app/api/cron/platform-sequences/route.ts'),
@@ -97,7 +167,7 @@ describe('these emails may never ship without an opt-out or a suppression gate',
     expect(cron).toContain("kind: 'platform-sequence'");
     // The signature must cover the recipient, or one artist's token unsubscribes another.
     expect(cron).toContain('emailRecipient(artistEmail)');
-    expect(cron).toMatch(/renderPlatformSequenceEmail\([\s\S]{0,120}unsubscribeUrl\)/);
+    expect(cron).toMatch(/renderPlatformSequenceEmail\([\s\S]{0,200}unsubscribeUrl,/);
   });
 
   it('sets the RFC 8058 one-click headers', () => {
@@ -135,7 +205,7 @@ describe('live copy preview', () => {
 
     const cards = ordered.map((s, i) => {
       const seq = by[s.sequence_id] ?? {};
-      const r = renderPlatformSequenceEmail(s.subject, s.body, TOKENS);
+      const r = renderPlatformSequenceEmail(s.subject, s.body, TOKENS, undefined, artForTrigger(seq.trigger_type));
       return `<a id="e${i}"></a><section class="e">
   <div class="meta"><span class="trig">${esc(seq.trigger_type ?? '?')}</span>
   <span class="num">step ${s.step_number}</span><span class="num">sends d+${s.delay_days}</span>

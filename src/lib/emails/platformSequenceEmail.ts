@@ -63,6 +63,15 @@ export function renderPlatformSequenceEmail(
    * email and the link is not decoration.
    */
   unsubscribeUrl?: string,
+  /**
+   * The sequence's banner, resolved by `artForTrigger`. Rendered ABOVE the copy, same treatment as
+   * the prospect nurture. Optional so an unknown trigger still sends a valid email rather than a
+   * broken image.
+   */
+  art?: { src: string; alt: string } | null,
+  /** Absolute origin for the banner. Hosted, never inlined: a base64 payload pushes the message
+   *  past Gmail's clipping threshold, and a clipped message hides the unsubscribe link. */
+  appUrl = 'https://thecrwn.app',
 ): RenderedPlatformEmail {
   const subject = resolvePlatformTokens(rawSubject, tokens);
   const body = resolvePlatformTokens(rawBody, tokens);
@@ -101,10 +110,22 @@ export function renderPlatformSequenceEmail(
   }
   flushBullets();
 
+  // The banner sits above the wordmark and the copy. width/height are set so a blocked image
+  // reserves its space instead of collapsing the layout; 552 is the 600px card minus its padding,
+  // and 311 is 16:9 at that width.
+  const banner = art
+    ? `<div style="font-size:0;line-height:0;margin-bottom:24px;">
+      <img src="${escapeHtml(appUrl.replace(/\/+$/, '') + art.src)}" alt="${escapeHtml(art.alt)}"
+           width="552" height="311"
+           style="display:block;width:100%;max-width:552px;height:auto;border:0;outline:none;text-decoration:none;border-radius:10px;" />
+    </div>`
+    : '';
+
   const html = `<!DOCTYPE html>
 <html>
 <body style="margin:0;padding:0;background:#0D0D0D;font-family:Inter,system-ui,sans-serif;">
   <div style="max-width:600px;margin:0 auto;padding:40px 24px;">
+    ${banner}
     <div style="text-align:center;margin-bottom:32px;">
       <span style="color:#D4AF37;font-size:24px;font-weight:bold;letter-spacing:2px;">CRWN</span>
     </div>
