@@ -559,6 +559,37 @@ Verify the underlying reality first.
 
 When documentation and implementation disagree, investigate the discrepancy rather than automatically trusting either one.
 
+**Establishing reality may fan out (read fan-out).** Once Most-Critical-First has picked the ONE
+dominant constraint, independent evidence questions about that constraint may be investigated
+concurrently by read-only subagents (what does the Brain say / what does the repo actually do /
+what does the schema enforce / what covers this in tests or invariants / what does production
+show). Sequence investigations only on real dependency: make B wait for A only when B genuinely
+needs A's output, and fan out only when the expected speed or evidence-quality gain is worth the
+extra context cost — no fixed file-count or layer threshold, judge the actual task. The rules that
+keep this safe:
+
+* **Parallelism never means multiple constraints.** Idle agent capacity is not a reason to
+  investigate or optimize downstream constraints; the fan-out's root is the one dominant
+  constraint, always.
+* **Investigators are evidence collectors, not deciders.** They answer narrow factual questions;
+  their reports are claims (treat them as "Previous-agent claim" above), never established facts,
+  and never product decisions. If an investigator surfaces a genuine founder-level ambiguity,
+  label it as such — do not resolve it because a synthesis needs an answer.
+* **One synthesis context reconciles everything** before any hypothesis: it resolves
+  contradictions against the source hierarchy (the repository, then canonical Brain docs where
+  the repo agrees, then live probes for production state), separates fact from inference, and
+  only then defines the single implementation hypothesis and continues into the Five-Step Pass.
+* **Read fan-out, not write fan-out.** Implementation stays single-writer unless the work is
+  provably disjoint AND low-risk. Never casually parallelize writes touching money, Stripe,
+  subscriptions, payouts, auth, ownership, permissions, shared schema, migrations, or the
+  architecture invariant registry.
+* **The serial spine is untouched.** Reality before hypothesis, decision before execution,
+  diagnosis before correction. Parallelism accelerates evidence collection inside a stage; it
+  never skips or reorders a stage.
+* **Deterministic evidence outranks agent consensus.** Where a test, invariant, probe, schema
+  constraint, or build can observe the property directly, that observation is the verification.
+  Agents find what needs checking and interpret results; they never replace the check.
+
 ---
 
 ### **"What should I do about this one thing?" → Five-Step Pass**
