@@ -29,6 +29,17 @@ const worth = read('src/app/(public)/worth/WorthExperience.tsx');
 const toolHero = read('src/components/lead-magnets/ToolHero.tsx');
 const sectionImage = read('src/components/ui/SectionImage.tsx');
 
+/**
+ * Source with comments removed.
+ *
+ * Structural assertions below are about what the component RENDERS, and a comment explaining why
+ * something was removed contains the very string that proves it was removed. That false positive
+ * has now bitten three separate assertions, so the fix is a stripped view rather than another
+ * cleverer regex.
+ */
+const code = (src: string): string => src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
+const toolHeroCode = code(toolHero);
+
 /** Every string a visitor to a promoted calculator can read, from the registry side. */
 function promotedCopy(): string {
   const parts: string[] = [];
@@ -165,8 +176,8 @@ describe('every headline opens on a brand photograph', () => {
     // ToolHero already leads with a full-bleed image, so it takes no second visual. Its header
     // comment records that the fold was measured on a 375x667 phone with the CTA below this block.
     expect(toolHero).toContain('<Image src={image}');
-    expect(toolHero).not.toContain('SectionIcon');
-    expect(toolHero).not.toContain('SectionImage');
+    expect(toolHeroCode).not.toContain('SectionIcon');
+    expect(toolHeroCode).not.toContain('SectionImage');
   });
 
   it('gives all six promoted heroes the illustrated set, each one its own', () => {
@@ -188,11 +199,24 @@ describe('every headline opens on a brand photograph', () => {
     expect(new Set(heroes.map((h) => h.src)).size).toBe(6);
   });
 
-  it('centres everything above the fold', () => {
-    // The copy column keeps its layout (image beside it on desktop, above it on mobile) so the
-    // measured fold behaviour is untouched; only the alignment changed. `items-center` is what
-    // centres the CTA too: `text-center` alone leaves a `md:w-auto` button hugging the left edge.
-    expect(toolHero).toMatch(/items-center text-center/);
+  it('stacks the hero in one centred column, image on top, at every breakpoint', () => {
+    expect(toolHeroCode).toMatch(/mx-auto flex max-w-2xl flex-col items-center text-center/);
+    // No side-by-side desktop grid, and no per-breakpoint reordering that would put the image
+    // beside or below the copy again.
+    expect(toolHeroCode).not.toMatch(/md:grid-cols-2/);
+    expect(toolHeroCode).not.toMatch(/md:order-/);
+  });
+
+  it('keeps the CTA above the fold by sizing the hero image from HEIGHT, not width', () => {
+    // Stacking spends vertical space the old two-column layout got for free. `h-[Nvh]` with
+    // `aspect-[4/3]` makes height the fixed side so the artwork can never take more than its share
+    // of a short laptop screen and push the button off. Width-first sizing (`w-full aspect-*`)
+    // would make the image as tall as the column is wide, which is exactly the regression.
+    expect(toolHeroCode).toMatch(/h-\[\d+vh\] md:h-\[\d+vh\] aspect-\[4\/3\]/);
+    expect(toolHeroCode).not.toMatch(/w-full aspect-\[4\/3\]/);
+    // And the button is no longer pushed to the bottom of a full-screen box.
+    expect(toolHeroCode).not.toMatch(/mt-auto/);
+    expect(toolHeroCode).not.toMatch(/min-h-\[calc\(100svh/);
   });
 
   it('keeps the section images below the fold, so they never race the hero', () => {
