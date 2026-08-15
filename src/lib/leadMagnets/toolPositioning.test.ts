@@ -248,6 +248,23 @@ describe('every headline opens on a brand photograph', () => {
     expect(new Set(heroes.map((h) => h.src)).size).toBe(6);
   });
 
+  it('renders four elements in the hero and nothing else', () => {
+    // Image, headline, subheadline, button. The qualifying eyebrow and the "Takes about N. Free."
+    // line were removed on every surface (founder call, 2026-08-15). They are gone from the props
+    // entirely rather than left optional, because an optional prop nobody passes is dead surface
+    // that quietly invites the elements back.
+    expect(toolHeroCode).not.toMatch(/eyebrow/);
+    expect(toolHeroCode).not.toMatch(/timeToComplete/);
+    expect(toolHeroCode).not.toMatch(/Takes about/);
+    // The callers stopped passing them too, so nothing is being silently dropped on the floor.
+    expect(code(publicToolClient)).not.toMatch(/eyebrow=\{/);
+    expect(code(publicToolClient)).not.toMatch(/timeToComplete=\{/);
+    expect(code(worth)).not.toMatch(/eyebrow="/);
+    // But the registry KEEPS them: the /tools directory and the automation dispatcher read them.
+    expect(getLeadMagnet('vault-revenue-planner')!.hero.eyebrow).toBeTruthy();
+    expect(getLeadMagnet('vault-revenue-planner')!.timeToComplete).toBeTruthy();
+  });
+
   it('stacks the hero in one centred column, image on top, at every breakpoint', () => {
     expect(toolHeroCode).toMatch(/mx-auto flex max-w-2xl flex-col items-center text-center/);
     // No side-by-side desktop grid, and no per-breakpoint reordering that would put the image

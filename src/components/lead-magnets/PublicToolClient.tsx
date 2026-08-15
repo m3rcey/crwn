@@ -355,17 +355,15 @@ export function PublicToolClient({
 
       {phase === 'hero' && (
         <>
-          {/* The homepage hero runs leaner than the tool-page hero (founder call,
-              2026-08-14): no qualifying eyebrow and no "takes about N, free" line, so the
-              photo gets that height back and the headline carries the whole first screen.
-              Both remain registry DATA (the /tools directory and the automation dispatcher
-              still read timeToComplete); this is a per-surface rendering choice, in the
-              same place the other homepage/tool chrome differences already live. */}
+          {/* EVERY surface now runs the lean hero (founder call, 2026-08-15): no qualifying
+              eyebrow and no "takes about N, free" line, on the calculators as well as the
+              homepage, so the photo gets that height back and the headline carries the whole
+              first screen. The per-surface conditional that used to live here is gone with
+              them. Both remain registry DATA (the /tools directory and the automation
+              dispatcher still read timeToComplete); only the hero stopped rendering them. */}
           <ToolHero
-            eyebrow={surface === 'homepage' ? undefined : config.hero.eyebrow}
             headline={config.hero.headline}
             subheadline={config.hero.subheadline}
-            timeToComplete={surface === 'homepage' ? undefined : config.timeToComplete}
             image={config.hero.image}
             imageAlt={config.hero.imageAlt}
             ctaLabel={config.hero.primaryCta}

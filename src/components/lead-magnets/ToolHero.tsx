@@ -3,7 +3,7 @@
 import Image from 'next/image';
 
 // The shared calculator hero. Extracted from PublicToolClient so /worth renders the IDENTICAL hero
-// as every other tool page: image, eyebrow, headline, subheadline, time + free line, gold CTA.
+// as every other tool page: image, headline, subheadline, gold CTA. Four elements, deliberately.
 //
 // ONE CENTRED COLUMN, image on top, at every breakpoint (2026-08-14). It used to be a two-column
 // desktop grid with the image beside the copy, which put the artwork and the headline in a reading
@@ -26,24 +26,27 @@ import Image from 'next/image';
 // or take the space. What you must NOT do is give the image a fixed or aspect-derived height on
 // desktop again, because that is what put the button below the fold both times.
 //
-// `eyebrow` and `timeToComplete` are both OPTIONAL, and the homepage passes neither (founder call,
-// 2026-08-14). On desktop that height goes straight to the photo with no other change, because the
+// The EYEBROW and the "Takes about N. Free." line are both GONE (founder call, 2026-08-15). The
+// homepage had already dropped them; this brings the six calculator pages in line, so the hero is
+// image, headline, subheadline, button and nothing else. They are removed rather than made
+// optional: an optional prop nobody passes is dead surface that invites the elements back.
+//
+// The registry still carries `hero.eyebrow` and `timeToComplete` because the /tools directory
+// listing reads them. Deleting them there would be a different change to a different surface.
+//
+// On desktop the reclaimed height goes straight to the photo with no other adjustment, because the
 // image is the flexible element. Mobile has no such slack, so its aspect ratio was opened up by
 // hand instead; see the image block below.
 export function ToolHero({
-  eyebrow,
   headline,
   subheadline,
-  timeToComplete,
   image,
   imageAlt,
   ctaLabel,
   onStart,
 }: {
-  eyebrow?: string;
   headline: string;
   subheadline: string;
-  timeToComplete?: string;
   image: string;
   imageAlt: string;
   ctaLabel: string;
@@ -77,7 +80,6 @@ export function ToolHero({
 
       {/* `shrink-0`: the copy takes the height it needs and the image yields, never the reverse. */}
       <div className="w-full shrink-0 flex flex-col items-center text-center">
-        {eyebrow && <div className="text-xs font-semibold uppercase tracking-wide text-crwn-gold mb-2">{eyebrow}</div>}
         <h1 className="text-3xl md:text-4xl font-bold text-crwn-text leading-tight">{headline}</h1>
         <p className="text-base text-crwn-text-secondary mt-3 leading-relaxed">{subheadline}</p>
         <div className="w-full mt-5">
@@ -88,12 +90,6 @@ export function ToolHero({
             {ctaLabel}
           </button>
         </div>
-        {/* Moved BELOW the button. It is reassurance about the click, not a prerequisite for it,
-            and above the button it was pure cost between the promise and the action. Omitted
-            entirely when the caller passes no duration (the homepage). */}
-        {timeToComplete && (
-          <p className="text-xs text-crwn-text-secondary mt-3">Takes about {timeToComplete}. Free.</p>
-        )}
       </div>
     </div>
   );

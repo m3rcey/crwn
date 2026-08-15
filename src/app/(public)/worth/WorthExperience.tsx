@@ -631,10 +631,8 @@ export function WorthExperience({
 
         {useEntryWizard && (
           <ToolHero
-            eyebrow="Streaming Loss"
             headline="Streaming built your reach. It cannot tell you who pays."
             subheadline="Put in your listeners and followers, and see what the paying group inside them is worth every month."
-            timeToComplete="1 min"
             image="/hero-worth.webp"
             imageAlt="Illustration of an artist alone on a stool in a dark studio looking at a glowing phone"
             ctaLabel="See what I am worth"
