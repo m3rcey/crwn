@@ -29,7 +29,7 @@ import { ArrowRight, ArrowDown, Check } from 'lucide-react';
 import { SectionImage } from '@/components/ui/SectionImage';
 import { SECTION_ART } from '@/lib/positioning/sectionImages';
 import { TIER_PRICING, TIER_LIMITS } from '@/lib/platformTier';
-import { PLAN_ANCHOR_ID, QUALIFY_ANCHOR_ID } from '@/components/lead-magnets/PublicToolClient';
+import { PLAN_ANCHOR_ID, QUALIFY_ANCHOR_ID, WIZARD_ANCHOR_ID } from '@/components/lead-magnets/PublicToolClient';
 // The canonical story is SHARED with every promoted calculator's lower page
 // (src/lib/positioning/story.ts). Six acquisition doors drifted apart once; the fix is one
 // source for the path, the loop and the First Revenue Launch offer, not six careful copies.
@@ -42,15 +42,24 @@ import {
   GUARANTEE_BODY,
 } from '@/lib/positioning/story';
 
-// The funnel lives at the top of this page. A visitor who has not run it belongs back
-// there; a visitor who has belongs at the specific control they asked for.
-const scrollToFunnel = () => window.scrollTo({ top: 0, behavior: 'smooth' });
-
-const scrollToAnchor = (id: string): boolean => {
+const scrollToAnchor = (id: string, block: ScrollLogicalPosition = 'center'): boolean => {
   const el = typeof document === 'undefined' ? null : document.getElementById(id);
   if (!el) return false;
-  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  el.scrollIntoView({ behavior: 'smooth', block });
   return true;
+};
+
+// Every CTA down here that means "go and run this" lands on the CALCULATOR, not the top of
+// the document (founder call, 2026-08-14). The top is a headline the visitor has already
+// read on the way down, and asking them to re-read it is friction charged at the exact
+// moment they decided to act. `block: 'start'` puts the first question at the top of the
+// viewport rather than centring the form.
+//
+// The fallback to the top survives for the one case where there is no calculator to land on:
+// a finished visitor whose wizard has been replaced by their result. Sending them to the top
+// then is correct, because the top IS their result.
+const scrollToCalculator = () => {
+  if (!scrollToAnchor(WIZARD_ANCHOR_ID, 'start')) window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
 const FRAGMENTED_STACK = [
@@ -177,13 +186,13 @@ export function HomeMarketing({ completed = false }: { completed?: boolean }) {
   // So a fresh visitor is returned to the calculator rather than to a control that would
   // ask them for a phone number CRWN could not yet score.
   const goToQualification = () => {
-    if (!scrollToAnchor(QUALIFY_ANCHOR_ID)) scrollToFunnel();
+    if (!scrollToAnchor(QUALIFY_ANCHOR_ID)) scrollToCalculator();
   };
 
-  // The close. Before completion it re-offers the calculator; after completion it returns
+  // The close. Before completion it sends them to the calculator; after completion it returns
   // the visitor to the plan they built, because they already have the number.
   const goToContinuation = () => {
-    if (!completed || !scrollToAnchor(PLAN_ANCHOR_ID)) scrollToFunnel();
+    if (!completed || !scrollToAnchor(PLAN_ANCHOR_ID)) scrollToCalculator();
   };
 
   return (

@@ -1,5 +1,27 @@
 # CRWN Brain — Changelog
 
+## 2026-08-14 - Homepage hero and CTA targets (founder pass)
+
+- **The homepage hero drops the eyebrow ("For independent artists already selling direct") and the
+  "Takes about 2 min. Free." line.** `ToolHero` now takes both as optional and `PublicToolClient`
+  passes neither when `surface === 'homepage'`. `timeToComplete` stays registry DATA because the
+  `/tools` directory and `automationDispatcher` read it; only the hero rendering changed, and the
+  19 tool routes are untouched.
+- **More photograph, still above the fold.** Desktop needed no change: the image is `flex-1`, so it
+  absorbed the freed height automatically. Mobile has no such slack, so its crop is now
+  height-aware: 4:3 above 700px of viewport height, 16:9 below it. Measured, not budgeted, at
+  375x667 / 390x844 / 430x932 / 1280x800 / 1440x900.
+- **Every "go and run this" CTA now lands on the calculator, not the top of the document.** New
+  `WIZARD_ANCHOR_ID` on the wizard; the nav's "See my opportunity", the First Revenue Launch CTA
+  when no result exists, and the closing CTA before completion all target it. The top-of-page
+  fallback survives only when no wizard is mounted, because for a finished visitor the top is their
+  own result. Completed-state targets are unchanged (hand-raiser and builder).
+- The fold drift test previously banned the literal string `aspect-[4/3]`. It now asserts the rule
+  that ban stood in for, and is strictly stronger: any ratio must be neutralised at `md`
+  (`md:aspect-auto` required, `md:aspect-[...]` forbidden), so desktop can never become
+  aspect-derived. Mutation-tested: the violation was introduced, the test failed for the intended
+  reason, and it was reverted.
+
 ## 2026-08-15 - Team Split funding decisions: stale "open questions" language reconciled
 
 **Documentation-only pass; no money, Stripe, schema or runtime behavior changed and the cashout

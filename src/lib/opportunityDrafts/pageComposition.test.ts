@@ -521,9 +521,25 @@ describe('Homepage marketing narrative (HomeMarketing)', () => {
     expect(publicToolClient).toContain('export const PLAN_ANCHOR_ID');
     expect(publicToolClient).toContain('id={QUALIFY_ANCHOR_ID}');
     expect(publicToolClient).toContain('id={PLAN_ANCHOR_ID}');
-    // When the hand-raiser is not mounted (no result yet) the visitor goes back to the
-    // calculator, because qualification is scored from its answers. It is never skipped.
-    expect(homeMarketing).toMatch(/if \(!scrollToAnchor\(QUALIFY_ANCHOR_ID\)\) scrollToFunnel\(\)/);
+    // When the hand-raiser is not mounted (no result yet) the visitor goes to the CALCULATOR,
+    // because qualification is scored from its answers. It is never skipped.
+    expect(homeMarketing).toMatch(/if \(!scrollToAnchor\(QUALIFY_ANCHOR_ID\)\) scrollToCalculator\(\)/);
+  });
+
+  it('every "go and run it" CTA lands on the calculator, never the top of the document', () => {
+    // Founder call 2026-08-14. The top is a headline the reader already scrolled past, and on a
+    // finished page it is their result, so a CTA that means "run this" has to target the wizard.
+    expect(publicToolClient).toContain('export const WIZARD_ANCHOR_ID');
+    expect(publicToolClient).toContain('id={WIZARD_ANCHOR_ID}');
+    expect(homeMarketing).toContain('WIZARD_ANCHOR_ID');
+    expect(homeMarketing).toMatch(/const scrollToCalculator[\s\S]{0,220}scrollToAnchor\(WIZARD_ANCHOR_ID, 'start'\)/);
+    // The nav CTA is on the same rule.
+    expect(worth).toContain('WIZARD_ANCHOR_ID');
+    const nav = worth.slice(worth.indexOf('See my opportunity') - 900, worth.indexOf('See my opportunity'));
+    expect(nav).toContain('getElementById(WIZARD_ANCHOR_ID)');
+    // The top-of-page fallback survives ONLY as the no-wizard case (a finished visitor), never
+    // as the primary target.
+    expect(homeMarketing).not.toMatch(/onClick=\{\(\) => window\.scrollTo/);
   });
 
   it('keeps the copy guardrails: no em dashes, no banned frames, no fabricated proof', () => {
@@ -552,8 +568,8 @@ describe('Homepage marketing narrative (HomeMarketing)', () => {
     // has the number, so the close returns them to the plan they built instead.
     expect(homeMarketing).toContain('See what my fans are worth');
     expect(homeMarketing).toContain('Back to my plan');
-    expect(homeMarketing).toContain('scrollToFunnel');
-    expect(homeMarketing).toMatch(/if \(!completed \|\| !scrollToAnchor\(PLAN_ANCHOR_ID\)\) scrollToFunnel\(\)/);
+    expect(homeMarketing).toContain('scrollToCalculator');
+    expect(homeMarketing).toMatch(/if \(!completed \|\| !scrollToAnchor\(PLAN_ANCHOR_ID\)\) scrollToCalculator\(\)/);
     // The narrative never links out to signup directly: the save boundary owns signup.
     expect(homeMarketing).not.toContain('/signup');
   });

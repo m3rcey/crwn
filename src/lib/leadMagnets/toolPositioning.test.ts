@@ -220,8 +220,16 @@ describe('every headline opens on a brand photograph', () => {
     // the budget back and the button below the fold with it.
     expect(toolHeroCode).not.toMatch(/md:max-h-\[\d+vh\]/);
     expect(toolHeroCode).not.toMatch(/md:h-\[\d+vh\]/);
-    expect(toolHeroCode).not.toMatch(/aspect-\[4\/3\]/);
     expect(toolHeroCode).not.toMatch(/mt-auto/);
+    // This used to ban the literal string `aspect-[4/3]`, which was the ratio that broke the
+    // fold when it applied at EVERY breakpoint. The rule it was standing in for is the one
+    // asserted here instead, and it is strictly stronger: the image may carry whatever ratio
+    // mobile needs, but every ratio must be neutralised at `md`, and no ratio may be md-scoped.
+    // (Founder call 2026-08-14: reveal more of the photo. Mobile now takes 4:3 above 700px of
+    // viewport height and stays 16:9 below it, which was measured at 375x667, 390x844, 430x932,
+    // 1280x800 and 1440x900 rather than budgeted. Re-measure if you change the ratio.)
+    expect(toolHeroCode).toMatch(/md:aspect-auto/);
+    expect(toolHeroCode).not.toMatch(/md:aspect-\[/);
   });
 
   it('keeps the section images below the fold, so they never race the hero', () => {

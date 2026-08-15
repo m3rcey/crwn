@@ -58,6 +58,13 @@ export type ToolSurface = 'tool' | 'homepage';
  */
 export const PLAN_ANCHOR_ID = 'crwn-plan-builder';
 export const QUALIFY_ANCHOR_ID = 'crwn-launch-call';
+/**
+ * The calculator itself. Every homepage CTA that means "go and run this" targets the wizard,
+ * NOT the top of the document: the top is a headline the visitor has already read, and on a
+ * finished page it is their result. Present only while the wizard is mounted, so callers fall
+ * back to the top when there is no calculator on screen to send anybody to.
+ */
+export const WIZARD_ANCHOR_ID = 'crwn-calculator';
 
 /** What the `below` slot is told about the funnel above it. One bit, deliberately. */
 export interface BelowContext {
@@ -348,11 +355,17 @@ export function PublicToolClient({
 
       {phase === 'hero' && (
         <>
+          {/* The homepage hero runs leaner than the tool-page hero (founder call,
+              2026-08-14): no qualifying eyebrow and no "takes about N, free" line, so the
+              photo gets that height back and the headline carries the whole first screen.
+              Both remain registry DATA (the /tools directory and the automation dispatcher
+              still read timeToComplete); this is a per-surface rendering choice, in the
+              same place the other homepage/tool chrome differences already live. */}
           <ToolHero
-            eyebrow={config.hero.eyebrow}
+            eyebrow={surface === 'homepage' ? undefined : config.hero.eyebrow}
             headline={config.hero.headline}
             subheadline={config.hero.subheadline}
-            timeToComplete={config.timeToComplete}
+            timeToComplete={surface === 'homepage' ? undefined : config.timeToComplete}
             image={config.hero.image}
             imageAlt={config.hero.imageAlt}
             ctaLabel={config.hero.primaryCta}
@@ -361,7 +374,9 @@ export function PublicToolClient({
 
           {/* The wizard lives on the SAME page, directly below the hero. The CTA scrolls
               here rather than swapping the view, so the pitch stays one continuous page. */}
-          <div ref={wizardRef} className="max-w-lg mx-auto scroll-mt-4 pt-10 md:pt-14">
+          {/* `scroll-mt-20` clears the homepage's sticky nav when a CTA further down the page
+              scrolls here by anchor; the hero CTA's own scrollIntoView uses the same offset. */}
+          <div id={WIZARD_ANCHOR_ID} ref={wizardRef} className="max-w-lg mx-auto scroll-mt-20 pt-10 md:pt-14">
             <LeadMagnetWizard
               config={config}
               context="public"

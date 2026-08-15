@@ -6,6 +6,7 @@ import { DeliverableBuilder } from '@/components/opportunity/DeliverableBuilder'
 import { ResultToBuilder } from '@/components/opportunity/ResultToBuilder';
 import { LeadMagnetWizard } from '@/components/lead-magnets/LeadMagnetWizard';
 import { ToolHero } from '@/components/lead-magnets/ToolHero';
+import { WIZARD_ANCHOR_ID } from '@/components/lead-magnets/PublicToolClient';
 import type { LeadMagnetConfig } from '@/lib/leadMagnets/types';
 import { buildContinueUrl } from '@/lib/leadMagnets/continuationCta';
 import { LM_EVENTS, trackLeadMagnet } from '@/lib/leadMagnets/analytics';
@@ -764,7 +765,14 @@ export function HomeNav() {
           </a>
           <a href="/login" className="text-crwn-text hover:text-crwn-gold transition-colors">Log in</a>
           <button
-            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            onClick={() => {
+              // The calculator, not the top of the document. The top is a headline the visitor
+              // has already read, and on a finished page it is their result, so it falls back
+              // there only when there is no wizard mounted to send them to.
+              const el = document.getElementById(WIZARD_ANCHOR_ID);
+              if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              else window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
             className="bg-crwn-gold text-crwn-bg font-semibold px-4 py-2 rounded-full hover:bg-crwn-gold/90 transition-colors"
           >
             See my opportunity
