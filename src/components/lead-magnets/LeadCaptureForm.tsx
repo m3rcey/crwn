@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useRef, useState } from 'react';
 import { LM_EVENTS, trackLeadMagnet } from '@/lib/leadMagnets/analytics';
+import { useViewportExposure } from '@/hooks/useViewportExposure';
 import type { LeadMagnetConfig } from '@/lib/leadMagnets/types';
 
 export interface LeadCaptureValues {
@@ -35,12 +36,15 @@ export function LeadCaptureForm({ config, submitting, onSubmit }: { config: Lead
   });
   const [error, setError] = useState('');
 
-  // This event was DEFINED and allowlisted but never fired by anything, so "how many people who saw
-  // a result were even offered the email" was unmeasurable, and the enrollment funnel had no
-  // denominator. Firing it here is the smallest instrumentation that makes the opt-in rate real.
-  useEffect(() => {
-    trackLeadMagnet(LM_EVENTS.leadCaptureViewed, { toolSlug: config.slug, context: 'public' });
-  }, [config.slug]);
+  // EXPOSURE, not mount. This event was first wired from a mount effect, which counted a card
+  // sitting below the fold as "viewed" and would have made every rate measured against it wrong in
+  // the flattering direction. It now requires the card to actually be on screen and STAY there, so
+  // the smooth scroll from the "Build my ..." CTA cannot manufacture an exposure on its way past.
+  const exposureRef = useRef<HTMLDivElement>(null);
+  useViewportExposure(exposureRef, {
+    key: `crwn_capture_seen:${config.slug}`,
+    onExposed: () => trackLeadMagnet(LM_EVENTS.leadCaptureViewed, { toolSlug: config.slug, context: 'public' }),
+  });
 
   const set = <K extends keyof LeadCaptureValues>(k: K, val: LeadCaptureValues[K]) => setV((prev) => ({ ...prev, [k]: val }));
 
@@ -61,7 +65,7 @@ export function LeadCaptureForm({ config, submitting, onSubmit }: { config: Lead
   };
 
   return (
-    <div className="space-y-4">
+    <div ref={exposureRef} className="space-y-3">
       {/* NOT a gate. The result is already visible above. This is the optional "send me a
           copy" ask, the same way /worth does it.
 
@@ -69,11 +73,14 @@ export function LeadCaptureForm({ config, submitting, onSubmit }: { config: Lead
           have later. That is a weak reason to hand over an email, and production agreed (zero leads
           ever captured). It now names what actually arrives, because the follow-up IS the value and
           the sequence genuinely delivers these three things. */}
+      {/* Kept SHORT on purpose. Measured on a 375x667 phone, the three-line version pushed the card
+          to 511px, so barely any of it cleared the fold and the primary CTA scrolled past what was
+          left. Height here is not cosmetic: it decides whether the offer is ever seen on a small
+          screen. Say the thing in one line. */}
       <div>
         <h2 className="text-xl font-bold text-crwn-text">Want the plan behind this number?</h2>
         <p className="text-sm text-crwn-text-secondary mt-1">
-          We will email you this result, then the three things artists ask us next: the first move for your situation, the order to
-          invite fans so a launch does not land flat, and how to run this alongside the tools you already use.
+          Your result, then the first move, the order to invite fans, and how to run it alongside the tools you already use.
         </p>
       </div>
 
@@ -105,7 +112,7 @@ export function LeadCaptureForm({ config, submitting, onSubmit }: { config: Lead
         {submitting ? 'Sending…' : config.cta.publicSecondary || 'Email me a copy'}
       </button>
 
-      <p className="text-[11px] text-crwn-text-secondary text-center leading-relaxed">
+      <p className="text-[11px] text-crwn-text-secondary text-center leading-snug">
         By continuing you agree to our{' '}
         <a href="/terms" className="underline">
           Terms

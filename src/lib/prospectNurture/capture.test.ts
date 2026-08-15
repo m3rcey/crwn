@@ -18,6 +18,7 @@ const worthApi = read('src/app/api/leads/calculator/route.ts');
 const captureApi = read('src/app/api/lead-magnets/capture/route.ts');
 const analytics = read('src/lib/leadMagnets/analytics.ts');
 const analyticsRoute = read('src/app/api/lead-magnets/analytics/route.ts');
+const exposureHook = read('src/hooks/useViewportExposure.ts');
 
 describe('the capture surface is reachable on registry calculators', () => {
   // Anchored on the full-result JSX block, same technique as pageComposition.test.ts.
@@ -132,6 +133,56 @@ describe('the capture funnel is measurable end to end', () => {
     expect(analytics).toContain('leadCaptureViewed');
     expect(captureForm).toMatch(/trackLeadMagnet\(LM_EVENTS\.leadCaptureViewed/);
     expect(worth).toMatch(/trackLeadMagnet\(LM_EVENTS\.leadCaptureViewed/);
+  });
+
+  it('means VIEWPORT EXPOSURE, never component mount, on both surfaces', () => {
+    // The first wiring fired this from a mount effect. Measured on a 375x667 phone, the card mounts
+    // at y=588 with the fold at 667, so "mounted" counted a card the visitor could not see, and
+    // every rate measured against it would have been wrong in the flattering direction.
+    for (const [name, src] of [['registry', captureForm], ['worth', worth]] as const) {
+      expect(src, `${name}: must route exposure through the observer hook`).toMatch(/useViewportExposure\(/);
+      // No bare mount effect that fires the exposure beacon.
+      expect(src, `${name}: exposure must not fire from a mount effect`).not.toMatch(
+        /useEffect\(\(\) => \{[^}]*leadCaptureViewed/,
+      );
+    }
+  });
+
+  it('requires the element to STAY visible, so a scroll-past flyby is not an exposure', () => {
+    // The primary "Build my ..." CTA scrolls the page past this card. Visibility alone would count
+    // that sweep; the dwell is what separates "swept through" from "had a chance to read it".
+    expect(exposureHook).toMatch(/dwellMs/);
+    expect(exposureHook).toMatch(/setTimeout/);
+    expect(exposureHook).toMatch(/intersectionRatio >= threshold/);
+    // Leaving the viewport before the dwell elapses cancels the pending fire.
+    expect(exposureHook).toMatch(/clear\(\)/);
+  });
+
+  it('fires at most once per result experience, surviving remounts and scroll-away-and-back', () => {
+    expect(exposureHook).toMatch(/sessionStorage/);
+    expect(exposureHook).toMatch(/io\.disconnect\(\)/);
+    // Both surfaces pass a stable per-tool key.
+    expect(captureForm).toMatch(/key: `crwn_capture_seen:\$\{config\.slug\}`/);
+    expect(worth).toMatch(/key: 'crwn_capture_seen:worth'/);
+  });
+
+  it('degrades to NOT firing when it cannot observe, rather than to firing on mount', () => {
+    // An absent number is honest. An inflated one is not.
+    expect(exposureHook).toMatch(/typeof IntersectionObserver === 'undefined'\) return/);
+  });
+
+  it('holds the /worth exposure off while the entry wizard is showing', () => {
+    // The capture card is not on that surface at all, so an event that could fire there would
+    // manufacture a conversion problem that does not exist.
+    expect(worth).toMatch(/enabled: !useEntryWizard/);
+  });
+
+  it('leaves the capture card partly on screen when the primary CTA scrolls to the builder', () => {
+    // Measured: a flush scroll landed the builder at the viewport top with the card 0% visible on
+    // a 375x667 phone, so a visitor who tapped the gold CTA never saw the offer. The scroll margin
+    // leaves its tail visible. Kept below the exposure threshold so it cannot inflate the metric.
+    expect(publicToolClient).toMatch(/ref=\{builderRef\}[^>]*scroll-mt-\[200px\]/);
+    expect(worth).toMatch(/ref=\{worthBuilderRef\}[^>]*scroll-mt-\[200px\]/);
   });
 
   it('fires the submit-attempt event with its consent state on both surfaces', () => {

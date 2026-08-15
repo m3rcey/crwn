@@ -473,7 +473,16 @@ export function PublicToolClient({
 
           {/* THE BUILDER: the immediate continuation of the result. Carries a stable id so a
               closing CTA below the funnel can return the visitor to the plan they built. */}
-          <div id={PLAN_ANCHOR_ID} ref={builderRef} className="scroll-mt-4 pt-1">
+          {/* `scroll-mt` is doing real work on small screens, not spacing. Measured on a 375x667
+              phone: the result plus its disclaimer occupy 588px, so the capture card starts below
+              the fold, and a `block:'start'` scroll to the builder used to land it flush at the top
+              with the card 0% visible. A visitor who tapped the gold CTA immediately therefore never
+              saw the offer at all. A ~200px margin lands the builder just below the fold line and
+              leaves the tail of the capture card (its consent line and button) on screen, so the
+              offer is glimpsed rather than skipped. Deliberately BELOW the 50% exposure threshold,
+              so this improves the experience without manufacturing a `capture_viewed`. Desktop
+              already shows the card at ~68% on load and keeps the tighter margin. */}
+          <div id={PLAN_ANCHOR_ID} ref={builderRef} className="scroll-mt-[200px] sm:scroll-mt-4 pt-1">
             {config.slug === OYF_TOOL_KEY ? (
               <FanCaptureBuilder
                 mode="anonymous"

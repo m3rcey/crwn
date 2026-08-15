@@ -9,6 +9,7 @@ import { ToolHero } from '@/components/lead-magnets/ToolHero';
 import type { LeadMagnetConfig } from '@/lib/leadMagnets/types';
 import { buildContinueUrl } from '@/lib/leadMagnets/continuationCta';
 import { LM_EVENTS, trackLeadMagnet } from '@/lib/leadMagnets/analytics';
+import { useViewportExposure } from '@/hooks/useViewportExposure';
 import { Check, ChevronDown, ArrowRight } from 'lucide-react';
 import { SectionImage } from '@/components/ui/SectionImage';
 import { SECTION_ART } from '@/lib/positioning/sectionImages';
@@ -149,6 +150,8 @@ export function WorthExperience({
   // Marketing permission. NEVER pre-checked, and never inferred from typing an email: the breakdown
   // is transactional and sends without it. Only this box routes into the canonical prospect nurture.
   const [emailConsent, setEmailConsent] = useState(false);
+  // Observed for real viewport exposure, so `capture_viewed` cannot mean "rendered off screen".
+  const captureExposureRef = useRef<HTMLDivElement>(null);
   const [captureState, setCaptureState] = useState<'idle' | 'sending' | 'done' | 'error'>('idle');
 
   // Prefill inputs from URL query params so outreach links land on the artist's
@@ -327,7 +330,7 @@ export function WorthExperience({
   ) : null;
 
   const emailCaptureCard = (
-    <div className="bg-crwn-surface border border-crwn-elevated rounded-2xl p-6 mb-14">
+    <div ref={captureExposureRef} className="bg-crwn-surface border border-crwn-elevated rounded-2xl p-6 mb-14">
       {captureState === 'done' ? (
         <div className="flex items-center gap-2 text-crwn-gold justify-center py-2">
           <Check className="w-5 h-5" /> On its way. Check your inbox for the full breakdown.
@@ -426,8 +429,16 @@ export function WorthExperience({
   // homepage. Result -> concise derivation -> this. Saving the draft carries the result
   // token into signup (buildContinueUrl), so the homepage no longer drops continuation
   // context at its highest-intent moment.
+  // `scroll-mt` below is doing measured work, not spacing. On a 375x667 phone the result, stats and
+  // derivation push the capture card to y=1385, and a flush `block:'start'` scroll to the builder
+  // landed at 1756 with the card 0% visible, so a visitor who tapped the gold CTA never saw the
+  // offer at all. The margin leaves its tail on screen. Deliberately under the 50% exposure
+  // threshold on mobile, so it improves the experience without manufacturing a `capture_viewed`.
+  // Applied at EVERY breakpoint here, unlike the registry calculators: /worth stacks a result card,
+  // a stats grid and a derivation card above the ask, so its capture card is below the fold on
+  // desktop too (measured at 1280x900), where the registry version is already ~68% visible on load.
   const builderSection = (
-    <section ref={worthBuilderRef} className="mb-14 scroll-mt-4">
+    <section ref={worthBuilderRef} className="mb-14 scroll-mt-[200px]">
       <SectionHeading>Turn this estimate into an offer your fans can join</SectionHeading>
       <p className="text-crwn-text-secondary text-xl mb-5">
         We prefilled it from your numbers. Edit anything. Nothing is live until you publish it.
@@ -502,14 +513,15 @@ export function WorthExperience({
 
   const useEntryWizard = !homepage && !leadView && !entryDone;
 
-  // The capture card renders only once the visitor is past the entry wizard and reading a result,
-  // which is the same moment the registry calculators fire this. Gating on `useEntryWizard` keeps
-  // the denominator honest: an exposure event that fires when the card is not on screen is worse
-  // than no event, because it manufactures a conversion problem that does not exist.
-  useEffect(() => {
-    if (useEntryWizard) return;
-    trackLeadMagnet(LM_EVENTS.leadCaptureViewed, { toolSlug: 'worth', context: 'public' });
-  }, [useEntryWizard]);
+  // EXPOSURE, not mount, same rule as the registry calculators. `enabled` also holds it off while
+  // the entry wizard is showing, because the capture card is not on that surface at all: an
+  // exposure event that can fire when the card is unreachable manufactures a conversion problem
+  // that does not exist.
+  useViewportExposure(captureExposureRef, {
+    key: 'crwn_capture_seen:worth',
+    enabled: !useEntryWizard,
+    onExposed: () => trackLeadMagnet(LM_EVENTS.leadCaptureViewed, { toolSlug: 'worth', context: 'public' }),
+  });
 
   const entryWizard = (
     <div ref={worthWizardRef} className="max-w-lg mx-auto mb-10 scroll-mt-4 pt-10 md:pt-14">

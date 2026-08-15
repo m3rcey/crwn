@@ -93,6 +93,26 @@ Three properties, all of which must hold:
    without ever touching the card.
 3. **Not behind an exit.** The card precedes the builder, whose action is sticky and navigating.
 
+**`scroll-mt` on the builder is measured behaviour, not spacing.** On a 375x667 phone the result and
+its disclaimer occupy 588px, so the capture card starts below the fold, and a flush `block:'start'`
+scroll to the builder left it **0% visible**: a visitor who tapped the gold CTA immediately never saw
+the offer at all. A ~200px scroll margin lands the builder just below the fold line and leaves the
+card's tail (consent line and button) on screen. Deliberately kept BELOW the exposure threshold, so
+it improves the experience without manufacturing a `capture_viewed`. `/worth` uses the margin at
+every breakpoint because its result, stats and derivation push the card below the fold on desktop
+too; the registry calculators keep a tight desktop margin because their card is already ~68% visible
+on load.
+
+Measured with `scripts/probe-capture-exposure.mjs` (drives real Chrome over CDP):
+
+| Surface | Viewport | Card visible on load | Visible after tapping the gold CTA |
+|---|---|---:|---:|
+| Registry | 1280x900 | 68% (fires) | 0% (already exposed) |
+| Registry | 390x844 | 50% (fires) | 40% |
+| Registry | 375x667 | 15% (does not fire) | 40% |
+| `/worth` | 1280x900 | below fold | 71% |
+| `/worth` | 375x667 | below fold | 44% |
+
 Two supporting details, both found by LOOKING at the rendered page rather than by a unit test:
 
 - The capture submit button is **not gold**. Directly under `ResultToBuilder`'s gold pill, a
@@ -316,19 +336,41 @@ sequence has non-zero volume.
 
 Never write `0%` for a stage that was not measured. Use `not measured`.
 
+**The denominator is the ELIGIBLE population, not every result.** An eligible anonymous
+promoted-calculator result is one where `lead_magnet_results.user_id IS NULL` (an authenticated
+artist never sees prospect capture), `tool_slug` is in `PROMOTED_TOOL_KEYS`, and the surface actually
+presents prospect capture. Of the 41 historical rows, 16 are authenticated and 17 came from paused
+calculators, so `result_generated` would flatter every rate measured against it.
+
 | Rate | Formula |
 |---|---|
-| Result to exposure | `lead_magnet_lead_capture_viewed / lead_magnet_result_generated` |
-| Exposure to attempt | `lead_magnet_lead_submitted / lead_magnet_lead_capture_viewed` |
-| Attempt to consent | `lead_magnet_lead_submitted[reason_code='consented'] / lead_magnet_lead_submitted` |
-| Consent to enrollment | `prospect_nurture_enrolled / lead_magnet_lead_submitted[reason_code='consented']` |
+| Eligible result to exposure | `capture_viewed / eligible_anonymous_promoted_result` |
+| Exposure to attempt | `lead_submitted / capture_viewed` |
+| Attempt to consent | `lead_submitted[reason_code='consented'] / lead_submitted` |
+| Consent to enrollment | `prospect_nurture_enrolled / lead_submitted[reason_code='consented']` |
 | Enrollment to account | `prospect_nurture_exited[reason_code='account_created'] / prospect_nurture_enrolled` |
 
-Before 2026-08-15 the first three were **unmeasurable**, because neither client event fired.
+**`lead_magnet_lead_capture_viewed` means actual viewport exposure, not component mount.** It fires
+once per result experience when at least half the capture card has been continuously on screen for
+~0.9s (`src/hooks/useViewportExposure.ts`). The dwell is the point: the primary CTA scrolls the page
+past the card in a few hundred milliseconds, and an element that swept through the viewport on the
+way somewhere else was not an opportunity to read an offer. The threshold and dwell are product
+judgement, not science; they exist only to separate "rendered in the DOM" from "had a fair chance to
+see it". Dedup is a per-tool `sessionStorage` key, so it survives a remount and a scroll-away-and-back
+but counts a genuinely new visit again. Without `IntersectionObserver` it fires **nothing**, because
+an absent number is honest and an inflated one is not.
 
-**The one metric to watch first:** *result to exposure*. If artists now see the card and still do not
-opt in, the problem is the offer; if they still do not see it, the problem is still placement. That
-distinction was impossible to make before and is the entire point of the instrumentation.
+Before 2026-08-15 the first three rates were **unmeasurable**, because neither client event fired.
+The first wiring of the exposure event fired it on mount, which would have been worse than silence.
+
+**The one metric to watch first:** *eligible result to exposure*. If artists now see the card and
+still do not opt in, the problem is the offer; if they still do not see it, the problem is still
+placement. That distinction was impossible to make before and is the entire point of the
+instrumentation.
+
+**Known and deliberate:** on a short phone a visitor who taps the gold CTA within the first screen is
+never exposed, and is correctly **not** counted. That is a real limit of the composition, not a
+measurement artefact, and the exposure rate is what will show how large it is.
 
 ## Admin controls
 
