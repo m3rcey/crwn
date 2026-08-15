@@ -46,7 +46,7 @@ function promotedCopy(): string {
   for (const slug of PROMOTED_MARKETING_SLUGS) {
     const cfg = getLeadMagnet(slug);
     if (cfg) {
-      parts.push(cfg.name, cfg.description, cfg.videoAngle ?? '', cfg.hero.eyebrow ?? '', cfg.hero.headline, cfg.hero.subheadline, cfg.hero.primaryCta);
+      parts.push(cfg.name, cfg.description, cfg.videoAngle ?? '', cfg.hero.headline, cfg.hero.subheadline, cfg.hero.primaryCta);
       parts.push(...cfg.wizardSteps.flatMap((s) => [s.title, s.subtitle ?? '', s.group ?? '']));
       parts.push(...cfg.inputs.flatMap((i) => [i.label, i.help ?? '', ...(i.options ?? []).flatMap((o) => [o.label, o.hint ?? ''])]));
     }
@@ -260,9 +260,13 @@ describe('every headline opens on a brand photograph', () => {
     expect(code(publicToolClient)).not.toMatch(/eyebrow=\{/);
     expect(code(publicToolClient)).not.toMatch(/timeToComplete=\{/);
     expect(code(worth)).not.toMatch(/eyebrow="/);
-    // But the registry KEEPS them: the /tools directory and the automation dispatcher read them.
-    expect(getLeadMagnet('vault-revenue-planner')!.hero.eyebrow).toBeTruthy();
+    // `timeToComplete` STAYS in the registry: LeadMagnetDirectory renders it on /tools and
+    // automationDispatcher sends it as `howLong`. Verified by grep, not assumed.
     expect(getLeadMagnet('vault-revenue-planner')!.timeToComplete).toBeTruthy();
+    // `hero.eyebrow` is GONE from the registry, not merely unrendered. Once the hero stopped
+    // reading it, nothing else did, so keeping it would have been the dead surface this very
+    // test was written to prevent.
+    expect(LEAD_MAGNETS.every((m) => !('eyebrow' in m.hero))).toBe(true);
   });
 
   it('stacks the hero in one centred column, image on top, at every breakpoint', () => {
@@ -345,7 +349,7 @@ describe('promoted calculator copy matches current positioning', () => {
     const oyf = getLeadMagnet('own-your-fans-calculator')!;
     // Everything a visitor READS on the page, eyebrow included: that was the last surface still
     // asserting ownership of people, and it sat directly above the headline.
-    const claim = `${oyf.hero.eyebrow ?? ''} ${oyf.hero.headline} ${oyf.hero.subheadline} ${oyf.hero.primaryCta} ${oyf.description}`;
+    const claim = `${oyf.hero.headline} ${oyf.hero.subheadline} ${oyf.hero.primaryCta} ${oyf.description}`;
     expect(claim.toLowerCase()).not.toMatch(/own your fans|owning your fans|own them|you own your fans/);
     // The identifiers stay: campaign links and DM triggers are keyed to them.
     expect(oyf.slug).toBe('own-your-fans-calculator');

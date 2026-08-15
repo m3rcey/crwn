@@ -31,8 +31,10 @@ import Image from 'next/image';
 // image, headline, subheadline, button and nothing else. They are removed rather than made
 // optional: an optional prop nobody passes is dead surface that invites the elements back.
 //
-// The registry still carries `hero.eyebrow` and `timeToComplete` because the /tools directory
-// listing reads them. Deleting them there would be a different change to a different surface.
+// `timeToComplete` stays in the registry because LeadMagnetDirectory renders it on /tools and
+// automationDispatcher sends it as `howLong`. `hero.eyebrow` did NOT survive: once this hero
+// stopped reading it, a grep found no other reader, so the field went too rather than sitting
+// in nineteen configs as data nothing consumes.
 //
 // On desktop the reclaimed height goes straight to the photo with no other adjustment, because the
 // image is the flexible element. Mobile has no such slack, so its aspect ratio was opened up by

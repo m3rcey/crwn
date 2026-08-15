@@ -109,7 +109,6 @@ export interface LeadMagnetConfig {
    */
   dmKeywords: string[];
   hero: {
-    eyebrow?: string;
     headline: string;
     subheadline: string;
     primaryCta: string;

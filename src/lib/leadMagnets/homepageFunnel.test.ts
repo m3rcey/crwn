@@ -55,7 +55,7 @@ describe('homepage funnel config (opportunity-calculator)', () => {
     // all-in-one calculator" or "five separate numbers" assumes the reader has
     // already met the rest of the tool family, and to someone who has not it
     // reads as being about a product they have never seen. It shipped that way.
-    const hero = [config!.hero.eyebrow ?? '', config!.hero.headline, config!.hero.subheadline, config!.hero.primaryCta]
+    const hero = [config!.hero.headline, config!.hero.subheadline, config!.hero.primaryCta]
       .join(' ')
       .toLowerCase();
     for (const presumptuous of [
@@ -70,7 +70,7 @@ describe('homepage funnel config (opportunity-calculator)', () => {
   });
 
   it('writes the hero without em dashes', () => {
-    for (const line of [config!.hero.eyebrow ?? '', config!.hero.headline, config!.hero.subheadline]) {
+    for (const line of [config!.hero.headline, config!.hero.subheadline]) {
       expect(line).not.toContain('—');
       expect(line).not.toContain('–');
     }

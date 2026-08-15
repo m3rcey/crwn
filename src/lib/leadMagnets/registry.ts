@@ -23,7 +23,6 @@ const VAULT_REVENUE_PLANNER: LeadMagnetConfig = {
     // The catalog is not the product: deeper ACCESS to it is the clearest reason a committed fan
     // identifies themselves, pays, and climbs a rung. That is a membership beat, not an
     // inventory beat, and it is why the vault lives inside the ladder rather than beside it.
-    eyebrow: 'Artist Vault',
     headline: 'Your most committed fans have nowhere to go.',
     subheadline: 'The unreleased work on your phone is the reason they would pay you more. See what that access is worth.',
     primaryCta: 'Plan my Vault',
@@ -98,7 +97,6 @@ const PROOF_OF_DEMAND: LeadMagnetConfig = {
   timeToComplete: '2 min',
   dmKeywords: ['proof', 'demand'],
   hero: {
-    eyebrow: 'Proof of Demand',
     headline: 'You find out nobody wanted it after you have already paid for it.',
     subheadline: 'Guessing is what kills the merch run, the tour date and the deluxe. Make fans prove demand first, so you never fund another drop that nobody shows up for.',
     primaryCta: 'Build my demand test',
@@ -170,7 +168,6 @@ const FAN_MISSION: LeadMagnetConfig = {
   timeToComplete: '2 min',
   dmKeywords: ['mission', 'missions'],
   hero: {
-    eyebrow: 'Fan Missions',
     headline: '"Please support me" is why your fans do nothing.',
     subheadline: 'A vague ask gets scrolled past, and the fans who would have shown up for you never do. Turn your goal into one action, one number and one reward they can actually complete.',
     primaryCta: 'Generate my mission',
@@ -246,7 +243,6 @@ const CLIP_TO_EARN: LeadMagnetConfig = {
   timeToComplete: '3 min',
   dmKeywords: ['clip', 'clips'],
   hero: {
-    eyebrow: 'Clip-to-Earn',
     headline: 'Your fans are clipping you. You are getting nothing back.',
     subheadline: 'Undirected clips die in somebody else\'s feed and you never see the reach or the revenue. Build a campaign so every clip points back at you.',
     primaryCta: 'Plan my campaign',
@@ -407,7 +403,6 @@ const FOUNDER_WINDOW: LeadMagnetConfig = {
   timeToComplete: '1 min',
   dmKeywords: ['founder', 'window'],
   hero: {
-    eyebrow: 'Founder Window',
     headline: 'Your fans have no reason to join now, so most never do.',
     subheadline:
       'An always-open offer leaks the supporters who fully intend to join. See how many a founder window would pull forward now, and what they are worth every month.',
@@ -466,7 +461,6 @@ const MOVEMENT_PAGE = lossToolBase({
   icon: '🧭',
   dmKeywords: ['movement'],
   hero: {
-    eyebrow: 'Movement Page',
     headline: 'Your link sends fans to a page that says nothing.',
     subheadline: 'A generic profile converts almost none of the traffic a real movement page would. See how many supporters you leak, and what it costs.',
     primaryCta: 'See what I am leaking',
@@ -487,7 +481,6 @@ const FAN_JOURNEY = lossToolBase({
   icon: '🪜',
   dmKeywords: ['journey'],
   hero: {
-    eyebrow: 'Fan Journey',
     headline: 'Fans leak out at every step before they pay you.',
     subheadline: 'With no path from discovery to recurring support, most of the fans who would pay never make the jump. See where they leak, and what it costs.',
     primaryCta: 'See where they leak',
@@ -508,7 +501,6 @@ const TOP_FAN = lossToolBase({
   icon: '🏆',
   dmKeywords: ['topfan', 'leaderboard'],
   hero: {
-    eyebrow: 'Top Fan Leaderboard',
     headline: 'Your top fans look like everyone else, so they act like it.',
     subheadline: 'Your most valuable fans quietly do most of the work. With no status marking them apart, that behavior fades. See what it costs.',
     primaryCta: 'See what it costs',
@@ -530,7 +522,6 @@ const QUEST_PATH: LeadMagnetConfig = {
     icon: '🗺️',
     dmKeywords: ['quest', 'path'],
     hero: {
-      eyebrow: 'Rise Mode',
       headline: 'Most artists build in the wrong order.',
       subheadline: 'Order is the difference between months of progress and months of spinning. This one is the same for every artist: no questions, just the order that compounds.',
       primaryCta: 'See the right order',
@@ -566,7 +557,6 @@ const SUPPORTER_PROMISE: LeadMagnetConfig = {
     icon: '📅',
     dmKeywords: ['promise'],
     hero: {
-      eyebrow: 'Promise Calendar',
       headline: 'The perks you promised are a bill you never scheduled.',
       subheadline: 'Benefits with no calendar get missed, and a missed benefit is the most common reason a supporter cancels. See the revenue at risk.',
       primaryCta: 'See my risk',
@@ -589,7 +579,6 @@ const TEAM_SPLIT: LeadMagnetConfig = {
     icon: '🤝',
     dmKeywords: ['split'],
     hero: {
-      eyebrow: 'Team Splits',
       headline: 'An uncapped split keeps paying after the work stops.',
       subheadline: 'A cap, a duration, and a gross-versus-net basis change what you actually owe a collaborator. See the difference on your revenue.',
       primaryCta: 'See the difference',
@@ -615,7 +604,6 @@ const SHARE_TO_EARN = lossToolBase({
     // contribution is economic value nothing in the artist's stack can see. Positioning pass
     // (2026-08-14): this is ACQUISITION into the same fan economy, so the hero says what the
     // mechanism produces (supporters) rather than implying a second income stream.
-    eyebrow: 'Fan Referrals',
     headline: 'Some of your fans are already doing your acquisition.',
     subheadline: 'Nothing in your stack tells you which ones, so it never compounds and never gets paid. See what it is worth tracked.',
     primaryCta: 'See what my fans bring in',
@@ -641,10 +629,9 @@ const OWN_YOUR_FANS = lossToolBase({
     // NAME and route stay (campaign links and DM keywords are keyed to them); the customer-facing
     // claim does not. Reach is never dismissed here either, only distinguished from a relationship.
     // The tool NAME, slug, route, featureName and DM keyword all stay "Own Your Fans": campaign
-    // links, ManyChat triggers and every historical funnel row are keyed to them. The EYEBROW is
-    // pure display, it sat directly above the headline, and it was the last place on the page
-    // asserting ownership of people. Same precedent as the "Start Owning My Fans" CTA correction.
-    eyebrow: 'Your Direct Fan List',
+    // links, ManyChat triggers and every historical funnel row are keyed to them. NOTHING A
+    // VISITOR READS may claim ownership of people, which is why the headline and subheadline
+    // below talk about the relationship, the data and the contact permission instead.
     headline: 'You have reach. You do not have the relationship underneath it.',
     subheadline: 'No names, no permission to make contact, no record of what they bought. See how much of your audience you can actually reach.',
     primaryCta: 'See what I can actually reach',
@@ -668,7 +655,6 @@ const LIVE_EXPERIENCE = lossToolBase({
   icon: '📡',
   dmKeywords: ['live'],
   hero: {
-    eyebrow: 'Live Experiences',
     headline: 'Going live only to promote is why nobody pays to watch.',
     subheadline: 'A few minutes of "thanks for pulling up" is not an event, so no one buys a ticket, no one tips, and there is nothing left to sell when it ends. Your most committed fans will pay for real access, and they are a small part of your audience worth far more than the rest. See what one real ticketed live a month is worth.',
     primaryCta: 'See what I am losing',
@@ -692,7 +678,6 @@ const EXECUTIVE_PRODUCER = lossToolBase({
     // Positioning pass (2026-08-14): premium PARTICIPATION, not an expensive ticket. This is the
     // beat where the top of the fan economy reveals itself, and the copy says "limited" because
     // the model prices a seat for the artist's audience and never assumes a room without limits.
-    eyebrow: 'Live Experiences',
     headline: 'Your highest-value fans are invisible until you offer them a way in.',
     subheadline: 'A few will pay many times what a listener does for real access. See what a seat in the room is worth.',
     primaryCta: 'See what a seat is worth',
@@ -746,7 +731,6 @@ const ROYALTY_READINESS: LeadMagnetConfig = {
   publicRoute: '/tools/royalty-readiness-check',
   artistRoute: '/artist/tools/royalty-readiness-check',
   hero: {
-    eyebrow: 'Royalty Readiness',
     headline: 'Your distributor is not collecting most of what your songs earn.',
     subheadline:
       'Performance royalties, mechanicals, digital radio and everything outside the US are paid by different organizations, and none of them pay you unless you are registered. Six questions to find the ones with nobody assigned to them.',
@@ -813,9 +797,6 @@ const UNIFIED_OPPORTUNITY: LeadMagnetConfig = {
   // have never seen reads as being about somebody else. Loss-framed per the
   // copy rule: the cost of not knowing comes first, the fix second.
   hero: {
-    // Context qualifier, not an eligibility gate: acquisition is narrow, the product
-    // stays open (POSITIONING.md section 5).
-    eyebrow: 'For independent artists already selling direct',
     // Zero To One positioning (docs/POSITIONING.md section 17). The headline names the
     // LOSS and the concentration: the artist already has the audience, and the part of it
     // that carries the money is the part nothing in their stack can see. Reach is never
@@ -1135,7 +1116,6 @@ const FAN_STACK: LeadMagnetConfig = {
   timeToComplete: '2 min',
   dmKeywords: ['stack', 'consolidate'],
   hero: {
-    eyebrow: 'Consolidate your stack',
     headline: 'Your fan business is split across tools that never talk.',
     subheadline:
       'Every tool holds one piece: the members, the buyers, the community, the list. A fan who pays in one is a stranger in the rest, so every next offer starts from zero. See what the fragmentation costs, and what the same fans are worth in one place.',
@@ -1245,7 +1225,6 @@ const BETWEEN_TOUR: LeadMagnetConfig = {
   timeToComplete: '2 min',
   dmKeywords: ['tour', 'touring'],
   hero: {
-    eyebrow: 'Between-tour revenue',
     headline: 'Your income stops the night the tour does.',
     subheadline:
       'The fans who prove they pay on show nights, especially your VIP buyers, are offered nothing for the rest of the year. See what a recurring VIP membership earns in the months between runs, from fans you already converted once.',

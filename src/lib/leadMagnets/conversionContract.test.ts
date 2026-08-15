@@ -160,7 +160,6 @@ describe('CTA copy states what the visitor gets', () => {
       const copy = [
         m.name,
         m.description,
-        m.hero.eyebrow ?? '',
         m.hero.headline,
         m.hero.subheadline,
         m.hero.primaryCta,
