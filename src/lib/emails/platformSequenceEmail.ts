@@ -56,6 +56,13 @@ export function renderPlatformSequenceEmail(
   rawSubject: string,
   rawBody: string,
   tokens: PlatformSequenceTokens,
+  /**
+   * Signed one-click unsubscribe URL. Optional ONLY so the preview can render without minting a
+   * real signature; every actual send passes it, which `platformSequenceEmail.test.ts` asserts
+   * against the cron source. Four of the nine sequences sell a plan upgrade, so this is commercial
+   * email and the link is not decoration.
+   */
+  unsubscribeUrl?: string,
 ): RenderedPlatformEmail {
   const subject = resolvePlatformTokens(rawSubject, tokens);
   const body = resolvePlatformTokens(rawBody, tokens);
@@ -108,10 +115,20 @@ export function renderPlatformSequenceEmail(
       <a href="https://thecrwn.app" style="color:#D4AF37;text-decoration:none;font-size:12px;">CRWN</a>
       <span style="color:#555;font-size:12px;margin:0 8px;">|</span>
       <span style="color:#555;font-size:12px;">Music Monetization Platform</span>
+      ${
+        unsubscribeUrl
+          ? `<div style="margin-top:12px;color:#555;font-size:11px;line-height:1.6;">
+        You are getting this because you have a CRWN artist account.
+        <a href="${escapeHtml(unsubscribeUrl)}" style="color:#8a8a9a;text-decoration:underline;">Unsubscribe from onboarding emails</a>.
+        Account, payout and fan notifications are not affected.
+      </div>`
+          : ''
+      }
     </div>
   </div>
 </body>
 </html>`;
 
-  return { subject, html, text: body };
+  const text = unsubscribeUrl ? `${body}\n\nUnsubscribe from onboarding emails: ${unsubscribeUrl}` : body;
+  return { subject, html, text };
 }

@@ -72,6 +72,44 @@ describe('platform sequence renderer', () => {
   });
 });
 
+describe('these emails may never ship without an opt-out or a suppression gate', () => {
+  const cron = fs.readFileSync(
+    path.resolve(__dirname, '../../app/api/cron/platform-sequences/route.ts'),
+    'utf-8',
+  );
+
+  it('renders an unsubscribe link in both the HTML and the text part', () => {
+    const r = renderPlatformSequenceEmail('s', 'Body line', TOKENS, 'https://thecrwn.app/api/platform-sequences/unsubscribe/abc?t=sig');
+    expect(r.html).toContain('Unsubscribe from onboarding emails');
+    expect(r.html).toContain('unsubscribe/abc?t=sig');
+    expect(r.text).toContain('Unsubscribe from onboarding emails: https://');
+  });
+
+  it('checks GLOBAL suppression before every send, not only at enrollment', () => {
+    // This gate did not exist. An artist who unsubscribed anywhere else, or who hard-bounced, kept
+    // receiving these. An unsubscribe can also land mid-sequence, so enrollment-time is too early.
+    expect(cron).toContain('isEmailSuppressed');
+    expect(cron).toMatch(/isEmailSuppressed\([\s\S]{0,60}artistEmail\)/);
+  });
+
+  it('passes a SIGNED unsubscribe url to the renderer on every send', () => {
+    expect(cron).toContain('appendUnsubscribeToken');
+    expect(cron).toContain("kind: 'platform-sequence'");
+    // The signature must cover the recipient, or one artist's token unsubscribes another.
+    expect(cron).toContain('emailRecipient(artistEmail)');
+    expect(cron).toMatch(/renderPlatformSequenceEmail\([\s\S]{0,120}unsubscribeUrl\)/);
+  });
+
+  it('sets the RFC 8058 one-click headers', () => {
+    expect(cron).toContain("'List-Unsubscribe'");
+    expect(cron).toContain("'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click'");
+  });
+
+  it('sends multipart, not HTML only', () => {
+    expect(cron).toMatch(/html,\s*[\s\S]{0,200}text,/);
+  });
+});
+
 describe('live copy preview', () => {
   it('writes the browsable preview when asked', async () => {
     if (process.env.PREVIEW_PLATFORM_EMAILS !== '1') return;

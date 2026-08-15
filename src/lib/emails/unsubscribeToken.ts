@@ -41,7 +41,13 @@ export type UnsubscribeKind =
   | 'campaign-artist'
   | 'campaign-all'
   | 'sequence-artist'
-  | 'crm-outreach';
+  | 'crm-outreach'
+  /**
+   * CRWN's own lifecycle and activation emails to ARTISTS (platform_sequences). Added 2026-08-15:
+   * those 27 emails shipped with no unsubscribe link and no suppression check at all, and four of
+   * the nine sequences exist purely to sell a plan upgrade, which is commercial email.
+   */
+  | 'platform-sequence';
 
 export interface UnsubscribeScope {
   kind: UnsubscribeKind;

@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { resend, FROM_EMAIL } from '@/lib/resend';
 import { renderPlatformSequenceEmail } from '@/lib/emails/platformSequenceEmail';
+import { isEmailSuppressed } from '@/lib/leadMagnets/server';
+import { appendUnsubscribeToken, emailRecipient, CRWN_PLATFORM } from '@/lib/emails/unsubscribeToken';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -103,10 +105,35 @@ export async function GET(req: NextRequest) {
         upgrade_url: 'https://thecrwn.app/account/billing',
       };
 
+      // GLOBAL SUPPRESSION. This gate did not exist: an artist who unsubscribed anywhere else on
+      // the platform, or who hard-bounced, kept receiving these. Checked per send rather than at
+      // enrollment, because an unsubscribe can land mid-sequence.
+      if (await isEmailSuppressed(supabaseAdmin, artistEmail)) {
+        await supabaseAdmin
+          .from('platform_sequence_enrollments')
+          .update({ status: 'canceled' })
+          .eq('id', enrollment.id);
+        continue;
+      }
+
+      // Signed one-click unsubscribe. The signature covers the recipient, so a token for one artist
+      // cannot unsubscribe another. Four of the nine sequences sell an upgrade, so this is
+      // commercial email and the link is required, not optional.
+      const unsubScope = {
+        kind: 'platform-sequence' as const,
+        id: String(enrollment.id),
+        artistId: CRWN_PLATFORM,
+        recipient: emailRecipient(artistEmail),
+      };
+      const unsubscribeUrl = appendUnsubscribeToken(
+        `https://thecrwn.app/api/platform-sequences/unsubscribe/${enrollment.id}`,
+        unsubScope,
+      );
+
       // ONE renderer, shared with `npm run preview:platform-emails`, so a preview can never show
       // something different from what an artist receives. It also escapes: `first_name` comes from
       // the artist's own display name, and this template used to interpolate it raw.
-      const { subject, html, text } = renderPlatformSequenceEmail(step.subject, step.body, tokens);
+      const { subject, html, text } = renderPlatformSequenceEmail(step.subject, step.body, tokens, unsubscribeUrl);
 
       const { error: sendError } = await resend.emails.send({
         from: FROM_EMAIL,
@@ -116,6 +143,11 @@ export async function GET(req: NextRequest) {
         // Multipart. HTML-only is a deliverability cost for no reason when the source copy is
         // already plain text.
         text,
+        // RFC 8058 one-click, the same contract the prospect nurture sends use.
+        headers: {
+          'List-Unsubscribe': `<${unsubscribeUrl}>`,
+          'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+        },
       });
 
       if (sendError) {
