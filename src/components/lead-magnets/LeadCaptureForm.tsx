@@ -46,6 +46,15 @@ export function LeadCaptureForm({ config, submitting, onSubmit }: { config: Lead
 
   const submit = () => {
     if (!EMAIL_RE.test(v.email.trim())) return setError('Enter a valid email so we can send your result.');
+    // The attempt is recorded with its consent state BEFORE the consent guard, so "typed an email
+    // but did not tick the box" is distinguishable from "never engaged". Without it, a consent-copy
+    // problem and a nobody-scrolled-here problem look identical in the data, which is exactly the
+    // ambiguity that made the previous zero-capture diagnosis unprovable.
+    trackLeadMagnet(LM_EVENTS.leadSubmitted, {
+      toolSlug: config.slug,
+      context: 'public',
+      reasonCode: v.emailConsent ? 'consented' : 'no_consent',
+    });
     if (!v.emailConsent) return setError('Please check the box to get your result by email.');
     setError('');
     onSubmit({ ...v, email: v.email.trim() });

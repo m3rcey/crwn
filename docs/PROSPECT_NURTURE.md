@@ -24,10 +24,39 @@ Verified against production 2026-08-15 with the service-role key:
 | `prospect_nurture_sends` | **0** |
 
 The migration is applied and the tables exist. The cron runs daily. Nothing has ever flowed through
-it, because **nobody has ever submitted the email capture form.** Supporting events:
-244 `lead_magnet_started`, 40 `lead_magnet_result_generated`, and exactly **1**
-`lead_magnet_lead_capture_viewed` (and that event was defined and allowlisted but never fired by any
-component until 2026-08-15, so even that 1 is not trustworthy).
+it, because **nobody has ever submitted the email capture form.**
+
+### Root cause (established 2026-08-15, second investigation)
+
+An earlier draft of this document blamed "consent UX". That was **wrong and unprovable**: the
+exposure event did not fire, so there was no denominator. The actual causes, in order:
+
+1. **The capture card sat behind an exit.** On every registry calculator the page order was
+   result → recalculate → **builder** → hand-raiser → capture. The builder is the CTA, and its save
+   handler calls `router.push(buildContinueUrl(...))`, navigating to signup. Any visitor who engaged
+   with the CTA left the page before the capture card existed on screen. Fixed: capture now renders
+   directly after the builder, above the hand-raiser, with a gold border.
+2. **`/worth` had no lead-capture path at all.** It posts to `/api/leads/calculator`, which writes
+   `crm_contacts`. No `lead_magnet_leads` row, no consent box, no enrollment. Fixed (see below).
+3. **The whole capture funnel was uninstrumented.** `lead_magnet_lead_capture_viewed` and
+   `lead_magnet_lead_submitted` were both defined AND server-allowlisted and fired by **nothing**.
+   Fixed on both surfaces, with consent state on `reason_code`.
+
+### What the 41 results actually were
+
+Not 40 missed capture opportunities. Broken down:
+
+- **16 had a `user_id`**: logged-in artists, who never see a lead-capture form. Structurally
+  ineligible.
+- **All 41 had `lead_id: null`**, and the capture route always sets `lead_id`. So **none** of them
+  came from the capture path.
+- **13 anonymous rows are `status: 'draft'`**, written by `/api/opportunity-drafts` (the
+  value-before-signup builder), all dated 2026-07-28 or later.
+- **11 anonymous rows are `status: 'completed'`**, all dated 2026-07-14 to 2026-07-27, i.e. mostly
+  before prospect nurture shipped on 2026-07-27.
+
+So the honest eligible denominator is roughly **24 anonymous results across a month**, not 40. That
+is enough to detect a zero. It is not enough to tune copy.
 
 **The constraint is capture, not copy.** Any claim about which email or cadence converts best is
 currently unfalsifiable. Everything in the "Cadence" section below is a labelled hypothesis.
@@ -47,10 +76,21 @@ currently unfalsifiable. Everything in the "Cadence" section below is a labelled
 6. When the lead signs up, `autoClaimForUser` runs `exitProspectNurtureForUser(...)` and the sequence
    stops. The user moves into the existing signup/onboarding/activation flows.
 
-**`/worth` does NOT enroll.** It is a promoted tool but posts to `/api/leads/calculator`, which
-writes `crm_contacts` and **collects no marketing consent at all**. Wiring it to nurture would mean
-inferring marketing consent from an email address, which is not a change this system may make on its
-own. It needs a consent checkbox on the `/worth` form first. See TODO.md.
+**`/worth` now enrolls, through the canonical nurture** (2026-08-15). It is a promoted tool that
+predates the registry capture architecture, so it keeps its own card and still posts to
+`/api/leads/calculator`. What changed:
+
+- An **explicit, unchecked** marketing consent box was added to its email card. Same scope wording as
+  the registry calculators. The breakdown email is transactional and still sends without it.
+- On `emailConsent === true`, that route now creates the `lead_magnet_leads` row (with
+  `consent_text_version` and `consented_at`), binds it to the builder draft the visitor already made
+  via `public_token` (or writes a minimal `completed` result in the shape `buildNurtureTokens`
+  reads), and calls the shared **`enrollProspect`**. No second nurture system, no second enroller.
+- `worth` is an `EXTERNAL_TOOLS` entry, not a `LEAD_MAGNETS` one, so it cannot post to
+  `/api/lead-magnets/capture` (that route 404s an unknown slug). The nurture side already understood
+  the slug: `calculatorModules.ts` has a bespoke `worth` module and the cron resolves its config from
+  `EXTERNAL_TOOLS`. Only the lead and result rows were ever missing.
+- A nurture failure is caught and never breaks the capture the visitor asked for.
 
 ## Who it targets (docs/ICP.md)
 
@@ -230,8 +270,23 @@ conversions (enrollments that exited `account_created`); per calculator; per CTA
 enrollment id stamped on a funnel stage below signup, and it is not worth building before the
 sequence has non-zero volume.
 
-**The one metric to fix first:** `nurture_enrolled / lead_magnet_result_generated`. It is currently
-**0/40 = 0%**. Nothing downstream matters until it moves.
+### The five capture-funnel rates
+
+Never write `0%` for a stage that was not measured. Use `not measured`.
+
+| Rate | Formula |
+|---|---|
+| Result to exposure | `lead_magnet_lead_capture_viewed / lead_magnet_result_generated` |
+| Exposure to attempt | `lead_magnet_lead_submitted / lead_magnet_lead_capture_viewed` |
+| Attempt to consent | `lead_magnet_lead_submitted[reason_code='consented'] / lead_magnet_lead_submitted` |
+| Consent to enrollment | `prospect_nurture_enrolled / lead_magnet_lead_submitted[reason_code='consented']` |
+| Enrollment to account | `prospect_nurture_exited[reason_code='account_created'] / prospect_nurture_enrolled` |
+
+Before 2026-08-15 the first three were **unmeasurable**, because neither client event fired.
+
+**The one metric to watch first:** *result to exposure*. If artists now see the card and still do not
+opt in, the problem is the offer; if they still do not see it, the problem is still placement. That
+distinction was impossible to make before and is the entire point of the instrumentation.
 
 ## Admin controls
 
@@ -272,7 +327,13 @@ scarcity, no beginner framing, no paused-calculator references).
 
 - **Zero production volume.** No cadence, subject line or image in this system has been validated by
   a real recipient. Every performance statement here is a hypothesis.
-- **`/worth` does not enroll**, and cannot until that form collects explicit marketing consent.
+- **The capture fixes are not in production yet.** They live on
+  `claude/rise-mode-full-journey`; production tracks `master` and was serving `sw.js` `crwn-v403` at
+  the time of writing. Nothing here is live until that merges and the version moves.
+- **Historical capture exposure is unknowable.** The exposure event never fired, and there is no
+  per-visitor scroll telemetry, so "how many of the 24 anonymous visitors ever had the capture card
+  on screen" cannot be recovered. The zero is real; its precise attribution across the three causes
+  above is inference from the code, not measurement.
 - **No first-paid-member attribution** back to a nurture email (see Measurement).
 - **Instagram/DM-origin leads** live in `lead_identities` and are nurtured by the acquisition
   follow-up system, not this one.

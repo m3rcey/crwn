@@ -3,6 +3,12 @@ import { createClient } from '@supabase/supabase-js';
 import { resend, FROM_EMAIL } from '@/lib/resend';
 import { calculatorResultEmail } from '@/lib/emails/calculatorResult';
 import { checkRateLimit } from '@/lib/rateLimit';
+import { enrollProspect } from '@/lib/prospectNurture/enroll';
+import { generatePublicToken } from '@/lib/leadMagnets/server';
+import { CONSENT_TEXT_VERSION } from '@/lib/leadMagnets/disclaimers';
+
+/** The external Streaming Loss tool's slug, as EXTERNAL_TOOLS and calculatorModules both know it. */
+const WORTH_SLUG = 'worth';
 
 // PUBLIC endpoint (no auth): captures leads from the /worth lead-magnet calculator
 // into the existing crm_contacts table. Uses the service-role client because
@@ -49,6 +55,13 @@ export async function POST(req: NextRequest) {
     name?: string;
     monthlyListeners?: number;
     netAnnualCents?: number;
+    // MARKETING permission, explicit and separate from the transactional breakdown below. Absent or
+    // false means the visitor gets their result and nothing else, exactly as before.
+    emailConsent?: boolean;
+    // The builder draft this visitor already produced, if any, so the nurture personalizes from the
+    // result they actually saw instead of a second copy of it.
+    resultToken?: string;
+    netMrrCents?: number;
   };
   try {
     body = await req.json();
@@ -130,5 +143,99 @@ export async function POST(req: NextRequest) {
     console.error('Calculator lead email failed:', err);
   }
 
-  return NextResponse.json({ success: true });
+  // MARKETING, and only with explicit consent. Everything above this line is unchanged and happens
+  // regardless: the breakdown is transactional (they asked for it) and is never permission to market.
+  //
+  // /worth predates the registry capture architecture: it is a promoted tool that writes
+  // `crm_contacts`, so it produced results for months and could never enroll anybody. Rather than
+  // build a second nurture, this reuses the canonical one. `enrollProspect` needs a
+  // `lead_magnet_leads` row and a result to personalize from, so we create the lead and bind it to
+  // the builder draft the visitor already made (or write a minimal result when there is none).
+  //
+  // `worth` is an EXTERNAL_TOOL, not a LEAD_MAGNETS entry, so it cannot post to
+  // /api/lead-magnets/capture (that route 404s an unknown slug). The nurture side already knows the
+  // slug: `calculatorModules.ts` has a bespoke `worth` module and the cron resolves its config from
+  // EXTERNAL_TOOLS, so only the lead and result rows were missing.
+  let enrolled = false;
+  if (body.emailConsent === true) {
+    try {
+      const { data: lmLead } = await supabaseAdmin
+        .from('lead_magnet_leads')
+        .insert({
+          email,
+          artist_name: name || null,
+          tool_slug: WORTH_SLUG,
+          monthly_listeners: listeners || null,
+          email_consent: true,
+          sms_consent: false,
+          consent_text_version: CONSENT_TEXT_VERSION,
+          consented_at: new Date().toISOString(),
+        })
+        .select('id')
+        .single();
+
+      if (lmLead?.id) {
+        // Prefer the draft they already built: same numbers they read on screen.
+        let resultId: string | null = null;
+        const token = cleanText(body.resultToken, 128);
+        if (token) {
+          const { data: existing } = await supabaseAdmin
+            .from('lead_magnet_results')
+            .select('id, lead_id')
+            .eq('public_token', token)
+            .eq('tool_slug', WORTH_SLUG)
+            .maybeSingle();
+          if (existing?.id && !existing.lead_id) {
+            await supabaseAdmin.from('lead_magnet_results').update({ lead_id: lmLead.id }).eq('id', existing.id);
+            resultId = String(existing.id);
+          } else if (existing?.id) {
+            resultId = String(existing.id);
+          }
+        }
+
+        if (!resultId) {
+          // No draft to bind. Write the minimal result the nurture tokens read, in the SAME shape
+          // `buildNurtureTokens` expects (heroValue / estimatedMonthlyCents / estimatedAnnualCents),
+          // so {{monthly_value}} renders instead of silently falling back to the no-number line.
+          const monthlyCents = Number.isFinite(body.netMrrCents)
+            ? Math.max(0, Math.round(body.netMrrCents as number))
+            : Math.round(annual / 12);
+          const { data: made } = await supabaseAdmin
+            .from('lead_magnet_results')
+            .insert({
+              tool_slug: WORTH_SLUG,
+              lead_id: lmLead.id,
+              status: 'completed',
+              source: 'public',
+              title: 'Streaming Loss result',
+              input_data: { monthly_listeners: listeners },
+              result_data: {
+                heroValue: '$' + Math.round(monthlyCents / 100).toLocaleString('en-US'),
+                estimatedMonthlyCents: monthlyCents,
+                estimatedAnnualCents: annual,
+              },
+              public_token: generatePublicToken(),
+              public_token_expires_at: new Date(Date.now() + 90 * 86400_000).toISOString(),
+            })
+            .select('id')
+            .single();
+          resultId = made?.id ? String(made.id) : null;
+        }
+
+        const outcome = await enrollProspect(supabaseAdmin, {
+          leadId: String(lmLead.id),
+          email,
+          toolSlug: WORTH_SLUG,
+          resultId,
+          emailConsent: true,
+        });
+        enrolled = outcome.enrolled;
+      }
+    } catch (err) {
+      // Nurture enrollment must never fail the capture the visitor actually asked for.
+      console.error('Worth nurture enrollment failed:', err);
+    }
+  }
+
+  return NextResponse.json({ success: true, enrolled });
 }

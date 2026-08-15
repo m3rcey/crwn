@@ -8,6 +8,7 @@ import { LeadMagnetWizard } from '@/components/lead-magnets/LeadMagnetWizard';
 import { ToolHero } from '@/components/lead-magnets/ToolHero';
 import type { LeadMagnetConfig } from '@/lib/leadMagnets/types';
 import { buildContinueUrl } from '@/lib/leadMagnets/continuationCta';
+import { LM_EVENTS, trackLeadMagnet } from '@/lib/leadMagnets/analytics';
 import { Check, ChevronDown, ArrowRight } from 'lucide-react';
 import { SectionImage } from '@/components/ui/SectionImage';
 import { SECTION_ART } from '@/lib/positioning/sectionImages';
@@ -145,6 +146,9 @@ export function WorthExperience({
   const [alacarte, setAlacarte] = useState<number | null>(null);
 
   const [email, setEmail] = useState('');
+  // Marketing permission. NEVER pre-checked, and never inferred from typing an email: the breakdown
+  // is transactional and sends without it. Only this box routes into the canonical prospect nurture.
+  const [emailConsent, setEmailConsent] = useState(false);
   const [captureState, setCaptureState] = useState<'idle' | 'sending' | 'done' | 'error'>('idle');
 
   // Prefill inputs from URL query params so outreach links land on the artist's
@@ -210,6 +214,13 @@ export function WorthExperience({
       setCaptureState('error');
       return;
     }
+    // Same two capture events the registry calculators emit, so /worth is comparable in the funnel
+    // instead of being a blind spot. Consent state rides on reason_code.
+    trackLeadMagnet(LM_EVENTS.leadSubmitted, {
+      toolSlug: 'worth',
+      context: 'public',
+      reasonCode: emailConsent ? 'consented' : 'no_consent',
+    });
     setCaptureState('sending');
     try {
       const res = await fetch('/api/leads/calculator', {
@@ -219,6 +230,13 @@ export function WorthExperience({
           email: email.trim(),
           monthlyListeners: inputs.monthlyListeners,
           netAnnualCents: result.netAnnualCents,
+          netMrrCents: result.netMrrCents,
+          // Explicit marketing permission, unchecked by default. The breakdown below is
+          // transactional and is sent either way; only this box enrolls the canonical nurture.
+          emailConsent,
+          // Bind to the draft they already built so the nurture personalizes from the numbers they
+          // actually read, rather than a second copy of them.
+          resultToken: resultToken || undefined,
         }),
       });
       setCaptureState(res.ok ? 'done' : 'error');
@@ -338,6 +356,20 @@ export function WorthExperience({
               {captureState === 'sending' ? 'Sending…' : 'Email it to me'}
             </button>
           </div>
+          {/* Explicit, unchecked marketing opt-in. The breakdown above is transactional and sends
+              either way; this box is the only thing that enrolls the ongoing follow-up, and it
+              carries the same scope as the registry calculators' consent copy. */}
+          <label className="flex gap-3 items-start cursor-pointer mt-3">
+            <input
+              type="checkbox"
+              className="mt-1 accent-[#D4AF37] w-4 h-4"
+              checked={emailConsent}
+              onChange={(e) => setEmailConsent(e.target.checked)}
+            />
+            <span className="text-xs text-crwn-text-secondary leading-relaxed">
+              Email me my breakdown, plus the follow-up emails on how to launch it. Unsubscribe anytime.
+            </span>
+          </label>
           {captureState === 'error' && (
             <p className="text-xs text-red-400 mt-2 text-center">Enter a valid email and try again.</p>
           )}
@@ -461,6 +493,16 @@ export function WorthExperience({
   );
 
   const useEntryWizard = !homepage && !leadView && !entryDone;
+
+  // The capture card renders only once the visitor is past the entry wizard and reading a result,
+  // which is the same moment the registry calculators fire this. Gating on `useEntryWizard` keeps
+  // the denominator honest: an exposure event that fires when the card is not on screen is worse
+  // than no event, because it manufactures a conversion problem that does not exist.
+  useEffect(() => {
+    if (useEntryWizard) return;
+    trackLeadMagnet(LM_EVENTS.leadCaptureViewed, { toolSlug: 'worth', context: 'public' });
+  }, [useEntryWizard]);
+
   const entryWizard = (
     <div ref={worthWizardRef} className="max-w-lg mx-auto mb-10 scroll-mt-4 pt-10 md:pt-14">
       <LeadMagnetWizard

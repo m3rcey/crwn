@@ -22,26 +22,21 @@ responsible for. Do not work those.
 
 ### P0 — money flows or acquisition are blocked
 
-- [ ] **The email capture on every calculator has captured ZERO leads, ever. Decide whether the
-      `/worth` form should collect marketing consent.** Nothing to run in SQL. This is a product
-      call only you can make.
-      What I verified in production on 2026-08-15 (service-role query, read-only): `lead_magnet_leads`
-      is **0 rows**, `prospect_nurture_enrollments` is **0**, `prospect_nurture_sends` is **0**, against
-      41 stored results and 244 calculator starts. The 25-email nurture sequence has never sent one
-      email to one person. The migration is applied and the cron runs; there is simply no input.
-      I have already done what I safely could: rewrote the capture card to say what actually arrives
-      instead of "Want a copy of this?", cut three dead form fields (genre, @handle, phone were
-      collected for months and read by nothing), and fired the `lead_magnet_lead_capture_viewed`
-      event, which was defined and allowlisted but never actually called, so the opt-in rate had no
-      denominator.
-      **What needs you:** `/worth` is one of the six promoted tools and it does NOT enroll anyone,
-      because its form (`src/app/(public)/worth/WorthExperience.tsx`) collects **no marketing consent
-      checkbox at all**. Wiring it to nurture would mean inferring marketing permission from someone
-      typing an email, which I will not do on my own. Either:
-        1. Say yes, and I add an explicit unchecked consent box to the `/worth` form and wire it, or
-        2. Say no, and `/worth` stays a `crm_contacts` capture with no nurture, which is fine but
-           should be a decision rather than an accident.
-      Watch after any change: `prospect_nurture_enrolled` / `lead_magnet_result_generated`, today 0/40.
+- [ ] **Merge `claude/rise-mode-full-journey` to master so the zero-capture fixes go live.** Nothing
+      to run in SQL. Production tracks master and is still serving `crwn-v403`; all of the capture
+      work is committed on the branch and is NOT live.
+      Why it matters: every calculator has captured **zero** leads ever (`lead_magnet_leads` 0 rows,
+      `prospect_nurture_enrollments` 0, `prospect_nurture_sends` 0, verified in production
+      2026-08-15). Root cause was structural, not consent: on every registry calculator the capture
+      card rendered AFTER the builder, whose save button navigates straight to signup, so anyone who
+      used the CTA left before reaching it. `/worth` had no lead-capture path at all.
+      What the branch changes: capture card moves directly under the builder with a gold border;
+      `/worth` gains an explicit unchecked consent box and enrolls through the shared
+      `enrollProspect`; the two capture analytics events that were defined but fired by nothing now
+      fire on both surfaces.
+      Verify after deploy by comparing `public/sw.js` CACHE_NAME against thecrwn.app/sw.js, then
+      watch `lead_magnet_lead_capture_viewed / lead_magnet_result_generated`. That ratio was
+      previously unmeasurable, and it is the number that says whether the placement fix worked.
 
 - [ ] **To finish Team Splits I need a test-mode sandbox. This is the only thing left, and it is
       environment setup, not code.** Nothing to run in SQL.
