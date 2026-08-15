@@ -168,6 +168,23 @@ const MODULES: Record<string, Omit<CalculatorModule, 'slug'>> = {
     useCase: 'The royalty streams you have earned from but nobody is collecting get someone assigned to them before the back claims expire.',
     destinationRoute: '/royalty-readiness',
   },
+  // The all-in-one calculator, and the PRIMARY promoted tool: it is the front door for all four
+  // sub-avatars. It had no bespoke module and fell through to `fallbackModule`, which interpolates
+  // the registry's featureName ("Your CRWN business system") into a sentence that already says
+  // "your", producing "the first small version of your Your CRWN business system". Three of its
+  // emails carried that, and none of them gave the artist a single concrete thing to do.
+  //
+  // The unified model prices the WHOLE business, so the first move cannot be one feature. It is
+  // choosing which rung to open first, which is what the ladder is for.
+  'opportunity-calculator': {
+    featureName: 'Membership',
+    quickWin:
+      'Your result priced several things at once. Pick the ONE with the shortest distance between you and a paying fan, usually the offer you could deliver this month without making anything new, and ignore the rest until it is live.',
+    firstBuild: 'Build the free front door plus one paid tier, and leave the rest of the ladder for later.',
+    useCase:
+      'The whole picture your result laid out stops being a number and becomes one ladder your fans can actually join, starting with the rung you can deliver now.',
+    destinationRoute: '/offers/new',
+  },
   'fan-stack-calculator': {
     featureName: 'Consolidated Membership',
     quickWin: 'List every tool currently holding a piece of your fan business and what each one knows that the others do not. That list is the cost of fragmentation, and it is also your migration checklist.',
@@ -198,11 +215,30 @@ const MODULES: Record<string, Omit<CalculatorModule, 'slug'>> = {
   },
 };
 
-// Derive a safe generic module from the registry when a slug has no bespoke entry above.
+/**
+ * Last resort for a slug with no bespoke entry above. It exists so a newly added calculator is
+ * nurtured rather than silently skipped, and it is DELIBERATELY not good: generic copy that says
+ * "build the first small version of your thing" gives the artist nothing to do.
+ *
+ * Two traps this used to walk into, both of which reached production on the all-in-one calculator:
+ *
+ *   1. The registry's `featureName` is a directory-card LABEL, not always a buildable noun. It
+ *      interpolated "Your CRWN business system" into a sentence that already said "your", giving
+ *      "the first small version of your Your CRWN business system". The label is now normalized.
+ *   2. A label like "Worth Calculator" is not a thing anyone builds. Those are rejected outright in
+ *      favour of a neutral noun rather than emitted into a sentence that then reads as nonsense.
+ *
+ * `calculatorModules.test.ts` asserts every PROMOTED tool has a bespoke module, so this can only
+ * ever serve a paused or brand-new calculator.
+ */
 function fallbackModule(slug: string): CalculatorModule {
   const cfg = getLeadMagnet(slug);
   const ext = EXTERNAL_TOOLS.find((t) => t.key === slug);
-  const featureName = cfg?.featureName || ext?.featureName || 'first CRWN build';
+  const raw = cfg?.featureName || ext?.featureName || '';
+  // Drop a leading possessive so it never doubles, and refuse a label that names a TOOL rather than
+  // a feature ("Worth Calculator", "... Planner", "... Quiz").
+  const cleaned = raw.replace(/^(your|the)\s+/i, '').trim();
+  const featureName = !cleaned || /calculator|quiz|planner|blueprint|check$/i.test(cleaned) ? 'first paid offer' : cleaned;
   const destinationRoute = cfg?.conversionTarget?.route || '/studio';
   return {
     slug,
