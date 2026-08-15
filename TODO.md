@@ -22,23 +22,31 @@ responsible for. Do not work those.
 
 ### P0 — money flows or acquisition are blocked
 
-- [ ] **A LIVE onboarding email quotes the wrong Pro price and sells a feature we removed. One
-      file fixes it.** Open and run:
+- [ ] **The onboarding emails are telling artists things that are not true. One file fixes all of
+      it.** Open and run:
       [`supabase/schema-phase2-platform-sequence-copy-truth.sql`](supabase/schema-phase2-platform-sequence-copy-truth.sql)
-      What is wrong in production right now (verified by query 2026-08-15, after you ran the two
-      earlier migrations): the "you are ready for Pro" email says **$9.99/mo**, and Pro is **$49/mo**.
-      Four steps across three sequences still promise **SMS marketing**, which CRWN removed (no
-      `src/lib/sms`, no Twilio in `src/`). 25 of 27 steps use em dashes.
-      `starter_upgrade_nudge` already has 7 enrollments, so this copy has been sent.
-      **Do NOT run [`supabase/schema-phase2-fix-platform-sequence-copy.sql`](supabase/schema-phase2-fix-platform-sequence-copy.sql)**
-      again: its own header says "the real Pro price is $9.99/mo", which stopped being true on
-      2026-07-31. Running it re-asserts the wrong price. The file above supersedes it.
-      The new file self-verifies and ABORTS if any step still quotes 9.99, still says SMS, still has
-      an em dash, or if Pro step 1 does not end up quoting $49/mo. If it raises, nothing applied and
-      the message names which check failed.
-      Verify after running (anon cannot read this table, so it is a SQL check, not a probe):
-      select count(*) from platform_sequence_steps where body like '%9.99%' or body ilike '%SMS%';
-      That must return 0.
+      I read all 27 live step bodies on 2026-08-15. Twenty-two problems across seven classes, and
+      these have been sending since April (20 enrollments):
+        1. **Invented statistics.** "4x more likely to get their first subscriber", "2x more
+           subscribers in month one", "most artists make back the cost in the first week". We have
+           no such data, and the last one is arithmetically false at $49/mo.
+        2. **The wrong tier ladder.** Two emails teach "Basic $10 / Middle $50 / Premium $200".
+           The real ladder is Bronze free / Silver $10 / Gold $25 / Platinum $100, and the live copy
+           omits the free front door entirely while telling artists to start at $10.
+        3. **Implied peer proof.** "Most artists on CRWN use...", "top artists on CRWN".
+        4. **SMS**, a feature we removed, promised in four steps.
+        5. **Stale prices**: Pro at $9.99 (real: $49), fan tiers at $50 and $200.
+        6. **Legacy `?tab=` links** in five steps.
+        7. **Em dashes** in 25 of 27.
+      The file targets by trigger_type not uuid (survives a reseed), is idempotent, and ABORTS
+      naming the failed check rather than half-applying.
+      **Do NOT run** [`supabase/schema-phase2-fix-platform-sequence-copy.sql`](supabase/schema-phase2-fix-platform-sequence-copy.sql)
+      again: its own header asserts $9.99 is the real Pro price, which stopped being true on
+      2026-07-31. The file above supersedes it.
+      Verify after (anon cannot read this table, so it is a SQL check, not a probe):
+        bash -c 'source ./load-env.sh; node scripts/verify-platform-sequence-copy.mjs'
+      It prints 22 problems today and must print PASS after. It also re-checks the Stripe nudge you
+      already enabled.
 
 - [ ] **To finish Team Splits I need a test-mode sandbox. This is the only thing left, and it is
       environment setup, not code.** Nothing to run in SQL.
