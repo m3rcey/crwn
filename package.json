@@ -13,7 +13,8 @@
     "verify:migrations": "node scripts/probe-migrations.mjs",
     "verify:flags": "node scripts/probe-flags.mjs",
     "verify:stripe": "node scripts/probe-stripe-prices.mjs",
-    "preview:emails": "PREVIEW_EMAILS=1 vitest run src/lib/prospectNurture/emailPreview.test.ts"
+    "preview:emails": "PREVIEW_EMAILS=1 vitest run src/lib/prospectNurture/emailPreview.test.ts",
+    "preview:platform-emails": "PREVIEW_PLATFORM_EMAILS=1 vitest run src/lib/emails/platformSequenceEmail.test.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.111.0",

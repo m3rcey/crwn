@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { resend, FROM_EMAIL } from '@/lib/resend';
+import { renderPlatformSequenceEmail } from '@/lib/emails/platformSequenceEmail';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -102,35 +103,19 @@ export async function GET(req: NextRequest) {
         upgrade_url: 'https://thecrwn.app/account/billing',
       };
 
-      const personalizedSubject = resolveTokens(step.subject, tokens);
-      const personalizedBody = resolveTokens(step.body, tokens);
-
-      // Build simple HTML email
-      const html = `
-<!DOCTYPE html>
-<html>
-<body style="margin:0;padding:0;background:#0D0D0D;font-family:Inter,system-ui,sans-serif;">
-  <div style="max-width:600px;margin:0 auto;padding:40px 24px;">
-    <div style="text-align:center;margin-bottom:32px;">
-      <span style="color:#D4AF37;font-size:24px;font-weight:bold;letter-spacing:2px;">CRWN</span>
-    </div>
-    <div style="color:#E0E0E0;font-size:15px;line-height:1.7;">
-      ${personalizedBody.split('\n').map(line => line.trim() ? `<p style="margin:0 0 16px;">${line}</p>` : '').join('')}
-    </div>
-    <div style="margin-top:32px;padding-top:24px;border-top:1px solid #2A2A2A;text-align:center;">
-      <a href="https://thecrwn.app" style="color:#D4AF37;text-decoration:none;font-size:12px;">CRWN</a>
-      <span style="color:#555;font-size:12px;margin:0 8px;">|</span>
-      <span style="color:#555;font-size:12px;">Music Monetization Platform</span>
-    </div>
-  </div>
-</body>
-</html>`;
+      // ONE renderer, shared with `npm run preview:platform-emails`, so a preview can never show
+      // something different from what an artist receives. It also escapes: `first_name` comes from
+      // the artist's own display name, and this template used to interpolate it raw.
+      const { subject, html, text } = renderPlatformSequenceEmail(step.subject, step.body, tokens);
 
       const { error: sendError } = await resend.emails.send({
         from: FROM_EMAIL,
         to: artistEmail,
-        subject: personalizedSubject,
+        subject,
         html,
+        // Multipart. HTML-only is a deliverability cost for no reason when the source copy is
+        // already plain text.
+        text,
       });
 
       if (sendError) {
