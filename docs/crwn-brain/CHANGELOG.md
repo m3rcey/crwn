@@ -1,5 +1,48 @@
 # CRWN Brain — Changelog
 
+## 2026-08-15 - Brand imagery becomes flat vector poster art, and the hero is rebuilt around the fold
+
+**Founder decision: every image generated for the app or an email is now a flat vector poster
+illustration, not photography.** The rule is in `CLAUDE.md` (replacing the cinematic-photography rule
+of 2026-07-11) and in persistent memory. Reference implementation:
+`src/lib/positioning/sectionImages.ts`, `public/hero-*.webp`, `public/section-*.webp`.
+
+- **The style.** Bold geometric colour blocks, near-black silhouette figure with sculpted flat
+  highlight planes, radiating sunburst rays, concentric arcs, repeating dot rows, hard vector edges.
+  No gradients, texture, realism, soft shading, 3D or drop shadows. **Palette is exactly five**:
+  `#0D0D0D`, `#1A1A1A`, gold `#D4AF37`, amber `#E8A33D`, burnt orange `#C2571A`. The founder's
+  reference ran bright red-orange; that was deliberately pulled toward CRWN gold, because a second
+  warm brand beside the gold CTAs reads as two companies on one page.
+- **15 assets**: 6 heroes (homepage plus each promoted calculator) and 9 section bands. **No text,
+  letters, logos or watermarks inside any image**, and each one was opened and reviewed rather than
+  trusted from its prompt.
+- **Gender mix is ~65% male / 35% female ACROSS THE SET, not per image.** The first generated set
+  came out ~93% male for a mundane reason: every prompt said "artist" and the model returns a man
+  almost every time. Five images were redrawn with a woman leading and one two-hander made mixed,
+  taking it to 10/5 = 67/33. **Name the gender in every prompt and count the set before shipping.**
+- **WebP, never JPEG.** Flat colour and hard edges are the worst case for DCT: the nine section
+  images were 4.8 MB as JPEG with visible ringing on every edge, and 475 KB as WebP with no visible
+  loss. A 90% reduction on eight below-fold images.
+- **No border, frame or white edge**, machine-checked. The generator drew a 25px white frame around
+  one hero and it reached production because a thin light border is invisible at review scale
+  against a dark page. `toolPositioning.test.ts` now samples all four edges of every brand asset and
+  fails on a near-white edge; proven by mutation. **The eye is the wrong instrument for this**, so
+  looking and the edge test each catch what the other cannot.
+- **The hero is one centred column, image on top, at every breakpoint**, and the CTA stays above the
+  fold **by construction rather than by a height budget**. Two hand-computed budgets were both wrong
+  on a real screen, because the copy block has no fixed height: the headline wraps to two or three
+  lines depending on the tool and the viewport. On desktop the hero is exactly one viewport tall, the
+  copy is `shrink-0`, and the image is `flex-1` and absorbs the remainder. A wrapping headline now
+  costs the image height, never the button its place. **Do not give the image a fixed or
+  aspect-derived height on desktop again.**
+- **The eyebrow and the "Takes about N. Free." line are gone from every surface.** Removed from the
+  props rather than made optional, and `hero.eyebrow` was then deleted from the type and all 19
+  configs once a grep confirmed nothing read it. `timeToComplete` STAYS in the registry:
+  `LeadMagnetDirectory` renders it on `/tools` and `automationDispatcher` sends it as `howLong`.
+- **Existing photography stays until its surface is next touched.** The 14 paused calculators,
+  `studio_*.jpg` and `homepage_*.jpg` are still photographic, so `/tools` currently mixes both. This
+  rule governs what is GENERATED and is not a licence for a mass re-shoot.
+
 ## 2026-08-14 - Homepage hero and CTA targets (founder pass)
 
 - **The homepage hero drops the eyebrow ("For independent artists already selling direct") and the
