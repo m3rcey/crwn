@@ -184,9 +184,16 @@ const MODULES: Record<string, Omit<CalculatorModule, 'slug'>> = {
   },
   worth: {
     featureName: 'Membership',
-    quickWin: 'Set one price the real fans among your listeners would happily pay each month. Streaming pays you fractions of a cent. A membership pays you directly.',
+    // NO "streaming pays pennies" framing, in either line. docs/ICP.md is explicit that the target
+    // artist already knows that, and saying it tells them they are in the wrong room. The previous
+    // copy said "Streaming pays you fractions of a cent" and "earn you almost nothing on streaming",
+    // which is the exact beginner framing the ICP forbids, and it shipped because the content test
+    // scanned only the sequence and never the modules injected into it.
+    quickWin:
+      'Set one monthly price for the paying group your result found. Not for your whole audience: for the small share who already buy from you somewhere else. That price is the only number a membership needs to start.',
     firstBuild: 'Build one fan membership tier and set its monthly price.',
-    useCase: 'The same fans who earn you almost nothing on streaming become direct monthly supporters through a membership you control.',
+    useCase:
+      'The fans already paying you across other platforms get one place to join instead, priced by you, where the fan and the sale finally sit together.',
     destinationRoute: '/profile',
   },
 };

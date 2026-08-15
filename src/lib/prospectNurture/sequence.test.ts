@@ -15,6 +15,8 @@ import {
   nextEmailAfter,
 } from './sequence';
 import { NURTURE_ART, ALL_NURTURE_ART, artUrl } from './art';
+import { moduleFor } from './calculatorModules';
+import { LEAD_MAGNETS } from '@/lib/leadMagnets/registry';
 import { resolveQualifiedCta, QUALIFIED_CTA_ANCHOR, QUALIFIED_CTA_TOOL } from './ctaBranch';
 import { renderNurtureEmail } from './render';
 import type { NurtureTokens } from './types';
@@ -41,6 +43,23 @@ function readableCopy(e: (typeof emails)[number]): string {
 }
 
 const ALL_COPY = emails.map(readableCopy).join('\n');
+
+/**
+ * Every MODULE's copy, which is injected into the emails above at render time and is therefore just
+ * as sent as the sequence itself.
+ *
+ * This list existed and was not scanned, which is exactly how "Streaming pays you fractions of a
+ * cent" shipped inside the `worth` module while the ICP assertion below passed: it was reading the
+ * sequence only. A content rule that covers half the sent words is not a content rule.
+ */
+const MODULE_SLUGS = [...LEAD_MAGNETS.map((m) => m.slug), 'worth'];
+const ALL_MODULE_COPY = MODULE_SLUGS.map((s) => {
+  const m = moduleFor(s);
+  return [m.featureName, m.quickWin, m.firstBuild, m.useCase].join(' \n ');
+}).join('\n');
+
+/** Everything a lead can read: the sequence AND the per-calculator blocks injected into it. */
+const ALL_SENT_COPY = `${ALL_COPY}\n${ALL_MODULE_COPY}`;
 
 describe('sequence structure', () => {
   it('is the current version and is registered in the version map', () => {
@@ -302,10 +321,35 @@ describe('content claims stay inside what CRWN can support', () => {
   it('never tells the ICP their audience is too small or that fans may not pay', () => {
     // docs/ICP.md: this artist already sells directly. Beginner framing tells them they are in the
     // wrong room, which is the exact failure v2's day-8 subject was rewritten to avoid.
-    expect(ALL_COPY).not.toMatch(/streaming pays (pennies|fractions)/i);
-    expect(ALL_COPY).not.toMatch(/even if (you|your audience) (is|are) (small|tiny)/i);
-    expect(ALL_COPY).not.toMatch(/you (do not|don't) need a big audience/i);
-    expect(ALL_COPY).not.toMatch(/maybe your fans will pay/i);
+    //
+    // The patterns are deliberately loose. The first version of this assertion was
+    // `/streaming pays (pennies|fractions)/i`, which never matched the copy that actually shipped
+    // ("Streaming pays YOU fractions of a cent") because of one intervening word. A content rule
+    // that only catches the exact phrasing someone thought of first catches nothing.
+    const BANNED_ICP_FRAMING: [RegExp, string][] = [
+      [/streaming\b[^.]{0,30}\b(pennies|fractions? of a cent|almost nothing|next to nothing)/i, 'streaming pays pennies'],
+      [/(earn|pay)s? you (almost|next to) nothing\b/i, 'your work earns nothing'],
+      [/even if (you|your audience) (is|are) (small|tiny)/i, 'your audience is small'],
+      [/you (do not|don't) need a (big|large) audience/i, 'you do not need an audience'],
+      [/maybe your fans (will|would) pay/i, 'fans might not pay'],
+      [/your audience (is|might be) too small/i, 'audience too small'],
+    ];
+    for (const [re, label] of BANNED_ICP_FRAMING) {
+      const hit = ALL_SENT_COPY.match(re);
+      expect(hit, `banned ICP framing (${label}): ${hit?.[0] ?? ''}`).toBeNull();
+    }
+  });
+
+  it('gives every calculator a BUILDABLE feature name, never a calculator name', () => {
+    // `feature_name` lands in "Setting up the first version of your ___ in the CRWN app". The
+    // registry's featureName is a directory-card label, and the external `worth` tool carries
+    // "Worth Calculator", which shipped as "the first version of your Worth Calculator". The module
+    // owns this value for exactly that reason, and a calculator name here is always wrong.
+    for (const slug of MODULE_SLUGS) {
+      const fn = moduleFor(slug).featureName;
+      expect(fn, `${slug} feature name is not buildable`).not.toMatch(/calculator|quiz|planner|blueprint/i);
+      expect(fn.length, `${slug} feature name`).toBeGreaterThan(3);
+    }
   });
 
   it('references no paused or deprecated calculator by name', () => {

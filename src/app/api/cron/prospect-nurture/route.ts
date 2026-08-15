@@ -146,10 +146,26 @@ export async function GET(req: NextRequest) {
             ? (result.public_token as string)
             : null;
 
+        // The sub-avatar funnel stored beside their answers (docs/SUB_AVATARS.md). All four
+        // avatars run the same calculator, so without this every avatar would get identical copy.
+        // Resolved BEFORE the tokens, because the module it selects now supplies `feature_name`.
+        const subAvatar = deriveAcquisitionAvatar(
+          (evidenceFromInputs(result?.input_data as Record<string, unknown>).entryContexts ?? []) as (string | null)[],
+        );
+
+        // The MODULE owns `feature_name`, not the registry config. The registry's `featureName` is a
+        // directory-card label and is not always a thing an artist builds: the external `worth`
+        // tool carries "Worth Calculator", which rendered as "Setting up the first version of your
+        // Worth Calculator in the CRWN app". The module's value is the buildable feature for every
+        // tool (Artist Vault, Live Experiences, Fan Referrals, Membership), and its own fallback
+        // derives from the registry anyway, so this is never worse and is sometimes the difference
+        // between a sentence that makes sense and one that does not.
+        const nurtureModule = moduleFor(String(e.tool_slug), subAvatar);
+
         const { tokens, hasNumber } = buildNurtureTokens({
           slug: String(e.tool_slug),
           toolName: cfg.name,
-          featureName: cfg.featureName,
+          featureName: nurtureModule.featureName,
           artistName: (lead?.artist_name as string) ?? null,
           resultData: (result?.result_data as Record<string, unknown>) ?? null,
           publicToken: tokenLive,
@@ -158,12 +174,6 @@ export async function GET(req: NextRequest) {
           unsubToken: String(e.unsub_token),
           ctaLabel: continueCtaFor(String(e.tool_slug)),
         });
-
-        // The sub-avatar funnel stored beside their answers (docs/SUB_AVATARS.md). All four
-        // avatars run the same calculator, so without this every avatar would get identical copy.
-        const subAvatar = deriveAcquisitionAvatar(
-          (evidenceFromInputs(result?.input_data as Record<string, unknown>).entryContexts ?? []) as (string | null)[],
-        );
 
         // CTA branch. Recomputed here from the STORED calculator answers through the canonical
         // scorer, so a lead can never route themselves to the assisted path by editing anything.
@@ -191,7 +201,7 @@ export async function GET(req: NextRequest) {
         const rendered = renderNurtureEmail({
           email,
           tokens,
-          module: moduleFor(String(e.tool_slug), subAvatar),
+          module: nurtureModule,
           hasNumber,
           appUrl: APP_URL,
           ctaOverride,

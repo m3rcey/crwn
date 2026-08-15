@@ -22,8 +22,15 @@ import type { NurtureTokens } from './types';
 function toolNameFor(slug: string): string {
   return getLeadMagnet(slug)?.name || EXTERNAL_TOOLS.find((t) => t.key === slug)?.name || slug;
 }
+/**
+ * The MODULE owns the buildable feature name, matching what the cron now passes into
+ * `{{feature_name}}`. The registry's `featureName` is a directory-card label: the external `worth`
+ * tool carries "Worth Calculator", which rendered as "Setting up the first version of your Worth
+ * Calculator in the CRWN app". Preview and send must resolve this identically or the preview is
+ * checking a different email than the one that goes out.
+ */
 function featureNameFor(slug: string): string {
-  return getLeadMagnet(slug)?.featureName || EXTERNAL_TOOLS.find((t) => t.key === slug)?.featureName || 'CRWN build';
+  return moduleFor(slug).featureName;
 }
 
 export interface PreviewTouch {
