@@ -2,8 +2,11 @@
 // (consent, suppression, dedup, exit-on-account) without a real database.
 
 import { describe, expect, it } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { enrollProspect, exitProspectNurtureForUser } from './enroll';
+import { PROSPECT_NURTURE_SEQUENCE } from './sequence';
 
 interface Cfg {
   suppressed?: boolean;
@@ -107,5 +110,17 @@ describe('exitProspectNurtureForUser', () => {
     const out = await exitProspectNurtureForUser(admin, { userId: 'u1', email: null });
     expect(out.exited).toBe(0);
     expect(calls.some((c) => c.op === 'update')).toBe(false);
+  });
+});
+
+describe('the stored phase tracks the sequence, not a literal', () => {
+  it('writes the first email\'s phase, so a phase rename cannot leave a dead name behind', async () => {
+    // v2 -> v3 renamed the phases and a hardcoded 'delivery' kept being written to every new
+    // enrollment. Caught by a production canary, not by a test, which is why this exists.
+    const src = readFileSync(join(process.cwd(), 'src/lib/prospectNurture/enroll.ts'), 'utf-8');
+    expect(src).not.toMatch(/phase: 'delivery'/);
+    expect(src).toMatch(/phase: PROSPECT_NURTURE_SEQUENCE\.emails\[0\]\?\.phase/);
+    const valid = ['diagnose', 'believe', 'decide', 'evergreen'];
+    expect(valid).toContain(PROSPECT_NURTURE_SEQUENCE.emails[0].phase);
   });
 });

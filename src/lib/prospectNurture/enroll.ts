@@ -69,7 +69,10 @@ export async function enrollProspect(admin: SupabaseClient, input: EnrollInput):
         tool_slug: input.toolSlug,
         result_id: input.resultId,
         sequence_version: PROSPECT_NURTURE_VERSION,
-        phase: 'delivery',
+        // DERIVED from the sequence, never a literal. A hardcoded 'delivery' survived the v2 -> v3
+        // phase rename and wrote a phase name that no longer exists onto every new enrollment, which
+        // the admin panel groups by. Reading it from the first email cannot drift again.
+        phase: PROSPECT_NURTURE_SEQUENCE.emails[0]?.phase ?? 'diagnose',
         current_step: 0,
         status: 'active',
         next_send_at: nextSendAt,
