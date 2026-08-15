@@ -275,9 +275,20 @@ primitive, never 19 copies. `src/lib/leadMagnets/conversionContract.test.ts` pin
   skips questions gets a SMALLER number: buy speed by MERGING SCREENS, never by dropping,
   optionalizing or defaulting a field. Every removal needs the Z2B-1 consumption trace first.
 - **The result is never gated and always correctable.** `leadCapture.required` is false on all 20,
-  there is no `preview` phase, and nothing (email, signup, booking) may appear between the result
-  and the builder. The post-result "change an answer and recalculate" control must keep working:
-  a number the artist cannot touch is a number they do not believe.
+  there is no `preview` phase, and **no signup link and no booking flow** may appear between the
+  result and the builder. The post-result "change an answer and recalculate" control must keep
+  working: a number the artist cannot touch is a number they do not believe.
+- **The OPTIONAL email capture is the one exception, and it belongs ABOVE the builder** (founder
+  decision 2026-08-15, replacing "nothing may appear between the result and the builder"). Gating
+  and ordering are different things: the capture card may precede the builder as long as the result
+  is already delivered, the card is skippable, and the builder works without it. It must precede the
+  builder because the builder's own action is `stickyFooter` (`sticky bottom-0`), so its
+  Continue/Save is pinned to the viewport the whole time and the final press `router.push`es to
+  signup. Anything below the builder is therefore behind a permanently visible exit, which is why
+  production captured **zero** leads across every calculator. `ResultToBuilder` scrolls straight to
+  `builderRef`, so an artist who wants to build skips the card entirely. Asserted by
+  `pageComposition.test.ts` and `prospectNurture/capture.test.ts`; the signup/booking half of the
+  rule above is unchanged and still asserted.
 - **A re-run after a correction is NOT a new completion.** It emits only
   `opportunity_estimate_recalculated`; the wizard remounts with `trackStart={false}`. Never let a
   correction add a second `calculator_started` / `calculator_completed`, or every ratio measured

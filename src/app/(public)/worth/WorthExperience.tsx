@@ -375,7 +375,15 @@ export function WorthExperience({
           )}
         </>
       )}
+    </div>
+  );
 
+  // The account/membership CTA. SPLIT OUT of the email card on 2026-08-15 and deliberately left
+  // BELOW the builder: the email ask moved above the builder so it is not stranded behind the
+  // builder's sticky exit, but a signup CTA above the builder would let a visitor skip the builder
+  // entirely, which is the thing the page composition exists to prevent.
+  const claimCtaCard = (
+    <div className="bg-crwn-surface border border-crwn-elevated rounded-2xl p-6 mb-14">
       {claimHref ? (
         <a
           href={claimHref}
@@ -630,9 +638,16 @@ export function WorthExperience({
           <>
             {resultCard}
             {derivationCard}
+            {/* Optional email continuation sits ABOVE the builder for the same reason it does on
+                the registry calculators: `builderSection` mounts the shared DeliverableBuilder,
+                whose Wizard footer is `sticky bottom-0` and whose final press navigates to signup.
+                Anything after it is behind a permanently visible exit. The result and the
+                derivation are both above this, so value is still delivered first, and nothing here
+                gates the builder or the inputs. */}
+            {emailCaptureCard}
             {builderSection}
             {inputsCard}
-            {emailCaptureCard}
+            {claimCtaCard}
           </>
         )}
 

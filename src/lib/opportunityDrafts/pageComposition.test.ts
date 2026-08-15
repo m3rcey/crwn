@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { DELIVERABLE_SPECS, buildCtaFor, transitionFor, DELIVERABLE_TOOL_SLUGS } from './deliverableSpecs';
+import { LEAD_MAGNETS } from '@/lib/leadMagnets/registry';
 
 // Structural tests for the universal Opportunity Funnel page composition:
 // result -> transition -> BUILDER -> secondary actions -> supporting content.
@@ -17,6 +18,11 @@ const homeMarketing = readFileSync(join(root, 'src/app/HomeMarketing.tsx'), 'utf
 // 2026-08-14 positioning pass. Several claims below are asserted at this source of truth.
 const story = readFileSync(join(root, 'src/lib/positioning/story.ts'), 'utf-8');
 const toolMarketing = readFileSync(join(root, 'src/components/lead-magnets/ToolMarketing.tsx'), 'utf-8');
+// Read by the capture invariant below, which asserts the EXIT it protects against is still real
+// rather than just asserting a sibling order that could outlive its reason.
+const deliverableBuilder = readFileSync(join(root, 'src/components/opportunity/DeliverableBuilder.tsx'), 'utf-8');
+const wizard = readFileSync(join(root, 'src/components/ui/Wizard.tsx'), 'utf-8');
+const resultToBuilder = readFileSync(join(root, 'src/components/opportunity/ResultToBuilder.tsx'), 'utf-8');
 
 describe('CTA contract: the builder is the CTA', () => {
   it('every deliverable tool has a transition line and a build CTA that never mentions signup', () => {
@@ -63,16 +69,53 @@ describe('PublicToolClient page order (shared template for 16 tools + OYF)', () 
     expect(publicToolClient).not.toContain('continueCtaFor(');
   });
 
-  it('the builder appears before email capture, explore link, and supporting content', () => {
+  it('the builder appears before the explore link and supporting content', () => {
     const builder = fullPhase.indexOf('ref={builderRef}');
     expect(builder).toBeGreaterThan(-1);
-    expect(builder).toBeLessThan(fullPhase.indexOf('LeadCaptureForm'));
     expect(builder).toBeLessThan(fullPhase.indexOf('Explore another CRWN tool'));
     expect(builder).toBeLessThan(fullPhase.indexOf('<ToolShowcase'));
     expect(builder).toBeLessThan(fullPhase.indexOf('<CrwnShowcase'));
   });
 
-  it('no signup link renders between the result and the builder', () => {
+  // THE CAPTURE INVARIANT (founder decision 2026-08-15). Stated as the property that actually
+  // matters rather than as a fixed sibling order, because the defect it prevents is behavioural:
+  // the builder's action is `stickyFooter`, so it is pinned to the viewport and its last press
+  // navigates away. Anything after the builder is behind a permanently visible exit.
+  it('renders the optional email capture BEFORE the navigating builder action', () => {
+    const capture = fullPhase.indexOf('LeadCaptureForm');
+    const builder = fullPhase.indexOf('ref={builderRef}');
+    expect(capture, 'capture form missing from the result surface').toBeGreaterThan(-1);
+    expect(capture, 'capture must not sit behind the builder exit').toBeLessThan(builder);
+  });
+
+  it('proves the exit it is protecting against is real, so the invariant cannot rot silently', () => {
+    // If the builder ever stops being a sticky, navigating action, revisit the rule above rather
+    // than quietly leaving a test that guards a defect that no longer exists.
+    expect(deliverableBuilder, 'builder no longer uses a sticky footer').toContain('stickyFooter');
+    expect(wizard, 'Wizard no longer pins the footer to the viewport').toContain('sticky bottom-0');
+    expect(publicToolClient, 'builder save no longer navigates away').toMatch(
+      /onSaveDeliverable[\s\S]{0,400}router\.push\(buildContinueUrl/,
+    );
+  });
+
+  it('still delivers the result before asking for anything', () => {
+    // Value first: the result and its transition both precede the capture card.
+    const capture = fullPhase.indexOf('LeadCaptureForm');
+    expect(fullPhase.indexOf('<LeadMagnetResult')).toBeLessThan(capture);
+    expect(fullPhase.indexOf('<ResultToBuilder')).toBeLessThan(capture);
+  });
+
+  it('never turns the capture into a gate', () => {
+    // The card is skippable by construction: ResultToBuilder scrolls straight to the builder, and
+    // no tool may mark capture required.
+    expect(resultToBuilder).toContain('builderRef.current');
+    expect(resultToBuilder).toContain('scrollIntoView');
+    for (const m of LEAD_MAGNETS) expect(m.leadCapture.required, m.slug).toBe(false);
+  });
+
+  it('no signup link or booking flow renders between the result and the builder', () => {
+    // Unchanged half of the original rule: the OPTIONAL email ask may precede the builder, an
+    // account CTA may not, or the builder becomes skippable.
     const between = fullPhase.slice(0, fullPhase.indexOf('ref={builderRef}'));
     expect(between).not.toContain('/signup');
     expect(between).not.toContain('BOOK_CALL');
@@ -80,17 +123,29 @@ describe('PublicToolClient page order (shared template for 16 tools + OYF)', () 
 });
 
 describe('Worth page order', () => {
-  it('the builder follows the result, CTA and derivation, before the inputs and email card', () => {
+  it('delivers the result and derivation, then the optional email ask, then the builder', () => {
     const flow = worth.slice(worth.indexOf('{useEntryWizard ? ('));
     // resultCta now lives INSIDE resultCard (directly under the number, above the stats grid),
-    // which is what puts it in the first viewport.
-    const order = ['{resultCard}', '{derivationCard}', '{builderSection}', '{inputsCard}', '{emailCaptureCard}'];
+    // which is what puts it in the first viewport. `emailCaptureCard` moved ABOVE `builderSection`
+    // on 2026-08-15: /worth mounts the same sticky-footer DeliverableBuilder, so an email ask
+    // placed after it is behind a permanently visible exit, exactly as on the registry tools.
+    const order = ['{resultCard}', '{derivationCard}', '{emailCaptureCard}', '{builderSection}', '{inputsCard}', '{claimCtaCard}'];
     let last = -1;
     for (const marker of order) {
       const i = flow.indexOf(marker);
       expect(i, marker).toBeGreaterThan(last);
       last = i;
     }
+  });
+
+  it('keeps the account CTA below the builder even though the email ask moved above it', () => {
+    // The membership/signup button was split out of the email card. An optional email ask may
+    // precede the builder; an account CTA may not, or the builder becomes skippable.
+    const flow = worth.slice(worth.indexOf('{useEntryWizard ? ('));
+    expect(flow.indexOf('{claimCtaCard}')).toBeGreaterThan(flow.indexOf('{builderSection}'));
+    const captureCard = worth.slice(worth.indexOf('const emailCaptureCard ='), worth.indexOf('const claimCtaCard ='));
+    expect(captureCard).not.toContain('/signup');
+    expect(captureCard).not.toContain('MEMBERSHIP_CTA');
   });
 
   it('the CTA renders inside the result card, above the supporting stats', () => {

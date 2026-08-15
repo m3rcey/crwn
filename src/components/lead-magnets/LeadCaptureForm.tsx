@@ -90,11 +90,15 @@ export function LeadCaptureForm({ config, submitting, onSubmit }: { config: Lead
 
       {error && <p className="text-xs text-crwn-error">{error}</p>}
 
+      {/* SECONDARY, deliberately not gold. Since 2026-08-15 this card renders ABOVE the builder, so
+          a gold pill here sits directly under ResultToBuilder's gold "Build my ..." CTA and reads as
+          the primary next step. Rendered side by side it was actually the LOUDER of the two, because
+          it is full width. The builder is the primary action; this is the optional continuation. */}
       <button
         type="button"
         onClick={submit}
         disabled={submitting}
-        className="w-full py-3.5 rounded-full bg-crwn-gold text-crwn-bg font-semibold disabled:opacity-40"
+        className="w-full py-3.5 rounded-full bg-crwn-elevated text-crwn-text font-semibold border border-crwn-elevated hover:border-crwn-gold/40 transition-colors disabled:opacity-40"
       >
         {/* Never "unlock": the result is already on the screen above this form. The button says
             what the email actually does, in the tool's own words. */}

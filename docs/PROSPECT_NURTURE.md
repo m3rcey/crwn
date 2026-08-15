@@ -32,10 +32,14 @@ An earlier draft of this document blamed "consent UX". That was **wrong and unpr
 exposure event did not fire, so there was no denominator. The actual causes, in order:
 
 1. **The capture card sat behind an exit.** On every registry calculator the page order was
-   result → recalculate → **builder** → hand-raiser → capture. The builder is the CTA, and its save
-   handler calls `router.push(buildContinueUrl(...))`, navigating to signup. Any visitor who engaged
-   with the CTA left the page before the capture card existed on screen. Fixed: capture now renders
-   directly after the builder, above the hand-raiser, with a gold border.
+   result → recalculate → **builder** → hand-raiser → capture. The builder is the CTA, its Wizard
+   footer is `stickyFooter` (rendered `sticky bottom-0 z-20`, so its Continue/Save is pinned to the
+   viewport the whole time the builder is on screen), and its final press calls
+   `router.push(buildContinueUrl(...))` to signup. Anything below the builder is therefore behind a
+   permanently visible exit.
+   **A first fix moved capture from after the hand-raiser to directly after the builder. That was
+   not enough and was corrected**: it only shortened the distance to the same exit. The capture card
+   now renders ABOVE the builder (see "Post-result page order" below).
 2. **`/worth` had no lead-capture path at all.** It posts to `/api/leads/calculator`, which writes
    `crm_contacts`. No `lead_magnet_leads` row, no consent box, no enrollment. Fixed (see below).
 3. **The whole capture funnel was uninstrumented.** `lead_magnet_lead_capture_viewed` and
@@ -63,12 +67,50 @@ currently unfalsifiable. Everything in the "Cadence" section below is a labelled
 
 ---
 
+## Post-result page order (the capture invariant)
+
+**The rule, founder decision 2026-08-15:** *the result is never email-gated, but the optional
+continuation capture must not be buried behind the primary page-exit action.*
+
+Gating and ordering are different things. The previous wording in `CLAUDE.md` ("nothing may appear
+between the result and the builder") conflated them and is what kept the card unreachable. The
+signup/booking half of that rule is unchanged and still asserted.
+
+| Registry calculators (`PublicToolClient`) | `/worth` (`WorthExperience`) |
+|---|---|
+| result (+ `ResultToBuilder`, the gold primary CTA) | result card (+ `ResultToBuilder`) |
+| "change an answer and recalculate" | derivation card |
+| **optional email capture** | **optional email capture** |
+| builder (`builderRef`, sticky exit) | builder |
+| qualified hand-raiser | inputs |
+| explore / showcase | account CTA (`claimCtaCard`) |
+
+Three properties, all of which must hold:
+
+1. **Value first.** The result and its transition are both above the capture card.
+2. **Not a gate.** `ResultToBuilder` scrolls straight to `builderRef`, so an artist who wants to
+   build skips the card entirely. `leadCapture.required` is false on every tool. The builder works
+   without ever touching the card.
+3. **Not behind an exit.** The card precedes the builder, whose action is sticky and navigating.
+
+Two supporting details, both found by LOOKING at the rendered page rather than by a unit test:
+
+- The capture submit button is **not gold**. Directly under `ResultToBuilder`'s gold pill, a
+  full-width gold button was visually the louder of the two and inverted the hierarchy.
+- On `/worth` the account/membership CTA was **split out** of the email card into `claimCtaCard` and
+  left below the builder. An optional email ask may precede the builder; an account CTA may not, or
+  the builder becomes skippable.
+
+Asserted by `pageComposition.test.ts` and `prospectNurture/capture.test.ts`. Those assertions also
+check that the exit they guard against still exists (`stickyFooter`, `sticky bottom-0`, the
+`router.push` in `onSaveDeliverable`), so the rule cannot outlive its reason without failing.
+
 ## Funnel
 
 1. Lead runs a calculator on a public tool page.
 2. The result renders immediately. It is never gated.
-3. Below the result and below the builder, an optional capture card offers to email the result and
-   the follow-up. Consent is an explicit unchecked box. This posts to `POST /api/lead-magnets/capture`.
+3. Between the result and the builder, an optional capture card offers to email the result and the
+   follow-up. Consent is an explicit unchecked box. This posts to `POST /api/lead-magnets/capture`.
 4. The capture route stores the lead + result, sends the **transactional** result email immediately,
    and (with consent) calls `enrollProspect(...)`.
 5. The daily cron `GET /api/cron/prospect-nurture` (`30 10 * * *`) sends the next due email to each

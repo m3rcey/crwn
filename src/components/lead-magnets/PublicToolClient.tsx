@@ -442,6 +442,35 @@ export function PublicToolClient({
             </button>
           )}
 
+          {/* OPTIONAL EMAIL CONTINUATION, above the builder. Founder decision 2026-08-15.
+              THE RULE IT SATISFIES: the result is never gated, and the builder is never gated. This
+              is not the same as "capture may never precede the builder", which is what the previous
+              wording implied and what kept this card unreachable.
+
+              WHY ABOVE: the builder's own primary action is `stickyFooter` (Wizard renders it
+              `sticky bottom-0 z-20`), so its Continue/Save button is pinned to the viewport the
+              entire time the builder is on screen, and the last press calls `router.push` to signup.
+              Anything BELOW the builder therefore sits behind a permanently visible exit. Moving
+              this card from "after the hand-raiser" to "directly after the builder" only shortened
+              the distance to that exit; it did not remove it. Production had zero captures across
+              every calculator.
+
+              WHY IT STILL DOES NOT GATE: `ResultToBuilder` (the gold primary CTA inside the result
+              above) scrolls straight to `builderRef`, so an artist who wants to build jumps past
+              this card entirely. It is skippable by design, `leadCapture.required` is false on every
+              tool, and nothing here blocks or precedes the RESULT itself.
+
+              Deliberately NOT gold: the gold primary CTA is ResultToBuilder, immediately above. A
+              second gold block here would read as the required next step, which is the opposite of
+              what this is. */}
+          {resultId ? (
+            <ResultActions config={config} result={result} context="public" publicToken={publicToken} resultId={resultId} />
+          ) : (
+            <div ref={captureRef} className="scroll-mt-4 rounded-2xl bg-crwn-surface border border-crwn-elevated p-4">
+              <LeadCaptureForm config={config} submitting={submitting} onSubmit={submitCapture} />
+            </div>
+          )}
+
           {/* THE BUILDER: the immediate continuation of the result. Carries a stable id so a
               closing CTA below the funnel can return the visitor to the plan they built. */}
           <div id={PLAN_ANCHOR_ID} ref={builderRef} className="scroll-mt-4 pt-1">
@@ -464,24 +493,6 @@ export function PublicToolClient({
               <ConvertToFeatureButton config={config} result={result} context="public" publicToken={publicToken} resultId={resultId} />
             )}
           </div>
-
-          {/* Secondary action, DIRECTLY BELOW the builder: optional "email my results" with real
-              consent (persists the result + nurture attribution). Never a gate, and never above the
-              builder, which is the one thing the architecture forbids.
-
-              It used to sit LAST, after the hand-raiser and the explore link. That is not merely
-              "below the fold": the builder immediately above it navigates to signup on save, so the
-              capture card sat behind an exit and a visitor who engaged with the CTA never saw it.
-              Production agreed, with zero captures across every calculator since launch. Value still
-              comes first; the ask is now the next thing after it rather than the last thing on the
-              page, and it carries a gold border so it reads as a continuation, not a footer. */}
-          {resultId ? (
-            <ResultActions config={config} result={result} context="public" publicToken={publicToken} resultId={resultId} />
-          ) : (
-            <div ref={captureRef} className="scroll-mt-4 rounded-2xl bg-crwn-surface border border-crwn-gold/40 p-4">
-              <LeadCaptureForm config={config} submitting={submitting} onSubmit={submitCapture} />
-            </div>
-          )}
 
           {/* Optional hand-raiser, BELOW the builder (nothing may gate the builder): a qualified
               artist can request an immediate launch call. The server alone decides whether a

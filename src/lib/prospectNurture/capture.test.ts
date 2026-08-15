@@ -29,25 +29,33 @@ describe('the capture surface is reachable on registry calculators', () => {
     expect(fullPhase).toMatch(/resultId \?[\s\S]{0,400}<LeadCaptureForm/);
   });
 
-  it('keeps the builder above it, which is the one ordering rule the architecture fixes', () => {
-    // Value first: nothing may sit between the result and the builder.
-    const builder = fullPhase.indexOf('ref={builderRef}');
-    expect(builder).toBeGreaterThan(-1);
-    expect(builder).toBeLessThan(fullPhase.indexOf('<LeadCaptureForm'));
-  });
-
-  it('does NOT bury the capture behind the hand-raiser or the explore link', () => {
-    // The original defect: the builder immediately above navigates to signup on save, so anything
-    // below the hand-raiser sat behind an exit. Capture is now the next thing after the builder.
+  it('renders the capture BEFORE the builder, which owns the navigating exit', () => {
+    // The proven defect: the builder's Wizard footer is `sticky bottom-0`, so its Continue/Save is
+    // pinned to the viewport whenever the builder is on screen, and the final press router.push()es
+    // to signup. Anything after the builder is behind a permanently visible exit. Moving the card
+    // from "after the hand-raiser" to "after the builder" only shortened the distance to it.
     const capture = fullPhase.indexOf('<LeadCaptureForm');
-    expect(capture).toBeLessThan(fullPhase.indexOf('<CallRequestCard'));
-    expect(capture).toBeLessThan(fullPhase.indexOf('Explore another CRWN tool'));
-    expect(capture).toBeLessThan(fullPhase.indexOf('<ToolShowcase'));
+    const builder = fullPhase.indexOf('ref={builderRef}');
+    expect(capture).toBeGreaterThan(-1);
+    expect(capture).toBeLessThan(builder);
   });
 
-  it('never gates the result behind the capture', () => {
-    const beforeBuilder = fullPhase.slice(0, fullPhase.indexOf('ref={builderRef}'));
-    expect(beforeBuilder).not.toContain('LeadCaptureForm');
+  it('still delivers the result first, so nothing is traded for the placement', () => {
+    const capture = fullPhase.indexOf('<LeadCaptureForm');
+    expect(fullPhase.indexOf('<LeadMagnetResult')).toBeLessThan(capture);
+    expect(fullPhase.indexOf('<ResultToBuilder')).toBeLessThan(capture);
+  });
+
+  it('does not compete with the primary CTA for gold', () => {
+    // ResultToBuilder immediately above is the gold primary action. A second gold block would read
+    // as the required next step, which is exactly what this card must not look like. Caught by
+    // LOOKING at the rendered page, not by a unit test: side by side, the full-width gold capture
+    // button was visually louder than the primary CTA it sat under.
+    expect(fullPhase).toMatch(/ref=\{captureRef\}[^>]*border-crwn-elevated/);
+    expect(fullPhase).not.toMatch(/ref=\{captureRef\}[^>]*border-crwn-gold/);
+    // The submit button itself must stay secondary.
+    expect(captureForm).not.toMatch(/onClick=\{submit\}[\s\S]{0,200}bg-crwn-gold/);
+    expect(captureForm).toMatch(/onClick=\{submit\}[\s\S]{0,240}bg-crwn-elevated/);
   });
 });
 
