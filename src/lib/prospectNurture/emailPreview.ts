@@ -15,7 +15,16 @@ import { renderNurtureEmail } from './render';
 import { NURTURE_ART, artUrl } from './art';
 import { resolveQualifiedCta } from './ctaBranch';
 import { leadMagnetResultEmail } from '@/lib/emails/leadMagnetResult';
+import { getLeadMagnet, EXTERNAL_TOOLS } from '@/lib/leadMagnets/registry';
 import type { NurtureTokens } from './types';
+
+/** Exactly what `resolveConfig` in the nurture cron does, so a preview cannot drift from a send. */
+function toolNameFor(slug: string): string {
+  return getLeadMagnet(slug)?.name || EXTERNAL_TOOLS.find((t) => t.key === slug)?.name || slug;
+}
+function featureNameFor(slug: string): string {
+  return getLeadMagnet(slug)?.featureName || EXTERNAL_TOOLS.find((t) => t.key === slug)?.featureName || 'CRWN build';
+}
 
 export interface PreviewTouch {
   day: number;
@@ -50,8 +59,12 @@ function sampleTokens(o: Required<Pick<PreviewOptions, 'appUrl' | 'toolSlug' | '
   return {
     first_name: o.firstName,
     artist_name: o.firstName,
-    tool_name: o.toolSlug === 'worth' ? 'Streaming Loss Calculator' : 'Vault Revenue Planner',
-    feature_name: moduleFor(o.toolSlug).featureName,
+    // Resolved the SAME way the cron resolves it, from the registry (or EXTERNAL_TOOLS for
+    // `worth`). A hardcoded name here made every tool's preview claim the reader had run the Vault
+    // planner, which reads as cross-calculator contamination that does not exist in production.
+    // A preview that lies is worse than no preview.
+    tool_name: toolNameFor(o.toolSlug),
+    feature_name: featureNameFor(o.toolSlug),
     hero_value: withNumber ? '$1,240' : '',
     monthly_value: withNumber ? '$1,240 a month' : '',
     annual_value: withNumber ? '$14,880 a year' : '',
@@ -71,18 +84,18 @@ function dayZero(appUrl: string, toolSlug: string): PreviewTouch {
     id: 'transactional.result',
     phase: 'delivery (transactional, sent by the capture route)',
     objective: 'Deliver the result they asked for. Always sent, with or without marketing consent.',
-    subject: 'Vault Revenue Planner: your result is ready 👑',
+    subject: `${toolNameFor(toolSlug)}: your result is ready 👑`,
     preview: '(no preheader: this template does not set one)',
     art: art.id,
-    ctaLabel: 'Build my Vault',
+    ctaLabel: `Build my ${featureNameFor(toolSlug)}`,
     ctaUrl,
     html: leadMagnetResultEmail({
-      toolName: 'Vault Revenue Planner',
-      headline: 'Your Vault could add about $1,240 a month',
-      summary: 'Based on the catalog and superfan numbers you entered.',
+      toolName: toolNameFor(toolSlug),
+      headline: `Your ${featureNameFor(toolSlug)} could add about $1,240 a month`,
+      summary: 'Based on the numbers you entered.',
       topRecommendations: [
-        'Pick five things off your hard drive that are already made',
-        'Put them behind one paid Vault tier',
+        moduleFor(toolSlug).quickWin,
+        moduleFor(toolSlug).firstBuild,
         'Invite the fans who have already paid you before, first',
       ],
       insights: [
@@ -90,7 +103,7 @@ function dayZero(appUrl: string, toolSlug: string): PreviewTouch {
       ],
       resultUrl: `${appUrl}/tools/${toolSlug}?result=previewtoken`,
       ctaUrl,
-      ctaLabel: 'Build my Vault',
+      ctaLabel: `Build my ${featureNameFor(toolSlug)}`,
       bannerUrl: artUrl(art, appUrl) ?? undefined,
       bannerAlt: art.alt,
     }),
