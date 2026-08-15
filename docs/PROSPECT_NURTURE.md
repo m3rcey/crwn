@@ -26,6 +26,18 @@ Verified against production 2026-08-15 with the service-role key:
 The migration is applied and the tables exist. The cron runs daily. Nothing has ever flowed through
 it, because **nobody has ever submitted the email capture form.**
 
+### Release status
+
+**Sequence v3 and the corrected capture architecture went LIVE on 2026-08-15** (master `b7bd3769`,
+service worker `crwn-v404`), verified against production the same day: all six promoted calculators
+load, all 12 nurture assets serve as `image/webp`, the exposure event fires only on real viewport
+exposure, `/worth` creates a consented lead and a canonical enrollment on `sequence_version` 3, and a
+no-consent submission creates no marketing row at all.
+
+**Nothing has been sent.** At release there were 0 leads, 0 enrollments, 0 due sends, so v3 could not
+mail a historical population. Everything below the funnel section is still a hypothesis awaiting
+real traffic.
+
 ### Root cause (established 2026-08-15, second investigation)
 
 An earlier draft of this document blamed "consent UX". That was **wrong and unprovable**: the
@@ -370,7 +382,22 @@ instrumentation.
 
 **Known and deliberate:** on a short phone a visitor who taps the gold CTA within the first screen is
 never exposed, and is correctly **not** counted. That is a real limit of the composition, not a
-measurement artefact, and the exposure rate is what will show how large it is.
+measurement artefact, and the exposure rate is what will show how large it is. Confirmed unchanged in
+production on 2026-08-15 (375x667: 0 exposures on load, 40% visible after the tap, still 0). It is a
+**measurable hypothesis, not a defect**, until data says otherwise.
+
+### What the first real numbers mean, in order
+
+Diagnose from the top. Do not tune email 10 while exposure is broken.
+
+| If this is low | The problem is | Do NOT |
+|---|---|---|
+| eligible result → exposure | capture visibility / composition, especially short mobile | rewrite the sequence |
+| exposure → submission | the continuation offer and its value framing | weaken consent |
+| submission → consent | consent benefit framing (permission model stays) | pre-check or infer |
+| consent → enrollment | a technical enrollment defect, not copy | change copy |
+| enrollment → account | nurture and CTA effectiveness. **This is the first point at which touching v3 is justified** | touch it before here |
+| account → first paid member | further down the Zero-to-One path, not this system | blame capture |
 
 ## Admin controls
 
@@ -406,6 +433,31 @@ resolution and retired-version safety, art existence / WebP magic bytes / size /
 number branches, HTML escaping, CTA branch boundaries, anchor sync with `PublicToolClient`, and
 content claims (no em dashes, no bare "CRWN", no prices, no guarantees, no invented proof, no fake
 scarcity, no beginner framing, no paused-calculator references).
+
+## Post-release baseline (2026-08-15, after canary cleanup)
+
+The number the first real event must be distinguishable from.
+
+| Metric | Count |
+|---|---:|
+| `lead_magnet_results` (all) | 41 |
+| ...anonymous (`user_id IS NULL`) | 24 |
+| Eligible anonymous promoted results | **not measured historically** |
+| True capture exposures | **not measured historically** (1 pre-2026-08-15 row of unknown origin) |
+| Email submissions (`lead_magnet_lead_submitted`) | 0 |
+| Explicit consents | 0 |
+| Nurture enrollments | 0 |
+| Nurture sends | 0 |
+| Nurture-created accounts | 0 |
+
+"Eligible" and "exposure" are **not measured historically**, not zero: neither client event fired
+before this release, so there is no denominator to recover. Do not backfill them.
+
+**Rollback:** this release is code and static assets only. No migration, no new column, no cron
+schedule change, no env var, no feature flag. `git revert b7bd3769 628fc6a1 00c99eca ce641611
+fda41203 19af026e`, push `master`, redeploy, and bump `public/sw.js`. The only data it can create is
+a `lead_magnet_leads` row plus its enrollment, both additive and harmless if left; reverting the code
+simply stops new ones. Never write destructive rollback SQL for this release.
 
 ## Known limitations
 

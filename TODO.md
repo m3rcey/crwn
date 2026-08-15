@@ -22,22 +22,6 @@ responsible for. Do not work those.
 
 ### P0 — money flows or acquisition are blocked
 
-- [ ] **Merge `claude/rise-mode-full-journey` to master so the zero-capture fixes go live.** Nothing
-      to run in SQL. Production tracks master and is still serving `crwn-v403`; all of the capture
-      work is committed on the branch and is NOT live.
-      Why it matters: every calculator has captured **zero** leads ever (`lead_magnet_leads` 0 rows,
-      `prospect_nurture_enrollments` 0, `prospect_nurture_sends` 0, verified in production
-      2026-08-15). Root cause was structural, not consent: on every registry calculator the capture
-      card rendered AFTER the builder, whose save button navigates straight to signup, so anyone who
-      used the CTA left before reaching it. `/worth` had no lead-capture path at all.
-      What the branch changes: capture card moves directly under the builder with a gold border;
-      `/worth` gains an explicit unchecked consent box and enrolls through the shared
-      `enrollProspect`; the two capture analytics events that were defined but fired by nothing now
-      fire on both surfaces.
-      Verify after deploy by comparing `public/sw.js` CACHE_NAME against thecrwn.app/sw.js, then
-      watch `lead_magnet_lead_capture_viewed / lead_magnet_result_generated`. That ratio was
-      previously unmeasurable, and it is the number that says whether the placement fix worked.
-
 - [ ] **To finish Team Splits I need a test-mode sandbox. This is the only thing left, and it is
       environment setup, not code.** Nothing to run in SQL.
       I checked rather than assumed: your Stripe key really is live (I asked Stripe, and the balance
