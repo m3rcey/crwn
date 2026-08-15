@@ -12,7 +12,8 @@
     "verify:quests": "node scripts/verify-quest-catalog.mjs",
     "verify:migrations": "node scripts/probe-migrations.mjs",
     "verify:flags": "node scripts/probe-flags.mjs",
-    "verify:stripe": "node scripts/probe-stripe-prices.mjs"
+    "verify:stripe": "node scripts/probe-stripe-prices.mjs",
+    "preview:emails": "PREVIEW_EMAILS=1 vitest run src/lib/prospectNurture/emailPreview.test.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.111.0",
