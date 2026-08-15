@@ -59,9 +59,12 @@ export function useViewportExposure(
   // Guards a re-fire inside one mount even when sessionStorage is unavailable.
   const firedRef = useRef(false);
   // Keep the latest callback without making it an effect dependency, so an inline arrow in the
-  // caller cannot tear down and rebuild the observer on every render.
+  // caller cannot tear down and rebuild the observer on every render. Assigned in an effect, not
+  // during render: mutating a ref while rendering is a React correctness rule, not a style note.
   const cbRef = useRef(onExposed);
-  cbRef.current = onExposed;
+  useEffect(() => {
+    cbRef.current = onExposed;
+  }, [onExposed]);
 
   useEffect(() => {
     if (!enabled) return;
