@@ -864,7 +864,15 @@ describe('SEC-SERVICE — service-role routes are the only authorization boundar
   });
 
   it('every service-role route establishes an identity, a secret, or a signature, or is declared public', () => {
-    const ESTABLISHES = /auth\.getUser\s*\(|requireAdmin\s*\(|requireArtistOwner\s*\(|getOwnedArtistIds\s*\(|CRON_SECRET|INTERNAL_[A-Z_]*SECRET|constructEvent\s*\(|verifyWebhookSignature\s*\(|WebhookReceiver|createHmac\s*\(|verifyUnsubscribe\s*\(|verifyCalcomRequest\s*\(|presentedSecret/;
+    // `verifyUnsubscribe[A-Za-z]*` rather than `verifyUnsubscribe` exactly: the helper was
+    // generalized to `verifyUnsubscribeScope` when platform-sequence opt-out shipped (2026-08-15),
+    // binding kind + row id + artist + recipient instead of an address alone. The old name stopped
+    // matching, so a route doing HMAC-SHA256 with timingSafeEqual read to this scan as having no
+    // authorization at all. That is the matcher going stale on a rename, NOT a rule being relaxed:
+    // the new helper is strictly stronger than the one this pattern already trusted, and the route
+    // it guards is stricter than its own siblings, which sit on DELIBERATELY_PUBLIC with no
+    // signature at all. Allowlisting that route instead would have thrown the signature away.
+    const ESTABLISHES = /auth\.getUser\s*\(|requireAdmin\s*\(|requireArtistOwner\s*\(|getOwnedArtistIds\s*\(|CRON_SECRET|INTERNAL_[A-Z_]*SECRET|constructEvent\s*\(|verifyWebhookSignature\s*\(|WebhookReceiver|createHmac\s*\(|verifyUnsubscribe[A-Za-z]*\s*\(|verifyCalcomRequest\s*\(|presentedSecret/;
     const offenders = serviceRoleRoutes
       .filter(f => !DELIBERATELY_PUBLIC.has(f))
       .filter(f => !ESTABLISHES.test(readStripped(f)));
