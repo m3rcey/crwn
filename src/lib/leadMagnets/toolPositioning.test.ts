@@ -10,7 +10,7 @@
 // invisible in a build and invisible in a type check, so it gets asserted here.
 
 import { describe, it, expect } from 'vitest';
-import { readFileSync, existsSync } from 'fs';
+import { readFileSync, existsSync, readdirSync } from 'fs';
 import { join } from 'path';
 import { TOOL_DOORWAYS, PROMOTED_MARKETING_SLUGS, hasDoorway, getDoorway } from './positioning';
 import { LEAD_MAGNETS, EXTERNAL_TOOLS, getLeadMagnet } from './registry';
@@ -159,6 +159,55 @@ describe('every headline opens on a brand photograph', () => {
     for (const [label, keys] of [['homepage', home], ['calculator', tool]] as const) {
       const srcs = keys.map((k) => SECTION_ART[k].src);
       expect(new Set(srcs).size, `${label} has a duplicate image`).toBe(srcs.length);
+    }
+  });
+
+  it('ships no brand image with a white frame baked into it', async () => {
+    // The generator drew a 25px white border around one hero and it reached production. The house
+    // rule already said "always look at every image", and I did look at this one: a thin white
+    // frame is simply not visible at review scale against a page that is already dark. Eyes are the
+    // wrong instrument for this, so the edges get measured instead.
+    //
+    // `sharp` is a transitive dependency of Next rather than a declared one, so an unavailable
+    // sharp SKIPS rather than fails. A guard that breaks the suite when an unrelated upgrade moves
+    // a package is worse than no guard.
+    // Structurally typed rather than `typeof import('sharp')`: the package is transitive, so its
+    // types are not guaranteed to resolve here, and only these two calls are used.
+    type SharpLike = (input: string) => {
+      metadata(): Promise<{ width?: number; height?: number }>;
+      raw(): { toBuffer(): Promise<Buffer> };
+    };
+    let sharp: SharpLike;
+    try {
+      sharp = ((await import('sharp')) as unknown as { default: SharpLike }).default;
+    } catch {
+      console.warn('[brand art] sharp unavailable, edge check skipped');
+      return;
+    }
+
+    const files = readdirSync(join(root, 'public')).filter((f) => /^(hero|section)-.*\.webp$/.test(f));
+    expect(files.length, 'brand art is present').toBeGreaterThan(10);
+
+    for (const file of files) {
+      const img = sharp(join(root, 'public', file));
+      const { width = 0, height = 0 } = await img.metadata();
+      const raw = await img.raw().toBuffer();
+      const lum = (x: number, y: number) => {
+        const i = (y * width + x) * 3;
+        return (raw[i] + raw[i + 1] + raw[i + 2]) / 3;
+      };
+      // Sample each edge. A brand image sits on #0D0D0D, so an edge that is mostly near-white is a
+      // frame the model drew, never artwork.
+      const edges: [string, number[]][] = [
+        ['top', Array.from({ length: 40 }, (_, i) => lum(Math.floor((width * (i + 0.5)) / 40), 0))],
+        ['bottom', Array.from({ length: 40 }, (_, i) => lum(Math.floor((width * (i + 0.5)) / 40), height - 1))],
+        ['left', Array.from({ length: 40 }, (_, i) => lum(0, Math.floor((height * (i + 0.5)) / 40)))],
+        ['right', Array.from({ length: 40 }, (_, i) => lum(width - 1, Math.floor((height * (i + 0.5)) / 40)))],
+      ];
+      for (const [side, samples] of edges) {
+        const nearWhite = samples.filter((v) => v > 200).length / samples.length;
+        expect(nearWhite, `${file} has a white ${side} border`).toBeLessThan(0.5);
+      }
     }
   });
 

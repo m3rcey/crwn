@@ -126,8 +126,16 @@ photographic texture, no realism, no soft shading, no 3D, no drop shadows.**
 - **Match the aspect ratio to the slot it renders in** (16:9 for the hero and section bands today).
   Generating 4:3 for a wide slot forces a choice between a crop and an image too small to carry the
   page.
+- **No border, frame, mat or white edge around the artwork.** The image must bleed to all four
+  edges. The generator drew a 25px white frame around one hero and it reached production, because a
+  thin light border is genuinely invisible at review scale against a dark page. **The eye is the
+  wrong instrument for this**, so it is machine-checked: `toolPositioning.test.ts` samples all four
+  edges of every `public/hero-*` and `public/section-*` file and fails on a near-white edge. If a
+  generation comes back framed, crop to the largest exact 16:9 box inside the content area rather
+  than stretching it back.
 - **Always open and look at every image before shipping it.** The age, the gender and the palette
-  are all checked by looking, not by trusting the prompt.
+  are all checked by looking, not by trusting the prompt. Looking catches what the edge test cannot
+  (a middle-aged face, a sixth colour, the wrong gender); the edge test catches what looking cannot.
 
 Reference implementation: `src/lib/positioning/sectionImages.ts` (the nine section images and why
 each composition was paired with its section), `public/hero-*.webp` and `public/section-*.webp`.
