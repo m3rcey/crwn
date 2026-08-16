@@ -32,15 +32,15 @@ const VAULT_REVENUE_PLANNER: LeadMagnetConfig = {
   inputs: [
     { key: 'artistName', type: 'text', label: 'Your artist name', required: true, maxLength: 80, step: 'identity', placeholder: 'e.g. M3RCEY' },
     { key: 'genre', type: 'text', label: 'Your genre', maxLength: 40, step: 'identity', placeholder: 'e.g. R&B, drill, indie' },
-    { key: 'unreleasedSongs', type: 'number', label: 'Unreleased songs', min: 0, max: 5000, step: 'inventory' },
-    { key: 'demos', type: 'number', label: 'Demos', min: 0, max: 5000, step: 'inventory' },
-    { key: 'voiceMemos', type: 'number', label: 'Voice memos', min: 0, max: 5000, step: 'inventory' },
-    { key: 'studioClips', type: 'number', label: 'Studio clips', min: 0, max: 5000, step: 'inventory' },
-    { key: 'btsVideos', type: 'number', label: 'Behind-the-scenes videos', min: 0, max: 5000, step: 'inventory' },
-    { key: 'lyricSheets', type: 'number', label: 'Lyric sheets or notes', min: 0, max: 5000, step: 'inventory' },
-    { key: 'altVersions', type: 'number', label: 'Alternate versions', min: 0, max: 5000, step: 'inventory' },
-    { key: 'archivedPhotos', type: 'number', label: 'Archived photos', min: 0, max: 20000, step: 'inventory' },
-    { key: 'supporterCount', type: 'number', label: 'Current supporters (optional)', help: 'Used as context only, never as a guaranteed conversion.', min: 0, max: 10000000, step: 'audience' },
+    { key: 'unreleasedSongs', type: 'number', label: 'Unreleased songs', min: 0, max: 5000, step: 'inventory', placeholder: '30' },
+    { key: 'demos', type: 'number', label: 'Demos', min: 0, max: 5000, step: 'inventory', placeholder: '45' },
+    { key: 'voiceMemos', type: 'number', label: 'Voice memos', min: 0, max: 5000, step: 'inventory', placeholder: '80' },
+    { key: 'studioClips', type: 'number', label: 'Studio clips', min: 0, max: 5000, step: 'inventory', placeholder: '25' },
+    { key: 'btsVideos', type: 'number', label: 'Behind-the-scenes videos', min: 0, max: 5000, step: 'inventory', placeholder: '18' },
+    { key: 'lyricSheets', type: 'number', label: 'Lyric sheets or notes', min: 0, max: 5000, step: 'inventory', placeholder: '20' },
+    { key: 'altVersions', type: 'number', label: 'Alternate versions', min: 0, max: 5000, step: 'inventory', placeholder: '12' },
+    { key: 'archivedPhotos', type: 'number', label: 'Archived photos', min: 0, max: 20000, step: 'inventory', placeholder: '150' },
+    { key: 'supporterCount', type: 'number', label: 'Current supporters (optional)', help: 'Used as context only, never as a guaranteed conversion.', min: 0, max: 10000000, step: 'audience', placeholder: '75' },
     {
       key: 'dropFrequency', type: 'option', label: 'How often can you drop?', required: true, step: 'offer',
       options: [
@@ -123,7 +123,7 @@ const PROOF_OF_DEMAND: LeadMagnetConfig = {
       ],
     },
     { key: 'threshold', type: 'number', label: 'How many fans to make it real?', required: true, min: 1, max: 1000000, step: 'target', placeholder: '50' },
-    { key: 'fanbaseSize', type: 'number', label: 'Roughly how big is your fanbase? (optional)', help: 'Helps us suggest a realistic threshold.', min: 0, max: 100000000, step: 'target' },
+    { key: 'fanbaseSize', type: 'number', label: 'Roughly how big is your fanbase? (optional)', help: 'Helps us suggest a realistic threshold.', min: 0, max: 100000000, step: 'target', placeholder: '250,000' },
     { key: 'price', type: 'currency', label: 'Price idea (optional)', help: 'A non-binding interest signal. Fans are not charged in a demand test.', min: 0, max: 100000, step: 'details' },
     { key: 'city', type: 'text', label: 'City (optional)', maxLength: 60, step: 'details', placeholder: 'e.g. Atlanta' },
   ],
@@ -349,7 +349,8 @@ const AUDIENCE_INPUT: LeadMagnetInputDefinition = {
   min: 0,
   max: 100000000,
   step: 'audience',
-};
+      placeholder: '250,000',
+    };
 // The 40% factor, bought with one tap.
 //
 // CRWN's customer avatar (docs/ICP.md) weights "has already sold something directly to fans" at
@@ -833,6 +834,11 @@ const UNIFIED_OPPORTUNITY: LeadMagnetConfig = {
       ],
     },
     {
+      // PLACEHOLDERS ACROSS EVERY CALCULATOR are the docs/ICP.md Tier-1 profile (founder ask,
+      // 2026-08-16): 250k followers, 150k monthly listeners, a 2,000-contact list, paying fans
+      // on other platforms, a deep archive. Ghost text only, never a value: a placeholder cannot
+      // be submitted, so skipping a question still shrinks the result, exactly as the conversion
+      // contract requires.
       key: 'social_followers',
       type: 'number',
       label: 'Your social following',
@@ -840,7 +846,7 @@ const UNIFIED_OPPORTUNITY: LeadMagnetConfig = {
       required: true,
       min: 0,
       step: 'audience',
-      placeholder: '25000',
+      placeholder: '250,000',
     },
     {
       key: 'monthly_listeners',
@@ -849,7 +855,7 @@ const UNIFIED_OPPORTUNITY: LeadMagnetConfig = {
       help: 'Spotify or Apple. We will not add this to your followers, because they are largely the same people.',
       min: 0,
       step: 'audience',
-      placeholder: '40000',
+      placeholder: '150,000',
     },
     {
       key: 'owned_contacts',
@@ -858,7 +864,7 @@ const UNIFIED_OPPORTUNITY: LeadMagnetConfig = {
       help: 'People you can reach without an algorithm deciding. Leave it at zero if you have none yet.',
       min: 0,
       step: 'owned',
-      placeholder: '0',
+      placeholder: '2,000',
     },
     {
       // The 40% question. Every loss tool asks it (docs/ICP.md); the unified tool was the one
@@ -883,7 +889,7 @@ const UNIFIED_OPPORTUNITY: LeadMagnetConfig = {
       help: 'Anywhere: Patreon, a Discord, a membership, VIP. Zero is a perfectly normal answer.',
       min: 0,
       step: 'proof',
-      placeholder: '0',
+      placeholder: '40',
     },
     {
       key: 'direct_fan_revenue_cents',
@@ -901,7 +907,7 @@ const UNIFIED_OPPORTUNITY: LeadMagnetConfig = {
       help: 'This decides whether a Vault is worth recommending at all. Below five, we will tell you to wait.',
       min: 0,
       step: 'vault',
-      placeholder: '0',
+      placeholder: '30',
     },
     {
       key: 'fans_promote',
@@ -1162,7 +1168,7 @@ const FAN_STACK: LeadMagnetConfig = {
       min: 0,
       max: 1000000,
       step: 'members',
-      placeholder: '0',
+      placeholder: '60',
     },
     {
       key: 'avg_fan_revenue_cents',
@@ -1236,7 +1242,7 @@ const BETWEEN_TOUR: LeadMagnetConfig = {
   },
   inputs: [
     { key: 'shows_per_year', type: 'number', label: 'Shows or tour dates per year', required: true, min: 0, max: 365, step: 'shows', placeholder: '20' },
-    { key: 'avg_attendance', type: 'number', label: 'Average attendance per show', required: true, min: 0, max: 1000000, step: 'shows', placeholder: '150' },
+    { key: 'avg_attendance', type: 'number', label: 'Average attendance per show', required: true, min: 0, max: 1000000, step: 'shows', placeholder: '400' },
     {
       key: 'vip_buyers_per_show',
       type: 'number',
@@ -1245,7 +1251,7 @@ const BETWEEN_TOUR: LeadMagnetConfig = {
       min: 0,
       max: 10000,
       step: 'vip',
-      placeholder: '0',
+      placeholder: '10',
     },
     {
       key: 'avg_vip_price_cents',

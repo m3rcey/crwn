@@ -83,6 +83,24 @@ describe('active calculator inventory', () => {
   });
 });
 
+describe('every numeric field shows the ideal customer, not a zero', () => {
+  it('every number input carries a non-zero ICP placeholder', () => {
+    // Founder ask, 2026-08-16: ghost text in every numeric field is the docs/ICP.md Tier-1
+    // profile (250k followers, 150k listeners, a 2,000-contact list, paying fans elsewhere, a
+    // deep archive), so the form itself communicates who the tool is for and what a real answer
+    // looks like. PLACEHOLDER, never a value: a placeholder cannot be submitted, so skipping a
+    // question still shrinks the result, exactly as the "speed is never bought by asking less"
+    // rule requires. A '0' placeholder is the anti-ICP and reads as "people like you have none".
+    for (const tool of LEAD_MAGNETS) {
+      for (const input of tool.inputs) {
+        if (input.type !== 'number') continue;
+        expect(input.placeholder, `${tool.slug}.${input.key} has no placeholder`).toBeTruthy();
+        expect(input.placeholder, `${tool.slug}.${input.key} placeholder is '0'`).not.toBe('0');
+      }
+    }
+  });
+});
+
 describe('wizard integrity: no input can point at a screen that does not exist', () => {
   it('declares every input on a real wizard step', () => {
     for (const m of LEAD_MAGNETS) {
