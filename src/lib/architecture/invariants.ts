@@ -1026,7 +1026,7 @@ export const FEATURES: readonly FeatureContract[] = [
     gateModule: null,
     surfaces: [{ file: 'src/app/(main)/account/tiers/page.tsx', mustContain: 'StrategyCard' }],
     migration: 'schema-phase2-membership-strategy.sql',
-    notes: 'Derived on read; the PENDING migration only blocks saving the override, fail-soft. Moved off Rise Mode to /account/tiers 2026-08-13: the strategy explains what each ladder rung is FOR, so it belongs where the ladder is edited, not on the screen that answers "what do I do next".',
+    notes: 'Derived on read; the override save is live since the migration was applied and verified 2026-08-16 (it was fail-soft before that, and the fail-soft path stays as the guard it always was). Moved off Rise Mode to /account/tiers 2026-08-13: the strategy explains what each ladder rung is FOR, so it belongs where the ladder is edited, not on the screen that answers "what do I do next".',
   },
   {
     key: 'track_waterfall',
@@ -1232,7 +1232,7 @@ export const EXPECTED_MIGRATION_STATE: ReadonlyArray<{
     note: 'founder-applied 2026-08-12; probe-verified the same day. fan_testimonials_public reads 200, both base tables answer anon 42501 on select(*) AND on every individual sensitive column. Properties verified beyond object existence: the public view emits exactly [id, artist_id, body, context_kind, submitted_at, display_name, verification_label, tenure_label] with no tier/price/fan_id; the authorship freeze reverts a service-role body rewrite (read-back is the evidence, not the status code); consent narrows but never re-widens; the (artist, fan, context) unique rejects a duplicate with 23505; artist_profiles.testimonial_requests_enabled exists and is true for all 9 artists. Generator ran live: 7 requests created, immediate re-run created 0.',
   },
 
-  { file: 'schema-phase2-membership-strategy.sql', state: 'pending', note: 'fail-soft; only the strategy override save is blocked' },
+  { file: 'schema-phase2-membership-strategy.sql', state: 'applied', note: 'Founder-applied 2026-08-16, live-verified the same day. All three columns readable; anon can read all three, which is the point (artist_profiles carries PER-COLUMN grants since the Stripe ids were revoked, and naming one ungranted column 42501s the entire statement, so a new column without a GRANT would break unrelated browser queries). Checked the other direction too: stripe_connect_id still answers 42501 to anon, so the grant was not widened. An invalid strategy value is refused 23514 by the CHECK. 9 artists, 0 overrides set, which is the expected NULL-means-derived state.' },
 
   // Early access becomes server-enforced. 'sql-check' because the change is a
   // FUNCTION BODY: PostgREST cannot see one, so an anon probe could only ever

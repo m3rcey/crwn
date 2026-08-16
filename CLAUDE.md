@@ -38,7 +38,8 @@ class** (free forever / paid first / member only, how one piece of content is ga
 - The strategy pick is DETERMINISTIC (`recommendStrategy`) and derived on read by
   `/api/artist/strategy`, roadmap-style: nothing derived is stored. The only stored value is the
   artist's override (`artist_profiles.membership_strategy`, migration
-  `schema-phase2-membership-strategy.sql`, fail-soft before it runs). Surfaced by `StrategyCard`
+  [`supabase/schema-phase2-membership-strategy.sql`](supabase/schema-phase2-membership-strategy.sql),
+  APPLIED and live-verified 2026-08-16; the fail-soft path stays as a guard). Surfaced by `StrategyCard`
   on `/account/tiers`, where the ladder it describes is edited (it left Rise Mode on 2026-08-13:
   see "Rise Mode is ONE next move").
 - The spec's tier names (First Listen, Inner Circle, Executive, Vault) are ROLES a strategy

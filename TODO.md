@@ -244,16 +244,6 @@ responsible for. Do not work those.
       the genre filter at the top. And it only compares CONTENT if your links carry `?from=`;
       untagged traffic falls back to scoring, which compares artist size instead.
 
-- [ ] **Run the membership-strategy migration:**
-      [`supabase/schema-phase2-membership-strategy.sql`](supabase/schema-phase2-membership-strategy.sql).
-      Adds `artist_profiles.membership_strategy` (the explicit Release Club vs Vault override)
-      plus the two declared facts the strategy card asks for (`declared_unreleased_tracks`,
-      `declared_releases_per_year`), all WITH the per-column SELECT grants that keep
-      `select('*')` from 42501-ing. **If you already ran an earlier version of this file,
-      run it again: it is idempotent** (ADD COLUMN IF NOT EXISTS) and the later columns are new.
-      Until it runs, everything works on the derived recommendation; only saving answers or
-      switching strategy reports it cannot save yet. Self-verifies, including the grants.
-
 - [ ] **Run one real Fan Drive when your constraint says reach or first paid.** Nothing technical
       is outstanding: the migration is applied and production-verified. This is the product step.
       Open `/fan-campaigns`. If CRWN has diagnosed reach or first-paid you get a prefilled drive;
