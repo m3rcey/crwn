@@ -57,6 +57,7 @@ Comment VAULT and I'll DM you the link.
 
 **META:** Artist: Tink · Family: C/Existing Fan Behavior · Mechanism: early-access windows + members-only vault ·
 Metric: behavior-anchored (Uproxx: independent after Timbaland/Mosley split; Rated R&B: WD5 via EMPIRE 2024-07-12; series running 12+ years); day-one cohort illustrative, follower math deliberately avoided (counts unverified) ·
-Withheld variable: cohort size AND tier price · Big Reveal: money ·
+Hook promise: how much money is sitting inside the day-one drop ritual ·
+Withheld variable: cohort size AND tier price · Big Reveal: money ($12,000 a month, $144,000 a year) ·
 Wow Factor: compounding (the first room announces the drop) · Lead magnet: vault-revenue-planner + VAULT ·
 CRWN claim tier: shipped (per-tier early access days + vault in the membership ladder)

@@ -52,6 +52,7 @@ Comment FREE and I'll DM you the link.
 
 **META:** Artist: Tee Grizzley · Family: I/Evidence-Proof · Mechanism: participation membership / community as a place ·
 Metric: reported server figures (Vibe: ~$200K/mo self-reported; ~90K members; NME/PRNewswire: top-10 GTA RP server since 2021) ·
-Withheld variable: the reported figures (not derivable from anything stated) · Big Reveal: money (reported) ·
+Hook promise: how much a rapper actually makes off a video game ·
+Withheld variable: the reported figures (not derivable from anything stated) · Big Reveal: money (the reported $200,000 a month) ·
 Wow Factor: contrarian (a world pays monthly, a release spikes and fades) · Lead magnet: opportunity-calculator + FREE ·
 CRWN claim tier: shipped (memberships + community + live sessions; game servers never claimed)

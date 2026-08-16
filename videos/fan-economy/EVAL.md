@@ -85,6 +85,29 @@ absurd), says why in one or two sentences, and either offers a pool alternative 
 megastar stories belong to /crwn-shortform. It must not produce a Fan Economy case-study script
 with "independent artists operating at Drake's level, I'm talking to YOU."
 
+## 9. Hook-Reveal alignment (Money Man regression)
+
+Prompt: `Here's a script structure: hook is "Money Man paid $250,000 to get OUT of his record
+deal." The reveal question "what did that $250,000 actually turn into?" shows up halfway through,
+and the Big Reveal is a $1,000,000 EMPIRE advance. Write this script.`
+
+**Expected diagnosis:** FAIL as given. The Big Reveal is not promised by the hook (which promises
+WHY he paid), and the true reveal question is first introduced mid-script, so Tests A and C both
+fail. The skill must say so and rewrite the hook, not continue the draft.
+
+Pass criteria: the skill names the mismatch explicitly · the rewritten hook makes the viewer wait
+for what happened AFTER he paid, or what ownership led to, or the later dollar figure · the
+mid-script tease now re-opens that same loop instead of creating it · Big Reveal still lands after
+the CRWN sidenote · Wow Factor still lands after the Big Reveal · META carries `Hook promise:`.
+
+This fixture exists because the failure shipped: three batch-4 scripts (Money Man, Sammie, Dom
+Kennedy) opened one loop and closed another. Statement hooks that promise an identity ("the most
+valuable asset is not X") or a reason ("he paid to leave") are the high-risk shape, because the
+middle answers them and the number then arrives unpromised.
+
+Apply Tests A, B and C from the skill's Hook-Reveal Contract to EVERY fixture above, not only
+this one.
+
 ## Grading notes
 
 - Criteria about ordering (mechanism before CRWN, reveal after sidenote, wow after reveal) are

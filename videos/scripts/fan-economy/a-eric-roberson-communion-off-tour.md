@@ -54,6 +54,7 @@ Comment LIVE and I'll DM you the link.
 
 **META:** Artist: Eric Roberson · Family: A/Missed Money · Mechanism: ticketed live sessions + tips + replay ·
 Metric: behavior-anchored (Sony Hall bio, Wikipedia: Blue Erro Soul 2001, Grammy noms, sold-out tours; improvised-song shows per Bring Back Soul Music); room size illustrative, no public counts used ·
-Withheld variable: attendance AND ticket price · Big Reveal: money ·
+Hook promise: how much money he leaves on the table every week he is not on tour ·
+Withheld variable: attendance AND ticket price · Big Reveal: money ($9,000 a night, about $108,000 a year) ·
 Wow Factor: ownership (the venue never hands him the names) · Lead magnet: live-experience-calculator + LIVE (paused tool, closest fit) ·
 CRWN claim tier: shipped (live sessions with tickets, tip goals, included replay)

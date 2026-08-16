@@ -3,14 +3,14 @@
 **SCRIPT:**
 
 Dom Kennedy's most valuable asset is not his 15 years of classics.
-And independent artists like you got the same asset just sitting there.
+It's something independent artists like you got sitting there too, and what it could be worth in a single year is INSANE.
 
 Here's what I mean.
 
-Dom Kennedy been independent since day one. His own label, OPM, since 2010.
+Dom Kennedy been independent since day one. He's had his own label OPM since 2010.
 Interscope tried to sign him in 2013 and he said no.
 And for 15 years his people showed up anyway: buying the vinyl, buying the merch, filling up an 18-city tour with no major label behind him.
-Dom Kennedy fans dont just listen. They BUY.
+Dom Kennedy fans dont just listen, they BUY.
 
 Now here's the problem, and it aint just his. It's everybody's.
 Them purchases live in different systems. The ticket company got the ticket buyers. The store got the orders. Streaming got the plays.
@@ -33,15 +33,15 @@ Put just them in a $12 a month membership and that's $28,800 a month. $345,600 a
 From people who been saying yes for 15 years.
 
 And that aint even the best part.
-The way I see it, when Interscope came for Dom Kennedy in 2013, they wasnt just trying to buy his music.
-They was trying to buy his RELATIONSHIP with them fans.
+The way I see it, when Interscope came up to Dom Kennedy in 2013, they wasnt just trying to buy his music.
+They was trying to buy his RELATIONSHIP with his fans.
 He kept it. Most artists give that away for free and dont even know it.
 
-These numbers is a sketch, but if you been dropping and selling for a few years, your version of that list already exist.
+These numbers are just an estimate, but if you been dropping and selling for a few years, your version of that list already exists.
 How many people bought from you more than once... and could you name a single one of them?
 
 I built a free calculator that shows what the audience you already own could be worth.
-Comment OWN and I'll DM you the link.
+Comment WORTH and I'll DM you the link.
 
 128 👑  (visual end-card, not spoken)
 
@@ -49,6 +49,7 @@ Comment OWN and I'll DM you the link.
 
 **META:** Artist: Dom Kennedy · Family: B/Hidden Asset · Mechanism: repeat-buyer identification / owned relationships ·
 Metric: ~487K IG (@dopeitsdom, web-verified 2026-08); OPM since 2010, declined Interscope 2013 (Wikipedia/Forbes), 18-date 2025 tour (Concertfix) ·
-Withheld variable: repeat fraction + membership price · Big Reveal: money ·
-Wow Factor: asset reframe (the label was buying the relationship) · Lead magnet: own-your-fans-calculator + OWN ·
+Hook promise: what his real most-valuable asset could be worth in a single year ·
+Withheld variable: repeat fraction + membership price · Big Reveal: money ($345,600 a year from repeat buyers) ·
+Wow Factor: asset reframe (the label was buying the relationship) · Lead magnet: worth + WORTH (founder-chosen 2026-08-16; note WORTH routes to the Streaming Loss Calculator, OWN routes to Own Your Fans) ·
 CRWN claim tier: shipped (fan CRM + membership ladder)
