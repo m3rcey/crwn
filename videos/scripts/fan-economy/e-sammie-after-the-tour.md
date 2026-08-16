@@ -3,7 +3,7 @@
 **SCRIPT:**
 
 If I ran Sammie's fan economy, I would change exactly one thing about how he tours.
-And what that one change could be worth BETWEEN tours is the number artists like him, especially my R&B artists, be sleeping on.
+And what that one change could be worth BETWEEN tours is the number artists like him are sleeping on.
 
 Quick backstory.
 
@@ -25,6 +25,7 @@ The show ends. The relationship shouldnt.
 Say a strong tour run puts you in front of like 200,000 people.
 What capturing even a tiny slice of that could be worth between tours... I ran it, and it changed how I look at touring, period.
 
+Your problem aint marketing to fans. It's that you need a market FOR fans.
 The room already paid once. The only question is whether they get somewhere to keep going.
 On the CRWN app today that somewhere exist: the membership tiers, the fan list you keep, the imports if they already on your email list.
 ANYWAY.
@@ -37,7 +38,7 @@ And the cold part is what happens to everybody else.
 The other 99% aint gone. They just unclaimed.
 Every tour that ends without a capture plan is a list of proven buyers handed right back to the ticket company.
 
-Obviously that's a planning number, but if you perform at all, on any size stage, your version of this walks out the door every time you do.
+Obviously that's a planning number, but if youre an artist who consistently has shows then your version of this walks out the door every time you do.
 Who from your last show could you still reach today?
 
 I got a free calculator that shows what your audience could be worth BETWEEN tours.

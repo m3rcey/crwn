@@ -23,6 +23,7 @@ So what's the number they picked? What does the industry think a superfan is wor
 When I saw it next to what a fan will pay an artist directly, it stopped being about Spotify entirely.
 
 Before I give you the number, one thing.
+You already know how to market to fans. Now you need a market FOR fans.
 A fan paying more for closeness is not a new idea, it's just never been YOUR business before.
 Memberships you price yourself, early access, a vault, live sessions your people buy a ticket to: that's what artists set up on the CRWN app today, in they own name.
 ANYWAY.

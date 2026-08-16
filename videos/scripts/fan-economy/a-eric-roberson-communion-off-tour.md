@@ -25,7 +25,8 @@ Everybody that paid keep the replay. And the room can tip toward what happen nex
 Keep it conservative and take ONE online room, once a month.
 I priced one single night of that, and the yearly number embarrassed me. 
 
-Now what makes this work aint the technology. It's that a live room is the one place fans stop being anonymous.
+Now this is what I mean when I say you already know how to market to fans. Now you need a market FOR fans.
+What makes this work aint the technology. It's that a live room is the one place fans stop being anonymous.
 They show up, they spend, they tell you what they want, in real time.
 Ticketed live sessions, with tipping and the replay included, that's a thing artists can run on the CRWN app today.
 ANYWAY.

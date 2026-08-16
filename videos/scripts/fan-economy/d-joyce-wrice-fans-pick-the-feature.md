@@ -24,6 +24,7 @@ She's got about 168,000 on Instagram, and this aint for all of them.
 It's for the ones already spending money with her.
 I put a careful number on what that small room could be worth in a year and it beat what I expected from a fanbase that size.
 
+Your problem aint marketing to fans. It's that you need a market FOR fans.
 What makes this work aint the tech. Fans dont only want the song anymore, they want IN.
 On the CRWN app today an artist runs the membership ladder, gated drops and ticketed live sessions, which is the first half of a room like this. Paid seats inside the creative process itself is the bigger idea we building toward, not something I'm telling you exists today.
 ANYWAY.

@@ -28,6 +28,7 @@ The day-one crowd is a few thousand people, not a million.
 When I priced what just THAT group might pay to live inside the diary, I had to double-check it. Hold that thought.
 
 One more thing before the number.
+Your problem aint marketing to fans. It's that you need a market FOR fans.
 Early access and a private vault aint two separate ideas. They one membership.
 On the CRWN app today an artist can gate a drop days early per tier, and keep a members-only vault for the unreleased.
 The intimacy Tink already write IS the product. It just need a gate.

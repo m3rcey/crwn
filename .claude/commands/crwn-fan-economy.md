@@ -358,8 +358,9 @@ script unless the user asks for an annotated version.
    "Small detour, thirty seconds.", "I'll give it to you in a second") on sight; at most one
    light holder like "Hold that thought." per script. Do NOT reveal yet.
 10. **CRWN SIDENOTE**: while curiosity is at max: an entry ("But sidenote..." / "One more thing
-    before the number." / or NO entry phrase at all, flowing straight into the point) → the
-    worldview line the case study earned → the CRWN app at the correct product-truth tier →
+    before the number." / or NO entry phrase at all, flowing straight into the point) → **the
+    SIGNATURE LINE, required in every script** (see below) → the CRWN app at the correct
+    product-truth tier →
     "ANYWAY..." back to the open question. Keep it to 3-4 lines; never label the detour twice
     (a tease that says "small detour" AND an entry that says it again both got cut). It must
     feel like a sidenote, never an ad break.
@@ -435,6 +436,31 @@ identifiable · fan activity is market intelligence · a catalog is inventory ·
 acquisition · a release is a beginning · fans co-create · economies compound · attention ≠
 economic value · the artist may need fewer new fans than they think.
 
+## The signature line (founder decision, 2026-08-16): REQUIRED in every script
+
+Every script says the market-FOR-fans line, once, inside the CRWN sidenote (beat 10). It is the
+series' thesis in one sentence and it is what the whole case study exists to earn. An earlier rule
+capped it at once per batch; Josh overruled that and supplied the rotation set himself.
+
+**Rotate across these, and write new phrasings in the same shape when one fits better:**
+
+- "You dont need to market to fans. You need a market FOR fans."
+- "You already know how to market to fans. Now you need a market FOR fans."
+- "Your problem aint marketing to fans. It's that you need a market FOR fans."
+
+Rules that keep it a signature instead of a slogan:
+
+- **It lands in the sidenote, never in the hook.** The analysis has to EARN it first: by the time
+  it is said, the viewer has already seen the mechanism, so the line names what they just felt.
+  This is the positioning rule that the content demonstrates the worldview before naming it.
+- **Do not repeat the same variant in back-to-back scripts.** Check the most recent saved scripts
+  and pick a different one.
+- **Say it once per script.** It is a signature, not a chorus.
+- **Never bend the case study to fit it.** If a script genuinely concludes something else (the
+  catalog is inventory, the first purchase is a beginning), say that too, in its own words, next
+  to the signature line rather than instead of it.
+- `fanEconomySkillContract.test.ts` fails any saved script that does not contain "market FOR fans".
+
 ## Voice (founder correction, 2026-08-16)
 
 Scripts are delivered in Josh's OWN spoken voice. The series launched neutral and Josh corrected
@@ -495,9 +521,13 @@ prevents. Within a batch (and against the most recent saved scripts):
 - **Wow transition varies every script.** "But here's the crazy part" at most once per batch.
   Others: "And that's not even the interesting half." / "Now watch what that actually means." /
   "The number is not the story though." / a cold statement of the second fact with no lead-in.
-- **The flagship worldview line ("you don't need to market to fans...") appears at most once per
-  batch.** Other scripts earn a DIFFERENT conclusion in fresh words (buyers become identifiable,
-  the catalog is inventory, the first purchase is a beginning, attention is not economic value).
+- **The signature line is the ONE exception: it appears in EVERY script** (founder decision,
+  2026-08-16, superseding the earlier once-per-batch cap). See the Signature line section. The
+  script-specific conclusion still varies around it (buyers become identifiable, the catalog is
+  inventory, the first purchase is a beginning, attention is not economic value), and every
+  MECHANICAL bookend (sidenote entry, wow transition, pivot opener, tease, disclaimer) still
+  varies, because repeated machinery is what reads as a template. A repeated belief reads as a
+  brand, which is the point.
 - **The hard pivot opener varies.** Literal "BUT, the bigger question..." at most once per batch.
 - **Tease and disclaimer wording never repeat verbatim within a batch.**
 - **The withheld variable must not be trivially guessable.** If the viewer would guess the
