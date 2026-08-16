@@ -485,6 +485,24 @@ recurring format, not an occasional family.
 1. **Pick an AXIS first, then the artists.** The matchup only works when two real operating models
    sit at opposite ends of ONE fan-economy axis. Two famous names with similar businesses is not a
    versus, it is a list.
+1b. **POLARITY (founder decision, 2026-08-16): the ICP-level artist always WINS, and the foil is a
+   BIGGER artist.** This is the deliberate exception to the no-megastar rule: a megastar may never
+   be the pivot SUBJECT ("artists at Drake's level, I'm talking to YOU" is absurd), but a megastar
+   is the ideal FOIL, because they will never be a CRWN customer and there is nothing to burn.
+   Structurally this matters: the artist who "wins" a fan-economy axis is usually the one who
+   already built the direct business, so if both seats hold prospects, the prospect who NEEDS
+   CRWN is the one shown coming up short. Putting a superstar in that seat fixes it, and
+   indie-beats-superstar is a better story for this audience than indie-beats-indie.
+   - **Two named ICP artists are allowed ONLY when the axis is strategy against strategy and
+     neither is shown as behind** (Curren$y vs Westside Gunn: volume and scarcity are both
+     legitimate, and neither man is failing at anything).
+   - **Be scrupulously fair to the bigger artist**, because a cheap shot at a superstar reads as
+     desperate and is usually false. Credit the empire in-script ("50 Cent's whole empire is way
+     bigger than his music"; "Drake's business is enormous and streaming is its smallest part")
+     and SCOPE the claim precisely: one year of music earnings, or streaming against memberships.
+     Never "the indie out-earns Drake".
+   - The bigger artist is on the same rented land as everyone else. That is the honest point, and
+     it insults nobody.
 2. **THERE IS NO LOSER. Both sides must be genuinely good at what they do.** If one is a punchline
    the argument is over, nobody shares it, and CRWN just insulted a prospect (rule 4b). The rules
    that keep it honest: **the side that "loses" the number owns the HARDER thing to build**, say
@@ -503,10 +521,10 @@ recurring format, not an occasional family.
 
 | Axis | The question it answers | Example matchup |
 |---|---|---|
-| Volume vs scarcity | Is a catalog worth more sold often or sold rare? | Curren$y vs Westside Gunn (written) |
-| Reach vs conversion | Is attention or a buying habit the better asset? | Tech N9ne vs Akeem Ali (written) |
+| Volume vs scarcity | Is a catalog worth more sold often or sold rare? | Curren$y vs Westside Gunn (written; the allowed two-prospect case) |
+| Reach vs conversion | Is attention or a buying habit the better asset? | Tech N9ne vs 50 Cent (written) |
 | Who sets the price | Does the artist price it, or the fan? | LaRussell vs Larry June (written) |
-| Recurring vs one-time | Is a membership worth more than a purchase? | Tee Grizzley vs Eric Bellinger (written) |
+| Members vs listeners | Is a membership worth more than a stream? | Tee Grizzley vs Drake (written) |
 | Owned list vs platform audience | Who can actually reach their people? | open |
 | Road-built vs internet-built | Which fanbase shows up when you ask? | open |
 | Catalog vs moment | Deep back catalog against one viral peak | open |
