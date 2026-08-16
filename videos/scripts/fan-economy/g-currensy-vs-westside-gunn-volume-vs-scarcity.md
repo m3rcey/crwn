@@ -7,13 +7,13 @@ Which one's fans are actually worth more, and by how much, is a number that shou
 
 Let's break it down.
 
-Curren$y might be the most prolific rapper alive. Over 90 projects since 2009. Jet Life is a whole universe and the real ones been living in it 15 years.
-His model is volume. Keep feeding them, never go quiet, let the catalog stack up.
+Curren$y might be the most prolific rapper alive. He put out over 90 projects since 2009. Jet Life is a whole universe and the real ones been living in it 15 years.
+His model is volume. Keep feeding them, dont disappear, letcha catalog stack up.
 And it works. He sits around 1.5 million monthly listeners.
 
 Westside Gunn runs the opposite play.
 He dont release records, he releases artifacts. Numbered pressings. Colored variants. Runs as small as 400 copies. One signed edition numbered out of 187.
-His model is scarcity. Make less, make it matter.
+His model is scarcity. Make less of it, make it matter.
 
 Now here's the thing nobody puts side by side.
 Streaming pays about a penny a month per monthly listener. That's the discovery engine doing its job, and 1.5 million of them is real reach.
@@ -21,7 +21,7 @@ But them 400 copies? Go look at what they trade for now. Them records got a seco
 Two totally different fanbases. One is wide. One is deep.
 
 So I priced them against each other. One pressing against a million and a half listeners.
-When the two numbers landed next to each other I had to sit back.
+When the two numbers landed next to each other I had to sit back and look at it again.
 
 Hold that thought.
 You dont need to market to fans. You need a market FOR fans.

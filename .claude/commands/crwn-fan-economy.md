@@ -150,9 +150,10 @@ Support all of these; infer the family when the user does not name one; rotate a
   buying intent, a release is a beginning, the first purchase is a beginning, the best growth
   engine may already be the fanbase. Evidence-driven, never provocative for its own sake, and
   never "followers don't matter" (banned by positioning).
-- **G. Comparison / Versus**: "Which fanbase is economically stronger?" Compare on Fan Economy
-  criteria (buyers, repeat behavior, participation, owned contacts), never vanity metrics. Compare
-  both sides fairly; both artists must pass the ICP-scale rule.
+- **G. Comparison / Versus**: "Which fanbase is economically stronger?" See the Versus format
+  section below, which carries the engine. Compare on Fan Economy criteria (buyers, repeat
+  behavior, participation, owned contacts), never vanity metrics. Compare both sides fairly; both
+  artists must pass the ICP-scale rule.
 - **H. Cultural / Current Event**: a verified current release, rollout, tour, viral moment, or
   music-business event reveals a Fan Economy insight. REQUIRES current research; never invent news;
   verify the event's date and source.
@@ -456,6 +457,46 @@ forced. The menu: tiny % creates a large business · a fanbase distributes itsel
 identifiable · fan activity is market intelligence · a catalog is inventory · a concert is
 acquisition · a release is a beginning · fans co-create · economies compound · attention ≠
 economic value · the artist may need fewer new fans than they think.
+
+## The VERSUS format (family G, expanded on founder request 2026-08-16)
+
+Josh called this the strongest concept in the series and asked to build on it. Versus earns
+something no case study can: the viewer takes a SIDE, and a side is a comment. Treat it as a
+recurring format, not an occasional family.
+
+**The engine, in order:**
+
+1. **Pick an AXIS first, then the artists.** The matchup only works when two real operating models
+   sit at opposite ends of ONE fan-economy axis. Two famous names with similar businesses is not a
+   versus, it is a list.
+2. **Both sides must be genuinely good at what they do.** If one is a punchline the argument is
+   over and nobody shares it. The rule that keeps it honest: **the side that "loses" the number
+   usually owns the HARDER thing to build.** Say that out loud in the script.
+3. **The reveal is an EQUIVALENCE, never a verdict.** "400 people spent what 1.5 million spend in
+   eight months." "One paying member is 222 listeners." A ratio travels; "X is better than Y"
+   starts a fight about the artists instead of the idea.
+4. **Compare currencies, not sizes.** The whole point is that a follower, a listener, a buyer and
+   a member are different units. Never resolve it into "who is bigger."
+5. **The pivot asks which side the viewer is on**, which is also the comment prompt: "you already
+   know which one of these you are."
+
+**Axis menu (pick one per script, rotate across scripts):**
+
+| Axis | The question it answers | Example matchup |
+|---|---|---|
+| Volume vs scarcity | Is a catalog worth more sold often or sold rare? | Curren$y vs Westside Gunn (written) |
+| Reach vs conversion | Is attention or a buying habit the better asset? | Tech N9ne vs Akeem Ali (written) |
+| Who sets the price | Does the artist price it, or the fan? | LaRussell vs Larry June (written) |
+| Recurring vs one-time | Is a membership worth more than a purchase? | Tee Grizzley vs Eric Bellinger (written) |
+| Owned list vs platform audience | Who can actually reach their people? | open |
+| Road-built vs internet-built | Which fanbase shows up when you ask? | open |
+| Catalog vs moment | Deep back catalog against one viral peak | open |
+| Community vs audience | Participation against consumption | open |
+
+**Constraints that still apply:** both artists pass the ICP-scale rule (no megastars), both sets of
+facts are researched and sourced, the Hook-Reveal Contract governs (the hook promises the
+comparison result, and the equivalence IS the Big Reveal), the math gate holds (withhold the
+variable that resolves the ratio), and the signature line still lands in the sidenote.
 
 ## The signature line (founder decision, 2026-08-16): REQUIRED in every script
 
