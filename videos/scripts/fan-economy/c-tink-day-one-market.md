@@ -2,52 +2,53 @@
 
 **SCRIPT:**
 
-Tink realest fans do something every drop that most artists completely ignore.
-And artists like her, and like you, leaving real money inside that exact habit.
+Tink's realest fans do something every drop that most artists completely ignore.
+And artists like her (I'm talking to YOU) are leaving real money inside that exact habit.
 
-Follow this.
+Hear me out.
+
 Tink walked away from her major label situation and went fully independent, releasing through EMPIRE.
-And she kept building Winter's Diary: a diary series her core been following for over a decade.
-When Winter's Diary 5 dropped, you could watch the ritual happen.
-The day-ones show up in the first hours. Streaming it instantly. Posting they track rankings. Quoting lyrics like scripture.
-For them a Tink drop aint content. It's an event they waited years for.
+And she kept building Winter's Diary: a diary series her core audience been following for over a decade.
+When Winter's Diary 5 dropped, you could watch it play out.
+The day-ones show up in the first hours. Streaming it instantly. Posting the track rankings. Quoting the lyrics.
+For them a Tink drop is not content. It's an event they waited years for.
 
 And here what nobody pricing.
-FIRST got value. INSIDE got value.
-But right now her biggest fan and a total stranger get the exact same thing, at the exact same second, for the same nothing.
-The fans racing to be first aint got no lane to actually BE first in.
+The FIRST ones got value. The ones INSIDE got value.
+But right now her biggest fan and a total stranger get the exact same thing, at the exact same second.
+The fans rushing to be first aint got no lane to actually BE first in.
 The diary is intimate by design... and the closest fans cant get no closer.
 
-So build the closer room.
-Members hear the drop days before the world do.
-The voice notes, the pages that aint make the album, the stories behind the songs: that live inside, for the ones that been here since Diary one.
+So the solution is to build the closer room.
+Members hear it days before the world does.
+The voice notes, the pages that aint make the album, the stories behind the songs: that lives inside, for the ones that been here since Diary one.
 
-Keep the numbers honest. Dont count followers. Count the ritual.
-The day-one crowd, the ones that treat drop day like a holiday, that's a few thousand people, not a million.
+Let's just keep the numbers honest and not count followers.
+The day-one crowd is a few thousand people, not a million.
 When I priced what just THAT group might pay to live inside the diary, I had to double-check it. Hold that thought.
 
 One more thing before the number.
 Early access and a private vault aint two separate ideas. They one membership.
-On CRWN today an artist can gate a drop days early per tier, and keep a members-only vault for the unreleased.
-The intimacy Tink already write IS the product. It just need a door.
+On the CRWN app today an artist can gate a drop days early per tier, and keep a members-only vault for the unreleased.
+The intimacy Tink already write IS the product. It just need a gate.
 ANYWAY.
 
 Say just 800 of them day-one fans join at $15 a month, for first listen and the diary vault.
 That's $12,000 a month. $144,000 a year.
-Independent money, from the people already camping in her comments.
+Independent money, from the people already in her comments.
 
 And the day-ones dont just pay first.
-They the loudest reviewers she got. The rankings, the quote posts: that's launch marketing she aint never gotta buy.
-The first room dont just fund the drop. It announce it.
+They the loudest reviewers she got. The rankings and the quote posts: that's marketing she aint never gotta buy.
+The first room dont just fund the drop. It announces it too.
 
-Estimates, obviously. The habit is real. The price is a sketch.
+These are obviously estimates btw, but
 
-Your version of this already exist, whoever you are.
-Somebody streaming you at midnight on drop day.
+if you're an artist on a level similar to Tink then your version of this already exist.
+Somebody streaming you at midnight on your release date.
 What would the people that refuse to wait pay to never have to?
-And what's sitting on ya drive that belong inside, not everywhere?
+And what's sitting on your hard drive that belong inside and not everywhere else?
 
-Free tool: the Vault Revenue Planner. It price your version.
+I built a free Vault Revenue Planner that prices your version of it.
 Comment VAULT and I'll DM you the link.
 
 128 👑  (visual end-card, not spoken)
