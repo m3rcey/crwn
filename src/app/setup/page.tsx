@@ -271,6 +271,8 @@ function SetupWizard() {
     /** For a SINGLE-OFFER entry tool (Vault / Live / Producer Session): where the
      *  one thing they planned landed, and why the other rungs are on the screen. */
     entryOffer?: EntryOffer | null;
+    /** The Vault artist's own drop cadence + first-30-days plan, from their pre-signup builder. */
+    vaultPlan?: { cadence: Recurrence | null; dropPlan: string[] } | null;
     /** The Share-to-Earn config they set in the builder (null = not configured). */
     shareToEarn?: { percent: number } | null;
     /** The derived sub-avatar journey they entered through (docs/SUB_AVATARS.md). */
@@ -807,6 +809,7 @@ function SetupWizard() {
             hasPlan={plan !== null}
             toolName={plan?.toolName ?? null}
             entryOffer={plan?.entryOffer ?? null}
+            vaultPlan={plan?.vaultPlan ?? null}
             contentPlan={contentPlan}
             setContentPlan={setContentPlan}
             onBulkComplete={() => {
@@ -900,6 +903,7 @@ function FieldBody({
   hasPlan,
   toolName,
   entryOffer,
+  vaultPlan,
   contentPlan,
   setContentPlan,
   onBulkComplete,
@@ -929,6 +933,8 @@ function FieldBody({
   toolName: string | null;
   /** Set only for a SINGLE-OFFER entry tool (Vault / Live / Producer Session). */
   entryOffer: EntryOffer | null;
+  /** Vault entry only: the drop cadence and 30-day plan they already wrote. */
+  vaultPlan: { cadence: Recurrence | null; dropPlan: string[] } | null;
   contentPlan: 'single' | 'bulk' | 'project';
   setContentPlan: React.Dispatch<React.SetStateAction<'single' | 'bulk' | 'project'>>;
   onBulkComplete: () => void;
@@ -1027,6 +1033,7 @@ function FieldBody({
           ladderDraft={ladderDraft}
           draft={promiseDraft}
           setDraft={setPromiseDraft}
+          vaultPlan={vaultPlan}
         />
       );
     case 'stripe':
@@ -1351,7 +1358,9 @@ function LadderConfirm({
           {/* A rung-anchored offer says this on the rung itself, where the name
               and price they set are visible. An offer that is NOT a rung (a
               ticket, a seat) has nowhere to land, so it says it up here. */}
-          {!entryOffer.rungKey && <p className="text-xs text-crwn-text">{entryOffer.anchorLine}</p>}
+          {!entryOffer.rungKey && entryOffer.anchorLine && (
+            <p className="text-xs text-crwn-text">{entryOffer.anchorLine}</p>
+          )}
           <p className="text-xs text-crwn-text-secondary">{entryOffer.ladderLine}</p>
         </div>
       )}
@@ -1575,16 +1584,41 @@ function StripeConnectStep({ connectedAtLoad }: { connectedAtLoad: boolean }) {
 // confirmed ladder will put on the Promise Calendar. One decision: "can I keep
 // this schedule?" Cadence and first date are adjustable per promise; the workload
 // line keeps the total honest before anything is created.
+// The Gold rung's monthly Vault unlock, which is the promise the Vault Revenue Planner's own
+// cadence answer is about. Structural, not a string key, so a rename cannot silently break it.
+const VAULT_UNLOCK = { tierKey: 'vault', benefitType: 'exclusive_posts' };
+
 function PromisesReview({
   ladderDraft,
   draft,
   setDraft,
+  vaultPlan,
 }: {
   ladderDraft: LadderDraft;
   draft: PromiseDraft;
   setDraft: React.Dispatch<React.SetStateAction<PromiseDraft>>;
+  /** Vault entry only: the cadence and 30-day plan they wrote before signing up. */
+  vaultPlan: { cadence: Recurrence | null; dropPlan: string[] } | null;
 }) {
   const planned = planFromDraft(ladderDraft);
+
+  // The Vault artist already chose a drop cadence in the planner. Without this the screen asks
+  // again with the template default and their answer is thrown away. Seeded into `draft` rather
+  // than shown as a display-only default, because the CREATE path reads `draft` too: an override
+  // that only changed the rendering would show one cadence and schedule another. One shot, and
+  // only where the artist has not already set that promise, so it can never clobber an edit.
+  const vaultCadenceSeeded = useRef(false);
+  useEffect(() => {
+    if (vaultCadenceSeeded.current || !vaultPlan?.cadence) return;
+    const idx = planned.findIndex(
+      (p) => p.tierKey === VAULT_UNLOCK.tierKey && p.benefitType === VAULT_UNLOCK.benefitType,
+    );
+    if (idx < 0) return;
+    const p = planned[idx];
+    vaultCadenceSeeded.current = true;
+    setDraft((d) => (d[p.key] ? d : { ...d, [p.key]: { ...promiseSettings(p, d, idx), recurrence: vaultPlan.cadence! } }));
+  }, [vaultPlan, planned, setDraft]);
+
   if (planned.length === 0) {
     return (
       <p className="text-crwn-text-secondary">
@@ -1627,6 +1661,25 @@ function PromisesReview({
               {(FULFILLMENT_TYPE_LABEL[p.fulfillmentType] ?? p.fulfillmentType).toLowerCase()} · Reminded at 7, 3,
               and 1 days out
             </p>
+            {/* The Vault artist wrote a first-30-days drop plan before signing up. This is the
+                moment it is worth something: they are committing to a cadence, and this is the
+                content they already said they have. Their own words, read-only. */}
+            {p.tierKey === VAULT_UNLOCK.tierKey &&
+              p.benefitType === VAULT_UNLOCK.benefitType &&
+              (vaultPlan?.dropPlan.length ?? 0) > 0 && (
+                <div className="mt-2 border-t border-crwn-elevated pt-2">
+                  <p className="text-[11px] uppercase tracking-wide text-crwn-text-secondary">
+                    Your first 30 days, from your Vault plan
+                  </p>
+                  <ul className="mt-1 space-y-0.5">
+                    {vaultPlan!.dropPlan.map((line, i) => (
+                      <li key={i} className="text-[11px] text-crwn-text-secondary">
+                        • {line}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             <div className="grid sm:grid-cols-2 gap-3 mt-3">
               <div>
                 <p className="text-[11px] uppercase tracking-wide text-crwn-text-secondary mb-1">How often</p>
@@ -1737,7 +1790,7 @@ function PlanIntro({
                 names here and no reason for them. Say where THEIR offer sits
                 before the ladder screen asks them to confirm it; the full
                 argument is on that screen, where the decision is made. */}
-            {plan.entryOffer && (
+            {plan.entryOffer?.anchorLine && (
               <p className="text-xs text-crwn-text-secondary">
                 <span className="text-crwn-text">Where yours lands:</span> {plan.entryOffer.anchorLine}
               </p>

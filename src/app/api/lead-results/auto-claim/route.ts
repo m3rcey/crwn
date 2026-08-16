@@ -17,6 +17,8 @@ import { checkRateLimit } from '@/lib/rateLimit';
 import { getLeadMagnetSeed } from '@/lib/leadResults/handoffSeed';
 import { buildLadderPrefill } from '@/lib/leadResults/ladderPrefill';
 import { entryOfferFor } from '@/lib/leadResults/entryOffer';
+import { ALLOWED_RECURRENCES } from '@/lib/promisePlan';
+import type { Recurrence } from '@/lib/fulfillment';
 import { recordFunnelEvent } from '@/lib/analytics/funnelEvents';
 import { attributionDimsFor } from '@/lib/analytics/attributionLookup';
 import { recommendPlan } from '@/lib/planRecommendation';
@@ -192,6 +194,23 @@ export async function POST() {
         // calculator that already models the whole ladder, which argues for
         // itself with per-rung buyer counts.
         entryOffer: entryOfferFor(seed),
+        // The Vault artist's OWN drop cadence and first-30-days plan, from the builder they
+        // filled before signup. The promise-review screen asks for exactly this cadence, so
+        // without it the wizard asks a question they already answered and then ignores the
+        // answer. Read from the draft only; the planner's own recommendation is already the
+        // draft's default. Vault-only: no other deliverable carries a recurring cadence.
+        vaultPlan: (() => {
+          if (seed.toolSlug !== 'vault-revenue-planner') return null;
+          const dv = seed.draftValues ?? {};
+          const cadence = typeof dv.cadence === 'string' && ALLOWED_RECURRENCES.includes(dv.cadence as Recurrence)
+            ? (dv.cadence as Recurrence)
+            : null;
+          // `lines` fields are stored as string arrays by the deliverable builder.
+          const dropPlan = Array.isArray(dv.dropPlan)
+            ? dv.dropPlan.map(String).map((s) => s.trim()).filter(Boolean).slice(0, 8)
+            : [];
+          return cadence || dropPlan.length ? { cadence, dropPlan } : null;
+        })(),
         // The Share-to-Earn config THEY set in the builder (artist-funded
         // commission). The wizard applies it when the ladder is created, so the
         // growth system they designed exists at launch instead of never.

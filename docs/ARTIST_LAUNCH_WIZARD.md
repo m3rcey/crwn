@@ -169,9 +169,22 @@ launch command screen.
    so the Vault the artist named and priced pre-signup opens ON the Gold rung instead of being
    silently replaced by a stock one; an anchor price at or below the rung beneath it keeps the
    template price, because an inverted ladder there would be one CRWN built, and price order is
-   what the release waterfall staggers on. Known residue: a Vault artist's 30-day drop plan and
-   content list still have no post-setup surface, because `deliverableIsRedundant` (correctly)
-   suppresses the `/plan/vault-revenue-planner` restore once the wizard has created the paid tier.
+   what the release waterfall staggers on.
+   Widened the same day, after finding the class was bigger than the three named tools: MOST tools
+   model no ladder (missions, demand tests, leaderboards, royalty checks), and every one of their
+   artists hit the identical silence. The trigger is now the one deterministic fact that causes it,
+   `modelsLadder(seed)` (no `conversionPayload.ladder`), so those artists get the generic
+   counterweight with a NULL `anchorLine`: inventing a home for a mission on the ladder screen
+   would be a claim the product does not keep. A ladder that IS modeled but projects zero buyers is
+   untouched and keeps its own flow, preserving the ratified rule in `setupLadderOffer.test.ts`.
+   The Founder Window Builder got a bespoke bridge too, deliberately NOT anchored to a rung: no
+   surface enforces its cap or dates (the offer builder it continues into has neither field), so
+   the copy says the artist holds the cap, which is the true statement.
+   The Vault residue is closed: the drop cadence they chose in the planner now seeds the
+   promise-review screen's Gold unlock and their first 30 days render there read-only (`vaultPlan`
+   on auto-claim). The cadence is written into `promiseDraft`, not shown as a display-only default,
+   because the create path reads that same draft and a rendering-only override would show one
+   cadence and schedule another.
 
 ALL NINE STAGES ARE SHIPPED (2026-07-30). The wizard now runs the full journey the spec asked
 for: restore the business they designed → make it operational → show the workload → prepare the

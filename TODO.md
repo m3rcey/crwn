@@ -502,11 +502,11 @@ Listed so you know what you are not carrying. Ask for any of these to jump the q
   signup now opens ON the Gold rung instead of being replaced by a stock one. To be clear about
   what was NOT broken: every entry path already reached the ladder screen and already got all four
   rungs, because the setup gate wins over the journey resolver. What was missing was the argument.
-  **One residue, your call whether it is worth anything:** a Vault artist's 30-day drop plan and
-  content list have no post-setup home. Their saved plan still exists at `/plan/vault-revenue-planner`,
-  but nothing links there once the wizard has created the tier, and nothing should re-open the
-  offer builder (it would draft a duplicate tier). Options are a link from the Promise Calendar's
-  Gold unlock, or dropping the plan on the floor deliberately. Say which and I will do it.
+  Widened the same day once I found the class was bigger than those three: MOST tools model no
+  ladder (missions, demand tests, leaderboards, royalty checks), and every one of their artists hit
+  the identical silence, so they now get the argument too. The Vault residue is closed as well: the
+  drop cadence they chose in the planner seeds the promise screen instead of being asked again and
+  ignored, and their first 30 days show up there. **Nothing for you to do.**
 
 - **Post-Win Referral V1: SHIPPED 2026-08-12.** Both your decisions are implemented and pinned by
   test: unpaid forever, never retroactively commissionable, and structurally incapable of touching

@@ -6,7 +6,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { entryOfferFor, ANCHOR_RUNG } from './entryOffer';
+import { entryOfferFor, modelsLadder, ANCHOR_RUNG } from './entryOffer';
 import { buildLadderPrefill } from './ladderPrefill';
 import { RECOMMENDED_LADDER } from '@/lib/tierTemplate';
 import { getDeliverableSpec } from '@/lib/opportunityDrafts/deliverableSpecs';
@@ -32,7 +32,15 @@ function seed(over: Partial<LeadMagnetSeed> = {}): LeadMagnetSeed {
   } as LeadMagnetSeed;
 }
 
-const SINGLE_OFFER_TOOLS = ['vault-revenue-planner', 'live-experience-calculator', 'executive-producer-session'];
+const SINGLE_OFFER_TOOLS = [
+  'vault-revenue-planner',
+  'live-experience-calculator',
+  'executive-producer-session',
+  'founder-window-builder',
+];
+
+/** A payload from a tool that DID model a ladder (what the per-rung buyer line reads). */
+const modelled = { ladder: [{ name: 'Silver', priceCents: 1000, projectedSubs: 12 }] };
 
 describe('entryOfferFor', () => {
   it('is null for the tools that already model the whole ladder', () => {
@@ -40,24 +48,57 @@ describe('entryOfferFor', () => {
     // argument on top would be noise, and would contradict their numbers.
     expect(entryOfferFor(null)).toBeNull();
     for (const slug of ['opportunity-calculator', 'worth', 'fan-stack-calculator', 'between-tour-calculator']) {
-      expect(entryOfferFor(seed({ toolSlug: slug }))).toBeNull();
+      expect(entryOfferFor(seed({ toolSlug: slug, conversionPayload: modelled }))).toBeNull();
+    }
+  });
+
+  it('leaves a modeled ladder alone even when it projected NO buyers', () => {
+    // The ratified rule (setupLadderOffer.test.ts): a calculator artist whose result
+    // modeled no buyers keeps their own flow, not a generic line. The trigger is a
+    // MISSING ladder, never a zero one.
+    const zero = { ladder: [{ name: 'Silver', priceCents: 1000, projectedSubs: 0 }] };
+    expect(modelsLadder(seed({ conversionPayload: zero }))).toBe(true);
+    expect(entryOfferFor(seed({ toolSlug: 'opportunity-calculator', conversionPayload: zero }))).toBeNull();
+  });
+
+  it('gives EVERY other no-ladder tool the generic argument, with no invented anchor', () => {
+    // The four bespoke tools are not the whole class. A mission, a demand test, a
+    // leaderboard and a royalty checklist all model no ladder, so both existing
+    // arguments are silent for them too. They get the counterweight and nothing
+    // more: claiming their mission "lands" on a rung would be a lie.
+    for (const slug of ['fan-mission-generator', 'proof-of-demand-test-builder', 'royalty-readiness-check', 'top-fan-leaderboard-builder']) {
+      const o = entryOfferFor(seed({ toolSlug: slug, toolName: 'Fan Mission Generator' }))!;
+      expect(o).toBeTruthy();
+      expect(o.anchorLine).toBeNull();
+      expect(o.rungKey).toBeNull();
+      expect(o.ladderLine).toContain('Keep all three paid rungs');
     }
   });
 
   it.each(SINGLE_OFFER_TOOLS)('%s carries both an anchor and a loss-framed argument', (slug) => {
     const o = entryOfferFor(seed({ toolSlug: slug }))!;
     expect(o).toBeTruthy();
-    expect(o.anchorLine.length).toBeGreaterThan(20);
+    expect(o.anchorLine!.length).toBeGreaterThan(20);
     expect(o.ladderLine.length).toBeGreaterThan(40);
   });
 
   it('anchors the Vault on the Gold rung, and nothing else on a rung', () => {
     // The Vault is a RECURRING membership offer, so it is a rung (CLAUDE.md: the
-    // vault lives in the Gold tier). A ticket and a seat are products sold once;
-    // claiming either is a tier would be a lie the artist finds out later.
+    // vault lives in the Gold tier). A ticket, a seat and a founding window are
+    // not; claiming any of them is a tier would be a lie the artist finds out later.
     expect(entryOfferFor(seed({ toolSlug: 'vault-revenue-planner' }))!.rungKey).toBe('vault');
-    expect(entryOfferFor(seed({ toolSlug: 'live-experience-calculator' }))!.rungKey).toBeNull();
-    expect(entryOfferFor(seed({ toolSlug: 'executive-producer-session' }))!.rungKey).toBeNull();
+    for (const slug of ['live-experience-calculator', 'executive-producer-session', 'founder-window-builder']) {
+      expect(entryOfferFor(seed({ toolSlug: slug }))!.rungKey).toBeNull();
+    }
+  });
+
+  it('never promises that CRWN runs the founding window', () => {
+    // The offer builder this deliverable continues into has NO cap and NO date
+    // field, and no other surface enforces one. The copy says the artist holds
+    // the cap, which is the true statement.
+    const o = entryOfferFor(seed({ toolSlug: 'founder-window-builder' }))!;
+    expect(o.anchorLine).toContain('you hold the cap yourself');
+    expect(o.anchorLine).not.toMatch(/CRWN (will|closes|enforces|holds)/i);
   });
 
   it('every anchored rung key is a real template rung', () => {
@@ -76,9 +117,9 @@ describe('entryOfferFor', () => {
     expect(o.ladderLine).toContain(`$${gold}`);
   });
 
-  it.each(SINGLE_OFFER_TOOLS)('%s copy carries no em dash or en dash', (slug) => {
+  it.each([...SINGLE_OFFER_TOOLS, 'fan-mission-generator'])('%s copy carries no em dash or en dash', (slug) => {
     const o = entryOfferFor(seed({ toolSlug: slug }))!;
-    for (const line of [o.anchorLine, o.ladderLine]) {
+    for (const line of [o.anchorLine ?? '', o.ladderLine]) {
       expect(line).not.toContain('—');
       expect(line).not.toContain('–');
     }
@@ -140,11 +181,40 @@ describe('the wizard actually renders the bridge', () => {
 
   it('anchors a rung-shaped offer ON its rung and a product-shaped offer above the rungs', () => {
     expect(wizard).toContain('entryOffer?.rungKey === rung.key');
-    expect(wizard).toContain('{!entryOffer.rungKey && <p');
+    expect(wizard).toContain('{!entryOffer.rungKey && entryOffer.anchorLine && (');
+  });
+
+  it('renders no anchor at all for the generic bridge', () => {
+    // A null anchorLine must not render an empty gold line above the rungs, and the
+    // intro must not print "Where yours lands:" with nothing after it.
+    expect(wizard).toContain('{plan.entryOffer?.anchorLine && (');
   });
 
   it('states it before the ladder screen too, on the restored-plan intro', () => {
     expect(wizard).toContain('Where yours lands:');
+  });
+
+  it('honors the drop cadence the Vault artist already chose', () => {
+    // The promise-review screen asks for exactly the cadence the Vault planner
+    // asked for. Seeded into `draft`, NOT rendered as a display-only default: the
+    // create path reads `draft` too, so a rendering-only override would show one
+    // cadence and schedule another.
+    expect(wizard).toContain('vaultPlan={vaultPlan}');
+    expect(wizard).toContain('vaultCadenceSeeded');
+    expect(wizard).toContain('recurrence: vaultPlan.cadence!');
+    // Never clobbers an artist edit: only writes when that promise has no entry.
+    expect(wizard).toContain('d[p.key] ? d :');
+  });
+
+  it('matches the Vault unlock promise structurally, not by a string key', () => {
+    expect(wizard).toContain("const VAULT_UNLOCK = { tierKey: 'vault', benefitType: 'exclusive_posts' }");
+    // The pair must be a real planned promise on the template's Gold rung.
+    const gold = RECOMMENDED_LADDER.find((r) => r.key === 'vault')!;
+    expect(gold.benefits.some((b) => b.structured?.benefit_type === 'exclusive_posts')).toBe(true);
+  });
+
+  it('shows the 30-day drop plan where the artist commits to the cadence', () => {
+    expect(wizard).toContain('Your first 30 days, from your Vault plan');
   });
 
   it('leaves the cold-signup counterweight and the projection line alone', () => {
