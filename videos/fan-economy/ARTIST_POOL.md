@@ -100,8 +100,13 @@ artist, add the full entry in the same session.
 
 ### Tee Grizzley
 - lane: Detroit hip hop
-- why listed: gaming/streaming fan community (existing-fan-behavior angles)
-- cautions: borderline ceiling; label status to verify
+- why listed: runs Grizzley World RP, a top-10 GTA roleplay server with a reported ~90K paying
+  members and self-reported ~$200K/mo (researched 2026-08): the clearest participation-economy
+  proof story in hip hop
+- known behavior to research: server membership/pricing, Twitch streams, XSET partnership
+- pairs well with: evidence/proof, participation membership, community-as-place
+- cautions: borderline ceiling and label-signed (never call him independent); server figures are
+  SELF-reported, always attribute as "he's said"
 
 ## R&B seats (keep the set genre-mixed; research fit before first use)
 
@@ -118,3 +123,22 @@ artist, add the full entry in the same session.
 - lane: R&B
 - why ICP-fit candidate: legacy name, independent era, engaged core
 - cautions: full entry pending first research pass
+
+### Eric Roberson
+- lane: R&B/soul
+- why ICP-fit: the original independent R&B operator: own label (Blue Erro Soul) since 2001,
+  Grammy-nominated, 20+ years of sold-out touring with no major (researched 2026-08)
+- known behavior to research: improvised-song live shows (audience gives words, he builds songs
+  on the spot), Berklee professorship, album titles Music Fan First and The Vault Vol. 1
+- pairs well with: missed money (live/off-tour), evidence/proof, LTV
+- cautions: no reliable public follower counts found; anchor on behavior and venue-scale
+  illustrations, not follower math; audience skews older than most of the pool
+
+### Tink
+- lane: R&B
+- why ICP-fit: fully independent through EMPIRE after leaving the Timbaland/Mosley situation;
+  Winter's Diary series has run 12+ years with a devoted day-one core (researched 2026-08)
+- known behavior to research: drop-day ritual around Winter's Diary releases, series history,
+  EMPIRE arrangement
+- pairs well with: existing fan behavior, early access/waterfall, vault, membership intimacy
+- cautions: IG count unverified as of 2026-08 (X ~520K); avoid follower math until verified
