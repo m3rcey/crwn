@@ -1263,7 +1263,7 @@ export const EXPECTED_MIGRATION_STATE: ReadonlyArray<{
   // what makes it safe to ship ahead of the founder running it. Once applied, the next daily run
   // starts recording and the signed Resend webhook can attribute a delivery, bounce, open or click
   // to a platform sequence for the first time.
-  { file: 'schema-phase2-platform-sequence-sends.sql', state: 'pending', note: 'authored 2026-08-16. Before it, 45 emails reached real artists since 2026-04-01 leaving no record beyond an enrollment step counter. Mirrors prospect_nurture_sends deliberately, so the webhook and the admin reader share one shape.' },
+  { file: 'schema-phase2-platform-sequence-sends.sql', state: 'applied', note: 'Founder-applied 2026-08-16 and live-verified the same day, BEHAVIOUR not just existence: all 9 columns selectable, anon resolves the table and gets [] (admin-only SELECT policy holding), a bogus parent id is refused 23503, and a duplicate (enrollment_id, step_number) is refused 23505 through a canary pair that was then deleted, leaving the ledger empty. That 23505 is the exact code the cron reads as already-sent, so the idempotency guard the whole insert-before-send design rests on is proved rather than assumed. Before this, 45 emails reached real artists from 2026-04-01 leaving no record beyond an enrollment step counter. Mirrors prospect_nurture_sends deliberately, so the webhook and the admin reader share one shape.' },
   { file: 'schema-phase3-fan-campaigns.sql', state: 'applied', note: 'probe-verified 2026-08-12' },
   { file: 'schema-phase3-recommendation-outcomes.sql', state: 'applied', note: 'probe-verified 2026-08-11' },
   { file: 'schema-phase3-tier-transitions.sql', state: 'applied' },
