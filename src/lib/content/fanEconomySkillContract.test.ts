@@ -94,6 +94,7 @@ describe('FE-SKILL-003 the load-bearing gates cannot be silently edited out', ()
     'Never use a megastar',
     'NEVER manufacture 128 mechanics',
     'Awareness-ladder validation',
+    'Batch surface variation',
   ];
   for (const a of anchors) {
     it(`still carries: ${a}`, () => {

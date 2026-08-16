@@ -44,7 +44,10 @@ Prompt: (immediately after generating a batch) `Give me 3 more.`
 
 Pass criteria: no artist repeated from the prior batch · content families differ from the prior
 batch · not three copies of "followers → reached → convert → $/month" · lead magnets vary unless
-the concept genuinely maps to the same one.
+the concept genuinely maps to the same one · surface variation holds (sidenote entry, wow
+transition, pivot opener, tease and disclaimer wording each repeat at most once across the
+combined batches; the flagship "market FOR fans" line appears at most once per batch; "ANYWAY."
+is the only permitted standing anchor).
 
 ## 5. Current-event script
 
