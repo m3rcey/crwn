@@ -359,6 +359,29 @@ recent scripts: artist, family, mechanism, hook type, audience metric, Big Revea
 Factor, lead magnet, proof style. "Followers → 10% reached → 1% buy → monthly revenue" is a
 pattern, not the universal formula; use it only when it is genuinely the best analysis.
 
+## Batch surface variation (MANDATORY across any batch and vs recent scripts)
+
+The beat ORDER is fixed; the beat WORDING is not. A viewer who watches several of these
+back-to-back must never see the frame. QA on 2026-08-15 produced five scripts where the sidenote
+bookends repeated 5/5 and the wow transition repeated 4/5; that is the failure this section
+prevents. Within a batch (and against the most recent saved scripts):
+
+- **Sidenote ENTRY varies every script.** "But sidenote" is one option, used at most once per
+  batch. Others: "Quick sidenote." / "Small detour, thirty seconds." / "Before I give you the
+  number..." / "Hold that number, real quick..." / write your own. The return anchor "ANYWAY."
+  is the ONE standing series signature and may repeat.
+- **Wow transition varies every script.** "But here's the crazy part" at most once per batch.
+  Others: "And that's not even the interesting half." / "Now watch what that actually means." /
+  "The number is not the story though." / a cold statement of the second fact with no lead-in.
+- **The flagship worldview line ("you don't need to market to fans...") appears at most once per
+  batch.** Other scripts earn a DIFFERENT conclusion in fresh words (buyers become identifiable,
+  the catalog is inventory, the first purchase is a beginning, attention is not economic value).
+- **The hard pivot opener varies.** Literal "BUT, the bigger question..." at most once per batch.
+- **Tease and disclaimer wording never repeat verbatim within a batch.**
+- **The withheld variable must not be trivially guessable.** If the viewer would guess the
+  default ($10 membership) and land within ~20% of the reveal, withhold a different variable
+  (the participant count or the frequency) or use a non-obvious price.
+
 ## Current-event mode
 
 Triggered by "current / recent / trending / this week / just happened / latest." Research first;

@@ -107,8 +107,12 @@ artist, add the full entry in the same session.
 
 ### Eric Bellinger
 - lane: R&B
-- why ICP-fit candidate: prolific independent releaser, direct fan engagement
-- cautions: full entry pending first research pass
+- why ICP-fit: fully independent (CEO of All Wins Entertainment), extremely prolific releaser,
+  writes for other artists, IG audience inside the Tier 1 band (researched 2026-08)
+- known behavior to research: release cadence, All Wins operation, songwriting placements
+- pairs well with: versus (his own two audiences), contrarian, catalog
+- cautions: monthly listeners run at or slightly above the Tier 1 ceiling; hedge and keep the
+  pivot on his operating style, not his streaming scale
 
 ### Sammie
 - lane: R&B
