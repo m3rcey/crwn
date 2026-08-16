@@ -219,7 +219,11 @@ OFF, so another saved script claimed tipping and put $1,000 of tip revenue in it
   CSV/Patreon import, email campaigns, Promise Calendar, Rise Mode, early-access release windows +
   release waterfall, analytics.
 - **FLAG OFF IN PRODUCTION, never claim and never put in the math: live tips and tip goals**
-  (`live_tips` OFF). The ticket and the replay are live; the tipping is not.
+  (`live_tips` OFF, probed twice on 2026-08-16). The ticket and the replay are live; the tipping
+  is not. Note the trap: a 2026-08-16 commit says a "live_tips flag-off is retracted", which is
+  about a STAGED action that never ran, not about the live state. Tips shipped dark and were
+  never turned on. **Re-probe before writing tips into a script**, because a founder flip is
+  pending in TODO.md and this line goes stale the moment it happens.
 - Flags as of the 2026-08-16 probe: `quest_engine` ON, `popup_engine` ON, `acquisition_engine` ON,
   `experiments` ON, `royalty_readiness` ON, `producer_sessions` ON, `live_tips` OFF,
   `artist_gate` OFF.
