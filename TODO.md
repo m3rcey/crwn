@@ -87,6 +87,21 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **Your lifecycle emails have been going out blind since April. One SQL run starts recording
+      them.** Open and run:
+      [`supabase/schema-phase2-platform-sequence-sends.sql`](supabase/schema-phase2-platform-sequence-sends.sql)
+      The post-signup sequences (welcome, the four activation nudges, upgrade, win-back) have sent
+      **45 emails to real artists since 2026-04-01** and kept no record of any of them: no
+      recipient, no subject, no date, no delivered, no bounce, no open, no click. The only trace is
+      a step counter on the enrollment. This creates the ledger, and the send id now rides out as a
+      header so the signed Resend webhook can attribute outcomes for the first time.
+      Nothing breaks if you leave it: the cron treats a missing table as "no ledger available" and
+      sends exactly as before. Nothing is backfilled either, because the data to backfill does not
+      exist. Recording starts on the next daily run (10:00 UTC).
+      Then check it took:
+      npm run verify:migrations
+      Results land in /admin under "Lifecycle Email Performance", broken out per sequence.
+
 - [ ] **One quick SQL run to finish the surface reduction: drop the retired Manager outcome
       columns** (never written; the file ABORTS if any row unexpectedly holds data, so a surprise
       is a loud error, not a loss). Open and run:

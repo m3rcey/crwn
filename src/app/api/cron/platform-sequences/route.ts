@@ -131,6 +131,30 @@ export async function GET(req: NextRequest) {
         unsubScope,
       );
 
+      // SEND LEDGER, written BEFORE the send. Three jobs, in order of importance:
+      //   1. Idempotency. UNIQUE (enrollment_id, step_number) means a retry, a double cron run, or
+      //      a crash between the send and the advance below cannot send the same step twice.
+      //   2. Attribution. The row id rides out as `X-Platform-Send-Id`, which is the ONLY way the
+      //      signed Resend webhook can attribute a delivery, bounce, open or click back to a send.
+      //   3. Evidence. Before this table existed, 45 emails reached real artists and left nothing
+      //      behind but a step counter.
+      //
+      // FAILS SOFT until the migration runs. A missing table must never stop a live send, so any
+      // error that is NOT a unique violation is treated as "no ledger available" and the email goes
+      // out unrecorded, exactly as it did before. Only 23505 means "already sent".
+      const { data: sendRow, error: sendRowErr } = await supabaseAdmin
+        .from('platform_sequence_sends')
+        .insert({
+          enrollment_id: enrollment.id,
+          sequence_id: enrollment.sequence_id,
+          step_number: nextStepNumber,
+          status: 'sent',
+        })
+        .select('id')
+        .single();
+
+      const alreadySent = sendRowErr?.code === '23505';
+
       // ONE renderer, shared with `npm run preview:platform-emails`, so a preview can never show
       // something different from what an artist receives. It also escapes: `first_name` comes from
       // the artist's own display name, and this template used to interpolate it raw.
@@ -144,25 +168,47 @@ export async function GET(req: NextRequest) {
         artForTrigger(sequence.trigger_type),
       );
 
-      const { error: sendError } = await resend.emails.send({
-        from: FROM_EMAIL,
-        to: artistEmail,
-        subject,
-        html,
-        // Multipart. HTML-only is a deliverability cost for no reason when the source copy is
-        // already plain text.
-        text,
-        // RFC 8058 one-click, the same contract the prospect nurture sends use.
-        headers: {
-          'List-Unsubscribe': `<${unsubscribeUrl}>`,
-          'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
-        },
-      });
+      // `alreadySent` means a previous run wrote the ledger row and then died before advancing the
+      // enrollment. Skip the send, but still fall through to the advance below, or the enrollment
+      // stalls on this step forever.
+      if (!alreadySent) {
+        const { data: sendResult, error: sendError } = await resend.emails.send({
+          from: FROM_EMAIL,
+          to: artistEmail,
+          subject,
+          html,
+          // Multipart. HTML-only is a deliverability cost for no reason when the source copy is
+          // already plain text.
+          text,
+          headers: {
+            // The webhook's only handle on this send. Omitted when the ledger is unavailable
+            // (pre-migration), which costs attribution but never the email.
+            ...(sendRow ? { 'X-Platform-Send-Id': String(sendRow.id) } : {}),
+            // RFC 8058 one-click, the same contract the prospect nurture sends use.
+            'List-Unsubscribe': `<${unsubscribeUrl}>`,
+            'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+          },
+        });
 
-      if (sendError) {
-        console.error('Platform sequence email error:', sendError);
-        errorCount++;
-        continue;
+        if (sendError) {
+          console.error('Platform sequence email error:', sendError);
+          // Roll the slot back so a later run retries this exact step. Without this, the unique
+          // guard would permanently record a send that never happened.
+          if (sendRow) {
+            await supabaseAdmin.from('platform_sequence_sends').delete().eq('id', sendRow.id);
+          }
+          errorCount++;
+          continue;
+        }
+
+        if (sendRow && sendResult?.id) {
+          await supabaseAdmin
+            .from('platform_sequence_sends')
+            .update({ resend_message_id: sendResult.id })
+            .eq('id', sendRow.id);
+        }
+
+        sentCount++;
       }
 
       // Schedule next step or complete
@@ -185,8 +231,6 @@ export async function GET(req: NextRequest) {
           .update({ current_step: nextStepNumber, status: 'completed', completed_at: now, next_send_at: null })
           .eq('id', enrollment.id);
       }
-
-      sentCount++;
     } catch (err) {
       console.error('Platform sequence error:', err);
       errorCount++;

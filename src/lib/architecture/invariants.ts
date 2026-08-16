@@ -1257,6 +1257,13 @@ export const EXPECTED_MIGRATION_STATE: ReadonlyArray<{
   // 'sql-check' because a dropped column is invisible to an anon probe: the tables it lived on
   // are service-role-only, so 42501 reads the same before and after.
   { file: 'schema-phase2-drop-manager-outcome-schema.sql', state: 'pending', liveCheck: 'sql-check', note: 'Zero rows ever held outcome data (guarded in-file: it ABORTS if any row does). Dropping it closes K-11 from the surface-reduction audit.' },
+  // The post-signup lifecycle send ledger. PENDING: until it runs, the cron's ledger INSERT errors
+  // and the code treats anything that is not a 23505 as "no ledger available", so the emails send
+  // exactly as they did before and are simply not recorded. Nothing breaks either way, which is
+  // what makes it safe to ship ahead of the founder running it. Once applied, the next daily run
+  // starts recording and the signed Resend webhook can attribute a delivery, bounce, open or click
+  // to a platform sequence for the first time.
+  { file: 'schema-phase2-platform-sequence-sends.sql', state: 'pending', note: 'authored 2026-08-16. Before it, 45 emails reached real artists since 2026-04-01 leaving no record beyond an enrollment step counter. Mirrors prospect_nurture_sends deliberately, so the webhook and the admin reader share one shape.' },
   { file: 'schema-phase3-fan-campaigns.sql', state: 'applied', note: 'probe-verified 2026-08-12' },
   { file: 'schema-phase3-recommendation-outcomes.sql', state: 'applied', note: 'probe-verified 2026-08-11' },
   { file: 'schema-phase3-tier-transitions.sql', state: 'applied' },

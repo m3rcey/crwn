@@ -72,6 +72,42 @@ export async function GET() {
     bounced: (allSeqSends || []).filter(s => s.status === 'bounced').length,
   };
 
+  // === Platform Sequence Performance (post-signup lifecycle) ===
+  // Fails soft: before schema-phase2-platform-sequence-sends.sql runs, the select errors, `data` is
+  // null and every total reads 0. That is honest (nothing was ever recorded), and it must not 500
+  // the whole admin panel over one missing table.
+  const { data: allPlatformSends } = await supabaseAdmin
+    .from('platform_sequence_sends')
+    .select('sequence_id, status, opened_at, clicked_at');
+
+  const platformTotals = {
+    total: (allPlatformSends || []).length,
+    sent: (allPlatformSends || []).filter(s => s.status !== 'failed').length,
+    opened: (allPlatformSends || []).filter(s => s.opened_at).length,
+    clicked: (allPlatformSends || []).filter(s => s.clicked_at).length,
+    bounced: (allPlatformSends || []).filter(s => s.status === 'bounced').length,
+  };
+
+  // Grouped by trigger_type, because "which activation nudge actually works" is the only question
+  // this ledger exists to answer. Sequence NAMES are editable, trigger types are the stable key.
+  const { data: platformSequences } = await supabaseAdmin
+    .from('platform_sequences')
+    .select('id, trigger_type');
+  const triggerById = new Map((platformSequences || []).map(s => [s.id, s.trigger_type]));
+
+  const platformByTrigger: Record<string, { sent: number; opened: number; clicked: number; bounced: number }> = {};
+  (allPlatformSends || []).forEach(s => {
+    const trigger = triggerById.get(s.sequence_id) || 'unknown';
+    if (!platformByTrigger[trigger]) {
+      platformByTrigger[trigger] = { sent: 0, opened: 0, clicked: 0, bounced: 0 };
+    }
+    const row = platformByTrigger[trigger];
+    if (s.status !== 'failed') row.sent++;
+    if (s.opened_at) row.opened++;
+    if (s.clicked_at) row.clicked++;
+    if (s.status === 'bounced') row.bounced++;
+  });
+
   // === Unsubscribe Events ===
   const { data: recentUnsubs } = await supabaseAdmin
     .from('unsubscribe_events')
@@ -108,8 +144,8 @@ export async function GET() {
   });
 
   // Calculate deliverability score (0-100)
-  const totalSent = campaignTotals.sent + sequenceTotals.sent;
-  const totalBounced = campaignTotals.bounced + sequenceTotals.bounced;
+  const totalSent = campaignTotals.sent + sequenceTotals.sent + platformTotals.sent;
+  const totalBounced = campaignTotals.bounced + sequenceTotals.bounced + platformTotals.bounced;
   const deliverabilityRate = totalSent > 0
     ? Math.round(((totalSent - totalBounced) / totalSent) * 100)
     : 100;
@@ -125,6 +161,7 @@ export async function GET() {
     },
     campaigns: campaignTotals,
     sequences: sequenceTotals,
+    platform: { ...platformTotals, byTrigger: platformByTrigger },
     unsubscribes: {
       recent: recentUnsubs || [],
       total: totalUnsubs || 0,

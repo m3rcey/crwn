@@ -43,6 +43,10 @@ const PROBES = [
   // means the migration has not run and the whole Virality surface is dark by design.
   ['fan campaigns', 'fan_campaigns?select=id&limit=1', 'schema-phase3-fan-campaigns.sql'],
   ['fan campaign participants', 'fan_campaign_participants?select=id&limit=1', 'schema-phase3-fan-campaigns.sql'],
+  // Post-signup lifecycle send ledger. Admin-only RLS like the FRL tables below, so anon resolves
+  // the table and gets [] once applied; 42P01/PGRST205 means the founder has not run it yet and
+  // the lifecycle sequences are still sending unrecorded.
+  ['platform sequence sends', 'platform_sequence_sends?select=id&limit=1', 'schema-phase2-platform-sequence-sends.sql'],
   // launch_partner is a server-only column (no client grants), so 42501 = applied.
   ['launch partner flag', 'artist_profiles?select=launch_partner&limit=1', 'schema-phase2-launch-partner.sql'],
   // FRL tables are admin-only RLS: anon resolves the table (zero rows) = applied.

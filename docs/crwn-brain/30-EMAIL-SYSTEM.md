@@ -289,6 +289,63 @@ actually there.
 
 ---
 
+## The feedback loop
+
+Audited 2026-08-16 against production. **A send with no ledger row is a send nobody can ever ask a
+question about**, and that was the state of the only system with real volume.
+
+Four loops. Which are closed, and what closes them:
+
+| Loop | Question it answers | State |
+|---|---|---|
+| **Protection** | should we stop mailing this address | **closed** |
+| **Delivery** | did it arrive, was it opened, was it clicked | **closed for both ledgers** |
+| **Outcome** | did the email change what the artist did | **open** |
+| **Correctness** | does the copy still tell the truth | **manual** |
+
+**Protection closes globally and always has.** A hard bounce or spam complaint at the signed Resend
+webhook writes `email_suppressions`, and every marketing sender checks it. That write is
+deliberately **not** gated on a send id, so it protects senders the webhook cannot otherwise see.
+
+**Delivery now closes for both nurture ledgers.** The pattern is one shape used twice: INSERT a send
+row before sending, ride the row id out as an `X-...-Send-Id` header, let the webhook write
+`delivered` / `opened` / `clicked` / `bounced` back to it. `prospect_nurture_sends` has done this
+since it shipped. `platform_sequence_sends` was added 2026-08-16 (migration
+[`supabase/schema-phase2-platform-sequence-sends.sql`](../../supabase/schema-phase2-platform-sequence-sends.sql)).
+Before it, the post-signup sequences sent **45 emails to real artists between 2026-04-01 and
+2026-08-13 with no record of any of them**: the only trace was `current_step` on the enrollment.
+
+Two properties of that ledger are load-bearing and must not be "simplified" away:
+
+- **The UNIQUE (enrollment_id, step_number) key is the idempotency guard.** The cron INSERTs before
+  it sends and reads a `23505` as "already sent". Only 23505. Every other error means the ledger is
+  unavailable and the email must still go out, which is what let this ship before the founder ran
+  the migration. A failed send DELETEs its row so a retry stays possible.
+- **The enrollment advance happens OUTSIDE the send guard.** A row written by a run that then died
+  would otherwise stall that enrollment on one step forever. The nurture cron has always done this;
+  the platform one now matches.
+
+Both halves are pinned by `src/lib/architecture/emailFeedback.test.ts`, inside
+`verify:architecture`. It asserts each status against each table individually. It counted
+references at first, and a mutation proved that worthless: deleting an entire `opened` branch left
+enough references to keep it green.
+
+**Outcome is the loop still open.** Nothing links a send to what the artist or fan did next. The
+machinery exists for artist-to-fan sequences (`sequence_conversions` plus
+`/api/cron/sequence-conversions`, which measures subscribed / purchased / upgraded / resubscribed)
+and is deliberately **unscheduled**: its exception reads "Re-enable with the sequence builder", and
+that builder is hidden by the pre-PMF reduction. Scheduling it would instrument a feature nobody can
+reach. Leave it off until the builder returns.
+
+**Nothing detects a silent failure.** No alert fires if an email cron errors or sends zero. There is
+no CI (`.github/workflows` does not exist), so `verify:architecture` runs only when someone runs it.
+
+Read the results at `/admin`: "Lifecycle Email Performance", broken out per `trigger_type`, because
+which activation nudge actually moves an artist is the only question this ledger exists to answer.
+Sequence names are editable; trigger types are the stable key.
+
+---
+
 ## Known gaps
 
 1. **`cron/onboarding-reminder` is marketing with no suppression check and no unsubscribe.** It
@@ -304,6 +361,11 @@ actually there.
    stamped on a funnel stage below signup.
 6. **Platform sequence copy is unreachable by `npm test`**, because it lives in the database. The
    only guard is `verify-platform-sequence-copy.mjs`, which is a manual run.
+7. **The outcome loop is open.** Delivery and engagement are recorded for both nurture systems, but
+   nothing links a send to a signup, an activation step or a first paid member. See The feedback
+   loop above.
+8. **No failure detection and no CI.** Nothing alerts when an email cron errors or silently sends
+   zero, and no workflow runs the gates automatically.
 
 ---
 

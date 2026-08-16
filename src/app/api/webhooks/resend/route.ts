@@ -68,6 +68,11 @@ export async function POST(req: NextRequest) {
     // Prospect (pre-signup) nurture send id, so opens/clicks/bounces attribute back to the ledger.
     const prospectSendIdHeader = data.headers?.find(h => h.name === 'X-Prospect-Send-Id');
     const prospectSendId = prospectSendIdHeader?.value;
+    // Platform (post-signup) lifecycle send id. Same job as the prospect one above. Until the
+    // ledger existed, the sequences that have actually been emailing artists since April were the
+    // one system this webhook could not see at all.
+    const platformSendIdHeader = data.headers?.find(h => h.name === 'X-Platform-Send-Id');
+    const platformSendId = platformSendIdHeader?.value;
 
     if (type === 'email.bounced') {
       const isHard = data.bounce?.type === 'hard';
@@ -110,6 +115,15 @@ export async function POST(req: NextRequest) {
           .from('prospect_nurture_sends')
           .update({ status: 'bounced' })
           .eq('id', prospectSendId);
+      }
+
+      // Same for the platform lifecycle ledger. The enrollment itself is canceled by the daily
+      // runner the next time it checks suppression, which the hard-bounce branch below feeds.
+      if (platformSendId) {
+        await supabaseAdmin
+          .from('platform_sequence_sends')
+          .update({ status: 'bounced' })
+          .eq('id', platformSendId);
       }
 
       // Hard bounce → global suppression
@@ -198,24 +212,52 @@ export async function POST(req: NextRequest) {
           .eq('id', prospectSendId)
           .eq('status', 'sent');
       }
+      if (platformSendId) {
+        await supabaseAdmin
+          .from('platform_sequence_sends')
+          .update({ status: 'delivered' })
+          .eq('id', platformSendId)
+          .eq('status', 'sent');
+      }
     }
 
-    // Behavioral signals for prospect nurture: opens and clicks. Idempotent (first-wins on the
-    // timestamp). These are the branches the funnel reads for "result email opened / clicked".
-    if (type === 'email.opened' && prospectSendId) {
-      await supabaseAdmin
-        .from('prospect_nurture_sends')
-        .update({ status: 'opened', opened_at: new Date().toISOString() })
-        .eq('id', prospectSendId)
-        .is('opened_at', null);
+    // Behavioral signals: opens and clicks. Idempotent (first-wins on the timestamp), and the
+    // status only ever moves forward, so a late `delivered` cannot overwrite a `clicked`.
+    // These are the branches the funnel reads for "result email opened / clicked".
+    if (type === 'email.opened') {
+      const openedAt = new Date().toISOString();
+      if (prospectSendId) {
+        await supabaseAdmin
+          .from('prospect_nurture_sends')
+          .update({ status: 'opened', opened_at: openedAt })
+          .eq('id', prospectSendId)
+          .is('opened_at', null);
+      }
+      if (platformSendId) {
+        await supabaseAdmin
+          .from('platform_sequence_sends')
+          .update({ status: 'opened', opened_at: openedAt })
+          .eq('id', platformSendId)
+          .is('opened_at', null);
+      }
     }
 
-    if (type === 'email.clicked' && prospectSendId) {
-      await supabaseAdmin
-        .from('prospect_nurture_sends')
-        .update({ status: 'clicked', clicked_at: new Date().toISOString() })
-        .eq('id', prospectSendId)
-        .is('clicked_at', null);
+    if (type === 'email.clicked') {
+      const clickedAt = new Date().toISOString();
+      if (prospectSendId) {
+        await supabaseAdmin
+          .from('prospect_nurture_sends')
+          .update({ status: 'clicked', clicked_at: clickedAt })
+          .eq('id', prospectSendId)
+          .is('clicked_at', null);
+      }
+      if (platformSendId) {
+        await supabaseAdmin
+          .from('platform_sequence_sends')
+          .update({ status: 'clicked', clicked_at: clickedAt })
+          .eq('id', platformSendId)
+          .is('clicked_at', null);
+      }
     }
 
     return NextResponse.json({ status: 'ok' });

@@ -49,6 +49,16 @@ interface EmailHealthData {
     clicked: number;
     bounced: number;
   };
+  // Post-signup lifecycle sends. Every count reads 0 until
+  // schema-phase2-platform-sequence-sends.sql runs, because nothing was ever recorded before it.
+  platform: {
+    total: number;
+    sent: number;
+    opened: number;
+    clicked: number;
+    bounced: number;
+    byTrigger: Record<string, { sent: number; opened: number; clicked: number; bounced: number }>;
+  };
   unsubscribes: {
     recent: UnsubscribeEvent[];
     total: number;
@@ -70,7 +80,19 @@ const TRIGGER_LABELS: Record<string, string> = {
   paid_at_risk: 'Paid At Risk',
   paid_churned: 'Paid Churned',
   loyalty_survey: 'Loyalty Survey',
+  // Post-signup lifecycle triggers. The four activation nudges form a prerequisite chain.
+  new_signup: 'New Signup',
+  activation_no_track: 'Activation: No Track',
+  activation_no_tiers: 'Activation: No Tiers',
+  activation_no_stripe: 'Activation: No Stripe',
+  activation_no_subscribers: 'Activation: No Subscribers',
+  upgrade_abandoned: 'Upgrade Abandoned',
 };
+
+/** Whole-percent rate, 0 when the denominator is 0. Never renders NaN%. */
+function pct(numerator: number, denominator: number): number {
+  return denominator > 0 ? Math.round((numerator / denominator) * 100) : 0;
+}
 
 interface EmailHealthProps {
   userId: string;
@@ -189,6 +211,43 @@ export default function EmailHealth({ userId }: EmailHealthProps) {
             <p className="text-crwn-text-secondary text-sm">No sequence sends tracked yet. Data will appear after the migration is applied.</p>
           )}
         </div>
+      </div>
+
+      {/* Post-signup lifecycle. Broken out by trigger, because the only question this ledger
+          exists to answer is which activation nudge actually moves an artist. */}
+      <div className="bg-crwn-surface rounded-2xl p-6">
+        <h3 className="text-sm font-semibold text-crwn-text-secondary uppercase tracking-wider mb-4">
+          Lifecycle Email Performance (post-signup)
+        </h3>
+        {data.platform.sent > 0 ? (
+          <>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+              <StatRow icon={<Mail className="w-4 h-4 text-crwn-text-secondary" />} label="Total Sent" value={data.platform.sent} />
+              <StatRow icon={<Eye className="w-4 h-4 text-blue-400" />} label="Open Rate" value={`${pct(data.platform.opened, data.platform.sent)}%`} />
+              <StatRow icon={<MousePointerClick className="w-4 h-4 text-crwn-gold" />} label="Click Rate" value={`${pct(data.platform.clicked, data.platform.sent)}%`} />
+              <StatRow icon={<XCircle className="w-4 h-4 text-red-400" />} label="Bounced" value={data.platform.bounced} />
+            </div>
+            <div className="space-y-2">
+              {Object.entries(data.platform.byTrigger)
+                .sort((a, b) => b[1].sent - a[1].sent)
+                .map(([trigger, s]) => (
+                  <div key={trigger} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
+                    <span className="text-sm text-crwn-text-primary">{TRIGGER_LABELS[trigger] || trigger}</span>
+                    <span className="text-sm text-crwn-text-secondary tabular-nums">
+                      {s.sent} sent · {pct(s.opened, s.sent)}% open · {pct(s.clicked, s.sent)}% click
+                      {s.bounced > 0 ? ` · ${s.bounced} bounced` : ''}
+                    </span>
+                  </div>
+                ))}
+            </div>
+          </>
+        ) : (
+          <p className="text-crwn-text-secondary text-sm">
+            No lifecycle sends recorded yet. These emails have been sending since April with no ledger
+            behind them; run supabase/schema-phase2-platform-sequence-sends.sql and the next daily run
+            starts recording.
+          </p>
+        )}
       </div>
 
       {/* Sequence Conversion Rates */}

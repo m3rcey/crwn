@@ -44,6 +44,10 @@ export default defineConfig({
       // security assertion nobody runs on the way to production is decoration.
       'src/lib/architecture/security.test.ts',
       'src/lib/architecture/headers.test.ts',
+      // The send-ledger / webhook pairing. In the gate because the failure mode is silence: the
+      // lifecycle sequences emailed real artists for four months with no ledger and nothing broke,
+      // which is exactly the class of drift a build-time assertion catches and a human does not.
+      'src/lib/architecture/emailFeedback.test.ts',
       // What a COMPROMISED model can actually do. Asserts the non-model control behind each
       // AI security claim, never the wording of a system prompt.
       'src/lib/ai/agentSecurityBoundaries.test.ts',
