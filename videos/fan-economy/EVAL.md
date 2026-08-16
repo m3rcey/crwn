@@ -1,0 +1,92 @@
+# /crwn-fan-economy evaluation fixtures
+
+Behavioral tests for the skill. These cannot run in vitest (they require generation), so they are
+fixtures: run the prompt, grade against the pass criteria. The machine-checkable half of the skill
+(file integrity, registry keywords, ordering rules present, pool shape) is pinned by
+`src/lib/content/fanEconomySkillContract.test.ts` and runs in `npm test`.
+
+Run any fixture as: `/crwn-fan-economy <prompt below>`. A fixture passes only if EVERY criterion
+holds. When one fails, fix the SKILL (the instructions), not just the one script.
+
+## 1. Numerical missed-money script
+
+Prompt: `Give me a missed-money script.`
+
+Pass criteria: artist from the pool (not a megastar) · real researched audience anchor · "and
+artists like [him/her/them]" early · the promised dollar answer is NOT computable from the spoken
+variables before the Big Reveal (at least one variable withheld) · explicit tease immediately
+before the CRWN sidenote · Big Reveal after the sidenote · Wow Factor after the Big Reveal and not
+a restatement · short disclaimer · hard ICP pivot ("operating at [Artist]'s level" + "I'm talking
+to YOU") · question turned on the viewer · single comment CTA mapped to a real calculator ·
+`128 👑` silent signature.
+
+## 2. Conceptual unbuilt feature
+
+Prompt: `Give me a Virality Engine concept about demand-backed tour routing.`
+
+Pass criteria: the concept is discussed freely and vividly · the script NEVER claims CRWN
+currently does it · uses future/conceptual language ("the kind of Fan Economy I believe artists
+should be building... the bigger idea behind what we're building with CRWN" or equivalent) · META
+line says `CRWN claim tier: conceptual`.
+
+## 3. Shipped mechanism
+
+Prompt: `Write one about Share-to-Earn.`
+
+Pass criteria: capability described matches what is actually live (per-artist commission for
+bringing paid members) · no invented details (no cash-out promises beyond what ships, no fake
+dashboards) · no unnecessary "someday" hedging on a genuinely live feature · META says
+`CRWN claim tier: shipped` (after re-verification, not from the cached table alone).
+
+## 4. Diversity under "3 more"
+
+Prompt: (immediately after generating a batch) `Give me 3 more.`
+
+Pass criteria: no artist repeated from the prior batch · content families differ from the prior
+batch · not three copies of "followers → reached → convert → $/month" · lead magnets vary unless
+the concept genuinely maps to the same one.
+
+## 5. Current-event script
+
+Prompt: `Give me a current-event angle.`
+
+Pass criteria: web research performed before writing · the event is real, current, and sourced ·
+no invented news, no fabricated dates · no evergreen-breaking time words unless an air date is
+known · the event resolves into a Fan Economy insight, not just news commentary.
+
+## 6. Founder / 128 script
+
+Prompt: `Write a founder/128 video.`
+
+Pass criteria: origin facts exactly right (December 8 = father's birthday; father an entrepreneur;
+founder still owns the first dollar the father's business earned; father passed in 2022; CRWN
+founded March 2026; ownership creates freedom) · zero invented 128 mechanics (no 128 fans, $128
+offers, 128-day anything) · first-dollar symbolism present · still ends with one CTA and the
+signature.
+
+## 7. Curiosity-gap failure recognition
+
+Prompt: `Here's a draft: "...940 of his fans would put down $10 each. I'll tell you what that
+demand adds up to in a second..." Finish/fix this script.`
+
+Pass criteria: the skill recognizes the draft as a curiosity-gap FAILURE (940 × $10 is computable)
+and rewrites it so at least one critical variable (price, count, rate, or frequency) stays hidden
+until the Big Reveal. It must not simply continue the draft.
+
+## 8. Wrong artist scale
+
+Prompt: `Give me a script using Drake.`
+
+Pass criteria: the skill refuses the megastar for THIS series (the hard ICP pivot would be
+absurd), says why in one or two sentences, and either offers a pool alternative or notes that
+megastar stories belong to /crwn-shortform. It must not produce a Fan Economy case-study script
+with "independent artists operating at Drake's level, I'm talking to YOU."
+
+## Grading notes
+
+- Criteria about ordering (mechanism before CRWN, reveal after sidenote, wow after reveal) are
+  checked by reading the finished script top to bottom once.
+- "Computable before the reveal" is checked by listing every number spoken before the sidenote and
+  attempting the hook's promised calculation with only those numbers.
+- Log results as a short table (fixture, pass/fail, note) in the session; recurring failures mean
+  the skill file needs a rule, not the script a patch.
