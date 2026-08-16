@@ -97,7 +97,11 @@ The recognizable artist is the CASE STUDY. The ICP viewer is the SUBJECT.
 
 - **Early bridge (in or near the hook):** signal both audiences. The canonical family is
   "How much money could [Artist] **and artists like him** be missing because [unrecognized
-  problem]?" Vary the phrasing; keep the "and artists like [him/her/them]" signal early.
+  problem]?" Vary the phrasing; keep the "and artists like [him/her/them]" signal early. The
+  direct parenthetical is an approved variant Josh himself uses: "And artists like her (I'm
+  talking to YOU) are leaving real money inside that exact habit." Keep the bridge ONE clean
+  phrase; never stack appositives ("every independent artist, artists like you" got cut to
+  "independent artists like you").
 - **Late hard pivot (after Big Reveal + Wow Factor + disclaimer):** a conversational variation of
   "BUT, the bigger question is this..." → "independent artists operating at [Artist]'s level" →
   "I'm talking to YOU." Vary wording per script so it never sounds templated.
@@ -170,6 +174,11 @@ owned relationships, identifiable fans, first-party data, reduced platform depen
 
 **Before any mechanism is attached to CRWN specifically, classify it (next section).** Discussing
 a mechanism as a Fan Economy idea is always allowed; attaching it to CRWN is not.
+
+**Live-experience concepts are a CONCRETE SCENE, never a feature list** (same rule as
+`/crwn-lead-magnet`'s Live beat, and Josh added it back by hand): the small in-person room,
+"maybe 20 people tops", streamed live to the fans who paid, tips through the night, replay
+included for everyone who bought in.
 
 ## Product-truth safeguard (anti-overpromise; MANDATORY)
 
@@ -277,12 +286,17 @@ script unless the user asks for an annotated version.
 7. **CONSERVATIVE ASSUMPTIONS**: one idea per line, no formula dumps, no accidental spoilers.
 8. **PRE-REVEAL BUILD**: close enough to feel the answer will be meaningful; the withheld
    variable stays withheld.
-9. **TEASE THE BIG REVEAL** (mandatory for numerical scripts): "I ran the final number and it
-   gets pretty crazy. I'll give it to you in a second." Do NOT reveal yet.
-10. **CRWN SIDENOTE**: while curiosity is at max: "But sidenote..." → the worldview line the case
-    study earned (e.g. "this is what I mean when I say you don't need to market to fans, you need
-    a market FOR fans") → CRWN at the correct product-truth tier → "ANYWAY..." back to the open
-    question. It must feel like a sidenote, never an ad break.
+9. **TEASE THE BIG REVEAL** (mandatory for numerical scripts): tease the REACTION, never the
+   timing. "He said the number and it still sound hard to believe." / "I priced one single night
+   of that, and the yearly number embarrassed me." Josh cuts timing announcements ("One second.",
+   "Small detour, thirty seconds.", "I'll give it to you in a second") on sight; at most one
+   light holder like "Hold that thought." per script. Do NOT reveal yet.
+10. **CRWN SIDENOTE**: while curiosity is at max: an entry ("But sidenote..." / "One more thing
+    before the number." / or NO entry phrase at all, flowing straight into the point) → the
+    worldview line the case study earned → the CRWN app at the correct product-truth tier →
+    "ANYWAY..." back to the open question. Keep it to 3-4 lines; never label the detour twice
+    (a tease that says "small detour" AND an entry that says it again both got cut). It must
+    feel like a sidenote, never an ad break.
 11. **BIG REVEAL**: close the hook's loop. For financial hooks give monthly and, when relevant,
     annual or total. The withheld variable can surface here: "At just $10 each, that's 940 fans
     representing roughly $9,400 in demonstrated demand."
@@ -291,18 +305,26 @@ script unless the user asks for an annotated version.
     future recurring customers; 9,600 fan clips = 4,800 hours of production the team never paid
     for; 64% of the demand points at ONE idea; the number needed only 0.1% of the following.
     Prefer the Wow that reveals the deeper Fan Economy principle.
-13. **SHORT DISCLAIMER**: "The real number could be higher or lower. This is a planning example,
-    not a promise." Keep it short.
-14. **HARD ICP PIVOT**: "BUT, the bigger question is this..." → "independent artists operating at
-    [Artist]'s level" → "I'm talking to YOU." Fresh wording every script.
-15. **TURN THE QUESTION ON THE VIEWER**: the personalized version of the hook: "How much are YOU
-    missing?" / "How many buyers are hiding inside YOUR audience?" / "What could YOUR catalog
-    already be worth?"
+13. **SHORT DISCLAIMER**: one plain sentence, or better, a half-sentence that bridges straight
+    into the pivot, the way Josh edits it: "These are obviously estimates, but if you're an
+    artist on a level similar to [Artist], your version of this already exists." Never a
+    staccato triple ("Estimates, obviously. The habit is real. The price is a sketch." got cut).
+14. **HARD ICP PIVOT**: the LEVEL QUALIFIER is the load-bearing part: "if you're an artist on a
+    level similar to [Artist]..." or a callback to the video's core line as the qualifier ("if
+    you're an independent artist who knows how to market to fans but hasnt created a market FOR
+    them..."). Fresh wording every script. Never broaden it ("whoever you are" got cut: it
+    dissolves the ICP scoping the whole series depends on). If "(I'm talking to YOU)" already
+    ran in the hook, the pivot does not need to repeat it.
+15. **TURN THE QUESTION ON THE VIEWER**: ONE question, or two tightly linked ones, never a stack:
+    "How many nights a year is YOUR best thing not for sale? And who would show up if it was?"
+    Cut extra pivot questions; the last question is the one they sit with.
 16. **PERSONALIZED LEAD MAGNET**: the calculator that answers THIS video's question (mapping
     below). Video asks the question → calculator gives the viewer THEIR answer. Never invent a
     calculator; if none fits exactly, use the closest live one or the general Opportunity
     Calculator.
-17. **SINGLE COMMENT CTA**: one action only: "Comment 'WORTH' and I'll DM you the link." No
+17. **SINGLE COMMENT CTA**: first-person tool intro, then the comment line: "I built a free
+    [Tool] that [what it does for you]." / "I got a free [Tool] that prices this for ya
+    audience." Then: "Comment '[KEYWORD]' and I'll DM you the link." One action only. No
     follow-me, no link-in-bio stacking, no booking, unless the founder asks.
 18. **128 SIGNATURE**: end the stored script with the line `128 👑` marked visual-only. Not
     spoken, not explained, never tied to a metric.
@@ -346,22 +368,34 @@ economic value · the artist may need fewer new fans than they think.
 
 ## Voice (founder correction, 2026-08-16)
 
-Scripts are delivered in Josh's OWN spoken voice: the spoken Black English register documented in
-`/crwn-shortform`'s "Voice Register" section, applied across the whole script. This series
-launched neutral and Josh corrected it: he records these himself, and a neutral narrator does not
-sound like him or the audience. The shortform section is canonical; do not copy it here, read it.
-The short version of what to apply:
+Scripts are delivered in Josh's OWN spoken voice. The series launched neutral and Josh corrected
+it, then LINE-EDITED all three batch-3 scripts on 2026-08-16; those edits are the calibration and
+this section encodes them. `/crwn-shortform`'s "Voice Register" is the reference for the marker
+set, but the DENSITY here is Josh's, learned from his edits:
 
-- Drop the 3rd person singular -s ("Tee treat his fans", "he improvise whole songs"), "they" as
-  possessive, "dont"/"aint"/"gotta"/"gon"/"em", "ya" mid-sentence, copula drop ("this the purest
-  example I know"), "like" for approximations.
-- **Never "Yo"**, anywhere, same ban as shortform. Never caricature: read every line aloud, and
-  if it sounds like a writer performing a register instead of Josh explaining at a kitchen table,
-  expand it into how he'd actually say it.
+- **Mixed register, not systematic.** Default to STANDARD verb conjugation ("he makes", "He takes
+  a word", "It announces it") and keep the possessive 's ("Tink's realest fans"). What stays
+  voiced: the negation set ("dont", "aint", "aint never gon exist", negative concord like "aint
+  got no lane"), occasional copula drop ("they not really concerts", "It mean the room did"),
+  "gon", "they" as possessive ("they own businesses"), "ya" sparingly ("your" is often right),
+  "like" for approximations, spoken openers like "We talkin like 90,000 members". Dropping every
+  3rd-person -s reads as a performed register, not Josh; his own edits restored most of them.
+- **Never "Yo"**, same ban as shortform. Read every line aloud: if it sounds like a writer
+  performing a register instead of Josh explaining at a kitchen table, rewrite it.
+- **Full artist name throughout** ("Tee Grizzley", not "Tee"): recognizability beats familiarity.
+- **"the CRWN app"**, never bare "CRWN", when saying where a capability lives.
+- **Plain transitions, own paragraph.** "Here's the story." / "Hear me out." / "Now let's look
+  at..." / "So let's think about...". No slangy or writerly transition verbs (peep, check,
+  follow this, picture).
+- **Word economy (Josh cuts these on sight):** staccato fragment stacks (merge them into flowing
+  sentences), decorative metaphors and similes ("like scripture", "camping in her comments"),
+  abstract concept-nouns ("closeness" becomes "that"), aphorism triplets ("Count the ritual"),
+  redundant appositives, and fillers ("just", "simply", "out loud"). Make abstractions people:
+  "The FIRST ones got value", not "FIRST has value".
 - **Math callouts stay clean and precise** even inside voiced sentences: exact dollar figures,
-  counts and percentages ("like $200,000 a MONTH" is right; garbling the number is not).
+  counts and percentages. Sourced quotes and hard facts keep their precision.
 - The series anchors are unchanged: "ANYWAY.", the single comment CTA, the META line, the silent
-  `128 👑`. Sourced quotes and hard facts keep their precision.
+  `128 👑`.
 
 ## Language / delivery
 
