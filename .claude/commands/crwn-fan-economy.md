@@ -4,10 +4,10 @@ Generate high-retention, high-share short-form CRWN scripts for UNAWARE independ
 fit CRWN's ICP, using recognizable ICP-adjacent artists as case studies to teach the Fan Economy
 worldview and create demand for CRWN without overstating what CRWN currently does.
 
-This is a different series from `/crwn-shortform` (AAVE paper/sharpie label-industry reels) and
+This is a different series from `/crwn-shortform` (paper/sharpie label-industry reels) and
 `/crwn-lead-magnet` (the fixed five-magnet calculator formulas). This skill writes FAN ECONOMY
 case studies: flexible content families, one storytelling architecture, and a hard curiosity-gap
-math gate. Voice is Josh talking to camera: conversational, plain, natural. Not AAVE, not corporate.
+math gate. Voice is Josh talking to camera, in HIS voice (see the Voice section below).
 
 ## Invocation
 
@@ -343,6 +343,25 @@ forced. The menu: tiny % creates a large business · a fanbase distributes itsel
 identifiable · fan activity is market intelligence · a catalog is inventory · a concert is
 acquisition · a release is a beginning · fans co-create · economies compound · attention ≠
 economic value · the artist may need fewer new fans than they think.
+
+## Voice (founder correction, 2026-08-16)
+
+Scripts are delivered in Josh's OWN spoken voice: the spoken Black English register documented in
+`/crwn-shortform`'s "Voice Register" section, applied across the whole script. This series
+launched neutral and Josh corrected it: he records these himself, and a neutral narrator does not
+sound like him or the audience. The shortform section is canonical; do not copy it here, read it.
+The short version of what to apply:
+
+- Drop the 3rd person singular -s ("Tee treat his fans", "he improvise whole songs"), "they" as
+  possessive, "dont"/"aint"/"gotta"/"gon"/"em", "ya" mid-sentence, copula drop ("this the purest
+  example I know"), "like" for approximations.
+- **Never "Yo"**, anywhere, same ban as shortform. Never caricature: read every line aloud, and
+  if it sounds like a writer performing a register instead of Josh explaining at a kitchen table,
+  expand it into how he'd actually say it.
+- **Math callouts stay clean and precise** even inside voiced sentences: exact dollar figures,
+  counts and percentages ("like $200,000 a MONTH" is right; garbling the number is not).
+- The series anchors are unchanged: "ANYWAY.", the single comment CTA, the META line, the silent
+  `128 👑`. Sourced quotes and hard facts keep their precision.
 
 ## Language / delivery
 
