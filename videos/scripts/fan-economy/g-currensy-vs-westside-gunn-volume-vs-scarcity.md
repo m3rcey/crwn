@@ -37,7 +37,7 @@ Which means 400 people spent what a million and a half listeners spend in eight 
 And the 400 aint just worth more.
 One collector paying $300 is the same money as 30,000 people listening for a month.
 Except the 30,000 is anonymous, and the 400 got names, addresses and a habit.
-One of them groups you can call. The other one you can only hope shows back up.
+One of them groups you can call. The other one has to come back on they own, and that's how streaming was built for everybody, Curren$y included.
 
 Now to be fair, Curren$y's volume is what built the catalog people collect in the first place, so this aint volume versus scarcity as good versus bad.
 But if you're an independent artist on either of they levels, the question is the same one:

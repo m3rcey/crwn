@@ -125,6 +125,22 @@ Rules:
 3. Match artist to concept (a catalog-vault concept needs an artist with a deep catalog; a
    fan-content concept needs an artist whose fans visibly clip/edit/debate).
 4. Never invent artist behavior. Everything artist-specific is researched (below).
+4b. **Every case-study artist is a PROSPECT, not a prop (founder rule, 2026-08-16).** The pool IS
+   the ICP, so every artist named is somebody CRWN wants as a client, and some of them will see
+   the video. **The repost test: if the named artist would not comfortably repost this, the
+   framing is wrong.** Rewrite until it passes. What that forbids:
+   - Never imply an artist is failing, behind, naive, lazy, or being out-thought. The gap is
+     always a DOOR NOBODY BUILT THEM, never a bad decision they made.
+   - Ban the verbs that sound like a verdict: "he can only hope", "he has never met them",
+     "he cannot even name one", "this should bother him", "he's leaving it on the table because
+     he doesn't understand".
+   - **Name the gap as universal.** Say plainly that almost every artist at that level is in the
+     same spot, so the named artist is an EXAMPLE, not an outlier.
+   - Aim every criticism at the SYSTEM (streaming is anonymous by design, fixed pricing is what
+     the whole industry taught) and never at the artist's judgment. This also keeps the
+     positioning rule that streaming is the discovery job, not the villain: the platform is not
+     evil, it just cannot hand over a relationship it was never built to hold.
+   - State the artist's existing business as a real achievement, in specifics, not as a setup.
 5. Pool entries flagged `upper-bound` need an explicit hard-pivot sanity check before use; entries
    are candidates, not facts. If the user names an artist not in the pool, research their ICP fit
    first and add them to the pool file in the same session.
@@ -469,9 +485,12 @@ recurring format, not an occasional family.
 1. **Pick an AXIS first, then the artists.** The matchup only works when two real operating models
    sit at opposite ends of ONE fan-economy axis. Two famous names with similar businesses is not a
    versus, it is a list.
-2. **Both sides must be genuinely good at what they do.** If one is a punchline the argument is
-   over and nobody shares it. The rule that keeps it honest: **the side that "loses" the number
-   usually owns the HARDER thing to build.** Say that out loud in the script.
+2. **THERE IS NO LOSER. Both sides must be genuinely good at what they do.** If one is a punchline
+   the argument is over, nobody shares it, and CRWN just insulted a prospect (rule 4b). The rules
+   that keep it honest: **the side that "loses" the number owns the HARDER thing to build**, say
+   that out loud, and **give both sides a concrete win inside the reveal itself, not only in a
+   fairness line at the end** where it arrives too late to change how the video felt. The number
+   favors one model on ONE axis; the script must say what the number does not measure.
 3. **The reveal is an EQUIVALENCE, never a verdict.** "400 people spent what 1.5 million spend in
    eight months." "One paying member is 222 listeners." A ratio travels; "X is better than Y"
    starts a fight about the artists instead of the idea.
@@ -673,6 +692,8 @@ its own META. End the chat response with clickable markdown links to the saved f
 ## Final validation checklist (run per script before saving)
 
 - [ ] Artist is from/added to the pool, ICP-scale sane (hard pivot not absurd), matched to concept
+- [ ] **Repost test:** the named artist (BOTH of them in a versus) would comfortably repost this.
+      No verdict verbs, the gap is a door nobody built them, and the gap is named as universal
 - [ ] "and artists like [him/her/them]" (or equivalent) appears early
 - [ ] Hook opens a concrete unresolved question; no throat-clearing; no CRWN at the top
 - [ ] **Hook-Reveal Contract:** Test A (reveal answers the hook, read alone), Test B (hook makes

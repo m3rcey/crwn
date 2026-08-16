@@ -3,7 +3,7 @@
 **SCRIPT:**
 
 Eric Bellinger has 3 million monthly listeners. Tee Grizzley has 90,000 people paying him every month.
-Which one is the better business, and by how much, is a number that should change what independent artists like them chase next.
+Which of them two numbers is worth more, and by how much, is something that should change what independent artists like them build next.
 
 Let's run it.
 
@@ -35,8 +35,8 @@ Which means one paying member is worth about 222 listeners.
 
 But the money aint even the sharpest part.
 Tee Grizzley can name his 90,000. He can message them, price them, watch them come back.
-Eric Bellinger cannot name one of his 3 million, because Spotify dont hand them over.
-One of them businesses can pick up the phone. The other one can only keep releasing and hope.
+Nobody can name they streaming listeners though. Not Eric Bellinger, not me, not you: Spotify wasnt built to hand a relationship over, so it dont.
+One of them businesses can pick up the phone. The other one has to wait to get found again, and that's the platform's design, not the artist's fault.
 
 Now be fair about it: Bellinger's catalog is the discovery machine Tee Grizzley does not have, and 3 million people finding you every month is the hardest part to build. Tee's numbers is his own reported figures.
 So the question aint who's winning. It's this:

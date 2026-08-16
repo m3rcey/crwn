@@ -35,7 +35,8 @@ Letting them choose produced almost six times the same crowd.
 
 And one fan in there paid $11,000 by himself.
 That's the part that should rewire how you think about a price tag.
-A fixed price aint just a price, it's a ceiling AND a floor. It turns away the fan who only had five dollars and it caps the one who would have paid a thousand.
+A fixed price aint just a price, it's a ceiling AND a floor. It quietly turns away the fan who only had five dollars, and it caps the one who would have paid a thousand.
+And that aint a Larry June thing, that's how every one of us was taught to price, me included.
 Larry June's number is dependable. LaRussell's number found somebody nobody knew existed.
 
 Now to be fair, LaRussell's way is riskier and Larry June's product business is real, predictable money you can plan a year around.
