@@ -121,8 +121,31 @@ artist, add the full entry in the same session.
 
 ### Sammie
 - lane: R&B
-- why ICP-fit candidate: legacy name, independent era, engaged core
-- cautions: full entry pending first research pass
+- why ICP-fit: 25-year legacy name (I Like It, 1999), independent resurgence; says himself he
+  "made it" only ~6 years ago via independence + the Millennium Tour (researched 2026-08)
+- known behavior to research: Millennium Tour runs, independent release cadence, grown-R&B core
+- pairs well with: business redesign (post-tour capture), missed money, LTV
+- cautions: reliable IG count NOT found (search surfaced an 18K account that is likely not his
+  main); avoid follower math until verified; anchor on career facts and his own quotes
+
+### Dom Kennedy
+- lane: LA hip hop
+- why ICP-fit: the canonical LA independent: OPM since 2010, declined Interscope in 2013, 15+
+  years of vinyl, merch and headline touring with no major (researched 2026-08; IG inside the
+  Tier 1 band)
+- known behavior to research: OPM history, vinyl pressings, current tour routing
+- pairs well with: hidden asset (repeat buyers), evidence/proof, catalog
+- cautions: none beyond re-verifying counts per use
+
+### Money Man
+- lane: Atlanta hip hop
+- why ICP-fit: paid to exit Cash Money (self-reported $250K, 2020), owns masters via Black
+  Circle Family with a 10-album EMPIRE partnership, took a $1M advance in Bitcoin (2021, first
+  artist paid that way); prolific releaser (researched 2026-08)
+- known behavior to research: deal terms as reported, release cadence, financial-literacy brand
+- pairs well with: contrarian (ownership), catalog, business redesign
+- cautions: deal figures are SELF-reported, attribute as "by his own account"; reliable IG count
+  not found, avoid follower math until verified
 
 ### Eric Roberson
 - lane: R&B/soul
