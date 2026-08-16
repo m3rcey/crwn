@@ -11,7 +11,7 @@
 //   - the load-bearing gates (curiosity-gap rule, reveal ordering, 128 rules) get edited out,
 //   - an em dash lands in copy that gets pasted into user-facing scripts.
 import { describe, it, expect } from 'vitest';
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { LEAD_MAGNETS, EXTERNAL_TOOLS } from '@/lib/leadMagnets/registry';
 
@@ -96,6 +96,7 @@ describe('FE-SKILL-003 the load-bearing gates cannot be silently edited out', ()
     'Awareness-ladder validation',
     'Batch surface variation',
     'Voice (founder correction, 2026-08-16)',
+    'THE HOOK-REVEAL CONTRACT',
   ];
   for (const a of anchors) {
     it(`still carries: ${a}`, () => {
@@ -103,11 +104,45 @@ describe('FE-SKILL-003 the load-bearing gates cannot be silently edited out', ()
     });
   }
 
-  it('the eval doc still carries all eight fixtures', () => {
-    for (let i = 1; i <= 8; i++) {
+  it('the eval doc still carries all nine fixtures', () => {
+    for (let i = 1; i <= 9; i++) {
       expect(evalDoc.includes(`## ${i}.`), `EVAL.md lost fixture ${i}`).toBe(true);
     }
   });
+
+  it('the Hook-Reveal Contract still documents all three tests and the META field', () => {
+    // The contract is only enforceable if its checks survive. Losing Test C is how the
+    // mid-script reveal question creeps back in, which is exactly the Money Man failure.
+    for (const t of ['Test A', 'Test B', 'Test C', 'Hook promise:']) {
+      expect(skill.includes(t), `the Hook-Reveal Contract lost ${t}`).toBe(true);
+    }
+  });
+});
+
+describe('FE-SKILL-006 every saved script declares its hook promise', () => {
+  // The written half of the Hook-Reveal Contract. A script whose META cannot state what its
+  // opening made the viewer wait for is a script whose reveal probably answers something else,
+  // which shipped three times on 2026-08-16 before this gate existed.
+  const SCRIPT_DIR = join(ROOT, 'videos', 'scripts', 'fan-economy');
+  const scripts = existsSync(SCRIPT_DIR)
+    ? readdirSync(SCRIPT_DIR).filter((f) => f.endsWith('.md'))
+    : [];
+
+  it('the script library exists and is non-empty', () => {
+    expect(scripts.length, 'no fan-economy scripts found; the folder moved or emptied').toBeGreaterThan(0);
+  });
+
+  for (const file of scripts) {
+    it(`${file} carries a Hook promise and a Big Reveal in its META`, () => {
+      const body = readFileSync(join(SCRIPT_DIR, file), 'utf8');
+      expect(body.includes('**META:**'), `${file} has no META line`).toBe(true);
+      expect(
+        /Hook promise:\s*\S+/.test(body),
+        `${file} does not declare a "Hook promise:" in its META, so its Hook-Reveal Contract was never written down`
+      ).toBe(true);
+      expect(/Big Reveal:\s*\S+/.test(body), `${file} does not declare a "Big Reveal:"`).toBe(true);
+    });
+  }
 });
 
 describe('FE-SKILL-004 the artist pool keeps the ICP pivot sane', () => {

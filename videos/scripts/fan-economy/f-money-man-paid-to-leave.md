@@ -3,7 +3,7 @@
 **SCRIPT:**
 
 Money Man paid $250,000 to get OUT of his record deal.
-Not to sign one. To LEAVE one. And if that sound backwards to you, this is for you and every independent artist like you.
+Not to sign one. To LEAVE one. And what he got offered AFTER he owned everything is the number independent artists like him should be paying attention to.
 
 Here's the story.
 
@@ -16,8 +16,8 @@ He went back to his own label, Black Circle Family. Kept 100% ownership of his m
 Partnered with EMPIRE for distribution on HIS terms: 10 albums, and he keep his masters.
 He drop when he want, price how he want, and everything route back to something he own.
 
-So was it worth it? What did that $250,000 actually turn into?
-The answer is the part people dont talk about enough.
+So back to that number I told you about.
+What did paying $250,000 to walk away actually get him? Cause that's the part people dont talk about enough.
 
 Real quick.
 Masters is one half of owning your business. The FAN half is the other one.
@@ -46,6 +46,7 @@ Comment FREE and I'll DM you the link.
 
 **META:** Artist: Money Man · Family: F/Contrarian · Mechanism: ownership economics (masters half + fan half) ·
 Metric: reported deal facts ($250K exit self-reported, Digital Music News 2020-11; $1M EMPIRE Bitcoin advance, Billboard/AllHipHop 2021-11; Black Circle Family + 10-album EMPIRE terms, Billboard); follower math deliberately avoided (counts unverified) ·
-Withheld variable: what the exit turned into (the $1M advance) · Big Reveal: money (reported, leverage flip) ·
+Hook promise: what number he got offered AFTER paying to own everything ·
+Withheld variable: what the exit turned into (the $1M advance) · Big Reveal: money (the $1,000,000 Bitcoin advance, reported) ·
 Wow Factor: contrarian (deals chase owners) · Lead magnet: opportunity-calculator + FREE ·
 CRWN claim tier: shipped (fan relationships, sales, list in one place; distribution/masters explicitly NOT claimed)

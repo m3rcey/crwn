@@ -263,17 +263,80 @@ Intermediate math may build credibility; reveal math stays unresolved. **The tes
 average viewer reasonably calculate the promised answer before you say it? If yes, the script
 failed. Rewrite before saving.
 
+## THE HOOK-REVEAL CONTRACT (hard gate, sits alongside the math rule)
+
+> **The primary Big Reveal must answer the curiosity gap created in the FIRST HOOK BEAT, not a
+> gap introduced halfway through the script.**
+
+The math rule above protects the reveal from being computed early. This rule protects it from
+answering the wrong question. Both must pass; neither substitutes for the other.
+
+**Before drafting, write these two lines down (they ship in the META):**
+
+- **Hook promise:** the exact unanswered question or outcome sentence one makes the viewer wait for.
+- **Big Reveal:** the exact fact, number or outcome that answers it.
+
+They must be close enough that this sentence is true: **if the Big Reveal were deleted, the viewer
+would feel the opening was never answered.** If it is not true, rewrite the hook or change the
+reveal. Do not proceed with a mismatch.
+
+**The failure this prevents (real, 2026-08-16).** A shipped script opened "Money Man paid $250,000
+to get OUT of his record deal," which promises WHY he did it. The real reveal question ("what did
+that $250,000 turn into?") first appeared halfway through, and the Big Reveal was a $1,000,000
+advance nobody had been told to wait for. The script opened one loop and closed another. Two more
+scripts from the same batch failed the same way, so this is the failure mode of STATEMENT hooks
+that promise an identity or a reason: the middle answers them, and the number arrives unpromised.
+
+**Reveal type governs what the hook must tease.** The viewer should be able to predict the KIND of
+answer coming, never its magnitude:
+
+| Big Reveal type | The hook must make them wait for |
+|---|---|
+| Money | a dollar outcome ("what he was offered after", "how much that is worth") |
+| Scale | how much reach or how many people the fanbase could create |
+| Market-signal | which idea or option the fans would actually prove they wanted |
+| Concentration | how small a slice of the audience it would take |
+| Time / production | how much work the fanbase creates or replaces |
+| LTV | what one buyer is actually worth beyond the first sale |
+| Compounding | how far the thing spreads on its own |
+| Asset | what the old thing turns out to be worth |
+| Historical / proof | what happened NEXT, or what the decision led to |
+
+**Three tests, mandatory before saving.** Run them on the finished draft:
+
+- **Test A (alignment).** Read ONLY the hook and the Big Reveal, ignoring everything between.
+  Does the reveal clearly answer what the hook made you wait for? If no, rewrite.
+- **Test B (predictable kind).** From the hook alone, could a viewer name the KIND of answer
+  coming (money, reach, buyers, demand, what happened next, which option won, how small a
+  percentage)? If the hook promises one kind and the reveal delivers another, fail.
+- **Test C (origin).** Was the true reveal question first introduced in the MIDDLE of the script?
+  If yes, fail: move it into the hook.
+
+**This is not a mandate for numerical hooks.** Non-money reveals are encouraged and the families
+stay diverse. "LaRussell did something with his fans that changes how I think artists like him
+should price music" correctly promises a pricing/demand result. The requirement is alignment, not
+arithmetic.
+
+**The Wow Factor is exempt and must stay exempt.** The hook promises the BIG REVEAL only. The Wow
+Factor stays unexpected; never tease it up front unless it is genuinely the primary reveal.
+
 ## Canonical script architecture (18 beats, standard case-study scripts)
 
 Conversational and fluid; the structure is invisible. Never print beat labels in the finished
 script unless the user asks for an annotated version.
 
-1. **HOOK**: recognizable ICP-fit artist + "and artists like [him/her/them]" + a concrete
-   unresolved question, usually money/opportunity. Canonical: "How much money could [Artist] and
-   artists like him be missing because [unrecognized problem]?" Approved alternatives: "What would
-   happen if..." / "Which is actually worth more..." / "I think [Artist] has something more
-   valuable than..." / "If I ran [Artist]'s Fan Economy..." / "[Artist] just proved something..."
-   A non-financial hook still must open a concrete unanswered question.
+1. **HOOK**: recognizable ICP-fit artist + "and artists like [him/her/them]" + the PRIMARY
+   curiosity promise, which is the question the Big Reveal will answer (see the Hook-Reveal
+   Contract above; write the promise down before drafting). Ideally sentence one carries all
+   three: artist, ICP bridge, promise. Canonical: "How much money could [Artist] and artists like
+   him be missing because [unrecognized problem]?" Approved alternatives: "What would happen
+   if..." / "Which is actually worth more..." / "I think [Artist] has something more valuable
+   than..." / "If I ran [Artist]'s Fan Economy..." / "[Artist] just proved something..."
+   **A statement hook is only complete when it also points at the outcome.** "[Artist] did
+   [surprising action]" promises WHY, and the middle will answer that, leaving the reveal
+   unpromised. Extend it: "[Artist] did [surprising action], but what happened after is the part
+   independent artists like him should pay attention to." A non-financial hook still must open a
+   concrete unanswered question, and it must be the SAME question the reveal closes.
 2. **ANALYSIS TRANSITION**: "Let's run the numbers." / "Let's break it down." / "Here's why."
 3. **ARTIST-SPECIFIC EXISTING BEHAVIOR**: researched, real evidence the artist/fans already do
    something relevant. Viewer thinks: the demand already exists.
@@ -286,8 +349,11 @@ script unless the user asks for an annotated version.
 7. **CONSERVATIVE ASSUMPTIONS**: one idea per line, no formula dumps, no accidental spoilers.
 8. **PRE-REVEAL BUILD**: close enough to feel the answer will be meaningful; the withheld
    variable stays withheld.
-9. **TEASE THE BIG REVEAL** (mandatory for numerical scripts): tease the REACTION, never the
-   timing. "He said the number and it still sound hard to believe." / "I priced one single night
+9. **TEASE THE BIG REVEAL** (mandatory for numerical scripts): this beat RE-OPENS and intensifies
+   the gap the hook already created. It may NEVER be the first place the viewer learns which
+   answer they are waiting for (that is Test C, and it is how the Money Man script failed). If
+   deleting the hook would leave this beat as the only statement of the reveal question, the hook
+   is broken, not this beat. Tease the REACTION, never the timing. "He said the number and it still sound hard to believe." / "I priced one single night
    of that, and the yearly number embarrassed me." Josh cuts timing announcements ("One second.",
    "Small detour, thirty seconds.", "I'll give it to you in a second") on sight; at most one
    light holder like "Hold that thought." per script. Do NOT reveal yet.
@@ -297,7 +363,10 @@ script unless the user asks for an annotated version.
     "ANYWAY..." back to the open question. Keep it to 3-4 lines; never label the detour twice
     (a tease that says "small detour" AND an entry that says it again both got cut). It must
     feel like a sidenote, never an ad break.
-11. **BIG REVEAL**: close the hook's loop. For financial hooks give monthly and, when relevant,
+11. **BIG REVEAL**: close the PRIMARY loop, the one sentence one opened, in the kind of answer the
+    hook promised. A secondary gap opened during the analysis (why the system is broken, how the
+    mechanism works, why the artist moved that way) is answered earlier and may never quietly
+    become the Big Reveal. For financial hooks give monthly and, when relevant,
     annual or total. The withheld variable can surface here: "At just $10 each, that's 940 fans
     representing roughly $9,400 in demonstrated demand."
 12. **WOW FACTOR / SECOND REVEAL**: AFTER the Big Reveal, never before. "But here's the crazy
@@ -496,9 +565,15 @@ File and chat output, in this order:
 ---
 
 **META:** Artist: [name] · Family: [letter/name] · Mechanism: [name] ·
-Metric: [anchor + source/date] · Withheld variable: [which] · Big Reveal: [type] ·
+Metric: [anchor + source/date] · Hook promise: [the exact question sentence one opens] ·
+Withheld variable: [which] · Big Reveal: [type, and the fact that closes the hook promise] ·
 Wow Factor: [type] · Lead magnet: [slug + keyword] · CRWN claim tier: [shipped|partial|conceptual]
 ```
+
+**`Hook promise:` is mandatory in every META line.** It is the written half of the Hook-Reveal
+Contract, and `fanEconomySkillContract.test.ts` fails the suite if a saved script omits it. Read
+it next to the `Big Reveal:` field: if the two do not obviously answer each other, the script is
+not ready to save.
 
 The META line is the only annotation by default. Multiple scripts: clearly separated, each with
 its own META. End the chat response with clickable markdown links to the saved files.
@@ -508,6 +583,9 @@ its own META. End the chat response with clickable markdown links to the saved f
 - [ ] Artist is from/added to the pool, ICP-scale sane (hard pivot not absurd), matched to concept
 - [ ] "and artists like [him/her/them]" (or equivalent) appears early
 - [ ] Hook opens a concrete unresolved question; no throat-clearing; no CRWN at the top
+- [ ] **Hook-Reveal Contract:** Test A (reveal answers the hook, read alone), Test B (hook makes
+      the KIND of answer predictable), Test C (the reveal question was NOT first introduced
+      mid-script). `Hook promise:` written into the META
 - [ ] Artist behavior and audience numbers are researched, current, and hedged appropriately
 - [ ] Audience metric matches the mechanism; participating counts derived, never arbitrary
 - [ ] All math re-multiplied and internally consistent

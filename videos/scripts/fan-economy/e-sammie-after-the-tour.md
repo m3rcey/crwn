@@ -3,7 +3,7 @@
 **SCRIPT:**
 
 If I ran Sammie's fan economy, I would change exactly one thing about how he tours.
-And artists like him, especially my R&B artists, gon want to steal this.
+And what that one change could be worth BETWEEN tours is the number artists like him, especially my R&B artists, be sleeping on.
 
 Quick backstory.
 
@@ -49,6 +49,7 @@ Comment TOUR and I'll DM you the link.
 
 **META:** Artist: Sammie · Family: E/Business Redesign · Mechanism: post-show capture / VIP membership between tours ·
 Metric: behavior-anchored (Wikipedia: I Like It 1999; Bossip interview: "made it 6 years ago", Millennium Tour resurgence); tour reach illustrative and hedged, follower math deliberately avoided (counts unverified) ·
-Withheld variable: capture rate + membership price · Big Reveal: money ·
+Hook promise: what the one touring change could be worth between tours ·
+Withheld variable: capture rate + membership price · Big Reveal: money ($216,000 a year between tours) ·
 Wow Factor: loss reframe (the 99% handed back to the ticket company) · Lead magnet: between-tour-calculator + TOUR (paused tool, closest fit) ·
 CRWN claim tier: shipped (membership tiers, fan CRM, email-list import)
