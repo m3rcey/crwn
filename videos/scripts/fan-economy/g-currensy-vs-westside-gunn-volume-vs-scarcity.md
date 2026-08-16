@@ -24,6 +24,7 @@ So I priced them against each other. One pressing against a million and a half l
 When the two numbers landed next to each other I had to sit back.
 
 Hold that thought.
+You dont need to market to fans. You need a market FOR fans.
 Reach and depth aint the same job, and most artists only got tools for the first one.
 Knowing which of your people actually buy, and giving them something only they can get, is what the CRWN app is built around: your membership ladder and a vault your top members get into.
 ANYWAY.

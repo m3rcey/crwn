@@ -24,6 +24,7 @@ Say only 2% of them ever bought anything direct in 15 years: a record, a ticket,
 Most bought once. But the ones that keep coming back? When I put a number on what just the repeat buyers could be worth in a year, it caught me off guard.
 
 Quick sidenote.
+You dont need to market to fans. You need a market FOR fans.
 An audience is something you count. An economy is something you KNOW: who pays, who repeats, who wants more.
 That's what artists use the CRWN app for: every member, buyer and contact in one place, with a ladder for the ones that want to go deeper.
 ANYWAY.

@@ -20,13 +20,14 @@ So back to that number I told you about.
 What did paying $250,000 to walk away actually get him? Cause that's the part people dont talk about enough.
 
 Real quick.
+You already know how to market to fans. Now you need a market FOR fans.
 Masters is one half of owning your business. The FAN half is the other one.
 The relationships, the sales, the list of who actually pays you: that half is what artists run on the CRWN app today, all in your name.
 Cause owning your music and renting your audience is only half free.
 ANYWAY.
 
 A year after he left, EMPIRE paid Money Man a $1,000,000 advance. In Bitcoin. First artist ever paid like that.
-Read that order of events again.
+Let that marinate
 He paid $250,000 to be free. Then a distributor paid HIM a million, while he kept everything.
 
 But watch what that actually means.

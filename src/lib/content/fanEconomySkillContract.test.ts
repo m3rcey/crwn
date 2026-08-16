@@ -142,6 +142,16 @@ describe('FE-SKILL-006 every saved script declares its hook promise', () => {
       ).toBe(true);
       expect(/Big Reveal:\s*\S+/.test(body), `${file} does not declare a "Big Reveal:"`).toBe(true);
     });
+
+    it(`${file} says the market-FOR-fans signature line`, () => {
+      // Founder decision 2026-08-16: the series thesis appears in every script, inside the
+      // sidenote. Three approved variants, so this matches the invariant half of the sentence.
+      const body = readFileSync(join(SCRIPT_DIR, file), 'utf8');
+      expect(
+        /market FOR fans/i.test(body),
+        `${file} never says the signature line ("...you need a market FOR fans")`
+      ).toBe(true);
+    });
   }
 });
 
