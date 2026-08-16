@@ -1,7 +1,7 @@
 // PAUSED MEANS UNPROMOTED, NEVER BROKEN.
 //
-// The 2026-08-13 pre-PMF surface reduction cut the publicly promoted calculator set to the six
-// with content actually driving them. Every other tool stays fully live: same route, same slug,
+// The 2026-08-13 pre-PMF surface reduction cut the publicly promoted calculator set to the
+// tools with content actually driving them (live-experience re-promoted 2026-08-16). Every other tool stays fully live: same route, same slug,
 // same analytics toolId, same DM keywords, same result links. The ONLY thing that changes is
 // whether it appears in the /tools directory.
 //
@@ -21,10 +21,12 @@ const EXPECTED_PROMOTED = [
   'executive-producer-session',
   'own-your-fans-calculator',
   'opportunity-calculator',
+  // Founder decision 2026-08-16: Live Experiences is promoted in content with EP Sessions.
+  'live-experience-calculator',
 ];
 
-describe('the promoted set is exactly the six with content behind them', () => {
-  it('promotes those six and nothing else', () => {
+describe('the promoted set is exactly the tools with content behind them', () => {
+  it('promotes exactly the expected set and nothing else', () => {
     expect([...PROMOTED_TOOL_KEYS].sort()).toEqual([...EXPECTED_PROMOTED].sort());
   });
 

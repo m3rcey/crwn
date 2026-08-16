@@ -656,10 +656,12 @@ const LIVE_EXPERIENCE = lossToolBase({
   dmKeywords: ['live'],
   hero: {
     headline: 'Going live only to promote is why nobody pays to watch.',
-    subheadline: 'A few minutes of "thanks for pulling up" is not an event, so no one buys a ticket, no one tips, and there is nothing left to sell when it ends. Your most committed fans will pay for real access, and they are a small part of your audience worth far more than the rest. See what one real ticketed live a month is worth.',
+    // Re-promoted 2026-08-16: trimmed to the shared above-the-fold budget (28 words, 2
+    // sentences); the long argument this replaced lives on the lower page via the doorway.
+    subheadline: 'A free promo stream earns nothing and disappears when it ends. See what one real ticketed live a month is worth to your most committed fans.',
     primaryCta: 'See what I am losing',
-    image: '/tool-live-experience.jpg',
-    imageAlt: 'An artist performing a stripped-down set under warm gold light',
+    image: '/hero-live-experience.webp',
+    imageAlt: 'Illustration of an artist singing under a gold stage light to an almost full arc of seats',
   },
   resultGeneratorKey: 'liveExperience',
   analyticsMetadata: { toolId: 'live-experience-calculator', category: 'Monetize', promotedFeature: 'Live Experiences' },

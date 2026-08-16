@@ -46,7 +46,8 @@ interface FunnelOverlay {
 // Worth funnel (secondary) are ranked here; every other tool is neutral 'none' and can be promoted
 // later by editing its overlay (or, in a later phase, an admin_settings override) with no code move.
 /**
- * PROMOTED SET — the calculators this phase actually drives content to (2026-08-13).
+ * PROMOTED SET — the calculators this phase actually drives content to (2026-08-13;
+ * live-experience re-promoted 2026-08-16).
  *
  * Derived, not hardcoded per tool: anything NOT in this set defaults to lifecycle 'paused', so
  * adding the 21st calculator cannot silently promote itself, and removing one from this set is a
@@ -68,6 +69,10 @@ export const PROMOTED_TOOL_KEYS: ReadonlySet<string> = new Set([
   'executive-producer-session', // PRODUCER
   'own-your-fans-calculator',   // OWN
   'opportunity-calculator',     // FREE / PLAN
+  // Re-promoted 2026-08-16 (founder decision): Live Experiences is actively promoted in content
+  // alongside Executive Producer Sessions, and the two are deliberate siblings (EP sells one
+  // seat in the room; this sells the show itself). Same keyword as always: LIVE.
+  'live-experience-calculator', // LIVE
 ]);
 
 /** A tool's lifecycle: its overlay wins, otherwise promoted -> active, everything else paused. */

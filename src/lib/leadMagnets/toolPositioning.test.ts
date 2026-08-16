@@ -59,11 +59,14 @@ function promotedCopy(): string {
 }
 
 describe('the promoted set and its doorways cannot drift apart', () => {
-  it('is exactly the six intentional public acquisition doors', () => {
+  it('is exactly the intentional public acquisition doors', () => {
+    // Seven since 2026-08-16: the founder is promoting Live Experiences in content alongside
+    // Executive Producer Sessions, so its calculator rejoined the set with a doorway, a trimmed
+    // hero and its own illustrated webp, the same contract as the original six.
     expect([...PROMOTED_MARKETING_SLUGS]).toEqual(
-      ['executive-producer-session', 'opportunity-calculator', 'own-your-fans-calculator', 'share-to-earn-planner', 'vault-revenue-planner', 'worth'],
+      ['executive-producer-session', 'live-experience-calculator', 'opportunity-calculator', 'own-your-fans-calculator', 'share-to-earn-planner', 'vault-revenue-planner', 'worth'],
     );
-    expect(PROMOTED_MARKETING_SLUGS).toHaveLength(6);
+    expect(PROMOTED_MARKETING_SLUGS).toHaveLength(7);
   });
 
   it('every promoted tool owns a doorway, and no paused tool does', () => {
@@ -89,7 +92,7 @@ describe('the promoted set and its doorways cannot drift apart', () => {
     }
   });
 
-  it('keeps six DISTINCT hooks, so the pass did not flatten six doors into one page', () => {
+  it('keeps every hook DISTINCT, so the pass did not flatten the doors into one page', () => {
     const titles = Object.values(TOOL_DOORWAYS).map((d) => d.revealsTitle);
     expect(new Set(titles).size).toBe(titles.length);
   });
@@ -229,7 +232,7 @@ describe('every headline opens on a brand photograph', () => {
     expect(toolHeroCode).not.toContain('SectionImage');
   });
 
-  it('gives all six promoted heroes the illustrated set, each one its own', () => {
+  it('gives every promoted hero the illustrated set, each one its own', () => {
     // Above the fold matters more than below it: a photographic hero over illustrated sections
     // reads as two brands on one page.
     const heroes = PROMOTED_MARKETING_SLUGS.map((slug) => {
@@ -244,8 +247,8 @@ describe('every headline opens on a brand photograph', () => {
       // Alt describes an illustration for a screen reader, not a slug.
       expect(h.alt.split(/\s+/).length, `${h.slug} alt`).toBeGreaterThan(4);
     }
-    // Six doors, six images.
-    expect(new Set(heroes.map((h) => h.src)).size).toBe(6);
+    // As many images as doors: uniqueness is the property, so derive the count from the set.
+    expect(new Set(heroes.map((h) => h.src)).size).toBe(heroes.length);
   });
 
   it('renders four elements in the hero and nothing else', () => {

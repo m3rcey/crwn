@@ -15,8 +15,9 @@ CRWN is **live in production** (`thecrwn.app`) and the core money loop is real a
     payouts/billing/referrals, account + support; bottom nav = 3 artist slots, 2 fan slots; fan
     product = Home (next-action), artist pages, Library (with ReferralDashboard = the whole
     Share-to-Earn loop), notifications; admin = 8 tabs (Dashboard scorecard, Acquisition, Lead
-    Magnets, Funnel, Pipeline, Support, Money Model, Email Health); promoted calculators = the 6
-    with content behind them (worth, vault, share, producer, own, opportunity).
+    Magnets, Funnel, Pipeline, Support, Money Model, Email Health); promoted calculators = the 7
+    with content behind them (worth, vault, share, producer, own, opportunity, and
+    live-experience, re-promoted 2026-08-16).
   - **ACTIVE + hidden (routes work, not indexed):** quests board, AI Manager, Needs You,
     playbooks, Royalty Readiness (flag still ON), all fan-mobilization mechanics, Campaign Hub,
     Road To, smart links, Team Splits surfaces, Sync, DMs/broadcast, Explore, fan calendar,
@@ -24,7 +25,9 @@ CRWN is **live in production** (`thecrwn.app`) and the core money loop is real a
     window, discount codes, booking, recruiter program surfaces, admin ?tab= secondaries
     (avatars, experiments, crm, partners, access, sequences), the 14 paused calculators (routes,
     slugs, dmKeywords all live; only the /tools directory hides them).
-  - **FLAG OFF (pending founder SQL):** live_tips via supabase/flag-off-live-tips.sql.
+  - **FLAG OFF:** none. (A live_tips flag-off was staged 2026-08-13 and RETRACTED 2026-08-16
+    before it ran: Live Experiences + EP Sessions are promoted in content, and tips are part of
+    the live room those funnels sell. The flag was never turned off in production.)
   - **Schedule disabled, code kept (re-enable triggers in UNSCHEDULED_CRON_EXCEPTIONS):**
     fan-digest, inactive-subscribers, sequence-conversions, lead-scoring, clipper-rate-drops,
     team-split-accruals, agent-health, admin agent briefing, recruiter-qualify + recruiter-

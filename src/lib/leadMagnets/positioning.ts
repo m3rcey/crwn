@@ -77,6 +77,18 @@ export const TOOL_DOORWAYS: Record<string, ToolDoorway> = {
       'Where the session sits decides what it earns. As a benefit it is what makes your top rung worth its price and it earns nothing separately. Sold as seats it earns on its own, from fans who are not members, and the model prices it for your audience size rather than assuming a room without limits.',
   },
 
+  // The sibling of the Executive Producer doorway, deliberately the other half of one idea: EP
+  // sells one seat in the room where the work is made, this sells the show itself. Re-promoted
+  // 2026-08-16 because both are actively promoted in content.
+  'live-experience-calculator': {
+    lens: 'What this reveals',
+    revealsTitle: 'A free stream is a show with no box office.',
+    revealsBody:
+      'Going live only to promote makes every stream free, unticketed and gone the second it ends, so the hour you spend performing earns nothing and leaves nothing behind. The figure above is what that same hour is worth when it is an event with a door price: your most committed fans will pay for real access, and they are a small part of your audience worth far more than the rest of it.',
+    connectsBody:
+      'Where the live sits decides what it earns. Tickets earn on their own from any fan, member or not, and the replay becomes membership material your paying rungs keep. The Executive Producer Session is the premium version of the same idea: fewer seats, in the room where the work happens, at many times the price.',
+  },
+
   // Platform reach versus an IDENTIFIABLE, PERMISSIONED relationship. Never literal ownership.
   'own-your-fans-calculator': {
     lens: 'What this reveals',

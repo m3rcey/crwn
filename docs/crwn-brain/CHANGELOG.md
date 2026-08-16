@@ -1,5 +1,23 @@
 # CRWN Brain — Changelog
 
+## 2026-08-16 - Live Experiences re-promoted; the live_tips flag-off is retracted
+
+**Founder decision: both Live Experiences and Executive Producer Sessions are being promoted in
+content, so both belong in the visible funnel.**
+
+What actually changed is smaller than the ask, because most of it was never taken away:
+Executive Producer Sessions was already in the promoted calculator set (PRODUCER, 7 scripts), its
+flag was already ON, and its surfaces ride the Live room, whose Studio tile survived the surface
+reduction. Verified end to end rather than rebuilt.
+
+Live Experiences needed two things. Its calculator (`live-experience-calculator`, keyword LIVE)
+joins `PROMOTED_TOOL_KEYS`, so the promoted set is now SEVEN and the tool reappears in the /tools
+directory; pausing had touched nothing else, so there was nothing else to restore. And the staged
+live_tips flag-off (`supabase/flag-off-live-tips.sql`) is RETRACTED and deleted before it was ever
+run: its premise was "live is not on any promoted content path this phase", which this decision
+falsifies, and tips are part of the live room those funnels sell. The flag was never turned off in
+production, so there is nothing to undo.
+
 ## 2026-08-15 - Brand imagery becomes flat vector poster art, and the hero is rebuilt around the fold
 
 **Founder decision: every image generated for the app or an email is now a flat vector poster

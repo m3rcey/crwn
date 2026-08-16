@@ -87,14 +87,13 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
-- [ ] **Two quick SQL runs to finish the surface reduction.** Both self-verify and are safe to
-      run in any order.
-      **1. Turn off live tips** (0 tips ever; the tip bar and checkout stop rendering, nothing
-      is deleted, reversal is the same row). Open and run:
-      [`supabase/flag-off-live-tips.sql`](supabase/flag-off-live-tips.sql)
-      **2. Drop the retired Manager outcome columns** (never written; the file ABORTS if any row
-      unexpectedly holds data, so a surprise is a loud error, not a loss). Open and run:
+- [ ] **One quick SQL run to finish the surface reduction: drop the retired Manager outcome
+      columns** (never written; the file ABORTS if any row unexpectedly holds data, so a surprise
+      is a loud error, not a loss). Open and run:
       [`supabase/schema-phase2-drop-manager-outcome-schema.sql`](supabase/schema-phase2-drop-manager-outcome-schema.sql)
+      (A live_tips flag-off used to be step 1 here. RETRACTED 2026-08-16, file deleted: you are
+      promoting Live Experiences and EP Sessions in content, and tips are part of the live room
+      those funnels sell. The flag was never turned off, so there is nothing to undo.)
 
 - [ ] **RE-RUN the earnings/recruiters SELECT policy migration (the fixed version).** Open and run:
       [`supabase/schema-phase2-sec-earnings-recruiters-select-policies.sql`](supabase/schema-phase2-sec-earnings-recruiters-select-policies.sql)
