@@ -151,6 +151,28 @@ launch command screen.
    promises (`upcomingPromises`), above the current stage + next milestone it already carried.
    Real counts only, never projections dressed as results. Spec Phases 9-10.
 
+10. **Single-offer entry bridge** — SHIPPED 2026-08-16. Three tools model ONE offer instead of a
+   ladder: the Vault Revenue Planner (a recurring membership offer, so it IS the Gold rung), the
+   Live Experience Calculator and the Executive Producer Session (ticketed products, so they are
+   NOT rungs and are built in Live after setup). An artist arriving from one of them still reached
+   the ladder screen (the setup gate always wins over the journey resolver, so the four rungs were
+   never skipped) but met four tiers with a "Drop this tier" link on each and nothing arguing for
+   them: `tierProjections` is empty for these tools, so the per-rung "N fans in range" line never
+   rendered, and the cold-signup counterweight is gated on `!hasPlan`, which is false because they
+   DO have a claimed result. Two fixes, both additive:
+   `src/lib/leadResults/entryOffer.ts` (pure, tested) returns an `anchorLine` (where the thing they
+   came to build landed) and a loss-framed `ladderLine` (what keeping only that one thing costs
+   them), with every price read from `RECOMMENDED_LADDER` rather than retyped. Auto-claim returns
+   it as `seed.entryOffer`; the wizard states the anchor on `PlanIntro` ("Where yours lands") and
+   renders both on the ladder screen, the anchor ON its rung when the offer is a rung and above the
+   rungs when it is not. And `buildLadderPrefill` gained the single-offer draft as a third source,
+   so the Vault the artist named and priced pre-signup opens ON the Gold rung instead of being
+   silently replaced by a stock one; an anchor price at or below the rung beneath it keeps the
+   template price, because an inverted ladder there would be one CRWN built, and price order is
+   what the release waterfall staggers on. Known residue: a Vault artist's 30-day drop plan and
+   content list still have no post-setup surface, because `deliverableIsRedundant` (correctly)
+   suppresses the `/plan/vault-revenue-planner` restore once the wizard has created the paid tier.
+
 ALL NINE STAGES ARE SHIPPED (2026-07-30). The wizard now runs the full journey the spec asked
 for: restore the business they designed → make it operational → show the workload → prepare the
 audience → launch it. What intentionally remains beyond the staged plan: deeper per-source

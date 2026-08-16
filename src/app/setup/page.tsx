@@ -37,6 +37,7 @@ import {
   createOnboardingProduct,
 } from '@/lib/onboardingItems';
 import { RECOMMENDED_LADDER, benefitLabels, tierNameAliases, normalizeTierName } from '@/lib/tierTemplate';
+import type { EntryOffer } from '@/lib/leadResults/entryOffer';
 import { applyTemplateTier } from '@/lib/applyTierTemplate';
 import {
   planLadderPromises,
@@ -267,6 +268,9 @@ function SetupWizard() {
     tierProjections?: TierProjection[];
     /** The artist's own tier names/prices from pre-signup edits (null = stock). */
     ladderPrefill?: { key: string; name: string; priceCents: number }[] | null;
+    /** For a SINGLE-OFFER entry tool (Vault / Live / Producer Session): where the
+     *  one thing they planned landed, and why the other rungs are on the screen. */
+    entryOffer?: EntryOffer | null;
     /** The Share-to-Earn config they set in the builder (null = not configured). */
     shareToEarn?: { percent: number } | null;
     /** The derived sub-avatar journey they entered through (docs/SUB_AVATARS.md). */
@@ -802,6 +806,7 @@ function SetupWizard() {
             tierProjections={plan?.tierProjections ?? []}
             hasPlan={plan !== null}
             toolName={plan?.toolName ?? null}
+            entryOffer={plan?.entryOffer ?? null}
             contentPlan={contentPlan}
             setContentPlan={setContentPlan}
             onBulkComplete={() => {
@@ -894,6 +899,7 @@ function FieldBody({
   tierProjections,
   hasPlan,
   toolName,
+  entryOffer,
   contentPlan,
   setContentPlan,
   onBulkComplete,
@@ -921,6 +927,8 @@ function FieldBody({
   /** False only for a COLD signup: no claimed calculator result at all. */
   hasPlan: boolean;
   toolName: string | null;
+  /** Set only for a SINGLE-OFFER entry tool (Vault / Live / Producer Session). */
+  entryOffer: EntryOffer | null;
   contentPlan: 'single' | 'bulk' | 'project';
   setContentPlan: React.Dispatch<React.SetStateAction<'single' | 'bulk' | 'project'>>;
   onBulkComplete: () => void;
@@ -1007,6 +1015,7 @@ function FieldBody({
           projections={tierProjections}
           toolName={toolName}
           hasPlan={hasPlan}
+          entryOffer={entryOffer}
         />
       );
     case 'promises':
@@ -1300,6 +1309,7 @@ function LadderConfirm({
   projections,
   toolName,
   hasPlan,
+  entryOffer,
 }: {
   draft: LadderDraft;
   setDraft: React.Dispatch<React.SetStateAction<LadderDraft>>;
@@ -1308,6 +1318,8 @@ function LadderConfirm({
   toolName: string | null;
   /** False only for a COLD signup: no claimed calculator result at all. */
   hasPlan: boolean;
+  /** Set only for a SINGLE-OFFER entry tool, which models one offer and no ladder. */
+  entryOffer: EntryOffer | null;
 }) {
   const [expanded, setExpanded] = useState<string | null>(null);
   const patch = (key: string, p: Partial<LadderRungDraft>) =>
@@ -1325,6 +1337,23 @@ function LadderConfirm({
         <p className="text-xs text-crwn-text-secondary">
           {`Keep all three paid rungs to start. A fan who would happily pay you $${middlePaidDollars} has no way to do it if the only options are free or $${topPaidDollars}.`}
         </p>
+      )}
+      {/* SINGLE-OFFER ENTRY ONLY (Vault / Live / Producer Session). Those tools
+          model ONE offer, so `projections` is empty and the per-rung "N fans in
+          range" argument never renders, while `hasPlan` is true so the cold line
+          above is suppressed. This was the one path where the screen asked an
+          artist to confirm four tiers with nothing arguing for them. It says
+          where the thing they came to build landed, then what keeping only that
+          one thing costs them. Copy lives in entryOffer.ts, derived from the
+          template prices so it can never quote a number no rung carries. */}
+      {entryOffer && (
+        <div className="rounded-xl border border-crwn-gold/30 bg-crwn-gold/5 p-3 space-y-1.5">
+          {/* A rung-anchored offer says this on the rung itself, where the name
+              and price they set are visible. An offer that is NOT a rung (a
+              ticket, a seat) has nowhere to land, so it says it up here. */}
+          {!entryOffer.rungKey && <p className="text-xs text-crwn-text">{entryOffer.anchorLine}</p>}
+          <p className="text-xs text-crwn-text-secondary">{entryOffer.ladderLine}</p>
+        </div>
       )}
       {RECOMMENDED_LADDER.map((rung) => {
         const r =
@@ -1376,6 +1405,11 @@ function LadderConfirm({
                   <p className="text-xs text-crwn-gold mt-1">
                     {`Your ${toolName || 'calculator'} put about ${buyers.toLocaleString()} fans in range for this tier. Dropping it leaves them with no way to pay you.`}
                   </p>
+                )}
+                {/* The rung the single-offer artist actually came here to build,
+                    carrying the name and price they set before signup. */}
+                {entryOffer?.rungKey === rung.key && !dropped && (
+                  <p className="text-xs text-crwn-gold mt-1">{entryOffer.anchorLine}</p>
                 )}
               </div>
               {isPaid && (
@@ -1636,6 +1670,7 @@ function PlanIntro({
     ladderPrefill?: { key: string; name: string; priceCents: number }[] | null;
     subAvatar?: { id: string; label: string; promise: string } | null;
     declaredStack?: { covered: string[]; stays: string[] } | null;
+    entryOffer?: EntryOffer | null;
   };
   onContinue: () => void;
 }) {
@@ -1698,6 +1733,15 @@ function PlanIntro({
             <p className="text-xs text-crwn-text-secondary">
               <span className="text-crwn-text">Your model:</span> {modelLine}
             </p>
+            {/* An artist who came through a single-offer tool sees four rung
+                names here and no reason for them. Say where THEIR offer sits
+                before the ladder screen asks them to confirm it; the full
+                argument is on that screen, where the decision is made. */}
+            {plan.entryOffer && (
+              <p className="text-xs text-crwn-text-secondary">
+                <span className="text-crwn-text">Where yours lands:</span> {plan.entryOffer.anchorLine}
+              </p>
+            )}
             <p className="text-xs text-crwn-text-secondary">
               <span className="text-crwn-text">Recurring workload:</span> {workload}, from content you already have
             </p>

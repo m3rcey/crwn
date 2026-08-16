@@ -495,6 +495,19 @@ Things that are never finished. Cadence, then the thing.
 
 Listed so you know what you are not carrying. Ask for any of these to jump the queue.
 
+- **Single-offer entry bridge: SHIPPED 2026-08-16.** An artist who came in through the Vault
+  Revenue Planner, the Live Experience Calculator or the Executive Producer Session now gets told
+  where the one thing they planned lands and what keeping only that thing costs them, on the
+  restored-plan intro and again on the ladder screen. The Vault they named and priced before
+  signup now opens ON the Gold rung instead of being replaced by a stock one. To be clear about
+  what was NOT broken: every entry path already reached the ladder screen and already got all four
+  rungs, because the setup gate wins over the journey resolver. What was missing was the argument.
+  **One residue, your call whether it is worth anything:** a Vault artist's 30-day drop plan and
+  content list have no post-setup home. Their saved plan still exists at `/plan/vault-revenue-planner`,
+  but nothing links there once the wizard has created the tier, and nothing should re-open the
+  offer builder (it would draft a duplicate tier). Options are a link from the Promise Calendar's
+  Gold unlock, or dropping the plan on the floor deliberately. Say which and I will do it.
+
 - **Post-Win Referral V1: SHIPPED 2026-08-12.** Both your decisions are implemented and pinned by
   test: unpaid forever, never retroactively commissionable, and structurally incapable of touching
   the recruiter rail (the link uses `artist_ref`, not `ref`, precisely so it can never end up one

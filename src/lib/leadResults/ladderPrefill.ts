@@ -2,16 +2,21 @@
 // wizard's ladder screen. Pure; no I/O.
 //
 // "Restore the business they designed" means the ladder screen must open on the
-// names and prices THEY set in the builder, not the stock template. Two places
+// names and prices THEY set in the builder, not the stock template. Three places
 // those edits can live, tried in order:
 //  1. a deliverable DRAFT's field values (t0Name/t1Name/t1Price/...), written by
 //     the opportunity-calculator builder before signup,
-//  2. the calculator's modeled ladder in conversionPayload.ladder (name +
+//  2. a SINGLE-OFFER tool's draft (tierName + price), which models one rung
+//     rather than a ladder: the Vault Revenue Planner's Vault IS the Gold rung
+//     (see entryOffer.ts). Without this the artist confirmed a stock Gold and
+//     the Vault they just named and priced was silently dropped.
+//  3. the calculator's modeled ladder in conversionPayload.ladder (name +
 //     priceCents per paid rung).
 // Anything absent or junk falls back to the recommended template rung, so a
 // partial draft can never produce a broken ladder.
 
 import type { LeadMagnetSeed } from './handoffSeed';
+import { ANCHOR_RUNG } from './entryOffer';
 import { RECOMMENDED_LADDER } from '@/lib/tierTemplate';
 
 export interface LadderRungPrefill {
@@ -61,18 +66,44 @@ export function buildLadderPrefill(seed: LeadMagnetSeed | null): LadderRungPrefi
   const cpSlots = cpLadder.map((t) => ({ name: str(t.name), priceCents: cents(t.priceCents) }));
   const hasCpEdits = cpSlots.some((s) => s.name || s.priceCents != null);
 
-  if (!hasDraftEdits && !hasCpEdits) return null;
+  // A single-offer tool models ONE rung. Its draft field names are the offer's
+  // own (tierName/price), not the ladder slots above; the calculator's modeled
+  // figure in conversionPayload is the fallback for an artist who never opened
+  // the builder.
+  const anchorKey = ANCHOR_RUNG[seed.toolSlug] ?? null;
+  const anchor = anchorKey
+    ? {
+        name: str(dv?.tierName) ?? str(seed.conversionPayload?.tierName),
+        priceCents: dollarsToCents(dv?.price) ?? cents(seed.conversionPayload?.priceCents),
+      }
+    : null;
+  const hasAnchorEdits = !!anchor && (!!anchor.name || anchor.priceCents != null);
+
+  if (!hasDraftEdits && !hasCpEdits && !hasAnchorEdits) return null;
+
+  // The anchor price is the artist's own modeled number, but it was modeled for
+  // ONE offer with no ladder around it, so it can land below the rung beneath
+  // it. An inverted ladder is something WE would have created (the artist can
+  // still type any price they like on the screen), and price order is what the
+  // release waterfall staggers on, so a too-low anchor keeps the template price.
+  const anchorIndex = anchorKey ? RECOMMENDED_LADDER.findIndex((r) => r.key === anchorKey) : -1;
+  const floorCents = anchorIndex > 0 ? RECOMMENDED_LADDER[anchorIndex - 1].priceCents : 0;
+  const anchorPrice =
+    anchor?.priceCents != null && anchor.priceCents > floorCents ? anchor.priceCents : null;
 
   let paidIndex = 0;
   return RECOMMENDED_LADDER.map((rung, i) => {
     const draft = hasDraftEdits ? draftSlots[i] : null;
+    const anc = anchorKey === rung.key ? anchor : null;
     const cp = !hasDraftEdits && rung.priceCents > 0 ? cpSlots[paidIndex] : null;
     if (rung.priceCents > 0) paidIndex += 1;
     return {
       key: rung.key,
-      name: draft?.name ?? cp?.name ?? rung.name,
+      name: draft?.name ?? anc?.name ?? cp?.name ?? rung.name,
       priceCents:
-        rung.priceCents === 0 ? 0 : draft?.priceCents ?? cp?.priceCents ?? rung.priceCents,
+        rung.priceCents === 0
+          ? 0
+          : draft?.priceCents ?? (anc ? anchorPrice : null) ?? cp?.priceCents ?? rung.priceCents,
     };
   });
 }

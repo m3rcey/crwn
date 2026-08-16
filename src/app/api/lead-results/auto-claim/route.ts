@@ -16,6 +16,7 @@ import { autoClaimForUser } from '@/lib/leadResults/resultAccess';
 import { checkRateLimit } from '@/lib/rateLimit';
 import { getLeadMagnetSeed } from '@/lib/leadResults/handoffSeed';
 import { buildLadderPrefill } from '@/lib/leadResults/ladderPrefill';
+import { entryOfferFor } from '@/lib/leadResults/entryOffer';
 import { recordFunnelEvent } from '@/lib/analytics/funnelEvents';
 import { attributionDimsFor } from '@/lib/analytics/attributionLookup';
 import { recommendPlan } from '@/lib/planRecommendation';
@@ -185,6 +186,12 @@ export async function POST() {
         // The artist's OWN tier names/prices from their pre-signup edits, so the
         // wizard's ladder opens on the ladder THEY designed (null = stock).
         ladderPrefill: buildLadderPrefill(seed),
+        // The bridge for an artist who came through a SINGLE-OFFER tool (Vault,
+        // Live Experience, Producer Session): where the one thing they planned
+        // landed, and what keeping only that thing costs them. Null for every
+        // calculator that already models the whole ladder, which argues for
+        // itself with per-rung buyer counts.
+        entryOffer: entryOfferFor(seed),
         // The Share-to-Earn config THEY set in the builder (artist-funded
         // commission). The wizard applies it when the ladder is created, so the
         // growth system they designed exists at launch instead of never.
