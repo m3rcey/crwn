@@ -20,7 +20,7 @@ Sold out dont mean the demand ran out. It mean the room did.
 So let's think about an off-tour version.
 A ticketed live session, online. Small and intimate. Him, a keyboard, maybe 20 people tops and the room.
 Fans throw him words and he makes the songs live.
-Everybody that paid keep the replay. And the room can tip toward what happen next.
+Everybody that paid keep the replay, so the night dont disappear when it ends.
 
 Keep it conservative and take ONE online room, once a month.
 I priced one single night of that, and the yearly number embarrassed me. 
@@ -28,16 +28,16 @@ I priced one single night of that, and the yearly number embarrassed me.
 Now this is what I mean when I say you already know how to market to fans. Now you need a market FOR fans.
 What makes this work aint the technology. It's that a live room is the one place fans stop being anonymous.
 They show up, they spend, they tell you what they want, in real time.
-Ticketed live sessions, with tipping and the replay included, that's a thing artists can run on the CRWN app today.
+Ticketed live sessions, with the replay included for everybody that paid, that's a thing artists can run on the CRWN app today.
 ANYWAY.
 
-One night: 400 fans at $20 a ticket. That's $8,000.
-Say the room tip another $1,000 across the night. Call it $9,000 for one evening sitting at a keyboard.
+One night: 450 fans at $20 a ticket.
+That's $9,000 for one evening sitting at a keyboard.
 Run that monthly and that's like $108,000 a year. From shows you dont have to catch a flight to do.
 
 And the wildest thing about it aint even the money.
 It's WHO bought.
-400 named fans just told him they gon pay for that.
+450 named fans just told him they gon pay for that.
 That list dont exist at the venue. The venue sell him the room. It dont never hand him the names.
 
 That's a rough estimate given on purpose. His real lives can be even bigger than that.
@@ -53,9 +53,9 @@ Comment LIVE and I'll DM you the link.
 
 ---
 
-**META:** Artist: Eric Roberson · Family: A/Missed Money · Mechanism: ticketed live sessions + tips + replay ·
+**META:** Artist: Eric Roberson · Family: A/Missed Money · Mechanism: ticketed live sessions + included replay ·
 Metric: behavior-anchored (Sony Hall bio, Wikipedia: Blue Erro Soul 2001, Grammy noms, sold-out tours; improvised-song shows per Bring Back Soul Music); room size illustrative, no public counts used ·
 Hook promise: how much money he leaves on the table every week he is not on tour ·
-Withheld variable: attendance AND ticket price · Big Reveal: money ($9,000 a night, about $108,000 a year) ·
+Withheld variable: attendance AND ticket price · Big Reveal: money ($9,000 a night from 450 tickets at $20, about $108,000 a year) ·
 Wow Factor: ownership (the venue never hands him the names) · Lead magnet: live-experience-calculator + LIVE (paused tool, closest fit) ·
-CRWN claim tier: shipped (live sessions with tickets, tip goals, included replay)
+CRWN claim tier: shipped (live sessions with tickets and the included replay). Tips and tip goals are DELIBERATELY absent: `live_tips` probes OFF in production (2026-08-16), so no tip revenue appears in the math

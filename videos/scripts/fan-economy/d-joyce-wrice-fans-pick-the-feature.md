@@ -3,12 +3,12 @@
 **SCRIPT:**
 
 Joyce Wrice has made records with Kaytranada, Freddie Gibbs and Lucky Daye.
-What a room of her paying fans would be worth if they got to help pick the next one is a number artists like her never even count.
+What a room of her paying fans would be worth if they got to help pick the next record is a number artists like her never even count.
 
-Let's think about it.
+Let's talk about it and see what it is.
 
 Joyce Wrice built hers the long way. Independent debut album. Her own imprint. A distribution deal where she kept her masters.
-Her collaborator list reads like a festival lineup and none of it came from a major telling her who to work with.
+Her collaborator list look like a lineup for a festival and none of it came from a major telling her who to work with.
 And her people are specific. They dont casually like Joyce Wrice, they study her.
 
 Now here's what's happening every time she picks a feature.
@@ -26,7 +26,7 @@ I put a careful number on what that small room could be worth in a year and it b
 
 Your problem aint marketing to fans. It's that you need a market FOR fans.
 What makes this work aint the tech. Fans dont only want the song anymore, they want IN.
-On the CRWN app today an artist runs the membership ladder, gated drops and ticketed live sessions, which is the first half of a room like this. Paid seats inside the creative process itself is the bigger idea we building toward, not something I'm telling you exists today.
+And that room is already live on the CRWN app. Executive Producer Sessions: your members buy a seat, send in they beats and ideas, vote on what makes it, and watch the record come together.
 ANYWAY.
 
 Say only 3 out of every 1,000 of her followers want in. That's about 500 people.
@@ -40,7 +40,7 @@ She'd stop guessing which record to push, because the people who pay already vot
 Obviously that's a model and not a promise, but if you're an artist on Joyce Wrice's level, making creative calls alone every week:
 which room do YOU sit in that your realest fans would pay to be in?
 
-I built a free calculator that prices what fans joining your creative process could be worth.
+I built a free calculator that prices what fans joining YOUR creative process could be worth.
 Comment PRODUCER and I'll DM you the link.
 
 128 👑  (visual end-card, not spoken)
@@ -53,4 +53,4 @@ Hook promise: what a room of paying fans would be worth to her ·
 Withheld variable: participation rate AND seat price · Big Reveal: money ($7,500 a month, $90,000 a year) ·
 Wow Factor: market-signal (500 paying fans voting is a test a label meeting cannot run) ·
 Lead magnet: executive-producer-session + PRODUCER ·
-CRWN claim tier: partial (ladder, gated drops and ticketed lives stated as shipped; in-session seats stated as not-today)
+CRWN claim tier: shipped (Executive Producer Sessions: flag `producer_sessions` probe-verified ON in production 2026-08-16; paid seats, fan submissions, polls, session analytics)

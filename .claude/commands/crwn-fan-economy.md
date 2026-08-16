@@ -193,22 +193,39 @@ Three claim tiers. Classify the script's mechanism BEFORE writing the CRWN siden
   I believe artists should be building, and it's the bigger idea behind what we're building with
   CRWN." Or name it plainly as not-today. One concise natural sentence; never a legal disclaimer.
 
-**Verification procedure (the docs below are the start, the code is the finish):** check the
-feature inventory (doc 29) and current-state (doc 13); for anything flag-gated remember the code
-default LIES about production (memory: probe or check `admin_settings`, all flags were ON except
-`artist_gate` as of 2026-08-12); when in doubt read `src/lib/` / `src/app/` for the actual surface.
+**Verification procedure (the docs are the start, the PROBE is the finish):** check the feature
+inventory (doc 29) and current-state (doc 13), then read `src/lib/` / `src/app/` for the actual
+surface. **For any flag-gated capability, run the probe before you claim it:**
 
-**Non-authoritative starting map (verified against the repo 2026-08-15; RE-VERIFY before any
-"CRWN has this" claim, because this table WILL go stale):**
+    source ./load-env.sh && npm run verify:flags
+
+It is read-only and takes seconds. A code default, a Brain doc and this file can all be wrong
+about production at the same time; only the probe knows.
+
+**This table went stale in BOTH directions on 2026-08-16, which is why the probe is mandatory:**
+it called Executive Producer Sessions dark when `producer_sessions` was ON, so a saved script told
+artists a live feature did not exist yet, and it called tip goals shipped when `live_tips` was
+OFF, so another saved script claimed tipping and put $1,000 of tip revenue in its math.
+**Underselling a shipped feature is as much a defect as overclaiming one.**
+
+**Non-authoritative starting map (flags probe-verified 2026-08-16; RE-VERIFY, this WILL go stale):**
 
 - SHIPPED: fan memberships/tiers (Bronze/Silver/Gold/Platinum ladder), direct track/product
-  sales, the Vault as a Gold-tier feature, live sessions with tickets + tip goals + included
-  replay, Share-to-Earn referrals with a per-artist commission rate, Fan Drives (Virality Engine
-  V1, non-cash incentives only), fan CRM + CSV/Patreon import, email campaigns, Promise Calendar,
-  Rise Mode, early-access release windows + release waterfall, analytics.
-- PARTIAL: Executive Producer Sessions (built, dark: fan submission agreement pending), fan
-  missions / clip bounties / proof-of-demand (routes live as calculator CTA destinations; tiles
-  hidden pre-PMF), demand discovery (proof-of-demand tests exist; no general demand market).
+  sales, the Vault as a Gold-tier feature, ticketed live sessions with the replay included for
+  everyone who paid, **Executive Producer Sessions** (`producer_sessions` ON: members buy a seat,
+  send in beats/vocals/ideas as real file submissions, vote in session polls, and watch the record
+  come together, with session analytics for the artist), Share-to-Earn referrals with a per-artist
+  commission rate, Fan Drives (Virality Engine V1, non-cash incentives only), fan CRM +
+  CSV/Patreon import, email campaigns, Promise Calendar, Rise Mode, early-access release windows +
+  release waterfall, analytics.
+- **FLAG OFF IN PRODUCTION, never claim and never put in the math: live tips and tip goals**
+  (`live_tips` OFF). The ticket and the replay are live; the tipping is not.
+- Flags as of the 2026-08-16 probe: `quest_engine` ON, `popup_engine` ON, `acquisition_engine` ON,
+  `experiments` ON, `royalty_readiness` ON, `producer_sessions` ON, `live_tips` OFF,
+  `artist_gate` OFF.
+- PARTIAL: fan missions / clip bounties / proof-of-demand (routes live as calculator CTA
+  destinations; tiles hidden pre-PMF), demand discovery (proof-of-demand tests exist; no general
+  demand market).
 - CONCEPTUAL: demand-backed tour routing, fan A&R markets, fan-funded creative projects,
   participation markets, cash rewards for fan drives (DB-forbidden by design), any external-view
   measurement, ranked fan leaderboards with public scores (deliberately removed), autonomous AI
