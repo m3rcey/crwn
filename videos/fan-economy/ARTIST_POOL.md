@@ -108,6 +108,25 @@ artist, add the full entry in the same session.
 - cautions: borderline ceiling and label-signed (never call him independent); server figures are
   SELF-reported, always attribute as "he's said"
 
+### Westside Gunn
+- lane: Buffalo hip hop (Griselda)
+- why ICP-fit: releases records as collectibles, not products: numbered pressings as small as 400,
+  a signed edition out of 187, public resale asks around $210 to $310 (researched 2026-08). The
+  clearest scarcity-pricing case study in the pool
+- known behavior to research: pressing sizes and variants, resale listings, Blientele/4TH ROPE merch
+- pairs well with: comparison, premium/vault, missed money
+- cautions: resale asks are SECONDARY market, never his revenue; say what fans PAY, not what he
+  banked. Follower and listener counts not verified, so avoid audience math
+
+### Joyce Wrice
+- lane: R&B
+- why ICP-fit: independent debut (Overgrown), her own imprint, an Orchard distribution deal with
+  masters retained, collaborator list from Kaytranada to Freddie Gibbs (researched 2026-08)
+- known behavior to research: vinyl, touring, the Orchard arrangement, feature selection
+- pairs well with: what-if / fan A&R, business redesign, ownership
+- cautions: ~168K IG sits below the Tier 1 floor (Tier 2, not Tier 1) while ~889K monthly
+  listeners is in band, so keep the pivot on her operating style; the ICP viewer reads as her peer
+
 ## R&B seats (keep the set genre-mixed; research fit before first use)
 
 ### Eric Bellinger
