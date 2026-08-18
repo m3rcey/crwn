@@ -34,11 +34,24 @@ function detectExt(buf) {
 }
 
 export function findExistingPersonRef(slug) {
+  const found = [];
   for (const ext of EXTS) {
     const p = path.join(PEOPLE_DIR, `${slug}.${ext}`);
-    if (fs.existsSync(p)) return p;
+    if (fs.existsSync(p)) found.push(p);
   }
-  return null;
+  if (!found.length) return null;
+  // EXTS order decides the winner, so an auto-fetched .jpg silently shadows a
+  // hand-placed .png of the same artist. That is how a grainy Wikipedia live
+  // shot beat a clean portrait Josh had dropped in for Saba, and nothing said
+  // so. Say so.
+  if (found.length > 1) {
+    console.warn(
+      `[${slug}] ${found.length} reference files exist, using ${path.basename(found[0])} ` +
+        `(ignoring ${found.slice(1).map((f) => path.basename(f)).join(", ")}). ` +
+        `Delete the ones you do not want.`
+    );
+  }
+  return found[0];
 }
 
 export function mimeFromExt(ext) {

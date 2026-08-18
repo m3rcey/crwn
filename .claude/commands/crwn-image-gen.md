@@ -129,6 +129,14 @@ for a feature match and a lookalike could pass.
 by opening the file, not by the pipeline reporting success. The generator prints `OK` for a sheet
 that drew the wrong person entirely.
 
+**One artist, one reference file.** The lookup walks `EXTS` in order and returns the first hit, so
+`saba.jpg` beat `saba.png` purely on extension order and a grainy Wikipedia live shot won over the
+clean portrait sitting right beside it. Nothing in the output said which file was used, so the
+sheet just came back looking like a different person. The lookup now warns when a slug has more
+than one file, naming the winner and the ignored. **Delete the losers rather than trusting the
+order**, and when a fetched reference turns out to be poor, delete it before rerolling or the
+reroll uses the same bad photo.
+
 Also from `/crwn-lead-magnet`: likeness comes from HEAD SIZE and INK DENSITY. Ask for a figure
 drawn from the thighs up with the head about one sixth of the page height, rendered as a detailed
 comic-book INKED PORTRAIT with fine cross-hatching, not a simplified cartoon face. A small head
