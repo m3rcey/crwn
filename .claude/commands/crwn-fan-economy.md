@@ -651,9 +651,11 @@ words: leverage, optimize, diversify, ecosystem, monetize.
 
 ## Content diversity
 
-Before writing, scan `videos/scripts/fan-economy/` (filenames carry family + artist). Vary across
-recent scripts: artist, family, mechanism, hook type, audience metric, Big Reveal type, Wow
-Factor, lead magnet, proof style. "Followers → 10% reached → 1% buy → monthly revenue" is a
+Before writing, scan `videos/scripts/fan-economy/`. Filenames carry the NUMBER and the artist; for
+family, mechanism and foil, grep the META lines (`grep -h '^\*\*META:' videos/scripts/fan-economy/*.md`).
+The highest number is also the most recent script, so that is where to look for what to avoid
+repeating. Vary across recent scripts: artist, family, mechanism, hook type, audience metric, Big
+Reveal type, Wow Factor, lead magnet, proof style. "Followers → 10% reached → 1% buy → monthly revenue" is a
 pattern, not the universal formula; use it only when it is genuinely the best analysis.
 
 ## Batch surface variation (MANDATORY across any batch and vs recent scripts)
@@ -726,9 +728,20 @@ convenience.
 
 ## Output
 
-Save to `videos/scripts/fan-economy/[family-letter]-[artist-slug]-[short-concept].md`
-(e.g. `a-larry-june-post-show-buyers.md`, `j-founder-first-dollar.md`; founder scripts use
-`founder` as the artist slug). Append `-v2` rather than overwriting.
+Save to `videos/scripts/fan-economy/[N]-[artist-slug]-[short-concept].md` (founder decision,
+2026-08-18: scripts are NUMBERED, not lettered, matching the house convention in
+`videos/scripts/shortform/`). Examples: `17-rapsody-the-328-songs.md`,
+`12-tee-grizzley-vs-drake-members-vs-listeners.md`, `18-founder-the-first-dollar.md` (founder
+scripts use `founder` as the artist slug).
+
+- **N is the next number in the folder.** Scan `videos/scripts/fan-economy/` for the highest
+  existing number and increment. Numbers run in production order and are never reused or
+  renumbered, so an existing script keeps its number forever.
+- No zero padding, same as the shortform folder.
+- **The family letter is GONE from filenames and lives in the META line** (`Family: G/Comparison`),
+  which is where it was always the authority anyway. Grep the META lines when you need to know
+  the family spread.
+- Append `-v2` rather than overwriting.
 
 File and chat output, in this order:
 
