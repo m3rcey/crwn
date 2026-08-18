@@ -409,6 +409,28 @@ describe('page composition', () => {
     }
   });
 
+  it('returns both narrative controls to the CALCULATOR, never the top of the page', () => {
+    // Scrolling to top landed the reader back on the hero: a photograph and a headline they had
+    // already read, with the questions still off screen. Both buttons are asking for the same
+    // thing, so both go to the wizard. Top of page survives only as a last resort, for a surface
+    // that renders this narrative with no calculator on it at all.
+    const tm = code(toolMarketing);
+    expect(tm).toMatch(/scrollToCalculator/);
+    expect(tm).toMatch(/scrollToAnchor\(WIZARD_ANCHOR_ID, 'start'\)/);
+    expect(tm).not.toMatch(/scrollToTop/);
+    expect(tm).toMatch(/if \(!scrollToAnchor\(QUALIFY_ANCHOR_ID\)\) scrollToCalculator\(\)/);
+    expect(tm).toMatch(/if \(!completed \|\| !scrollToAnchor\(PLAN_ANCHOR_ID\)\) scrollToCalculator\(\)/);
+    // The homepage narrative must keep doing the same thing, or the two drift apart again.
+    expect(code(homeMarketing)).toMatch(/scrollToCalculator/);
+  });
+
+  it('anchors the calculator on every surface that renders the narrative', () => {
+    // /worth writes its own wizard instead of mounting PublicToolClient's, so without the shared
+    // anchor the lookup above would fall straight through to the top of the page there.
+    expect(code(publicToolClient)).toMatch(/id=\{WIZARD_ANCHOR_ID\}/);
+    expect(code(worth)).toMatch(/id=\{WIZARD_ANCHOR_ID\}/);
+  });
+
   it('sends an unfinished visitor back to the calculator rather than asking to qualify them', () => {
     // Qualification is scored server-side from the calculator answers, so the control cannot be
     // useful before a result exists.

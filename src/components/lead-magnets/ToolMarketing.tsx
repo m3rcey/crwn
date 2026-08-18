@@ -39,15 +39,29 @@ import {
   GUARANTEE_TITLE,
   GUARANTEE_BODY,
 } from '@/lib/positioning/story';
-import { PLAN_ANCHOR_ID, QUALIFY_ANCHOR_ID } from './PublicToolClient';
+import { PLAN_ANCHOR_ID, QUALIFY_ANCHOR_ID, WIZARD_ANCHOR_ID } from './PublicToolClient';
 
-const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
-
-const scrollToAnchor = (id: string): boolean => {
+const scrollToAnchor = (id: string, block: ScrollLogicalPosition = 'center'): boolean => {
   const el = typeof document === 'undefined' ? null : document.getElementById(id);
   if (!el) return false;
-  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  el.scrollIntoView({ behavior: 'smooth', block });
   return true;
+};
+
+/**
+ * The fallback for both controls below.
+ *
+ * It used to be `window.scrollTo({ top: 0 })`, which landed on the HERO: a reader who had gone all
+ * the way down the page was returned to a photograph and a headline they had already read, with the
+ * questions still off screen. The calculator is the thing both buttons are actually asking for, so
+ * that is where they go. `block: 'start'` puts the first question at the top of the viewport rather
+ * than centring the wizard and cutting it in half.
+ *
+ * Top of page stays as the last resort only, for a surface that somehow renders this narrative with
+ * no calculator on it at all.
+ */
+const scrollToCalculator = () => {
+  if (!scrollToAnchor(WIZARD_ANCHOR_ID, 'start')) window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
 function Eyebrow({ children, art }: { children: React.ReactNode; art?: { src: string; alt: string } }) {
@@ -89,13 +103,13 @@ export function ToolMarketing({
   // qualification: the score is derived from those answers. A fresh visitor goes back to the
   // calculator rather than to a control that would ask for a phone number CRWN could not score.
   const goToQualification = () => {
-    if (!scrollToAnchor(QUALIFY_ANCHOR_ID)) scrollToTop();
+    if (!scrollToAnchor(QUALIFY_ANCHOR_ID)) scrollToCalculator();
   };
 
   // The close. Before completion it re-offers the calculator; after completion it returns the
   // visitor to the plan they already built rather than to the top of a page they have read.
   const goToContinuation = () => {
-    if (!completed || !scrollToAnchor(PLAN_ANCHOR_ID)) scrollToTop();
+    if (!completed || !scrollToAnchor(PLAN_ANCHOR_ID)) scrollToCalculator();
   };
 
   return (

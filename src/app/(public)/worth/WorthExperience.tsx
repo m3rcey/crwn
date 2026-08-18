@@ -525,7 +525,7 @@ export function WorthExperience({
   });
 
   const entryWizard = (
-    <div ref={worthWizardRef} className="max-w-lg mx-auto mb-10 scroll-mt-4 pt-10 md:pt-14">
+    <div id={WIZARD_ANCHOR_ID} ref={worthWizardRef} className="max-w-lg mx-auto mb-10 scroll-mt-4 pt-10 md:pt-14">
       <LeadMagnetWizard
         config={ENTRY_CONFIG}
         context="public"
