@@ -11,7 +11,7 @@ const VAULT_REVENUE_PLANNER: LeadMagnetConfig = {
   name: 'Vault Revenue Planner',
   featureName: 'Artist Vault',
   category: 'Monetize',
-  description: 'See what deeper access to your unreleased catalog would be worth to the fans who pay you most.',
+  description: 'See whether your unreleased catalog is enough to run a Vault, and what to charge for it.',
   videoAngle: 'Your unreleased catalog is the clearest reason a committed fan has to pay you more. It is sitting on a hard drive instead.',
   publicRoute: '/tools/vault-revenue-planner',
   artistRoute: '/artist/tools/vault-revenue-planner',
@@ -19,12 +19,23 @@ const VAULT_REVENUE_PLANNER: LeadMagnetConfig = {
   timeToComplete: '3 min',
   dmKeywords: ['vault'],
   hero: {
+    // The hero promises a PLAN, not a revenue figure, and that is deliberate (2026-08-16).
+    // `vaultRevenuePlan` returns a readiness score, an inventory, a suggested price band, a
+    // 30-day schedule and a fan pitch. It computes no monthly total and carries no `heroValue`,
+    // because a total would need supporters x a conversion rate x price, and this tool collects
+    // `supporterCount` explicitly as "context only, never as a guaranteed conversion". Inventing
+    // the missing rate is the one thing the house rules forbid ("if a personalized result would
+    // need a business rule CRWN does not have, do not invent the rule"). The whole-business
+    // revenue question already has an honest home in the Opportunity Calculator, which models the
+    // Vault as the Gold rung. This tool answers a different and equally real question: do I have
+    // enough to run this, how often can I drop, and what should I charge. The copy now says so.
+    //
     // Zero to One positioning pass (2026-08-14). The old hero sold idle files as lost money.
     // The catalog is not the product: deeper ACCESS to it is the clearest reason a committed fan
     // identifies themselves, pays, and climbs a rung. That is a membership beat, not an
     // inventory beat, and it is why the vault lives inside the ladder rather than beside it.
     headline: 'Your most committed fans have nowhere to go.',
-    subheadline: 'The unreleased work on your phone is the reason they would pay you more. See what that access is worth.',
+    subheadline: 'The unreleased work on your phone is the reason they would pay you more. See if you have enough to run it, and what to charge.',
     primaryCta: 'Plan my Vault',
     image: '/hero-vault.webp',
     imageAlt: 'Illustration of an artist at a desk facing shelves of tapes and records lit in gold',

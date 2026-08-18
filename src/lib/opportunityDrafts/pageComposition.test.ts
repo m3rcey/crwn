@@ -10,6 +10,7 @@ import { LEAD_MAGNETS } from '@/lib/leadMagnets/registry';
 
 const root = process.cwd();
 const publicToolClient = readFileSync(join(root, 'src/components/lead-magnets/PublicToolClient.tsx'), 'utf-8');
+const leadMagnetWizard = readFileSync(join(root, 'src/components/lead-magnets/LeadMagnetWizard.tsx'), 'utf-8');
 const worth = readFileSync(join(root, 'src/app/(public)/worth/WorthExperience.tsx'), 'utf-8');
 const homeFunnel = readFileSync(join(root, 'src/app/HomeFunnel.tsx'), 'utf-8');
 const homePage = readFileSync(join(root, 'src/app/page.tsx'), 'utf-8');
@@ -52,6 +53,30 @@ describe('CTA contract: the builder is the CTA', () => {
       expect(spec.transition || '').not.toMatch(/[–—]/);
       expect(spec.buildCta || '').not.toMatch(/[–—]/);
     }
+  });
+});
+
+describe('the wizard stays put while it is being filled in', () => {
+  // Steps are wildly different heights (the Vault planner runs 2 fields, then 8, then 1) and the
+  // browser preserves the SCROLL OFFSET across the swap, not the wizard's position. Answering a
+  // tall step and continuing to a short one therefore left the reader parked at the same pixel
+  // depth on a page that had just got hundreds of pixels shorter, which reads as the page jumping
+  // into a different section mid-form. This is the shared wizard, so the guard covers every
+  // calculator at every step, which is what was actually asked for.
+  it('re-anchors the wizard when a step change moves it out of view', () => {
+    expect(leadMagnetWizard).toMatch(/stepAnchorRef/);
+    expect(leadMagnetWizard).toMatch(/scrollIntoView\(\{ behavior: 'auto', block: 'start' \}\)/);
+    // Only when it has genuinely drifted: a wizard already comfortably in view must not twitch.
+    expect(leadMagnetWizard).toMatch(/const drifted = top < 0 \|\| top > window\.innerHeight \* 0\.4/);
+    expect(leadMagnetWizard).toMatch(/if \(drifted\)/);
+  });
+
+  it('never fires on first render, which would yank a visitor off the hero', () => {
+    // The effect compares against the PREVIOUS index and returns when they match, so mounting at
+    // step 0 does nothing. A bare `useEffect(..., [safeIndex])` with an unconditional scroll would
+    // drag every arriving visitor down to the form before they had read the headline.
+    expect(leadMagnetWizard).toMatch(/const lastStepIndex = useRef\(safeIndex\)/);
+    expect(leadMagnetWizard).toMatch(/if \(lastStepIndex\.current === safeIndex\) return;/);
   });
 });
 

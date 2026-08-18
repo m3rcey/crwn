@@ -83,6 +83,33 @@ export function LeadMagnetWizard({
     }
   }, [values, storageKey]);
 
+  // KEEP THE WIZARD UNDER THE READER'S EYES WHEN A STEP CHANGES.
+  //
+  // Steps are wildly different heights. The Vault planner alone goes from a 2-field identity
+  // screen to an 8-field inventory screen to a 1-field audience screen, and every other calculator
+  // varies too. The browser preserves the SCROLL OFFSET across that swap, not the position of the
+  // wizard, so answering a tall step and continuing to a short one leaves the reader parked at the
+  // same pixel depth on a page that just got hundreds of pixels shorter: they land somewhere
+  // further down the marketing narrative and it reads as the page jumping to a different section
+  // mid-form. On a phone, where the keyboard also resizes the viewport, it is worse.
+  //
+  // So after a step CHANGE (never on first render, which would yank a visitor off the hero they
+  // are still reading) the wizard is put back at the top of the viewport, but only when it has
+  // actually drifted: already sitting comfortably in view means no scroll and no motion. `auto`
+  // rather than `smooth`, because a step change should feel instant and a smooth scroll here
+  // fights the one the CTA may already have started.
+  const stepAnchorRef = useRef<HTMLDivElement>(null);
+  const lastStepIndex = useRef(safeIndex);
+  useEffect(() => {
+    if (lastStepIndex.current === safeIndex) return;
+    lastStepIndex.current = safeIndex;
+    const el = stepAnchorRef.current;
+    if (!el || typeof window === 'undefined') return;
+    const { top } = el.getBoundingClientRect();
+    const drifted = top < 0 || top > window.innerHeight * 0.4;
+    if (drifted) el.scrollIntoView({ behavior: 'auto', block: 'start' });
+  }, [safeIndex]);
+
   useEffect(() => {
     if (started.current || !trackStart) return;
     started.current = true;
@@ -135,6 +162,9 @@ export function LeadMagnetWizard({
   };
 
   return (
+    // `scroll-mt-20` keeps the sticky page chrome off the step title when the effect above
+    // re-anchors, and matches the offset the hero CTA already scrolls with.
+    <div ref={stepAnchorRef} className="scroll-mt-20">
     <Wizard
       steps={steps}
       currentIndex={safeIndex}
@@ -163,6 +193,7 @@ export function LeadMagnetWizard({
         </div>
       )}
     </Wizard>
+    </div>
   );
 }
 
