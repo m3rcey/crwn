@@ -78,6 +78,35 @@ artist, add the full entry in the same session.
 - pairs well with: vault/catalog, hidden asset, existing buyers
 - cautions: verify current counts; catalog claims need a sourced number
 
+### Skyzoo
+- lane: Brooklyn hip hop
+- why ICP-fit: independent his ENTIRE career, turned down major deals more than once, own label
+  First Generation Rich (EMPIRE partnership), catalog with 9th Wonder, Pete Rock and Apollo Brown
+  since 2006, supports his family off the music with no hit single (researched 2026-08)
+- known behavior to research: album cadence, the label, direct sales, the deals he passed on
+- pairs well with: contrarian (retention beats reach), LTV, catalog, evidence/proof
+- cautions: no reliable follower or listener counts found, so anchor on career facts and never on
+  audience math. The "no hit single" framing must stay a compliment, never a shortfall
+
+### Smino
+- lane: St. Louis hip hop / R&B
+- why ICP-fit: went independent with Maybe in Nirvana (December 2024, his first independently
+  released album), his own Zero Fatigue collective, real touring and festival draw with a fanbase
+  that buys tickets and merch (researched 2026-08)
+- known behavior to research: the independence move, Zero Fatigue, 2026 co-headline touring
+- pairs well with: business redesign, promise/fulfillment, first-year-independent angles
+- cautions: the ~4M monthly listener figure found was FORUM-sourced and unverified, so do not use
+  it; anchor on the independence facts and touring instead
+
+### Cash Cobain
+- lane: Bronx hip hop (sexy drill)
+- why ICP-fit: pioneered a whole subgenre other artists now build on, producer turned artist,
+  ~213K Spotify followers, evangelizing fanbase (researched 2026-08)
+- known behavior to research: the sexy drill scene, production credits, collaborations
+- pairs well with: existing fan behavior, fan drives, distribution, scene-building
+- cautions: ~4.5M monthly listeners sits ABOVE the Tier 1 ceiling, so anchor math on the follower
+  count and keep the pivot on his operating style
+
 ## upper-bound (use sparingly; run the pivot sanity check)
 
 ### Russ
