@@ -25,7 +25,8 @@ Do NOT ask follow-up questions. Process every script in order.
 - **Image filename**: `[N]-[kebab-title].jpg` where N is the post number from the 90-day calendar (or 1, 2, 3... if numbering a fresh arc)
 - **Model**: `gemini-3.1-flash-image-preview`
 - **Aspect ratio**: `3:4` vertical (short-form portrait)
-- **Output format**: `.jpg` (API returns JPEG data)
+- **Resolution**: `imageSize: "4K"` → **3584x4800**. Mandatory, see the print rule below.
+- **Output format**: `.jpg` (API returns JPEG data), re-encoded at quality 100 with 4:4:4 chroma
 - **Delay between requests**: 8 seconds
 - **Shell**: `bash -c`. The script reads the API key from `.env.local` itself, so no shell profile is involved.
 
@@ -40,6 +41,46 @@ Do NOT ask follow-up questions. Process every script in order.
 ```
 
 All short-form images land flat in `Shortform Posts/`. No per-script subfolders. Filename = `[N]-[kebab-title].jpg`.
+
+## These sheets get PRINTED and filmed, so resolution is a hard requirement
+
+Josh prints these and films them with a camera zooming in on the paper. A zoom is a magnifier on
+the pixel grid, so whatever the generator emits has to survive being enlarged to paper size.
+
+**The rule: always pass `imageSize: "4K"`. Never ship a sheet at the default size.**
+
+| Setting | Pixels | On a letter sheet | Verdict |
+|---|---|---|---|
+| default (no `imageSize`) | 896 x 1200 | ~109 DPI | pixelated on camera, every pixel is ~1/4 mm of paper |
+| `imageSize: "2K"` | 1792 x 2400 | ~218 DPI | still under the print standard |
+| **`imageSize: "4K"`** | **3584 x 4800** | **~436 DPI** | **correct, and ~686 DPI on a 5x7** |
+
+All three were probe-verified on `gemini-3.1-flash-image-preview` on 2026-08-18; `4K` costs one
+config key and about 22 seconds per sheet. The pro image model returns the same dimensions, so
+there is no reason to switch models for resolution alone.
+
+**Two things that also matter, both already wired into the generators:**
+
+- **Re-encode at `quality: 100, chromaSubsampling: "4:4:4"`.** JPEG's default 4:2:0 halves colour
+  resolution, which fringes every hard black-on-white sharpie edge. That fringing is invisible on
+  a phone and obvious through a zoomed lens. At 4K a finished sheet is only about 2 MB anyway,
+  because a page that is mostly pure white compresses well.
+- **The white-flatten pass stays.** Forcing near-white to pure #FFFFFF removes the faint grey
+  speckle that a camera reads as noise on paper, and it makes the file smaller at the same time.
+
+**Do NOT copy 4K to the app-asset generators** (`generate-tool-hero.mjs`, `generate-nurture-art.mjs`,
+`generate-platform-art.mjs`, `generate-studio-icons.mjs`, `generate-live-experience-hero.mjs`).
+Those ship WebP sized to the slot they render in, per the brand imagery rule in `CLAUDE.md`.
+Print masters and web assets have opposite requirements.
+
+**Batch timing:** 4K takes about 22 seconds a sheet instead of roughly 10, and the script already
+waits 8 seconds between requests, so budget ~30 seconds per image. A 20-image run is about 10
+minutes, which is the documented 600000 ms timeout exactly. For runs longer than about 15 images,
+raise the timeout or split the batch, or the last few will be cut off mid-generation.
+
+**Printing:** print at the largest size you plan to zoom into. The same file is ~436 DPI on letter
+and ~686 DPI on a 5x7, so a smaller print is sharper under the lens, and matte stock beats glossy
+because gloss throws highlights back at the camera.
 
 ## Story-First Composition (THE #1 RULE — read before building any prompt)
 
@@ -151,7 +192,8 @@ The script must:
 1. Load the 4 style reference PNGs from the references folder (exclude `crwn-logo.png` and the `people/` subfolder)
 2. Include this style instruction in every request: `"Use the exact same visual style as these reference images: bold black sharpie marker handwriting on pure white paper, clean hand-drawn icons and diagrams, high contrast black on white, no gray tones, no background texture. Match the lettering weight, spacing, and hand-drawn aesthetic exactly. CRITICAL: ALL text in the image must be hand-drawn sharpie marker handwriting. NEVER use any printed, typeset, computer, Arial, Helvetica, serif, or sans-serif font anywhere in the image. Every single letter, number, word, label, and tagline must look hand-written with a sharpie. No typography, no mixed fonts, no computer-generated text. Top of page, middle of page, bottom of page, taglines, captions, footers, labels, lists, numbers, every character is hand-drawn sharpie. The reference images convey drawing STYLE ONLY (line weight, lettering, hand-drawn icon look), not content. Do NOT copy any text, words, logos, crowns, brand marks, or taglines from the reference images. Never draw the word 'CRWN', a crown symbol or logo, or marketing taglines like 'every dollar goes straight to the artist' or 'no middleman' unless the prompt explicitly asks for them. Draw ONLY what the prompt specifies."`
 3. Build the full Nano Banana Pro prompt for each script using the template above
-4. Pass `imageConfig: { aspectRatio: "3:4" }` and `responseModalities: ["IMAGE"]` in the config
+4. Pass `imageConfig: { aspectRatio: "3:4", imageSize: "4K" }` and `responseModalities: ["IMAGE"]`
+   in the config. **The `imageSize` is not optional, see the print rule below.**
 5. Save the image as `.jpg` flat inside `Shortform Posts/` (no per-video subfolder)
 6. Skip files that already exist (idempotent reruns)
 8. Add 8-second delays between requests

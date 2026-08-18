@@ -30,7 +30,9 @@ async function flattenWhiteBackground(filePath) {
     }
   }
   await sharp(data, { raw: { width: info.width, height: info.height, channels: c } })
-    .jpeg({ quality: 95 })
+    // Print masters: 4:4:4 avoids the colour fringing that JPEG's default 4:2:0 puts on hard
+    // black-on-white sharpie edges, which is precisely what a zoomed camera picks up.
+    .jpeg({ quality: 100, chromaSubsampling: "4:4:4" })
     .toFile(filePath);
   return flipped;
 }
@@ -143,7 +145,10 @@ for (let i = 0; i < sheets.length; i++) {
     const response = await ai.models.generateContent({
       model: "gemini-3.1-flash-image-preview",
       contents: [{ role: "user", parts }],
-      config: { responseModalities: ["IMAGE"], imageConfig: { aspectRatio: "3:4" } },
+      // PRINT RESOLUTION (2026-08-18): 4K returns 3584x4800, ~436 DPI on a letter sheet, versus
+      // ~109 DPI at the default. These sheets are printed and filmed with the camera zoomed in,
+      // so the grid has to survive magnification. See generate-images.mjs for the full note.
+      config: { responseModalities: ["IMAGE"], imageConfig: { aspectRatio: "3:4", imageSize: "4K" } },
     });
     let imageData = null;
     for (const cand of response.candidates || []) {

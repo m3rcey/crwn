@@ -25,7 +25,10 @@ async function flattenWhiteBackground(filePath) {
     }
   }
   await sharp(data, { raw: { width: info.width, height: info.height, channels: c } })
-    .jpeg({ quality: 95 })
+    // Print masters: 4:4:4 keeps full colour resolution. The JPEG default (4:2:0) halves it,
+    // which fringes every hard black-on-white sharpie edge, and a camera zoom is exactly what
+    // makes that fringing visible. Quality 100 because these are masters, not web assets.
+    .jpeg({ quality: 100, chromaSubsampling: "4:4:4" })
     .toFile(filePath);
   return flipped;
 }
@@ -157,7 +160,14 @@ for (let idx = 0; idx < scriptFiles.length; idx++) {
       contents: [{ role: "user", parts }],
       config: {
         responseModalities: ["IMAGE"],
-        imageConfig: { aspectRatio: "3:4" },
+        // PRINT RESOLUTION (2026-08-18). These sheets get PRINTED and then filmed with a camera
+        // zooming in on them, so the pixel grid has to survive magnification. The default is
+        // 896x1200, which is only ~109 DPI on a letter sheet: every pixel lands at about a
+        // quarter of a millimetre on paper and the camera sees it. "4K" returns 3584x4800,
+        // which is ~436 DPI on letter, above the 300 DPI print standard with headroom to zoom.
+        // Probe-verified on this exact model 2026-08-18. Do NOT copy this to the app-asset
+        // generators: those ship WebP sized to their slot (CLAUDE.md brand imagery rule).
+        imageConfig: { aspectRatio: "3:4", imageSize: "4K" },
       },
     });
 
