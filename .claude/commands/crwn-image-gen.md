@@ -82,6 +82,30 @@ raise the timeout or split the batch, or the last few will be cut off mid-genera
 and ~686 DPI on a 5x7, so a smaller print is sharper under the lens, and matte stock beats glossy
 because gloss throws highlights back at the camera.
 
+## When a likeness is wrong, fix the PERSON RECORD, not the prompt
+
+`known-people.json` entries support an optional **`draw`** field. The generator appends it to the
+portrait directive as `IMPORTANT: ...`, so it applies to every future sheet featuring that artist
+instead of living in one prompt. That is the right place for the fix.
+
+Worked example (Tech N9ne, 2026-08-18): the auto-fetched press photo produced a man with long
+braids and a full beard, which is not him, and Josh flagged the likeness. **Verify the artist's
+actual signature look with a web search before writing the note**, because guessing features makes
+the likeness worse, not better. The verified answer was a bald head (the spiked red hair era is
+long over), a long jutting pharaoh goatee with white strands, and face paint streaks. Fixing it
+took three moves:
+
+1. Sharpen the `search` query so the fetcher pulls the right era of photo.
+2. Delete the stale cached ref in the `people/` folder so it re-fetches.
+3. Add a `draw` note naming the two or three identifying features, **including what NOT to draw**
+   ("never draw him with braids, dreadlocks or long hair of any kind"). The negative is what kills
+   a wrong feature the model keeps reaching for.
+
+Also from `/crwn-lead-magnet`: likeness comes from HEAD SIZE and INK DENSITY. Ask for a figure
+drawn from the thighs up with the head about one sixth of the page height, rendered as a detailed
+comic-book INKED PORTRAIT with fine cross-hatching, not a simplified cartoon face. A small head
+collapses into generic line work no matter how good the reference is.
+
 ## Fill the page: text density and how to keep it from garbling
 
 A sparse sheet reads unfinished. Josh's note on the first Fan Economy sheet was "everything is
