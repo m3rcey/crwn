@@ -224,19 +224,21 @@ function SectionBody({ section }: { section: ResultSection }) {
 
     case 'scenarios':
       return (
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
           {(section.metrics || []).map((m, i) => {
             const mid = i === 1;
             return (
               <div
                 key={i}
-                className={`rounded-xl p-3 text-center ${
+                // `min-w-0` lets a grid item shrink below its content. Without it the track is
+                // forced wider than the column and the money values spill into each other.
+                className={`min-w-0 rounded-xl p-2 sm:p-3 text-center ${
                   mid ? 'bg-crwn-gold/10 border border-crwn-gold/30' : 'bg-crwn-elevated/40 border border-crwn-elevated'
                 }`}
               >
-                <p className="text-[10px] uppercase tracking-wide text-crwn-text-secondary mb-1 leading-tight">{m.label}</p>
-                <p className={`font-bold leading-tight ${mid ? 'text-lg text-crwn-gold' : 'text-base text-crwn-text'}`}>{m.value}</p>
-                {m.note && <p className="text-[10px] text-crwn-text-secondary mt-1 leading-tight">{m.note}</p>}
+                <p className="text-[9px] sm:text-[10px] uppercase tracking-wide text-crwn-text-secondary mb-1 leading-tight">{m.label}</p>
+                <p className={`font-bold leading-tight break-words ${mid ? 'text-base sm:text-lg text-crwn-gold' : 'text-sm sm:text-base text-crwn-text'}`}>{m.value}</p>
+                {m.note && <p className="text-[9px] sm:text-[10px] text-crwn-text-secondary mt-1 leading-tight">{m.note}</p>}
               </div>
             );
           })}

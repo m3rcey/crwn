@@ -29,6 +29,7 @@ const worth = read('src/app/(public)/worth/WorthExperience.tsx');
 const toolHero = read('src/components/lead-magnets/ToolHero.tsx');
 const sectionImage = read('src/components/ui/SectionImage.tsx');
 const resultPage = read('src/app/(public)/tools/[slug]/result/[token]/page.tsx');
+const leadMagnetResult = read('src/components/lead-magnets/LeadMagnetResult.tsx');
 
 /**
  * Source with comments removed.
@@ -414,6 +415,34 @@ describe('page composition', () => {
     expect(toolMarketing).toMatch(/QUALIFY_ANCHOR_ID/);
     expect(toolMarketing).toMatch(/PLAN_ANCHOR_ID/);
     expect(toolMarketing).toMatch(/Run your numbers first/);
+  });
+
+  it('puts the CTA above the fold on the phone a ManyChat lead actually arrives on', () => {
+    // The page opened with 56px of brand margin, a 60px number, a five-line summary and a 2x2 tile
+    // grid before the email capture, so every button was off the first screen. The tiles are
+    // supporting evidence, not the promise, so they moved BELOW the ask.
+    const rp = code(resultPage);
+    const capture = rp.indexOf('<LeadEmailCta');
+    const tiles = rp.indexOf('heroTiles?.metrics');
+    expect(capture).toBeGreaterThan(-1);
+    expect(tiles, 'the supporting tiles must render AFTER the ask, not before it').toBeGreaterThan(capture);
+    // Mobile chrome is trimmed; sm: keeps the original desktop proportions.
+    expect(rp).toMatch(/py-8 sm:py-16/);
+    expect(rp).toMatch(/mb-8 sm:mb-14/);
+    expect(rp).toMatch(/text-5xl sm:text-7xl/);
+  });
+
+  it('keeps the conservative/expected/high row inside its tiles on a phone, in BOTH renderers', () => {
+    // Three columns of money at 18px overflowed a 390px screen and the values collided. Results
+    // draw through two renderers and fixing one is the standing trap with this pair, so both are
+    // asserted: smaller type on mobile, and `min-w-0` so a grid item may shrink below its content
+    // instead of forcing its track wider than the column.
+    for (const [name, src] of [['result page', resultPage], ['LeadMagnetResult', leadMagnetResult]] as const) {
+      const c = code(src);
+      expect(c, `${name} scenarios tile`).toMatch(/min-w-0 rounded-xl p-2 sm:p-[34]/);
+      expect(c, `${name} scenarios value`).toMatch(/break-words/);
+      expect(c, `${name} still three columns`).toMatch(/grid grid-cols-3/);
+    }
   });
 
   it('the ManyChat result page gets the same narrative, not the old showcase', () => {

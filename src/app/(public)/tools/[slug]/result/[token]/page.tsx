@@ -109,9 +109,9 @@ export default async function ResultPage({
 
   return (
     <main className="min-h-screen bg-crwn-bg text-white">
-      <div className="max-w-2xl mx-auto px-6 py-12 sm:py-16">
+      <div className="max-w-2xl mx-auto px-6 py-8 sm:py-16">
         {/* Brand */}
-        <div className="flex items-center gap-2 mb-14">
+        <div className="flex items-center gap-2 mb-8 sm:mb-14">
           <Crown className="w-5 h-5 text-[#D4AF37]" />
           <span className="font-semibold tracking-[0.08em] text-sm">CRWN</span>
         </div>
@@ -119,25 +119,15 @@ export default async function ResultPage({
         {/* Hero: a bold gold number card when we have one (worth-style), else the editorial
             statement. The number is the first thing the reader sees. */}
         {data.heroValue ? (
-          <div className="mb-10 rounded-2xl border border-[#D4AF37]/30 bg-gradient-to-b from-[#D4AF37]/10 to-white/[0.02] p-8 sm:p-10">
+          <div className="mb-6 sm:mb-10 rounded-2xl border border-[#D4AF37]/30 bg-gradient-to-b from-[#D4AF37]/10 to-white/[0.02] p-6 sm:p-10">
             <div className="text-center">
               <p className="text-[11px] uppercase tracking-[0.28em] text-white/50 mb-3">{data.heroEyebrow || 'Your result'}</p>
-              <div className="text-6xl sm:text-7xl font-bold text-[#D4AF37] leading-none">
+              <div className="text-5xl sm:text-7xl font-bold text-[#D4AF37] leading-none">
                 {data.heroValue}
                 <span className="text-3xl sm:text-4xl font-bold">{data.heroSuffix}</span>
               </div>
-              {data.summary && <p className="text-white/50 text-base mt-4 leading-relaxed max-w-lg mx-auto">{data.summary}</p>}
+              {data.summary && <p className="text-white/50 text-sm sm:text-base mt-4 leading-relaxed max-w-lg mx-auto">{data.summary}</p>}
             </div>
-            {heroTiles?.metrics && (
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 mt-7">
-                {heroTiles.metrics.map((m, i) => (
-                  <div key={i} className="rounded-xl bg-white/[0.03] border border-white/[0.08] p-4">
-                    <p className="text-xl font-bold text-[#D4AF37] leading-tight">{m.value}</p>
-                    <p className="text-sm text-white/55 mt-1 leading-tight">{m.label}</p>
-                  </div>
-                ))}
-              </div>
-            )}
           </div>
         ) : (
           <div className="mb-16">
@@ -151,6 +141,22 @@ export default async function ResultPage({
 
         {/* Above the fold: collect the email, then sign up directly under it. */}
         <LeadEmailCta claimed={claimed} claimHref={claimHref} toolSlug={result.toolSlug || slug} ctaLabel={continueLabel} />
+
+        {/* The supporting tiles sit BELOW the ask, not inside the hero card above it. On a phone
+            that 2x2 grid was roughly 230px of detail wedged between the number and the only
+            buttons on the page, which put every CTA off the first screen. The number and its one
+            sentence are the promise; these are the evidence for it, and evidence can come after
+            the ask. */}
+        {heroTiles?.metrics && (
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 mt-6">
+            {heroTiles.metrics.map((m, i) => (
+              <div key={i} className="rounded-xl bg-white/[0.03] border border-white/[0.08] p-4">
+                <p className="text-xl font-bold text-[#D4AF37] leading-tight">{m.value}</p>
+                <p className="text-sm text-white/55 mt-1 leading-tight">{m.label}</p>
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* Sections, with a CTA woven into the middle */}
         <div className="space-y-8 mt-16">
@@ -370,25 +376,29 @@ function Section({ section }: { section: ResultSection }) {
 
       {/* scenarios -> conservative / expected / high, the middle emphasized */}
       {section.kind === 'scenarios' && section.metrics && (
-        <div className="grid grid-cols-3 gap-2 sm:gap-3">
+        <div className="grid grid-cols-3 gap-1.5 sm:gap-3">
           {section.metrics.map((m, i) => {
             const mid = i === 1;
             return (
               <div
                 key={m.label}
-                className={`rounded-xl p-3 sm:p-4 text-center ${
+                // `min-w-0` lets a grid item shrink below its content instead of forcing the track
+                // wider than the column, which is what let these values spill into each other.
+                className={`min-w-0 rounded-xl p-2 sm:p-4 text-center ${
                   mid ? 'bg-[#D4AF37]/10 border border-[#D4AF37]/30' : 'bg-white/[0.02] border border-white/[0.06]'
                 }`}
               >
-                <p className="text-[10px] uppercase tracking-wider text-white/50 mb-1.5 leading-tight">{m.label}</p>
+                <p className="text-[9px] sm:text-[10px] uppercase tracking-wider text-white/50 mb-1 sm:mb-1.5 leading-tight">
+                  {m.label}
+                </p>
                 <p
-                  className={`font-bold leading-tight ${
-                    mid ? 'text-xl sm:text-2xl text-[#D4AF37]' : 'text-lg sm:text-xl text-white/90'
+                  className={`font-bold leading-tight break-words ${
+                    mid ? 'text-base sm:text-2xl text-[#D4AF37]' : 'text-sm sm:text-xl text-white/90'
                   }`}
                 >
                   {m.value}
                 </p>
-                {m.note && <p className="text-[10px] text-white/40 mt-1 leading-tight">{m.note}</p>}
+                {m.note && <p className="text-[9px] sm:text-[10px] text-white/40 mt-1 leading-tight">{m.note}</p>}
               </div>
             );
           })}
