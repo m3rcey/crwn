@@ -107,6 +107,27 @@ artist, add the full entry in the same session.
 - cautions: ~4.5M monthly listeners sits ABOVE the Tier 1 ceiling, so anchor math on the follower
   count and keep the pivot on his operating style
 
+### Saba
+- lane: Chicago hip hop
+- why ICP-fit: built Pivot Gang with friends out of a basement studio into a real label (Pivot
+  Gang Records), joint album with No I.D., international headline touring, and an annual John
+  Walt Day tribute show his people show up for with no release attached (researched 2026-08)
+- known behavior to research: John Walt Day, Pivot Gang roster, Big Picture Tour routing
+- pairs well with: hidden asset (ritual as an asset), community vs audience, collective angles
+- cautions: no verified follower, listener or attendance figures found, so model any math and say
+  so. The John Walt tribute honors a friend they lost; treat it with respect and never reduce it
+  to a revenue mechanic
+
+### Emotional Oranges
+- lane: R&B (LA duo)
+- why ICP-fit: anonymous by design, independent, and they built the base by replying to 40 to 50
+  fans a day when they had two songs out; festival-level draw since (researched 2026-08)
+- known behavior to research: the reply rule, the anonymity staging, release cadence
+- pairs well with: evidence/proof, owned relationships, community
+- cautions: no verified follower or listener counts found; the reply-rule arithmetic is a model,
+  and the anonymity is a genuine differentiator that most artists cannot copy, so do not present
+  it as a repeatable tactic
+
 ## upper-bound (use sparingly; run the pivot sanity check)
 
 ### Russ
