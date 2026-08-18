@@ -2,12 +2,13 @@
 
 **SCRIPT:**
 
-Curren$y has put out over 90 projects. Westside Gunn presses 400 copies.
-Which one's fans are actually worth more, and by how much, is a number that should change how independent artists like them price everything.
+Curren$y has put out over 90 projects. Westside Gunn put out 400 copies of 1 project.
+Which one's fans are actually worth more, and by how much? 
+The answer should change how independent artists like them price everything.
 
 Let's break it down.
 
-Curren$y might be the most prolific rapper alive. He put out over 90 projects since 2009. Jet Life is a whole universe and the real ones been living in it 15 years.
+Curren$y might be the most prolific rapper alive. He put out over 90 projects since 2009. Jet Life is a whole world and the day ones been living in it 15 years.
 His model is volume. Keep feeding them, dont disappear, letcha catalog stack up.
 And it works. He sits around 1.5 million monthly listeners.
 
@@ -26,7 +27,7 @@ When the two numbers landed next to each other I had to sit back and look at it 
 Hold that thought.
 You dont need to market to fans. You need a market FOR fans.
 Reach and depth aint the same job, and most artists only got tools for the first one.
-Knowing which of your people actually buy, and giving them something only they can get, is what the CRWN app is built around: your membership ladder and a vault your top members get into.
+Knowing which of your people actually buy, and giving them something only they can get, is what the CRWN app is built around: your membership tiers and a vault your top members get into.
 ANYWAY.
 
 Them 400 records go for around $300 a copy on resale.
@@ -36,7 +37,7 @@ Which means 400 people spent what a million and a half listeners spend in eight 
 
 And the 400 aint just worth more.
 One collector paying $300 is the same money as 30,000 people listening for a month.
-Except the 30,000 is anonymous, and the 400 got names, addresses and a habit.
+Except the 30,000 is anonymous, and the 400 got names and addresses.
 One of them groups you can call. The other one has to come back on they own, and that's how streaming was built for everybody, Curren$y included.
 
 Now to be fair, Curren$y's volume is what built the catalog people collect in the first place, so this aint volume versus scarcity as good versus bad.

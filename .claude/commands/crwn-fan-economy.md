@@ -363,6 +363,17 @@ Factor stays unexpected; never tease it up front unless it is genuinely the prim
 Conversational and fluid; the structure is invisible. Never print beat labels in the finished
 script unless the user asks for an annotated version.
 
+**SPEED (founder rule, 2026-08-16): the gap must be OPEN by the end of sentence one.** Two at the
+absolute most, and sentence two may only SHARPEN, never set up. This matches the house standard in
+`/crwn-shortform`, where a setup sentence followed by the question in sentence two or three loses
+points outright. Versus is the hard case, because two names look like they need establishing
+first. They do not. Fuse it into one clause pair: **[the bigger artist's advantage] + [the ICP
+artist's counter] + [the unresolved question]**, for example "Drake can buy any marketing on earth,
+and Akeem Ali is getting the one kind money cant touch, for free." Both names, the contrast and the
+gap in one breath. Everything the viewer needs to follow the setup gets re-established in the body
+anyway, so a standalone scene-setting sentence is pure delay. Before locking a hook, read sentence
+one ALONE and name the question it leaves open. If the answer is "none yet", rewrite.
+
 1. **HOOK**: recognizable ICP-fit artist + "and artists like [him/her/them]" + the PRIMARY
    curiosity promise, which is the question the Big Reveal will answer (see the Hook-Reveal
    Contract above; write the promise down before drafting). Ideally sentence one carries all
@@ -503,6 +514,16 @@ recurring format, not an occasional family.
      Never "the indie out-earns Drake".
    - The bigger artist is on the same rented land as everyone else. That is the honest point, and
      it insults nobody.
+1c. **THE FOIL ROTATES TOO (founder catch, 2026-08-16).** Drake landed in three library scripts at
+   once before this rule existed. Surface variation was written for sidenote entries and wow
+   transitions but never for the foil, and a repeated foil is worse than a repeated transition:
+   the channel starts looking like it is about that one superstar instead of about the Fan
+   Economy. **Never use the same foil twice in a batch, and scan `videos/scripts/fan-economy/`
+   filenames for recent foils before picking.** Match the foil to the AXIS, which naturally
+   spreads them: the biggest streaming number for members-vs-listeners (Drake), a mogul who was
+   out-earned in a documented year for reach-vs-conversion (50 Cent), a top-tier rollout machine
+   for earned-vs-bought marketing (Beyoncé), the ownership blueprint for deal-vs-independence
+   (Jay-Z), a stadium-scale machine for built-vs-bought (Travis Scott).
 2. **THERE IS NO LOSER. Both sides must be genuinely good at what they do.** If one is a punchline
    the argument is over, nobody shares it, and CRWN just insulted a prospect (rule 4b). The rules
    that keep it honest: **the side that "loses" the number owns the HARDER thing to build**, say
@@ -713,7 +734,8 @@ its own META. End the chat response with clickable markdown links to the saved f
 - [ ] **Repost test:** the named artist (BOTH of them in a versus) would comfortably repost this.
       No verdict verbs, the gap is a door nobody built them, and the gap is named as universal
 - [ ] "and artists like [him/her/them]" (or equivalent) appears early
-- [ ] Hook opens a concrete unresolved question; no throat-clearing; no CRWN at the top
+- [ ] Hook opens a concrete unresolved question by the END of sentence one (two at the most, and
+      the second only sharpens, never sets up); no throat-clearing; no CRWN at the top
 - [ ] **Hook-Reveal Contract:** Test A (reveal answers the hook, read alone), Test B (hook makes
       the KIND of answer predictable), Test C (the reveal question was NOT first introduced
       mid-script). `Hook promise:` written into the META
