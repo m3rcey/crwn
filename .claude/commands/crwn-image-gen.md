@@ -109,6 +109,26 @@ frequently stale (artists change their hair) or describes one shoot. **If Josh s
 photo, that is the answer**, and the note should be rewritten from what is visible in it. When
 only prose is available, keep the note short and lean on the fetched photo instead.
 
+**When search cannot find the artist, PIN THE PHOTO with `photoUrl`.** Two of the search failures
+so far were not bad queries, they were names the search engine cannot disambiguate. "redveil"
+reads as an ordinary word, so Brave returned 24 stock-photo rappers out of 25 and every real
+candidate was album art or a concert wide. Set `photoUrl` on the person record to a direct image
+URL and the fetcher downloads that instead, skipping the vision gate, because a chosen photo is
+already verified. This is the same rule as above applied to the pipeline: a named photo outranks
+a search result.
+
+**The vision gate rejects artists the model has never heard of.** It asks "does this clearly look
+like X the public figure", and for anyone below the model's fame threshold the answer is always
+NO, so every genuine photo gets rejected and the artist is drawn with no reference at all. That is
+what happened to redveil, and to Rapsody before him. Set `identityByFeatures: true` on the person
+record and criterion 2 switches to matching the verified `draw` description instead of recalling
+the name. Use it only where the `draw` note came from a real photo, since it trades fame-recall
+for a feature match and a lookalike could pass.
+
+**A regenerated sheet is not verified until you have looked at it.** Both fixes above were caught
+by opening the file, not by the pipeline reporting success. The generator prints `OK` for a sheet
+that drew the wrong person entirely.
+
 Also from `/crwn-lead-magnet`: likeness comes from HEAD SIZE and INK DENSITY. Ask for a figure
 drawn from the thighs up with the head about one sixth of the page height, rendered as a detailed
 comic-book INKED PORTRAIT with fine cross-hatching, not a simplified cartoon face. A small head
@@ -235,7 +255,7 @@ The post title to convert is the title field from the script (the first of the 5
 
 When a script names a specific real person (Drake, Kendrick Lamar, Lil Wayne, Beyoncé, etc.), the generated image should depict that person recognizably — not a generic stick figure. The pipeline:
 
-1. **Detect**: import `findMentionedSlugs` from `fetch-person-ref.mjs` and run it against the script's text body. It returns kebab slugs (e.g. `["drake", "kendrick"]`) by matching the `aliases` arrays in `known-people.json`.
+1. **Detect**: import `findMentionedSlugs` from `fetch-person-ref.mjs` and run it against the **prompt block, never the whole script**. It returns kebab slugs (e.g. `["drake", "kendrick"]`) by matching the `aliases` arrays in `known-people.json`.
 2. **Fetch if missing**: call `await ensurePersonRefs(slugs)`. For each slug, the helper checks `references/people/[slug].(jpg|png|webp|gif)`. If missing, it queries the Brave Image Search API with the artist's `search` query, downloads the first usable image (min 5KB, valid image format), and saves it as `references/people/[slug].<ext>`. If Brave returns nothing usable, it falls back to the Wikipedia REST summary endpoint using the artist's `wiki` page name.
 3. **Attach**: build a `parts` array entry from each fetched photo via `buildPersonRefParts(refs)` and concatenate it onto the Gemini request alongside the style refs.
 4. **Instruct**: include `PERSON_REF_INSTRUCTION` (exported by the helper) as a `text` part. It tells the model to capture the likeness but render the person as raw hand-drawn sharpie line work, not photoreal.
@@ -243,6 +263,15 @@ When a script names a specific real person (Drake, Kendrick Lamar, Lil Wayne, Be
 If a person isn't in `known-people.json` yet but shows up in a script, add them to the JSON before running — give them a kebab slug, a Brave search query, a Wikipedia page name (with underscores for spaces, e.g. `Tupac_Shakur`), and an aliases array covering nicknames.
 
 If the fetch fails entirely for a person, log a warning and continue — the image will generate without that person ref attached, falling back to a generic stick figure.
+
+**Scan the prompt block, not the narration.** The narration names other artists as examples, and
+scanning it attaches their reference photos to a page that never draws them. Script 8 of the Fan
+Economy series mentions Prince and Chance the Rapper in passing, so with redveil's own fetch
+failing the sheet came back with **Prince drawn as the main figure and labelled PRINCE**. Two
+faults compounded: an unscoped scan supplied a wrong face, and a failed fetch removed the right
+one. `generate-fan-economy-images.mjs` and `generate-dtc-images.mjs` both scope this now; any new
+generator must too.
+
 
 ## Generation Script
 

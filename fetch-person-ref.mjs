@@ -196,15 +196,23 @@ function displayNameFromSlug(slug) {
     .join(" ");
 }
 
-async function evaluatePhoto(ai, buf, mimeType, personName, extraCriteria, deceased = false) {
+async function evaluatePhoto(ai, buf, mimeType, personName, extraCriteria, deceased = false, identityFeatures = null) {
   const recencyCriterion = deceased
     ? "EDITORIAL: Looks like a real press/editorial/performance photo from any era (this person is deceased — recency is NOT required and old photos are expected and fine)."
     : "RECENT EDITORIAL: Looks like a recent press/editorial photo (taken within the last 2-3 years if possible).";
+  // The gate asked the model to RECOGNISE the person by name. For an artist below the
+  // model's fame threshold that answer is always NO, so every genuine photo of them was
+  // rejected and they were drawn with no reference at all (redveil, and Rapsody before
+  // him). Where the founder has verified the look from a real photo, judge identity by
+  // those features instead of by name recall.
+  const identityCriterion = identityFeatures
+    ? `CORRECT PERSON: The single visible person matches this description: ${identityFeatures} Judge ONLY by these described features. Do NOT reply NO merely because you do not recognise the person by name. Still reject fan illustrations, AI-generated cartoons and paintings.`
+    : `CORRECT PERSON: The single visible person clearly looks like ${personName} the public figure (not a different celebrity, not a fan illustration, not an AI-generated cartoon, not a painting).`;
   const prompt = `Look at this photo. I will use it as the reference for drawing a hand-sketched cartoon portrait of ${personName}. Reply ONLY with one word: YES or NO.
 
 Reply YES only if ALL of these are true:
 1. SOLO SUBJECT: Only ONE person is visible in the photo. If two or more people are in the frame at all — even partially, even in the background, even an arm or shoulder of another person — reply NO. No group photos, no duos, no crowd shots.
-2. CORRECT PERSON: The single visible person clearly looks like ${personName} the public figure (not a different celebrity, not a fan illustration, not an AI-generated cartoon, not a painting).
+2. ${identityCriterion}
 3. FRONT-FACING: The face is front-facing or up to a 3/4 angle. NOT a side profile, NOT facing away.
 4. HEAD AND SHOULDERS: Head and shoulders are clearly visible. Face is the main subject of the frame.
 5. ${recencyCriterion}
@@ -250,11 +258,30 @@ export async function fetchPersonRef(slug, opts = {}) {
   const wikiPage = opts.wiki || entry.wiki;
   const personName = opts.name || entry.name || displayNameFromSlug(slug);
   const extraCriteria = opts.extraCriteria || entry.extraCriteria;
+  // Opt-in per person: identity is judged by the verified `draw` description
+  // rather than by whether the vision model happens to know the name.
+  const identityFeatures = entry.identityByFeatures ? entry.draw || null : null;
   const deceased = opts.deceased ?? entry.deceased ?? false;
 
   const geminiKey = process.env.GEMINI_API_KEY;
   const ai = geminiKey ? new GoogleGenAI({ apiKey: geminiKey }) : null;
   if (!ai) console.warn(`[${slug}] GEMINI_API_KEY not set — skipping vision evaluation`);
+
+  // A named photo outranks a search result, and for an artist the search engine cannot
+  // disambiguate it is the only thing that works: "redveil" reads as a generic word, so
+  // Brave returns 24 stock-photo rappers out of 25. Set `photoUrl` on the person record
+  // and the vision gate is skipped, because a founder-chosen photo is already verified.
+  if (entry.photoUrl) {
+    try {
+      const { buf, ext } = await downloadImage(entry.photoUrl);
+      const outPath = path.join(PEOPLE_DIR, `${slug}.${ext}`);
+      fs.writeFileSync(outPath, buf);
+      console.log(`[${slug}] fetched via pinned photoUrl (${ext}, ${buf.length} bytes)`);
+      return outPath;
+    } catch (err) {
+      console.warn(`[${slug}] pinned photoUrl failed: ${err.message} — falling back to search`);
+    }
+  }
 
   let urls = [];
   try {
@@ -275,7 +302,7 @@ export async function fetchPersonRef(slug, opts = {}) {
     }
     let ok = null;
     if (ai) {
-      ok = await evaluatePhoto(ai, buf, mimeFromExt(ext), personName, extraCriteria, deceased);
+      ok = await evaluatePhoto(ai, buf, mimeFromExt(ext), personName, extraCriteria, deceased, identityFeatures);
     }
     if (ok === false) {
       visionRejected++;
@@ -303,7 +330,7 @@ export async function fetchPersonRef(slug, opts = {}) {
         }
         let ok = null;
         if (ai) {
-          ok = await evaluatePhoto(ai, buf, mimeFromExt(ext), personName, extraCriteria, deceased);
+          ok = await evaluatePhoto(ai, buf, mimeFromExt(ext), personName, extraCriteria, deceased, identityFeatures);
         }
         if (ok === false) {
           console.log(`  [${slug}] vision rejected wiki: ${url}`);

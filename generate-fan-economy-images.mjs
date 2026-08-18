@@ -122,7 +122,11 @@ for (let idx = 0; idx < scriptFiles.length; idx++) {
   }
 
   const skipSlugs = parseSkipPeople(scriptContent);
-  const peopleSlugs = findMentionedSlugs(scriptContent).filter((s) => !skipSlugs.includes(s));
+  // Scan the PROMPT BLOCK, not the whole script. The narration names other artists as
+  // examples, and scanning it attached their reference photos to a page that never draws
+  // them: script 8 mentions Prince and Chance the Rapper, so the sheet came back with
+  // Prince drawn as the main figure and labelled PRINCE instead of redveil.
+  const peopleSlugs = findMentionedSlugs(promptText).filter((s) => !skipSlugs.includes(s));
   console.log(`\n[${idx + 1}/${scriptFiles.length}] ${slug}`);
   console.log(`  people: ${peopleSlugs.length ? peopleSlugs.join(", ") : "(none)"}${skipSlugs.length ? `  [skipped: ${skipSlugs.join(", ")}]` : ""}`);
 
