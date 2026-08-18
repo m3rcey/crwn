@@ -2,8 +2,7 @@
 
 **SCRIPT:**
 
-Tink's realest fans do something every drop that most artists completely ignore.
-And artists like her (I'm talking to YOU) are leaving real money inside that exact habit.
+Tink's realest fans do something every drop that most artists completely ignore, and what that one habit is worth in a year is money artists like her (I'm talking to YOU) never even count.
 
 Hear me out.
 
@@ -58,7 +57,7 @@ Comment VAULT and I'll DM you the link.
 
 **META:** Artist: Tink · Family: C/Existing Fan Behavior · Mechanism: early-access windows + members-only vault ·
 Metric: behavior-anchored (Uproxx: independent after Timbaland/Mosley split; Rated R&B: WD5 via EMPIRE 2024-07-12; series running 12+ years); day-one cohort illustrative, follower math deliberately avoided (counts unverified) ·
-Hook promise: how much money is sitting inside the day-one drop ritual ·
+Hook promise: what the day-one drop ritual is worth in a year (a dollar figure, unit-matched to the reveal) ·
 Withheld variable: cohort size AND tier price · Big Reveal: money ($12,000 a month, $144,000 a year) ·
 Wow Factor: compounding (the first room announces the drop) · Lead magnet: vault-revenue-planner + VAULT ·
 CRWN claim tier: shipped (per-tier early access days + vault in the membership ladder)

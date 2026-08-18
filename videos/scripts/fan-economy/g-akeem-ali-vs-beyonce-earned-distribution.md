@@ -1,8 +1,8 @@
-# Akeem Ali vs Beyonce: the marketing money cant buy
+# Akeem Ali vs Beyoncé: the hours money cant buy
 
 **SCRIPT:**
 
-Beyonce can buy any rollout on earth, and Akeem Ali is getting the one kind money cant touch, for free.
+Beyoncé can buy any rollout on earth, and when you put a clock on the work Akeem Ali's fans do for him for free, the hours dont look real.
 
 Let's look at it.
 
@@ -12,7 +12,7 @@ But the followers aint the story. Go on TikTok and it's not just his page. It's 
 
 Now think about what that actually is.
 That's production work. Somebody picked the clip, cut it, captioned it, posted it, and put they own name behind it.
-A rollout at Beyonce's level can buy placement, billboards, playlists, a whole national moment, and it works better than anything else in the business.
+A rollout at Beyoncé's level can buy placement, billboards, playlists, a whole national moment, and it works better than anything else in the business.
 What it cant buy is a stranger vouching for you on they own page for nothing.
 
 And here's the part that should bother you if you got fans doing this.
@@ -51,7 +51,7 @@ Comment SHARE and I'll DM you the link.
 **META:** Artist: Akeem Ali vs Beyoncé · Family: G/Comparison · Axis: earned distribution vs bought marketing ·
 Mechanism: Share-to-Earn / fan-made content ·
 Metric: Akeem ~1M IG and ~533K TikTok (web-verified 2026-08), fan-clip culture observable on TikTok; the 500 posters x 30 minutes is a stated model, not a measurement. No Beyoncé figures asserted; she is characterized only as operating a top-tier rollout ·
-Hook promise: what the free thing is that a Beyoncé-level budget cannot buy, and how much of it Akeem gets ·
+Hook promise: how many HOURS of free work his fans put in (unit-matched to the reveal) ·
 Withheld variable: poster count AND minutes per post · Big Reveal: time/production (about 3,000 hours a year) ·
 Wow Factor: contrarian (it works BECAUSE nobody paid for it; at the top everything looks bought) ·
 Lead magnet: share-to-earn-planner + SHARE · CRWN claim tier: shipped (referral rail, artist-set rate) ·

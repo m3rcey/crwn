@@ -2,8 +2,8 @@
 
 **SCRIPT:**
 
-Money Man paid $250,000 to get OUT of his record deal.
-Not to sign one. To LEAVE one. And what he got offered AFTER he owned everything is the number independent artists like him should be paying attention to.
+Money Man paid $250,000 to get OUT of his record deal, and what he got offered AFTER he owned everything is the number independent artists like him should be paying attention to.
+Not to sign one. To LEAVE one.
 
 Here's the story.
 

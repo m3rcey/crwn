@@ -2,8 +2,7 @@
 
 **SCRIPT:**
 
-Larry June puts a price on it. LaRussell lets the fan pick.
-What that same album is worth under them two rules is a gap independent artists like them should see before they price anything else.
+Larry June puts a price on it and LaRussell lets the fan pick, and what the exact same album is worth under them two rules is a gap independent artists should see before they price anything else.
 
 Here's the setup.
 

@@ -2,7 +2,7 @@
 
 **SCRIPT:**
 
-Travis Scott has one of the best machines in music behind him, and Tobe Nwigwe built 2 million followers with his wife and a camera, so the question is what that second kind of fanbase does that the first one never will.
+Travis Scott has one of the best machines in music behind him, and Tobe Nwigwe built 2 million followers with his wife and a camera for an amount of money that should embarrass the whole industry.
 
 Let's break it down.
 
@@ -49,7 +49,7 @@ Comment FREE and I'll DM you the link.
 **META:** Artist: Tobe Nwigwe vs Travis Scott · Family: G/Comparison · Axis: built vs bought (community vs assembled audience) ·
 Mechanism: consistency ritual / owned fan relationship ·
 Metric: Tobe ~2M IG, getTWISTEDsundays weekly series, past 100K followers by April 2018 with no PR or marketing, Reebok partnership, Badu and Michelle Obama co-signs (Texas Monthly, Wikipedia, web-verified 2026-08). No Travis Scott figures asserted; he is characterized only as running a major-scale rollout machine ·
-Hook promise: what a built fanbase does that a bought one never will ·
+Hook promise: what it COST to build a 2 million person fanbase (a dollar figure, unit-matched to the reveal) ·
 Withheld variable: the build cost (revealed as zero) · Big Reveal: money (2 million people, zero dollars of marketing) ·
 Wow Factor: compounding (a bought audience stops with the budget; Reebok came TO him) ·
 Lead magnet: opportunity-calculator + FREE · CRWN claim tier: shipped (memberships, vault, fan CRM) ·

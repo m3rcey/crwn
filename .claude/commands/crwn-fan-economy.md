@@ -340,6 +340,26 @@ answer coming, never its magnitude:
 | Asset | what the old thing turns out to be worth |
 | Historical / proof | what happened NEXT, or what the decision led to |
 
+**UNIT MATCHING (the failure that kept recurring, founder catch 2026-08-16).** Tests A, B and C
+all PASSED on three scripts that were still broken, so this is the fourth check and in practice
+the one that bites: **the hook must promise the same UNIT the reveal delivers.**
+
+| The hook promises | The reveal delivers | Verdict |
+|---|---|---|
+| "what her fans DO every drop" (a behavior) | $144,000 a year | FAIL |
+| "the one kind of marketing money cant buy" (a category) | 3,000 hours | FAIL |
+| "what a built fanbase DOES" (a capability) | it cost zero dollars | FAIL |
+| "how much he is leaving on the table" | $108,000 a year | pass |
+| "the number that made it possible" | 8 percent | pass |
+
+These feel aligned while drafting because the hook and the reveal are about the same TOPIC. They
+are not the same QUESTION. "What kind" is not "how much". "What it does" is not "what it cost".
+**Practical check: if the reveal is a quantity, sentence one must contain a phrase that promises a
+quantity** (how much, how many, the number, what it's worth, what it cost, put a clock on it, by
+how much). If the hook only names a category, a behavior or a lesson, the viewer is waiting for a
+DESCRIPTION, the middle of the script hands them that description, and the number then arrives
+unpromised. Rewrite the hook to name the unit, not the topic.
+
 **Three tests, mandatory before saving.** Run them on the finished draft:
 
 - **Test A (alignment).** Read ONLY the hook and the Big Reveal, ignoring everything between.
@@ -736,9 +756,10 @@ its own META. End the chat response with clickable markdown links to the saved f
 - [ ] "and artists like [him/her/them]" (or equivalent) appears early
 - [ ] Hook opens a concrete unresolved question by the END of sentence one (two at the most, and
       the second only sharpens, never sets up); no throat-clearing; no CRWN at the top
-- [ ] **Hook-Reveal Contract:** Test A (reveal answers the hook, read alone), Test B (hook makes
-      the KIND of answer predictable), Test C (the reveal question was NOT first introduced
-      mid-script). `Hook promise:` written into the META
+- [ ] **Hook-Reveal Contract:** UNIT MATCH (the hook promises the same unit the reveal delivers:
+      a quantity reveal needs a quantity word in sentence one), Test A (reveal answers the hook,
+      read alone), Test B (hook makes the KIND of answer predictable), Test C (the reveal question
+      was NOT first introduced mid-script). `Hook promise:` written into the META
 - [ ] Artist behavior and audience numbers are researched, current, and hedged appropriately
 - [ ] Audience metric matches the mechanism; participating counts derived, never arbitrary
 - [ ] All math re-multiplied and internally consistent

@@ -2,8 +2,7 @@
 
 **SCRIPT:**
 
-Joyce Wrice has made records with Kaytranada, Freddie Gibbs and Lucky Daye.
-What a room of her paying fans would be worth if they got to help pick the next record is a number artists like her never even count.
+Joyce Wrice has made records with Kaytranada, Freddie Gibbs and Lucky Daye, and what a room of her paying fans would pay to help pick the next one is a number artists like her never even count.
 
 Let's talk about it and see what it is.
 
