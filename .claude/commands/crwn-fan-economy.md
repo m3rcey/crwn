@@ -734,9 +734,15 @@ Save to `videos/scripts/fan-economy/[N]-[artist-slug]-[short-concept].md` (found
 `12-tee-grizzley-vs-drake-members-vs-listeners.md`, `18-founder-the-first-dollar.md` (founder
 scripts use `founder` as the artist slug).
 
-- **N is the next number in the folder.** Scan `videos/scripts/fan-economy/` for the highest
-  existing number and increment. Numbers run in production order and are never reused or
-  renumbered, so an existing script keeps its number forever.
+- **The number is the PUBLISH QUEUE POSITION, not a permanent id** (founder decision,
+  2026-08-18, replacing the earlier "never renumbered" rule, which was wrong: the number is
+  Josh's filming order, so it is his to rearrange). Number 1 is what he films next.
+- **A new script appends to the END.** Scan `videos/scripts/fan-economy/` for the highest existing
+  number and increment. Do not guess at a priority slot; he reorders when he wants to.
+- **When he gives a new order, renumber the whole folder in one pass.** Any scripts he does not
+  name keep their existing relative order. Collisions are guaranteed (7 becomes 1 while 1 becomes
+  10), so rename in TWO phases through a temp prefix, or files get clobbered, and use `git mv` so
+  history follows.
 - No zero padding, same as the shortform folder.
 - **The family letter is GONE from filenames and lives in the META line** (`Family: G/Comparison`),
   which is where it was always the authority anyway. Grep the META lines when you need to know
