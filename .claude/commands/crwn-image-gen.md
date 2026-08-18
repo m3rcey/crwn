@@ -101,6 +101,14 @@ took three moves:
    ("never draw him with braids, dreadlocks or long hair of any kind"). The negative is what kills
    a wrong feature the model keeps reaching for.
 
+**A PHOTO OUTRANKS A WRITTEN DESCRIPTION, including a search result.** Tobe Nwigwe's first note
+said "hair shaved close on the sides", taken from a magazine profile, and the sheet came back with
+a low fade. Josh sent a cover photo showing the opposite: natural textured hair all the way
+around, no fade, and a far bigger beard than the drawing had. Prose about someone's appearance is
+frequently stale (artists change their hair) or describes one shoot. **If Josh sends a reference
+photo, that is the answer**, and the note should be rewritten from what is visible in it. When
+only prose is available, keep the note short and lean on the fetched photo instead.
+
 Also from `/crwn-lead-magnet`: likeness comes from HEAD SIZE and INK DENSITY. Ask for a figure
 drawn from the thighs up with the head about one sixth of the page height, rendered as a detailed
 comic-book INKED PORTRAIT with fine cross-hatching, not a simplified cartoon face. A small head
