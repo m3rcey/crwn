@@ -25,6 +25,7 @@
 //     from those answers. It never asserts eligibility or opens a scheduler.
 //   - No hidden surface is named. Feature names stay subordinate to the job they do.
 
+import Link from 'next/link';
 import { ArrowRight, Check } from 'lucide-react';
 import { SectionImage } from '@/components/ui/SectionImage';
 import { SECTION_ART } from '@/lib/positioning/sectionImages';
@@ -62,7 +63,22 @@ function H2({ children }: { children: React.ReactNode }) {
   return <h2 className="text-2xl sm:text-3xl font-bold leading-tight mb-4">{children}</h2>;
 }
 
-export function ToolMarketing({ slug, completed = false }: { slug: string; completed?: boolean }) {
+export function ToolMarketing({
+  slug,
+  completed = false,
+  continueHref,
+}: {
+  slug: string;
+  completed?: boolean;
+  /**
+   * Set on a surface that has NO funnel of its own, which today means the tokenized result page a
+   * ManyChat lead lands on. That page has no wizard, no builder and no hand-raiser, so the two
+   * scroll targets below do not exist there: both controls would silently jump to the top of the
+   * page while claiming to open something. When this is set they become links to the claim flow,
+   * which is the real next step on that surface.
+   */
+  continueHref?: string;
+}) {
   const door = getDoorway(slug);
   // A tool without a doorway is not promoted and must not render this narrative. Returning null
   // is the safe direction: the route keeps working with no lower page rather than asserting a
@@ -152,14 +168,23 @@ export function ToolMarketing({ slug, completed = false }: { slug: string; compl
         </div>
         <p className="text-sm text-crwn-text-secondary leading-relaxed mb-8">{FRL_CAPACITY_NOTE}</p>
         <div className="text-center">
-          <button
-            onClick={goToQualification}
-            className="inline-flex items-center gap-2 bg-crwn-surface border border-crwn-gold/40 text-crwn-text font-semibold py-3 px-7 rounded-full hover:border-crwn-gold transition-colors"
-          >
-            See if I qualify <ArrowRight className="w-4 h-4" />
-          </button>
+          {continueHref ? (
+            <Link
+              href={continueHref}
+              className="inline-flex items-center gap-2 bg-crwn-surface border border-crwn-gold/40 text-crwn-text font-semibold py-3 px-7 rounded-full hover:border-crwn-gold transition-colors"
+            >
+              See if I qualify <ArrowRight className="w-4 h-4" />
+            </Link>
+          ) : (
+            <button
+              onClick={goToQualification}
+              className="inline-flex items-center gap-2 bg-crwn-surface border border-crwn-gold/40 text-crwn-text font-semibold py-3 px-7 rounded-full hover:border-crwn-gold transition-colors"
+            >
+              See if I qualify <ArrowRight className="w-4 h-4" />
+            </button>
+          )}
           <p className="text-sm text-crwn-text-secondary mt-3">
-            {completed
+            {completed || continueHref
               ? 'Qualification is measured from the answers you already gave, not an application form.'
               : 'Qualification is measured from your calculator answers, not an application form. Run your numbers first.'}
           </p>
@@ -169,18 +194,27 @@ export function ToolMarketing({ slug, completed = false }: { slug: string; compl
       {/* E. FINAL CTA. The gold button on this page, so the assisted path above stays secondary. */}
       <section className="rounded-3xl border border-crwn-gold/25 bg-gradient-to-b from-crwn-gold/10 to-crwn-surface p-8 sm:p-10 text-center">
         <SectionImage src={SECTION_ART.toolClose.src} alt={SECTION_ART.toolClose.alt} />
-        <H2>{completed ? 'Your plan is already built above.' : 'Start with your own numbers.'}</H2>
+        <H2>{completed || continueHref ? 'Your plan is already built above.' : 'Start with your own numbers.'}</H2>
         <p className="text-crwn-text-secondary leading-relaxed mb-7 max-w-xl mx-auto">
-          {completed
+          {completed || continueHref
             ? 'Everything above was computed from your answers. Save it and CRWN turns it into the ladder, the calendar and the one next move you work from.'
             : 'It takes a couple of minutes and nothing is gated. You get the figure, the offer we would build, and the first move to make.'}
         </p>
-        <button
-          onClick={goToContinuation}
-          className="inline-flex items-center gap-2 bg-crwn-gold text-crwn-bg font-semibold py-4 px-8 rounded-full hover:bg-crwn-gold/90 transition-colors"
-        >
-          {completed ? 'Back to my plan' : 'Run my numbers'} <ArrowRight className="w-5 h-5" />
-        </button>
+        {continueHref ? (
+          <Link
+            href={continueHref}
+            className="inline-flex items-center gap-2 bg-crwn-gold text-crwn-bg font-semibold py-4 px-8 rounded-full hover:bg-crwn-gold/90 transition-colors"
+          >
+            Save my plan <ArrowRight className="w-5 h-5" />
+          </Link>
+        ) : (
+          <button
+            onClick={goToContinuation}
+            className="inline-flex items-center gap-2 bg-crwn-gold text-crwn-bg font-semibold py-4 px-8 rounded-full hover:bg-crwn-gold/90 transition-colors"
+          >
+            {completed ? 'Back to my plan' : 'Run my numbers'} <ArrowRight className="w-5 h-5" />
+          </button>
+        )}
       </section>
     </div>
   );

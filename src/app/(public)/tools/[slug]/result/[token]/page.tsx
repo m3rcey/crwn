@@ -22,6 +22,8 @@ import Link from 'next/link';
 import { Check, Crown, ArrowRight, ArrowDown } from 'lucide-react';
 import { getResultByToken, recordView } from '@/lib/leadResults/resultAccess';
 import { CrwnShowcase } from '@/components/lead-magnets/CrwnShowcase';
+import { ToolMarketing } from '@/components/lead-magnets/ToolMarketing';
+import { hasDoorway } from '@/lib/leadMagnets/positioning';
 import { ToolShowcase } from '@/components/lead-magnets/ToolShowcase';
 import { LeadEmailCta } from '@/components/lead-magnets/LeadEmailCta';
 import { continueCtaFor } from '@/lib/leadMagnets/continuationCta';
@@ -172,11 +174,29 @@ export default async function ResultPage({
           <p className="text-[11px] text-white/30 mt-12 leading-relaxed">{ESTIMATE_DISCLAIMER}</p>
         )}
 
-        {/* This tool's own mockups first (if it has any), then the full CRWN pitch: what it
-            is and everything it offers, then the closing CTA. The result itself is NOT
-            gated; all of it renders without an email. */}
-        <ToolShowcase slug={result.toolSlug || slug} />
-        <CrwnShowcase claimed={claimed} claimHref={claimHref} />
+        {/* THE LOWER PAGE. A PROMOTED tool gets the same Zero to One narrative its own funnel
+            page renders (what this reveals, one fan economy, the path to a first paid member,
+            First Revenue Launch, close). This route was missed when that pass shipped, so a lead
+            arriving from a ManyChat link still met the OLD generic showcase, whose mockups
+            advertise the leaderboard, Sync, the AI actions feed, the clipper program and email
+            sequences: five surfaces the pre-PMF reduction hid. It is the highest-intent audience
+            CRWN has, and it was the last one still being shown a product that is not there.
+
+            `continueHref` because this page has no funnel of its own: no wizard, no builder, no
+            hand-raiser. Without it the narrative's two controls would scroll to the top of the
+            page while claiming to open something. With it they point at the claim flow, which is
+            the actual next step here.
+
+            Paused tools keep the old showcase. They have no doorway, so `ToolMarketing` would
+            render nothing and their old Reels would land on a result with no pitch under it. */}
+        {hasDoorway(result.toolSlug || slug) ? (
+          <ToolMarketing slug={result.toolSlug || slug} continueHref={claimed ? '/profile/artist' : claimHref} />
+        ) : (
+          <>
+            <ToolShowcase slug={result.toolSlug || slug} />
+            <CrwnShowcase claimed={claimed} claimHref={claimHref} />
+          </>
+        )}
       </div>
     </main>
   );

@@ -28,6 +28,7 @@ const homeFunnel = read('src/app/HomeFunnel.tsx');
 const worth = read('src/app/(public)/worth/WorthExperience.tsx');
 const toolHero = read('src/components/lead-magnets/ToolHero.tsx');
 const sectionImage = read('src/components/ui/SectionImage.tsx');
+const resultPage = read('src/app/(public)/tools/[slug]/result/[token]/page.tsx');
 
 /**
  * Source with comments removed.
@@ -413,6 +414,28 @@ describe('page composition', () => {
     expect(toolMarketing).toMatch(/QUALIFY_ANCHOR_ID/);
     expect(toolMarketing).toMatch(/PLAN_ANCHOR_ID/);
     expect(toolMarketing).toMatch(/Run your numbers first/);
+  });
+
+  it('the ManyChat result page gets the same narrative, not the old showcase', () => {
+    // The tokenized result page is where a ManyChat lead lands, and it is a SEPARATE renderer from
+    // the funnel page. It was missed when the positioning pass shipped, so the highest-intent
+    // audience CRWN has was the last one still being shown CrwnShowcase, whose mockups advertise
+    // the leaderboard, Sync, the AI actions feed, the clipper program and email sequences.
+    expect(code(resultPage)).toMatch(/<ToolMarketing slug=\{result\.toolSlug \|\| slug\}/);
+    // It has no funnel of its own, so the narrative must be told that: without `continueHref` its
+    // qualify and close controls scroll to the top of the page while claiming to open something.
+    expect(code(resultPage)).toMatch(/continueHref=\{claimed \? '\/profile\/artist' : claimHref\}/);
+    // Paused tools KEEP the old showcase: they have no doorway, so ToolMarketing renders nothing
+    // and their still-live Reels would land on a result with no pitch underneath it.
+    expect(code(resultPage)).toMatch(/hasDoorway\(result\.toolSlug \|\| slug\)/);
+    expect(code(resultPage)).toMatch(/<CrwnShowcase/);
+  });
+
+  it('ToolMarketing never leaves a control pointing at a scroll target that is not there', () => {
+    // On a surface with no funnel the two scroll handlers are wrong, so both controls become links.
+    const tm = code(toolMarketing);
+    expect(tm).toMatch(/continueHref \? \(\s*<Link/);
+    expect((tm.match(/<Link\s+href=\{continueHref\}/g) ?? []).length).toBe(2);
   });
 
   it('the homepage is untouched by the calculator narrative', () => {
