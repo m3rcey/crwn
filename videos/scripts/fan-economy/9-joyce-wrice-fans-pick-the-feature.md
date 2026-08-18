@@ -8,7 +8,7 @@ Let's talk about it and see what it is.
 
 Joyce Wrice built hers the long way. Independent debut album. Her own imprint. A distribution deal where she kept her masters.
 Her collaborator list look like a lineup for a festival and none of it came from a major telling her who to work with.
-And her people are specific. They dont casually like Joyce Wrice, they study her.
+And her fan are specific. They dont casually like her, they study her.
 
 Now here's what's happening every time she picks a feature.
 That decision gets made in a room with her and maybe three other people.

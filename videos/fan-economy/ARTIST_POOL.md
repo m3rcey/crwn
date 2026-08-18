@@ -128,6 +128,36 @@ artist, add the full entry in the same session.
   and the anonymity is a genuine differentiator that most artists cannot copy, so do not present
   it as a repeatable tactic
 
+### redveil
+- lane: Maryland hip hop
+- why ICP-fit: self-PRODUCED and self-RELEASED four albums with no label, started as a teenager,
+  toured with Denzel Curry, opened for Freddie Gibbs, features with Chance and JPEGMAFIA
+  (researched 2026-08). Total release control, which makes him ideal for timing and rollout angles
+- known behavior to research: the self-release history, tour support runs, production
+- pairs well with: release waterfall, early access, ownership, missed money
+- cautions: only a verified X count (~107K) was found, no IG or listener figures, so anchor there
+  and label any conversion as a model. He is young, so avoid framing anything as a career verdict
+
+### Mick Jenkins
+- lane: Chicago hip hop
+- why ICP-fit: publicly uninterested in a major, deep catalog (The Water[s], Wave[s], The Healing
+  Component, Pieces of a Man, The Circus, Elephant in the Room, The Patience), 40 plus cities on
+  the Smoker's Club tour, and a fanbase trained to read for depth (researched 2026-08)
+- known behavior to research: label history (Cinematic, then RBC/BMG), touring, catalog
+- pairs well with: what-if concepts, demand testing, catalog depth, touring economics
+- cautions: he has had indie-label deals, so never call him unsigned; say he has avoided a major.
+  No verified follower or listener counts found
+
+### Baby Rose
+- lane: R&B
+- why ICP-fit candidate: Secretly Canadian (indie label, not a major), Grammy win for her
+  contribution to Leon Thomas's MUTT, heavy support and co-headline touring with Olivia Dean,
+  Vince Staples and Q (researched 2026-08)
+- known behavior to research: the touring pattern, vinyl, the Secretly Canadian arrangement
+- pairs well with: support-slot capture, collaboration economics, owned relationships
+- cautions: LABEL SIGNED, so the independence framing does not apply; no verified follower or
+  listener counts found. Unused so far
+
 ## upper-bound (use sparingly; run the pivot sanity check)
 
 ### Russ
