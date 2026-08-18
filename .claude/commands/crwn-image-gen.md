@@ -82,6 +82,34 @@ raise the timeout or split the batch, or the last few will be cut off mid-genera
 and ~686 DPI on a 5x7, so a smaller print is sharper under the lens, and matte stock beats glossy
 because gloss throws highlights back at the camera.
 
+## Fill the page: text density and how to keep it from garbling
+
+A sparse sheet reads unfinished. Josh's note on the first Fan Economy sheet was "everything is
+good, it's just not enough text on it", and he was right: the bottom third was empty white.
+
+**Target about 12 text objects, not 8.** The older 8-to-10 budget in `/crwn-lead-magnet` came
+from sheets where the model started inventing words ("SINGLE METRICS", "FIUNCH"). The real
+control is not fewer words, it is **explicit placement plus explicit counts**. Verified on the
+Curren$y vs Westside Gunn sheet 2026-08-18: 12 objects rendered clean, every note exactly once,
+nothing invented.
+
+The shape that worked, and the one to copy:
+
+- 1 headline, hand-lettered capitals, one or two lines
+- 1 small name label under each figure
+- a boxed column of **exactly THREE** short notes under each side
+- **exactly TWO** larger closing lines centred across the bottom
+- one `$?` tag, and no other currency mark anywhere
+
+**Say the count out loud in the prompt** ("a tidy stack of exactly THREE small notes, one per
+line, each appearing exactly once, each in a small hand-drawn box"). Counts and positions are
+what stop the model freelancing, and they also stop it repeating a note twice at different sizes.
+
+**Ban text on objects explicitly.** The first pass of that same sheet put "Hand Made" on the
+cap in a typeset-looking font, which is invented text and breaks the no-printed-font rule. Add:
+*there is NO text of any kind on clothing, hats, chains, sunglasses, record labels or any object;
+every garment is completely blank; the ONLY words on the page are the quoted ones.*
+
 ## Story-First Composition (THE #1 RULE — read before building any prompt)
 
 Measured from real view counts on posts 1-60, the single biggest driver of performance is whether the **central illustration acts out the idea** — not whether the text/math is correct. Ranking by views:
