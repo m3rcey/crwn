@@ -28,6 +28,7 @@ What makes this work aint the tech. Fans dont only want the song anymore, they w
 And that room is already live on the CRWN app. Executive Producer Sessions: your members buy a seat, send in they beats and ideas, vote on what makes it, and watch the record come together.
 ANYWAY.
 
+So what would that room actually be worth to her?
 Say only 3 out of every 1,000 of her followers want in. That's about 500 people.
 At $15 a month, that's $7,500 a month. $90,000 a year.
 From a room she's already sitting in.

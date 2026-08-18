@@ -27,6 +27,7 @@ CRWN dont touch your masters or your distribution, and I aint gonna pretend othe
 What artists run on the CRWN app is the fan half: the memberships, the sales, and the list of who actually pays you, in your name, on your schedule.
 ANYWAY.
 
+So how long did Wayne actually have to wait?
 Four years.
 Planned for 2014, out in September 2018. Three of them years in active litigation.
 And a settlement reportedly over $10 million did not give one day of it back.

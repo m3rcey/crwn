@@ -30,6 +30,7 @@ You dont need to market to fans. You need a market FOR fans.
 The artist version of that Tee Grizzley built exists on the CRWN app today: memberships, ya fan community, live sessions, all under ya name. Not a game server but the same principle.
 ANYWAY.
 
+So how much does Grizzley World actually pay him?
 Tee Grizzley said Grizzley World bring in like $200,000 a MONTH.
 Like 90,000 members paying memberships and buying in-game items. For a rapper. Off a video game.
 

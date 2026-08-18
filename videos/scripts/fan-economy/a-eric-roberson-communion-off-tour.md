@@ -31,6 +31,7 @@ They show up, they spend, they tell you what they want, in real time.
 Ticketed live sessions, with the replay included for everybody that paid, that's a thing artists can run on the CRWN app today.
 ANYWAY.
 
+So what is one of them nights actually worth?
 One night: 450 fans at $20 a ticket.
 That's $9,000 for one evening sitting at a keyboard.
 Run that monthly and that's like $108,000 a year. From shows you dont have to catch a flight to do.

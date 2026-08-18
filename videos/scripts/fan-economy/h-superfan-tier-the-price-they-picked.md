@@ -28,6 +28,7 @@ A fan paying more for closeness is not a new idea, it's just never been YOUR bus
 Memberships you price yourself, early access, a vault, live sessions your people buy a ticket to: that's what artists set up on the CRWN app today, in they own name.
 ANYWAY.
 
+So what number did they actually land on?
 Reported at about $6 a month on top of a normal subscription. That's the ceiling they picked for a superfan.
 Six dollars. And 20 to 30 percent of subscribers taking it, by they own estimate.
 

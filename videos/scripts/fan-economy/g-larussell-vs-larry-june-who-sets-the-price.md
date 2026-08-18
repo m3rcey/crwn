@@ -28,6 +28,7 @@ A market means the ones that want to go deeper have somewhere deeper to go.
 That's the whole point of a tier ladder on the CRWN app: a free rung, then real rungs above it, instead of one price for everybody.
 ANYWAY.
 
+So what did that same album do when the fans set the price?
 Them thousand fans paid $57,000. In one day.
 Same thousand people. At a fixed ten dollars that's $10,000.
 Letting them choose produced almost six times the same crowd.

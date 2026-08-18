@@ -31,6 +31,7 @@ Tech N9ne aint have more reach than 50 Cent, he had somewhere for his people to 
 Memberships, a vault, ticketed live rooms, all in your name: that's what artists set up on the CRWN app.
 ANYWAY.
 
+So what is the rate that did it?
 Tech N9ne moved roughly 250,000 tickets in a single year against about 3 million monthly listeners.
 That's a little over 8 out of every 100 turning into somebody who shows up and pays.
 Eight percent. That's what beat a global superstar on a Forbes list.

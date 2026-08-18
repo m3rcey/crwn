@@ -27,6 +27,7 @@ Tobe built the relationship first and the business after, which is the harder or
 Memberships, a vault, your fan list in your name: that's what artists run on the CRWN app.
 ANYWAY.
 
+So what did that whole fanbase cost to build?
 Two million people. Zero dollars of marketing.
 The entire cost was a camera, a Sunday, and showing up every week for years without missing.
 There aint a line item anywhere. He paid for it in consistency instead of cash.

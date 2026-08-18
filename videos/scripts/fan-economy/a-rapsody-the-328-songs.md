@@ -4,7 +4,7 @@
 
 Rapsody wrote 350 songs for one album and put out 22, and what them other 328 could be worth to her realest fans is a number most artists never even think about.
 
-Let's run it.
+Let's find out what it is.
 
 For Please Don't Cry, Rapsody wrote over 350 songs.
 Three hundred fifty. The album that came out has 22 on it.
@@ -29,8 +29,9 @@ Your problem aint marketing to fans. It's that you need a market FOR fans.
 On the CRWN app the vault is a real feature: tier-gated, sitting inside your membership ladder, so the unreleased work lives somewhere only paying members get to go.
 ANYWAY.
 
-Say only 750 of them collectors join at $20 a month for the vault.
-That's $15,000 a month. $180,000 a year.
+So what are those 328 songs worth for Rapsody?
+Let's say only 750 of them collectors join at $20 a month for the vault.
+That's $15,000 a month, or $180,000 a year.
 Off work that is already finished, already paid for, and currently earning nothing.
 
 But the money is not the wild part.

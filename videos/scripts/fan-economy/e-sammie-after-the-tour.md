@@ -30,6 +30,7 @@ The room already paid once. The only question is whether they get somewhere to k
 On the CRWN app today that somewhere exist: the membership tiers, the fan list you keep, the imports if they already on your email list.
 ANYWAY.
 
+So what is that one change worth between tours?
 Capture just 1% of them 200,000 people. That's 2,000 fans.
 At $9 a month, that's $18,000 a month. $216,000 a year.
 Between tours. From people the tour already found for you.

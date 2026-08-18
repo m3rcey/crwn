@@ -27,6 +27,7 @@ Reach aint the problem, and Drake proves reach is real. Having nowhere for reach
 Memberships, a vault, your fan list in your name: that's what artists run on the CRWN app.
 ANYWAY.
 
+So what are them two numbers actually worth next to each other?
 Streaming pays out around a penny a month per monthly listener, so 100 million is roughly $1 million a month.
 Tee Grizzley has said Grizzley World brings in about $200,000 a month.
 So 90,000 people pay him about a fifth of what 100 million people pay the biggest streaming artist alive.

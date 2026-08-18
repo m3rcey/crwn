@@ -26,6 +26,7 @@ The relationships, the sales, the list of who actually pays you: that half is wh
 Cause owning your music and renting your audience is only half free.
 ANYWAY.
 
+So what did he get offered after he owned everything?
 A year after he left, EMPIRE paid Money Man a $1,000,000 advance. In Bitcoin. First artist ever paid like that.
 Let that marinate
 He paid $250,000 to be free. Then a distributor paid HIM a million, while he kept everything.

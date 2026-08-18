@@ -29,6 +29,7 @@ An audience is something you count. An economy is something you KNOW: who pays, 
 That's what artists use the CRWN app for: every member, buyer and contact in one place, with a ladder for the ones that want to go deeper.
 ANYWAY.
 
+So what is that asset worth in a single year?
 Say 1 in 4 of them buyers is a repeat customer. That's like 2,400 people that already proved they show up.
 Put just them in a $12 a month membership and that's $28,800 a month. $345,600 a year.
 From people who been saying yes for 15 years.

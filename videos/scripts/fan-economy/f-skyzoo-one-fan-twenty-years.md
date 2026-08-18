@@ -29,6 +29,7 @@ You already know how to market to fans. Now you need a market FOR fans.
 A fan who stays needs somewhere to keep paying you, which is what the membership ladder on the CRWN app is: a free rung and real rungs above it, so somebody can go deeper instead of just listening again.
 ANYWAY.
 
+So what is one fan who never leaves actually worth?
 One fan on a $10 a month membership, for twenty years, is $2,400.
 Twenty four hundred dollars. From one person.
 To make that same $2,400 off streaming you would need about 800,000 plays.

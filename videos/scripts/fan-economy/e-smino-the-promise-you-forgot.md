@@ -2,7 +2,7 @@
 
 **SCRIPT:**
 
-Smino just went independent, and the difference between his first 100 paying fans being worth $3,000 or $36,000 comes down to one thing almost nobody sets up.
+Smino just went independent, and what his first 100 paying fans actually end up being worth comes down to one thing almost nobody sets up.
 
 Let's talk about it.
 
@@ -27,6 +27,7 @@ Your problem aint marketing to fans. It's that you need a market FOR fans.
 And a market runs on kept promises, which is why the Promise Calendar on the CRWN app is a real thing: every benefit you attach to a tier becomes a dated obligation with the fans it's owed to, so it stops living in your head.
 ANYWAY.
 
+So how big is the gap between them two versions?
 100 members at $10 a month who drift off after three months is $3,000. That's it, that's the whole run.
 The same 100 people, same $10, who stay three years because you kept showing up, is $36,000.
 Thirty three thousand dollars of difference, off the same fans and the same price.

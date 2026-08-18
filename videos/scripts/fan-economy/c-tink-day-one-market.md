@@ -33,6 +33,7 @@ On the CRWN app today an artist can gate a drop days early per tier, and keep a 
 The intimacy Tink already write IS the product. It just need a gate.
 ANYWAY.
 
+So what is that one habit worth in a year?
 Say just 800 of them day-one fans join at $15 a month, for first listen and the diary vault.
 That's $12,000 a month. $144,000 a year.
 Independent money, from the people already in her comments.

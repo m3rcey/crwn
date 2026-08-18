@@ -28,6 +28,7 @@ You dont need to market to fans. You need a market FOR fans.
 On the CRWN app this is a real thing artists run: a fan drive, where your people are pointed at one goal for a set window, and what they earn is access and status, not cash. Non-cash by design, on purpose.
 ANYWAY.
 
+So how many people would one ask actually bring him?
 He's got about 213,000 followers on Spotify.
 Say only 1 in 100 of them actually joins the push. That's 2,130 people.
 And say each one only manages to bring in ONE person who pays.

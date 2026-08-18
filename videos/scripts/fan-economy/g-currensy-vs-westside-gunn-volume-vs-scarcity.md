@@ -30,6 +30,7 @@ Reach and depth aint the same job, and most artists only got tools for the first
 Knowing which of your people actually buy, and giving them something only they can get, is what the CRWN app is built around: your membership tiers and a vault your top members get into.
 ANYWAY.
 
+So which fanbase is actually worth more, and by how much?
 Them 400 records go for around $300 a copy on resale.
 So one pressing is about $120,000 of fan money moving.
 1.5 million monthly listeners generate roughly $15,000 a month from streaming.

@@ -26,6 +26,7 @@ You already know how to market to fans. Now you need a market FOR fans.
 The relationships, the sales, the list of who actually pays you, all in your name: that's what artists run on the CRWN app.
 ANYWAY.
 
+So what does Dom Kennedy still have?
 Fifteen years after saying no, Dom Kennedy is still here.
 Still on his own label. Still owns every song he ever made.
 And in 2025 he ran an 18-city headline tour off a fanbase of about 487,000 people who buy, not just stream.

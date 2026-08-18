@@ -435,8 +435,15 @@ one ALONE and name the question it leaves open. If the answer is "none yet", rew
     "ANYWAY..." back to the open question. Keep it to 3-4 lines; never label the detour twice
     (a tease that says "small detour" AND an entry that says it again both got cut). It must
     feel like a sidenote, never an ad break.
-11. **BIG REVEAL**: close the PRIMARY loop, the one sentence one opened, in the kind of answer the
-    hook promised. A secondary gap opened during the analysis (why the system is broken, how the
+11. **BIG REVEAL**: **RE-ASK THE QUESTION FIRST (founder rule, 2026-08-16).** The line right after
+    "ANYWAY." is the hook's question, asked again in plain words, and only THEN the number:
+    "So what are those 328 songs worth for Rapsody?" / "So how long did Wayne actually have to
+    wait?" / "So what is one fan who never leaves actually worth?" The sidenote is a detour, and
+    the viewer comes back from it with the loop half closed. Re-opening it costs one line and it
+    is what makes the reveal land instead of arriving cold. Josh added this by hand and it was
+    missing from 19 of 20 scripts, so treat it as a required beat, not a flourish. Vary the
+    wording; it is a question, never a restatement of the setup. Then close the PRIMARY loop, the
+    one sentence one opened, in the kind of answer the hook promised. A secondary gap opened during the analysis (why the system is broken, how the
     mechanism works, why the artist moved that way) is answered earlier and may never quietly
     become the Big Reveal. For financial hooks give monthly and, when relevant,
     annual or total. The withheld variable can surface here: "At just $10 each, that's 940 fans
@@ -767,6 +774,7 @@ its own META. End the chat response with clickable markdown links to the saved f
 - [ ] All math re-multiplied and internally consistent
 - [ ] Curiosity-gap gate passes: at least one reveal variable withheld until the Big Reveal
 - [ ] Better mechanism explained before CRWN; tease immediately before the sidenote
+- [ ] The line right after "ANYWAY." RE-ASKS the hook's question, then the reveal lands
 - [ ] Big Reveal after the CRWN sidenote; Wow Factor after the Big Reveal and not a restatement
 - [ ] CRWN claim classified (shipped/partial/conceptual) and worded to that tier
 - [ ] Short disclaimer present; hard ICP pivot late; question turned on the viewer

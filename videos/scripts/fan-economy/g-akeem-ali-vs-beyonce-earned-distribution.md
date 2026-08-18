@@ -28,6 +28,7 @@ On the CRWN app, Share-to-Earn is live today: every fan gets they own share link
 The promotion was already happening. Now it pays the person doing it.
 ANYWAY.
 
+So how much time is his fanbase actually putting in?
 Say only 500 fans post about him in a month, and each one spends 30 minutes making it.
 That's 250 hours a month. About 3,000 hours a year of content his team never had to make.
 That's more than a full-time employee, working for free, forever.
