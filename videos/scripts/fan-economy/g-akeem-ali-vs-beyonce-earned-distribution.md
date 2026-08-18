@@ -2,7 +2,7 @@
 
 **SCRIPT:**
 
-Beyoncé can buy any rollout on earth, and when you put a clock on the work Akeem Ali's fans do for him for free, the hours dont look real.
+Beyoncé can buy any rollout on earth, and when you find out how much time Akeem Ali's fans spend promoting him, the hours dont look real.
 
 Let's look at it.
 

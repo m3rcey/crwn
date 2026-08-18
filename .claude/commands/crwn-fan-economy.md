@@ -355,8 +355,10 @@ the one that bites: **the hook must promise the same UNIT the reveal delivers.**
 These feel aligned while drafting because the hook and the reveal are about the same TOPIC. They
 are not the same QUESTION. "What kind" is not "how much". "What it does" is not "what it cost".
 **Practical check: if the reveal is a quantity, sentence one must contain a phrase that promises a
-quantity** (how much, how many, the number, what it's worth, what it cost, put a clock on it, by
-how much). If the hook only names a category, a behavior or a lesson, the viewer is waiting for a
+quantity** (how much, how many, how long, the number, what it's worth, what it cost, by how much).
+Use the PLAIN form: Josh rewrote "when you put a clock on the work his fans do" to "when you find
+out how much time his fans spend promoting him", which is the word-economy rule again. A metaphor
+for the unit is not the unit. If the hook only names a category, a behavior or a lesson, the viewer is waiting for a
 DESCRIPTION, the middle of the script hands them that description, and the number then arrives
 unpromised. Rewrite the hook to name the unit, not the topic.
 
