@@ -208,7 +208,7 @@ export function TierCards({ tiers, artistSlug, artistId }: TierCardsProps) {
   const [showSuccess, setShowSuccess] = useState(false);
   const [confirmTier, setConfirmTier] = useState<TierConfig | null>(null);
   const [confirmAction, setConfirmAction] = useState<'upgrade' | 'downgrade' | null>(null);
-  const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('year');
+  const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('month');
 
   // Tier evidence. Attribution reuses the persisted referral state the checkout call already
   // reads, so a view and the checkout start it leads to carry the same source.
