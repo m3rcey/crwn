@@ -19,7 +19,11 @@
 -- name: two of these four rows share the display name "Lago", so a name match
 -- would be ambiguous by construction.
 --
--- Apply in the Supabase SQL Editor. Safe to re-run. Self-verifies.
+-- ALREADY APPLIED 2026-08-18 (by service-role PATCH, verified through the anon
+-- view: all four read featured_hidden=true, all four accounts still role=artist
+-- and is_active=true, all four /[slug] pages still return 200). This file is kept
+-- as the record of what was changed and as the way to REVERSE it: flip the value
+-- to false and re-run. Safe to re-run either way. Self-verifies.
 -- Requires schema-phase2-featured-hidden.sql, which is APPLIED in production
 -- (probed 2026-08-18: artist_profiles_public returns featured_hidden).
 

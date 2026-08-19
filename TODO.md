@@ -87,17 +87,6 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
-- [ ] **Hide Lakes, Giovanni Maziq and Lago from discovery (they keep full access to the app).**
-      Open and run:
-      [`supabase/hide-lakes-giovanni-lago-from-discovery.sql`](supabase/hide-lakes-giovanni-lago-from-discovery.sql)
-      Sets `featured_hidden = true` on four slugs, not three: **Lago has two accounts**
-      (`lago` with 0 tracks and `lagoo` with 14). Hiding only the empty one would have left
-      all of Lago's music on Explore. Nobody is deactivated: all three keep their login, their
-      dashboard, their public page, their fans and their payouts. The file self-verifies that
-      all four are still active and refuses to report success otherwise.
-      The code half is already live: Explore now drops a hidden artist's TRACKS, not just their
-      tile. Reverse any of it any time with `featured_hidden = false`.
-
 - [ ] **One quick SQL run to finish the surface reduction: drop the retired Manager outcome
       columns** (never written; the file ABORTS if any row unexpectedly holds data, so a surprise
       is a loud error, not a loss). Open and run:
