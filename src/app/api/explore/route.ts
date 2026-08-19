@@ -187,9 +187,22 @@ export async function GET(req: NextRequest) {
     };
   });
 
+  // Two independent reasons a track never surfaces here, and neither one is a
+  // property of the track. Deactivated: the whole account is off. Founder-hidden
+  // (schema-phase2-featured-hidden.sql): the artist is out of DISCOVERY while
+  // their account, their page and their catalog keep working.
+  //
+  // The hidden check used to apply to the artist TILES only, so a hidden artist
+  // vanished from the row of faces and their whole catalog stayed in New Releases
+  // and Popular underneath it. Hiding an artist from discovery has to mean their
+  // music too, or the flag only moves where they appear.
+  //
+  // hiddenIds is deliberately EMPTY while searching, which is the same rule the
+  // tiles follow: hiding someone from browse must not make them unfindable by
+  // name or by title.
   const formatTracks = (tracks: unknown[] | null) => (tracks || []).filter((t: unknown) => {
     const track = t as { artist_id: string };
-    return !deactivatedArtistIds.has(track.artist_id);
+    return !deactivatedArtistIds.has(track.artist_id) && !hiddenIds.has(track.artist_id);
   }).map((t: unknown) => {
     const track = t as { id: string; title: string; album_art_url: string; audio_url_128: string; audio_url_320: string; duration: number; play_count: number; artist_id: string; is_free: boolean; created_at: string };
     return {
