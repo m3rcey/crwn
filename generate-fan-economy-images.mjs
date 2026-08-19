@@ -12,6 +12,20 @@ import {
 
 const WHITE_THRESHOLD = 200;
 
+// A colour reference photo can leak its colours onto a black-sharpie page (a gold
+// chain did). Saturation is the tell: on a correct sheet every pixel is ink or paper,
+// so max(r,g,b) - min(r,g,b) is ~0 everywhere. Threshold 40 ignores JPEG ringing
+// around hard edges while still catching a real coloured object.
+async function countColouredPixels(filePath) {
+  const { data, info } = await sharp(filePath).raw().toBuffer({ resolveWithObject: true });
+  let coloured = 0;
+  for (let i = 0; i < data.length; i += info.channels) {
+    const r = data[i], g = data[i + 1], b = data[i + 2];
+    if (Math.max(r, g, b) - Math.min(r, g, b) > 40) coloured++;
+  }
+  return coloured;
+}
+
 async function flattenWhiteBackground(filePath) {
   const { data, info } = await sharp(filePath).raw().toBuffer({ resolveWithObject: true });
   const c = info.channels;
@@ -61,7 +75,7 @@ const STYLE_REFS = [
   "openart-image_1775598237169_2475a432_1775598237207_c74fc3ec.png",
 ];
 
-const STYLE_INSTRUCTION = "Use the exact same visual style as these reference images: bold black sharpie marker handwriting on pure white paper, clean hand-drawn icons and diagrams, high contrast black on white, no gray tones, no background texture. Match the lettering weight, spacing, and hand-drawn aesthetic exactly. CRITICAL BACKGROUND RULE: The background must be PURE WHITE (#FFFFFF), absolutely flat, edge to edge. NO off-white, cream, eggshell, beige, or warm paper tones. NO desk, table, notebook, binding, or surface visible underneath. NO shadows under the page, NO page curl, NO page edges, NO paper texture or grain. The entire frame IS the paper — there is no visible surface, no background object, no hint that the paper is sitting on anything. This is a flat editorial scan, not a photograph of a sheet on a desk. Pure #FFFFFF pixels fill every edge of the frame. CRITICAL FONT RULE: ALL text in the image must be hand-drawn sharpie marker handwriting. NEVER use any printed, typeset, computer, Arial, Helvetica, serif, or sans-serif font anywhere in the image. Every single letter, number, word, label, header, list item, footer, and bottom tagline must look hand-written with a sharpie. No typography, no mixed fonts, no computer-generated text anywhere, not even in bottom taglines, captions, or footers. CRITICAL HEADLINE RULE: the single most common failure is the LARGEST headline text at the top of the page rendering as a clean printed, bold, or display font. The big hook headline MUST be thick, slightly uneven, hand-drawn sharpie capital lettering, exactly as if a person wrote it fast with a marker, with imperfect baselines and varying stroke widths. NEVER render the headline (or any text at any size) as a typeset, bold, or display font. Every size of text, especially the biggest headline, is hand-lettered by marker. MARKER FILL TEXTURE: any solid black or filled-in area (filled shapes, redaction bars, blacked-out regions, shaded pie slices, thick fills) must look HAND-FILLED with a real sharpie marker, NOT a flat digital fill. Show visible directional marker strokes, slightly uneven coverage, faint lighter streaks where the marker lifted, tiny specks and flecks of white paper showing through the fill, and slightly ragged stroke edges, exactly like a person colored the area in by hand with a marker that was running a little dry. NEVER render a solid area as a perfectly uniform, smooth, vector-flat black. This streaky texture lives INSIDE the black fills only; it is NOT gray shading and it does NOT change the page background, which stays pure flat white (#FFFFFF), and thin line work stays clean and bold.";
+const STYLE_INSTRUCTION = "Use the exact same visual style as these reference images: bold black sharpie marker handwriting on pure white paper, clean hand-drawn icons and diagrams, high contrast black on white, no gray tones, no background texture. Match the lettering weight, spacing, and hand-drawn aesthetic exactly. CRITICAL MONOCHROME RULE: the entire image is BLACK INK ON WHITE PAPER and contains NO COLOUR WHATSOEVER. There is no gold, no yellow, no red, no blue, no green and no coloured accent anywhere, not on a chain, a logo, a garment, a record label, a highlight or any object. The attached person reference photographs ARE in colour and their colours must NOT be copied: translate every one of them into black marker line work. If a person wears a gold chain or coloured clothing in their photo, draw it in black ink like everything else. Every pixel in the finished page is either black ink or white paper. CRITICAL BACKGROUND RULE: The background must be PURE WHITE (#FFFFFF), absolutely flat, edge to edge. NO off-white, cream, eggshell, beige, or warm paper tones. NO desk, table, notebook, binding, or surface visible underneath. NO shadows under the page, NO page curl, NO page edges, NO paper texture or grain. The entire frame IS the paper — there is no visible surface, no background object, no hint that the paper is sitting on anything. This is a flat editorial scan, not a photograph of a sheet on a desk. Pure #FFFFFF pixels fill every edge of the frame. CRITICAL FONT RULE: ALL text in the image must be hand-drawn sharpie marker handwriting. NEVER use any printed, typeset, computer, Arial, Helvetica, serif, or sans-serif font anywhere in the image. Every single letter, number, word, label, header, list item, footer, and bottom tagline must look hand-written with a sharpie. No typography, no mixed fonts, no computer-generated text anywhere, not even in bottom taglines, captions, or footers. CRITICAL HEADLINE RULE: the single most common failure is the LARGEST headline text at the top of the page rendering as a clean printed, bold, or display font. The big hook headline MUST be thick, slightly uneven, hand-drawn sharpie capital lettering, exactly as if a person wrote it fast with a marker, with imperfect baselines and varying stroke widths. NEVER render the headline (or any text at any size) as a typeset, bold, or display font. Every size of text, especially the biggest headline, is hand-lettered by marker. MARKER FILL TEXTURE: any solid black or filled-in area (filled shapes, redaction bars, blacked-out regions, shaded pie slices, thick fills) must look HAND-FILLED with a real sharpie marker, NOT a flat digital fill. Show visible directional marker strokes, slightly uneven coverage, faint lighter streaks where the marker lifted, tiny specks and flecks of white paper showing through the fill, and slightly ragged stroke edges, exactly like a person colored the area in by hand with a marker that was running a little dry. NEVER render a solid area as a perfectly uniform, smooth, vector-flat black. This streaky texture lives INSIDE the black fills only; it is NOT gray shading and it does NOT change the page background, which stays pure flat white (#FFFFFF), and thin line work stays clean and bold.";
 
 if (!fs.existsSync(OUTPUT_BASE)) fs.mkdirSync(OUTPUT_BASE, { recursive: true });
 
@@ -200,7 +214,14 @@ for (let idx = 0; idx < scriptFiles.length; idx++) {
       fs.writeFileSync(outPath, Buffer.from(imageData, "base64"));
       try {
         const flipped = await flattenWhiteBackground(outPath);
+        const colour = await countColouredPixels(outPath);
         console.log(`  OK ${path.basename(outPath)} (white-flattened ${flipped.toLocaleString()} px)`);
+        if (colour > 0) {
+          console.warn(
+            `  COLOUR INTRUSION: ${colour.toLocaleString()} non-greyscale pixels. `
+            + `These sheets are black ink on white paper. Look at it and reroll.`
+          );
+        }
       } catch (err) {
         console.warn(`  saved but white-flatten failed: ${err.message}`);
       }

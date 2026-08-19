@@ -212,6 +212,37 @@ For each element, capture:
 
 NEVER allow any typeset, printed, computer, Arial, Helvetica, serif, or sans-serif font anywhere in the image. The bottom tagline, footer text, captions, lists, headers, numbers, labels, every single character must be hand-written with a sharpie marker. If even one word looks computer-generated, the image is a fail and must be regenerated. Reinforce this in the prompt's `[SPECIFIC CONTENT]` body too, especially around any bottom tagline.
 
+## The headline NAMES the artist, and asks in the reveal's unit
+
+Two separate defects, both caught by Josh on sheets already generated.
+
+**Name them.** "HOW DID HE OUT-EARN 50 CENT?" and "90 PROJECTS OR 400 COPIES?" both shipped with
+no artist in the headline. The name IS the scroll-stopper: a viewer who recognises Curren$y stops
+for Curren$y, not for an abstract question. Every headline names its subject, and a versus sheet
+names both. Fixed once on Tech N9ne and it recurred on Curren$y two weeks later because it was
+never written down, which is why it is written down here.
+
+**Ask in the unit the video pays off in.** Curren$y's headline asked a CATEGORY question (projects
+versus copies) while the script's Big Reveal is MONEY (400 collectors is about $120,000, about
+eight months of 1.5M listeners). That is the same unit mismatch `/crwn-fan-economy` polices in the
+spoken hook, and it applies to the sheet too, because the sheet IS the hook on screen. Read the
+script's declared `Hook promise:` and `Big Reveal:` lines and write the headline to match them.
+It became "WHOSE FANS ARE WORTH MORE, CURRENSY OR WESTSIDE GUNN?", balanced at 26 characters a
+line across two lines.
+
+## The page is BLACK INK ON WHITE PAPER, and that is machine-checked
+
+The attached person references are colour photographs, and colour leaks. Curren$y wears a gold
+chain in his reference and the chain came through gold on an otherwise pure black-and-white page.
+The shared `STYLE_INSTRUCTION` forbade grey tones but never forbade colour, so nothing stopped it.
+It now carries a CRITICAL MONOCHROME RULE naming the reference photos as the source of the leak.
+
+`countColouredPixels()` runs after every generation and warns when any pixel has
+`max(r,g,b) - min(r,g,b) > 40`. A correct sheet scores exactly **0**; the gold-chain sheet scored
+9,552. Threshold 40 ignores JPEG ringing on hard edges. This is the same reasoning as the
+near-white edge test on the app's hero images: a single coloured object reads as intentional at
+review scale, so the eye is the wrong instrument and the check is not optional.
+
 **The #1 failure spot is the big HEADLINE at the top.** Because it's the largest text, the model most often renders it as a clean printed/bold/display font. Two guards, always:
 - **Never write the word "bold" near text in a prompt.** Phrases like "giant bold capital letters", "bold caps", "in bold" all cue typeset. Instead always write: **"large hand-lettered black sharpie capitals (thick uneven hand-drawn marker strokes, NOT a printed, bold, or display font)"**.
 - Explicitly state the headline is hand-drawn marker lettering with imperfect baselines and varying stroke widths, exactly like a person wrote it fast with a sharpie. The `STYLE_INSTRUCTION` in `generate-images.mjs` also carries a CRITICAL HEADLINE RULE saying the same — keep it there.
