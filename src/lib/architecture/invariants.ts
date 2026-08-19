@@ -979,7 +979,11 @@ export const FEATURES: readonly FeatureContract[] = [
     gateModule: 'src/lib/popups/index.ts',
     surfaces: [
       { file: 'src/app/api/popups/route.ts', mustContain: 'eligiblePopupFor' },
-      { file: 'src/app/(main)/layout.tsx', mustContain: 'Popup' },
+      // The (main) layout split on 2026-08-18: layout.tsx is now the server half
+      // (it resolves the role so the tab bar and Home are correct in the first
+      // HTML), and MainShell.tsx is the client half that mounts the delivery
+      // surfaces. PopupHost moved with them; the surface is unchanged.
+      { file: 'src/app/(main)/MainShell.tsx', mustContain: 'Popup' },
     ],
     migration: null,
     notes: 'Flag verified ON in production 2026-08-12 (16 popup_events).',

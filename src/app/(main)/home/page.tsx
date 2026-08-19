@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { HelpCircle } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { useShowArtistUI } from '@/hooks/useServerRole';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { 
   Compass, 
@@ -62,6 +63,11 @@ interface ArtistProfile {
 
 export default function HomePage() {
   const { profile, isArtist } = useAuth();
+  // The server already resolved the role for this request, so the artist tiles and
+  // Supporter Mode are decided before the first paint. Reading it only through
+  // useAuth meant this page rendered its FAN layout on every load and swapped once
+  // the profile row arrived.
+  const showArtistUI = useShowArtistUI(isArtist());
   const supabase = createBrowserSupabaseClient();
   const [featuredArtists, setFeaturedArtists] = useState<ArtistProfile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -214,7 +220,7 @@ export default function HomePage() {
     // 'artist' or 'admin'), so these can never disappear while Studio is in the
     // nav. hasArtistProfile (the DB row) is a belt-and-suspenders for a brand-new
     // artist whose profile.role still lags right after publishing.
-    ...(isArtist() || hasArtistProfile
+    ...(showArtistUI || hasArtistProfile
       ? [
           { href: '/studio', label: 'Studio', image: '/homepage_studio.jpg' },
           { href: '/profile/artist', label: 'Artist Dashboard', image: '/homepage_artistdashboard.jpg' },
@@ -323,7 +329,7 @@ export default function HomePage() {
       {/* Supporter Mode — fans only (users without an artist profile). Renders
           nothing while the quest engine is dark-launched. Artists keep the
           standard home; their guided mode is Rise Mode on the dashboard. */}
-      {!hasArtistProfile && <SupporterMode />}
+      {!hasArtistProfile && !showArtistUI && <SupporterMode />}
 
       {/* Featured Artists */}
       <section data-tour="home-feed">

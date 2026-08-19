@@ -25,6 +25,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
+import { useShowArtistUI } from '@/hooks/useServerRole';
 import { usePlayer } from '@/hooks/usePlayer';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import {
@@ -106,7 +107,10 @@ export function AccountHub({ open, onClose }: { open: boolean; onClose: () => vo
   // the row read below can fail for reasons that have nothing to do with being an
   // artist, so a failed read must never DOWNGRADE a known artist to the fan menu.
   // Only ever upgrade.
-  const artist = isArtist() || hasArtistRow === true;
+  // The server-resolved role is folded into the first signal (it is the same
+  // answer, a paint earlier), so the menu never opens on the fan index while the
+  // profile row is still in flight.
+  const artist = useShowArtistUI(isArtist()) || hasArtistRow === true;
 
   useEffect(() => {
     if (!open || !user) return;

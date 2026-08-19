@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
+import { useShowArtistUI } from '@/hooks/useServerRole';
 import { usePlayer } from '@/hooks/usePlayer';
 import { NotificationBell } from '@/components/notifications/NotificationBell';
 import { AccountHub } from '@/components/layout/AccountHub';
@@ -58,8 +59,11 @@ const buildNavItems = (isArtist: boolean) =>
 export function Navigation() {
   const pathname = usePathname();
   const { user, profile, signOut, isArtist } = useAuth();
-  // No profile yet (or a fan) → fan set. Artists + admins → Studio.
-  const navItems = buildNavItems(isArtist());
+  // Artists + admins → Studio. The server-resolved role wins where it exists, so
+  // the tab bar is already correct in the first HTML. Without it this rendered the
+  // FAN set on every load (profile is null until the browser has fetched it) and
+  // visibly swapped in the third slot half a second later.
+  const navItems = buildNavItems(useShowArtistUI(isArtist()));
   const { resetPlayer } = usePlayer();
   const router = useRouter();
   const [hubOpen, setHubOpen] = useState(false);
