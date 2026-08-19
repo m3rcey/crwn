@@ -45,6 +45,12 @@ export async function GET(req: NextRequest) {
   const slugArtists = slugRes.data;
   const hiddenIds = new Set((hiddenRes.data || []).map((r) => r.id as string));
 
+  // Applied to the BROWSE track queries before their limit. Empty while searching
+  // (hiddenIds is empty then), which keeps the ratified rule above: hidden artists
+  // leave browse, they never become unfindable.
+  const hideFromBrowse = <T extends { not: (col: string, op: string, val: string) => T }>(q: T): T =>
+    hiddenIds.size ? q.not('artist_id', 'in', `(${[...hiddenIds].join(',')})`) : q;
+
   // Also search by display_name in profiles table
   let nameArtists: typeof slugArtists = [];
   if (search) {
@@ -91,20 +97,30 @@ export async function GET(req: NextRequest) {
       : Promise.resolve({ data: [] as { artist_id: string }[] }),
     // New releases: latest tracks, excluding anything still inside its early-access
     // window (public_release_date in the future).
-    supabaseAsCaller
-      .from('tracks_public')
-      .select('id, title, album_art_url, audio_url_128, audio_url_320, duration, play_count, artist_id, created_at, is_free')
-      .eq('is_active', true)
-      .or(`public_release_date.is.null,public_release_date.lte.${now}`)
-      .order('created_at', { ascending: false })
-      .limit(12),
-    supabaseAsCaller
-      .from('tracks_public')
-      .select('id, title, album_art_url, audio_url_128, audio_url_320, duration, play_count, artist_id, is_free')
-      .eq('is_active', true)
-      .or(`public_release_date.is.null,public_release_date.lte.${now}`)
-      .order('play_count', { ascending: false })
-      .limit(12),
+    //
+    // Founder-hidden artists are excluded IN THE QUERY, not filtered out of the
+    // result. The limit is what forces this. Dropping them afterwards means the
+    // twelve rows are chosen first and then thinned, so hiding a prolific artist
+    // does not remove twelve tracks, it removes the whole row: four hidden
+    // artists held the 12 most recent tracks on the platform and New Releases
+    // came back EMPTY (observed live, 2026-08-18). Filtering first means the
+    // limit counts twelve tracks somebody can actually see.
+    hideFromBrowse(
+      supabaseAsCaller
+        .from('tracks_public')
+        .select('id, title, album_art_url, audio_url_128, audio_url_320, duration, play_count, artist_id, created_at, is_free')
+        .eq('is_active', true)
+        .or(`public_release_date.is.null,public_release_date.lte.${now}`)
+        .order('created_at', { ascending: false })
+    ).limit(12),
+    hideFromBrowse(
+      supabaseAsCaller
+        .from('tracks_public')
+        .select('id, title, album_art_url, audio_url_128, audio_url_320, duration, play_count, artist_id, is_free')
+        .eq('is_active', true)
+        .or(`public_release_date.is.null,public_release_date.lte.${now}`)
+        .order('play_count', { ascending: false })
+    ).limit(12),
   ]);
 
   const artistSubCounts: Record<string, number> = {};
