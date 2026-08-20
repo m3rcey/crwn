@@ -610,6 +610,60 @@ Rules that keep it a signature instead of a slogan:
   to the signature line rather than instead of it.
 - `fanEconomySkillContract.test.ts` fails any saved script that does not contain "market FOR fans".
 
+## Social proof (founder decision, 2026-08-20): NEVER in the hook, and never every script
+
+**It does not go near the beginning.** The hook owns the first one to two sentences and its only
+job is opening the curiosity gap. A credential there trades the gap for a name, and the gap is what
+buys the next fifty seconds. This is not a style preference: it contradicts the SPEED rule directly,
+so a script that opens on authority is wrong even if the authority is real.
+
+**Its home is beat 10, the CRWN sidenote.** That beat already steps out of the case study to talk
+about CRWN, it lands after the viewer is invested, and it is the exact moment the "why should I
+believe you" objection actually arises. ONE line, next to the signature line, inside the existing
+3-4 line budget. The sidenote must still feel like a sidenote, never an ad break, so if the proof
+line pushes it to five lines, cut something else or drop the proof.
+
+**The strongest authority in these scripts is not a name.** It is that the founder did arithmetic
+nobody else did. Demonstrated authority beats claimed authority, so "here is the number nobody put
+side by side" IS the credential, and it is already in every script. Social proof is a supplement to
+that, never a substitute for it.
+
+### The proof tiers, and what may be claimed
+
+Rank by what actually happened, and NEVER upgrade a weaker event into a stronger word:
+
+- **COSIGN (strong, use freely).** A named artist publicly reposted or endorsed the work. Snoop
+  reposting and cosigning the video about him is this tier. It is a real, public, checkable event
+  and it can be stated plainly.
+- **PATTERN (medium, use sparingly).** Several established artists follow CRWN (Lyfe Jennings,
+  LL Cool J, Jagged Edge, Carl Thomas). One follow proves nothing; four established names is a
+  pattern and is worth one line. State it as what it is: they follow. **A follow is not an
+  endorsement, not a cosign, and not a customer.** Writing "LL Cool J uses CRWN" when he follows
+  the account is a fabricated claim and breaks the product-truth safeguard exactly the way an
+  invented feature does.
+- **DO NOT USE (a like).** A like is not evidence. Claiming one as a credential reads as reaching,
+  and reaching signals there is nothing better to show, which LOWERS authority instead of raising
+  it. Rick Ross and Tricky Stewart liking a post stays out of the scripts.
+
+Everything claimed must be true at the time of posting, and the specific verb must match the
+specific act: followed, reposted, cosigned, replied. Never "works with", "partnered", "backed".
+
+### How often
+
+**Ration it.** The same credibility line in every script stops being proof and becomes a tic, and a
+tic reads as insecurity. Roughly one script in three or four, and never twice in a batch.
+
+Prefer it where the product claim is WEAKEST. A SHIPPED claim carries its own evidence because the
+artist can go press the button. A CONCEPTUAL claim is asking the viewer to believe in something not
+yet built, which is exactly where borrowed credibility does the most work. So: CONCEPTUAL sidenote
+is the best candidate for a proof line, SHIPPED is the least.
+
+### The cosign is a SCRIPT, not a garnish
+
+The Snoop repost is wasted as a half-line credential. It is a story with a subject, a real artist,
+and a verifiable public event, which makes it a Family I (Evidence / Proof) or Family J (Founder)
+script in its own right. Pitch it as its own post before spending it as decoration.
+
 ## Voice (founder correction, 2026-08-16)
 
 Scripts are delivered in Josh's OWN spoken voice. The series launched neutral and Josh corrected

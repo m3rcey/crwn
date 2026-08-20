@@ -97,6 +97,7 @@ describe('FE-SKILL-003 the load-bearing gates cannot be silently edited out', ()
     'Batch surface variation',
     'Voice (founder correction, 2026-08-16)',
     'THE HOOK-REVEAL CONTRACT',
+    'Social proof (founder decision, 2026-08-20)',
   ];
   for (const a of anchors) {
     it(`still carries: ${a}`, () => {
