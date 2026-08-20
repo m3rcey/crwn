@@ -98,11 +98,14 @@ responsible for. Do not work those.
       many pop-ups it has already been shown today, and whether a resumable quest even exists. Then
       it clears that user's `popup_events` so the engine re-arbitrates on the next page load. It
       touches nothing else.
-      Why you need it: the engine shows ONE pop-up per user per day, highest priority first. The
-      `onboardj` account was created before 2026-07-31, so it is legitimately owed roughly eight
-      announcement pop-ups (priority 45 to 60) that all outrank resume (40), one per day. Run the
-      file, reload, dismiss whatever appears, run it again. A genuinely NEW artist has no backlog,
-      so this is a test-account condition, not something your pilot artists will hit.
+      Why you need it: the engine shows ONE pop-up per user per day, highest priority first. `lago`
+      was created 2026-07-30, so it is legitimately owed FIVE announcements (priority 45 to 58) that
+      all outrank resume (40). Diagnosed 2026-08-20: role artist, slot free, and RESUMABLE is
+      "Complete Your Artist Destination" at 50 percent, so the prompt is genuinely eligible.
+      **Run STEP 2 (retire), not STEP 3 (wipe).** Wiping re-arms every announcement, so it is a
+      loop that never ends. STEP 2 writes a dismissed row per announcement, which retires them and
+      does not spend the daily slot, so resume can win on the very next load. A genuinely NEW artist
+      has no backlog at all, so none of this is something your pilot artists will hit.
       What you are looking for: a centered modal reading **"Finish this: <the actual goal name>"**
       with a **Finish it** button to `/quests`. If the file reports `RESUMABLE: none`, stop: there
       is no open quest between 0 and 100 percent, so the prompt is correctly silent and no amount

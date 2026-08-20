@@ -22,9 +22,15 @@
 -- `popup_survey_responses` (a deleted survey answer is real data lost, and clearing
 -- events is enough to re-arm a pop-up anyway).
 --
--- HOW TO RUN: change the slug, then just run the file. STEP 2 ships COMMENTED OUT, so
--- running the whole thing is READ-ONLY and safe. Read the verdict row at the bottom of
--- the results, and only then uncomment STEP 2 (and set its slug) if you need to clear.
+-- HOW TO RUN: change the slug, then just run the file. Steps 2 and 3 ship COMMENTED OUT,
+-- so running the whole thing is READ-ONLY and safe. Read the verdict row at the bottom of
+-- the results, then uncomment the step you need.
+--
+--   STEP 1  diagnose (read-only)
+--   STEP 2  retire the announcement backlog so a lower-priority pop-up can win. This is
+--           almost always the one you want, and it does NOT spend the daily slot.
+--   STEP 3  wipe the history entirely. Re-arms every announcement, so it is the WRONG
+--           tool for draining a backlog. Use it only to return to a clean slate.
 
 
 -- ============================================================================
@@ -124,9 +130,45 @@ ORDER BY n, item, detail;
 
 
 -- ============================================================================
--- STEP 2 - CLEAR (destructive, but only this user's pop-up history).
--- Uncomment the three lines below, set the slug, highlight them, and Run.
--- It RETURNS the rows it deleted, so you see it worked instead of "No rows returned".
+-- STEP 2 - RETIRE THE ANNOUNCEMENT BACKLOG. This is the one you almost always want.
+-- Uncomment the block below, set the slug, highlight it, and Run.
+-- ============================================================================
+--
+-- DO NOT reach for STEP 3 to do this. Deleting popup_events RE-ARMS every announcement,
+-- because `passesFrequency` for a `once` pop-up is `mine.length === 0`. Clearing to drain
+-- a backlog is a loop that never ends: clear, meet an announcement, clear, meet the next.
+--
+-- Inserting is what retires them. ANY event row retires a `once` pop-up, and the daily
+-- governor counts only `action = 'shown'`, so writing 'dismissed' rows costs you nothing:
+-- the slot stays free and the next load can show a LOWER-priority pop-up immediately.
+--
+-- It writes all nine announcement keys. That is deliberate and safe: an announcement this
+-- account does not predate was already suppressed by `announcedAt`, so a row for it is a
+-- no-op. Behavioural pop-ups that outrank resume (40) are left alone on purpose, and as of
+-- 2026-08-20 none of them can win anyway: artist_connect_stripe (100) needs Stripe
+-- disconnected, artist_first_broadcast (80) has `audience: () => false`, both break-even
+-- pop-ups (75) need real GMV, and artist_upgrade_pro (50) needs 3+ supporters.
+--
+-- INSERT INTO popup_events (user_id, popup_key, action)
+-- SELECT ap.user_id, k.popup_key, 'dismissed'
+--   FROM artist_profiles ap
+--   CROSS JOIN (VALUES
+--     ('announce_hub_navigation'), ('announce_fan_preview'),
+--     ('announce_membership_strategy'), ('announce_rise_one_move'),
+--     ('announce_live_tips'), ('announce_royalty_readiness'),
+--     ('announce_producer_sessions'), ('announce_launch_limits'),
+--     ('announce_support_chat')
+--   ) AS k(popup_key)
+--  WHERE ap.slug = 'lago'
+--  RETURNING popup_key, action;
+--
+-- Then reload /profile/artist. artist_resume_rise (40) should be the winner.
+
+
+-- ============================================================================
+-- STEP 3 - START OVER (rarely what you want; read STEP 2 first).
+-- Wipes this user's pop-up history, which RE-ARMS every announcement too.
+-- Use it to put the account back to a clean slate, not to drain a backlog.
 -- ============================================================================
 -- DELETE FROM popup_events
 --  WHERE user_id = (SELECT user_id FROM artist_profiles WHERE slug = 'lago')
