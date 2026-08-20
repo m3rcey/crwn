@@ -92,12 +92,14 @@ responsible for. Do not work those.
       with `if (ctx.role === 'admin') return null; // never interrupt the founder`
       ([`src/lib/popups/index.ts`](src/lib/popups/index.ts)), so no pop-up of any kind renders for
       an admin. That alone probably explains "the resume system is not working".
-      **Use the dev utility, or this takes a week of real days.** Open and run:
-      [`supabase/dev-reset-popups.sql`](supabase/dev-reset-popups.sql) (change the slug at the top;
-      it is set to `lago`). It PRINTS the diagnosis before it clears anything: the account role, how
-      many pop-ups it has already been shown today, and whether a resumable quest even exists. Then
-      it clears that user's `popup_events` so the engine re-arbitrates on the next page load. It
-      touches nothing else.
+      **Two steps, nothing to edit.**
+      1. Open [supabase/dev-show-resume-popup.sql](supabase/dev-show-resume-popup.sql) in the
+         Supabase SQL Editor and press Run. One statement, ready as-is, already set to `lago`.
+      2. Reload /profile/artist in the app.
+      That is the whole test. If you want the underlying diagnosis instead (role, whether the daily
+      slot is free, which quest is resumable, what is outranking what), open
+      [supabase/dev-reset-popups.sql](supabase/dev-reset-popups.sql) and press Run: it ships
+      read-only and just prints a table.
       Why you need it: the engine shows ONE pop-up per user per day, highest priority first. `lago`
       was created 2026-07-30, so it is legitimately owed FIVE announcements (priority 45 to 58) that
       all outrank resume (40). Diagnosed 2026-08-20: role artist, slot free, and RESUMABLE is
