@@ -22,6 +22,14 @@ responsible for. Do not work those.
 
 ### P0 — money flows or acquisition are blocked
 
+- [ ] **Pick the first THREE launch partners and flip their flag:**
+      [`supabase/enable-launch-partner.sql`](supabase/enable-launch-partner.sql). Edit the slug
+      list, run it, and the guarantee checklist appears on their command screen. Pick
+      strategically (prior direct sales + an exportable list + will actually send the campaign),
+      not whoever agrees first. Three, not five to ten: you are learning delivery hours, not
+      scaling yet. Charge the implementation fee (0 to $500 for the founding cohort) by a
+      MANUAL Stripe invoice from the dashboard; there is deliberately no checkout for it.
+
 - [ ] **To finish Team Splits I need a test-mode sandbox. This is the only thing left, and it is
       environment setup, not code.** Nothing to run in SQL.
       I checked rather than assumed: your Stripe key really is live (I asked Stripe, and the balance
@@ -43,21 +51,6 @@ responsible for. Do not work those.
       purchase, two payments racing a cap, a payment that never settles, a partial refund, a refund
       replay, the artist surplus return, a dispute, and a collaborator cashout), then reconcile every
       cent and decide whether payouts turn on. **They stay off until that passes.**
-
-- [ ] **One 30-second run to close out early access: prove a PAYING fan is not locked out.**
-      Open and run:
-      [`supabase/verify-early-access-window.sql`](supabase/verify-early-access-window.sql)
-      Expect nine `PASS` notices then `ROLLBACK`. Nothing persists (it creates a members-first
-      track, a members-only track, a public track and two throwaway subscriptions, asks the oracle
-      as each kind of reader, and destroys all of it).
-      Both migrations are already applied and I have proved the SECURITY half live with the anon
-      key: a track inside its window returns `can_play = false` with both audio columns NULL, and it
-      opens to everyone once the window passes. What I could NOT prove from outside is the opposite
-      direction, because it needs a logged-in paying fan's session: that an entitled member CAN
-      still play an in-window track (its check 3). Every signal says it is fine (the tier branch of
-      the function is unchanged, and all 11 member-only tracks still behave), but "locked out a
-      paying fan" is the one failure worth 30 seconds of certainty.
-      If any line says FAIL, send me the output and stop.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
@@ -162,14 +155,6 @@ responsible for. Do not work those.
       [`docs/acquisition/campaign-tagging.md`](docs/acquisition/campaign-tagging.md) (naming
       convention, allowed values, worked examples, and what CRWN can never see). Results land at
       /admin -> Lead Magnets -> **Content scorecard**.
-
-- [ ] **Pick the first THREE launch partners and flip their flag:**
-      [`supabase/enable-launch-partner.sql`](supabase/enable-launch-partner.sql). Edit the slug
-      list, run it, and the guarantee checklist appears on their command screen. Pick
-      strategically (prior direct sales + an exportable list + will actually send the campaign),
-      not whoever agrees first. Three, not five to ten: you are learning delivery hours, not
-      scaling yet. Charge the implementation fee (0 to $500 for the founding cohort) by a
-      MANUAL Stripe invoice from the dashboard; there is deliberately no checkout for it.
 
 - [ ] **Set up the Money Model tab** (its migration already ran; probe-verified). In
       /admin -> **Money Model**:

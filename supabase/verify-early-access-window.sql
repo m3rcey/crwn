@@ -156,5 +156,13 @@ BEGIN
   RAISE NOTICE '--- all 9 checks passed ---';
 END $$;
 
+-- Visible result. The nine PASS notices above never reach the Supabase SQL Editor, which does
+-- not display notices, so a successful run would otherwise look identical to a file that did
+-- nothing. Failure was always loud (the DO block RAISE EXCEPTIONs and aborts); this is so a
+-- PASS is legible too, rather than inferred from the absence of an error.
+SELECT 'PASS' AS result,
+       9 AS checks_passed,
+       'An entitled member CAN play an in-window track; anonymous readers cannot. Nothing was written.' AS meaning;
+
 -- Nothing above is kept. This is the point.
 ROLLBACK;
