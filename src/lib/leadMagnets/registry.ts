@@ -109,10 +109,10 @@ const PROOF_OF_DEMAND: LeadMagnetConfig = {
   dmKeywords: ['proof', 'demand'],
   hero: {
     headline: 'You find out nobody wanted it after you have already paid for it.',
-    subheadline: 'Guessing is what kills the merch run, the tour date and the deluxe. Make fans prove demand first, so you never fund another drop that nobody shows up for.',
+    subheadline: 'Guessing is what kills the merch run, the tour date and the deluxe. Make fans prove demand first, so you never fund a drop nobody shows up for.',
     primaryCta: 'Build my demand test',
-    image: '/tool-proof-of-demand.jpg',
-    imageAlt: 'An artist in a dark studio checking his phone, weighing whether fans really want it',
+    image: '/hero-proof-of-demand.webp',
+    imageAlt: 'A young artist weighing a wall of fan circles, most already lit gold and the bottom row still dark',
   },
   inputs: [
     {
@@ -1230,14 +1230,13 @@ const FAN_STACK: LeadMagnetConfig = {
 
 // The 20th tool: the Touring Access Seller avatar's entry calculator. Math:
 // src/lib/avatars/betweenTourModel.ts via the between-tour adapter (betweenTour@1).
-// Hero image is a thematic placeholder (live-experience) until a bespoke on-brand photo is made.
 const BETWEEN_TOUR: LeadMagnetConfig = {
   slug: 'between-tour-calculator',
   name: 'Between-Tour Revenue Calculator',
   featureName: 'VIP Membership',
   category: 'Monetize',
   description: 'See what the months between your shows are worth when VIP buyers become year-round members.',
-  videoAngle: 'The VIP buyer who paid a premium on Friday walks out unowned. Tour revenue is a spike with a cliff, and the cliff is optional.',
+  videoAngle: 'The VIP buyer who paid a premium on Friday walks out with nothing to join. Tour revenue is a spike with a cliff, and the cliff is optional.',
   publicRoute: '/tools/between-tour-calculator',
   artistRoute: '/artist/tools/between-tour-calculator',
   icon: '🚌',
@@ -1246,10 +1245,10 @@ const BETWEEN_TOUR: LeadMagnetConfig = {
   hero: {
     headline: 'Your income stops the night the tour does.',
     subheadline:
-      'The fans who prove they pay on show nights, especially your VIP buyers, are offered nothing for the rest of the year. See what a recurring VIP membership earns in the months between runs, from fans you already converted once.',
+      'Your VIP buyers prove they pay on show nights, then get nothing the rest of the year. See what a recurring membership earns between runs.',
     primaryCta: 'See what the off-months are worth',
-    image: '/tool-live-experience.jpg',
-    imageAlt: 'An artist performing a stripped-down set under warm gold light',
+    image: '/hero-between-tour.webp',
+    imageAlt: 'A young artist with a microphone beside tall gold show-night spikes, a steady amber band bridging the quiet months between them',
   },
   inputs: [
     { key: 'shows_per_year', type: 'number', label: 'Shows or tour dates per year', required: true, min: 0, max: 365, step: 'shows', placeholder: '20' },

@@ -73,6 +73,11 @@ export const PROMOTED_TOOL_KEYS: ReadonlySet<string> = new Set([
   // alongside Executive Producer Sessions, and the two are deliberate siblings (EP sells one
   // seat in the room; this sells the show itself). Same keyword as always: LIVE.
   'live-experience-calculator', // LIVE
+  // Re-promoted 2026-08-20 (founder decision): the Between-Tour and Proof of Demand calculators
+  // return to the directory with the full promoted-tool contract (doorway, trimmed hero copy,
+  // illustrated hero), same as the Live Experience re-promotion. Keywords unchanged.
+  'between-tour-calculator',      // TOUR / TOURING
+  'proof-of-demand-test-builder', // PROOF / DEMAND
 ]);
 
 /** A tool's lifecycle: its overlay wins, otherwise promoted -> active, everything else paused. */

@@ -89,6 +89,29 @@ export const TOOL_DOORWAYS: Record<string, ToolDoorway> = {
       'Where the live sits decides what it earns. Tickets earn on their own from any fan, member or not, and the replay becomes membership material your paying rungs keep. The Executive Producer Session is the premium version of the same idea: fewer seats, in the room where the work happens, at many times the price.',
   },
 
+  // Show-night proof carried into the OFF months. The VIP buyer is a proven direct spender, and
+  // the membership they join is the same ladder, never a second business beside the tour.
+  // Re-promoted 2026-08-20.
+  'between-tour-calculator': {
+    lens: 'What this reveals',
+    revealsTitle: 'Tour revenue is a spike with a cliff, and the cliff is optional.',
+    revealsBody:
+      'The fans who buy VIP on a show night are proven direct spenders, and most artists offer them nothing until the next run. The figure above is not new fans and not more shows. It is the months your income currently drops toward zero, refilled by a recurring membership offered to buyers who already paid a premium for access once.',
+    connectsBody:
+      'A VIP membership is not a second business beside the tour. It is the same ladder your whole fan economy runs on, entered by the fans your shows already converted, so show-night proof becomes year-round recurring revenue counted once inside your membership number.',
+  },
+
+  // Demand proven BEFORE money is spent. The test chooses the next offer inside the one economy;
+  // it is never a separate product line. Re-promoted 2026-08-20.
+  'proof-of-demand-test-builder': {
+    lens: 'What this reveals',
+    revealsTitle: 'Demand is knowable before you spend a dollar on it.',
+    revealsBody:
+      'Most merch runs, shows and deluxe drops are funded on a guess, and the guess is the expensive part. Your committed fans will tell you what they want before you commit money to it, if you give them one specific way to say so: an RSVP, a vote, a place in line. The test above is that mechanism, with a threshold that turns interest into a go decision.',
+    connectsBody:
+      'A demand test is not a separate product. It is how the next offer inside your fan economy gets chosen: the fans who raise their hands are the same members and buyers every other number here models, so the ladder only ever adds a rung somebody already asked for.',
+  },
+
   // Platform reach versus an IDENTIFIABLE, PERMISSIONED relationship. Never literal ownership.
   'own-your-fans-calculator': {
     lens: 'What this reveals',

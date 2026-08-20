@@ -1,5 +1,23 @@
 # CRWN Brain — Changelog
 
+## 2026-08-20 (evening) - Between-Tour and Proof of Demand rejoin the promoted funnel
+
+**Founder decision: bring back the tour calculator and the proof of demand calculator, with the
+same updates the visible calculators carry.** Both joined `PROMOTED_TOOL_KEYS` (nine doors now)
+with the full promoted-tool contract established by the 2026-08-16 Live Experience re-promotion:
+a Zero to One doorway each in `src/lib/leadMagnets/positioning.ts` (between-tour = show-night
+proof carried into the off months, one ladder, never a second business; proof-of-demand = demand
+knowable before a dollar is spent, the test chooses the next rung inside the one economy), hero
+subheadlines trimmed inside the shared above-the-fold budget (28 and 25 words), and bespoke
+illustrated heroes in the brand flat-vector style (`hero-between-tour.webp`,
+`hero-proof-of-demand.webp`, both 1376x768 WebP, reviewed by eye per the house rule). Both
+figures are men on purpose: the seven existing heroes counted 4 men / 3 women, so two men land
+the nine-image set at 6/3, on the 65/35 brand ratio counted across the set. The between-tour
+videoAngle's "walks out unowned" became "walks out with nothing to join" (no literal ownership
+of people, POSITIONING.md section 24). Nurture modules and continuation CTAs already existed
+for both, so nothing was added there. Paused count is now 12. Slugs, routes, DM keywords
+(TOUR/TOURING, PROOF/DEMAND), toolIds: all unchanged, as always.
+
 ## 2026-08-20 (later still) - Song Lab live show mode: Julius Williams turns a live audience into owned free fans
 
 **Second opt-in artist, same primitive, no new tables.** Julius Williams (slug

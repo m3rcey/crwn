@@ -65,10 +65,12 @@ describe('the promoted set and its doorways cannot drift apart', () => {
     // Seven since 2026-08-16: the founder is promoting Live Experiences in content alongside
     // Executive Producer Sessions, so its calculator rejoined the set with a doorway, a trimmed
     // hero and its own illustrated webp, the same contract as the original six.
+    // Nine since 2026-08-20: the founder brought back the Between-Tour and Proof of Demand
+    // calculators, each with the same full contract.
     expect([...PROMOTED_MARKETING_SLUGS]).toEqual(
-      ['executive-producer-session', 'live-experience-calculator', 'opportunity-calculator', 'own-your-fans-calculator', 'share-to-earn-planner', 'vault-revenue-planner', 'worth'],
+      ['between-tour-calculator', 'executive-producer-session', 'live-experience-calculator', 'opportunity-calculator', 'own-your-fans-calculator', 'proof-of-demand-test-builder', 'share-to-earn-planner', 'vault-revenue-planner', 'worth'],
     );
-    expect(PROMOTED_MARKETING_SLUGS).toHaveLength(7);
+    expect(PROMOTED_MARKETING_SLUGS).toHaveLength(9);
   });
 
   it('every promoted tool owns a doorway, and no paused tool does', () => {

@@ -353,7 +353,9 @@ describe('content claims stay inside what CRWN can support', () => {
   });
 
   it('references no paused or deprecated calculator by name', () => {
-    // Only the six promoted tools may be named in copy that runs for a year.
+    // Only promoted tools may be named in copy that runs for a year. Proof of Demand rejoined the
+    // promoted set on 2026-08-20, but the universal core sequence still has no reason to name one
+    // specific tool, so its ban stays as a tighter-than-required guard.
     expect(ALL_COPY).not.toMatch(/clip-to-earn|proof of demand|top fan leaderboard|team splits/i);
   });
 

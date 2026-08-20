@@ -23,6 +23,10 @@ const EXPECTED_PROMOTED = [
   'opportunity-calculator',
   // Founder decision 2026-08-16: Live Experiences is promoted in content with EP Sessions.
   'live-experience-calculator',
+  // Founder decision 2026-08-20: the tour and proof-of-demand calculators come back, with the
+  // same promoted-tool contract (doorway, trimmed hero, illustrated webp).
+  'between-tour-calculator',
+  'proof-of-demand-test-builder',
 ];
 
 describe('the promoted set is exactly the tools with content behind them', () => {
