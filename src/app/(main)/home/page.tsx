@@ -72,6 +72,7 @@ export default function HomePage() {
   const [featuredArtists, setFeaturedArtists] = useState<ArtistProfile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [hasArtistProfile, setHasArtistProfile] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
   const setup = useArtistSetup();
 
   useEffect(() => {
@@ -218,6 +219,16 @@ export default function HomePage() {
   // bar sitting directly above the tab bar. Artists now land on Rise Mode at login (see the
   // login page), so /home is a fan surface again, which is what SupporterMode below is for.
 
+  // The grid narrows to the number of complete artists, so the row is always FULL rather
+  // than a 3-column layout with a hole in it. That gap is the whole difference between a
+  // page that is sparse and one that looks broken. Never pad the set to fill the grid: a
+  // tile needs music AND an avatar AND a presentable name, and a placeholder tile is worse
+  // than a short row.
+  const featuredGrid =
+    featuredArtists.length <= 2
+      ? 'grid grid-cols-2 gap-3 max-w-md'
+      : 'grid grid-cols-2 md:grid-cols-3 gap-3 max-w-2xl';
+
   const getGreeting = () => {
     const hour = new Date().getHours();
     if (hour < 12) return 'Good morning';
@@ -316,6 +327,55 @@ export default function HomePage() {
         );
       })()}
 
+      {/* Your page: a LAUNCHED artist only, and only once setup is finished.
+          ------------------------------------------------------------------
+          Without this an artist who has completed setup meets a greeting and a short
+          Featured row, which is the whole "it looks bare" complaint. Everything else on
+          Home is either fan content or, in the case of the deleted Quick Actions, a second
+          door to a bottom-nav slot.
+
+          This is neither. The public page is NOT in the tab bar, it is the one thing on
+          this screen that belongs to the artist, and sharing it is the literal first step
+          toward a first paying member: nobody reaches a checkout they were never sent to.
+          Loss-framed per the copy rule, and it states the real URL rather than describing it. */}
+      {setup.isArtist && !setup.loading && setup.slug && setup.steps.every((s) => s.done) && (
+        <section className="neu-raised p-6">
+          <h2 className="text-lg font-semibold text-crwn-text">
+            Nobody can pay you from a link you never send.
+          </h2>
+          <p className="text-crwn-text-secondary text-sm mt-1">
+            This is your storefront. Every subscribe and every sale starts here.
+          </p>
+          <p className="mt-4 font-mono text-sm text-crwn-gold break-all">
+            thecrwn.app/{setup.slug}
+          </p>
+          <div className="mt-4 flex flex-col sm:flex-row gap-2">
+            <Link
+              href={`/${setup.slug}`}
+              className="neu-button-accent inline-flex h-11 items-center justify-center gap-1.5 px-6 text-sm"
+            >
+              Open my page
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+            <button
+              onClick={async () => {
+                try {
+                  await navigator.clipboard.writeText(`https://thecrwn.app/${setup.slug}`);
+                  setCopiedLink(true);
+                  setTimeout(() => setCopiedLink(false), 1800);
+                } catch {
+                  /* Clipboard blocked (insecure context, older mobile browser). The URL is
+                     printed above precisely so this failing still leaves it selectable. */
+                }
+              }}
+              className="inline-flex h-11 items-center justify-center rounded-full bg-crwn-elevated px-6 text-sm font-medium text-crwn-text hover:text-crwn-gold transition-colors"
+            >
+              {copiedLink ? 'Link copied' : 'Copy link'}
+            </button>
+          </div>
+        </section>
+      )}
+
       {/* Supporter Mode — fans only (users without an artist profile). Renders
           nothing while the quest engine is dark-launched. Artists keep the
           standard home; their guided mode is Rise Mode on the dashboard. */}
@@ -329,16 +389,16 @@ export default function HomePage() {
             href="/explore" 
             className="text-crwn-gold hover:text-crwn-gold-hover text-sm flex items-center gap-1"
           >
-            View All <ArrowRight className="w-4 h-4" />
+            Explore <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
 
         {isLoading ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 max-w-2xl">
+          <div className={featuredGrid}>
             {[1,2].map(i => <div key={i}><div className="aspect-square max-w-[200px] mx-auto w-full bg-crwn-elevated rounded-xl animate-pulse" /><div className="h-4 bg-crwn-elevated rounded w-3/4 mx-auto mt-2 animate-pulse" /></div>)}
           </div>
         ) : featuredArtists.length > 0 ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 max-w-2xl">
+          <div className={featuredGrid}>
             {featuredArtists.map((artist) => (
               <Link
                 key={artist.id}
