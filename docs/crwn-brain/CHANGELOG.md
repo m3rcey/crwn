@@ -18,6 +18,17 @@ of people, POSITIONING.md section 24). Nurture modules and continuation CTAs alr
 for both, so nothing was added there. Paused count is now 12. Slugs, routes, DM keywords
 (TOUR/TOURING, PROOF/DEMAND), toolIds: all unchanged, as always.
 
+**Email nurture verified end to end for both, no copy changes needed.** The v3 sequence is
+universal by design (per-tool words come only from `moduleFor(slug)` plus tokens), enrollment
+and the cron never gate on promoted/paused, and both tools' bespoke modules now sit under the
+promoted-tool governance in `calculatorModules.test.ts` (derived from `PROMOTED_TOOL_KEYS`).
+Rendered every touch for both slugs and read them: between-tour emails quote the artist's own
+loss-engine number (`heroValue`/`estimatedMonthlyCents` present); proof-of-demand stores no
+dollar fields, so `hasNumber` is false and every `numberOrFallback` block renders its honest
+no-number variant. The only real gap was the admin campaign link builder: `LINK_DESTINATIONS`
+had no entries for the two returning tools, so content links to them could not be built with
+attribution. Both added.
+
 ## 2026-08-20 (later still) - Song Lab live show mode: Julius Williams turns a live audience into owned free fans
 
 **Second opt-in artist, same primitive, no new tables.** Julius Williams (slug

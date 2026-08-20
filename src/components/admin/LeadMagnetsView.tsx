@@ -209,6 +209,8 @@ const LINK_DESTINATIONS = [
   { id: '/tools/vault-revenue-planner', label: 'Vault Revenue Planner' },
   { id: '/tools/share-to-earn-planner', label: 'Share-to-Earn Planner' },
   { id: '/tools/live-experience-calculator', label: 'Live Experience Calculator' },
+  { id: '/tools/between-tour-calculator', label: 'Between-Tour Revenue Calculator' },
+  { id: '/tools/proof-of-demand-test-builder', label: 'Proof of Demand Test Builder' },
   { id: '/tools/royalty-readiness-check', label: 'Royalty Readiness Check' },
   { id: '/tools/fan-stack-calculator', label: 'Fan Stack Calculator' },
   { id: '/', label: 'Homepage funnel' },
