@@ -7,6 +7,7 @@ import { createClient } from '@supabase/supabase-js';
 import { requireSongLabArtist } from '@/lib/songLab/server';
 import {
   normalizeOfferSlug,
+  offerSlugFromName,
   safeLabPath,
   MAX_TITLE_LENGTH,
   MAX_HEADLINE_LENGTH,
@@ -135,8 +136,12 @@ export async function POST(req: NextRequest) {
   if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status });
 
   const body = await req.json().catch(() => ({}));
-  const slug = normalizeOfferSlug(body.slug ?? body.name);
-  if (!slug) return NextResponse.json({ error: 'Link slug must be 3 to 64 letters, numbers or hyphens' }, { status: 400 });
+  // Strict form first; when that fails, derive from the human name ("St. James
+  // Live September 26" → st-james-live-september-26) because the manager has no
+  // slug field and a period in a venue name must not error at the artist.
+  const rawSlug = body.slug ?? body.name;
+  const slug = normalizeOfferSlug(rawSlug) ?? offerSlugFromName(rawSlug);
+  if (!slug) return NextResponse.json({ error: 'The name needs at least 3 letters or numbers' }, { status: 400 });
 
   const validated = await validateOfferFields(auth.artistId, body, false);
   if (!validated.ok) return NextResponse.json({ error: validated.error }, { status: 400 });

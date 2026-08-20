@@ -148,6 +148,27 @@ export function normalizeOfferSlug(raw: unknown): string | null {
   return OFFER_SLUG_RE.test(s) ? s : null;
 }
 
+/**
+ * Derive a legal offer slug from a human show name. The manager derives the link
+ * from the NAME field with no visible slug input, so "St. James Live September 26"
+ * must become st-james-live-september-26 instead of erroring about a slug the
+ * artist never typed (that really happened, 2026-08-20). Same character policy as
+ * the shared src/lib/slugify.ts but with the offer slug's own 64-char cap, kept
+ * here so it stays dependency-free with the rest of this module. Returns null
+ * only when nothing usable remains (under 3 characters).
+ */
+export function offerSlugFromName(raw: unknown): string | null {
+  if (typeof raw !== 'string') return null;
+  const s = raw
+    .toLowerCase()
+    .replace(/['’]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 64)
+    .replace(/-+$/g, '');
+  return OFFER_SLUG_RE.test(s) ? s : null;
+}
+
 export type OfferBenefitKind = 'vote' | 'content' | 'recognition' | 'other';
 
 export interface SongLabOfferCore {

@@ -6,6 +6,7 @@ import {
   normalizeOptions,
   mergeOptionEdit,
   normalizeOfferSlug,
+  offerSlugFromName,
   offerIsLive,
   safeLabPath,
   claimDestination,
@@ -158,6 +159,17 @@ describe('offer slug and window', () => {
     expect(normalizeOfferSlug('ab')).toBeNull();
     expect(normalizeOfferSlug('has/slash')).toBeNull();
     expect(normalizeOfferSlug(42)).toBeNull();
+  });
+  it('offerSlugFromName turns a human show name into a legal slug', () => {
+    expect(offerSlugFromName('St. James Live September 26')).toBe('st-james-live-september-26');
+    expect(offerSlugFromName("GB's Final Vote!")).toBe('gbs-final-vote');
+    expect(offerSlugFromName('City Winery, Atlanta & Friends')).toBe('city-winery-atlanta-friends');
+    expect(offerSlugFromName('  -bad-  ')).toBe('bad');
+    expect(offerSlugFromName('!!')).toBeNull();
+    expect(offerSlugFromName('ab')).toBeNull();
+    expect(offerSlugFromName(42)).toBeNull();
+    const long = offerSlugFromName('x'.repeat(80));
+    expect(long).toHaveLength(64);
   });
   it('offerIsLive honors is_active and the date window', () => {
     expect(offerIsLive(offer(), NOW)).toBe(true);
