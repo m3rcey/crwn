@@ -26,12 +26,37 @@ study and reads its numbers off a script's `META:` line, so **every accepted pit
 first**. Say that plainly when the founder picks, and never shortcut it: a carousel built from an
 unverified pitch is a fact-checkable claim published with no fact check behind it.
 
+## Where a batch is STORED
+
+**Write the batch to a file before showing it.** A pitch list that only exists in a chat reply is
+unrecoverable the moment the session ends, and the founder is then choosing from a list that does
+not exist. This actually happened on batch 01.
+
+    videos/ideas/fan-economy/batch-NN.md
+
+Two zero-padded digits, next number up. Each file opens with the date, a one-line note on the
+batch's composition, and a status block:
+
+    - **PICKED:** (none yet)
+    - **PASSED:** (none yet)
+
+When the founder picks, edit those two lines in the SAME turn. That file is the only record of what
+was pitched, what got built and what was rejected.
+
 ## Every pitch is NEW
 
-**Never pitch an artist already used.** Scan `videos/scripts/fan-economy/` before writing and
-exclude every artist appearing in a filename or a `META:` line, as SUBJECT or as FOIL. The founder
-has explicitly said not to recycle the existing backlog: these are new posts, not a to-do list of
-scripts already written.
+**Rotation scans TWO places, not one.** Exclude every artist appearing in
+`videos/scripts/fan-economy/` (filename or `META:` line, as subject or foil) AND every artist
+already pitched in any `videos/ideas/fan-economy/batch-*.md`, including the eight that were passed
+over. Scanning only the scripts folder means the same unbuilt artists come back in every future
+batch, and the founder culls the identical list forever.
+
+A passed-over pitch is not dead, it is REJECTED. Re-pitch one only when a genuinely new angle or a
+newly available number changes the case, and say plainly that it is a re-pitch and what changed.
+
+
+The founder has explicitly said not to recycle the existing backlog: these are new posts, not a
+to-do list of scripts already written.
 
 Also vary the MECHANISM, not just the name. Ten pitches about limited vinyl is one idea with ten
 faces. Spread them across the mechanism library in `/crwn-fan-economy`: memberships and tiers,

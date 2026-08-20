@@ -76,11 +76,15 @@ is where the first version failed: a summary states the setup then states the an
 the curiosity gap on the way past it. The script withholds, and the caption has to withhold the
 same way, in the same order, in the same voice.
 
-Target **220 to 270 words** of body, not counting the hashtag line. The beat structure costs more
+Target **220 to 270 words** of body, both CTAs included. The beat structure costs more
 words than a summary does; that is the trade and it is worth it.
 
 Write these beats, in this order:
 
+0. **The CTA, up top.** The caption OPENS with it, in the form `Comment "KEYWORD" for [the thing]`.
+   Instagram truncates at the fold and most readers never expand, so a CTA that only appears at the
+   bottom is a CTA most of the audience never sees. It runs twice on purpose: once before the story
+   and once after it.
 1. **Facts, then the question.** Open on the two concrete facts, then ask. Not the question alone:
    the facts are what make the question land. ("Curren$y put out 90+ projects. Westside Gunn put
    out 400 copies of one project. Which one's fans are actually worth more, and by how much?")
@@ -101,10 +105,12 @@ Write these beats, in this order:
 10. **The reveal.** The math, in the same numbers as slide 2 and the script's `Big Reveal:`.
 11. **The Wow Factor.** The reframe from the `META:` line, the repostable one.
 12. **The pivot to the reader.** Turn the case study into their question, loss-framed.
-13. **The CTA.** The script's own lead magnet and DM keyword, unchanged. The keyword is wired to
-    ManyChat, so **never reword or invent one**: read it off the script's `Lead magnet:` line.
+13. **The CTA again, to close.** The same keyword and the same magnet as beat 0. The keyword is
+    wired to ManyChat, so **never reword or invent one**: read it off the script's `Lead magnet:`
+    line, and use the identical keyword in both CTAs.
 
-Then the hashtags, on their own line.
+**No hashtags.** Founder decision, 2026-08-20. Do not add a hashtag line, and do not scatter tags
+inline either.
 
 The fair-balance beat is not dropped, it is folded into beat 4: streaming is the discovery job and
 never the villain, and the volume artist's output is what built the thing the collectors collect.

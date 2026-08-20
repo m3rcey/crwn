@@ -2,6 +2,8 @@
 
 **CAPTION:**
 
+Comment "VAULT" for the free Vault Revenue Planner.
+
 Curren$y put out 90+ projects. Westside Gunn put out 400 copies of one project.
 
 Which one's fans are actually worth more, and by how much?
@@ -32,9 +34,7 @@ One collector paying $300 is 30,000 people listening for a month. Except the 30,
 
 You know how many people hear you. Do you know which ones would pay $300 for what nobody else got?
 
-Comment VAULT and I'll DM you the free Vault Revenue Planner.
-
-#faneconomy #independentartist #musicbusiness #ownyourmasters #vinylcommunity #rapmusic #musicmarketing #artistdevelopment
+Comment "VAULT" and I'll DM you the free Vault Revenue Planner.
 
 ---
 

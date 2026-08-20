@@ -103,9 +103,16 @@ describe.runIf(carouselFiles.length > 0)('FE-CAR-003 every carousel file is well
 
   it.each(carouselFiles)('%s routes its CTA to a real calculator keyword', (file) => {
     const caption = section(readFileSync(join(CAROUSELS_DIR, file), 'utf8'), '**CAPTION:**') ?? '';
-    const m = caption.match(/Comment ([A-Z][A-Z0-9]{2,})\b/);
-    expect(m, 'caption must carry a "Comment KEYWORD" CTA').toBeTruthy();
-    const keyword = m![1];
+    const all = [...caption.matchAll(/Comment "?([A-Z][A-Z0-9]{2,})"?/g)];
+    expect(all.length, 'caption must carry a "Comment KEYWORD" CTA').toBeGreaterThan(0);
+    // The CTA runs at the top AND the bottom: most readers never expand past the fold,
+    // so a bottom-only CTA is one most of the audience never sees.
+    expect(all.length, 'CTA must appear at the top and again at the end').toBeGreaterThanOrEqual(2);
+    const keywords = new Set(all.map((m) => m[1]));
+    expect(keywords.size, `both CTAs must use ONE keyword, found ${[...keywords].join(', ')}`).toBe(1);
+    const firstLine = caption.trimStart().split('\n')[0];
+    expect(firstLine, 'the caption must OPEN with the CTA').toMatch(/^Comment "?[A-Z]/);
+    const keyword = all[0][1];
     // The annotation goes on the ACCESS, not the parameter. Annotating the parameter as
     // `{ dmKeywords?: string[] }` failed to type check, because the array element is the
     // union `LeadMagnetConfig | ExternalTool` and a callback parameter has to accept it.
@@ -115,6 +122,12 @@ describe.runIf(carouselFiles.length > 0)('FE-CAR-003 every carousel file is well
     // The keyword is wired to ManyChat. Inventing one produces a CTA that silently
     // does nothing for every person who comments it.
     expect(known, `${keyword} is not a registered dmKeyword`).toContain(keyword);
+  });
+
+  it.each(carouselFiles)('%s caption carries no hashtags', (file) => {
+    const caption = section(readFileSync(join(CAROUSELS_DIR, file), 'utf8'), '**CAPTION:**') ?? '';
+    const tags = caption.match(/#\w+/g) ?? [];
+    expect(tags, `captions carry no hashtags, found ${tags.join(' ')}`).toHaveLength(0);
   });
 
   it.each(carouselFiles)('%s caption keeps the withholding beats, not a summary', (file) => {
