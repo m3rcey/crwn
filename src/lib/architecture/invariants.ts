@@ -1161,12 +1161,15 @@ export const FEATURES: readonly FeatureContract[] = [
   },
   {
     key: 'song_lab',
-    title: 'Song Lab (GB The G1ft fan co-creation experiment)',
-    // LIVE for exactly one artist since 2026-08-20 (migration founder-applied and
-    // probe-verified). Every surface reads the server-only
-    // artist_profiles.song_lab_enabled column through src/lib/songLab/access.ts and
-    // fails soft/closed where it is false. The gate is PER-ARTIST (launch_partner
-    // pattern), not an admin_settings flag: the migration flipped it for slug gb only.
+    title: 'Song Lab (per-artist fan voting: GB co-creation + Julius live shows)',
+    // LIVE since 2026-08-20 (migration founder-applied and probe-verified). Every
+    // surface reads the server-only artist_profiles.song_lab_enabled column through
+    // src/lib/songLab/access.ts and fails soft/closed where it is false. The gate is
+    // PER-ARTIST (launch_partner pattern), not an admin_settings flag. Enabled artists:
+    // gb (co-creation, by the migration) and julius-williams (live-show fan capture,
+    // data write 2026-08-20). A vote offer whose decision is open renders the ballot ON
+    // the /join landing (live show mode) and the claim casts the carried vote after the
+    // free join, through the same checkVote authority as /api/song-lab/vote.
     expectedState: 'live',
     flag: null,
     gateModule: 'src/lib/songLab/access.ts',
@@ -1176,7 +1179,7 @@ export const FEATURES: readonly FeatureContract[] = [
       { file: 'src/app/(main)/studio/lab/page.tsx', mustContain: 'SongLabManager' },
     ],
     migration: 'schema-phase2-song-lab.sql',
-    notes: 'Artist-scoped by design; deliberately NO Studio tile and NO AccountHub entry (hidden route, one enabled artist). Votes are advisory only, recognition is Special-Thanks-class only (RECOGNITION_DISCLAIMER in src/lib/songLab/core.ts). Remove by deleting src/lib/songLab, src/components/songlab, src/app/api/song-lab, the two [slug] pages and the studio page.',
+    notes: 'Artist-scoped by design; deliberately NO Studio tile and NO AccountHub entry (hidden route, opt-in artists only). Votes are advisory only, recognition is Special-Thanks-class only (RECOGNITION_DISCLAIMER in src/lib/songLab/core.ts). Remove by deleting src/lib/songLab, src/components/songlab, src/app/api/song-lab, the two [slug] pages and the studio page.',
   },
 ];
 
@@ -1311,7 +1314,7 @@ export const EXPECTED_MIGRATION_STATE: ReadonlyArray<{
   // Song Lab (GB experiment). The probe expects song_lab_projects to resolve for anon
   // (public SELECT policy on non-archived rows) and the gate column to answer 42501
   // (no client grant), exactly like launch_partner.
-  { file: 'schema-phase2-song-lab.sql', state: 'applied', note: 'Founder-applied 2026-08-20 and probe-verified the same day: anon reads song_lab_projects 200 [], the gate column answers 42501, song_lab_votes answers 42501, exactly one enabled artist (gb, service-role read), day_one_anr badge seeded, and the live /api/song-lab/public?artist=gb answers 200 with the real free tier id.' },
+  { file: 'schema-phase2-song-lab.sql', state: 'applied', note: 'Founder-applied 2026-08-20 and probe-verified the same day: anon reads song_lab_projects 200 [], the gate column answers 42501, song_lab_votes answers 42501, day_one_anr badge seeded, and the live /api/song-lab/public?artist=gb answers 200 with the real free tier id. The gate was gb-only at apply time; julius-williams was enabled later the same day by a service-role data write (probe: public?artist=julius-williams answers 200), so the file self-verify now asserts gb-is-enabled, not exactly-one.' },
 ];
 
 /** Words that mean "this migration has not been applied" when they share a doc line with its filename. */

@@ -21,7 +21,16 @@ import { createClient } from '@supabase/supabase-js';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { checkRateLimit } from '@/lib/rateLimit';
 import { songLabArtistBySlug } from '@/lib/songLab/access';
-import { offerIsLive, claimDestination, isFreshSignup, type SongLabOfferCore } from '@/lib/songLab/core';
+import { resolveOfferEnrollTier, recordLabVote } from '@/lib/songLab/server';
+import {
+  offerIsLive,
+  claimDestination,
+  isFreshSignup,
+  checkVote,
+  safeLabPath,
+  type SongLabOfferCore,
+  type SongLabDecisionCore,
+} from '@/lib/songLab/core';
 import { joinFreeTier } from '@/lib/subscriptions/freeJoin';
 import { notifyNewSubscriber } from '@/lib/notifications';
 
@@ -43,6 +52,9 @@ export async function POST(req: NextRequest) {
     const body = await req.json().catch(() => ({}));
     const artistSlug = typeof body.artistSlug === 'string' ? body.artistSlug : '';
     const offerSlug = typeof body.offerSlug === 'string' ? body.offerSlug : '';
+    // Optional: a vote carried from the vote-first landing (live show mode). Validated
+    // against the offer's own decision below; an invalid one never blocks the join.
+    const carriedOptionId = typeof body.optionId === 'string' ? body.optionId.trim().slice(0, 8) : '';
     if (!artistSlug || !offerSlug) {
       return NextResponse.json({ error: 'Missing artistSlug or offerSlug' }, { status: 400 });
     }
@@ -62,29 +74,8 @@ export async function POST(req: NextRequest) {
 
     // Resolve the tier to enroll: the offer's configured tier, else the artist's free tier.
     // Either way it must belong to THIS artist and cost 0 (joinFreeTier re-checks price).
-    let tierId: string | null = null;
-    if (offer.tier_id) {
-      const { data: tier } = await supabaseAdmin
-        .from('subscription_tiers')
-        .select('id, price, artist_id')
-        .eq('id', offer.tier_id)
-        .eq('artist_id', artist.artistId)
-        .eq('is_active', true)
-        .maybeSingle();
-      if (tier && tier.price === 0) tierId = tier.id;
-    }
-    if (!tierId) {
-      const { data: freeTier } = await supabaseAdmin
-        .from('subscription_tiers')
-        .select('id')
-        .eq('artist_id', artist.artistId)
-        .eq('is_active', true)
-        .eq('price', 0)
-        .order('created_at', { ascending: true })
-        .limit(1)
-        .maybeSingle();
-      tierId = freeTier?.id ?? null;
-    }
+    // Shared with the vote-first landing so the ballot shown is the ballot delivered.
+    const tierId = await resolveOfferEnrollTier(supabaseAdmin, artist.artistId, offer.tier_id ?? null);
     if (!tierId) {
       return NextResponse.json({ error: 'This artist has no free tier to join' }, { status: 409 });
     }
@@ -152,11 +143,51 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // Live show mode: the landing carried a ballot choice through the ONE submission
+    // (and through signup, for a brand-new fan). Same authority chain as /api/song-lab/vote:
+    // the decision must be the OFFER'S own, checkVote re-derives open/option/eligibility
+    // server-side, and the fan's tier comes from the subscriptions table (which the join
+    // above just wrote). A denied vote never un-joins anyone; they pick by hand on the Lab.
+    let voted = false;
+    if (carriedOptionId && offer.benefit_kind === 'vote' && offer.decision_id) {
+      const { data: decision } = await supabaseAdmin
+        .from('song_lab_decisions')
+        .select('id, artist_id, project_id, options, status, is_free, allowed_tier_ids, opens_at, closes_at, winning_option_id')
+        .eq('id', offer.decision_id)
+        .eq('artist_id', artist.artistId)
+        .maybeSingle();
+      if (decision) {
+        const { data: sub } = await supabaseAdmin
+          .from('subscriptions')
+          .select('tier_id')
+          .eq('fan_id', user.id)
+          .eq('artist_id', decision.artist_id)
+          .eq('status', 'active')
+          .maybeSingle();
+        const verdict = checkVote({
+          decision: decision as unknown as SongLabDecisionCore,
+          now: new Date(),
+          optionId: carriedOptionId,
+          fanTierId: sub?.tier_id ?? null,
+        });
+        if (verdict.ok) {
+          voted = await recordLabVote(supabaseAdmin, decision, user.id, carriedOptionId);
+        }
+      }
+    }
+
     return NextResponse.json({
       success: true,
       joined: join.status === 'joined',
       alreadyMember: join.status === 'already_member',
+      voted,
       destination: claimDestination(offer as SongLabOfferCore, artist.slug),
+      // A vote offer may also carry a reward destination (e.g. a free live performance
+      // post). The landing's confirmation screen offers it; the canonical destination
+      // above still deep-links the vote. Internal paths only, same rule as everywhere.
+      rewardPath: offer.benefit_kind === 'vote' && offer.destination_path
+        ? safeLabPath(offer.destination_path)
+        : null,
     });
   } catch (err) {
     console.error('[song-lab] claim route error:', err);

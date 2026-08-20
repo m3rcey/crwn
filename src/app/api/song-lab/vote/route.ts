@@ -9,8 +9,8 @@ import { createClient } from '@supabase/supabase-js';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { checkRateLimit } from '@/lib/rateLimit';
 import { isSongLabEnabled } from '@/lib/songLab/access';
+import { recordLabVote } from '@/lib/songLab/server';
 import { checkVote, tally, type DecisionOption, type SongLabDecisionCore } from '@/lib/songLab/core';
-import { awardFanBadge } from '@/lib/fanBadges';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -71,31 +71,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: d.message, reason: verdict.reason }, { status: d.status });
     }
 
-    const { error: voteError } = await supabaseAdmin
-      .from('song_lab_votes')
-      .upsert({
-        decision_id: decision.id,
-        artist_id: decision.artist_id,
-        fan_id: user.id,
-        option_id: optionId,
-        updated_at: new Date().toISOString(),
-      }, { onConflict: 'decision_id,fan_id' });
-    if (voteError) {
-      console.error('[song-lab] vote upsert failed:', voteError.message);
+    // Shared writer: vote upsert + the idempotent Day One A&R badge (recognition only).
+    const recorded = await recordLabVote(supabaseAdmin, decision, user.id, optionId);
+    if (!recorded) {
       return NextResponse.json({ error: 'Failed to record vote' }, { status: 500 });
     }
-
-    // First participation in this artist's lab earns the Day One A&R badge (recognition
-    // only; grants no rights of any kind). Idempotent and best-effort.
-    awardFanBadge(supabaseAdmin, {
-      artistId: decision.artist_id,
-      fanId: user.id,
-      badgeKey: 'day_one_anr',
-      label: 'Day One A&R',
-      icon: '🌅',
-      source: 'milestone',
-      sourceId: decision.project_id,
-    }).catch(() => {});
 
     const { data: votes } = await supabaseAdmin
       .from('song_lab_votes')

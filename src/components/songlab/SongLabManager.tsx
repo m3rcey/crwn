@@ -6,9 +6,48 @@
 // no authority and renders nothing for artists without the capability.
 
 import { useCallback, useEffect, useState } from 'react';
-import { Copy, Check, Plus, Loader2 } from 'lucide-react';
+import { Copy, Check, Plus, Loader2, QrCode } from 'lucide-react';
 import { OptionSelect } from '@/components/ui/OptionSelect';
 import { RECOGNITION_DISCLAIMER } from '@/lib/songLab/core';
+
+/**
+ * Open a print-ready sheet for one offer link: a high-contrast QR, plain-language
+ * scan instructions (many people at a live show have never scanned a QR), and the
+ * short URL in large type as the no-QR fallback. Client-only; the qrcode encoder
+ * is dynamically imported so it costs nothing anywhere else.
+ */
+async function openQrSheet(url: string, artistName: string) {
+  const QR = await import('qrcode');
+  const dataUrl = await QR.toDataURL(url, {
+    width: 1200,
+    margin: 4,
+    errorCorrectionLevel: 'H',
+    color: { dark: '#000000', light: '#FFFFFF' },
+  });
+  const shortUrl = url.replace(/^https?:\/\//, '');
+  const w = window.open('', '_blank');
+  if (!w) return;
+  w.document.write(`<!doctype html><html><head><title>${artistName} on CRWN</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  body { font-family: Arial, Helvetica, sans-serif; background: #fff; color: #000; text-align: center; padding: 24px; }
+  img { width: min(90vw, 480px); height: auto; }
+  h1 { font-size: 28px; margin: 8px 0 4px; }
+  p { font-size: 20px; line-height: 1.4; margin: 10px auto; max-width: 520px; }
+  .url { font-size: 26px; font-weight: bold; letter-spacing: 0.5px; word-break: break-all; }
+  .small { font-size: 15px; color: #444; }
+  @media print { .noprint { display: none; } }
+</style></head><body>
+  <h1>${artistName}</h1>
+  <img src="${dataUrl}" alt="QR code for ${shortUrl}" />
+  <p>Open your phone camera, point it at the square, then tap the link that appears.</p>
+  <p>No camera? Type this into your phone&#39;s internet browser:</p>
+  <p class="url">${shortUrl}</p>
+  <p class="noprint"><button onclick="window.print()" style="font-size:18px;padding:12px 24px;">Print this page</button></p>
+  <p class="small">Free to join. No card, ever.</p>
+</body></html>`);
+  w.document.close();
+}
 
 interface Tier { id: string; name: string; price: number }
 interface Project { id: string; title: string; status: string; next_note: string | null }
@@ -34,6 +73,7 @@ type Panel = 'projects' | 'offers' | 'results';
 export function SongLabManager() {
   const [status, setStatus] = useState<'loading' | 'off' | 'on'>('loading');
   const [slug, setSlug] = useState('');
+  const [displayName, setDisplayName] = useState('');
   const [tiers, setTiers] = useState<Tier[]>([]);
   const [panel, setPanel] = useState<Panel>('projects');
   const [projects, setProjects] = useState<Project[]>([]);
@@ -59,6 +99,7 @@ export function SongLabManager() {
       const data = res.ok ? await res.json() : { enabled: false };
       if (!data.enabled) { setStatus('off'); return; }
       setSlug(data.slug);
+      setDisplayName(data.displayName || data.slug);
       setTiers(data.tiers || []);
       setStatus('on');
       loadAll();
@@ -146,6 +187,7 @@ export function SongLabManager() {
           copyLink={copyLink}
           copied={copied}
           slug={slug}
+          displayName={displayName}
         />
       ) : null}
 
@@ -388,7 +430,7 @@ function NewDecisionForm({ projectId, tiers, busy, call, onDone }: {
 
 /* ── Offers ───────────────────────────────────────────────────────────────── */
 
-function OffersPanel({ offers, decisions, busy, call, copyLink, copied, slug }: {
+function OffersPanel({ offers, decisions, busy, call, copyLink, copied, slug, displayName }: {
   offers: Offer[];
   decisions: Decision[];
   busy: boolean;
@@ -396,6 +438,7 @@ function OffersPanel({ offers, decisions, busy, call, copyLink, copied, slug }: 
   copyLink: (offerSlug: string, offerId: string) => void;
   copied: string | null;
   slug: string;
+  displayName: string;
 }) {
   const [creating, setCreating] = useState(false);
   const [name, setName] = useState('');
@@ -404,15 +447,18 @@ function OffersPanel({ offers, decisions, busy, call, copyLink, copied, slug }: 
   const [ctaLabel, setCtaLabel] = useState('Join free');
   const [benefitKind, setBenefitKind] = useState('vote');
   const [decisionId, setDecisionId] = useState<string | null>(null);
+  const [destinationPath, setDestinationPath] = useState('');
 
   const submit = async () => {
     const ok = await call('/api/song-lab/offers', {
       name, slug: name, headline, description, ctaLabel, benefitKind,
       decisionId: benefitKind === 'vote' ? decisionId : null,
+      destinationPath: destinationPath.trim() || null,
     });
     if (ok) {
       setCreating(false);
       setName(''); setHeadline(''); setDescription(''); setCtaLabel('Join free'); setDecisionId(null);
+      setDestinationPath('');
     }
   };
 
@@ -438,6 +484,14 @@ function OffersPanel({ offers, decisions, busy, call, copyLink, copied, slug }: 
                 className="p-2 rounded-full bg-crwn-surface-solid ring-1 ring-white/10 text-crwn-text"
                 aria-label="Copy link">
                 {copied === o.id ? <Check className="w-4 h-4 text-crwn-gold" /> : <Copy className="w-4 h-4" />}
+              </button>
+              <button
+                onClick={() => openQrSheet(`${window.location.origin}/${slug}/join/${o.slug}`, displayName)}
+                className="p-2 rounded-full bg-crwn-surface-solid ring-1 ring-white/10 text-crwn-text"
+                aria-label="Print a QR sheet for this link"
+                title="Print a QR sheet"
+              >
+                <QrCode className="w-4 h-4" />
               </button>
               <button disabled={busy}
                 onClick={() => call('/api/song-lab/offers', { offerId: o.id, isActive: !o.is_active }, 'PATCH')}
@@ -469,7 +523,7 @@ function OffersPanel({ offers, decisions, busy, call, copyLink, copied, slug }: 
             <p className="text-xs font-semibold text-crwn-text mb-1.5">What they get</p>
             <OptionSelect
               options={[
-                { value: 'vote', label: 'A vote', hint: 'Deep-links a decision. CRWN delivers it.' },
+                { value: 'vote', label: 'A vote', hint: 'The link opens the ballot itself. CRWN delivers it.' },
                 { value: 'recognition', label: 'Recognition', hint: 'Day One A&R status on the Lab.' },
                 { value: 'content', label: 'Content access', hint: 'You point the reward at a CRWN page.' },
                 { value: 'other', label: 'Something else', hint: 'You deliver it yourself.' },
@@ -486,6 +540,16 @@ function OffersPanel({ offers, decisions, busy, call, copyLink, copied, slug }: 
               placeholder="Which decision the link lands on"
             />
           ) : null}
+          <div>
+            <input value={destinationPath} onChange={(e) => setDestinationPath(e.target.value)}
+              placeholder={benefitKind === 'vote' ? 'Reward link, optional (/your-page or a post link)' : 'Where the reward lives (/your-page or a post link)'}
+              className="w-full rounded-lg bg-crwn-surface-solid px-3 py-2 text-sm text-crwn-text outline-none" />
+            <p className="text-[11px] text-crwn-text-secondary/70 mt-1">
+              {benefitKind === 'vote'
+                ? 'A CRWN link the thank-you screen offers after they vote and join, like a free live performance post. Leave empty to send them to the vote results.'
+                : 'A CRWN link only, starting with /.'}
+            </p>
+          </div>
           <div className="flex gap-2">
             <button disabled={busy || !name.trim() || !headline.trim()} onClick={submit}
               className="px-4 py-2 rounded-full bg-crwn-gold text-crwn-bg text-sm font-semibold disabled:opacity-50">Create</button>

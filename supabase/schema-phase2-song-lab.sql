@@ -290,20 +290,23 @@ BEGIN
     RAISE EXCEPTION 'anon can read song_lab_votes/claims; that grant must not exist';
   END IF;
 
-  -- Exactly one enabled artist, and it is gb
+  -- gb is enabled. This asserted "exactly one enabled artist" at the original apply
+  -- (2026-08-20); the gate is per-artist opt-in by design and Julius Williams
+  -- (julius-williams) was enabled the same day via a direct data write, so a re-run
+  -- must tolerate additional enabled artists and only ever require gb.
   SELECT count(*) INTO v_enabled FROM artist_profiles WHERE song_lab_enabled = true;
-  IF v_enabled <> 1 THEN
-    RAISE EXCEPTION 'Expected exactly 1 song_lab_enabled artist, found %', v_enabled;
+  IF v_enabled < 1 THEN
+    RAISE EXCEPTION 'Expected at least 1 song_lab_enabled artist, found %', v_enabled;
   END IF;
   IF NOT EXISTS (SELECT 1 FROM artist_profiles WHERE slug = 'gb' AND song_lab_enabled = true) THEN
-    RAISE EXCEPTION 'gb is not the enabled artist';
+    RAISE EXCEPTION 'gb is not enabled';
   END IF;
 END $$;
 
 -- Human-readable receipt (Supabase hides RAISE NOTICE; report in a result set)
 SELECT
   (SELECT count(*) FROM artist_profiles WHERE song_lab_enabled) AS enabled_artists,
-  (SELECT slug FROM artist_profiles WHERE song_lab_enabled LIMIT 1) AS enabled_slug,
+  (SELECT string_agg(slug, ', ' ORDER BY slug) FROM artist_profiles WHERE song_lab_enabled) AS enabled_slugs,
   (SELECT count(*) FROM fan_badges fb JOIN artist_profiles ap ON ap.id = fb.artist_id
     WHERE ap.slug = 'gb' AND fb.key = 'day_one_anr') AS gb_day_one_badge,
   'song lab schema applied' AS status;

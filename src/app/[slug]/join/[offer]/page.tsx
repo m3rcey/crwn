@@ -1,9 +1,16 @@
 import { notFound } from 'next/navigation';
 import { createClient } from '@supabase/supabase-js';
 import { isPresentableArtistName } from '@/lib/publicName';
-import { offerIsLive, type SongLabOfferCore } from '@/lib/songLab/core';
+import {
+  offerIsLive,
+  ballotOpenForFreeJoin,
+  type SongLabOfferCore,
+  type SongLabDecisionCore,
+  type DecisionOption,
+} from '@/lib/songLab/core';
 import { songLabArtistBySlug } from '@/lib/songLab/access';
-import { OfferLanding } from '@/components/songlab/OfferLanding';
+import { resolveOfferEnrollTier } from '@/lib/songLab/server';
+import { OfferLanding, type LandingBallot } from '@/components/songlab/OfferLanding';
 
 interface OfferPageProps {
   params: Promise<{ slug: string; offer: string }>;
@@ -29,7 +36,7 @@ export default async function OfferPage({ params }: OfferPageProps) {
 
   const { data: offer } = await admin
     .from('song_lab_offers')
-    .select('id, slug, headline, description, cta_label, benefit_kind, is_active, starts_at, ends_at, view_count, project_id, decision_id, destination_path')
+    .select('id, slug, headline, description, cta_label, benefit_kind, is_active, starts_at, ends_at, view_count, project_id, decision_id, destination_path, tier_id')
     .eq('artist_id', artist.artistId)
     .eq('slug', offerSlug)
     .maybeSingle();
@@ -51,6 +58,30 @@ export default async function OfferPage({ params }: OfferPageProps) {
   const rawName = profileRow?.display_name ?? null;
   const artistName = isPresentableArtistName(rawName) ? (rawName as string) : 'This artist';
 
+  // Live show mode: a vote offer renders its decision's ballot ON the landing, so the
+  // first screen IS the vote. Only when the vote is open AND the tier this claim will
+  // enroll can cast it; otherwise the landing falls back to the classic join CTA and
+  // the fan votes on the Lab like before.
+  let ballot: LandingBallot | null = null;
+  if (offer.benefit_kind === 'vote' && offer.decision_id) {
+    const { data: decision } = await admin
+      .from('song_lab_decisions')
+      .select('id, question, options, status, is_free, allowed_tier_ids, opens_at, closes_at, winning_option_id')
+      .eq('id', offer.decision_id)
+      .eq('artist_id', artist.artistId)
+      .neq('status', 'draft')
+      .maybeSingle();
+    if (decision) {
+      const enrollTierId = await resolveOfferEnrollTier(admin, artist.artistId, offer.tier_id ?? null);
+      if (ballotOpenForFreeJoin(decision as unknown as SongLabDecisionCore, enrollTierId, new Date())) {
+        ballot = {
+          question: decision.question,
+          options: (decision.options || []) as DecisionOption[],
+        };
+      }
+    }
+  }
+
   return (
     <OfferLanding
       artistSlug={artist.slug}
@@ -60,6 +91,7 @@ export default async function OfferPage({ params }: OfferPageProps) {
       headline={offer.headline}
       description={offer.description}
       ctaLabel={offer.cta_label || 'Join free'}
+      ballot={ballot}
     />
   );
 }

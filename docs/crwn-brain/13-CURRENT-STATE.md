@@ -8,13 +8,18 @@ CRWN is **live in production** (`thecrwn.app`) and the core money loop is real a
 
 ## Complete & production-ready (Confirmed)
 
-- **SONG LAB (2026-08-20): GB The G1ft's fan co-creation experiment, LIVE for him only.** The
+- **SONG LAB (2026-08-20): per-artist fan voting, LIVE for two opt-in artists.** The
   migration ran the same day it shipped and was probe-verified (anon reads projects 200 [], the
-  gate column and votes answer 42501, exactly one enabled artist: `gb`).
-  `supabase/schema-phase2-song-lab.sql` created the five `song_lab_*` tables and flipped the
-  server-only `artist_profiles.song_lab_enabled` gate for slug `gb` only. Surfaces: `/gb/lab`
-  (public lab + async advisory A/B/C votes), `/gb/join/<offer>` (lead-magnet landings GB
-  configures without deploys), `/studio/lab` (his manager; hidden route, link-only on purpose).
+  gate column and votes answer 42501). `supabase/schema-phase2-song-lab.sql` created the five
+  `song_lab_*` tables and flipped the server-only `artist_profiles.song_lab_enabled` gate for
+  slug `gb` (co-creation experiment); `julius-williams` was enabled later the same day by a
+  service-role data write (live-show fan capture: one offer per performance is the show
+  identity, and `song_lab_offer_claims` answers which show produced which fan). Surfaces:
+  `/[slug]/lab` (public lab + async advisory A/B/C votes), `/[slug]/join/<offer>` (lead-magnet
+  landings the artist configures without deploys; since the Julius build, a vote offer whose
+  decision is open renders the ballot ON the landing, one submission = free join + carried
+  vote, and the manager prints QR sheets with plain-language scan instructions), `/studio/lab`
+  (the manager; hidden route, link-only on purpose).
   Signup gained a validated `?next=` (rides `user_metadata.pending_next` through email
   verification) so an Instagram tap returns to the claim after account creation. Discovered and
   fixed along the way, live for EVERY artist on deploy: **all $0 tier joins had failed since

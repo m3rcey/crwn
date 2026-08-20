@@ -1,5 +1,49 @@
 # CRWN Brain — Changelog
 
+## 2026-08-20 (later still) - Song Lab live show mode: Julius Williams turns a live audience into owned free fans
+
+**Second opt-in artist, same primitive, no new tables.** Julius Williams (slug
+`julius-williams`, a veteran Atlanta soul/R&B vocalist whose acquisition moment is the live
+room, not Instagram) had `song_lab_enabled` flipped on by a service-role data write
+(probe-verified: `/api/song-lab/public?artist=julius-williams` answers 200 with his Bronze
+free tier id). His workflow maps one Song Lab OFFER per performance ("City Winery Sept 12" =
+`/julius-williams/join/city-winery-sept-12`), so `song_lab_offer_claims` already answers
+"which show produced this fan" with `join_result` + `fresh_signup`, first touch preserved by
+the existing UNIQUE + ignoreDuplicates upsert. This is an artist-specific opt-in capability;
+it does not change the canonical ICP, positioning, onboarding or any default artist surface.
+
+**Live show mode: the ballot IS the landing.** A `vote` offer whose decision is effectively
+open now renders the ballot on `/[slug]/join/[offer]` itself (large type, 64px tap targets,
+radiogroup semantics, plain words, built for audiences that skew 60+): tap a choice, press one
+gold button, and the ONE submission joins the free tier AND casts the carried vote. The choice
+rides through signup as `?o=` inside the already-validated `?next=` and is re-validated
+server-side (`preselectedOption`); the claim route casts it through the same `checkVote`
+authority as `/api/song-lab/vote`, with the fan's tier re-derived from `subscriptions` after
+the join, and a denied vote never blocks the join. `ballotOpenForFreeJoin` keeps the page from
+promising a ballot the enrolled tier could not cast; the shared `resolveOfferEnrollTier` (also
+used by the claim route) guarantees the tier shown is the tier delivered. The confirmation is
+a screen, not a redirect: "Your vote is in" + the explicit disclosure that voting joined the
+artist's free community, then ONE gold CTA to the offer's optional `destination_path` reward
+(now editable in the manager) or the vote status. Open-vote tallies stay hidden (the reveal
+rule holds; the confirmation shows membership, not percentages). `recordLabVote` in
+`src/lib/songLab/server.ts` is now the one vote writer (vote route + claim route).
+
+**QR sheets, in the manager.** New `qrcode` dependency (dynamic import, manager-only): each
+offer gets a print-ready sheet with a high-contrast QR, the plain-language instruction "Open
+your phone camera, point it at the square, then tap the link that appears", and the short URL
+in large type as the no-camera fallback. SMS text-to-join was NOT built (SMS/Twilio was
+removed platform-wide 2026-07-31; the QR sheet's typed-URL line is the non-QR doorway).
+
+**Julius's seed (data, no fabricated content):** project "Live Show Song Vote" + one DRAFT
+decision "What should Julius sing next?" (Luther Vandross / Stevie Wonder / Marvin Gaye /
+Earth, Wind and Fire; `is_free`, invisible until he opens it), plus his `day_one_anr` badge
+definition row. His Bronze $0 tier is the enroll target; reward content is his to supply
+(cover-performance recordings need rights he must confirm; nothing was uploaded for him).
+`schema-phase2-song-lab.sql`'s post-COMMIT self-verify no longer asserts exactly-one enabled
+artist (it asserts gb-is-enabled), so the file stays safe to re-run. Registered/verified:
+invariants FEATURES + EXPECTED_MIGRATION_STATE notes updated, `verify:architecture` 825
+passing, `npm test` 2841 passing (6 new core tests), WSL build clean, sw.js bumped to v422.
+
 ## 2026-08-20 (later that night) - Song Lab is LIVE for gb
 
 **The founder ran `schema-phase2-song-lab.sql` and the probes agree.** Anon reads

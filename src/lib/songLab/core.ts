@@ -192,6 +192,54 @@ export function claimDestination(offer: SongLabOfferCore, artistSlug: string): s
   return lab;
 }
 
+/* ── Vote-first landing (live show mode) ──────────────────────────────────────
+ * A vote offer can render its decision's ballot ON the landing page, so the first
+ * screen a visitor sees is the vote itself (built for artists whose acquisition
+ * moment is a live room, e.g. a QR on stage). One submission then performs the
+ * free join AND casts the carried vote in the claim route. Everything here stays
+ * pure; the routes and pages consume it. */
+
+/**
+ * Validate a client-carried preselected option (the `o` query param that rides
+ * through signup) against the decision's real ballot. Anything unknown is null:
+ * the fan still joins, they just pick by hand on the Lab.
+ */
+export function preselectedOption(raw: unknown, options: DecisionOption[]): string | null {
+  if (typeof raw !== 'string') return null;
+  const s = raw.trim();
+  if (!s || s.length > 8) return null;
+  return options.some((o) => o.id === s) ? s : null;
+}
+
+/**
+ * Should the landing show this decision as a castable ballot? Only when the vote
+ * is effectively open AND the tier the claim will enroll (or any signed-in fan,
+ * for is_free) is allowed to cast it. A ballot the join cannot deliver is a
+ * promise the page must not make.
+ */
+export function ballotOpenForFreeJoin(
+  decision: SongLabDecisionCore,
+  enrollTierId: string | null,
+  now: Date,
+): boolean {
+  if (effectiveStatus(decision, now) !== 'open') return false;
+  if (decision.is_free) return true;
+  if (!enrollTierId) return false;
+  const allowed = Array.isArray(decision.allowed_tier_ids) ? decision.allowed_tier_ids : [];
+  return allowed.includes(enrollTierId);
+}
+
+/**
+ * The submit label in ballot mode. An artist who left the offer's CTA at the
+ * stock join label gets the vote verb, because in ballot mode the button casts
+ * a vote; an artist who wrote their own label keeps their words.
+ */
+export function ballotCtaLabel(ctaLabel: string | null | undefined): string {
+  const c = (ctaLabel || '').trim();
+  if (!c || c.toLowerCase() === 'join free') return 'Cast my vote';
+  return c;
+}
+
 /** An account created within this window of the claim is attributed as a fresh signup. */
 export const FRESH_SIGNUP_WINDOW_MS = 30 * 60 * 1000;
 

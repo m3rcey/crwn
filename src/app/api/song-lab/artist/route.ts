@@ -5,6 +5,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { requireSongLabArtist } from '@/lib/songLab/server';
+import { isPresentableArtistName } from '@/lib/publicName';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -17,12 +18,29 @@ export async function GET() {
   if (!auth.ok) return NextResponse.json({ enabled: false });
 
   // The artist's active tiers, for the eligibility picker in the manager.
-  const { data: tiers } = await supabaseAdmin
-    .from('subscription_tiers')
-    .select('id, name, price')
-    .eq('artist_id', auth.artistId)
-    .eq('is_active', true)
-    .order('price', { ascending: true });
+  const [{ data: tiers }, { data: profile }] = await Promise.all([
+    supabaseAdmin
+      .from('subscription_tiers')
+      .select('id, name, price')
+      .eq('artist_id', auth.artistId)
+      .eq('is_active', true)
+      .order('price', { ascending: true }),
+    supabaseAdmin
+      .from('profiles')
+      .select('display_name')
+      .eq('id', auth.userId)
+      .maybeSingle(),
+  ]);
 
-  return NextResponse.json({ enabled: true, artistId: auth.artistId, slug: auth.slug, tiers: tiers || [] });
+  const displayName = isPresentableArtistName(profile?.display_name ?? null)
+    ? (profile!.display_name as string)
+    : auth.slug;
+
+  return NextResponse.json({
+    enabled: true,
+    artistId: auth.artistId,
+    slug: auth.slug,
+    displayName,
+    tiers: tiers || [],
+  });
 }

@@ -46,7 +46,27 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
-- [ ] **One quick SQL run to finish the surface reduction: drop the retired Manager outcome
+- [ ] **Walk Julius Williams through his first live-show fan capture (everything is live, only
+      the human steps remain).** Song Lab is enabled for `julius-williams` in production and a
+      draft ballot ("What should Julius sing next?") is pre-seeded. Before his next show, he
+      (or you, on his account) does this in **/studio/lab**:
+      1. Projects tab: open the seeded decision, edit the four choices to that night's real
+         options, press **Open vote** (set a Closes time for the end of the show if he wants).
+      2. Lead magnets tab: **+ New lead magnet**, name it after the show (e.g. "City Winery
+         Sept 12": the name becomes the link, and the link IS the show attribution), kind
+         **A vote**, pick the decision, optionally paste a reward link (a CRWN page path like
+         /julius-williams, or a rights-cleared performance post once he has one).
+      3. Press the **QR button** on the offer row: it opens a print-ready sheet with the QR,
+         plain-language scan instructions, and the typed-URL fallback for people without a
+         camera. Print a few for tables/merch booth; the copy button gives the same link for
+         screens.
+      4. After the show: **Results** tab shows views, claims, new signups, free joins, voted,
+         and now-paid per show link. Close the vote in Projects; he announces the winner on
+         stage or by email. Fans he captured are normal free-tier members, reachable through
+         the existing email campaigns at /studio/fans.
+      One caution to pass on: reward content must be rights-cleared. Recordings of him
+      covering Luther/Stevie/etc. need licenses CRWN cannot assume, so until he confirms
+      rights, point the reward at his page (his original track "Magic" is already free there).
       columns** (never written; the file ABORTS if any row unexpectedly holds data, so a surprise
       is a loud error, not a loss). Open and run:
       [`supabase/schema-phase2-drop-manager-outcome-schema.sql`](supabase/schema-phase2-drop-manager-outcome-schema.sql)
@@ -695,7 +715,7 @@ and the admin panel. The privacy policy now discloses the funnel (live).
   change; and wiring the external **`/worth`** (Streaming Loss) tool to enroll (only registry wizard
   tools enroll today). Full spec + admin controls: [`docs/PROSPECT_NURTURE.md`](docs/PROSPECT_NURTURE.md).
 
-One known limitation, and it is deliberate: **`/signup` ignores `?next`.** Auto-claim through
-signup works via `ClaimRedeemer` instead. (`/welcome` was retired 2026-07-30; onboarding identity
-now lives in the setup wizard's first screens. `useAuth` remains a file that broke onboarding
-silently for months, and a claim feature does not justify touching it.)
+(A note here used to say `/signup` ignores `?next`. Stale since the Song Lab build on
+2026-08-20: signup now validates `?next=` with `safeInternalPath`, rides it through email
+verification as `user_metadata.pending_next`, and `/verify` honors it. Calculator auto-claim
+still uses `ClaimRedeemer`; both paths coexist. `/welcome` was retired 2026-07-30.)

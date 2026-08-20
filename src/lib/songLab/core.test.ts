@@ -10,6 +10,9 @@ import {
   safeLabPath,
   claimDestination,
   isFreshSignup,
+  preselectedOption,
+  ballotOpenForFreeJoin,
+  ballotCtaLabel,
   RECOGNITION_DISCLAIMER,
   type SongLabDecisionCore,
   type SongLabOfferCore,
@@ -186,6 +189,49 @@ describe('claimDestination + safeLabPath', () => {
     expect(safeLabPath('/a\\b')).toBeNull();
     expect(safeLabPath('/a://b')).toBeNull();
     expect(safeLabPath('nope')).toBeNull();
+  });
+});
+
+describe('vote-first landing (live show mode)', () => {
+  it('preselectedOption accepts only a real option id from the carried param', () => {
+    const opts = decision().options;
+    expect(preselectedOption('a', opts)).toBe('a');
+    expect(preselectedOption(' b ', opts)).toBe('b');
+    expect(preselectedOption('z', opts)).toBeNull();
+    expect(preselectedOption('', opts)).toBeNull();
+    expect(preselectedOption(null, opts)).toBeNull();
+    expect(preselectedOption('a'.repeat(9), opts)).toBeNull();
+  });
+
+  it('ballotOpenForFreeJoin requires an effectively open decision', () => {
+    expect(ballotOpenForFreeJoin(decision({ status: 'closed' }), 'tier-free', NOW)).toBe(false);
+    expect(ballotOpenForFreeJoin(decision({ status: 'draft' }), 'tier-free', NOW)).toBe(false);
+    expect(ballotOpenForFreeJoin(decision({ closes_at: '2026-08-20T11:00:00Z' }), 'tier-free', NOW)).toBe(false);
+    expect(ballotOpenForFreeJoin(decision({ opens_at: '2026-08-21T00:00:00Z' }), 'tier-free', NOW)).toBe(false);
+  });
+
+  it('ballotOpenForFreeJoin only promises a vote the free join can deliver', () => {
+    // Enroll tier is in the allow list: the landing may show the ballot.
+    expect(ballotOpenForFreeJoin(decision(), 'tier-free', NOW)).toBe(true);
+    // A paid-tiers-only decision must NOT render as a castable ballot on a free join.
+    expect(ballotOpenForFreeJoin(decision({ allowed_tier_ids: ['tier-gold'] }), 'tier-free', NOW)).toBe(false);
+    // No resolvable free tier: no promise (the claim route would 409 anyway).
+    expect(ballotOpenForFreeJoin(decision(), null, NOW)).toBe(false);
+    // is_free admits any signed-in fan, so the ballot always renders while open.
+    expect(ballotOpenForFreeJoin(decision({ is_free: true }), null, NOW)).toBe(true);
+    // Malformed allow list fails closed, same as checkVote.
+    const d = decision();
+    (d as unknown as { allowed_tier_ids: unknown }).allowed_tier_ids = 'tier-free';
+    expect(ballotOpenForFreeJoin(d, 'tier-free', NOW)).toBe(false);
+  });
+
+  it('ballotCtaLabel swaps only the stock join label for the vote verb', () => {
+    expect(ballotCtaLabel('Join free')).toBe('Cast my vote');
+    expect(ballotCtaLabel('join free')).toBe('Cast my vote');
+    expect(ballotCtaLabel('')).toBe('Cast my vote');
+    expect(ballotCtaLabel(null)).toBe('Cast my vote');
+    expect(ballotCtaLabel('Cast My Vote')).toBe('Cast My Vote');
+    expect(ballotCtaLabel('Pick the encore')).toBe('Pick the encore');
   });
 });
 
