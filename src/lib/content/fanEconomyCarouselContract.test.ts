@@ -252,8 +252,13 @@ describe.runIf(carouselFiles.length > 0)('FE-CAR-003 every carousel file is well
 
   it.each(carouselFiles)('%s slide 2 actually reveals a number', (file) => {
     const slide2 = section(readFileSync(join(CAROUSELS_DIR, file), 'utf8'), '**SLIDE 2 PROMPT:**') ?? '';
-    // The sheets withhold the payoff on purpose; slide 2 is where it lands.
-    expect(slide2).toMatch(/\$[\d,]{3,}/);
+    // The sheets withhold the payoff on purpose; slide 2 is where it lands. The payoff is
+    // not always money: Rapsody's was 328 songs and Knxwledge's is half a million beats,
+    // so require a substantial NUMBER rather than specifically a dollar figure.
+    expect(slide2, 'slide 2 must reveal a number of at least three digits')
+      // A dollar sign plus digits is a money reveal at any size ($30 counts), and a bare
+      // count needs three digits so a stray year or track number cannot pass for a payoff.
+      .toMatch(/(\$\d[\d,]*|\d[\d,]{2,})/);
   });
 
   it.each(carouselFiles)('%s slide 3 is a takeaway carrying no number', (file) => {
