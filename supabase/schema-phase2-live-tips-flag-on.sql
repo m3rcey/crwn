@@ -46,3 +46,13 @@ BEGIN
 
   RAISE NOTICE 'schema-phase2-live-tips-flag-on: OK (live_tips is ON). Verify with: npm run verify:flags';
 END $$;
+
+-- Visible confirmation. The RAISE NOTICE above never reaches the Supabase SQL Editor (it
+-- does not display notices), so on success this file would otherwise print the same
+-- "Success. No rows returned" as a file that did nothing. A failure is still loud, because
+-- RAISE EXCEPTION aborts; this is so a SUCCESS is legible too.
+SELECT key AS flag,
+       (value->>'enabled')::boolean AS enabled,
+       'live tips are ON. Tip goals are now available in the live room.' AS result
+  FROM admin_settings
+ WHERE key = 'live_tips';
