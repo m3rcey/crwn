@@ -8,7 +8,9 @@ Curren$y put out 90+ projects. Westside Gunn put out 400 copies of one project.
 
 Which one's fans are actually worth more, and by how much?
 
-Curren$y might be the most prolific rapper alive. 90+ projects since 2009, around 1.5 million monthly listeners. His model is volume: keep feeding them, let the catalog stack up.
+Before the math: Snoop reposted a video I made about him, and Lyfe Jennings, LL Cool J, Jagged Edge and Carl Thomas follow CRWN.
+
+Curren$y might be the most prolific rapper alive. 90+ projects since 2009, around 1.5 million monthly listeners. His model is volume.
 
 Westside Gunn runs the opposite play. He don't release records, he releases artifacts. Pressings as small as 400 copies. One signed edition out of 187.
 
@@ -18,7 +20,7 @@ Streaming pays about a penny a month per listener. That's the discovery engine d
 
 One is wide. One is deep.
 
-So I priced them against each other, and when the two numbers landed next to each other I had to sit back and look again.
+So I priced them against each other. When the numbers landed next to each other I had to sit back and look again.
 
 Hold that thought. You don't need to market to fans. You need a market FOR fans.
 

@@ -134,6 +134,34 @@ describe.runIf(carouselFiles.length > 0)('FE-CAR-003 every carousel file is well
     expect(known, `${keyword} is not a registered dmKeyword`).toContain(keyword);
   });
 
+  it.each(carouselFiles)('%s never upgrades a follow into an endorsement', (file) => {
+    const caption = section(readFileSync(join(CAROUSELS_DIR, file), 'utf8'), '**CAPTION:**') ?? '';
+    // A follow is a follow. Writing "LL Cool J uses CRWN" when he follows the account is
+    // a fabricated claim and breaks product-truth the same way an invented feature does.
+    const upgrades = [
+      /\buses CRWN\b/i,
+      /\bpartnered with\b/i,
+      /\bbacked by\b/i,
+      /\bsigned up (?:with|to) CRWN\b/i,
+      /\bendorsed by\b/i,
+    ];
+    const hits = upgrades.filter((re) => re.test(caption)).map((re) => re.source);
+    expect(hits, `a follow may not be upgraded (found ${hits.join(', ')})`).toHaveLength(0);
+    // A like is never evidence, so it is never cited as a credential.
+    expect(caption, 'a like is not a credential').not.toMatch(/\bliked (?:one of )?(?:my|the) post/i);
+  });
+
+  it.each(carouselFiles)('%s puts any proof line AFTER the hook question', (file) => {
+    const caption = section(readFileSync(join(CAROUSELS_DIR, file), 'utf8'), '**CAPTION:**') ?? '';
+    const proofAt = caption.search(/Snoop|follow CRWN|reposted/i);
+    if (proofAt === -1) return; // proof is optional and rationed
+    const questionAt = caption.indexOf('?');
+    expect(questionAt, 'caption must ask the hook question').toBeGreaterThan(-1);
+    // The gap opens before any credential, on every surface.
+    expect(proofAt, 'social proof must follow the hook question, never precede it')
+      .toBeGreaterThan(questionAt);
+  });
+
   it.each(carouselFiles)('%s caption carries no hashtags', (file) => {
     const caption = section(readFileSync(join(CAROUSELS_DIR, file), 'utf8'), '**CAPTION:**') ?? '';
     const tags = caption.match(/#\w+/g) ?? [];

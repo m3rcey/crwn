@@ -628,6 +628,12 @@ nobody else did. Demonstrated authority beats claimed authority, so "here is the
 side by side" IS the credential, and it is already in every script. Social proof is a supplement to
 that, never a substitute for it.
 
+**This section governs SCRIPTS. Captions place it differently.** A script is watched and its
+first two seconds decide retention, so proof waits for the sidenote. A carousel caption is read by
+someone who already stopped scrolling, so proof may sit much earlier, directly after the hook
+question and before the setup. The rule that does NOT change on either surface is the ORDER: the
+curiosity gap opens before any credential. See `/crwn-fan-economy-carousel` beat 1b.
+
 ### The proof tiers, and what may be claimed
 
 Rank by what actually happened, and NEVER upgrade a weaker event into a stronger word:

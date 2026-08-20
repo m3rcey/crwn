@@ -88,7 +88,7 @@ is where the first version failed: a summary states the setup then states the an
 the curiosity gap on the way past it. The script withholds, and the caption has to withhold the
 same way, in the same order, in the same voice.
 
-Target **220 to 270 words** of body, both CTAs included. The beat structure costs more
+Target **220 to 270 words** of body, both CTAs included, or up to **300** on the roughly one caption in three or four that carries a social-proof line, which costs about 25 words. The beat structure costs more
 words than a summary does; that is the trade and it is worth it.
 
 Write these beats, in this order:
@@ -107,6 +107,19 @@ Write these beats, in this order:
 1. **Facts, then the question.** Open on the two concrete facts, then ask. Not the question alone:
    the facts are what make the question land. ("Curren$y put out 90+ projects. Westside Gunn put
    out 400 copies of one project. Which one's fans are actually worth more, and by how much?")
+1b. **Social proof, OPTIONAL, and only ever after the question.** One line, naming exactly what
+   happened: `Before the math: Snoop reposted a video I made about him, and Lyfe Jennings, LL Cool
+   J, Jagged Edge and Carl Thomas follow CRWN.`
+   **A caption is not a script, and this is the one place the two surfaces differ.** In a script
+   proof waits for the sidenote, because the first two seconds decide whether anyone keeps
+   watching. A caption is read by someone who has already stopped scrolling, so proof can come far
+   earlier. What does NOT change is the order: the gap opens FIRST. The question earns the
+   attention, the proof then says why this answer is worth reading, and only then does the reader
+   invest in the setup. Proof above the hook would put two non-story elements (the CTA and a
+   credential) ahead of the story.
+   All the tiering rules from `/crwn-fan-economy` apply unchanged: a repost is a cosign, a follow
+   is only a follow, a like is never evidence, and a weaker event is never upgraded into a stronger
+   word. Rationed the same way, roughly one caption in three or four.
 2. **The setup, one paragraph per side.** Keep the concrete details, drop the atmosphere.
 3. **The turn.** "Here's the thing nobody puts side by side."
 4. **The TEASE that refuses to reveal.** Name the withheld variable and point at it without giving
