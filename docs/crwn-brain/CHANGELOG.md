@@ -1,5 +1,38 @@
 # CRWN Brain — Changelog
 
+## 2026-08-20 (later still) - Live tips are ON, closing a promise the calculator was already making
+
+**Founder decision, executed the same day.** `admin_settings.live_tips` is ON in production
+(probed with `npm run verify:flags`; all flags now ON except `artist_gate`, where OFF correctly
+means open signup).
+
+The gap this closes: `src/lib/opportunity/unifiedModel.ts` carries a `live_tips` incremental line
+at a 25% tip rate and ADDS it to the live monthly gross, so the Opportunity Calculator, CRWN's
+primary promoted door, has been showing every artist tip revenue. The Live Experience Calculator
+joined `PROMOTED_TOOL_KEYS` on 2026-08-16 and prices tips during the stream too. Tips shipped dark
+in the same period and were never turned on, so two promoted calculators were quoting money the
+product could not take. That is the marketing-ahead-of-product failure class, and it had exactly
+two honest exits: turn the built feature on, or take tips out of the model. The founder chose to
+turn it on, which keeps the artist-facing number intact and makes it true.
+
+Nothing was built. The feature was already complete: `live_tips` and `live_goals` tables, the
+Stripe webhook matching a tip BEFORE the ticket branch, the `earnings.type = live_tip` CHECK, the
+fan-facing tip bar mounted on the watch page and gated server-side through `/api/live/tips`.
+`verify:architecture` confirms both registered surfaces are still wired.
+
+**Two records were wrong, in opposite directions, and both are corrected.**
+- `FEATURES` in `invariants.ts` already declared `expectedState: 'live'` and its note asserted
+  "(3) flag ON" from the 2026-08-12 reconciliation. Production said OFF. The static suite could
+  not catch that and is not supposed to: static gates and live probes are deliberately separate,
+  which is the whole reason `verify:flags` exists.
+- `.claude/commands/crwn-fan-economy.md` hard-coded "live tips: FLAG OFF, never claim and never
+  put in the math". That was correct until today and would now produce scripts that UNDERSELL a
+  shipped feature. It is updated. That file had itself written "this line goes stale the moment it
+  happens", and it still took a probe to notice, which is the argument for the probe.
+
+The `announce_live_tips` pop-up can now fire. It carries `announcedAt: 2026-07-24`, so only
+accounts created before that date see it; anyone newer meets tips as the normal product.
+
 ## 2026-08-20 (later) - The Rise Mode login landing is reverted; pop-ups get contrast and lose the essays
 
 Two founder decisions from seeing the work on a real device.

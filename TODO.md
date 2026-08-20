@@ -69,19 +69,6 @@ responsible for. Do not work those.
       promoting Live Experiences and EP Sessions in content, and tips are part of the live room
       those funnels sell. The flag was never turned off, so there is nothing to undo.)
 
-- [ ] **Your promoted calculators are quoting tip money the product cannot take yet. One flag
-      flip fixes it.** Open and run:
-      [`supabase/schema-phase2-live-tips-flag-on.sql`](supabase/schema-phase2-live-tips-flag-on.sql)
-      Probed twice on 2026-08-16: `admin_settings.live_tips` is **OFF**. It was never turned off,
-      but it was never turned ON either, because tips shipped dark and stayed there. Meanwhile
-      `src/lib/opportunity/unifiedModel.ts` carries a `live_tips` line at a 25% tip rate and adds
-      it to the live monthly gross, so the Opportunity Calculator (the primary door) and the newly
-      promoted Live Experience Calculator both show artists tip revenue. The feature is fully
-      built (tables, webhook, earnings type), so this is a flag flip, not a build. Verify after
-      with `npm run verify:flags`. **If you would rather not launch tips, the alternative is to
-      take tips out of the models instead, and I will do that.** Until one of the two happens,
-      Fan Economy scripts will keep leaving tips out of their math.
-
 - [ ] **RE-RUN the earnings/recruiters SELECT policy migration (the fixed version).** Open and run:
       [`supabase/schema-phase2-sec-earnings-recruiters-select-policies.sql`](supabase/schema-phase2-sec-earnings-recruiters-select-policies.sql)
       Your first run on 2026-08-12 DID take effect: the transaction committed, and both tables now

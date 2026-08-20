@@ -229,21 +229,23 @@ OFF, so another saved script claimed tipping and put $1,000 of tip revenue in it
 
 - SHIPPED: fan memberships/tiers (Bronze/Silver/Gold/Platinum ladder), direct track/product
   sales, the Vault as a Gold-tier feature, ticketed live sessions with the replay included for
-  everyone who paid, **Executive Producer Sessions** (`producer_sessions` ON: members buy a seat,
+  everyone who paid, **live tips and tip goals** (`live_tips` ON since 2026-08-20: fans tip
+  during a stream and the room can push a goal over the line),
+  **Executive Producer Sessions** (`producer_sessions` ON: members buy a seat,
   send in beats/vocals/ideas as real file submissions, vote in session polls, and watch the record
   come together, with session analytics for the artist), Share-to-Earn referrals with a per-artist
   commission rate, Fan Drives (Virality Engine V1, non-cash incentives only), fan CRM +
   CSV/Patreon import, email campaigns, Promise Calendar, Rise Mode, early-access release windows +
   release waterfall, analytics.
-- **FLAG OFF IN PRODUCTION, never claim and never put in the math: live tips and tip goals**
-  (`live_tips` OFF, probed twice on 2026-08-16). The ticket and the replay are live; the tipping
-  is not. Note the trap: a 2026-08-16 commit says a "live_tips flag-off is retracted", which is
-  about a STAGED action that never ran, not about the live state. Tips shipped dark and were
-  never turned on. **Re-probe before writing tips into a script**, because a founder flip is
-  pending in TODO.md and this line goes stale the moment it happens.
-- Flags as of the 2026-08-16 probe: `quest_engine` ON, `popup_engine` ON, `acquisition_engine` ON,
-  `experiments` ON, `royalty_readiness` ON, `producer_sessions` ON, `live_tips` OFF,
-  `artist_gate` OFF.
+- **Live tips and tip goals are now SHIPPED** (`live_tips` ON, probed 2026-08-20). The founder
+  flipped it the same day, closing the gap where the Opportunity Calculator and the Live
+  Experience Calculator both quoted tip revenue the product could not take. Tips may now be
+  claimed and put in the math. What this line used to say, that tips were flag-off and must never
+  be claimed, was correct until that flip and is exactly why the probe is mandatory: this file
+  predicted its own staleness and it still took a probe to notice.
+- Flags as of the 2026-08-20 probe: `quest_engine` ON, `popup_engine` ON, `acquisition_engine` ON,
+  `experiments` ON, `royalty_readiness` ON, `producer_sessions` ON, `live_tips` ON,
+  `artist_gate` OFF (OFF is correct there: it means open signup).
 - PARTIAL: fan missions / clip bounties / proof-of-demand (routes live as calculator CTA
   destinations; tiles hidden pre-PMF), demand discovery (proof-of-demand tests exist; no general
   demand market).
