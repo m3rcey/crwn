@@ -81,9 +81,12 @@ describe('eligibility: only genuinely partial, open work', () => {
     expect(resume.pages).not.toContain('/quests');
   });
 
-  it('fires on Rise Mode, which is where artists now land at login', () => {
-    // Artists are routed to /profile/artist on login, so omitting it here would starve the
-    // prompt of its most common surface. Safe only because it is no longer the destination.
+  it('is allowed to fire on Rise Mode, now that Rise Mode is not the destination', () => {
+    // /profile/artist was excluded while it WAS the destination. Once the CTA moved to
+    // /quests that reason expired, so the prompt may fire there like any other surface.
+    // (It was added on 2026-08-19 when artists briefly landed here at login. That landing
+    // was reverted to /home on 2026-08-20; the entry stays because the ORIGINAL objection,
+    // never interrupt someone on the page you are sending them to, no longer applies.)
     expect(resume.pages).toContain('/profile/artist');
   });
 });

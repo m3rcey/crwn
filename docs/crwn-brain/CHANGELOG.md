@@ -1,5 +1,50 @@
 # CRWN Brain — Changelog
 
+## 2026-08-20 (later) - The Rise Mode login landing is reverted; pop-ups get contrast and lose the essays
+
+Two founder decisions from seeing the work on a real device.
+
+**The login landing goes back to `/home` for everyone, artists included.** Artists were routed to
+`/profile/artist` on 2026-08-19, on the reasoning that Rise Mode is their command screen and
+`/home` is a fan surface. Seen on a phone, the reasoning did not survive: Rise Mode answers ONE
+question and is deliberately sparse, so as a LANDING it is a card and then a screen of empty
+space, and `/home` is where the governed pop-up meets an artist at the start of a session. Rise
+stays one tap away in the bottom bar. `/home`'s Quick Actions deletion is unaffected and stays:
+that was a separate call, and every tile in it was a second door to a bottom-nav slot.
+
+`artist_resume_rise` KEEPS `/profile/artist` in its `pages`. It was added when artists briefly
+landed there, but the entry stands on its own: the original reason for excluding that page was
+that it was the CTA destination, and the destination moved to `/quests`. The invariant, never
+interrupt someone on the page you are sending them to, is unchanged.
+
+**Pop-ups were redesigned against a founder reference** (a Hinge prompt: 6-word title, 12-word
+body, animated image, a card that clearly sits above the page).
+
+- **Contrast was the real defect.** The modal was `#1A1A1A` on `black/70`, the SAME surface token
+  as an ordinary card on a barely-dimmed page, so an interruption did not read as one. It is now
+  the Elevated tier (`#2A2A2A`) on a heavier blurred backdrop with a real cast shadow, a faint gold
+  ring, and a scale-in. Deliberately NOT white: that is how the reference gets separation, but a
+  white card in a dark-only product reads as a different app.
+- **Copy was measured, not guessed.** Bodies ran 9 to 75 words, median 35, and the eight worst were
+  announcements spending three sentences on WHY a change was made. That belongs in this file, not
+  in front of someone mid-task. Median is now 21, longest 39 (a break-even pop-up whose words are
+  arithmetic the artist needs to check the claim).
+- **The image is a progress ring, not an illustration.** It draws the artist's ACTUAL percent and
+  sweeps to it on mount, built from the same `ctx.resumable` snapshot the copy is. A picture earns
+  its place only if it says something the sentence cannot; a number the artist owns is evidence for
+  the claim, which is what the reference is doing by showing you your own liked photos. Decoration
+  on 20 pop-ups is 20 assets to keep on-brand and nothing gained, so only the resume prompt draws
+  one today.
+- **`src/lib/popups/copy.test.ts` is a ratchet**, not a style guide: word caps on title and body
+  plus a MEDIAN cap, so a paragraph cannot creep back one pop-up at a time. It caught a 15-word
+  title on its first run, which was shortened rather than exempted. Mutation tested.
+
+**Two pop-up mechanics worth not re-deriving.** A terminal action RETIRES a pop-up, and clicking
+the CTA counts as terminal exactly like dismissing, so pressing "Finish it" closes the resume
+prompt for good. And deleting `popup_events` RE-ARMS a `once` pop-up while inserting a row RETIRES
+it, which is why `supabase/dev-show-resume-popup.sql` deletes for the resume prompt and inserts for
+the announcements, in opposite directions, in one file.
+
 ## 2026-08-20 - The resume prompt is VERIFIED live, and what it took to see it
 
 The named resume prompt shipped on 2026-08-19 is confirmed working in production on a real

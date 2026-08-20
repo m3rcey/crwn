@@ -401,14 +401,18 @@ information already exists.
 The artist dashboard is NO LONGER a tab strip. `/profile/artist` is Rise Mode and nothing else.
 Every one of its old 16 tabs is a real route. Three surfaces, and each one has a single job:
 
-**An ARTIST LANDS ON RISE MODE at login, not `/home`** (2026-08-19). The login page derives that
-from the `artist_profiles` ROW, never `profiles.role` (which lags a token refresh); an explicit
-`?next=` still wins. `/home` is a FAN surface: `SupporterMode` is deliberately fan-only, so for an
-artist the page was a Featured row plus links that duplicated the tab bar. Its Quick Actions
-section was deleted in the same move, "Artist Dashboard" tile included, because every tile in it
-was a second door to a bottom-nav slot. **Do not re-add a link to `/profile/artist` on `/home`,
-and do not pad the Featured row**: it shows only artists with music AND an avatar AND a
-presentable name, so a short row means the catalog is short, which is a true report.
+**EVERYONE lands on `/home` at login, artists included** (founder decision, 2026-08-20). Artists
+were briefly routed to `/profile/artist` on the reasoning that Rise Mode is their command screen.
+Reverted after seeing it: Rise Mode answers ONE question and is deliberately sparse, so as a
+landing it is a mostly empty screen, and `/home` is where the governed pop-up meets an artist at
+the start of a session. Rise stays one tap away in the bottom bar. **Do not re-propose the Rise
+landing without new evidence.**
+
+`/home`'s **Quick Actions section is deleted** (2026-08-19), "Artist Dashboard" tile included,
+because every tile in it was a second door to a bottom-nav slot. **Do not re-add a link to
+`/profile/artist` on `/home`, and do not pad the Featured row**: it shows only artists with music
+AND an avatar AND a presentable name, so a short row means the catalog is short, which is a true
+report.
 
 - **Bottom tab bar** (`Navigation.tsx`, `buildNavItems`) — DOING the work. Since the 2026-08-13
   pre-PMF surface reduction: THREE slots for an artist (Home, Studio, Rise) and TWO for a fan
