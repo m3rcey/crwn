@@ -71,26 +71,49 @@ and is never verbally explained**, on the card or in the caption.
 
 ## The caption
 
-The caption is the script, condensed to what survives without a voice. Target **150 to 220 words**
-of body, not counting the hashtag line. Structure, in order:
+The caption is the script RE-CUT, not a summary of it. That distinction is the whole rule and it
+is where the first version failed: a summary states the setup then states the answer, which closes
+the curiosity gap on the way past it. The script withholds, and the caption has to withhold the
+same way, in the same order, in the same voice.
 
-1. **Hook line.** The script's opening question, near verbatim. It is the first thing truncated by
-   the "more" fold, so it carries the whole post.
-2. **The setup.** One short line per side of the comparison. Keep the concrete details (the numbered
-   pressing, the 90 projects) and drop the atmosphere.
-3. **The reveal.** The math, in the same numbers as slide 2 and the script's `Big Reveal:`.
-4. **The Wow Factor.** The reframe from the `META:` line, the line that makes it worth reposting.
-5. **The belief.** The Fan Economy point the case study earns, matching slide 3.
-6. **The CTA.** The script's own lead magnet and DM keyword, unchanged. The keyword is wired to
-   ManyChat, so **never reword or invent one**: read it off the script's `Lead magnet:` line.
+Target **220 to 270 words** of body, not counting the hashtag line. The beat structure costs more
+words than a summary does; that is the trade and it is worth it.
+
+Write these beats, in this order:
+
+1. **Facts, then the question.** Open on the two concrete facts, then ask. Not the question alone:
+   the facts are what make the question land. ("Curren$y put out 90+ projects. Westside Gunn put
+   out 400 copies of one project. Which one's fans are actually worth more, and by how much?")
+2. **The setup, one paragraph per side.** Keep the concrete details, drop the atmosphere.
+3. **The turn.** "Here's the thing nobody puts side by side."
+4. **The TEASE that refuses to reveal.** Name the withheld variable and point at it without giving
+   it. ("Go look at what they trade for now.") Streaming gets its credit here as the discovery job.
+5. **The framing line.** The short binary the whole post rests on. ("One is wide. One is deep.")
+6. **The tension beat.** The founder reacting to the number without stating it. ("When the two
+   numbers landed next to each other I had to sit back and look again.") This is the peak of the
+   gap. Deleting it is what turns the caption back into a summary.
+7. **Hold that thought.** The belief lands HERE, mid-post, while the answer is still owed:
+   "You don't need to market to fans. You need a market FOR fans."
+8. **ANYWAY.** On its own line.
+9. **The RE-ASK.** Ask the hook question again, near verbatim, immediately before the payoff. This
+   beat is a founder correction carried over from `/crwn-fan-economy` and it is not optional. A
+   reader who scrolled past the top needs the question back in front of them to feel the answer.
+10. **The reveal.** The math, in the same numbers as slide 2 and the script's `Big Reveal:`.
+11. **The Wow Factor.** The reframe from the `META:` line, the repostable one.
+12. **The pivot to the reader.** Turn the case study into their question, loss-framed.
+13. **The CTA.** The script's own lead magnet and DM keyword, unchanged. The keyword is wired to
+    ManyChat, so **never reword or invent one**: read it off the script's `Lead magnet:` line.
 
 Then the hashtags, on their own line.
 
+The fair-balance beat is not dropped, it is folded into beat 4: streaming is the discovery job and
+never the villain, and the volume artist's output is what built the thing the collectors collect.
+A caption that makes either side the villain fails POSITIONING section 24.
+
 Binding copy rules, inherited and non-negotiable: **no em dashes anywhere**, mixed register in the
-founder's voice, loss-framed, streaming is the discovery job and never the villain, no cross-artist
-benchmarks, and artists own the RELATIONSHIP, never the people. The claim tier on the script's
-`META:` line governs what the caption may say CRWN does; a SHIPPED script may say it plainly, a
-CONCEPTUAL one may not imply the feature exists.
+founder's voice, loss-framed, no cross-artist benchmarks, and artists own the RELATIONSHIP, never
+the people. The claim tier on the script's `META:` line governs what the caption may say CRWN does;
+a SHIPPED script may say it plainly, a CONCEPTUAL one may not imply the feature exists.
 
 ## Where things live
 

@@ -2,27 +2,37 @@
 
 **CAPTION:**
 
-Whose fans are worth more, Curren$y or Westside Gunn?
+Curren$y put out 90+ projects. Westside Gunn put out 400 copies of one project.
 
-Curren$y might be the most prolific rapper alive. 90+ projects since 2009, around 1.5 million monthly listeners. His model is volume: keep feeding them, never disappear, let the catalog stack up.
+Which one's fans are actually worth more, and by how much?
 
-Westside Gunn runs the opposite play. He don't release records, he releases artifacts. Numbered pressings as small as 400 copies. One signed edition out of 187.
+Curren$y might be the most prolific rapper alive. 90+ projects since 2009, around 1.5 million monthly listeners. His model is volume: keep feeding them, let the catalog stack up.
 
-Here's what nobody puts side by side.
+Westside Gunn runs the opposite play. He don't release records, he releases artifacts. Pressings as small as 400 copies. One signed edition out of 187.
 
-Them 400 records go for around $300 a copy on resale. That's about $120,000 of fan money moving. 1.5 million monthly listeners generate roughly $15,000 a month from streaming.
+Here's the thing nobody puts side by side.
 
-400 people spent what a million and a half listeners spend in eight months.
+Streaming pays about a penny a month per listener. That's the discovery engine doing its job. But them 400 copies? Go look at what they trade for now.
 
-One collector paying $300 is the same money as 30,000 people listening for a month. Except the 30,000 are anonymous, and the 400 got names and addresses.
+One is wide. One is deep.
 
-Curren$y's volume is what built the catalog people collect in the first place, so this ain't good versus bad. Streaming did its job: it got him heard.
+So I priced them against each other, and when the two numbers landed next to each other I had to sit back and look again.
 
-But you don't need to market to fans. You need a market FOR fans.
+Hold that thought. You don't need to market to fans. You need a market FOR fans.
+
+ANYWAY.
+
+So which fanbase is worth more, and by how much?
+
+Them records go for around $300 a copy. That's about $120,000 on one pressing. 1.5 million monthly listeners generate roughly $15,000 a month.
+
+400 people spent what a million and a half spend in eight months.
+
+One collector paying $300 is 30,000 people listening for a month. Except the 30,000 are anonymous, and the 400 got names and addresses.
 
 You know how many people hear you. Do you know which ones would pay $300 for what nobody else got?
 
-I built a free Vault Revenue Planner that prices that for your catalog. Comment VAULT and I'll DM you the link.
+Comment VAULT and I'll DM you the free Vault Revenue Planner.
 
 #faneconomy #independentartist #musicbusiness #ownyourmasters #vinylcommunity #rapmusic #musicmarketing #artistdevelopment
 
