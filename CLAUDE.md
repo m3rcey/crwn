@@ -410,9 +410,16 @@ landing without new evidence.**
 
 `/home`'s **Quick Actions section is deleted** (2026-08-19), "Artist Dashboard" tile included,
 because every tile in it was a second door to a bottom-nav slot. **Do not re-add a link to
-`/profile/artist` on `/home`, and do not pad the Featured row**: it shows only artists with music
-AND an avatar AND a presentable name, so a short row means the catalog is short, which is a true
-report.
+`/profile/artist` on `/home`, and never pad the Featured row with placeholder tiles**: it shows
+only artists with music AND an avatar AND a presentable name AND `featured_hidden = false`.
+
+**A short Featured row is NOT evidence the catalogue is short.** I claimed that on 2026-08-19
+from the completeness filter alone and it was wrong; probing on 2026-08-20 found the real cause
+is `featured_hidden`, and that the curation is inverted. Five of ten artists are hidden,
+including the two most complete real ones (20 tracks and 14 tracks, both Stripe-connected with
+priced tiers), while a 1-track artist with no paid tier is shown. **Check `featured_hidden`
+before concluding anything about that row**, and fix a thin row by unhiding a complete artist,
+never by lowering the completeness bar.
 
 - **Bottom tab bar** (`Navigation.tsx`, `buildNavItems`) — DOING the work. Since the 2026-08-13
   pre-PMF surface reduction: THREE slots for an artist (Home, Studio, Rise) and TWO for a fan
