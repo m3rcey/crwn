@@ -112,6 +112,16 @@ describe.runIf(carouselFiles.length > 0)('FE-CAR-003 every carousel file is well
     expect(keywords.size, `both CTAs must use ONE keyword, found ${[...keywords].join(', ')}`).toBe(1);
     const firstLine = caption.trimStart().split('\n')[0];
     expect(firstLine, 'the caption must OPEN with the CTA').toMatch(/^Comment "?[A-Z]/);
+    // The opening CTA sits ABOVE the story, so the reader has no idea what the tool is
+    // called yet. It must promise an OUTCOME, never a product name.
+    const productNames = [...LEAD_MAGNETS, ...EXTERNAL_TOOLS]
+      .map((t: { name?: string }) => t.name)
+      .filter((n): n is string => Boolean(n && n.length > 4));
+    const named = productNames.filter((n) => firstLine.includes(n));
+    expect(named, `the opening CTA must name a benefit, not the product (found ${named.join(', ')})`)
+      .toHaveLength(0);
+    // ...and it must actually promise something after "for".
+    expect(firstLine, 'the opening CTA must say what the artist gets').toMatch(/\bfor\s+\S+/);
     const keyword = all[0][1];
     // The annotation goes on the ACCESS, not the parameter. Annotating the parameter as
     // `{ dmKeywords?: string[] }` failed to type check, because the array element is the

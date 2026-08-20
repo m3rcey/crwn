@@ -81,10 +81,17 @@ words than a summary does; that is the trade and it is worth it.
 
 Write these beats, in this order:
 
-0. **The CTA, up top.** The caption OPENS with it, in the form `Comment "KEYWORD" for [the thing]`.
-   Instagram truncates at the fold and most readers never expand, so a CTA that only appears at the
-   bottom is a CTA most of the audience never sees. It runs twice on purpose: once before the story
-   and once after it.
+0. **The CTA, up top, naming the BENEFIT and never the product.**
+   `Comment "KEYWORD" for [what the artist gets]`, for example
+   `Comment "VAULT" for what your unreleased catalog is worth to your top fans.`
+   Not `for the free Vault Revenue Planner`. This CTA sits ABOVE the story, so at that moment the
+   reader has no idea what a Vault Revenue Planner is; a product name there asks someone to want a
+   thing they have never heard of, and only an outcome can land cold.
+   Take the benefit from the tool's `description` and `videoAngle` in
+   `src/lib/leadMagnets/registry.ts`, phrased in the artist's own terms ("your catalog", "your top
+   fans"), never the tool's `name`.
+   It runs twice on purpose. Instagram truncates at the fold and most readers never expand, so a
+   CTA that only appears at the bottom is one most of the audience never sees.
 1. **Facts, then the question.** Open on the two concrete facts, then ask. Not the question alone:
    the facts are what make the question land. ("Curren$y put out 90+ projects. Westside Gunn put
    out 400 copies of one project. Which one's fans are actually worth more, and by how much?")
@@ -105,9 +112,11 @@ Write these beats, in this order:
 10. **The reveal.** The math, in the same numbers as slide 2 and the script's `Big Reveal:`.
 11. **The Wow Factor.** The reframe from the `META:` line, the repostable one.
 12. **The pivot to the reader.** Turn the case study into their question, loss-framed.
-13. **The CTA again, to close.** The same keyword and the same magnet as beat 0. The keyword is
-    wired to ManyChat, so **never reword or invent one**: read it off the script's `Lead magnet:`
-    line, and use the identical keyword in both CTAs.
+13. **The CTA again, to close, and HERE the product is named.** By this point the reader has the
+    whole argument, so the tool's real name makes the offer concrete and credible rather than
+    meaningless. Same keyword as beat 0, always: it is wired to ManyChat, so **never reword or
+    invent one**, read it off the script's `Lead magnet:` line. Benefit first at the top, product
+    name at the bottom, one keyword across both.
 
 **No hashtags.** Founder decision, 2026-08-20. Do not add a hashtag line, and do not scatter tags
 inline either.

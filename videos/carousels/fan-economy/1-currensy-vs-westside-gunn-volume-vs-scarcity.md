@@ -2,7 +2,7 @@
 
 **CAPTION:**
 
-Comment "VAULT" for the free Vault Revenue Planner.
+Comment "VAULT" for what your unreleased catalog is worth to your top fans.
 
 Curren$y put out 90+ projects. Westside Gunn put out 400 copies of one project.
 
