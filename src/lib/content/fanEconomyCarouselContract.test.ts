@@ -170,6 +170,29 @@ describe.runIf(carouselFiles.length > 0)('FE-CAR-003 every carousel file is well
       .toHaveLength(0);
   });
 
+  it.each(carouselFiles)('%s slide 3 carries the benefit CTA on one keyword', (file) => {
+    const md = readFileSync(join(CAROUSELS_DIR, file), 'utf8');
+    const slide3 = section(md, '**SLIDE 3 PROMPT:**') ?? '';
+    const caption = section(md, '**CAPTION:**') ?? '';
+    // Slide 3 is the slide most likely to be screenshotted alone, so the ask has to
+    // travel with it.
+    const onSlide = slide3.match(/COMMENT ['"]?([A-Z][A-Z0-9]{2,})['"]?/i);
+    expect(onSlide, 'slide 3 must carry a COMMENT KEYWORD CTA').toBeTruthy();
+    const inCaption = caption.match(/Comment "?([A-Z][A-Z0-9]{2,})"?/);
+    expect(onSlide![1].toUpperCase(), 'slide 3 and the caption must use ONE keyword')
+      .toBe(inCaption![1].toUpperCase());
+    // Same rule as the caption's opening CTA: promise an outcome, never a product name.
+    const productNames = [...LEAD_MAGNETS, ...EXTERNAL_TOOLS]
+      .map((t: { name?: string }) => t.name)
+      .filter((n): n is string => Boolean(n && n.length > 4));
+    const named = productNames.filter((n) => slide3.toUpperCase().includes(n.toUpperCase()));
+    expect(named, `slide 3's CTA must name a benefit, not the product (found ${named.join(', ')})`)
+      .toHaveLength(0);
+    // Slide 4 stays silent: the 128 card never carries an ask.
+    const slide4Text = md.slice(md.indexOf('**SLIDE 4'));
+    expect(slide4Text).not.toMatch(/COMMENT ['"]/i);
+  });
+
   it.each(carouselFiles)('%s never writes its own slide 4 prompt', (file) => {
     const md = readFileSync(join(CAROUSELS_DIR, file), 'utf8');
     // The end card is one shared asset copied by the generator.

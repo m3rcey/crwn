@@ -32,7 +32,7 @@ generator hardcodes 1:1 in the style instruction and uses the older API shape wi
 |---|---|---|---|
 | 1 | The HOOK sheet, identical to the video's | **Copied** from the video sheet | **No.** The gap stays open |
 | 2 | The REVEAL: the withheld variable and the math | Rendered | **Yes.** This is the payoff |
-| 3 | The TAKEAWAY: the quotable line | Rendered | No. No numbers at all |
+| 3 | The TAKEAWAY: the quotable line plus the benefit CTA | Rendered | No. No numbers at all |
 | 4 | The `128` end card | **Copied** from a shared asset | No content |
 
 Only slides 2 and 3 cost an API call. The other two are file copies.
@@ -59,6 +59,18 @@ Vary the statement per carousel. "You don't need to market to fans. You need a m
 appears in every script and belongs on this slide as the SMALLER second line, but if the big line
 is also the same every time then all 30 carousels end identically. Derive the big line from that
 script's own Wow Factor (carousel 1: "REACH GETS YOU HEARD. DEPTH GETS YOU PAID.").
+
+**Slide 3 also carries the CTA, and it is the BENEFIT form.** One line, in its own hand-drawn box
+across the bottom: `COMMENT 'KEYWORD' FOR [what the artist gets]`. Same rule as the caption's
+opening CTA, so never the tool's `name`, and the same ManyChat keyword the caption uses. Shorten
+the benefit to fit the page ("FOR WHAT YOUR CATALOG IS WORTH") while keeping the same promise; a
+long CTA competes with the quotable line and both lose.
+
+This is the slide most likely to be screenshotted and reposted on its own, which is exactly why the
+ask belongs here: it travels with the screenshot. The box is what keeps it readable as a separate
+element rather than a third sentence of the takeaway. The CTA is still not allowed to carry a
+number, so the no-numbers rule above is unchanged, and slide 4 stays silent: the 128 card has no
+CTA on it, ever.
 
 **Slide 4 is a fixed asset you never write a prompt for.** It is the same `128` end card on every
 carousel in the series, copied from
