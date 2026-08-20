@@ -79,6 +79,17 @@ export async function GET(req: Request) {
         : null,
       dismissLabel: def.dismissLabel ?? 'Close',
       survey: def.survey ?? null,
+      // An optional VISUAL, built from the same context the copy was. It carries the
+      // artist's real number; it is never decoration. A stock illustration on every
+      // pop-up is weight without meaning, and 20 of them is an asset pipeline nobody
+      // asked for. Only the resume prompt has a number worth drawing today.
+      visual:
+        def.key === 'artist_resume_rise' && ctx.resumable
+          ? {
+              kind: 'progress' as const,
+              percent: Math.min(99, Math.max(1, Math.round(ctx.resumable.progressPercent || 0))),
+            }
+          : null,
     },
   });
 }

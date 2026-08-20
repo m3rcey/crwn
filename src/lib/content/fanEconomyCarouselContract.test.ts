@@ -106,12 +106,27 @@ describe.runIf(carouselFiles.length > 0)('FE-CAR-003 every carousel file is well
     const m = caption.match(/Comment ([A-Z][A-Z0-9]{2,})\b/);
     expect(m, 'caption must carry a "Comment KEYWORD" CTA').toBeTruthy();
     const keyword = m![1];
+    // The annotation goes on the ACCESS, not the parameter. Annotating the parameter as
+    // `{ dmKeywords?: string[] }` failed to type check, because the array element is the
+    // union `LeadMagnetConfig | ExternalTool` and a callback parameter has to accept it.
     const known = [...LEAD_MAGNETS, ...EXTERNAL_TOOLS]
-      .flatMap((t: { dmKeywords?: string[] }) => t.dmKeywords ?? [])
+      .flatMap((t) => (t as { dmKeywords?: string[] }).dmKeywords ?? [])
       .map((k: string) => k.toUpperCase());
     // The keyword is wired to ManyChat. Inventing one produces a CTA that silently
     // does nothing for every person who comments it.
     expect(known, `${keyword} is not a registered dmKeyword`).toContain(keyword);
+  });
+
+  it.each(carouselFiles)('%s caption keeps the withholding beats, not a summary', (file) => {
+    const caption = section(readFileSync(join(CAROUSELS_DIR, file), 'utf8'), '**CAPTION:**') ?? '';
+    // A summary states the setup then the answer, closing the gap on the way past it.
+    // These beats are what keep the caption a re-cut of the script instead.
+    expect(caption, 'caption must hold the belief mid-post').toMatch(/Hold that thought/i);
+    expect(caption, 'caption must carry the ANYWAY turn').toMatch(/ANYWAY/);
+    // The re-ask is a founder correction carried from /crwn-fan-economy: ask the hook
+    // question again immediately before the payoff. Its absence shipped once already.
+    const after = caption.slice(caption.search(/ANYWAY/));
+    expect(after, 're-ask beat must follow ANYWAY and precede the reveal').toMatch(/\?/);
   });
 
   it.each(carouselFiles)('%s slide 2 actually reveals a number', (file) => {
