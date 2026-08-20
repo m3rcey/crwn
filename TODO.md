@@ -92,16 +92,21 @@ responsible for. Do not work those.
       with `if (ctx.role === 'admin') return null; // never interrupt the founder`
       ([`src/lib/popups/index.ts`](src/lib/popups/index.ts)), so no pop-up of any kind renders for
       an admin. That alone probably explains "the resume system is not working".
-      **FIRST: that account has to finish the setup wizard.** Checked 2026-08-20, the test account
-      sits at step 6 of 12, and mid-wizard NOTHING can fire. `MainShell` returns null while it
-      redirects to `/setup`, so `PopupHost` never mounts; `/setup` is in no pop-up's `pages`; and
-      `resumable` would be null anyway, because `quest_instances` are only assigned by
-      `/api/quests`, which is called from Rise Mode and the quest board, both unreachable behind
-      that gate. This is working as designed, not a bug to chase.
-      Then: log in as that artist (role `artist`, not admin), let Rise Mode load at least once
-      (that is what assigns quests), and make sure a quest sits strictly between 1% and 99%. Open
-      `/home`. You should get a centered modal reading **"Finish this: <the actual goal name>"**
-      with a **Finish it** button to `/quests`.
+      **Use the dev utility, or this takes a week of real days.** Open and run:
+      [`supabase/dev-reset-popups.sql`](supabase/dev-reset-popups.sql) (change the slug at the top;
+      it is set to `lago`). It PRINTS the diagnosis before it clears anything: the account role, how
+      many pop-ups it has already been shown today, and whether a resumable quest even exists. Then
+      it clears that user's `popup_events` so the engine re-arbitrates on the next page load. It
+      touches nothing else.
+      Why you need it: the engine shows ONE pop-up per user per day, highest priority first. The
+      `onboardj` account was created before 2026-07-31, so it is legitimately owed roughly eight
+      announcement pop-ups (priority 45 to 60) that all outrank resume (40), one per day. Run the
+      file, reload, dismiss whatever appears, run it again. A genuinely NEW artist has no backlog,
+      so this is a test-account condition, not something your pilot artists will hit.
+      What you are looking for: a centered modal reading **"Finish this: <the actual goal name>"**
+      with a **Finish it** button to `/quests`. If the file reports `RESUMABLE: none`, stop: there
+      is no open quest between 0 and 100 percent, so the prompt is correctly silent and no amount
+      of clearing will summon it.
       If nothing shows, the next suspect is not a bug either: `artist_connect_stripe` sits at
       priority 100 on the same pages, and the engine shows at most ONE pop-up per user per day,
       so an artist who has not connected Stripe sees that one instead for up to four firings.
