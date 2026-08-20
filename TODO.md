@@ -87,36 +87,6 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
-- [ ] **Confirm the Rise Mode resume pop-up on a NON-ADMIN artist account. I cannot: you own the
-      logins.** Your own account is the one account that provably cannot see it. The engine opens
-      with `if (ctx.role === 'admin') return null; // never interrupt the founder`
-      ([`src/lib/popups/index.ts`](src/lib/popups/index.ts)), so no pop-up of any kind renders for
-      an admin. That alone probably explains "the resume system is not working".
-      **Two steps, nothing to edit.**
-      1. Open [supabase/dev-show-resume-popup.sql](supabase/dev-show-resume-popup.sql) in the
-         Supabase SQL Editor and press Run. One statement, ready as-is, already set to `lago`.
-      2. Reload /profile/artist in the app.
-      That is the whole test. If you want the underlying diagnosis instead (role, whether the daily
-      slot is free, which quest is resumable, what is outranking what), open
-      [supabase/dev-reset-popups.sql](supabase/dev-reset-popups.sql) and press Run: it ships
-      read-only and just prints a table.
-      Why you need it: the engine shows ONE pop-up per user per day, highest priority first. `lago`
-      was created 2026-07-30, so it is legitimately owed FIVE announcements (priority 45 to 58) that
-      all outrank resume (40). Diagnosed 2026-08-20: role artist, slot free, and RESUMABLE is
-      "Complete Your Artist Destination" at 50 percent, so the prompt is genuinely eligible.
-      **Run STEP 2 (retire), not STEP 3 (wipe).** Wiping re-arms every announcement, so it is a
-      loop that never ends. STEP 2 writes a dismissed row per announcement, which retires them and
-      does not spend the daily slot, so resume can win on the very next load. A genuinely NEW artist
-      has no backlog at all, so none of this is something your pilot artists will hit.
-      What you are looking for: a centered modal reading **"Finish this: <the actual goal name>"**
-      with a **Finish it** button to `/quests`. If the file reports `RESUMABLE: none`, stop: there
-      is no open quest between 0 and 100 percent, so the prompt is correctly silent and no amount
-      of clearing will summon it.
-      If nothing shows, the next suspect is not a bug either: `artist_connect_stripe` sits at
-      priority 100 on the same pages, and the engine shows at most ONE pop-up per user per day,
-      so an artist who has not connected Stripe sees that one instead for up to four firings.
-      Connect Stripe on the test account and check again the next day before reporting a defect.
-
 - [ ] **One quick SQL run to finish the surface reduction: drop the retired Manager outcome
       columns** (never written; the file ABORTS if any row unexpectedly holds data, so a surprise
       is a loud error, not a loss). Open and run:

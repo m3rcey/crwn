@@ -1,5 +1,47 @@
 # CRWN Brain — Changelog
 
+## 2026-08-20 - The resume prompt is VERIFIED live, and what it took to see it
+
+The named resume prompt shipped on 2026-08-19 is confirmed working in production on a real
+non-admin artist account (`lago`). The modal reads **"Finish this: Complete Your Artist
+Destination"**, the body states the goal is 50% of the way there, and the gold CTA is **Finish it**
+to `/quests`. That is the founder's ask satisfied: the prompt instructs the artist to complete the
+specific task, by name.
+
+Getting to that screenshot took four wrong turns, and each one is a reusable lesson.
+
+- **An admin can never verify a pop-up.** `eligiblePopupFor` returns null for `role === 'admin'`
+  before any targeting runs. The founder's own account is structurally incapable of seeing one, so
+  "the pop-up is not showing" was never evidence about the pop-up. This is now in `CLAUDE.md`.
+- **Mid-wizard, nothing can fire at all.** An artist with `setup_completed = false` is redirected by
+  `MainShell`, which returns null while it does, so `PopupHost` never mounts. `/setup` is in no
+  pop-up's `pages` either, and `resumable` would be null regardless because `quest_instances` are
+  only assigned by `/api/quests`, reachable only from Rise Mode and the quest board. Four
+  independent reasons, all correct behaviour.
+- **`RAISE NOTICE` does not reach the Supabase SQL Editor.** The first diagnostic reported through
+  notices inside a `DO` block. Running it printed "Success. No rows returned" while the destructive
+  half happened silently. A diagnostic whose output cannot reach the human is worse than none,
+  because it looks like it worked. Every dev utility now reports through a result set.
+- **Deleting `popup_events` RE-ARMS the backlog it was meant to drain.** `passesFrequency` for a
+  `once` pop-up is `mine.length === 0`, so clearing history resurrects every announcement. Clearing
+  to reach a low-priority pop-up is a loop with no exit. INSERTING a `dismissed` row is what retires
+  one, and because the daily governor counts only `shown`, it does not spend the day.
+
+The underlying arbitration was correct throughout and was not changed. `lago` was created
+2026-07-30 and therefore legitimately predates five announcements (priority 45 to 58) that all
+outrank resume (40), draining one per calendar day. A genuinely NEW artist predates none of them,
+so pilot artists go Stripe (100) then resume (40) with no backlog at all. Nothing here is a defect
+in the engine; it is a property of testing a low-priority interruption on an old account.
+
+Two dev utilities came out of it, and the announcement key list is written down exactly once in
+each so they cannot drift: `supabase/dev-reset-popups.sql` (read-only diagnosis: role, whether the
+daily slot is free, which quest is resumable, and what is outranking what) and
+`supabase/dev-show-resume-popup.sql` (one ready-to-run statement that retires the backlog).
+
+Also aligned in passing: Stripe Connect was advertised as taking 2 minutes in the guides, 5 in the
+setup wizard, and two in the pop-up. All three now say 5, the conservative estimate, on the one
+flow that decides whether an artist can be paid.
+
 ## 2026-08-19 - Getting Started stops teaching a deleted UI; /home stops duplicating the tab bar; the resume prompt names the goal
 
 Four founder items were audited before any of them were built. One was already built, one was a

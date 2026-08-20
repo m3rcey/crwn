@@ -22,13 +22,12 @@
 -- `popup_survey_responses` (a deleted survey answer is real data lost, and clearing
 -- events is enough to re-arm a pop-up anyway).
 --
--- HOW TO RUN: change the slug, then just run the file. Steps 2 and 3 ship COMMENTED OUT,
--- so running the whole thing is READ-ONLY and safe. Read the verdict row at the bottom of
--- the results, then uncomment the step you need.
+-- HOW TO RUN: change the slug, then just run the file. It is READ-ONLY: the only thing
+-- that executes is the diagnosis below. Read the verdict row at the bottom of the results.
 --
 --   STEP 1  diagnose (read-only)
---   STEP 2  retire the announcement backlog so a lower-priority pop-up can win. This is
---           almost always the one you want, and it does NOT spend the daily slot.
+--   STEP 2  retire the announcement backlog. Lives in dev-show-resume-popup.sql, which is
+--           ready to run as-is. Almost always the one you want.
 --   STEP 3  wipe the history entirely. Re-arms every announcement, so it is the WRONG
 --           tool for draining a backlog. Use it only to return to a clean slate.
 
@@ -123,46 +122,33 @@ SELECT 9, 'verdict',
        CASE
          WHEN role = 'admin' THEN 'Test on a non-admin artist. Nothing else matters until then.'
          WHEN q_title IS NULL THEN 'Resume cannot fire: nothing is partly done. Make real progress on a quest first.'
-         ELSE 'Resume is eligible. Run STEP 2, reload Rise Mode, and dismiss any higher-priority pop-up that appears first.'
+         ELSE 'Resume is eligible. Open supabase/dev-show-resume-popup.sql, press Run, then reload Rise Mode.'
        END
   FROM facts
 ORDER BY n, item, detail;
 
 
 -- ============================================================================
--- STEP 2 - RETIRE THE ANNOUNCEMENT BACKLOG. This is the one you almost always want.
--- Uncomment the block below, set the slug, highlight it, and Run.
+-- STEP 2 - RETIRE THE ANNOUNCEMENT BACKLOG so a lower-priority pop-up can win.
 -- ============================================================================
 --
--- DO NOT reach for STEP 3 to do this. Deleting popup_events RE-ARMS every announcement,
+-- That action lives in its own ready-to-run file, so the list of announcement keys is
+-- written down ONCE and cannot drift between two copies:
+--
+--     supabase/dev-show-resume-popup.sql
+--
+-- Open it and press Run. Nothing to edit.
+--
+-- DO NOT reach for STEP 3 instead. Deleting popup_events RE-ARMS every announcement,
 -- because `passesFrequency` for a `once` pop-up is `mine.length === 0`. Clearing to drain
 -- a backlog is a loop that never ends: clear, meet an announcement, clear, meet the next.
+-- Inserting is what retires them, and because the daily governor counts only
+-- `action = 'shown'`, writing 'dismissed' rows leaves today's slot free.
 --
--- Inserting is what retires them. ANY event row retires a `once` pop-up, and the daily
--- governor counts only `action = 'shown'`, so writing 'dismissed' rows costs you nothing:
--- the slot stays free and the next load can show a LOWER-priority pop-up immediately.
---
--- It writes all nine announcement keys. That is deliberate and safe: an announcement this
--- account does not predate was already suppressed by `announcedAt`, so a row for it is a
--- no-op. Behavioural pop-ups that outrank resume (40) are left alone on purpose, and as of
--- 2026-08-20 none of them can win anyway: artist_connect_stripe (100) needs Stripe
+-- Behavioural pop-ups that outrank resume (40) are deliberately left alone, and as of
+-- 2026-08-20 none of them can win here anyway: artist_connect_stripe (100) needs Stripe
 -- disconnected, artist_first_broadcast (80) has `audience: () => false`, both break-even
 -- pop-ups (75) need real GMV, and artist_upgrade_pro (50) needs 3+ supporters.
---
--- INSERT INTO popup_events (user_id, popup_key, action)
--- SELECT ap.user_id, k.popup_key, 'dismissed'
---   FROM artist_profiles ap
---   CROSS JOIN (VALUES
---     ('announce_hub_navigation'), ('announce_fan_preview'),
---     ('announce_membership_strategy'), ('announce_rise_one_move'),
---     ('announce_live_tips'), ('announce_royalty_readiness'),
---     ('announce_producer_sessions'), ('announce_launch_limits'),
---     ('announce_support_chat')
---   ) AS k(popup_key)
---  WHERE ap.slug = 'lago'
---  RETURNING popup_key, action;
---
--- Then reload /profile/artist. artist_resume_rise (40) should be the winner.
 
 
 -- ============================================================================
