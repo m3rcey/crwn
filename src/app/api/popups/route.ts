@@ -7,8 +7,6 @@ import {
   recordPopupEvent,
   recordSurveyResponse,
   getPopup,
-  resumeCopyFor,
-  resumeVisualPercent,
 } from '@/lib/popups';
 import type { PopupContext } from '@/lib/popups';
 import { resend, FROM_EMAIL } from '@/lib/resend';
@@ -48,23 +46,14 @@ export async function GET(req: Request) {
   const def = await eligiblePopupFor(supabaseAdmin, ctx, pathname);
   if (!def) return NextResponse.json({ enabled: true, popup: null });
 
-  // The resume prompt is the one def whose copy is per-artist: it names the goal. Built here
-  // from the SAME `ctx.resumable` snapshot the audience predicate gated on, so the prompt can
-  // never name a goal that did not qualify it. Falls back to the static registry pair if the
-  // snapshot is missing, which is also what the predicate would have refused on.
-  const copy =
-    def.key === 'artist_resume_rise' && ctx.resumable
-      ? resumeCopyFor(ctx.resumable)
-      : { title: def.title, body: def.body };
-
   // Serialize only what the client renders (predicate functions are not sent).
   return NextResponse.json({
     enabled: true,
     popup: {
       key: def.key,
       kind: def.kind,
-      title: copy.title,
-      body: copy.body,
+      title: def.title,
+      body: def.body,
       // The referral link is per-artist, so the static registry cannot hold it. Injected here
       // rather than templated, because one explicit conditional is easier to audit than a
       // substitution system, and this is the only pop-up that needs it. `buildReferralLink`
@@ -80,14 +69,13 @@ export async function GET(req: Request) {
         : null,
       dismissLabel: def.dismissLabel ?? 'Close',
       survey: def.survey ?? null,
-      // An optional VISUAL, built from the same context the copy was. It carries the
-      // artist's real number; it is never decoration. A stock illustration on every
-      // pop-up is weight without meaning, and 20 of them is an asset pipeline nobody
-      // asked for. Only the resume prompt has a number worth drawing today.
-      visual:
-        def.key === 'artist_resume_rise' && ctx.resumable
-          ? { kind: 'progress' as const, percent: resumeVisualPercent(ctx.resumable.progressPercent) }
-          : null,
+      // Tell the client to replace this pop-up's copy with the artist's REAL next move,
+      // resolved from /api/artist/constraint + /api/artist/roadmap exactly as Rise Mode
+      // does. The resolution is NOT done here on purpose: this route runs on every
+      // navigation and the roadmap read calls Stripe, so the cost belongs on the rare
+      // path where the pop-up has actually won, not on every page change. A pop-up that
+      // asks for it and cannot resolve one renders nothing at all.
+      resolveNextMove: def.key === 'artist_resume_rise',
     },
   });
 }
@@ -140,7 +128,6 @@ async function buildContext(userId: string): Promise<PopupContext> {
     gmv30dCents: 0,
     accountCreatedAt: null,
     featureFlags: {},
-    resumable: null,
     artistSlug: null,
     hasFirstPaidConversion: false,
     hasPendingTestimonialRequest: false,
@@ -223,28 +210,6 @@ async function buildContext(userId: string): Promise<PopupContext> {
         0,
       );
 
-      // Rise Mode work that is genuinely PART DONE. Derived from the rows the Quest Engine already
-      // maintains, so there is no second progress system: strictly between 0 and 100 percent, and
-      // still open. A quest at 0 is the next thing to do, not something left in the middle, and
-      // prompting about it would be nagging rather than resuming. Highest progress first, matching
-      // `recommendNextQuest`'s own "finish what is underway" rule so the prompt and Rise Mode
-      // cannot disagree about which piece of work is meant.
-      const { data: openQuests } = await supabaseAdmin
-        .from('quest_instances')
-        .select('title, progress_percent, status')
-        .eq('user_id', userId)
-        .in('status', ['active', 'in_progress'])
-        .gt('progress_percent', 0)
-        .lt('progress_percent', 100)
-        .order('progress_percent', { ascending: false })
-        .limit(1);
-      const partDone = openQuests?.[0];
-      if (partDone) {
-        base.resumable = {
-          title: String(partDone.title ?? 'your next step'),
-          progressPercent: Number(partDone.progress_percent) || 0,
-        };
-      }
     } else {
       const { count: subs } = await supabaseAdmin
         .from('subscriptions')

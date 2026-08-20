@@ -152,7 +152,6 @@ describe('the resume prompt behaves', () => {
       gmv30dCents: 0,
       accountCreatedAt: NOW,
       featureFlags: { quest_engine: true },
-      resumable: { title: 'Build the first 10', progressPercent: 40 },
       ...over,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     }) as any;
@@ -162,13 +161,11 @@ describe('the resume prompt behaves', () => {
     expect(def!.frequency).toEqual({ type: 'everyN', days: 4, max: 3 });
   });
 
-  it('fires only when work is genuinely PART DONE', () => {
+  it('fires for an artist', () => {
+    // The gate is no longer a part-done QUEST. It carries the canonical next move now, and
+    // whether one exists is settled when the move is resolved, not by a predicate here: a
+    // pop-up that resolves no move renders nothing. See riseResume.test.ts.
     expect(def!.audience(ctx())).toBe(true);
-    expect(def!.audience(ctx({ resumable: null }))).toBe(false);
-  });
-
-  it('never fires when the Quest Engine is off', () => {
-    expect(def!.audience(ctx({ featureFlags: { quest_engine: false } }))).toBe(false);
   });
 
   it('never fires for a fan', () => {
@@ -176,13 +173,12 @@ describe('the resume prompt behaves', () => {
   });
 
   it('never fires on the page it would send you to', () => {
-    // The destination moved from /profile/artist to /quests on 2026-08-19, when the copy
-    // started NAMING the goal. Rise Mode renders one CONSTRAINT-resolved move, not this
-    // quest, so a prompt naming a task and landing there would name X and show Y. The
-    // invariant itself is untouched: never interrupt someone on the page you are sending
-    // them to. Detail and the copy contract live in riseResume.test.ts.
-    expect(def!.pages).not.toContain('/quests');
-    expect(def!.cta?.href).toBe('/quests');
+    // Rise Mode is both the fallback destination and the screen that already renders this
+    // exact move, so it is excluded. The invariant is unchanged across three redesigns:
+    // never interrupt someone on the page you are sending them to. Detail and the ownership
+    // contract live in riseResume.test.ts.
+    expect(def!.cta?.href).toBe('/profile/artist');
+    expect(def!.pages).not.toContain('/profile/artist');
   });
 
   it('ranks BELOW money that cannot reach the artist', () => {
@@ -196,15 +192,12 @@ describe('the resume prompt behaves', () => {
     expect(def!.announcedAt).toBeUndefined();
   });
 
-  it('stores no second progress system', () => {
+  it('stores no second progress system, and no longer reads quest rows at all', () => {
     const route = readFileSync('src/app/api/popups/route.ts', 'utf8');
-    expect(route).toContain("from('quest_instances')");
-    // Derived from the Quest Engine's own rows: strictly part-done, never persisted anywhere new.
-    expect(route).toContain("gt('progress_percent', 0)");
-    expect(route).toContain("lt('progress_percent', 100)");
-    for (const verb of ['.insert(', '.upsert(']) {
-      expect(route.includes(`from('quest_instances')${verb}`)).toBe(false);
-    }
+    // The quest read was deleted with the redesign: the move comes from the canonical
+    // constraint and roadmap endpoints, so there is nothing quest-shaped left to drift.
+    expect(route).not.toContain("from('quest_instances')");
+    expect(route).not.toMatch(/localStorage|sessionStorage/);
   });
 });
 

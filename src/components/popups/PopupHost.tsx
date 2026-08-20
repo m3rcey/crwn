@@ -8,6 +8,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { X } from 'lucide-react';
+import { resolveOperatingFlow } from '@/lib/constraint/presentation';
+import { resolveRiseNextMove } from '@/lib/riseNextMove';
 
 interface PopupSurvey {
   question: string;
@@ -18,7 +20,11 @@ interface PopupSurvey {
 
 interface PopupVisual {
   kind: 'progress';
-  percent: number;
+  /** Discrete stage progress, e.g. 2 of 7. Never a percentage in the label: 68% is decoration. */
+  done: number;
+  total: number;
+  /** The stage this progress belongs to, e.g. "Foundation". */
+  label: string | null;
 }
 
 interface Popup {
@@ -30,6 +36,12 @@ interface Popup {
   dismissLabel: string;
   survey: PopupSurvey | null;
   visual?: PopupVisual | null;
+  /**
+   * Server flag: this pop-up's copy is a placeholder, and the CLIENT must replace it with the
+   * artist's real next move before rendering anything. See the resolver below for why the
+   * resolution is not done on the server.
+   */
+  resolveNextMove?: boolean;
 }
 
 const GOLD = '#D4AF37';
@@ -46,10 +58,11 @@ const GOLD = '#D4AF37';
  * It animates on mount (the arc sweeps to the real value) because a ring that is simply
  * there reads as a static badge, while one that fills reads as progress.
  */
-function ProgressRing({ percent }: { percent: number }) {
+function ProgressRing({ done, total, label }: { done: number; total: number; label: string | null }) {
   const [drawn, setDrawn] = useState(false);
   const R = 42;
   const C = 2 * Math.PI * R;
+  const percent = total > 0 ? Math.min(100, Math.max(0, (done / total) * 100)) : 0;
 
   useEffect(() => {
     // Next frame, so the browser paints the empty arc first and the transition is visible.
@@ -76,12 +89,62 @@ function ProgressRing({ percent }: { percent: number }) {
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-2xl font-bold text-white leading-none">{percent}%</span>
-          <span className="text-[10px] uppercase tracking-wider text-gray-500 mt-1">done</span>
+          <span className="text-2xl font-bold text-white leading-none">
+            {done}/{total}
+          </span>
+          {label && (
+            <span className="text-[10px] uppercase tracking-wider text-gray-500 mt-1">{label}</span>
+          )}
         </div>
       </div>
     </div>
   );
+}
+
+/**
+ * Replace a pop-up's placeholder copy with the artist's REAL next move, or refuse to show it.
+ *
+ * THE POINT OF THIS FUNCTION is that there is only ONE next move in CRWN and this renders it
+ * verbatim. It reads the same two endpoints Rise Mode reads and runs the same two pure
+ * resolvers over them, so the pop-up and Rise Mode cannot name different work. Before this,
+ * the pop-up named a part-done QUEST while Rise Mode named a constraint-resolved move, and on
+ * a real account they disagreed: "Complete Your Artist Destination" against "Complete your
+ * public profile". Two systems each naming a next move is the collage the 2026-08-13
+ * simplification deleted, and the pop-up had quietly rebuilt it.
+ *
+ * It decides nothing. No ranking, no diagnosis, no recommendation is issued here or in
+ * /api/popups; this is a second PLACE the canonical answer appears, never a second answer.
+ *
+ * Client-side because /api/popups runs on every navigation and the roadmap read calls Stripe.
+ * Here the cost lands only when the pop-up has already won, at most once per day.
+ */
+async function withNextMove(popup: Popup): Promise<Popup | null> {
+  const json = (r: Response) => (r.ok ? r.json() : null);
+  const [c, r] = await Promise.all([
+    fetch('/api/artist/constraint').then(json).catch(() => null),
+    fetch('/api/artist/roadmap').then(json).catch(() => null),
+  ]);
+
+  const next = resolveRiseNextMove(resolveOperatingFlow(c?.constraint ?? null), r?.roadmap ?? null);
+  // No move means the roadmap is finished or neither read landed. Either way there is nothing
+  // truthful to prompt, so the pop-up is dropped rather than falling back to a vague nudge.
+  if (!next.move) return null;
+
+  // `stageProgress` is "2 of 7 complete". The ring wants the two numbers, not the sentence,
+  // and a stage that does not parse simply gets no ring.
+  const m = next.stageProgress?.match(/^(\d+) of (\d+)/);
+
+  return {
+    ...popup,
+    title: next.move.title,
+    // The fact is already stated once inside Rise Mode's card; here the reason carries the
+    // loss and the fact grounds it, which is the same order that card uses.
+    body: next.move.fact ? `${next.move.reason} ${next.move.fact}` : next.move.reason,
+    cta: { label: next.move.ctaLabel, href: next.move.href },
+    visual: m
+      ? { kind: 'progress', done: Number(m[1]), total: Number(m[2]), label: next.stageTitle }
+      : null,
+  };
 }
 
 export function PopupHost() {
@@ -104,11 +167,18 @@ export function PopupHost() {
         const res = await fetch(`/api/popups?page=${encodeURIComponent(pathname)}`);
         if (!res.ok) return;
         const data = await res.json();
-        if (active && data?.popup) {
-          setPopup(data.popup);
-          setRating(null);
-          setFeedback('');
-        }
+        if (!active || !data?.popup) return;
+
+        const resolved = data.popup.resolveNextMove
+          ? await withNextMove(data.popup)
+          : data.popup;
+        // A pop-up that asked for the next move and could not get one renders nothing, and
+        // reports nothing, so it does not spend the artist's one interruption for the day.
+        if (!active || !resolved) return;
+
+        setPopup(resolved);
+        setRating(null);
+        setFeedback('');
       } catch {
         /* silent: a pop-up that cannot load is a pop-up that does not show */
       }
@@ -226,9 +296,13 @@ export function PopupHost() {
           <X className="w-5 h-5" />
         </button>
 
-        {popup.kind === 'modal' && popup.visual?.kind === 'progress' && (
+        {popup.kind === 'modal' && popup.visual?.kind === 'progress' && popup.visual.total > 0 && (
           <div className="mb-5 mt-1">
-            <ProgressRing percent={popup.visual.percent} />
+            <ProgressRing
+              done={popup.visual.done}
+              total={popup.visual.total}
+              label={popup.visual.label}
+            />
           </div>
         )}
 

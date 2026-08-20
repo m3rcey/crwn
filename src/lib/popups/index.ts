@@ -29,58 +29,6 @@ export async function isPopupEngineEnabled(admin: any): Promise<boolean> {
   }
 }
 
-/**
- * The served copy for the resume prompt, NAMING the goal instead of alluding to it.
- *
- * Why this is safe against the 2026-08-11 correction (see the long comment in registry.ts):
- * that correction bans claiming the artist STARTED or ABANDONED something, because quest
- * progress is derived from DomainChecks over live database state and proves no such thing.
- * A goal's TITLE and its percentage are both facts on the row. Repeating a fact is not the
- * banned claim, and the sentence has to stay true at 4% and at 90%, so it says how far along
- * the goal is and never how far along the ARTIST is.
- *
- * Pure and total: it takes the resumable snapshot and returns copy. No client, no lookup.
- */
-export function resumeCopyFor(resumable: { title: string; progressPercent: number }): {
-  title: string;
-  body: string;
-} {
-  // Quest titles are short by convention, but they are stored text rendered into a modal
-  // heading, so cap them rather than trusting the convention to hold.
-  const raw = (resumable.title || '').trim();
-  const name = raw.length > 70 ? `${raw.slice(0, 69).trimEnd()}…` : raw;
-
-  if (!name) {
-    // Read the static pair back off the def rather than restating it. Two copies of the
-    // same fallback is two things to keep in step, and the registry one is the one the
-    // copy tests measure.
-    const def = getPopup('artist_resume_rise');
-    return { title: def?.title ?? 'One goal is close to done.', body: def?.body ?? '' };
-  }
-
-  // The percentage is NOT repeated here. The pop-up draws a progress ring from the same
-  // snapshot, so the number is already on screen, twice over is noise, and the served copy
-  // used to state it twice inside 38 words. What the sentence has to add is the LOSS, which
-  // the ring cannot say: a number on its own reads as an achievement, not a shortfall.
-  // One line, true at 4% and at 90%.
-  return {
-    title: `Finish this: ${name}`,
-    body: 'Nothing is earned until it is finished.',
-  };
-}
-
-/**
- * The percent the resume pop-up's progress RING shows.
- *
- * Lives here, next to the copy it replaced, because the number moved out of the sentence and
- * into the visual and the clamp had to move with it. The query already selects strictly
- * between 0 and 100, so this is defence against that gate changing upstream, not against
- * today's data: a ring reading "0% done" or "120% done" is worse than no ring.
- */
-export function resumeVisualPercent(progressPercent: number): number {
-  return Math.min(99, Math.max(1, Math.round(progressPercent || 0)));
-}
-
 function isSameCalendarDay(iso: string, now: Date): boolean {
   const d = new Date(iso);
   return (

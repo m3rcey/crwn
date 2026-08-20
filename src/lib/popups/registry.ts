@@ -34,16 +34,6 @@ export interface PopupContext {
    * popup_engine alone announces a feature the user cannot reach.
    */
   featureFlags: Record<string, boolean>;
-  /**
-   * Artists only: Rise Mode work that is genuinely PART DONE right now, or null.
-   *
-   * DERIVED, never stored. It reads the existing `quest_instances` rows the Quest Engine already
-   * maintains (open status, progress strictly between 0 and 100), so there is no second progress
-   * system and nothing to keep in sync. "Part done" is the whole test: a quest at 0% is not
-   * something the artist left in the middle, it is just the next thing, and prompting about it
-   * would be nagging rather than resuming.
-   */
-  resumable: { title: string; progressPercent: number } | null;
   /** Artists only: their public slug, which is also their Post-Win referral identity. */
   artistSlug: string | null;
   /**
@@ -58,8 +48,8 @@ export interface PopupContext {
    * Fans (including artists who support other artists): does this user have an OPEN testimonial
    * request right now?
    *
-   * DERIVED server-side from the `fan_testimonial_requests` row the daily generator created, in the
-   * same shape as `resumable`: the registry stays a pure predicate over context and never queries.
+   * DERIVED server-side from the `fan_testimonial_requests` row the daily generator created: the
+   * registry stays a pure predicate over context and never queries.
    * A boolean rather than the request itself, because the pop-up is only the interrupt. The artist
    * name and the actual question live on the fan hub card, which is where the CTA goes, so no
    * per-user string has to be templated into this catalog.
@@ -147,79 +137,59 @@ export const POPUPS: PopupDef[] = [
     dismissLabel: 'Later',
   },
 
-  // ---- Artist: resume Rise Mode work already part done ----
+  // ---- Artist: the ONE next move, brought to wherever they are ----
   //
-  // The founder-requested "continue where you left off" prompt, deferred through several phases and
-  // implemented here because both prerequisites are now live in production (`quest_engine` and
-  // `popup_engine` are both on, and there is real quest state to resume).
+  // WHAT THIS IS NOW, and what it stopped being (founder decision, 2026-08-20).
   //
-  // FOUR THINGS THAT KEEP IT FROM BECOMING NAGGING, and each is deliberate:
-  //  1. `c.resumable` is null unless a quest is strictly between 0% and 100%, and it picks the
-  //     HIGHEST progress first. That is the same rule as `recommendNextQuest`'s "finish what is
-  //     underway" branch, on purpose: the prompt and Rise Mode must never disagree about which
-  //     piece of work is meant, and this prompt is not allowed its own ranking.
-  //  2. `pages` excludes the DESTINATION, `/quests`. Prompting someone to open the board they are
-  //     already looking at would be absurd.
-  //  3. Priority 40 puts it BELOW connecting Stripe (100), the first broadcast (80) and the upgrade
-  //     nudges. Unfinished progress must never outrank money that cannot reach the artist, and the
-  //     engine's one-pop-up-per-user-per-day cap applies on top.
-  //  4. `everyN` 4 days, max 3. If someone has ignored it three times, they have answered.
+  // It used to name a QUEST that was part done, and send the artist to /quests. Seen on a real
+  // account, that was incoherent twice over. It named "Complete Your Artist Destination" while
+  // Rise Mode, on the very next screen, named "Complete your public profile" and reported the
+  // launch gate as the actual blocker: two systems naming two different next moves, which is
+  // precisely the collage the 2026-08-13 simplification deleted. And its CTA opened /quests,
+  // the XP-and-artist-build board that the same reduction deliberately hid, so the pop-up had
+  // become the front door to a surface CRWN had decided not to index.
   //
-  // It stores nothing. The resumable state is derived from the rows the Quest Engine already keeps.
+  // It now carries the artist's REAL next move: the same one Rise Mode shows, from the same
+  // `resolveOperatingFlow` + `resolveRiseNextMove` over the same two endpoints. The two cannot
+  // disagree, because there is only one answer and this renders it verbatim. The CTA goes to
+  // that move's own href, which is already the most specific safe completion surface.
   //
-  // WHAT THIS PROMPT MAY NOT SAY, corrected 2026-08-11.
-  // -------------------------------------------------
-  // It used to open with "You left something half done" and "Work you already started is sitting
-  // there unfinished". **CRWN cannot support that claim.** Quest progress is not a record of
-  // artist engagement: `syncQuest` sets `in_progress` automatically whenever an evaluated
-  // condition rises above 0 (`nextStatus = result.progressPercent > 0 ? 'in_progress' : ...`), and
-  // those conditions are DomainChecks over live database state. Progress climbs because the
-  // account changed, not because anyone opened a quest. There is no `started_at`, no accept step
-  // and no quest event log, so nothing anywhere proves the artist began this.
+  // WHERE THE RESOLUTION HAPPENS, and why it is not here. `/api/popups` runs on every
+  // navigation and must stay cheap; the roadmap read calls Stripe. So the SERVER only picks the
+  // winner, and PopupHost resolves the move CLIENT-side once this pop-up has actually won, at
+  // most once per day. If no move resolves, nothing renders and no `shown` event is written.
   //
-  // Measured in production when this was corrected: all 16 eligible quests were `domain`-kind, and
-  // they included "Reach $1,000 per month in recurring support" at **4%** and "Reach 25
-  // supporters" at 40%. Those are outcome TARGETS that advance as the business grows. Telling an
-  // artist they "left them half done" is false, and "pick it back up" is meaningless for a goal
-  // there is no position to return to.
+  // OWNERSHIP IS UNCHANGED, which is the point. This pop-up still decides nothing: it does not
+  // diagnose, rank, or issue a recommendation, and `/api/popups` still never calls
+  // `readConstraint`. It is a second PLACE the canonical answer appears, never a second answer.
   //
-  // The copy therefore claims only what the row proves: a goal is genuinely partway. It is
-  // still loss-framed, because partial progress really does earn nothing until it is finished.
-  // Narrowing ELIGIBILITY instead would be the better fix, but it needs an engagement signal CRWN
-  // does not record, and changing this predicate alone would desync it from `recommendNextQuest`
-  // (see 1). That gap is documented rather than papered over.
+  // FOUR THINGS THAT KEEP IT FROM NAGGING:
+  //  1. `pages` excludes /profile/artist, the fallback destination and the screen that already
+  //     shows this move.
+  //  2. Priority 40 sits BELOW connecting Stripe (100) and the first broadcast (80). A next-move
+  //     nudge never outranks money that cannot reach the artist.
+  //  3. `everyN` 4 days, max 3. Ignored three times is an answer.
+  //  4. The engine's one-pop-up-per-user-per-day cap applies on top of all of it.
   //
-  // NAMING THE GOAL, and why the destination moved (founder decision, 2026-08-19).
-  // -----------------------------------------------------------------------------
-  // The founder asked for a prompt that instructs the artist to finish THE TASK, not a generic
-  // nudge. Naming it is compatible with the correction above: the quest TITLE is a fact on the
-  // row, and stating it asserts nothing about who started what. `resumeCopyFor()` builds that
-  // copy, and `riseResume.test.ts` holds it to the same forbidden-claims list as the static pair.
-  //
-  // Naming a task forced the destination to change. It used to be `/profile/artist`, which since
-  // the 2026-08-13 simplification renders ONE move resolved by `resolveRiseNextMove` from the
-  // Constraint Engine and the roadmap. That resolver ranks by constraint priority; this prompt
-  // ranks by progress. They can legitimately disagree, so a prompt that named a task and landed
-  // on Rise Mode would name X and show Y. `/quests` is the board that actually renders this quest
-  // and its progress, so that is where the CTA goes. `/profile/artist` joins `pages` in the same
-  // move, which matters more than it looks: artists now LAND there at login, so leaving it out
-  // would have quietly starved the prompt of its most common surface.
+  // It stores nothing. There is no resume table and no second progress store, and the quest
+  // machinery this used to read (`ctx.resumable`) was deleted with it.
   {
     key: 'artist_resume_rise',
     kind: 'modal',
-    pages: ['/home', '/studio', '/library', '/explore', '/profile/artist'],
-    audience: (c) => c.isArtist && !!c.featureFlags.quest_engine && !!c.resumable,
+    // NOT /profile/artist. Rise Mode already renders this exact move, so a pop-up of the
+    // same content on the same screen is absurd. That is the original invariant restored:
+    // never fire on the page you are sending someone to.
+    pages: ['/home', '/studio', '/library', '/explore'],
+    audience: (c) => c.isArtist,
     frequency: { type: 'everyN', days: 4, max: 3 },
     priority: 40,
-    goal: 'Artist finishes the goal that is closest to done instead of leaving it short.',
-    // STATIC FALLBACK ONLY. The served copy NAMES the goal: `resumeCopyFor()` rebuilds
-    // title and body from `ctx.resumable` in /api/popups, because a prompt that says
-    // "one of your goals" makes the artist go and find out which one, and that lookup
-    // is most of the reason a resume prompt gets dismissed. This static pair is what
-    // ships if `resumable` is somehow absent, so it has to be true on its own.
-    title: 'One goal is close to done.',
-    body: 'A goal partway through pays nothing until it is finished.',
-    cta: { label: 'Finish it', href: '/quests' },
+    goal: 'Artist does the ONE move Rise Mode has already resolved, without opening Rise Mode.',
+    // STATIC FALLBACK ONLY. The served copy is the artist's REAL next move, resolved
+    // client-side from `resolveRiseNextMove` (see PopupHost). This pair ships only if that
+    // resolution fails, so it has to be true on its own and must promise nothing specific.
+    title: 'One move is worth more than the rest.',
+    body: 'Rise Mode has already worked out which one. Everything else can wait.',
+    cta: { label: 'Show me', href: '/profile/artist' },
     dismissLabel: 'Not now',
   },
 
