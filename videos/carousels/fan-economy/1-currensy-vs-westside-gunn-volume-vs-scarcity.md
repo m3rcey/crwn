@@ -8,11 +8,11 @@ Curren$y put out 90+ projects. Westside Gunn put out 400 copies of one project.
 
 Which one's fans are actually worth more, and by how much?
 
-Before the math: Snoop reposted a video I made about him, and Lyfe Jennings, LL Cool J, Jagged Edge and Carl Thomas follow CRWN.
+Before the math: Snoop reposted one of these when I broke down his own catalog. Lyfe Jennings, LL Cool J, Jagged Edge and Carl Thomas follow CRWN. Artists who lived through the label era are watching this shift closely.
 
 Curren$y might be the most prolific rapper alive. 90+ projects since 2009, around 1.5 million monthly listeners. His model is volume.
 
-Westside Gunn runs the opposite play. He don't release records, he releases artifacts. Pressings as small as 400 copies. One signed edition out of 187.
+Westside Gunn runs the opposite play. He don't release records, he releases artifacts. Pressings as small as 400 copies, one signed edition out of 187.
 
 Here's the thing nobody puts side by side.
 
@@ -32,7 +32,7 @@ Them records go for around $300 a copy. That's about $120,000 on one pressing. 1
 
 400 people spent what a million and a half spend in eight months.
 
-One collector paying $300 is 30,000 people listening for a month. Except the 30,000 are anonymous, and the 400 got names and addresses.
+One collector paying $300 is 30,000 people listening for a month. Except the 30,000 are anonymous and the 400 got names and addresses.
 
 You know how many people hear you. Do you know which ones would pay $300 for what nobody else got?
 

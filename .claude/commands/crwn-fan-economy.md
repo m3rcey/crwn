@@ -654,6 +654,63 @@ Rank by what actually happened, and NEVER upgrade a weaker event into a stronger
 Everything claimed must be true at the time of posting, and the specific verb must match the
 specific act: followed, reposted, cosigned, replied. Never "works with", "partnered", "backed".
 
+### The two-part shape: EVIDENCE, then MEANING (founder correction, 2026-08-20)
+
+A bare list of names certifies the FOUNDER. That is the weak form and it reads as a flex:
+"Lyfe Jennings, LL Cool J, Jagged Edge and Carl Thomas follow CRWN." So what.
+
+The strong form adds a second sentence that makes those names certify the ARGUMENT. Not "I am
+credible", but "people who lived this business see what I am seeing." Every proof line has both
+parts:
+
+- **Part A, the EVIDENCE.** What actually happened, in the verb that happened.
+- **Part B, the MEANING.** Why it matters to the reader, pointed at the industry shift the post is
+  about, never at the founder's status.
+
+Part B is the whole upgrade. Without it the names are decoration; with it they are corroboration.
+
+**Part B may never exceed the tier of Part A.** This is where the strong version is easiest to get
+wrong, and the founder's first draft of it did: "They agree with previous posts about the shift"
+attributes AGREEMENT to four artists who only followed an account. Nobody asked them and nobody
+can check it, which makes it the same class of fabricated claim as an invented feature.
+
+| Part A evidence | Part B may say | Part B may NOT say |
+|---|---|---|
+| Reposted / cosigned | agreed, cosigned, put their name on it | is a partner, is a customer |
+| Follows the account | is watching, is paying attention, is tracking this | agrees, endorses, uses, backs |
+| Liked a post | nothing, it is not evidence | anything at all |
+
+So: agreement language is available for Snoop, because a repost IS a public endorsement of that
+specific video. For the four who follow, the honest and nearly as strong claim is that they are
+WATCHING. Artists who sold records before streaming existed paying attention to this shift is a
+real argument, and it does not require anyone to have said a word.
+
+### Say it a different way every time
+
+The same sentence in every post stops being proof and becomes a tic. Rotate the phrasing, and
+never reuse a variant inside one batch. These are patterns, not scripts to paste; vary the entry,
+which evidence leads, and how Part B is pointed.
+
+1. "Before the math: Snoop reposted one of these when I broke down his own catalog. Lyfe Jennings,
+   LL Cool J, Jagged Edge and Carl Thomas follow CRWN. Artists who lived through the label era are
+   watching this shift closely."
+2. "Quick context: when I did the numbers on Snoop, he reposted it. Four artists who were selling
+   records before streaming existed follow CRWN. The people who survived three versions of this
+   business are paying attention to the fourth."
+3. "Why me on this: Snoop put his name on the last breakdown I did about him. LL Cool J, Lyfe
+   Jennings, Jagged Edge and Carl Thomas follow CRWN. Not because of me, because of where the
+   money is moving in 2026."
+4. "Snoop cosigned the breakdown I did on him. Lyfe Jennings, LL Cool J, Jagged Edge and Carl
+   Thomas follow CRWN. This is not a hot take, it is what the people who moved units are tracking."
+5. "Real quick, I am not guessing at this. Snoop reposted my breakdown of his catalog, and four
+   artists who built careers in the physical era follow CRWN. They watched the model change once
+   already."
+6. Short form, when the caption is already long: "Snoop reposted my breakdown about him. Four
+   artists who sold records before streaming follow CRWN. They know what a shift looks like."
+
+Rotate which evidence leads too. Some posts should open on the cosign, others on the pattern of
+established artists watching, so the proof does not arrive in the same shape every time.
+
 ### How often
 
 **Ration it.** The same credibility line in every script stops being proof and becomes a tic, and a

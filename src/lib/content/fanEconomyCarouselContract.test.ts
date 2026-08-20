@@ -144,11 +144,26 @@ describe.runIf(carouselFiles.length > 0)('FE-CAR-003 every carousel file is well
       /\bbacked by\b/i,
       /\bsigned up (?:with|to) CRWN\b/i,
       /\bendorsed by\b/i,
+      // Following is not agreeing. Nobody asked them and nobody can check it, which puts
+      // "they agree with" in the same class as an invented feature.
+      /follow CRWN[^.]*\.\s*They agree\b/i,
+      /\bThey agree with (?:previous |my )?posts\b/i,
     ];
     const hits = upgrades.filter((re) => re.test(caption)).map((re) => re.source);
     expect(hits, `a follow may not be upgraded (found ${hits.join(', ')})`).toHaveLength(0);
     // A like is never evidence, so it is never cited as a credential.
     expect(caption, 'a like is not a credential').not.toMatch(/\bliked (?:one of )?(?:my|the) post/i);
+  });
+
+  it.each(carouselFiles)('%s proof line certifies the argument, not just the founder', (file) => {
+    const caption = section(readFileSync(join(CAROUSELS_DIR, file), 'utf8'), '**CAPTION:**') ?? '';
+    const para = caption.split(/\n\s*\n/).find((b) => /follow CRWN|reposted|cosigned/i.test(b));
+    if (!para) return; // proof is optional and rationed
+    // A bare list of names certifies the FOUNDER and reads as a flex. The second
+    // sentence is what makes those names corroborate the ARGUMENT instead.
+    const sentences = para.split(/(?<=\.)\s+/).filter((x) => x.trim().length > 0);
+    expect(sentences.length, `proof needs EVIDENCE then MEANING, got one sentence: ${para}`)
+      .toBeGreaterThanOrEqual(2);
   });
 
   it.each(carouselFiles)('%s puts any proof line AFTER the hook question', (file) => {
