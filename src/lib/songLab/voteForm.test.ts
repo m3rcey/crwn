@@ -7,6 +7,7 @@ import {
   validateBallotSubmission,
   needsIdentity,
   ballotDisclosure,
+  possessive,
   ballotErrorFor,
   BALLOT_CLOSED_ERROR,
   BALLOT_NETWORK_ERROR,
@@ -73,6 +74,15 @@ describe('needsIdentity', () => {
   it('is true only for a logged-out visitor', () => {
     expect(needsIdentity(false)).toBe(true);
     expect(needsIdentity(true)).toBe(false);
+  });
+});
+
+describe('possessive', () => {
+  it('gives a name ending in s the bare apostrophe', () => {
+    expect(possessive('Julius Williams')).toBe("Julius Williams'");
+    expect(possessive('GB The G1ft')).toBe("GB The G1ft's");
+    expect(possessive('  Ross  ')).toBe("Ross'");
+    expect(possessive('')).toBe('');
   });
 });
 

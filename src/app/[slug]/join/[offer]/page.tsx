@@ -82,6 +82,11 @@ export default async function OfferPage({ params }: OfferPageProps) {
     }
   }
 
+  // Ballot mode performs a vote, so the artist's join-flavored CTA label is not sent to
+  // the client at all: it would ship "Join free" into the payload of a page whose one
+  // action is casting a vote.
+  const ctaLabel = ballot ? '' : (offer.cta_label || 'Join free');
+
   return (
     <OfferLanding
       artistSlug={artist.slug}
@@ -90,7 +95,7 @@ export default async function OfferPage({ params }: OfferPageProps) {
       offerSlug={offer.slug}
       headline={offer.headline}
       description={offer.description}
-      ctaLabel={offer.cta_label || 'Join free'}
+      ctaLabel={ctaLabel}
       ballot={ballot}
     />
   );

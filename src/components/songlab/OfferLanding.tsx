@@ -43,6 +43,7 @@ import {
   validateBallotSubmission,
   needsIdentity,
   ballotDisclosure,
+  possessive,
   ballotErrorFor,
   cleanFirstName,
   MAX_FIRST_NAME_LENGTH,
@@ -263,7 +264,7 @@ export function OfferLanding({
           </p>
         ) : null}
         <p className="text-lg text-crwn-text-secondary mb-8">
-          {`You're in ${artistName}'s free fan community. ${artistName} can send you the result and news about upcoming shows.`}
+          {`You're in ${possessive(artistName)} free fan community. ${artistName} can send you the result and news about upcoming shows.`}
         </p>
         <a
           href={primaryHref}

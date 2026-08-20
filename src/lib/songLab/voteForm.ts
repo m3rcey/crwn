@@ -81,6 +81,17 @@ export function needsIdentity(signedIn: boolean): boolean {
 }
 
 /**
+ * Possessive form of an artist name. A name already ending in s takes the bare apostrophe
+ * ("Julius Williams' community"), which is what the founder writes and what reads right on
+ * a page an attendee sees; anything else takes 's.
+ */
+export function possessive(name: string): string {
+  const n = name.trim();
+  if (!n) return '';
+  return /[sS]$/.test(n) ? `${n}'` : `${n}'s`;
+}
+
+/**
  * The membership disclosure rendered directly under the button. It must say three things
  * an attendee can act on: voting also joins, it is free, and no card is involved. It
  * promises only what CRWN can actually deliver for a free member (the artist can email
@@ -89,7 +100,7 @@ export function needsIdentity(signedIn: boolean): boolean {
  */
 export function ballotDisclosure(artistName: string): string {
   const who = artistName.trim() || 'this artist';
-  return `By casting your vote, you also join ${who}'s free fan community, so ${who} can send you the result and news about upcoming shows. Free. No card, ever.`;
+  return `By casting your vote, you also join ${possessive(who)} free fan community, so ${who} can send you the result and news about upcoming shows. Free. No card, ever.`;
 }
 
 /** What the fan is told while the request is in flight (also the disabled-button label). */
