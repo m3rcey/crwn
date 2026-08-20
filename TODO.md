@@ -44,29 +44,50 @@ responsible for. Do not work those.
       replay, the artist surplus return, a dispute, and a collaborator cashout), then reconcile every
       cent and decide whether payouts turn on. **They stay off until that passes.**
 
+- [ ] **DECIDE before Julius's Sept 26 show: turn Supabase email confirmation OFF, or accept
+      that every attendee must open their email in the venue.** This is the single thing
+      standing between the current flow and "scan, tap a song, done". I probed production:
+      `mailer_autoconfirm` is **false**, so when a fan casts their vote CRWN creates the
+      account but Supabase issues no session until they tap a link in their inbox. The vote
+      is not lost (the chosen song is carried through verification and casts itself when they
+      return), but in a dark room, mid-show, a large share of people aged 60+ will not finish.
+      Worse, signup emails go through Supabase's built-in mailer, which answered my probe with
+      `over_email_send_rate_limit` on the second request, so a room full of scans would hit a
+      wall regardless.
+      Where: Supabase dashboard, project `ecpqtuidtsncjfwtkvwc`, Authentication, Sign In / Up,
+      Email provider, turn **Confirm email** OFF. Nothing to deploy; the code already handles
+      both modes and becomes instant the moment you flip it.
+      **The trade-off, plainly:** with it off, anyone can create a CRWN account with an email
+      they do not own (they still cannot read that inbox or take over an existing account, and
+      every CRWN email carries unsubscribe). With it on, the venue flow keeps the extra step.
+      A middle option, more work: keep confirmation on and configure custom SMTP (you already
+      pay for Resend) so at least the rate limit stops being a wall. My recommendation is OFF
+      for the show, because an unverified free-tier fan is exactly what a live-room capture is,
+      and the cost of the alternative is most of the room.
+
 ### P1 — real risk or real friction, but nothing is on fire
 
-- [ ] **Walk Julius Williams through his first live-show fan capture (everything is live, only
-      the human steps remain).** Song Lab is enabled for `julius-williams` in production and a
-      draft ballot ("What should Julius sing next?") is pre-seeded. Before his next show, he
-      (or you, on his account) does this in **/studio/lab**:
-      1. Projects tab: open the seeded decision, edit the four choices to that night's real
-         options, press **Open vote** (set a Closes time for the end of the show if he wants).
-      2. Lead magnets tab: **+ New lead magnet**, name it after the show (e.g. "City Winery
-         Sept 12": the name becomes the link, and the link IS the show attribution), kind
-         **A vote**, pick the decision, optionally paste a reward link (a CRWN page path like
-         /julius-williams, or a rights-cleared performance post once he has one).
-      3. Press the **QR button** on the offer row: it opens a print-ready sheet with the QR,
-         plain-language scan instructions, and the typed-URL fallback for people without a
-         camera. Print a few for tables/merch booth; the copy button gives the same link for
-         screens.
-      4. After the show: **Results** tab shows views, claims, new signups, free joins, voted,
-         and now-paid per show link. Close the vote in Projects; he announces the winner on
-         stage or by email. Fans he captured are normal free-tier members, reachable through
-         the existing email campaigns at /studio/fans.
+- [ ] **Run Julius's Sept 26 show (his link is built and the ballot is attached).** Live now:
+      `thecrwn.app/julius-williams/join/st-james-live-sept-26-song-vote`, which opens on
+      "YOU PICK THE NEXT SONG" with **Never Too Much** and **Bad Boy** as the two big buttons.
+      Signed in as him at **/studio/lab**:
+      1. Lead magnets tab: press the **QR button** on the St. James row and print the sheet
+         (QR, camera instructions, and the typed-out address for people who will not scan).
+      2. Optional: the vote is already **open**, so the link is live today. If you would rather
+         it only work on show night, close it in Projects and press **Open vote** on the 26th.
+      3. Anything you got wrong is editable now: the pencil on a vote edits the question and
+         the song titles (renaming is always safe, votes keep their place), and "Edit the words
+         on this page" changes the headline, the line underneath, and the reward link. The web
+         address never changes, so a printed QR keeps working. The trash icon deletes, and CRWN
+         refuses once a real fan has joined or voted so you never erase the record.
+      4. After the show: **Results** tab (views, claims, new signups, free joins, voted, now
+         paid, per show). Close the vote, announce the winner, then email the new members from
+         **/studio/fans**. Remember Launch allows one email blast per 30 days.
       One caution to pass on: reward content must be rights-cleared. Recordings of him
       covering Luther/Stevie/etc. need licenses CRWN cannot assume, so until he confirms
       rights, point the reward at his page (his original track "Magic" is already free there).
+
+- [ ] **One quick SQL run to finish the surface reduction: drop the retired Manager outcome
       columns** (never written; the file ABORTS if any row unexpectedly holds data, so a surprise
       is a loud error, not a loss). Open and run:
       [`supabase/schema-phase2-drop-manager-outcome-schema.sql`](supabase/schema-phase2-drop-manager-outcome-schema.sql)

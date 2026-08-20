@@ -17,9 +17,16 @@ CRWN is **live in production** (`thecrwn.app`) and the core money loop is real a
   identity, and `song_lab_offer_claims` answers which show produced which fan). Surfaces:
   `/[slug]/lab` (public lab + async advisory A/B/C votes), `/[slug]/join/<offer>` (lead-magnet
   landings the artist configures without deploys; since the Julius build, a vote offer whose
-  decision is open renders the ballot ON the landing, one submission = free join + carried
+  decision is open renders the ballot ON the landing as the FIRST screen, with First name +
+  Email revealed under the chosen song and one "Cast my vote" performing signup, free join and
   vote, and the manager prints QR sheets with plain-language scan instructions), `/studio/lab`
-  (the manager; hidden route, link-only on purpose).
+  (the manager; hidden route, link-only on purpose). **Enrollment is not synchronous today:
+  production runs `mailer_autoconfirm: false`, so a logged-out attendee is told to tap the link
+  in their email and the chosen song rides verification on `user_metadata.pending_next`; the
+  same code completes in the room if auth is switched to auto-confirm.** A vote magnet may not
+  be created without a decision (a null one silently rendered a join button with no songs), and
+  offers/decisions/projects can be edited and deleted after publishing, with deletion refused
+  once a fan has claimed or voted.
   Signup gained a validated `?next=` (rides `user_metadata.pending_next` through email
   verification) so an Instagram tap returns to the claim after account creation. Discovered and
   fixed along the way, live for EVERY artist on deploy: **all $0 tier joins had failed since

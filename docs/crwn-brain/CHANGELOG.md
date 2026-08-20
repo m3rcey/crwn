@@ -1,5 +1,52 @@
 # CRWN Brain — Changelog
 
+## 2026-08-20 (last pass) - The ballot IS the page: vote-first conversion for `A vote` lead magnets
+
+**The songs now come before the ask, and one action does everything.** A `vote` magnet
+whose decision is open renders hero + choices, reveals **First name** and **Email** under
+the chosen song, and a single **CAST MY VOTE** performs signup, free join and vote. The
+artist's `cta_label` is no longer used (or even sent) in ballot mode, because the button
+performs a vote: `BALLOT_CTA_LABEL` is the one label and `FORBIDDEN_BALLOT_CTA` pins the
+signup words out of it. Disclosure sits directly under the button, derived from the artist
+name via `possessive()`, promising only what a free member really gets (the result, news
+about shows, free, no card). Pure rules live in `src/lib/songLab/voteForm.ts` (16 tests):
+validation order puts the SONG first, error copy is attendee-readable
+("Choose a song first.", "Enter a valid email.", "Voting has closed."), and a recoverable
+error never clears the chosen song.
+
+**Auth is unchanged, and the limit is documented rather than bypassed.** A logged-out
+attendee goes through the SAME `signUp` the normal form uses, dropping only username and a
+self-chosen password (neither is an authorization control; the password is CSPRNG-generated
+and email remains the recovery path). Production was probed, not assumed:
+**`mailer_autoconfirm: false`**, so signup returns no session and the page says so plainly
+("One more tap"), with the chosen song riding verification on the existing
+`user_metadata.pending_next` rail as `?claim=1&o=<option>`. The identical code path completes
+in the room the moment auth is switched to auto-confirm. An existing address gets the same
+neutral state plus a sign-in link carrying the vote, so nothing leaks whether an email is
+registered.
+
+**The defect behind the founder's screenshot: a vote magnet could exist with NO decision.**
+Julius's live St. James link had `decision_id: null`, so the landing had no ballot and fell
+back to a join button with no songs and no explanation. Now refused at create (server and
+disabled button), flagged in red on any existing row with an inline picker, and the linked
+ballot is editable from the row.
+
+**Post-publish editing and deletion, with history protected.** Artists can now correct a
+published vote (question, song titles, and the offer's headline/description/reward) and
+DELETE offers, decisions and projects. Every delete refuses once a fan has touched it: an
+offer with claims, a decision with votes, or a decision a live link still points at, each
+naming the safe alternative (turn off / close / archive). The link slug is deliberately not
+editable because printed QR codes point at it. Renaming a song is always safe:
+`mergeOptionEdit` keeps option ids by position, so votes already cast keep their meaning.
+
+Verified on production against Julius's real link: ballot renders the stored choices, new
+fan joins Bronze once with the vote recorded and `fresh_signup` attribution, duplicate and
+rapid double-tap produce exactly one membership/vote/claim, invalid or foreign option ids
+are refused server-side while the join still succeeds, cross-artist and non-enabled-artist
+slugs 404, anonymous claim 401s, a fan reading artist analytics 403s, a closed vote renders
+no ballot and records none, and a non-vote magnet is untouched. All test fans and fixtures
+were deleted afterward. `verify:architecture` 825, `npm test` 2857, cold build clean, sw v427.
+
 ## 2026-08-20 (evening) - Between-Tour and Proof of Demand rejoin the promoted funnel
 
 **Founder decision: bring back the tour calculator and the proof of demand calculator, with the
