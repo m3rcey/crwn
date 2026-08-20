@@ -93,6 +93,58 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({ id: data.id });
 }
 
+/**
+ * Delete a vote, but ONLY while no fan has cast one and no lead magnet points at it.
+ * Votes cascade with the decision, and a cast vote is real participation; a live link
+ * whose ballot vanished would show a join button with no songs (the failure this whole
+ * pass exists to prevent). Both refusals name the safe alternative.
+ */
+export async function DELETE(req: NextRequest) {
+  const auth = await requireSongLabArtist(supabaseAdmin);
+  if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status });
+
+  const { searchParams } = new URL(req.url);
+  const decisionId = searchParams.get('decisionId') || '';
+  if (!decisionId) return NextResponse.json({ error: 'Missing decisionId' }, { status: 400 });
+
+  const { data: decision } = await supabaseAdmin
+    .from('song_lab_decisions')
+    .select('id')
+    .eq('id', decisionId)
+    .eq('artist_id', auth.artistId)
+    .maybeSingle();
+  if (!decision) return NextResponse.json({ error: 'Decision not found' }, { status: 404 });
+
+  const { count: voteCount } = await supabaseAdmin
+    .from('song_lab_votes')
+    .select('id', { count: 'exact', head: true })
+    .eq('decision_id', decisionId);
+  if ((voteCount ?? 0) > 0) {
+    return NextResponse.json({
+      error: 'Fans have already voted, so this cannot be deleted. Close it instead and the result stays.',
+    }, { status: 409 });
+  }
+
+  const { count: offerCount } = await supabaseAdmin
+    .from('song_lab_offers')
+    .select('id', { count: 'exact', head: true })
+    .eq('decision_id', decisionId);
+  if ((offerCount ?? 0) > 0) {
+    return NextResponse.json({
+      error: 'A lead magnet opens this vote. Point that link at another vote first, or delete the link.',
+    }, { status: 409 });
+  }
+
+  const { error } = await supabaseAdmin
+    .from('song_lab_decisions')
+    .delete()
+    .eq('id', decisionId)
+    .eq('artist_id', auth.artistId);
+  if (error) return NextResponse.json({ error: 'Failed to delete decision' }, { status: 500 });
+
+  return NextResponse.json({ success: true });
+}
+
 export async function PATCH(req: NextRequest) {
   const auth = await requireSongLabArtist(supabaseAdmin);
   if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status });

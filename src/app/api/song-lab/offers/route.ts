@@ -143,6 +143,13 @@ export async function POST(req: NextRequest) {
   const slug = normalizeOfferSlug(rawSlug) ?? offerSlugFromName(rawSlug);
   if (!slug) return NextResponse.json({ error: 'The name needs at least 3 letters or numbers' }, { status: 400 });
 
+  // A vote magnet with no decision is a broken promise: the landing has no ballot to show,
+  // so it silently falls back to a plain join button and the artist never learns why their
+  // songs are missing. That reached production once (Julius, 2026-08-20). Refuse at create.
+  if ((body.benefitKind ?? 'vote') === 'vote' && !body.decisionId) {
+    return NextResponse.json({ error: 'Pick which vote this link opens, or the page has no songs to show' }, { status: 400 });
+  }
+
   const validated = await validateOfferFields(auth.artistId, body, false);
   if (!validated.ok) return NextResponse.json({ error: validated.error }, { status: 400 });
 
@@ -157,6 +164,49 @@ export async function POST(req: NextRequest) {
   }
 
   return NextResponse.json({ id: data.id, slug: data.slug, path: `/${auth.slug}/join/${data.slug}` });
+}
+
+/**
+ * Delete a lead magnet, but ONLY while nobody has claimed it. A claim row is the record
+ * of which show produced which fan, so deleting an offer with claims would cascade real
+ * acquisition history away (song_lab_offer_claims is ON DELETE CASCADE). Once a fan has
+ * arrived, the honest action is "Turn off", which is why the refusal names it.
+ */
+export async function DELETE(req: NextRequest) {
+  const auth = await requireSongLabArtist(supabaseAdmin);
+  if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status });
+
+  const { searchParams } = new URL(req.url);
+  const offerId = searchParams.get('offerId') || '';
+  if (!offerId) return NextResponse.json({ error: 'Missing offerId' }, { status: 400 });
+
+  // Ownership first: a foreign id must never even be counted against.
+  const { data: offer } = await supabaseAdmin
+    .from('song_lab_offers')
+    .select('id')
+    .eq('id', offerId)
+    .eq('artist_id', auth.artistId)
+    .maybeSingle();
+  if (!offer) return NextResponse.json({ error: 'Offer not found' }, { status: 404 });
+
+  const { count } = await supabaseAdmin
+    .from('song_lab_offer_claims')
+    .select('id', { count: 'exact', head: true })
+    .eq('offer_id', offerId);
+  if ((count ?? 0) > 0) {
+    return NextResponse.json({
+      error: 'Fans already joined through this link, so it cannot be deleted. Turn it off instead and it stops working.',
+    }, { status: 409 });
+  }
+
+  const { error } = await supabaseAdmin
+    .from('song_lab_offers')
+    .delete()
+    .eq('id', offerId)
+    .eq('artist_id', auth.artistId);
+  if (error) return NextResponse.json({ error: 'Failed to delete offer' }, { status: 500 });
+
+  return NextResponse.json({ success: true });
 }
 
 export async function PATCH(req: NextRequest) {

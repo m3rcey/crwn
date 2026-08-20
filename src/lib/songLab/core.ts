@@ -250,17 +250,6 @@ export function ballotOpenForFreeJoin(
   return allowed.includes(enrollTierId);
 }
 
-/**
- * The submit label in ballot mode. An artist who left the offer's CTA at the
- * stock join label gets the vote verb, because in ballot mode the button casts
- * a vote; an artist who wrote their own label keeps their words.
- */
-export function ballotCtaLabel(ctaLabel: string | null | undefined): string {
-  const c = (ctaLabel || '').trim();
-  if (!c || c.toLowerCase() === 'join free') return 'Cast my vote';
-  return c;
-}
-
 /** An account created within this window of the claim is attributed as a fresh signup. */
 export const FRESH_SIGNUP_WINDOW_MS = 30 * 60 * 1000;
 

@@ -13,7 +13,6 @@ import {
   isFreshSignup,
   preselectedOption,
   ballotOpenForFreeJoin,
-  ballotCtaLabel,
   RECOGNITION_DISCLAIMER,
   type SongLabDecisionCore,
   type SongLabOfferCore,
@@ -237,14 +236,6 @@ describe('vote-first landing (live show mode)', () => {
     expect(ballotOpenForFreeJoin(d, 'tier-free', NOW)).toBe(false);
   });
 
-  it('ballotCtaLabel swaps only the stock join label for the vote verb', () => {
-    expect(ballotCtaLabel('Join free')).toBe('Cast my vote');
-    expect(ballotCtaLabel('join free')).toBe('Cast my vote');
-    expect(ballotCtaLabel('')).toBe('Cast my vote');
-    expect(ballotCtaLabel(null)).toBe('Cast my vote');
-    expect(ballotCtaLabel('Cast My Vote')).toBe('Cast My Vote');
-    expect(ballotCtaLabel('Pick the encore')).toBe('Pick the encore');
-  });
 });
 
 describe('isFreshSignup', () => {

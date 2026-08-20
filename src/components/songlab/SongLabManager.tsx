@@ -6,7 +6,7 @@
 // no authority and renders nothing for artists without the capability.
 
 import { useCallback, useEffect, useState } from 'react';
-import { Copy, Check, Plus, Loader2, QrCode } from 'lucide-react';
+import { Copy, Check, Plus, Loader2, QrCode, Trash2, Pencil } from 'lucide-react';
 import { OptionSelect } from '@/components/ui/OptionSelect';
 import { RECOGNITION_DISCLAIMER } from '@/lib/songLab/core';
 
@@ -60,7 +60,7 @@ interface Decision {
 interface Offer {
   id: string; slug: string; name: string; headline: string; description: string | null;
   cta_label: string; benefit_kind: string; decision_id: string | null; is_active: boolean;
-  view_count: number;
+  view_count: number; destination_path: string | null;
 }
 interface AnalyticsPayload {
   offers: Array<{ id: string; name: string; views: number; claims: number; freeJoins: number; freshSignups: number; participated: number; nowPaid: number; isActive: boolean }>;
@@ -129,6 +129,27 @@ export function SongLabManager() {
     }
   };
 
+  // Deletes carry their target in the query string. The routes refuse anything a fan has
+  // already touched (a claim, a cast vote) and say what to do instead, so the refusal is
+  // shown to the artist rather than swallowed.
+  const remove = async (url: string, confirmText: string) => {
+    if (!window.confirm(confirmText)) return false;
+    setBusy(true);
+    setError(null);
+    try {
+      const res = await fetch(url, { method: 'DELETE' });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) { setError(data.error || 'Could not delete that'); return false; }
+      await loadAll();
+      return true;
+    } catch {
+      setError('Could not delete that');
+      return false;
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const copyLink = (offerSlug: string, offerId: string) => {
     const url = `${window.location.origin}/${slug}/join/${offerSlug}`;
     navigator.clipboard.writeText(url).then(() => {
@@ -175,6 +196,7 @@ export function SongLabManager() {
           tiers={tiers}
           busy={busy}
           call={call}
+          remove={remove}
         />
       ) : null}
 
@@ -184,6 +206,7 @@ export function SongLabManager() {
           decisions={decisions}
           busy={busy}
           call={call}
+          remove={remove}
           copyLink={copyLink}
           copied={copied}
           slug={slug}
@@ -200,12 +223,13 @@ export function SongLabManager() {
 
 /* ── Projects ─────────────────────────────────────────────────────────────── */
 
-function ProjectsPanel({ projects, decisions, tiers, busy, call }: {
+function ProjectsPanel({ projects, decisions, tiers, busy, call, remove }: {
   projects: Project[];
   decisions: Decision[];
   tiers: Tier[];
   busy: boolean;
   call: (url: string, body: Record<string, unknown>, method?: string) => Promise<boolean>;
+  remove: (url: string, confirmText: string) => Promise<boolean>;
 }) {
   const [newTitle, setNewTitle] = useState('');
   const [addingTo, setAddingTo] = useState<string | null>(null);
@@ -237,17 +261,39 @@ function ProjectsPanel({ projects, decisions, tiers, busy, call }: {
       {projects.map((project) => (
         <div key={project.id} className="rounded-2xl bg-crwn-surface p-4">
           <div className="flex items-center justify-between gap-3 mb-2">
-            <h3 className="text-lg font-bold text-crwn-text">{project.title}</h3>
-            <OptionSelect
-              className="w-40"
-              options={[
-                { value: 'active', label: 'Active' },
-                { value: 'completed', label: 'Completed' },
-                { value: 'archived', label: 'Archived' },
-              ]}
-              value={project.status}
-              onChange={(v) => call('/api/song-lab/projects', { projectId: project.id, status: v }, 'PATCH')}
+            <input
+              defaultValue={project.title}
+              aria-label="Project title"
+              onBlur={(e) => {
+                const v = e.target.value.trim();
+                if (v && v !== project.title) call('/api/song-lab/projects', { projectId: project.id, title: v }, 'PATCH');
+              }}
+              className="flex-1 min-w-0 bg-transparent text-lg font-bold text-crwn-text outline-none focus:bg-crwn-surface-solid rounded px-1"
             />
+            <div className="flex items-center gap-2 shrink-0">
+              <OptionSelect
+                className="w-36"
+                options={[
+                  { value: 'active', label: 'Active' },
+                  { value: 'completed', label: 'Completed' },
+                  { value: 'archived', label: 'Archived' },
+                ]}
+                value={project.status}
+                onChange={(v) => call('/api/song-lab/projects', { projectId: project.id, status: v }, 'PATCH')}
+              />
+              <button
+                disabled={busy}
+                aria-label={`Delete ${project.title}`}
+                title="Delete this project"
+                onClick={() => remove(
+                  `/api/song-lab/projects?projectId=${encodeURIComponent(project.id)}`,
+                  `Delete "${project.title}" and its votes? This cannot be undone. If any fan has already voted, CRWN will refuse and you can archive it instead.`,
+                )}
+                className="p-2 rounded-full text-crwn-text-secondary hover:text-red-400 disabled:opacity-50"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </div>
           </div>
           <input
             defaultValue={project.next_note ?? ''}
@@ -260,7 +306,7 @@ function ProjectsPanel({ projects, decisions, tiers, busy, call }: {
           />
 
           {decisions.filter((d) => d.project_id === project.id).map((d) => (
-            <DecisionRow key={d.id} decision={d} busy={busy} call={call} />
+            <DecisionRow key={d.id} decision={d} busy={busy} call={call} remove={remove} />
           ))}
 
           {addingTo === project.id ? (
@@ -285,18 +331,35 @@ function ProjectsPanel({ projects, decisions, tiers, busy, call }: {
   );
 }
 
-function DecisionRow({ decision: d, busy, call }: {
+function DecisionRow({ decision: d, busy, call, remove }: {
   decision: Decision;
   busy: boolean;
   call: (url: string, body: Record<string, unknown>, method?: string) => Promise<boolean>;
+  remove: (url: string, confirmText: string) => Promise<boolean>;
 }) {
   const [finalizing, setFinalizing] = useState(false);
   const [winner, setWinner] = useState<string | null>(d.winning_option_id);
+  const [editing, setEditing] = useState(false);
+  const [question, setQuestion] = useState(d.question);
+  const [labels, setLabels] = useState(d.options.map((o) => o.label));
+
+  // A published vote can be corrected: labels edit in place by position so any vote
+  // already cast keeps pointing at the same choice. The route refuses REMOVING an option
+  // once the vote is open, which is why the remove control only shows on a draft.
+  const saveEdit = async () => {
+    const ok = await call('/api/song-lab/decisions', {
+      decisionId: d.id,
+      action: 'edit',
+      question,
+      optionLabels: labels.map((l) => l.trim()).filter(Boolean),
+    }, 'PATCH');
+    if (ok) setEditing(false);
+  };
 
   return (
     <div className="border-t border-white/5 py-3">
       <div className="flex items-center justify-between gap-2">
-        <div>
+        <div className="min-w-0">
           <p className="text-sm font-semibold text-crwn-text">
             {d.stage_label}
             <span className={`ml-2 text-xs px-2 py-0.5 rounded-full ${
@@ -322,8 +385,62 @@ function DecisionRow({ decision: d, busy, call }: {
             <button onClick={() => setFinalizing((f) => !f)}
               className="text-xs px-3 py-1.5 rounded-full bg-crwn-surface-solid text-crwn-gold ring-1 ring-crwn-gold/40">Pick winner</button>
           ) : null}
+          <button
+            onClick={() => setEditing((e) => !e)}
+            aria-label={`Edit ${d.stage_label}`}
+            title="Edit the question and song titles"
+            className="p-1.5 rounded-full text-crwn-text-secondary hover:text-crwn-text"
+          >
+            <Pencil className="w-4 h-4" />
+          </button>
+          <button
+            disabled={busy}
+            aria-label={`Delete ${d.stage_label}`}
+            title="Delete this vote"
+            onClick={() => remove(
+              `/api/song-lab/decisions?decisionId=${encodeURIComponent(d.id)}`,
+              `Delete the vote "${d.stage_label}"? If a fan has already voted, or a link points at it, CRWN will refuse and tell you what to do instead.`,
+            )}
+            className="p-1.5 rounded-full text-crwn-text-secondary hover:text-red-400 disabled:opacity-50"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
         </div>
       </div>
+
+      {editing ? (
+        <div className="mt-3 rounded-xl bg-crwn-surface-solid p-3 space-y-2">
+          <label className="block text-xs font-semibold text-crwn-text">Question fans see</label>
+          <input value={question} onChange={(e) => setQuestion(e.target.value)}
+            className="w-full rounded-lg bg-crwn-surface px-3 py-2 text-sm text-crwn-text outline-none" />
+          <label className="block text-xs font-semibold text-crwn-text pt-1">Song choices</label>
+          {labels.map((l, i) => (
+            <input key={i} value={l} aria-label={`Choice ${i + 1}`}
+              onChange={(e) => setLabels(labels.map((x, j) => (j === i ? e.target.value : x)))}
+              className="w-full rounded-lg bg-crwn-surface px-3 py-2 text-sm text-crwn-text outline-none" />
+          ))}
+          <div className="flex items-center gap-2 pt-1">
+            {labels.length < 4 ? (
+              <button onClick={() => setLabels([...labels, ''])} className="text-xs text-crwn-gold">+ one more</button>
+            ) : null}
+            {d.status === 'draft' && labels.length > 2 ? (
+              <button onClick={() => setLabels(labels.slice(0, -1))} className="text-xs text-crwn-text-secondary">
+                remove last
+              </button>
+            ) : null}
+          </div>
+          <p className="text-[11px] text-crwn-text-secondary/70">
+            Renaming a song is safe at any time: votes already cast stay with the same position on the ballot.
+            Once the vote is open you can add a choice but not remove one.
+          </p>
+          <div className="flex gap-2">
+            <button disabled={busy} onClick={saveEdit}
+              className="px-4 py-2 rounded-full bg-crwn-gold text-crwn-bg text-sm font-semibold disabled:opacity-50">Save</button>
+            <button onClick={() => { setEditing(false); setQuestion(d.question); setLabels(d.options.map((o) => o.label)); }}
+              className="px-4 py-2 rounded-full text-sm text-crwn-text-secondary">Cancel</button>
+          </div>
+        </div>
+      ) : null}
       {finalizing ? (
         <div className="flex items-center gap-2 mt-2">
           <OptionSelect
@@ -430,11 +547,12 @@ function NewDecisionForm({ projectId, tiers, busy, call, onDone }: {
 
 /* ── Offers ───────────────────────────────────────────────────────────────── */
 
-function OffersPanel({ offers, decisions, busy, call, copyLink, copied, slug, displayName }: {
+function OffersPanel({ offers, decisions, busy, call, remove, copyLink, copied, slug, displayName }: {
   offers: Offer[];
   decisions: Decision[];
   busy: boolean;
   call: (url: string, body: Record<string, unknown>, method?: string) => Promise<boolean>;
+  remove: (url: string, confirmText: string) => Promise<boolean>;
   copyLink: (offerSlug: string, offerId: string) => void;
   copied: string | null;
   slug: string;
@@ -498,13 +616,58 @@ function OffersPanel({ offers, decisions, busy, call, copyLink, copied, slug, di
                 className="text-xs px-3 py-1.5 rounded-full bg-crwn-surface-solid ring-1 ring-white/10 text-crwn-text disabled:opacity-50">
                 {o.is_active ? 'Turn off' : 'Turn on'}
               </button>
+              <button
+                disabled={busy}
+                aria-label={`Delete ${o.name}`}
+                title="Delete this link"
+                onClick={() => remove(
+                  `/api/song-lab/offers?offerId=${encodeURIComponent(o.id)}`,
+                  `Delete the link "${o.name}"? If any fan has already joined through it, CRWN will refuse so you keep the record, and you can turn it off instead.`,
+                )}
+                className="p-2 rounded-full text-crwn-text-secondary hover:text-red-400 disabled:opacity-50"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
             </div>
           </div>
+
+          {/* The failure this catches: a vote link with no ballot renders a plain join
+              button, so the artist's songs never appear and nothing says why. */}
+          {o.benefit_kind === 'vote' && !o.decision_id ? (
+            <div className="mt-3 rounded-xl bg-red-500/10 ring-1 ring-red-500/30 p-3">
+              <p className="text-xs text-red-300 font-semibold mb-2">
+                No vote attached. Fans opening this link see a join button instead of your songs.
+              </p>
+              <OptionSelect
+                options={decisions.filter((d) => d.status !== 'closed').map((d) => ({ value: d.id, label: `${d.stage_label}: ${d.question}` }))}
+                value={null}
+                onChange={(v) => call('/api/song-lab/offers', { offerId: o.id, decisionId: v }, 'PATCH')}
+                placeholder="Pick the vote this link opens"
+              />
+            </div>
+          ) : null}
+
+          {o.benefit_kind === 'vote' && o.decision_id ? (
+            <div className="mt-3">
+              <p className="text-[11px] text-crwn-text-secondary/70 mb-1.5">
+                Opens this vote (the button always reads &quot;Cast my vote&quot;):
+              </p>
+              <OptionSelect
+                options={decisions.filter((d) => d.status !== 'closed' || d.id === o.decision_id)
+                  .map((d) => ({ value: d.id, label: `${d.stage_label}: ${d.question}` }))}
+                value={o.decision_id}
+                onChange={(v) => call('/api/song-lab/offers', { offerId: o.id, decisionId: v }, 'PATCH')}
+              />
+            </div>
+          ) : null}
+
           {o.benefit_kind !== 'vote' && o.benefit_kind !== 'recognition' ? (
             <p className="text-[11px] text-crwn-text-secondary/70 mt-2">
               CRWN records the claim and enrolls the fan. Delivering this benefit is on you.
             </p>
           ) : null}
+
+          <OfferEditor offer={o} busy={busy} call={call} />
         </div>
       ))}
 
@@ -517,8 +680,10 @@ function OffersPanel({ offers, decisions, busy, call, copyLink, copied, slug, di
           <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3}
             placeholder="Why it matters (Instagram picked the finalists. The Day Ones decide what makes the record.)"
             className="w-full rounded-lg bg-crwn-surface-solid px-3 py-2 text-sm text-crwn-text outline-none" />
-          <input value={ctaLabel} onChange={(e) => setCtaLabel(e.target.value)} placeholder="Button label"
-            className="w-full rounded-lg bg-crwn-surface-solid px-3 py-2 text-sm text-crwn-text outline-none" />
+          {benefitKind !== 'vote' ? (
+            <input value={ctaLabel} onChange={(e) => setCtaLabel(e.target.value)} placeholder="Button label"
+              className="w-full rounded-lg bg-crwn-surface-solid px-3 py-2 text-sm text-crwn-text outline-none" />
+          ) : null}
           <div>
             <p className="text-xs font-semibold text-crwn-text mb-1.5">What they get</p>
             <OptionSelect
@@ -533,12 +698,18 @@ function OffersPanel({ offers, decisions, busy, call, copyLink, copied, slug, di
             />
           </div>
           {benefitKind === 'vote' ? (
-            <OptionSelect
-              options={decisions.filter((d) => d.status !== 'closed').map((d) => ({ value: d.id, label: `${d.stage_label}: ${d.question}` }))}
-              value={decisionId}
-              onChange={setDecisionId}
-              placeholder="Which decision the link lands on"
-            />
+            <div>
+              <OptionSelect
+                options={decisions.filter((d) => d.status !== 'closed').map((d) => ({ value: d.id, label: `${d.stage_label}: ${d.question}` }))}
+                value={decisionId}
+                onChange={setDecisionId}
+                placeholder="Which vote this link opens (required)"
+              />
+              <p className="text-[11px] text-crwn-text-secondary/70 mt-1">
+                The songs on this vote become the buttons fans tap. Without it the page has nothing to show,
+                so CRWN will not create the link. The button always reads &quot;Cast my vote&quot;.
+              </p>
+            </div>
           ) : null}
           <div>
             <input value={destinationPath} onChange={(e) => setDestinationPath(e.target.value)}
@@ -551,8 +722,13 @@ function OffersPanel({ offers, decisions, busy, call, copyLink, copied, slug, di
             </p>
           </div>
           <div className="flex gap-2">
-            <button disabled={busy || !name.trim() || !headline.trim()} onClick={submit}
-              className="px-4 py-2 rounded-full bg-crwn-gold text-crwn-bg text-sm font-semibold disabled:opacity-50">Create</button>
+            <button
+              disabled={busy || !name.trim() || !headline.trim() || (benefitKind === 'vote' && !decisionId)}
+              onClick={submit}
+              className="px-4 py-2 rounded-full bg-crwn-gold text-crwn-bg text-sm font-semibold disabled:opacity-50"
+            >
+              Create
+            </button>
             <button onClick={() => setCreating(false)} className="px-4 py-2 rounded-full text-sm text-crwn-text-secondary">Cancel</button>
           </div>
         </div>
@@ -561,6 +737,66 @@ function OffersPanel({ offers, decisions, busy, call, copyLink, copied, slug, di
           + New lead magnet
         </button>
       )}
+    </div>
+  );
+}
+
+/** Post-publish editing for a live link: the words on the page and the reward it offers.
+ *  The link slug itself is deliberately NOT editable, because a printed QR code and every
+ *  claim already recorded point at it. */
+function OfferEditor({ offer, busy, call }: {
+  offer: Offer;
+  busy: boolean;
+  call: (url: string, body: Record<string, unknown>, method?: string) => Promise<boolean>;
+}) {
+  const [open, setOpen] = useState(false);
+  const [name, setName] = useState(offer.name);
+  const [headline, setHeadline] = useState(offer.headline);
+  const [description, setDescription] = useState(offer.description ?? '');
+  const [destinationPath, setDestinationPath] = useState(offer.destination_path ?? '');
+
+  const save = async () => {
+    const ok = await call('/api/song-lab/offers', {
+      offerId: offer.id,
+      name,
+      headline,
+      description,
+      destinationPath: destinationPath.trim() || null,
+    }, 'PATCH');
+    if (ok) setOpen(false);
+  };
+
+  if (!open) {
+    return (
+      <button onClick={() => setOpen(true)} className="mt-3 text-xs text-crwn-gold hover:underline">
+        Edit the words on this page
+      </button>
+    );
+  }
+
+  return (
+    <div className="mt-3 rounded-xl bg-crwn-surface-solid p-3 space-y-2">
+      <label className="block text-xs font-semibold text-crwn-text">Name (yours only, fans never see it)</label>
+      <input value={name} onChange={(e) => setName(e.target.value)}
+        className="w-full rounded-lg bg-crwn-surface px-3 py-2 text-sm text-crwn-text outline-none" />
+      <label className="block text-xs font-semibold text-crwn-text pt-1">Headline fans see</label>
+      <input value={headline} onChange={(e) => setHeadline(e.target.value)}
+        className="w-full rounded-lg bg-crwn-surface px-3 py-2 text-sm text-crwn-text outline-none" />
+      <label className="block text-xs font-semibold text-crwn-text pt-1">Line underneath</label>
+      <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={2}
+        className="w-full rounded-lg bg-crwn-surface px-3 py-2 text-sm text-crwn-text outline-none" />
+      <label className="block text-xs font-semibold text-crwn-text pt-1">Reward link, optional</label>
+      <input value={destinationPath} onChange={(e) => setDestinationPath(e.target.value)}
+        placeholder="/your-page"
+        className="w-full rounded-lg bg-crwn-surface px-3 py-2 text-sm text-crwn-text outline-none" />
+      <p className="text-[11px] text-crwn-text-secondary/70">
+        The web address stays the same, so any QR code you already printed keeps working.
+      </p>
+      <div className="flex gap-2">
+        <button disabled={busy} onClick={save}
+          className="px-4 py-2 rounded-full bg-crwn-gold text-crwn-bg text-sm font-semibold disabled:opacity-50">Save</button>
+        <button onClick={() => setOpen(false)} className="px-4 py-2 rounded-full text-sm text-crwn-text-secondary">Cancel</button>
+      </div>
     </div>
   );
 }

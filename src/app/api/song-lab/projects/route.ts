@@ -59,6 +59,67 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({ id: data.id });
 }
 
+/**
+ * Delete a project, but ONLY while no fan has voted anywhere under it. Deleting cascades
+ * to its decisions and their votes, and a cast vote is a fan's real participation, so the
+ * refusal points at Archive (which hides it from fans and keeps the record).
+ */
+export async function DELETE(req: NextRequest) {
+  const auth = await requireSongLabArtist(supabaseAdmin);
+  if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status });
+
+  const { searchParams } = new URL(req.url);
+  const projectId = searchParams.get('projectId') || '';
+  if (!projectId) return NextResponse.json({ error: 'Missing projectId' }, { status: 400 });
+
+  const { data: project } = await supabaseAdmin
+    .from('song_lab_projects')
+    .select('id')
+    .eq('id', projectId)
+    .eq('artist_id', auth.artistId)
+    .maybeSingle();
+  if (!project) return NextResponse.json({ error: 'Project not found' }, { status: 404 });
+
+  const { data: decisions } = await supabaseAdmin
+    .from('song_lab_decisions')
+    .select('id')
+    .eq('project_id', projectId)
+    .eq('artist_id', auth.artistId);
+  const decisionIds = (decisions || []).map((d) => d.id);
+
+  if (decisionIds.length) {
+    const { count } = await supabaseAdmin
+      .from('song_lab_votes')
+      .select('id', { count: 'exact', head: true })
+      .in('decision_id', decisionIds);
+    if ((count ?? 0) > 0) {
+      return NextResponse.json({
+        error: 'Fans have already voted in this project, so it cannot be deleted. Set it to Archived instead.',
+      }, { status: 409 });
+    }
+    // A lead magnet pointing at one of these decisions would be left with no ballot, so
+    // block the delete rather than silently breaking a live link.
+    const { count: offerCount } = await supabaseAdmin
+      .from('song_lab_offers')
+      .select('id', { count: 'exact', head: true })
+      .in('decision_id', decisionIds);
+    if ((offerCount ?? 0) > 0) {
+      return NextResponse.json({
+        error: 'A lead magnet still points at a vote in this project. Delete or repoint that link first.',
+      }, { status: 409 });
+    }
+  }
+
+  const { error } = await supabaseAdmin
+    .from('song_lab_projects')
+    .delete()
+    .eq('id', projectId)
+    .eq('artist_id', auth.artistId);
+  if (error) return NextResponse.json({ error: 'Failed to delete project' }, { status: 500 });
+
+  return NextResponse.json({ success: true });
+}
+
 export async function PATCH(req: NextRequest) {
   const auth = await requireSongLabArtist(supabaseAdmin);
   if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status });
