@@ -206,27 +206,17 @@ export default function HomePage() {
     markHomeTourComplete();
   };
 
-  // The Explore tile left with the 2026-08-13 surface reduction: nine artists is not a
-  // catalogue, and a discovery tile on the default home implied a marketplace CRWN is not. The
-  // /explore route itself still works for anyone holding a link.
-  const quickActions = [
-    {
-      href: '/library',
-      label: 'My Library',
-      image: '/homepage_library.jpg',
-    },
-    // Artist mode gets Studio + Artist Dashboard. Gated on isArtist() (the SAME
-    // role-based signal the bottom nav uses for the Studio slot, true for role
-    // 'artist' or 'admin'), so these can never disappear while Studio is in the
-    // nav. hasArtistProfile (the DB row) is a belt-and-suspenders for a brand-new
-    // artist whose profile.role still lags right after publishing.
-    ...(showArtistUI || hasArtistProfile
-      ? [
-          { href: '/studio', label: 'Studio', image: '/homepage_studio.jpg' },
-          { href: '/profile/artist', label: 'Artist Dashboard', image: '/homepage_artistdashboard.jpg' },
-        ]
-      : [])
-  ];
+  // QUICK ACTIONS WAS DELETED on 2026-08-19, and the Artist Dashboard tile with it.
+  //
+  // Every tile in it was a second door to a bottom-nav slot. A fan got "My Library", which is
+  // their Library slot. An artist got "Studio", which is their Studio slot, and "Artist
+  // Dashboard", which pointed at /profile/artist, which is their Rise slot. The label was also
+  // a leftover: /profile/artist has not been a dashboard since the 2026-08-13 simplification,
+  // it is Rise Mode and shows ONE next move.
+  //
+  // Nothing was hidden and nothing lost a route. The section was a duplicate index of the tab
+  // bar sitting directly above the tab bar. Artists now land on Rise Mode at login (see the
+  // login page), so /home is a fan surface again, which is what SupporterMode below is for.
 
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -398,32 +388,6 @@ export default function HomePage() {
         )}
       </section>
 
-      {/* Quick Actions */}
-      <section>
-        <h2 className="text-lg font-semibold text-crwn-text mb-4">Quick Actions</h2>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 max-w-2xl" data-tour="home-quick-actions">
-          {quickActions.map((action) => (
-              <Link
-                key={action.href}
-                href={action.href}
-                data-tour={action.label === 'Artist Dashboard' ? 'home-artist-dashboard' : undefined}
-                className="rounded-xl overflow-hidden press-scale hover:scale-[1.03] transition-transform"
-              >
-                <div className="aspect-square relative max-w-[200px] mx-auto w-full rounded-xl overflow-hidden bg-crwn-elevated">
-                  <Image
-                    src={action.image}
-                    alt={action.label}
-                    fill
-                    sizes="(max-width: 768px) 50vw, 200px"
-                    className="object-cover opacity-0 transition-opacity duration-500"
-                    onLoad={(e) => (e.target as HTMLImageElement).classList.remove('opacity-0')}
-                  />
-                </div>
-                <p className="font-medium text-crwn-text text-sm mt-2 text-center">{action.label}</p>
-              </Link>
-          ))}
-        </div>
-      </section>
     </div>
   );
 }

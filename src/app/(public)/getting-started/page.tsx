@@ -11,6 +11,7 @@ import {
   Play, Star, Radio, Sparkles, Globe,
 } from 'lucide-react';
 import Link from 'next/link';
+import { guides } from './guides/guideContent';
 
 // ─── Animated Number Counter ───
 function AnimatedNumber({ end, duration = 2000, prefix = '', suffix = '' }: { end: number; duration?: number; prefix?: string; suffix?: string }) {
@@ -76,18 +77,21 @@ function MiniDashboard() {
     return () => timers.forEach(clearTimeout);
   }, [isInView]);
 
+  // Illustrative, and labelled as such below. The amounts still have to match the real
+  // recommended ladder (Silver $10 / Gold $25 / Platinum $100), or the first thing a new
+  // artist learns from CRWN is a price that does not exist.
   const notifs = [
-    { text: 'New subscriber: Silver', amount: '+$10' },
+    { text: 'New member: Silver', amount: '+$10' },
     { text: 'Track purchased: Midnight', amount: '+$5' },
     { text: 'Fan referral commission', amount: '+$2' },
-    { text: 'Gold upgrade', amount: '+$50' },
+    { text: 'Gold upgrade', amount: '+$25' },
   ];
 
   return (
     <div ref={ref} className="neu-raised rounded-2xl p-6 guide-shimmer">
       <div className="flex items-center gap-2 mb-4">
         <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-        <span className="text-crwn-text-secondary text-xs uppercase tracking-wider">Live Revenue</span>
+        <span className="text-crwn-text-secondary text-xs uppercase tracking-wider">Example month</span>
       </div>
       <div className="text-3xl font-bold text-crwn-gold mb-4">
         {isInView ? <AnimatedNumber end={2847} prefix="$" /> : '$0'}
@@ -180,53 +184,31 @@ function RoadmapStep({ icon: Icon, step, title, description }: {
 }
 
 // ─── Artist Guides Data ───
-const artistGuides = [
-  {
-    category: 'Getting Set Up',
-    guides: [
-      { icon: User, title: 'Profile & Branding', description: 'Set up your artist name, bio, photos, genres, and location. Make a first impression that converts visitors to fans.', slug: 'profile-setup' },
-      { icon: CreditCard, title: 'Stripe & Payments', description: 'Connect Stripe, understand platform fees, payout schedules, and instant cashout. Get paid for your art.', slug: 'stripe-payments' },
-      { icon: Crown, title: 'Subscription Tiers', description: 'Design your tier structure, set pricing, manage benefits, and understand annual vs monthly conversions.', slug: 'subscription-tiers' },
-      { icon: Music, title: 'Uploading Music', description: 'Add tracks and albums, set access levels, organize your catalog, and gate content to specific tiers.', slug: 'uploading-music' },
-    ],
-  },
-  {
-    category: 'Growing Your Business',
-    guides: [
-      { icon: Store, title: 'Shop & Products', description: 'Sell digital products, beat packs, experiences, and 1-on-1 bookings. Create urgency with limits and expiration.', slug: 'shop-products' },
-      { icon: Target, title: 'Fan Funnel & Acquisition', description: 'Understand the full acquisition funnel from first click to paying subscriber. Source attribution, milestones, and optimization.', slug: 'fan-funnel' },
-      { icon: Mail, title: 'Email & Text Campaigns', description: 'Reach your fans directly. Craft campaigns, segment by tier, automate drip sequences, and track open rates.', slug: 'email-campaigns' },
-      { icon: Share2, title: 'Fan Referral Program', description: 'Set commission rates, track referral performance, and turn your biggest fans into your best marketers.', slug: 'referral-program' },
-    ],
-  },
-  {
-    category: 'Mastering the Platform',
-    guides: [
-      { icon: BarChart3, title: 'Analytics & Insights', description: 'Revenue trends, subscriber growth, play counts, top fans, churn analysis, and LTV metrics. Your command center.', slug: 'analytics-insights' },
-      { icon: MessageCircle, title: 'Community & Posts', description: 'Share updates, gate content by tier, engage fans with photos, videos, and behind-the-scenes drops.', slug: 'community-posts' },
-      { icon: Bot, title: 'Artist Manager', description: 'Your built-in manager analyzes engagement, identifies at-risk subscribers, suggests content, and writes weekly reports.', slug: 'ai-manager' },
-      { icon: Radio, title: 'Sync Licensing', description: 'Browse real sync opportunities, submit your music, and understand how sync deals work on CRWN.', slug: 'sync-licensing' },
-    ],
-  },
-  {
-    category: 'Scaling & Strategy',
-    guides: [
-      { icon: Map, title: 'Growth Roadmap', description: 'A month-by-month plan from 0 to 1,000 subscribers. Milestones, tactics, and what to focus on at each stage.', slug: 'growth-roadmap' },
-      { icon: Calendar, title: 'Content Calendar', description: 'Plan your releases, posts, and campaigns. Learn the ideal posting cadence and content mix that drives retention.', slug: 'content-calendar' },
-    ],
-  },
-];
+//
+// DERIVED from guideContent.ts, never re-typed. This used to be a second hardcoded list of
+// guides with its own titles, descriptions and icons, which is exactly the shape drift takes:
+// on 2026-08-19 it still advertised "automate drip sequences" and two guides that were being
+// deleted. The guide file is the one source; this page renders whatever is in it.
+const artistGuides = guides.reduce<
+  { category: string; guides: { icon: React.ElementType; title: string; description: string; slug: string }[] }[]
+>((acc, g) => {
+  const group = acc.find((c) => c.category === g.category);
+  const entry = { icon: g.icon, title: g.title, description: g.subtitle, slug: g.slug };
+  if (group) group.guides.push(entry);
+  else acc.push({ category: g.category, guides: [entry] });
+  return acc;
+}, []);
 
 // ─── Fan Steps ───
 const fanSteps = [
-  { icon: Search, step: 1, title: 'Explore & Discover', description: 'Browse the catalog and search for artists. Every artist on CRWN is independent and keeps the majority of their earnings.' },
+  { icon: Search, step: 1, title: 'Find Your Artist', description: 'Most people arrive on CRWN through a link from an artist they already follow. Every artist here is independent and keeps the majority of what you pay.' },
   { icon: Crown, step: 2, title: 'Subscribe to Artists', description: 'Pick a tier and support your favorite artists directly. Annual subscriptions save you 25%. Your subscription unlocks exclusive content.' },
   { icon: Heart, step: 3, title: 'Build Your Library', description: 'Like songs to save them, create playlists, and organize your collection. Your library grows as you discover new music.' },
-  { icon: Store, step: 4, title: 'Shop for Exclusives', description: 'Buy digital products like beat packs, or book experiences like 1-on-1 video calls with your favorite artists.' },
+  { icon: Store, step: 4, title: 'Shop for Exclusives', description: 'Buy digital products like beat packs, physical merch, or experiences like listening parties and sessions with your favorite artists.' },
   { icon: Headphones, step: 5, title: 'Listen Anywhere', description: 'Music keeps playing as you browse. Add CRWN to your home screen for the best mobile experience.' },
-  { icon: MessageCircle, step: 6, title: 'Join Communities', description: 'Comment on posts, engage with artists and other fans. Higher tiers unlock exclusive community content.' },
+  { icon: MessageCircle, step: 6, title: 'Join the Conversation', description: 'Comment on posts and talk to the artist and other fans on their page. Higher tiers unlock posts nobody else can see.' },
   { icon: Share2, step: 7, title: 'Share & Earn', description: 'Share any link (an artist page, a track, the shop) with friends. When someone subscribes through your link, you earn a recurring commission on every payment.' },
-  { icon: DollarSign, step: 8, title: 'Cash Out', description: 'Once your referral balance reaches $25, connect Stripe and cash out. No fees. Free weekly payouts or $2 instant.' },
+  { icon: DollarSign, step: 8, title: 'Cash Out', description: 'Once your referral balance reaches $25, connect Stripe and cash out. Stripe pays out on its own rolling schedule for free, or take it instantly for a flat $2.' },
 ];
 
 // ─── Hero Section ───
@@ -299,9 +281,11 @@ function StatsSection() {
     <Section>
       <div ref={ref} className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
         {[
-          { value: 14, label: 'In-Depth Guides', suffix: '' },
-          { value: 4, label: 'Categories', suffix: '' },
-          { value: 100, label: 'Tips & Tactics', suffix: '+' },
+          // Counted from the guides themselves. A hardcoded 14 survived two guides being
+          // deleted, which is the smallest possible version of the problem this page had.
+          { value: guides.length, label: 'In-Depth Guides', suffix: '' },
+          { value: artistGuides.length, label: 'Categories', suffix: '' },
+          { value: guides.reduce((n, g) => n + g.proTips.length, 0), label: 'Pro Tips', suffix: '' },
           { value: 0, label: 'Cost to You', prefix: '$' },
         ].map((stat, i) => (
           <div key={i} className={`neu-raised rounded-2xl p-6 text-center ${isInView ? 'guide-scale-in' : 'opacity-0'}`} style={{ animationDelay: `${i * 100}ms` }}>
@@ -327,7 +311,7 @@ function RevenuePreview() {
           See What&apos;s Possible
         </h2>
         <p className="text-crwn-text-secondary text-lg max-w-2xl mx-auto">
-          100 fans at $15/month = $1,500/month. Here&apos;s what your first week could look like.
+          40 members on Gold at $25/month = $1,000/month. Here&apos;s what a month can look like.
         </p>
       </div>
       <div ref={ref} className="grid md:grid-cols-2 gap-8 items-center">
@@ -340,7 +324,7 @@ function RevenuePreview() {
         </div>
         <div className="space-y-4">
           {[
-            { icon: Crown, label: 'Subscriptions', value: '$470/mo', desc: '47 fans across 3 tiers' },
+            { icon: Crown, label: 'Memberships', value: '$470/mo', desc: '47 members across the ladder' },
             { icon: Store, label: 'Shop Sales', value: '$180/mo', desc: 'Beat packs & exclusives' },
             { icon: Share2, label: 'Referral Growth', value: '+12 fans', desc: 'From 5 active referrers' },
           ].map((item, i) => (
@@ -456,7 +440,7 @@ function CTASection({ isArtist }: { isArtist: boolean }) {
             onClick={() => router.push('/home')}
             className="inline-flex items-center gap-2 bg-crwn-gold text-crwn-bg font-semibold py-3 px-8 rounded-full hover:bg-crwn-gold/90 transition-colors press-scale"
           >
-            {isArtist ? 'Go to Dashboard' : 'Start Exploring'}
+            {isArtist ? 'Open CRWN' : 'Start Listening'}
             <ArrowRight className="w-5 h-5" />
           </button>
           <p className="mt-4 text-xs text-crwn-text-secondary">
@@ -481,7 +465,7 @@ function GettingStartedNav() {
             href="/home"
             className="text-sm text-crwn-text-secondary hover:text-crwn-gold transition-colors"
           >
-            Go to Dashboard
+            Open CRWN
           </Link>
         </div>
       </div>

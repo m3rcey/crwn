@@ -7,6 +7,7 @@ import {
   recordPopupEvent,
   recordSurveyResponse,
   getPopup,
+  resumeCopyFor,
 } from '@/lib/popups';
 import type { PopupContext } from '@/lib/popups';
 import { resend, FROM_EMAIL } from '@/lib/resend';
@@ -46,14 +47,23 @@ export async function GET(req: Request) {
   const def = await eligiblePopupFor(supabaseAdmin, ctx, pathname);
   if (!def) return NextResponse.json({ enabled: true, popup: null });
 
+  // The resume prompt is the one def whose copy is per-artist: it names the goal. Built here
+  // from the SAME `ctx.resumable` snapshot the audience predicate gated on, so the prompt can
+  // never name a goal that did not qualify it. Falls back to the static registry pair if the
+  // snapshot is missing, which is also what the predicate would have refused on.
+  const copy =
+    def.key === 'artist_resume_rise' && ctx.resumable
+      ? resumeCopyFor(ctx.resumable)
+      : { title: def.title, body: def.body };
+
   // Serialize only what the client renders (predicate functions are not sent).
   return NextResponse.json({
     enabled: true,
     popup: {
       key: def.key,
       kind: def.kind,
-      title: def.title,
-      body: def.body,
+      title: copy.title,
+      body: copy.body,
       // The referral link is per-artist, so the static registry cannot hold it. Injected here
       // rather than templated, because one explicit conditional is easier to audit than a
       // substitution system, and this is the only pop-up that needs it. `buildReferralLink`

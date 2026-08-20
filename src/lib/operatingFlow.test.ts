@@ -176,8 +176,13 @@ describe('the resume prompt behaves', () => {
   });
 
   it('never fires on the page it would send you to', () => {
-    expect(def!.pages).not.toContain('/profile/artist');
-    expect(def!.cta?.href).toBe('/profile/artist');
+    // The destination moved from /profile/artist to /quests on 2026-08-19, when the copy
+    // started NAMING the goal. Rise Mode renders one CONSTRAINT-resolved move, not this
+    // quest, so a prompt naming a task and landing there would name X and show Y. The
+    // invariant itself is untouched: never interrupt someone on the page you are sending
+    // them to. Detail and the copy contract live in riseResume.test.ts.
+    expect(def!.pages).not.toContain('/quests');
+    expect(def!.cta?.href).toBe('/quests');
   });
 
   it('ranks BELOW money that cannot reach the artist', () => {

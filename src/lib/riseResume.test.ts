@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { POPUPS, type PopupDef } from './popups/registry';
+import { resumeCopyFor } from './popups';
 import { recommendNextQuest } from './quests/recommend';
 import type { QuestInstance } from './quests/types';
 
@@ -72,8 +73,18 @@ describe('eligibility: only genuinely partial, open work', () => {
   });
 
   it('never fires on its own destination', () => {
-    expect(resume.pages).not.toContain('/profile/artist');
-    expect(requireCta(resume).href).toBe('/profile/artist');
+    // The destination moved to /quests on 2026-08-19 when the copy started NAMING the goal.
+    // /profile/artist renders ONE constraint-resolved move, not this quest, so a prompt that
+    // names a task and lands there would name X and show Y. The invariant is unchanged: a
+    // prompt may never fire on the page it is sending you to.
+    expect(requireCta(resume).href).toBe('/quests');
+    expect(resume.pages).not.toContain('/quests');
+  });
+
+  it('fires on Rise Mode, which is where artists now land at login', () => {
+    // Artists are routed to /profile/artist on login, so omitting it here would starve the
+    // prompt of its most common surface. Safe only because it is no longer the destination.
+    expect(resume.pages).toContain('/profile/artist');
   });
 });
 
@@ -117,7 +128,7 @@ describe('the prompt claims only what the data proves', () => {
 
   it('is truthful for a 4% outcome target as well as a 90% task', () => {
     // Production held "Reach $1,000 per month in recurring support" at 4% as an ELIGIBLE row.
-    // The copy is static (no interpolation), so it has to be true at both ends of the range.
+    // The static fallback carries no interpolation, so it has to be true at both ends.
     const copy = `${resume.title} ${resume.body}`.toLowerCase();
     expect(copy).toContain('partway');
     expect(copy).not.toMatch(/finish what you were doing|resume your work/);
@@ -131,6 +142,63 @@ describe('the prompt claims only what the data proves', () => {
 
   it('carries no em dash, per the copy rule', () => {
     expect(`${resume.title}${resume.body}${requireCta(resume).label}${resume.dismissLabel}`).not.toContain('—');
+  });
+});
+
+describe('the served copy names the goal without claiming the artist started it', () => {
+  const REAL = { title: 'Reach $1,000 per month in recurring support', progressPercent: 4 };
+  const NEARLY = { title: 'Upload your first five tracks', progressPercent: 90 };
+
+  it('names the actual goal, which is the whole point of the 2026-08-19 change', () => {
+    expect(resumeCopyFor(REAL).title).toContain(REAL.title);
+    expect(resumeCopyFor(NEARLY).title).toContain(NEARLY.title);
+  });
+
+  it('instructs the artist to finish it', () => {
+    expect(resumeCopyFor(REAL).title.toLowerCase()).toContain('finish');
+  });
+
+  it('obeys the SAME forbidden-claims list as the static pair, at both ends of the range', () => {
+    for (const r of [REAL, NEARLY]) {
+      const c = resumeCopyFor(r);
+      const copy = `${c.title} ${c.body}`.toLowerCase();
+      for (const claim of ['you left', 'already started', 'half done', 'abandon', 'pick it back up', 'where you left off']) {
+        expect(copy, `named resume copy must not claim "${claim}" at ${r.progressPercent}%`).not.toContain(claim);
+      }
+    }
+  });
+
+  it('reports how far the GOAL is, never how far the artist got', () => {
+    expect(resumeCopyFor(REAL).body).toContain('4%');
+    expect(resumeCopyFor(NEARLY).body).toContain('90%');
+    expect(resumeCopyFor(REAL).body.toLowerCase()).not.toMatch(/you (got|made it|reached)/);
+  });
+
+  it('carries no em dash', () => {
+    for (const r of [REAL, NEARLY]) {
+      const c = resumeCopyFor(r);
+      expect(`${c.title}${c.body}`).not.toContain('—');
+    }
+  });
+
+  it('never prints 0% or 100%, even if the query gate ever changes upstream', () => {
+    expect(resumeCopyFor({ title: 'X', progressPercent: 0 }).body).toContain('1%');
+    expect(resumeCopyFor({ title: 'X', progressPercent: 100 }).body).toContain('99%');
+  });
+
+  it('truncates a long stored title instead of rendering it into the heading', () => {
+    const long = resumeCopyFor({ title: 'g'.repeat(200), progressPercent: 50 });
+    expect(long.title.length).toBeLessThan(90);
+  });
+
+  it('falls back to the static pair when the title is empty', () => {
+    expect(resumeCopyFor({ title: '   ', progressPercent: 50 }).title).toBe(resume.title);
+  });
+
+  it('the route builds it from the SAME snapshot the audience gated on', () => {
+    // Not a second query: naming a goal the predicate never saw would be a new source of truth.
+    expect(POPUP_API).toContain('resumeCopyFor(ctx.resumable)');
+    expect(POPUP_API).toMatch(/def\.key === 'artist_resume_rise' && ctx\.resumable/);
   });
 });
 

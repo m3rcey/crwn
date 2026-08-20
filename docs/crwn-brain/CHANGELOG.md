@@ -1,5 +1,68 @@
 # CRWN Brain — Changelog
 
+## 2026-08-19 - Getting Started stops teaching a deleted UI; /home stops duplicating the tab bar; the resume prompt names the goal
+
+Four founder items were audited before any of them were built. One was already built, one was a
+duplicate of a nav slot, one asked to decorate a screen that was telling the truth, and one was
+actively wrong to the artists CRWN is trying to activate. That last one went first.
+
+- **The getting-started guides were teaching a UI deleted on 2026-08-13, and they feed the live
+  support AI.** `supportKnowledge.ts` inlines a digest of every guide into
+  `SUPPORT_ASSISTANT_PROMPT`, so each stale guide was also a stale answer from `/support`. Seven
+  lines routed artists to a "Profile tab", "Analytics tab", "Community tab" or "Sync tab"; a guide
+  was titled "Email & Text Campaigns" four months after SMS was removed; "Set access levels" and
+  "Allowed Tier IDs" survived content classes replacing them; a step pointed at a "Weekly Report"
+  whose cron was deleted; the audio limit was documented at 50MB against a real 100MB; the tier
+  guide taught a $15/$30 two-tier structure against the pinned Bronze/Silver/Gold/Platinum ladder;
+  and the referral guide described commissions without mentioning the rate **starts at 0**, which
+  is the single most likely reason an artist concludes referrals do not work.
+- **Two guides were DELETED rather than rewritten**: `ai-manager` (built entirely around the
+  deleted weekly report, for a surface hidden in the pre-PMF reduction) and `sync-licensing` (a
+  hidden surface, and it advertised a plan limit nothing enforces). 14 guides became 12.
+- **The page held a SECOND hardcoded copy of the guide index**, with its own titles and
+  descriptions, which had already drifted. It is now derived from `guideContent.ts`, and the
+  "14 In-Depth Guides" stat is counted rather than claimed.
+- **The support prompt's own navigation fact was stale too.** It described a five-slot bottom bar
+  with Explore and Messages. It now describes the real three artist slots and two fan slots, and
+  explicitly forbids the assistant from naming a "Profile tab", "Analytics tab", "Community tab"
+  or "Sync tab".
+- **`/home` lost its Quick Actions section.** Every tile was a second door to a bottom-nav slot: a
+  fan got Library (their Library slot), an artist got Studio (their Studio slot) and "Artist
+  Dashboard" (their Rise slot, under a name that stopped being true on 2026-08-13). The founder
+  asked for the Artist Dashboard tile to go; deleting the section removes it and the duplication
+  together. Two tour steps anchored on the deleted elements were re-anchored, one of which also
+  described the 16-tab dashboard that no longer exists.
+- **Artists now land on Rise Mode at login**, not `/home`. `/home` is a fan surface (SupporterMode
+  is deliberately fan-only), so for an artist it was a Featured row plus links to the tab bar,
+  costing a tap every session to reach the actual work. The check is the `artist_profiles` ROW,
+  never `profiles.role`, which lags a token refresh. An explicit `?next=` still wins.
+- **The Featured row was NOT padded.** Production has 9 public artists and 2 pass the completeness
+  filter (music AND avatar AND a presentable name AND active). That row is an accurate report; the
+  fix is more complete artists, not more chrome. Padding it would have meant rendering incomplete
+  artists as broken tiles or inventing content, against the real-counts-only rule.
+- **The resume pop-up now NAMES the goal** (founder decision): "Finish this: <goal>" instead of
+  "one of your Rise Mode goals". `resumeCopyFor()` is pure and tested, built from the SAME
+  `ctx.resumable` snapshot the audience predicate gated on, so it can never name a goal that did
+  not qualify it. This does NOT reopen the 2026-08-11 correction: that bans claiming the artist
+  STARTED or ABANDONED something, because progress is derived from DomainChecks over live data. A
+  goal title and its percentage are facts on the row, and the new copy is held to the identical
+  forbidden-claims list at 4% and at 90%.
+- **Naming the goal forced the destination to move, from `/profile/artist` to `/quests`.** Rise
+  Mode renders ONE move resolved by `resolveRiseNextMove` from the Constraint Engine, which ranks
+  by constraint priority while this prompt ranks by progress. They can legitimately disagree, so
+  naming a task and landing on Rise Mode would name X and show Y. `/quests` is the board that
+  actually renders that quest and its progress. `/profile/artist` joins `pages` in the same move,
+  which matters because artists now land there at login. The invariant is unchanged and still
+  asserted in two suites: never fire on the page you are sending someone to.
+- **Not a defect, and the reason the founder could not see it:** `eligiblePopupFor` opens with an
+  admin short-circuit that returns null before any targeting runs. No pop-up of any kind renders
+  for an admin account. Verification on a non-admin artist is in `TODO.md`.
+
+Evidence: `npm run build` clean, `npm test` 2519 passed, `npm run verify:architecture` 825 passed.
+Production flags probed the same day: `quest_engine` ON, `popup_engine` ON. One doc/production
+disagreement found in passing and deliberately NOT fixed here: `live_tips` probes **OFF** in
+production, while the 2026-08-16 entry below records that flag-off as retracted before it ran.
+
 ## 2026-08-16 - Live Experiences re-promoted; the live_tips flag-off is retracted
 
 **Founder decision: both Live Experiences and Executive Producer Sessions are being promoted in

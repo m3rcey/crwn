@@ -8,10 +8,13 @@ export const artistHomeTourSteps: DriveStep[] = [
     },
   },
   {
-    element: '[data-tour="home-quick-actions"]',
+    // Anchored on the Featured row, which is the part of /home a fan actually meets.
+    // The old anchor was [data-tour="home-quick-actions"], deleted on 2026-08-19 with the
+    // Quick Actions section: every tile in it was a second door to a bottom-nav slot.
+    element: '[data-tour="home-feed"]',
     popover: {
       title: 'Fan home screen',
-      description: 'This is what your fans see when they open the app. They will find new music, artist updates, and quick actions to start exploring.',
+      description: 'This is what your fans see when they open the app: artists to discover, and their own library one tap away.',
       side: 'bottom',
       align: 'start',
     },
@@ -29,12 +32,16 @@ export const artistHomeTourSteps: DriveStep[] = [
     },
   },
   {
-    element: '[data-tour="home-artist-dashboard"]',
+    // Replaces the deleted "Your artist dashboard" step, which pointed at a /home tile AND
+    // described a screen that no longer exists: /profile/artist stopped being a 16-tab
+    // dashboard on 2026-08-13 and is Rise Mode, which names ONE next move. The Rise tab is
+    // the real, permanent way in, and it is where artists now land when they log in.
+    element: '[data-tour="nav-rise"]',
     popover: {
-      title: 'Your artist dashboard',
-      description: 'Tap here anytime to manage your page: music, tiers, shop, payouts, and analytics.',
-      side: 'bottom',
-      align: 'start',
+      title: 'Rise Mode is your screen',
+      description: 'This is where CRWN tells you the one thing to do next, and why it matters. It is where you land when you log in.',
+      side: 'top',
+      align: 'center',
     },
   },
   {

@@ -8,10 +8,13 @@ export const fanHomeTourSteps: DriveStep[] = [
     },
   },
   {
-    element: '[data-tour="home-quick-actions"]',
+    // Anchored on the Featured row. The old anchor was [data-tour="home-quick-actions"],
+    // deleted on 2026-08-19: every tile in it was a second door to a bottom-nav slot, and
+    // its copy told fans to "Explore Artists" from a section that no longer exists.
+    element: '[data-tour="home-feed"]',
     popover: {
       title: 'Start here',
-      description: 'Tap Explore Artists to browse and discover new music. New releases and recommendations will show up here too.',
+      description: 'Tap any artist to open their page. This is where you subscribe, listen, and see what only members get.',
       side: 'bottom',
       align: 'start',
     },

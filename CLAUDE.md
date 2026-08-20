@@ -341,6 +341,15 @@ must pass a frequency governor. Do NOT add a new interruption path without one.
   `admin_settings.popup_engine`, which is ON in production (verified 2026-08-12, 16 popup_events
   recorded; the code default is false but the flag is LIVE, same as `quest_engine`). Surveys are a
   pop-up `kind` (1-5 + feedback), stored in `popup_survey_responses`; low scores email the founder.
+  **ADMINS NEVER SEE A POP-UP.** `eligiblePopupFor` returns null for `role === 'admin'` before any
+  targeting runs, so the founder's own account cannot verify one. Before investigating "the pop-up
+  is not showing", check the role: that has already been mistaken for a product defect once.
+  A pop-up's copy is STATIC except where a def is explicitly given a per-user builder in
+  `/api/popups` (two exist: the Post-Win referral link, and `resumeCopyFor` naming the resume
+  goal). Build any such copy from the SAME context field the audience predicate gated on, never a
+  second query, or the prompt can name something that never qualified it. And a pop-up that names
+  a specific thing must send the user to a surface that SHOWS that thing: the resume prompt points
+  at `/quests`, not Rise Mode, because Rise Mode renders the constraint-resolved move instead.
 - **Broadcasts / fan notifications** already carry hourly + daily rate-limit caps in their routes
   (`api/messages/broadcast`, `api/notifications/notify-subscribers`). Keep them. A muted fan is a
   lost fan, so the platform caps even a well-meaning artist.
@@ -391,6 +400,15 @@ information already exists.
 
 The artist dashboard is NO LONGER a tab strip. `/profile/artist` is Rise Mode and nothing else.
 Every one of its old 16 tabs is a real route. Three surfaces, and each one has a single job:
+
+**An ARTIST LANDS ON RISE MODE at login, not `/home`** (2026-08-19). The login page derives that
+from the `artist_profiles` ROW, never `profiles.role` (which lags a token refresh); an explicit
+`?next=` still wins. `/home` is a FAN surface: `SupporterMode` is deliberately fan-only, so for an
+artist the page was a Featured row plus links that duplicated the tab bar. Its Quick Actions
+section was deleted in the same move, "Artist Dashboard" tile included, because every tile in it
+was a second door to a bottom-nav slot. **Do not re-add a link to `/profile/artist` on `/home`,
+and do not pad the Featured row**: it shows only artists with music AND an avatar AND a
+presentable name, so a short row means the catalog is short, which is a true report.
 
 - **Bottom tab bar** (`Navigation.tsx`, `buildNavItems`) — DOING the work. Since the 2026-08-13
   pre-PMF surface reduction: THREE slots for an artist (Home, Studio, Rise) and TWO for a fan

@@ -21,16 +21,21 @@ export default function LoginPage() {
       const checkOnboarding = async () => {
         const { createBrowserSupabaseClient } = await import('@/lib/supabase/client');
         const supabase = createBrowserSupabaseClient();
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('onboarding_completed')
-          .eq('id', user.id)
-          .single();
-        if (profile?.onboarding_completed) {
-          router.replace(next || '/home');
-        } else {
+        // Two cheap reads in one round trip. The artist check is the artist_profiles
+        // ROW, never profiles.role, which lags a token refresh right after publishing.
+        const [profileRes, artistRes] = await Promise.all([
+          supabase.from('profiles').select('onboarding_completed').eq('id', user.id).single(),
+          supabase.from('artist_profiles').select('id').eq('user_id', user.id).maybeSingle(),
+        ]);
+        if (!profileRes.data?.onboarding_completed) {
           router.replace('/setup');
+          return;
         }
+        // An explicit ?next= always wins. Otherwise an artist lands on Rise Mode,
+        // their one-next-move screen, instead of /home. /home is a fan surface: for
+        // an artist it held only a Featured row and links that duplicate the tab bar,
+        // so it cost them a tap on every single session to reach the actual work.
+        router.replace(next || (artistRes.data ? '/profile/artist' : '/home'));
       };
       checkOnboarding();
     }

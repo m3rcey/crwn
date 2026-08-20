@@ -29,6 +29,43 @@ export async function isPopupEngineEnabled(admin: any): Promise<boolean> {
   }
 }
 
+/**
+ * The served copy for the resume prompt, NAMING the goal instead of alluding to it.
+ *
+ * Why this is safe against the 2026-08-11 correction (see the long comment in registry.ts):
+ * that correction bans claiming the artist STARTED or ABANDONED something, because quest
+ * progress is derived from DomainChecks over live database state and proves no such thing.
+ * A goal's TITLE and its percentage are both facts on the row. Repeating a fact is not the
+ * banned claim, and the sentence has to stay true at 4% and at 90%, so it says how far along
+ * the goal is and never how far along the ARTIST is.
+ *
+ * Pure and total: it takes the resumable snapshot and returns copy. No client, no lookup.
+ */
+export function resumeCopyFor(resumable: { title: string; progressPercent: number }): {
+  title: string;
+  body: string;
+} {
+  // Quest titles are short by convention, but they are stored text rendered into a modal
+  // heading, so cap them rather than trusting the convention to hold.
+  const raw = (resumable.title || '').trim();
+  const name = raw.length > 70 ? `${raw.slice(0, 69).trimEnd()}…` : raw;
+  // Clamp defensively: the query already selects 0 < progress < 100, but this function is
+  // pure and must not print "0% done" or "120% done" if that ever changes upstream.
+  const pct = Math.min(99, Math.max(1, Math.round(resumable.progressPercent || 0)));
+
+  if (!name) {
+    return {
+      title: 'One goal is close to done.',
+      body: 'A goal you are partway through is still short of the line. Progress that stops short pays you nothing, and finishing the closest one costs less than starting something new.',
+    };
+  }
+
+  return {
+    title: `Finish this: ${name}`,
+    body: `This goal is ${pct}% of the way there, and the last stretch is the only part that pays. Nothing is earned for a goal that stalls at ${pct}%, and finishing this one costs less than starting something new.`,
+  };
+}
+
 function isSameCalendarDay(iso: string, now: Date): boolean {
   const d = new Date(iso);
   return (

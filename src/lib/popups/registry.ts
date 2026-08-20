@@ -158,8 +158,8 @@ export const POPUPS: PopupDef[] = [
   //     HIGHEST progress first. That is the same rule as `recommendNextQuest`'s "finish what is
   //     underway" branch, on purpose: the prompt and Rise Mode must never disagree about which
   //     piece of work is meant, and this prompt is not allowed its own ranking.
-  //  2. `pages` excludes `/profile/artist`. Rise Mode IS the destination, so prompting someone who
-  //     is already looking at it would be absurd.
+  //  2. `pages` excludes the DESTINATION, `/quests`. Prompting someone to open the board they are
+  //     already looking at would be absurd.
   //  3. Priority 40 puts it BELOW connecting Stripe (100), the first broadcast (80) and the upgrade
   //     nudges. Unfinished progress must never outrank money that cannot reach the artist, and the
   //     engine's one-pop-up-per-user-per-day cap applies on top.
@@ -183,22 +183,43 @@ export const POPUPS: PopupDef[] = [
   // artist they "left them half done" is false, and "pick it back up" is meaningless for a goal
   // there is no position to return to.
   //
-  // The copy below therefore claims only what the row proves: a goal is genuinely partway. It is
+  // The copy therefore claims only what the row proves: a goal is genuinely partway. It is
   // still loss-framed, because partial progress really does earn nothing until it is finished.
   // Narrowing ELIGIBILITY instead would be the better fix, but it needs an engagement signal CRWN
   // does not record, and changing this predicate alone would desync it from `recommendNextQuest`
   // (see 1). That gap is documented rather than papered over.
+  //
+  // NAMING THE GOAL, and why the destination moved (founder decision, 2026-08-19).
+  // -----------------------------------------------------------------------------
+  // The founder asked for a prompt that instructs the artist to finish THE TASK, not a generic
+  // nudge. Naming it is compatible with the correction above: the quest TITLE is a fact on the
+  // row, and stating it asserts nothing about who started what. `resumeCopyFor()` builds that
+  // copy, and `riseResume.test.ts` holds it to the same forbidden-claims list as the static pair.
+  //
+  // Naming a task forced the destination to change. It used to be `/profile/artist`, which since
+  // the 2026-08-13 simplification renders ONE move resolved by `resolveRiseNextMove` from the
+  // Constraint Engine and the roadmap. That resolver ranks by constraint priority; this prompt
+  // ranks by progress. They can legitimately disagree, so a prompt that named a task and landed
+  // on Rise Mode would name X and show Y. `/quests` is the board that actually renders this quest
+  // and its progress, so that is where the CTA goes. `/profile/artist` joins `pages` in the same
+  // move, which matters more than it looks: artists now LAND there at login, so leaving it out
+  // would have quietly starved the prompt of its most common surface.
   {
     key: 'artist_resume_rise',
     kind: 'modal',
-    pages: ['/home', '/studio', '/library', '/explore'],
+    pages: ['/home', '/studio', '/library', '/explore', '/profile/artist'],
     audience: (c) => c.isArtist && !!c.featureFlags.quest_engine && !!c.resumable,
     frequency: { type: 'everyN', days: 4, max: 3 },
     priority: 40,
-    goal: 'Artist finishes the Rise Mode goal that is closest to done instead of leaving it short.',
-    title: 'You are closer to a goal than you think.',
-    body: 'One of your Rise Mode goals is already partway there. Progress that stops short pays you nothing, and finishing the closest one costs less than starting something new.',
-    cta: { label: 'See how close', href: '/profile/artist' },
+    goal: 'Artist finishes the goal that is closest to done instead of leaving it short.',
+    // STATIC FALLBACK ONLY. The served copy NAMES the goal: `resumeCopyFor()` rebuilds
+    // title and body from `ctx.resumable` in /api/popups, because a prompt that says
+    // "one of your goals" makes the artist go and find out which one, and that lookup
+    // is most of the reason a resume prompt gets dismissed. This static pair is what
+    // ships if `resumable` is somehow absent, so it has to be true on its own.
+    title: 'One goal is close to done.',
+    body: 'A goal you are partway through is still short of the line. Progress that stops short pays you nothing, and finishing the closest one costs less than starting something new.',
+    cta: { label: 'Finish it', href: '/quests' },
     dismissLabel: 'Not now',
   },
 

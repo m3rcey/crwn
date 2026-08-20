@@ -87,6 +87,20 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **Confirm the Rise Mode resume pop-up on a NON-ADMIN artist account. I cannot: you own the
+      logins.** Your own account is the one account that provably cannot see it. The engine opens
+      with `if (ctx.role === 'admin') return null; // never interrupt the founder`
+      ([`src/lib/popups/index.ts`](src/lib/popups/index.ts)), so no pop-up of any kind renders for
+      an admin. That alone probably explains "the resume system is not working".
+      What to do: log in as an artist whose role is `artist`, who has visited Rise Mode at least
+      once (that is what assigns quests), and who has a quest strictly between 1% and 99%. Open
+      `/home`. You should get a centered modal reading **"Finish this: <the actual goal name>"**
+      with a **Finish it** button to `/quests`.
+      If nothing shows, the next suspect is not a bug either: `artist_connect_stripe` sits at
+      priority 100 on the same pages, and the engine shows at most ONE pop-up per user per day,
+      so an artist who has not connected Stripe sees that one instead for up to four firings.
+      Connect Stripe on the test account and check again the next day before reporting a defect.
+
 - [ ] **One quick SQL run to finish the surface reduction: drop the retired Manager outcome
       columns** (never written; the file ABORTS if any row unexpectedly holds data, so a surprise
       is a loud error, not a loss). Open and run:
