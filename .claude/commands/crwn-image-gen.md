@@ -243,6 +243,18 @@ It now carries a CRITICAL MONOCHROME RULE naming the reference photos as the sou
 near-white edge test on the app's hero images: a single coloured object reads as intentional at
 review scale, so the eye is the wrong instrument and the check is not optional.
 
+## Never put a capitalised word next to an object that must be BLANK
+
+"each with a small blank hand-drawn name tag on its chest with NO writing on any tag" produced
+eight name tags with the word **NO** lettered on them. The model read the capitalised NO as the
+text to write, which is a reasonable reading of the sentence: the only capitalised token adjacent
+to a lettering instruction is the thing to letter.
+
+Write the blankness positively instead: "a name tag that is left entirely blank and unlettered".
+The same trap applies to any emphatic capital sitting beside a drawable surface, so prefer
+lowercase "no" in these clauses and keep the CAPITALS for counts and placement, where being loud
+actually helps.
+
 **The #1 failure spot is the big HEADLINE at the top.** Because it's the largest text, the model most often renders it as a clean printed/bold/display font. Two guards, always:
 - **Never write the word "bold" near text in a prompt.** Phrases like "giant bold capital letters", "bold caps", "in bold" all cue typeset. Instead always write: **"large hand-lettered black sharpie capitals (thick uneven hand-drawn marker strokes, NOT a printed, bold, or display font)"**.
 - Explicitly state the headline is hand-drawn marker lettering with imperfect baselines and varying stroke widths, exactly like a person wrote it fast with a sharpie. The `STYLE_INSTRUCTION` in `generate-images.mjs` also carries a CRITICAL HEADLINE RULE saying the same — keep it there.

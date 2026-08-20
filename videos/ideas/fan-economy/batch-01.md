@@ -6,8 +6,18 @@ Four of ten are women. Ten distinct mechanisms, so the batch is not one idea wit
 **Status:** awaiting founder pick. Mark picks below, then run `/crwn-fan-economy` for each, then
 `/crwn-fan-economy-carousel`. Numbers below are UNVERIFIED by design: the script does the research.
 
-- **PICKED:** (none yet)
-- **PASSED:** (none yet)
+- **PICKED:** 1 Mach-Hommy (script 31, carousel 31) and 2 Open Mike Eagle (script 32, carousel 32).
+- **KILLED BY RESEARCH:** 3 Alex Isley. She was picked first and then failed verification on two
+  counts: *When the City Sleeps* (20 March 2026) is a **major label debut on Free Lunch Records, an
+  imprint of Warner**, so she is no longer an independent ICP case, and her rooms are 2,000 to
+  2,700 seats (Tabernacle, Fillmore Charlotte, Brooklyn Paramount), not the few hundred the pitch
+  claimed. Both halves of the premise were false. Reported rather than rewritten into something
+  else, per the skill.
+- **ALSO FAILED:** 4 billy woods, the stated fallback. Backwoodz publishes no unit numbers, so the
+  preorder reveal has no figure behind it. Open Mike Eagle replaced it because his Patreon shows
+  1,071 members at $4, which is public and checkable.
+- **PASSED:** 5 Destin Conrad, 6 Terrace Martin, 7 Che Noir, 8 Kari Faux, 9 Bktherula, 10 Duckwrth.
+  All still unpitched elsewhere; rotation must exclude them from future batches.
 
 ---
 
@@ -61,7 +71,7 @@ Hook: Millions of people play his songs every month. He cannot name one of them.
 Withheld: how many of those listeners have ever bought anything
 Reveal shape: the gap between audience size and identifiable buyers
 Wow: the unknowability IS the finding, which is why the number is the point
-Mechanism: fan identification · Family: G · Magnet: own-your-fans + FANS
+Mechanism: fan identification · Family: G · Magnet: own-your-fans-calculator + OWN
 ICP: large streaming audience, few owned relationships, fragmented stack
 NUMBER: RISKY. The buyer count may not be public at all. The angle survives without it, because
 "nobody can tell you this number, including him" is the lesson. Do not invent a figure to rescue it.
@@ -107,7 +117,7 @@ Hook: Her reach is enormous and none of it belongs to her. What happens the day 
 Withheld: what share of her audience she could reach without a platform
 Reveal shape: reachable owned audience against total platform audience
 Wow: reach you cannot contact is reach you are renting
-Mechanism: owned relationships and first-party data · Family: G · Magnet: own-your-fans + FANS
+Mechanism: owned relationships and first-party data · Family: G · Magnet: own-your-fans-calculator + OWN
 ICP: young, large streaming audience, platform-dependent, no owned list
 NUMBER: RISKY
 Caution: run the repost test hard here. The framing must be "this is what the industry set up",
