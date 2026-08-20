@@ -1,5 +1,12 @@
-// Fan Economy CAROUSEL runner: three 3:4 slides per post, from a carousel file that
+// Fan Economy CAROUSEL runner: four 3:4 slides per post, from a carousel file that
 // sits beside the video script it condenses.
+//
+//   slide 1  the hook sheet      COPIED from the video sheet
+//   slide 2  the reveal          rendered
+//   slide 3  the takeaway        rendered
+//   slide 4  the 128 end card    COPIED from a shared asset
+//
+// Only two of the four cost an API call.
 //
 // This deliberately reuses generate-fan-economy-images.mjs's pipeline (style refs,
 // auto person refs, 4K, white-flatten, colour check) instead of generate-carousel.mjs,
@@ -33,6 +40,14 @@ const SHEETS_DIR = "/mnt/c/Users/Josh/Dropbox/nano banana output/Shortform Posts
 const OUTPUT_BASE = "/mnt/c/Users/Josh/Dropbox/nano banana output/Carousel Posts/Fan Economy";
 const REFS_DIR = "/mnt/c/Users/Josh/Desktop/nano banana references";
 const CRWN_LOGO = path.join(REFS_DIR, "crwn-logo.png");
+const END_CARD = path.join(REFS_DIR, "128-end-card.jpg");
+
+// Slide 4 is byte-identical on every carousel, so rendering it per post would spend an
+// API call to redraw the same page and give the model 30 chances to draw it differently.
+// It is generated ONCE into END_CARD and copied thereafter, the same pattern as
+// swipe-for-more.png. This prompt exists only to rebuild the asset if it goes missing.
+const END_CARD_PROMPT =
+  "Flat scan of a white sheet of paper filling the entire frame. No desk, no surface, no edges visible, just white paper. Black sharpie marker line art on pure white, with heavy solid-black fills. This page is an END CARD and is almost entirely empty white space. Centered in the middle of the page, draw the CRWN logo from the attached reference image: a bold angular geometric crown with sharp pointed peaks and a solid bar across its base, filled solid black, redrawn by hand in sharpie with slightly uneven marker edges and a few tiny flecks of white paper showing through the fill. The crown is large and is the only illustration on the page. Directly BELOW the crown, hand-letter exactly ONE line in large black sharpie capitals: \"128\". Nothing else appears anywhere on the page: no other words, no tagline, no call to action, no website, no handle, no letters spelling CRWN, no border and no frame. Render only the crown mark and the three characters \"128\". Invent no extra words, no nonsense words, no partial words and no extra numbers. Every mark is hand-drawn sharpie, never a printed or typeset font, and the \"128\" must look written by hand with a marker with slightly imperfect strokes. Center the crown and the number together as one group in the exact middle of the page, with roughly equal empty white margins above and below that group. The background is pure white (#FFFFFF). The image is shot perfectly straight on, no angle, no shadow, no background elements. Pure white paper fills the entire 3:4 frame edge to edge.";
 const DELAY_MS = 8000;
 const WHITE_THRESHOLD = 200;
 
@@ -43,9 +58,9 @@ const STYLE_REFS = [
   "openart-image_1775598237169_2475a432_1775598237207_c74fc3ec.png",
 ];
 
-// Same instruction as the sheet generator so all three slides sit in one visual family.
+// Same instruction as the sheet generator so all four slides sit in one visual family.
 // The final clause is the one difference: the sheet generator forbids the CRWN mark
-// outright, and slide 3 is the one place in the whole series that needs it.
+// outright, and the 128 end card is the one page in the series that needs it.
 const STYLE_INSTRUCTION =
   "Use the exact same visual style as these reference images: bold black sharpie marker handwriting on pure white paper, clean hand-drawn icons and diagrams, high contrast black on white, no gray tones, no background texture. Match the lettering weight, spacing, and hand-drawn aesthetic exactly. " +
   "CRITICAL MONOCHROME RULE: the entire image is BLACK INK ON WHITE PAPER and contains NO COLOUR WHATSOEVER. There is no gold, no yellow, no red, no blue, no green and no coloured accent anywhere, not on a chain, a logo, a garment, a record label, a highlight or any object. The attached person reference photographs ARE in colour and their colours must NOT be copied: translate every one of them into black marker line work. If a person wears a gold chain or coloured clothing in their photo, draw it in black ink like everything else. Every pixel in the finished page is either black ink or white paper. " +
@@ -147,11 +162,22 @@ for (const entry of files) {
     console.warn(`  no **CAPTION:** block`);
   }
 
-  for (const slideNo of [1, 2, 3]) {
+  for (const slideNo of [1, 2, 3, 4]) {
     const outPath = path.join(outDir, `slide-${slideNo}.jpg`);
     if (fs.existsSync(outPath)) {
       console.log(`  slide-${slideNo} SKIP (exists)`);
       continue;
+    }
+
+    // Slide 4 is the fixed 128 end card, shared by every carousel in the series.
+    if (slideNo === 4) {
+      if (fs.existsSync(END_CARD)) {
+        fs.copyFileSync(END_CARD, outPath);
+        console.log(`  slide-4 COPIED from the shared 128 end card`);
+        copied++;
+        continue;
+      }
+      console.log(`  slide-4 end-card asset missing, rendering it once to rebuild it`);
     }
 
     // Slide 1 is the video sheet. Copy it rather than re-rendering: identical art,
@@ -170,7 +196,8 @@ for (const entry of files) {
       console.log(`  slide-1 no video sheet yet, rendering from the prompt`);
     }
 
-    const prompt = section(md, `**SLIDE ${slideNo} PROMPT:**`);
+    const prompt =
+      slideNo === 4 ? END_CARD_PROMPT : section(md, `**SLIDE ${slideNo} PROMPT:**`);
     if (!prompt) {
       console.warn(`  slide-${slideNo} SKIP (no prompt block)`);
       continue;
@@ -235,6 +262,10 @@ for (const entry of files) {
             `  COLOUR INTRUSION on slide-${slideNo}: ${colour.toLocaleString()} non-greyscale pixels. `
             + `These slides are black ink on white paper. Look at it and reroll.`
           );
+        }
+        if (slideNo === 4) {
+          fs.copyFileSync(outPath, END_CARD);
+          console.log(`  slide-4 saved as the shared end card for every later carousel`);
         }
         rendered++;
       }
