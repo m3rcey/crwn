@@ -177,6 +177,29 @@ describe.runIf(carouselFiles.length > 0)('FE-CAR-003 every carousel file is well
       .toBeGreaterThan(questionAt);
   });
 
+  it.each(carouselFiles)('%s sidenote names CRWN, not just the belief', (file) => {
+    const caption = section(readFileSync(join(CAROUSELS_DIR, file), 'utf8'), '**CAPTION:**') ?? '';
+    const holder = caption.search(/Hold that thought/i);
+    const anyway = caption.search(/ANYWAY/);
+    expect(holder, 'caption must carry the sidenote holder').toBeGreaterThan(-1);
+    expect(anyway, 'caption must carry the ANYWAY turn').toBeGreaterThan(holder);
+    const sidenote = caption.slice(holder, anyway);
+    // It is the CRWN SIDENOTE. Dropping the product turns it into a belief sidenote and
+    // removes the only place in the caption where the app is named. Carousel 1 shipped
+    // that way once.
+    expect(sidenote, 'the sidenote must name CRWN, not only the belief').toMatch(/CRWN/);
+    expect(sidenote, 'the sidenote must carry the signature line').toMatch(/market FOR fans/i);
+  });
+
+  it.each(carouselFiles)('%s turns into the Wow Factor with an entry phrase', (file) => {
+    const caption = section(readFileSync(join(CAROUSELS_DIR, file), 'utf8'), '**CAPTION:**') ?? '';
+    const afterAnyway = caption.slice(caption.search(/ANYWAY/));
+    // Without a turn line the wow reads as one more number in the reveal, and the most
+    // repostable line in the post gets buried in arithmetic.
+    expect(afterAnyway, 'the Wow Factor needs an entry phrase after the reveal')
+      .toMatch(/here'?s the crazy part|ain'?t even the wild part|here'?s what got me|it gets worse|part that got me/i);
+  });
+
   it.each(carouselFiles)('%s caption carries no hashtags', (file) => {
     const caption = section(readFileSync(join(CAROUSELS_DIR, file), 'utf8'), '**CAPTION:**') ?? '';
     const tags = caption.match(/#\w+/g) ?? [];

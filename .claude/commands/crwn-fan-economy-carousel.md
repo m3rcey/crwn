@@ -88,7 +88,7 @@ is where the first version failed: a summary states the setup then states the an
 the curiosity gap on the way past it. The script withholds, and the caption has to withhold the
 same way, in the same order, in the same voice.
 
-Target **220 to 270 words** of body, both CTAs included, or up to **300** on the roughly one caption in three or four that carries a social-proof line, which costs about 25 words. The beat structure costs more
+Target **250 to 300 words** of body, both CTAs and the CRWN plug included, or up to **340** on the roughly one caption in three or four that also carries a social-proof line. The earlier 220 to 270 figure was measured against a caption that was wrongly missing its CRWN plug. The hard ceiling is Instagram's 2,200 characters, which none of these approach. The beat structure costs more
 words than a summary does; that is the trade and it is worth it.
 
 Write these beats, in this order:
@@ -128,14 +128,28 @@ Write these beats, in this order:
 6. **The tension beat.** The founder reacting to the number without stating it. ("When the two
    numbers landed next to each other I had to sit back and look again.") This is the peak of the
    gap. Deleting it is what turns the caption back into a summary.
-7. **Hold that thought.** The belief lands HERE, mid-post, while the answer is still owed:
-   "You don't need to market to fans. You need a market FOR fans."
+7. **Hold that thought: the CRWN SIDENOTE.** Three things, in order, while the answer is still
+   owed. (a) the holder, (b) the SIGNATURE LINE, "You don't need to market to fans. You need a
+   market FOR fans.", and (c) **the CRWN plug itself, at the script's product-truth tier**.
+   **(c) is not optional and it is the one that keeps getting dropped.** A sidenote with the belief
+   but no product is not a CRWN sidenote, it is a belief sidenote, and it removes the only place in
+   the whole caption where the app is named. Carousel 1 shipped without it.
+   Read the tier off the script's `META:` line. SHIPPED may state it plainly ("that's what CRWN is
+   built around: membership tiers and a vault your top members get into"), CONCEPTUAL may not imply
+   the feature exists. Keep it to one sentence: it has to read as a sidenote, never an ad break.
 8. **ANYWAY.** On its own line.
 9. **The RE-ASK.** Ask the hook question again, near verbatim, immediately before the payoff. This
    beat is a founder correction carried over from `/crwn-fan-economy` and it is not optional. A
    reader who scrolled past the top needs the question back in front of them to feel the answer.
 10. **The reveal.** The math, in the same numbers as slide 2 and the script's `Big Reveal:`.
-11. **The Wow Factor.** The reframe from the `META:` line, the repostable one.
+11. **The Wow Factor, and it needs an ENTRY PHRASE.** A turn line first, then the reframe from the
+    `META:` line. Without the turn, the wow reads as one more number in the reveal and the single
+    most repostable line in the post gets buried in arithmetic. The script does this too ("And the
+    400 aint just worth more").
+    Rotate the entry so it is not the same every post: "And here's the crazy part." / "But that
+    ain't even the wild part." / "Now here's what got me." / "And it gets worse." / "That's not
+    even the part that got me." Pick one that fits the finding; "worse" only when the finding is
+    genuinely a loss.
 12. **The pivot to the reader.** Turn the case study into their question, loss-framed.
 13. **The CTA again, to close, and HERE the product is named.** By this point the reader has the
     whole argument, so the tool's real name makes the offer concrete and credible rather than
