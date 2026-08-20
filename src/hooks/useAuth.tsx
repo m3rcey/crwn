@@ -188,11 +188,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return { error };
   };
 
-  const signInWithGoogle = async () => {
+  const signInWithGoogle = async (nextPath?: string) => {
+    // Honor a validated internal return path so an OAuth signup/login lands back on
+    // what the person came for (e.g. a Song Lab vote landing with the carried choice),
+    // instead of unconditionally dropping them on /home. Same guard shape as
+    // safeLabPath in src/lib/songLab/core.ts, inlined because this is a client hook
+    // and the canonical safeInternalPath lives in a server-only module. If Supabase's
+    // redirect allowlist rejects the URL it falls back to the Site URL, so a bad
+    // allowlist degrades to today's behavior rather than breaking sign-in.
+    const isSafeInternal =
+      typeof nextPath === 'string' &&
+      nextPath.startsWith('/') &&
+      !nextPath.startsWith('//') &&
+      !nextPath.includes('\\') &&
+      !nextPath.includes('://') &&
+      nextPath.length <= 512;
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/home`,
+        redirectTo: `${window.location.origin}${isSafeInternal ? nextPath : '/home'}`,
       },
     });
     return { error };

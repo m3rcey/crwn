@@ -75,7 +75,7 @@ export default function LoginPage() {
 
           <div className="neu-raised p-8">
             <h2 className="text-xl font-semibold text-crwn-text mb-6 text-center">Sign In</h2>
-            <AuthForm mode="login" onSuccess={() => {
+            <AuthForm mode="login" pendingNext={next || undefined} onSuccess={() => {
               // Redirect handled by useEffect above after user state updates
             }} />
             

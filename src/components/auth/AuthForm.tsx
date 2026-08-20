@@ -171,7 +171,7 @@ export function AuthForm({ mode, onSuccess, onSignupComplete, pendingResultToken
       <div className="mb-5">
         <button
           type="button"
-          onClick={() => signInWithGoogle()}
+          onClick={() => signInWithGoogle(pendingNext)}
           className="w-full flex items-center justify-center gap-2 py-3.5 rounded-full bg-white text-black font-semibold"
         >
           <svg className="w-5 h-5" viewBox="0 0 24 24">
