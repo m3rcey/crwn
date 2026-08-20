@@ -65,6 +65,19 @@ Never open as if the viewer already wants memberships, direct-to-fan software, o
 Beginner framing is equally banned (POSITIONING section 5): this viewer is already running
 something. "Start making money from your music" disqualifies CRWN in one line.
 
+## Name the PRODUCT as "the CRWN app" (founder decision, 2026-08-20)
+
+Whenever the reference is the thing an artist would open and use, write **the CRWN app**, never
+bare "CRWN". "CRWN is built around membership tiers" reads as a brand asserting something; "the
+CRWN app is built around membership tiers" is a thing the listener can picture opening. Bare CRWN
+in a product sentence is abstract exactly where the copy needs to be concrete.
+
+The one place bare "CRWN" stays correct is where the referent genuinely is the COMPANY or the
+ACCOUNT rather than the product, because you follow an account, not an app: "Lyfe Jennings, LL
+Cool J, Jagged Edge and Carl Thomas follow CRWN" is right, and "follow the CRWN app" is not. The
+positioning hierarchy below already draws this line: CRWN is the company, the app is what it
+ships. Match the words to the referent.
+
 ## Positioning hierarchy (preserve, never remix)
 
 - **128** = the founder's personal symbol/origin (see Family J). Never a metric.

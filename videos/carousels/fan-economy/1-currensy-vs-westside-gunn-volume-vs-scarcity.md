@@ -22,7 +22,7 @@ One is wide. One is deep.
 
 So I priced them against each other. When the numbers landed side by side I had to look again.
 
-Hold that thought. You don't need to market to fans. You need a market FOR fans. Reach and depth ain't the same job, and most artists only got tools for the first. That's what CRWN is built around: membership tiers and a vault your top members get into.
+Hold that thought. You don't need to market to fans. You need a market FOR fans. Reach and depth ain't the same job, and most artists only got tools for the first. That's what the CRWN app is built around: membership tiers and a vault your top members get into.
 
 ANYWAY.
 

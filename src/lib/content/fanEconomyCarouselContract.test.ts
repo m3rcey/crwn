@@ -187,7 +187,12 @@ describe.runIf(carouselFiles.length > 0)('FE-CAR-003 every carousel file is well
     // It is the CRWN SIDENOTE. Dropping the product turns it into a belief sidenote and
     // removes the only place in the caption where the app is named. Carousel 1 shipped
     // that way once.
-    expect(sidenote, 'the sidenote must name CRWN, not only the belief').toMatch(/CRWN/);
+    // The product is 'the CRWN app', never bare CRWN: bare CRWN reads as a brand
+    // asserting something, the app is a thing the reader can picture opening. Bare CRWN
+    // stays correct only where the referent is the company or the account, as in
+    // 'follow CRWN', because you follow an account and not an app.
+    expect(sidenote, 'the sidenote must name the CRWN app, not only the belief')
+      .toMatch(/the CRWN app/);
     expect(sidenote, 'the sidenote must carry the signature line').toMatch(/market FOR fans/i);
   });
 

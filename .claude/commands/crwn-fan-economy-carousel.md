@@ -134,7 +134,7 @@ Write these beats, in this order:
    **(c) is not optional and it is the one that keeps getting dropped.** A sidenote with the belief
    but no product is not a CRWN sidenote, it is a belief sidenote, and it removes the only place in
    the whole caption where the app is named. Carousel 1 shipped without it.
-   Read the tier off the script's `META:` line. SHIPPED may state it plainly ("that's what CRWN is
+   Read the tier off the script's `META:` line. SHIPPED may state it plainly ("that's what the CRWN app is
    built around: membership tiers and a vault your top members get into"), CONCEPTUAL may not imply
    the feature exists. Keep it to one sentence: it has to read as a sidenote, never an ad break.
 8. **ANYWAY.** On its own line.
