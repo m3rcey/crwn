@@ -221,6 +221,17 @@ describe.runIf(carouselFiles.length > 0)('FE-CAR-003 every carousel file is well
     expect(caption.trimEnd(), 'the caption ends on the ask').toMatch(/DM you the link\.$/);
   });
 
+  it.each(carouselFiles)('%s never writes bare CRWN in the caption', (file) => {
+    const caption = section(readFileSync(join(CAROUSELS_DIR, file), 'utf8'), '**CAPTION:**') ?? '';
+    // Every mention is "the CRWN app", with no exception, including the follow line:
+    // the Instagram handle IS the CRWN app, so naming it is accurate rather than clumsy.
+    // Bare CRWN in a product sentence reads as a brand asserting something.
+    const leftover = caption.split('the CRWN app').join('');
+    const bare = leftover.match(/\bCRWN\b/g) ?? [];
+    expect(bare, `every caption mention must be "the CRWN app", found ${bare.length} bare`)
+      .toHaveLength(0);
+  });
+
   it.each(carouselFiles)('%s caption carries no hashtags', (file) => {
     const caption = section(readFileSync(join(CAROUSELS_DIR, file), 'utf8'), '**CAPTION:**') ?? '';
     const tags = caption.match(/#\w+/g) ?? [];

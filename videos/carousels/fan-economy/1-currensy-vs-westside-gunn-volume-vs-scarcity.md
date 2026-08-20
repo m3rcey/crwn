@@ -8,7 +8,7 @@ Curren$y put out 90+ projects. Westside Gunn put out 400 copies of one project.
 
 Which one's fans are actually worth more, and by how much?
 
-Before the math: Snoop reposted one of these when I broke down his own catalog. Lyfe Jennings, LL Cool J, Jagged Edge and Carl Thomas follow CRWN. Artists who lived through the label era are watching this shift closely.
+Before the math: Snoop reposted one of these when I broke down his own catalog. Lyfe Jennings, LL Cool J, Jagged Edge and Carl Thomas follow the CRWN app. Artists who lived through the label era are watching this shift closely.
 
 Curren$y might be the most prolific rapper alive, around 1.5 million monthly listeners. His model is volume.
 

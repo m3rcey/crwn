@@ -72,11 +72,12 @@ bare "CRWN". "CRWN is built around membership tiers" reads as a brand asserting 
 CRWN app is built around membership tiers" is a thing the listener can picture opening. Bare CRWN
 in a product sentence is abstract exactly where the copy needs to be concrete.
 
-The one place bare "CRWN" stays correct is where the referent genuinely is the COMPANY or the
-ACCOUNT rather than the product, because you follow an account, not an app: "Lyfe Jennings, LL
-Cool J, Jagged Edge and Carl Thomas follow CRWN" is right, and "follow the CRWN app" is not. The
-positioning hierarchy below already draws this line: CRWN is the company, the app is what it
-ships. Match the words to the referent.
+**There is no exception, including the follow line.** The Instagram handle IS the CRWN app, so
+"Lyfe Jennings, LL Cool J, Jagged Edge and Carl Thomas follow the CRWN app" is not a clumsy way of
+saying they follow a company, it is the account's actual name. An earlier version of this rule
+carved out the follow line on the reasoning that you follow an account and not an app. That
+reasoning was built on not knowing the handle, and it was wrong. Every mention in artist-facing
+copy is "the CRWN app".
 
 ## Positioning hierarchy (preserve, never remix)
 
@@ -656,7 +657,7 @@ Rank by what actually happened, and NEVER upgrade a weaker event into a stronger
 - **COSIGN (strong, use freely).** A named artist publicly reposted or endorsed the work. Snoop
   reposting and cosigning the video about him is this tier. It is a real, public, checkable event
   and it can be stated plainly.
-- **PATTERN (medium, use sparingly).** Several established artists follow CRWN (Lyfe Jennings,
+- **PATTERN (medium, use sparingly).** Several established artists follow the CRWN app (Lyfe Jennings,
   LL Cool J, Jagged Edge, Carl Thomas). One follow proves nothing; four established names is a
   pattern and is worth one line. State it as what it is: they follow. **A follow is not an
   endorsement, not a cosign, and not a customer.** Writing "LL Cool J uses CRWN" when he follows
@@ -672,7 +673,7 @@ specific act: followed, reposted, cosigned, replied. Never "works with", "partne
 ### The two-part shape: EVIDENCE, then MEANING (founder correction, 2026-08-20)
 
 A bare list of names certifies the FOUNDER. That is the weak form and it reads as a flex:
-"Lyfe Jennings, LL Cool J, Jagged Edge and Carl Thomas follow CRWN." So what.
+"Lyfe Jennings, LL Cool J, Jagged Edge and Carl Thomas follow the CRWN app." So what.
 
 The strong form adds a second sentence that makes those names certify the ARGUMENT. Not "I am
 credible", but "people who lived this business see what I am seeing." Every proof line has both
@@ -707,21 +708,21 @@ never reuse a variant inside one batch. These are patterns, not scripts to paste
 which evidence leads, and how Part B is pointed.
 
 1. "Before the math: Snoop reposted one of these when I broke down his own catalog. Lyfe Jennings,
-   LL Cool J, Jagged Edge and Carl Thomas follow CRWN. Artists who lived through the label era are
+   LL Cool J, Jagged Edge and Carl Thomas follow the CRWN app. Artists who lived through the label era are
    watching this shift closely."
 2. "Quick context: when I did the numbers on Snoop, he reposted it. Four artists who were selling
-   records before streaming existed follow CRWN. The people who survived three versions of this
+   records before streaming existed follow the CRWN app. The people who survived three versions of this
    business are paying attention to the fourth."
 3. "Why me on this: Snoop put his name on the last breakdown I did about him. LL Cool J, Lyfe
-   Jennings, Jagged Edge and Carl Thomas follow CRWN. Not because of me, because of where the
+   Jennings, Jagged Edge and Carl Thomas follow the CRWN app. Not because of me, because of where the
    money is moving in 2026."
 4. "Snoop cosigned the breakdown I did on him. Lyfe Jennings, LL Cool J, Jagged Edge and Carl
-   Thomas follow CRWN. This is not a hot take, it is what the people who moved units are tracking."
+   Thomas follow the CRWN app. This is not a hot take, it is what the people who moved units are tracking."
 5. "Real quick, I am not guessing at this. Snoop reposted my breakdown of his catalog, and four
-   artists who built careers in the physical era follow CRWN. They watched the model change once
+   artists who built careers in the physical era follow the CRWN app. They watched the model change once
    already."
 6. Short form, when the caption is already long: "Snoop reposted my breakdown about him. Four
-   artists who sold records before streaming follow CRWN. They know what a shift looks like."
+   artists who sold records before streaming follow the CRWN app. They know what a shift looks like."
 
 Rotate which evidence leads too. Some posts should open on the cosign, others on the pattern of
 established artists watching, so the proof does not arrive in the same shape every time.

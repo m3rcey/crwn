@@ -109,7 +109,7 @@ Write these beats, in this order:
    out 400 copies of one project. Which one's fans are actually worth more, and by how much?")
 1b. **Social proof, OPTIONAL, and only ever after the question.** One line, naming exactly what
    happened: `Before the math: Snoop reposted a video I made about him, and Lyfe Jennings, LL Cool
-   J, Jagged Edge and Carl Thomas follow CRWN.`
+   J, Jagged Edge and Carl Thomas follow the CRWN app.`
    **A caption is not a script, and this is the one place the two surfaces differ.** In a script
    proof waits for the sidenote, because the first two seconds decide whether anyone keeps
    watching. A caption is read by someone who has already stopped scrolling, so proof can come far
