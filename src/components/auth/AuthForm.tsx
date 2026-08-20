@@ -11,9 +11,11 @@ interface AuthFormProps {
   onSignupComplete?: () => void;
   /** A lead-magnet result token to carry into the new user record (see signup page). */
   pendingResultToken?: string;
+  /** A validated internal return path, carried through user_metadata so it survives email verification. */
+  pendingNext?: string;
 }
 
-export function AuthForm({ mode, onSuccess, onSignupComplete, pendingResultToken }: AuthFormProps) {
+export function AuthForm({ mode, onSuccess, onSignupComplete, pendingResultToken, pendingNext }: AuthFormProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
@@ -116,7 +118,7 @@ export function AuthForm({ mode, onSuccess, onSignupComplete, pendingResultToken
           return;
         }
 
-        const { error } = await signUp(email, password, username, fullName, pendingResultToken);
+        const { error } = await signUp(email, password, username, fullName, pendingResultToken, pendingNext);
         if (error) throw error;
         // If email confirmation is DISABLED in Supabase, signUp returns an active
         // session — the user is already logged in, so skip the "check your email"

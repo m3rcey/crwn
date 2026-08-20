@@ -3,6 +3,9 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
+// Client-safe internal-path validator (same checks as safeRedirect's safeInternalPath;
+// that module imports node:crypto and cannot ship in a client bundle).
+import { safeLabPath as safeInternalPath } from '@/lib/songLab/core';
 import { Loader2, CheckCircle } from 'lucide-react';
 
 export default function VerifyEmailPage() {
@@ -29,18 +32,28 @@ export default function VerifyEmailPage() {
         }
 
         if (session) {
-          // Logged in. Route by onboarding state, same as the login page does.
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('onboarding_completed')
-            .eq('id', session.user.id)
-            .single();
-          if (!active) return;
-          setNext(
-            profile?.onboarding_completed
-              ? { href: '/home', label: 'Go to CRWN' }
-              : { href: '/setup', label: 'Finish setting up' }
+          // A preserved destination (a fan claiming an artist offer) wins: it rode
+          // user_metadata through verification exactly like pending_result_token, and
+          // it is re-validated here before use.
+          const pendingNext = safeInternalPath(
+            (session.user.user_metadata as Record<string, unknown> | null)?.pending_next
           );
+          if (pendingNext) {
+            if (active) setNext({ href: pendingNext, label: 'Continue' });
+          } else {
+            // Logged in. Route by onboarding state, same as the login page does.
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('onboarding_completed')
+              .eq('id', session.user.id)
+              .single();
+            if (!active) return;
+            setNext(
+              profile?.onboarding_completed
+                ? { href: '/home', label: 'Go to CRWN' }
+                : { href: '/setup', label: 'Finish setting up' }
+            );
+          }
         }
         // No session: keep the default (login) next. Email is verified regardless.
         if (active) setStatus('success');

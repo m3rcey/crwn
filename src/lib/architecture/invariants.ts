@@ -1159,6 +1159,24 @@ export const FEATURES: readonly FeatureContract[] = [
     surfaces: [{ file: 'src/app/(public)/support/page.tsx', mustContain: 'export' }],
     migration: 'schema-phase2-support-chat.sql',
   },
+  {
+    key: 'song_lab',
+    title: 'Song Lab (GB The G1ft fan co-creation experiment)',
+    // Dark until the migration runs: every surface reads the server-only
+    // artist_profiles.song_lab_enabled column through src/lib/songLab/access.ts and
+    // fails soft/closed while it is missing. The gate is PER-ARTIST (launch_partner
+    // pattern), not an admin_settings flag: the migration flips it for slug gb only.
+    expectedState: 'dark',
+    flag: null,
+    gateModule: 'src/lib/songLab/access.ts',
+    surfaces: [
+      { file: 'src/app/api/song-lab/vote/route.ts', mustContain: 'isSongLabEnabled' },
+      { file: 'src/app/[slug]/lab/page.tsx', mustContain: 'songLabArtistBySlug' },
+      { file: 'src/app/(main)/studio/lab/page.tsx', mustContain: 'SongLabManager' },
+    ],
+    migration: 'schema-phase2-song-lab.sql',
+    notes: 'Artist-scoped by design; deliberately NO Studio tile and NO AccountHub entry (hidden route, one enabled artist). Votes are advisory only, recognition is Special-Thanks-class only (RECOGNITION_DISCLAIMER in src/lib/songLab/core.ts). Remove by deleting src/lib/songLab, src/components/songlab, src/app/api/song-lab, the two [slug] pages and the studio page.',
+  },
 ];
 
 /**
@@ -1289,6 +1307,11 @@ export const EXPECTED_MIGRATION_STATE: ReadonlyArray<{
     liveCheck: 'sql-check',
     note: 'founder SQL check 2026-08-12 (pg_constraint introspection). Widens earnings_type_check only; a CHECK constraint is invisible to PostgREST, so it is deliberately NOT in probe-migrations.mjs.',
   },
+  // Song Lab (GB experiment). PENDING: every surface reads the server-only
+  // song_lab_enabled column and fails soft, so the code ships dark ahead of the founder
+  // running it. The probe expects song_lab_projects to resolve for anon (public SELECT
+  // policy on non-archived rows) and the gate column to answer 42501 (no client grant).
+  { file: 'schema-phase2-song-lab.sql', state: 'pending', note: 'Ships tables + the per-artist gate flipped for slug gb only. Until it runs, /{slug}/lab and /studio/lab 404/deny for everyone.' },
 ];
 
 /** Words that mean "this migration has not been applied" when they share a doc line with its filename. */

@@ -63,6 +63,11 @@ const PROBES = [
   // correct applied signal here (42703 would mean the column is genuinely absent).
   ['sub-avatar override column', 'artist_profiles?select=sub_avatar_override&limit=1', 'schema-phase2-sub-avatar.sql'],
   ['sub-avatar audit table', 'sub_avatar_audit?select=id&limit=1', 'schema-phase2-sub-avatar.sql'],
+  // Song Lab (GB experiment). The projects table has a public SELECT policy, so anon
+  // resolves it and gets [] once applied; 42P01/PGRST205 means not run. The gate column is
+  // server-only (no client grant) so 42501 is its applied signal, exactly like launch_partner.
+  ['song lab projects', 'song_lab_projects?select=id&limit=1', 'schema-phase2-song-lab.sql'],
+  ['song lab gate column', 'artist_profiles?select=song_lab_enabled&limit=1', 'schema-phase2-song-lab.sql'],
   // Fan Testimonials V1. The PUBLIC VIEW is the probe target, not the base tables: the view is
   // granted to anon (the artist page reads it), so 200 with [] means applied. The two base tables
   // are deliberately CLOSED to anon and answer 42501, which this generic loop would file as

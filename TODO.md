@@ -46,6 +46,21 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **Run the Song Lab migration so GB The G1ft's fan co-creation experiment goes live.** Open and run:
+      [`supabase/schema-phase2-song-lab.sql`](supabase/schema-phase2-song-lab.sql)
+      It creates the five song_lab tables, adds the server-only `artist_profiles.song_lab_enabled`
+      gate and flips it for slug `gb` ONLY (fails loudly if that slug is missing), and seeds GB's
+      "Day One A&R" fan badge. Until it runs, /gb/lab and /studio/lab stay dark and every route
+      fails soft. Expected on success: one result row reading `song lab schema applied` with
+      enabled_artists = 1 and enabled_slug = gb.
+      Verify after with: npm run verify:migrations (both `song lab` lines must read applied).
+      Then send GB the two links he works from: thecrwn.app/studio/lab (his control room; it is a
+      hidden route on purpose, so he should bookmark it) and his first lead magnet link, which he
+      creates there and puts behind his Instagram CTA.
+      Note: the free-join fix (every $0 tier join failed platform-wide on a NOT NULL column; the
+      artist-page button even reported success while writing nothing) is CODE, already live on
+      deploy, and needs no SQL from you.
+
 - [ ] **One quick SQL run to finish the surface reduction: drop the retired Manager outcome
       columns** (never written; the file ABORTS if any row unexpectedly holds data, so a surprise
       is a loud error, not a loss). Open and run:

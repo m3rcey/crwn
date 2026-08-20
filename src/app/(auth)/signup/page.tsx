@@ -7,6 +7,9 @@ import { useAuth } from '@/hooks/useAuth';
 import { BackgroundImage } from '@/components/ui/BackgroundImage';
 import { getDeliverableSpec } from '@/lib/opportunityDrafts/deliverableSpecs';
 import { DraftContinuation } from '@/components/opportunity/DraftContinuation';
+// Client-safe internal-path validator (same checks as safeRedirect's safeInternalPath;
+// that module imports node:crypto and cannot ship in a client bundle).
+import { safeLabPath as safeInternalPath } from '@/lib/songLab/core';
 
 export default function SignupPage() {
   const router = useRouter();
@@ -20,6 +23,9 @@ export default function SignupPage() {
   // Arrived from a tool's save boundary: say WHAT they are saving, in that builder's own words, so
   // the account ask reads as "save what you already built". Read-only; changes no auth behavior.
   const signupContext = getDeliverableSpec(searchParams.get('tool') || '')?.signupContext;
+  // A validated internal return destination (mirrors login's ?next=). Carried through
+  // user_metadata so it also survives the email-verification hop (see /verify).
+  const nextPath = safeInternalPath(searchParams.get('next'));
 
   useEffect(() => {
     if (recruiterCode) {
@@ -35,9 +41,9 @@ export default function SignupPage() {
 
   useEffect(() => {
     if (user && !isLoading && !justSignedUp) {
-      router.replace('/home');
+      router.replace(nextPath || '/home');
     }
-  }, [user, isLoading, router, justSignedUp]);
+  }, [user, isLoading, router, justSignedUp, nextPath]);
 
   if (isLoading) {
     return (
@@ -73,16 +79,17 @@ export default function SignupPage() {
 
           <div className={`neu-raised ${signupContext ? 'p-5' : 'p-8'}`}>
             <h2 className={`text-xl font-semibold text-crwn-text text-center ${signupContext ? 'mb-4' : 'mb-6'}`}>Sign Up</h2>
-            <AuthForm mode="signup" pendingResultToken={pendingResultToken} onSignupComplete={() => setJustSignedUp(true)} onSuccess={() => {
+            <AuthForm mode="signup" pendingResultToken={pendingResultToken} pendingNext={nextPath || undefined} onSignupComplete={() => setJustSignedUp(true)} onSuccess={() => {
               // New signups go into the setup wizard (identity screens first), not the
-              // feed. (Only reached when email confirmation is off and signUp returns
-              // an immediate session.)
-              setTimeout(() => router.replace('/setup'), 100);
+              // feed, UNLESS they arrived with a preserved destination (a fan claiming an
+              // artist offer goes back to finish the claim). (Only reached when email
+              // confirmation is off and signUp returns an immediate session.)
+              setTimeout(() => router.replace(nextPath || '/setup'), 100);
             }} />
             
             <p className="mt-6 text-center text-sm text-crwn-text-secondary">
               Already have an account?{' '}
-              <a href="/login" className="text-crwn-gold hover:underline">
+              <a href={nextPath ? `/login?next=${encodeURIComponent(nextPath)}` : '/login'} className="text-crwn-gold hover:underline">
                 Sign in
               </a>
             </p>

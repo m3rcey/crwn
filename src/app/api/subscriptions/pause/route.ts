@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe/client';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createClient } from '@supabase/supabase-js';
+import { isFreeSubscriptionId } from '@/lib/subscriptions/freeJoin';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -33,6 +34,12 @@ export async function POST(req: NextRequest) {
 
     if (!sub?.stripe_subscription_id) {
       return NextResponse.json({ error: 'Subscription not found' }, { status: 404 });
+    }
+
+    // A free membership has no billing to pause, and its synthetic free_ id must never
+    // reach Stripe (it would error as resource_missing and 500 this route).
+    if (isFreeSubscriptionId(sub.stripe_subscription_id)) {
+      return NextResponse.json({ error: 'Free memberships have no billing to pause' }, { status: 400 });
     }
 
     if (action === 'pause') {

@@ -8,6 +8,21 @@ CRWN is **live in production** (`thecrwn.app`) and the core money loop is real a
 
 ## Complete & production-ready (Confirmed)
 
+- **SONG LAB (2026-08-20): GB The G1ft's fan co-creation experiment, built and DARK.** Code is on
+  master; nothing is reachable until the founder runs
+  `supabase/schema-phase2-song-lab.sql`, which creates the five `song_lab_*` tables and flips the
+  server-only `artist_profiles.song_lab_enabled` gate for slug `gb` only. Surfaces: `/gb/lab`
+  (public lab + async advisory A/B/C votes), `/gb/join/<offer>` (lead-magnet landings GB
+  configures without deploys), `/studio/lab` (his manager; hidden route, link-only on purpose).
+  Signup gained a validated `?next=` (rides `user_metadata.pending_next` through email
+  verification) so an Instagram tap returns to the claim after account creation. Discovered and
+  fixed along the way, live for EVERY artist on deploy: **all $0 tier joins had failed since
+  launch** (`subscriptions.stripe_subscription_id` is NOT NULL in production and no free path
+  supplied it; the artist-page free button even reported success while writing nothing; zero free
+  rows existed). Free joins now write a deterministic `free_<fan>_<artist>` id through the one
+  canonical writer `src/lib/subscriptions/freeJoin.ts`, and cancel/pause/upgrade all branch on it
+  so the synthetic id never reaches Stripe. `Confirmed`.
+
 - **PRE-PMF SURFACE REDUCTION (2026-08-13).** The default product was cut to the path that gets
   3 qualified artists to a first paid member. Four states, never collapsed:
   - **ACTIVE + visible:** Studio = Music/Albums/Shop/Offer Builder/Live; AccountHub = Rise Mode,

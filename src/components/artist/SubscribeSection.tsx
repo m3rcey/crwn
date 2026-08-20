@@ -347,9 +347,16 @@ export function TierCards({ tiers, artistSlug, artistId }: TierCardsProps) {
     }
     
     if (subscribedTierId) {
-      // Show confirmation modal for upgrade/downgrade
       const currentTier = tiers.find(t => t.id === subscribedTierId);
       const currentPrice = currentTier?.price || 0;
+      // A FREE membership has no Stripe subscription to modify, so moving to a paid tier
+      // is a fresh checkout, not a proration update (subscription-update would send the
+      // synthetic free_ id to Stripe and fail).
+      if (currentPrice === 0 && tier.price > 0) {
+        handleSubscribe(tier);
+        return;
+      }
+      // Show confirmation modal for upgrade/downgrade
       setConfirmTier(tier);
       setConfirmAction(tier.price > currentPrice ? 'upgrade' : 'downgrade');
     } else {

@@ -1,5 +1,42 @@
 # CRWN Brain — Changelog
 
+## 2026-08-20 (night) - Song Lab: GB The G1ft's fan co-creation experiment, plus the free-join bug it uncovered
+
+**Every free tier join on the platform had failed since launch, and fixing that came first.**
+Production's `subscriptions.stripe_subscription_id` is NOT NULL (verified via the PostgREST
+schema, not the checked-in SQL, which agrees), and neither free path supplied it: the
+artist-page Free button (`/api/stripe/checkout` free branch) never read its upsert error and
+reported success while writing nothing, and `/api/stripe/free-subscribe` answered 500. Zero
+free subscription rows existed. The fix is code, not a migration: the one canonical writer
+`src/lib/subscriptions/freeJoin.ts` upserts a deterministic `free_<fanId>_<artistId>` id, both
+free routes call it, and cancel, pause and subscription-update all branch on
+`isFreeSubscriptionId` so the synthetic id never reaches Stripe. A free member tapping a paid
+tier now routes to a fresh checkout instead of a proration update that would have 500d.
+
+**Song Lab is artist-scoped and ships dark.** GB The G1ft (slug `gb`, the launch partner whose
+strategy is building songs in public on Instagram) gets a fan co-creation surface: projects,
+async advisory A/B/C decisions (one DB-enforced vote per fan, tier-gated through the standard
+`is_free`/`allowed_tier_ids` vocabulary, artist names the winner), configurable free lead
+magnets at `/gb/join/<slug>`, and a claims table recording which magnet produced which member
+(`join_result`, `fresh_signup`). The gate is a server-only `artist_profiles.song_lab_enabled`
+column on the launch_partner pattern; `supabase/schema-phase2-song-lab.sql` (PENDING, in
+TODO.md) creates everything, flips `gb` only, and seeds his Day One A&R badge. No slug literal
+exists in code; other artists' surfaces are unchanged and `/studio/lab` has no tile anywhere.
+
+**Executive Producer polls were investigated and deliberately not reused.** `session_polls`
+carries two NOT NULL FKs to `live_sessions`, session-derived authorization, and the ratified
+"every surface is grafted onto Live" invariant, so Song Lab copies its proven patterns
+(denormalized artist_id for RLS, UNIQUE vote constraint, service-role-only writes, advisory
+finalization) into sibling tables instead of making session_id nullable. Signup finally
+preserves a destination: a validated `?next=` mirrors login's, rides
+`user_metadata.pending_next` through email verification (same rail as the claim token), and
+`/verify` honors it. Registered: FEATURES `song_lab` (dark), EXPECTED_MIGRATION_STATE row plus
+two probe lines, and the `requireSongLabArtist` helper added to the security scan's trusted
+set (it wraps `auth.getUser()` plus the gate, strictly stronger than what the scan already
+trusts). Verified: `verify:architecture` 825 passing, `npm test` 2677 passing, WSL build
+clean. Recognition is Special-Thanks-class only; the disclaimer naming every excluded right is
+`RECOGNITION_DISCLAIMER` and renders on every recognition surface.
+
 ## 2026-08-20 (evening) - The launch cohort exists: gb, giovannimaziq, lagoo
 
 **The stage gate now has its three artists.** `artist_profiles.launch_partner` is true for `gb`,

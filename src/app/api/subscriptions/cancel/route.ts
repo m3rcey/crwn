@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe/client';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createClient } from '@supabase/supabase-js';
+import { isFreeSubscriptionId } from '@/lib/subscriptions/freeJoin';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -45,6 +46,16 @@ export async function POST(req: NextRequest) {
         freeform: freeform || null,
         context: 'fan',
       });
+
+      // Free membership: nothing exists on Stripe (synthetic free_ id), and there is no
+      // billing period to run out, so the cancel is immediate and local.
+      if (isFreeSubscriptionId(sub.stripe_subscription_id)) {
+        await supabaseAdmin
+          .from('subscriptions')
+          .update({ status: 'canceled', canceled_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+          .eq('id', sub.id);
+        return NextResponse.json({ success: true, cancelAtPeriodEnd: false });
+      }
 
       // Cancel on Stripe (end of period)
       await stripe.subscriptions.update(sub.stripe_subscription_id, {

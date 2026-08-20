@@ -872,7 +872,12 @@ describe('SEC-SERVICE — service-role routes are the only authorization boundar
     // the new helper is strictly stronger than the one this pattern already trusted, and the route
     // it guards is stricter than its own siblings, which sit on DELIBERATELY_PUBLIC with no
     // signature at all. Allowlisting that route instead would have thrown the signature away.
-    const ESTABLISHES = /auth\.getUser\s*\(|requireAdmin\s*\(|requireArtistOwner\s*\(|getOwnedArtistIds\s*\(|CRON_SECRET|INTERNAL_[A-Z_]*SECRET|constructEvent\s*\(|verifyWebhookSignature\s*\(|WebhookReceiver|createHmac\s*\(|verifyUnsubscribe[A-Za-z]*\s*\(|verifyCalcomRequest\s*\(|presentedSecret/;
+    // `requireSongLabArtist` (src/lib/songLab/server.ts) is in the trusted set for the same
+    // reason requireArtistOwner is: it calls auth.getUser() on the session client, resolves
+    // the caller's OWN artist_profiles row (never a client-supplied id), and additionally
+    // requires the server-only song_lab_enabled gate. Strictly stronger than the bare
+    // auth.getUser() this pattern already trusts.
+    const ESTABLISHES = /auth\.getUser\s*\(|requireAdmin\s*\(|requireArtistOwner\s*\(|requireSongLabArtist\s*\(|getOwnedArtistIds\s*\(|CRON_SECRET|INTERNAL_[A-Z_]*SECRET|constructEvent\s*\(|verifyWebhookSignature\s*\(|WebhookReceiver|createHmac\s*\(|verifyUnsubscribe[A-Za-z]*\s*\(|verifyCalcomRequest\s*\(|presentedSecret/;
     const offenders = serviceRoleRoutes
       .filter(f => !DELIBERATELY_PUBLIC.has(f))
       .filter(f => !ESTABLISHES.test(readStripped(f)));

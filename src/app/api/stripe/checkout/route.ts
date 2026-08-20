@@ -11,6 +11,7 @@ import { validateAndApplyDiscount } from '@/lib/discountCodes';
 import { resolveClipperRate } from '@/lib/clipperRate';
 import { hashVisitor } from '@/lib/analytics/visitorHash';
 import { recordTierEvent } from '@/lib/analytics/tierEvents';
+import { syntheticFreeSubId } from '@/lib/subscriptions/freeJoin';
 
 export async function POST(req: NextRequest) {
   try {
@@ -83,16 +84,27 @@ export async function POST(req: NextRequest) {
         process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy-service-key-for-build'
       );
 
-      await supabaseAdmin.from('subscriptions').upsert({
+      // stripe_subscription_id is NOT NULL in production. Without the synthetic id this
+      // upsert failed on every free join, and because the error went unread the route
+      // reported success while writing nothing (found 2026-08-20: zero free rows existed).
+      // The deterministic free_ id keeps the UNIQUE constraint stable across re-joins and
+      // can never be mistaken for a Stripe id; cancel/pause branch on isFreeSubscriptionId.
+      const { error: freeJoinError } = await supabaseAdmin.from('subscriptions').upsert({
         fan_id: fanId,
         artist_id: tier.artist_id,
         tier_id: tierId,
+        stripe_subscription_id: syntheticFreeSubId(fanId, tier.artist_id),
         status: 'active',
         started_at: new Date().toISOString(),
         // Only written when a founder window is open (which requires the migrated column), so this
         // is safe before the migration runs.
         ...(isFounder ? { is_founder: true } : {}),
       }, { onConflict: 'fan_id,artist_id' });
+
+      if (freeJoinError) {
+        console.error('Free join upsert failed:', freeJoinError.message);
+        return NextResponse.json({ error: 'Failed to subscribe' }, { status: 500 });
+      }
 
       const successUrl = returnUrl
         ? `${process.env.NEXT_PUBLIC_BASE_URL}${returnUrl}?subscription=success`

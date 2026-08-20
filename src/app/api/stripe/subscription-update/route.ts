@@ -4,6 +4,7 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createClient } from '@supabase/supabase-js';
 import { recordTierTransition } from '@/lib/tierTransitionStore';
 import { checkRateLimit } from '@/lib/rateLimit';
+import { isFreeSubscriptionId } from '@/lib/subscriptions/freeJoin';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -77,6 +78,16 @@ export async function POST(req: NextRequest) {
 
     if (!artistProfile?.stripe_connect_id) {
       return NextResponse.json({ error: 'Artist not connected to Stripe' }, { status: 404 });
+    }
+
+    // A free membership's synthetic free_ id must never reach Stripe. Moving off a free
+    // tier is a NEW checkout (the client routes it there); this guard keeps any other
+    // caller from turning the id into a Stripe error.
+    if (isFreeSubscriptionId(currentSubscription.stripe_subscription_id)) {
+      return NextResponse.json(
+        { error: 'This membership is free. Upgrading to a paid tier goes through checkout.' },
+        { status: 409 }
+      );
     }
 
     const stripeSubscriptionId = currentSubscription.stripe_subscription_id;

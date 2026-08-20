@@ -358,6 +358,38 @@ Internal, admin-only (doc 21 is the full spec). The rules, all `Confirmed` in co
 9. **No reward, ever.** A testimonial adjacent to an incentive is discounted by everyone who reads
    it, including the venue or brand the artist is trying to convince.
 
+## 19. Song Lab rules (GB The G1ft experiment, 2026-08-20)
+
+The fan co-creation surface built for ONE artist. Activation is the server-only
+`artist_profiles.song_lab_enabled` column (no client grant, launch_partner pattern), read only
+through `src/lib/songLab/access.ts`; there is deliberately no slug check anywhere in code.
+
+1. **Instagram keeps the vote; CRWN keeps the fan.** The public A/B/C poll happens on Instagram
+   and CRWN never ingests, stores or ranks Instagram vote data. CRWN's job starts when a viewer
+   wants a deeper seat: identity, membership, durable participation history, lead-magnet
+   attribution.
+2. **A Song Lab vote is ADVISORY, always.** Same ratified rule as Executive Producer polls: the
+   tally informs, the ARTIST names the winner (`winning_option_id` is artist-set; nothing
+   auto-finalizes). This is what keeps "full creative control" honest.
+3. **One counted vote per fan per decision**, enforced by `UNIQUE(decision_id, fan_id)` at the
+   database; a re-vote while the decision is open CHANGES the choice, never double-counts.
+   Eligibility is the platform's one entitlement vocabulary: `is_free` (any signed-in fan) or the
+   fan's active tier in `allowed_tier_ids`, re-derived server-side from `subscriptions` on every
+   vote. Windows only ever NARROW status: a closed decision never reopens because a date moved.
+4. **Recognition grants NOTHING.** Day One A&R, Special Thanks, participation counts and the
+   `day_one_anr` badge are community thanks only. They create no songwriting, production or
+   ownership credit, no publishing, no royalties, no revenue participation, no approval rights,
+   no creative control, and no Team Split entitlement. `RECOGNITION_DISCLAIMER` in
+   `src/lib/songLab/core.ts` is the one copy of this boundary and every recognition surface
+   renders it. Never label a Song Lab fan a songwriter, producer, co-owner or rights holder.
+5. **A lead magnet enrolls only a FREE tier**, through the one canonical free-join writer
+   (`src/lib/subscriptions/freeJoin.ts`). The offer id is a REPORTING dimension and a redirect;
+   it never prices, gates or authorizes anything (MEASURE-004 applies).
+6. **Attribution is counts, never rates**, derived on read by joining `song_lab_offer_claims` and
+   `song_lab_votes` to `subscriptions` on `(artist_id, fan_id)`. "Now paid" is a count of current
+   paid members among a magnet's claimers, not a causal claim, and it never redefines
+   `first_paid_conversion` (MEASURE-001).
+
 ## 17. Fan Drive rules (Virality Engine V1, 2026-08-11)
 
 Full architecture: doc 22 section 28. The rules, all `Confirmed` in code + tests

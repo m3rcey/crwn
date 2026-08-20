@@ -57,7 +57,7 @@ interface AuthContextType {
   user: User | null;
   profile: Profile | null;
   isLoading: boolean;
-  signUp: (email: string, password: string, username?: string, fullName?: string, pendingResultToken?: string) => Promise<{ error: AuthError | null }>;
+  signUp: (email: string, password: string, username?: string, fullName?: string, pendingResultToken?: string, pendingNext?: string) => Promise<{ error: AuthError | null }>;
   signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>;
   signInWithMagicLink: (email: string) => Promise<{ error: AuthError | null }>;
   signInWithGoogle: () => Promise<{ error: AuthError | null }>;
@@ -135,7 +135,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => subscription.unsubscribe();
   }, [fetchProfile, supabase]);
 
-  const signUp = async (email: string, password: string, username?: string, fullName?: string, pendingResultToken?: string) => {
+  const signUp = async (email: string, password: string, username?: string, fullName?: string, pendingResultToken?: string, pendingNext?: string) => {
     const { error, data } = await supabase.auth.signUp({
       email,
       password,
@@ -146,6 +146,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           // A calculator result token, carried into the user record so it survives email
           // verification server-side. Auto-claim reads and burns it. NOT browser storage.
           ...(pendingResultToken ? { pending_result_token: pendingResultToken } : {}),
+          // A validated internal return path (e.g. an artist lead-magnet landing), so the
+          // /verify page can send the fan back to what they came for. Same rail as the
+          // result token: user_metadata, never browser storage, survives verification.
+          ...(pendingNext ? { pending_next: pendingNext } : {}),
         },
       },
     });
