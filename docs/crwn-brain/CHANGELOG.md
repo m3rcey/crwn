@@ -1,5 +1,39 @@
 # CRWN Brain — Changelog
 
+## 2026-08-20 (evening) - The launch cohort exists: gb, giovannimaziq, lagoo
+
+**The stage gate now has its three artists.** `artist_profiles.launch_partner` is true for `gb`,
+`giovannimaziq` and `lagoo`, confirmed by the enrol file's own closing SELECT. The First Revenue
+Launch guarantee checklist appears on their command screen on next load
+(`LaunchPartnerChecklist`, served by `/api/artist/launch-partner`). Selecting the three was the
+first line of "what remains" in `20-FIRST-REVENUE-LAUNCH-OFFER.md`, and it is now done.
+
+**They were chosen on evidence, not availability.** `launch-partner-candidates.sql` (new,
+read-only) reports every artist against what the product actually enforces: music, a photo, a
+name that is not still the signup email, Stripe connected, and at least one paid tier carrying a
+live Stripe price. Of ten artists, six were unblocked. Three of those six were excluded as not
+real candidates: `m3rcey` (the founder's own test artist), `lago` (the founder's onboarding test
+account) and a placeholder row. That left exactly three.
+
+**The enrol file used to fail silently, which is why nothing was enrolled the first time.** It was
+`UPDATE ... WHERE slug IN ('replace-with-artist-slug')`: run unedited, or with one slug mistyped,
+Postgres reports success having changed nothing, and the founder moves on believing three artists
+are in the cohort while the checklist appears for nobody. It now aborts on an unedited list, an
+empty list, an unknown slug (naming it), or a partial match, and ends by SELECTing the cohort.
+
+**A claim in CLAUDE.md was corrected.** On 2026-08-19 I wrote that a short Featured row was an
+accurate report of a short catalogue, inferred from the completeness filter and never checked.
+Probing found the real cause is `featured_hidden`, and that the curation is INVERTED: five of ten
+artists are hidden, including the two most complete real ones, while a one-track artist with no
+paid tier is shown. Two of the three new launch partners are among the hidden. Fix a thin row by
+unhiding a complete artist, never by lowering the completeness bar.
+
+**Open, and deliberately not actioned:** production carries an artist whose slug is the literal
+placeholder string and whose display name matches, with a track, a priced tier and an uploaded
+photo, publicly reachable. It is out of the Featured row only because `featured_hidden` happens to
+be true; the presentable-name check would not have stopped it, because that check only rejects an
+unedited signup email. Deleting a row is destructive and founder-approved.
+
 ## 2026-08-20 (later still) - Live tips are ON, closing a promise the calculator was already making
 
 **Founder decision, executed the same day.** `admin_settings.live_tips` is ON in production

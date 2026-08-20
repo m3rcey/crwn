@@ -22,14 +22,6 @@ responsible for. Do not work those.
 
 ### P0 — money flows or acquisition are blocked
 
-- [ ] **Pick the first THREE launch partners and flip their flag:**
-      [`supabase/enable-launch-partner.sql`](supabase/enable-launch-partner.sql). Edit the slug
-      list, run it, and the guarantee checklist appears on their command screen. Pick
-      strategically (prior direct sales + an exportable list + will actually send the campaign),
-      not whoever agrees first. Three, not five to ten: you are learning delivery hours, not
-      scaling yet. Charge the implementation fee (0 to $500 for the founding cohort) by a
-      MANUAL Stripe invoice from the dashboard; there is deliberately no checkout for it.
-
 - [ ] **To finish Team Splits I need a test-mode sandbox. This is the only thing left, and it is
       environment setup, not code.** Nothing to run in SQL.
       I checked rather than assumed: your Stripe key really is live (I asked Stripe, and the balance
