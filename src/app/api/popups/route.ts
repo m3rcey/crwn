@@ -8,6 +8,7 @@ import {
   recordSurveyResponse,
   getPopup,
   resumeCopyFor,
+  resumeVisualPercent,
 } from '@/lib/popups';
 import type { PopupContext } from '@/lib/popups';
 import { resend, FROM_EMAIL } from '@/lib/resend';
@@ -85,10 +86,7 @@ export async function GET(req: Request) {
       // asked for. Only the resume prompt has a number worth drawing today.
       visual:
         def.key === 'artist_resume_rise' && ctx.resumable
-          ? {
-              kind: 'progress' as const,
-              percent: Math.min(99, Math.max(1, Math.round(ctx.resumable.progressPercent || 0))),
-            }
+          ? { kind: 'progress' as const, percent: resumeVisualPercent(ctx.resumable.progressPercent) }
           : null,
     },
   });

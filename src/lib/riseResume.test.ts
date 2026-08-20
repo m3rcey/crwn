@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { POPUPS, type PopupDef } from './popups/registry';
-import { resumeCopyFor } from './popups';
+import { resumeCopyFor, resumeVisualPercent } from './popups';
 import { recommendNextQuest } from './quests/recommend';
 import type { QuestInstance } from './quests/types';
 
@@ -171,10 +171,19 @@ describe('the served copy names the goal without claiming the artist started it'
     }
   });
 
-  it('reports how far the GOAL is, never how far the artist got', () => {
-    expect(resumeCopyFor(REAL).body).toContain('4%');
-    expect(resumeCopyFor(NEARLY).body).toContain('90%');
+  it('leaves the NUMBER to the ring and the LOSS to the sentence', () => {
+    // The number moved out of the copy on 2026-08-20: the pop-up draws a progress ring from
+    // the same snapshot, so stating the percent in prose put it on screen twice inside a
+    // 38-word body. The ring cannot say what is being lost, which is the sentence's job.
+    expect(resumeVisualPercent(REAL.progressPercent)).toBe(4);
+    expect(resumeVisualPercent(NEARLY.progressPercent)).toBe(90);
+    expect(resumeCopyFor(REAL).body).not.toMatch(/\d+%/);
     expect(resumeCopyFor(REAL).body.toLowerCase()).not.toMatch(/you (got|made it|reached)/);
+  });
+
+  it('says what is LOST, not what was achieved', () => {
+    // A ring on its own reads as an achievement badge. Without this the pop-up congratulates.
+    expect(resumeCopyFor(REAL).body.toLowerCase()).toMatch(/nothing is earned|pays nothing/);
   });
 
   it('carries no em dash', () => {
@@ -184,9 +193,13 @@ describe('the served copy names the goal without claiming the artist started it'
     }
   });
 
-  it('never prints 0% or 100%, even if the query gate ever changes upstream', () => {
-    expect(resumeCopyFor({ title: 'X', progressPercent: 0 }).body).toContain('1%');
-    expect(resumeCopyFor({ title: 'X', progressPercent: 100 }).body).toContain('99%');
+  it('the ring never reads 0 or 100, even if the query gate changes upstream', () => {
+    // A ring at 0 or 100 contradicts the pop-up having fired at all. The clamp moved with
+    // the number, from the copy builder to resumeVisualPercent, so it is still one function.
+    expect(resumeVisualPercent(0)).toBe(1);
+    expect(resumeVisualPercent(100)).toBe(99);
+    expect(resumeVisualPercent(120)).toBe(99);
+    expect(resumeVisualPercent(NaN)).toBe(1);
   });
 
   it('truncates a long stored title instead of rendering it into the heading', () => {

@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { POPUPS } from './registry';
+import { resumeCopyFor } from './index';
 
 // POP-UP COPY LENGTH.
 //
@@ -14,7 +15,7 @@ import { POPUPS } from './registry';
 // honest move is to argue for raising the cap here, not to slip past it.
 
 const CAP_TITLE_WORDS = 12;
-const CAP_BODY_WORDS = 40;
+const CAP_BODY_WORDS = 20;
 
 // Bodies that interpolate real numbers spend words on arithmetic the artist needs in order to
 // check the claim, so they get measured with the template holes removed rather than exempted.
@@ -39,7 +40,26 @@ describe('pop-up copy stays short enough to read standing up', () => {
     // actually meets, so it is held well below the ceiling.
     const sorted = POPUPS.map((p) => words(p.body)).sort((a, b) => a - b);
     const median = sorted[Math.floor(sorted.length / 2)];
-    expect(median, `median body is ${median} words`).toBeLessThanOrEqual(25);
+    expect(median, `median body is ${median} words`).toBeLessThanOrEqual(16);
+  });
+
+  // THE HOLE THIS CLOSES. The caps above read the REGISTRY, and the one pop-up the founder
+  // was actually looking at does not get its copy from there: `resumeCopyFor` builds it per
+  // artist. So the registry compressed to a median of 21 while the served resume body sat at
+  // 38 words, and the guard reported everything was fine. Anything that GENERATES pop-up copy
+  // gets measured here too, or the cap only covers the copy nobody sees.
+  it('the generated resume copy obeys the same caps as the registry', () => {
+    const generated = resumeCopyFor({
+      title: 'Reach $1,000 per month in recurring support',
+      progressPercent: 4,
+    });
+    expect(words(generated.body), `generated body is ${words(generated.body)} words`).toBeLessThanOrEqual(
+      CAP_BODY_WORDS,
+    );
+    // The title carries the goal's own name, which CRWN does not control, so it is capped
+    // against the longest title the builder will emit rather than the registry ceiling.
+    const longest = resumeCopyFor({ title: 'g'.repeat(200), progressPercent: 50 });
+    expect(longest.title.length).toBeLessThan(90);
   });
 });
 
