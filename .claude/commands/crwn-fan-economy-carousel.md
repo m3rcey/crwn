@@ -88,7 +88,7 @@ is where the first version failed: a summary states the setup then states the an
 the curiosity gap on the way past it. The script withholds, and the caption has to withhold the
 same way, in the same order, in the same voice.
 
-Target **250 to 300 words** of body, both CTAs and the CRWN plug included, or up to **340** on the roughly one caption in three or four that also carries a social-proof line. The earlier 220 to 270 figure was measured against a caption that was wrongly missing its CRWN plug. The hard ceiling is Instagram's 2,200 characters, which none of these approach. The beat structure costs more
+Target **260 to 310 words** of body, both CTAs and the CRWN plug included, or up to **350** on the roughly one caption in three or four that also carries a social-proof line. The target tracks the BEAT LIST: it moved up when the closing CTA became two beats rather than one, which is a structural cost, not slack. The earlier 220 to 270 figure was measured against a caption that was wrongly missing its CRWN plug. The hard ceiling is Instagram's 2,200 characters, which none of these approach. The beat structure costs more
 words than a summary does; that is the trade and it is worth it.
 
 Write these beats, in this order:
@@ -151,11 +151,21 @@ Write these beats, in this order:
     even the part that got me." Pick one that fits the finding; "worse" only when the finding is
     genuinely a loss.
 12. **The pivot to the reader.** Turn the case study into their question, loss-framed.
-13. **The CTA again, to close, and HERE the product is named.** By this point the reader has the
-    whole argument, so the tool's real name makes the offer concrete and credible rather than
-    meaningless. Same keyword as beat 0, always: it is wired to ManyChat, so **never reword or
-    invent one**, read it off the script's `Lead magnet:` line. Benefit first at the top, product
-    name at the bottom, one keyword across both.
+13. **The OFFER line, then 14, the ASK. Two lines, never collapsed into one.**
+    (13) `I built a free [tool name] that [what it does for THEIR situation].`
+    (14) `Comment "KEYWORD" and I'll DM you the link.`
+    Collapsing these into "Comment VAULT and I'll DM you the free Vault Revenue Planner" buries the
+    tool behind the ask and deletes the "what it does" clause completely. The two-line form is
+    doing three jobs the one-liner cannot: **"I built"** says a person made this and not a company,
+    **"free"** lands before the ask instead of after it, and **"that ..."** is the bridge from the
+    case study to the reader's own catalog. Then the ask stands alone and clean.
+    The `that ...` clause must point at THIS post's finding, never a generic blurb. Carousel 1 says
+    "that prices exactly that for your catalog", where "that" is the $300-a-copy question the post
+    just spent 300 words building.
+    HERE the product is named, unlike beat 0: by this point the reader has the whole argument, so
+    the real name makes the offer concrete. Same keyword as beat 0 always, wired to ManyChat, so
+    **never reword or invent one**: read it off the script's `Lead magnet:` line. Benefit at the
+    top, product at the bottom, one keyword across both.
 
 **No hashtags.** Founder decision, 2026-08-20. Do not add a hashtag line, and do not scatter tags
 inline either.

@@ -10,7 +10,7 @@ Which one's fans are actually worth more, and by how much?
 
 Before the math: Snoop reposted one of these when I broke down his own catalog. Lyfe Jennings, LL Cool J, Jagged Edge and Carl Thomas follow CRWN. Artists who lived through the label era are watching this shift closely.
 
-Curren$y might be the most prolific rapper alive. 90+ projects since 2009, around 1.5 million monthly listeners. His model is volume.
+Curren$y might be the most prolific rapper alive, around 1.5 million monthly listeners. His model is volume.
 
 Westside Gunn runs the opposite play. He releases artifacts, he don't release records. Pressings as small as 400 copies, one signed edition out of 187.
 
@@ -36,7 +36,9 @@ And here's the crazy part. One collector paying $300 is 30,000 people listening 
 
 You know how many people hear you. Do you know which ones would pay $300 for what nobody else got?
 
-Comment "VAULT" and I'll DM you the free Vault Revenue Planner.
+I built a free Vault Revenue Planner that prices exactly that for your catalog.
+
+Comment "VAULT" and I'll DM you the link.
 
 ---
 

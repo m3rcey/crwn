@@ -200,6 +200,22 @@ describe.runIf(carouselFiles.length > 0)('FE-CAR-003 every carousel file is well
       .toMatch(/here'?s the crazy part|ain'?t even the wild part|here'?s what got me|it gets worse|part that got me/i);
   });
 
+  it.each(carouselFiles)('%s closes on an OFFER line then the ask, never collapsed', (file) => {
+    const caption = section(readFileSync(join(CAROUSELS_DIR, file), 'utf8'), '**CAPTION:**') ?? '';
+    // "I built a free X that Y" does three jobs the collapsed one-liner cannot: a person
+    // built it, "free" lands before the ask, and "that ..." bridges to the reader's own
+    // situation. Collapsing them buries the tool behind the ask.
+    const offer = caption.match(/I built a free (.+?) that (.+?)[.\n]/);
+    expect(offer, 'caption needs an "I built a free X that Y" offer line').toBeTruthy();
+    expect(offer![1].trim().length, 'the offer must name the tool').toBeGreaterThan(3);
+    expect(offer![2].trim().length, 'the offer must say what it does').toBeGreaterThan(10);
+    // The ask closes the caption, and comes after the offer.
+    const offerAt = caption.indexOf('I built a free');
+    const askAt = caption.lastIndexOf('Comment "');
+    expect(askAt, 'the ask must follow the offer line').toBeGreaterThan(offerAt);
+    expect(caption.trimEnd(), 'the caption ends on the ask').toMatch(/DM you the link\.$/);
+  });
+
   it.each(carouselFiles)('%s caption carries no hashtags', (file) => {
     const caption = section(readFileSync(join(CAROUSELS_DIR, file), 'utf8'), '**CAPTION:**') ?? '';
     const tags = caption.match(/#\w+/g) ?? [];
