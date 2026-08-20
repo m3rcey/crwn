@@ -83,7 +83,7 @@ export const guides: GuideData[] = [
     steps: [
       {
         title: 'Connect your Stripe account',
-        content: 'Open the menu (top left) and choose Payouts and tax under Your business, then tap "Connect Stripe." You will be redirected to Stripe to create or link an account. This takes about 2 minutes. You will need your bank details and basic identity info. Stripe handles all payment processing, fraud protection, and compliance.',
+        content: 'Open the menu (top left) and choose Payouts and tax under Your business, then tap "Connect Stripe." You will be redirected to Stripe to create or link an account. This takes about 5 minutes. You will need your bank details and basic identity info. Stripe handles all payment processing, fraud protection, and compliance.',
         tip: 'You can use an existing Stripe account if you have one. CRWN creates a "connected account" relationship, not a new account.',
       },
       {

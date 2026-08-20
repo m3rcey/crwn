@@ -142,7 +142,7 @@ export const POPUPS: PopupDef[] = [
     priority: 100,
     goal: 'Artist connects Stripe so fans can actually pay them.',
     title: 'Fans want to pay you. Right now they cannot.',
-    body: 'Until your payouts are connected, every subscribe and every sale hits a dead end. The fan gives up, and that money never reaches you. Connecting takes about two minutes.',
+    body: 'Until your payouts are connected, every subscribe and every sale hits a dead end. The fan gives up, and that money never reaches you. Connecting takes about five minutes.',
     cta: { label: 'Connect payouts', href: '/account/payouts' },
     dismissLabel: 'Later',
   },

@@ -92,8 +92,14 @@ responsible for. Do not work those.
       with `if (ctx.role === 'admin') return null; // never interrupt the founder`
       ([`src/lib/popups/index.ts`](src/lib/popups/index.ts)), so no pop-up of any kind renders for
       an admin. That alone probably explains "the resume system is not working".
-      What to do: log in as an artist whose role is `artist`, who has visited Rise Mode at least
-      once (that is what assigns quests), and who has a quest strictly between 1% and 99%. Open
+      **FIRST: that account has to finish the setup wizard.** Checked 2026-08-20, the test account
+      sits at step 6 of 12, and mid-wizard NOTHING can fire. `MainShell` returns null while it
+      redirects to `/setup`, so `PopupHost` never mounts; `/setup` is in no pop-up's `pages`; and
+      `resumable` would be null anyway, because `quest_instances` are only assigned by
+      `/api/quests`, which is called from Rise Mode and the quest board, both unreachable behind
+      that gate. This is working as designed, not a bug to chase.
+      Then: log in as that artist (role `artist`, not admin), let Rise Mode load at least once
+      (that is what assigns quests), and make sure a quest sits strictly between 1% and 99%. Open
       `/home`. You should get a centered modal reading **"Finish this: <the actual goal name>"**
       with a **Finish it** button to `/quests`.
       If nothing shows, the next suspect is not a bug either: `artist_connect_stripe` sits at
