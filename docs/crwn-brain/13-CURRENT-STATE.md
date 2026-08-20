@@ -8,9 +8,10 @@ CRWN is **live in production** (`thecrwn.app`) and the core money loop is real a
 
 ## Complete & production-ready (Confirmed)
 
-- **SONG LAB (2026-08-20): GB The G1ft's fan co-creation experiment, built and DARK.** Code is on
-  master; nothing is reachable until the founder runs
-  `supabase/schema-phase2-song-lab.sql`, which creates the five `song_lab_*` tables and flips the
+- **SONG LAB (2026-08-20): GB The G1ft's fan co-creation experiment, LIVE for him only.** The
+  migration ran the same day it shipped and was probe-verified (anon reads projects 200 [], the
+  gate column and votes answer 42501, exactly one enabled artist: `gb`).
+  `supabase/schema-phase2-song-lab.sql` created the five `song_lab_*` tables and flipped the
   server-only `artist_profiles.song_lab_enabled` gate for slug `gb` only. Surfaces: `/gb/lab`
   (public lab + async advisory A/B/C votes), `/gb/join/<offer>` (lead-magnet landings GB
   configures without deploys), `/studio/lab` (his manager; hidden route, link-only on purpose).

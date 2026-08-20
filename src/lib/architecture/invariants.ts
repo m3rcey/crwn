@@ -1162,11 +1162,12 @@ export const FEATURES: readonly FeatureContract[] = [
   {
     key: 'song_lab',
     title: 'Song Lab (GB The G1ft fan co-creation experiment)',
-    // Dark until the migration runs: every surface reads the server-only
+    // LIVE for exactly one artist since 2026-08-20 (migration founder-applied and
+    // probe-verified). Every surface reads the server-only
     // artist_profiles.song_lab_enabled column through src/lib/songLab/access.ts and
-    // fails soft/closed while it is missing. The gate is PER-ARTIST (launch_partner
-    // pattern), not an admin_settings flag: the migration flips it for slug gb only.
-    expectedState: 'dark',
+    // fails soft/closed where it is false. The gate is PER-ARTIST (launch_partner
+    // pattern), not an admin_settings flag: the migration flipped it for slug gb only.
+    expectedState: 'live',
     flag: null,
     gateModule: 'src/lib/songLab/access.ts',
     surfaces: [
@@ -1307,11 +1308,10 @@ export const EXPECTED_MIGRATION_STATE: ReadonlyArray<{
     liveCheck: 'sql-check',
     note: 'founder SQL check 2026-08-12 (pg_constraint introspection). Widens earnings_type_check only; a CHECK constraint is invisible to PostgREST, so it is deliberately NOT in probe-migrations.mjs.',
   },
-  // Song Lab (GB experiment). PENDING: every surface reads the server-only
-  // song_lab_enabled column and fails soft, so the code ships dark ahead of the founder
-  // running it. The probe expects song_lab_projects to resolve for anon (public SELECT
-  // policy on non-archived rows) and the gate column to answer 42501 (no client grant).
-  { file: 'schema-phase2-song-lab.sql', state: 'pending', note: 'Ships tables + the per-artist gate flipped for slug gb only. Until it runs, /{slug}/lab and /studio/lab 404/deny for everyone.' },
+  // Song Lab (GB experiment). The probe expects song_lab_projects to resolve for anon
+  // (public SELECT policy on non-archived rows) and the gate column to answer 42501
+  // (no client grant), exactly like launch_partner.
+  { file: 'schema-phase2-song-lab.sql', state: 'applied', note: 'Founder-applied 2026-08-20 and probe-verified the same day: anon reads song_lab_projects 200 [], the gate column answers 42501, song_lab_votes answers 42501, exactly one enabled artist (gb, service-role read), day_one_anr badge seeded, and the live /api/song-lab/public?artist=gb answers 200 with the real free tier id.' },
 ];
 
 /** Words that mean "this migration has not been applied" when they share a doc line with its filename. */

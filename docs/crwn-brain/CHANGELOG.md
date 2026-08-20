@@ -1,5 +1,15 @@
 # CRWN Brain — Changelog
 
+## 2026-08-20 (later that night) - Song Lab is LIVE for gb
+
+**The founder ran `schema-phase2-song-lab.sql` and the probes agree.** Anon reads
+`song_lab_projects` 200 with an empty list, the gate column and `song_lab_votes` both answer
+42501, the service role sees exactly one enabled artist (`gb`), the `day_one_anr` badge row
+exists, and the production route `/api/song-lab/public?artist=gb` answers 200 carrying GB's real
+free tier id. `EXPECTED_MIGRATION_STATE` moved to applied, the `song_lab` feature contract moved
+to live, and the TODO item is deleted. GB's test walkthrough was handed to the founder; the
+first real data (a project, a decision, a lead-magnet claim) will come from GB himself.
+
 ## 2026-08-20 (night) - Song Lab: GB The G1ft's fan co-creation experiment, plus the free-join bug it uncovered
 
 **Every free tier join on the platform had failed since launch, and fixing that came first.**
