@@ -32,7 +32,9 @@ async function resolveAudience(artistId: string, filters: Record<string, unknown
   // Fetch subscribers + purchasers for this artist (same logic as /api/audience)
   const { data: subscriptions } = await supabaseAdmin
     .from('subscriptions')
-    .select('fan_id, tier_id, status, started_at, subscription_tiers(name)')
+    // Name the FK (two exist to subscription_tiers); an ambiguous embed returns no rows
+    // at all, so a send would resolve zero recipients and report success.
+    .select('fan_id, tier_id, status, started_at, subscription_tiers!subscriptions_tier_id_fkey(name)')
     .eq('artist_id', artistId);
 
   const { data: earnings } = await supabaseAdmin

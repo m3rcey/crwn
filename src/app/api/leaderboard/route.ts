@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
   // Get active subscriptions with tier info
   const { data: subs } = await supabaseAdmin
     .from('subscriptions')
-    .select('fan_id, tier_id, subscription_tiers(name)')
+    .select('fan_id, tier_id, subscription_tiers!subscriptions_tier_id_fkey(name)')
     .eq('artist_id', artistId)
     .eq('status', 'active');
 

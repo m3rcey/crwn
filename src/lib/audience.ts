@@ -143,7 +143,12 @@ export async function buildAudience(
   // 1. All subscriptions (active + canceled) for this artist
   const { data: subscriptions } = await supabaseAdmin
     .from('subscriptions')
-    .select('fan_id, tier_id, status, started_at, subscription_tiers(name)')
+    // The FK must be NAMED. subscriptions has TWO foreign keys to subscription_tiers
+    // (tier_id and pending_tier_id, the latter added by the downgrade migration), so a
+    // bare `subscription_tiers(...)` is ambiguous and PostgREST rejects the WHOLE query
+    // with PGRST201. supabase-js returns that as {data: null}, which this code read as
+    // "no subscribers": every artist's Fan CRM showed zero members while the rows existed.
+    .select('fan_id, tier_id, status, started_at, subscription_tiers!subscriptions_tier_id_fkey(name)')
     .eq('artist_id', artistId);
 
   // 2. Earnings (spend + location data)

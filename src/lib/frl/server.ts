@@ -176,7 +176,7 @@ async function fetchPaidMemberCount(admin: Admin, artistId: string): Promise<num
   try {
     const { data, error } = await admin
       .from('subscriptions')
-      .select('id, subscription_tiers(price)')
+      .select('id, subscription_tiers!subscriptions_tier_id_fkey(price)')
       .eq('artist_id', artistId)
       .eq('status', 'active');
     if (error || !data) return null;

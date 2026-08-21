@@ -40,7 +40,9 @@ export default function ProfilePage() {
     const loadSubs = async () => {
       const { data } = await supabase
         .from('subscriptions')
-        .select('id, tier_id, status, current_period_end, stripe_customer_id, artist_id, tier:subscription_tiers(name, price), artist:artist_profiles(slug, profile:profiles(display_name, avatar_url))')
+        // Name the FK: subscriptions has two to subscription_tiers, and an ambiguous
+        // embed fails the whole statement, so the fan saw none of their memberships.
+        .select('id, tier_id, status, current_period_end, stripe_customer_id, artist_id, tier:subscription_tiers!subscriptions_tier_id_fkey(name, price), artist:artist_profiles(slug, profile:profiles(display_name, avatar_url))')
         .eq('fan_id', user.id)
         .eq('status', 'active')
         .order('created_at', { ascending: false });

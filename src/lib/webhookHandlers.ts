@@ -737,7 +737,9 @@ export async function handleSubscriptionUpdated(supabaseAdmin: AdminClient, subs
   // First, check if there's a pending tier change to apply
   const { data: subData } = await supabaseAdmin
     .from('subscriptions')
-    .select('*, tier:subscription_tiers(stripe_price_id)')
+    // Name the FK: two exist to subscription_tiers, and an ambiguous embed fails the
+    // whole statement, which on a money path reads as "subscription not found".
+    .select('*, tier:subscription_tiers!subscriptions_tier_id_fkey(stripe_price_id)')
     .eq('stripe_subscription_id', sub.id)
     .single();
 

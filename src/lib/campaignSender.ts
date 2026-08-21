@@ -25,7 +25,9 @@ interface AudienceFan {
 async function resolveAudience(supabaseAdmin: AdminClient, artistId: string, filters: Record<string, unknown>): Promise<AudienceFan[]> {
   const { data: subscriptions } = await supabaseAdmin
     .from('subscriptions')
-    .select('fan_id, tier_id, status, started_at, subscription_tiers(name)')
+    // Name the FK: subscriptions has two to subscription_tiers, and an ambiguous embed
+    // fails the whole query (PGRST201), which silently resolved to an EMPTY audience.
+    .select('fan_id, tier_id, status, started_at, subscription_tiers!subscriptions_tier_id_fkey(name)')
     .eq('artist_id', artistId);
 
   const { data: earnings } = await supabaseAdmin

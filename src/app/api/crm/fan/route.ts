@@ -48,7 +48,7 @@ export async function GET(req: NextRequest) {
   // Contribution snapshot from existing sources
   const { data: sub } = await supabaseAdmin
     .from('subscriptions')
-    .select('status, started_at, subscription_tiers(name)')
+    .select('status, started_at, subscription_tiers!subscriptions_tier_id_fkey(name)')
     .eq('artist_id', artistId).eq('fan_id', fanId)
     .order('started_at', { ascending: false }).limit(1).maybeSingle();
 

@@ -39,6 +39,10 @@ export default defineConfig({
       'src/lib/architecture/identifiers.test.ts',
       'src/lib/architecture/reachability.test.ts',
       'src/lib/architecture/authorization.test.ts',
+      // QUERY-001. In the GATE because the failure mode is total and silent: an ambiguous
+      // embed returns {data: null}, which nine call sites read as "no rows". It emptied
+      // every artist's Fan CRM and every campaign audience for as long as it existed.
+      'src/lib/architecture/queryIntegrity.test.ts',
       // Security invariants from the 2026-08-12 cybersecurity audit. These belong in
       // the GATE, not merely in `npm test`: the whole lesson of SEC-001 is that a
       // security assertion nobody runs on the way to production is decoration.

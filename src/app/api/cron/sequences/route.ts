@@ -142,7 +142,7 @@ export async function GET(req: NextRequest) {
       // Get subscription info
       const { data: sub } = await supabaseAdmin
         .from('subscriptions')
-        .select('started_at, tier_id, subscription_tiers(name)')
+        .select('started_at, tier_id, subscription_tiers!subscriptions_tier_id_fkey(name)')
         .eq('fan_id', enrollment.fan_id)
         .eq('artist_id', enrollment.artist_id)
         .eq('status', 'active')

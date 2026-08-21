@@ -1,5 +1,38 @@
 # CRWN Brain — Changelog
 
+## 2026-08-21 (night) - Every artist's Fan CRM was empty, and nobody could email a subscriber
+
+**One ambiguous database embed silently emptied nine surfaces.** `subscriptions` holds TWO
+foreign keys to `subscription_tiers`: `tier_id`, and `pending_tier_id` added later by
+`schema-subscription-downgrade.sql`. From that moment every query written as
+`subscription_tiers(name)` became ambiguous, and PostgREST answers an ambiguous embed by
+rejecting the ENTIRE statement with `PGRST201`. supabase-js reports that as `{data: null}`,
+and every call site read `(data || [])` as "there are no subscribers".
+
+**What was actually broken, all of it silently.** Every artist's Fan CRM listed zero members
+while the rows existed (`src/lib/audience.ts`); campaign sends resolved an empty audience and
+reported success (`src/lib/campaignSender.ts`, `/api/campaigns/[id]/send`); a fan's own
+membership list rendered empty (`/profile`); the public fan leaderboard lost its tiers; the
+launch-partner guarantee could not see a paid tier (`src/lib/frl/server.ts`); the sequences
+cron could not resolve a tier; and a Stripe webhook read "subscription not found" on a money
+path (`src/lib/webhookHandlers.ts`). Nothing threw and nothing logged.
+
+**Found by looking, not by reasoning.** The founder screenshotted GB's Fan CRM showing one fan
+against three real subscriptions. Calling the real `buildAudience` against production returned
+that single fan as `tier=null, status=never`, which proved the row came from `earnings` rather
+than `subscriptions`, which proved the subscriptions query had returned nothing at all. The
+same artist's PAYING Silver subscriber was misreported by the same bug.
+
+**Fixed by naming the constraint at all nine sites**
+(`subscription_tiers!subscriptions_tier_id_fkey(...)`), verified by re-running the diagnostic:
+1 fan became 3, each with the right tier and email. **QUERY-001** is the new guard
+(`src/lib/architecture/queryIntegrity.test.ts`, in the gate): it scans for a bare embed between
+any registered ambiguous table pair, carries two positive controls, and was mutation-tested
+(violation reintroduced into `audience.ts`, suite watched to fail naming that exact file,
+reverted, clean). The general lesson is registered with it: adding a SECOND foreign key between
+two tables retroactively breaks every existing bare embed between them, invisibly to the type
+checker and to any test that mocks the database.
+
 ## 2026-08-21 (last) - A verified email can vote without signing in, and nobody votes as them
 
 **What v431 got right and wrong.** It refused to write anything when the typed address
