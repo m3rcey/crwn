@@ -323,7 +323,7 @@ export function OfferLanding({
         aria-label={ballot!.question}
         className="space-y-3 mb-6"
       >
-        <p className="text-lg font-semibold text-crwn-text text-left">Tap your pick:</p>
+        <p className="text-lg font-semibold text-crwn-text">Tap your pick:</p>
         {ballot!.options.map((o) => {
           const isSelected = selected === o.id;
           return (
@@ -336,14 +336,18 @@ export function OfferLanding({
                 setSelected(o.id);
                 if (errorField === 'option') { setError(null); setErrorField(null); }
               }}
-              className={`w-full min-h-[72px] px-5 py-5 rounded-2xl text-xl sm:text-2xl font-bold text-left flex items-center justify-between gap-3 transition focus:outline-none focus-visible:ring-4 focus-visible:ring-crwn-gold/70 ${
+              // The tick is absolutely placed, not a flex sibling: an inline one would
+              // shift the centered title sideways the moment a choice is selected.
+              className={`relative w-full min-h-[72px] pl-5 pr-14 py-5 rounded-2xl text-xl sm:text-2xl font-bold text-center transition focus:outline-none focus-visible:ring-4 focus-visible:ring-crwn-gold/70 ${
                 isSelected
                   ? 'bg-crwn-gold/15 text-crwn-text ring-2 ring-crwn-gold'
                   : 'bg-crwn-surface text-crwn-text ring-1 ring-white/15 hover:ring-white/30'
               }`}
             >
-              <span>{o.label}</span>
-              {isSelected ? <Check className="w-7 h-7 shrink-0 text-crwn-gold" aria-hidden /> : null}
+              <span className="block pl-9">{o.label}</span>
+              {isSelected ? (
+                <Check className="absolute right-5 top-1/2 -translate-y-1/2 w-7 h-7 text-crwn-gold" aria-hidden />
+              ) : null}
             </button>
           );
         })}
