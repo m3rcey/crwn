@@ -316,7 +316,6 @@ export function OfferLanding({
   return (
     <Shell>
       <Hero artistName={artistName} avatarUrl={avatarUrl} headline={headline} description={description} uppercase />
-      <p className="text-base text-crwn-text-secondary mb-6">Free. No card, ever.</p>
 
       <div
         role="radiogroup"
