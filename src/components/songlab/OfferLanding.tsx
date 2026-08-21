@@ -344,8 +344,14 @@ export function OfferLanding({
             We could not count this vote (it may have just closed), but your spot is saved.
           </p>
         ) : null}
+        {/* Only claim the membership when one actually exists. The public-participant
+            path (an address that already belongs to an account) counts the vote WITHOUT
+            joining anything, so saying otherwise would be a promise CRWN did not keep.
+            Both variants are the same size and tone, so neither reveals account status. */}
         <p className="text-lg text-crwn-text-secondary mb-8">
-          {`You're in ${possessive(artistName)} free fan community. ${artistName} can send you the result and news about upcoming shows.`}
+          {done.joined || done.alreadyMember
+            ? `You're in ${possessive(artistName)} free fan community. ${artistName} can send you the result and news about upcoming shows.`
+            : `To get the result and news about upcoming shows, sign in to CRWN with that email and join ${possessive(artistName)} free community.`}
         </p>
         <a
           href={primaryHref}

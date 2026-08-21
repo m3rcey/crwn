@@ -44,17 +44,27 @@ responsible for. Do not work those.
       replay, the artist surplus return, a dispute, and a collaborator cashout), then reconcile every
       cent and decide whether payouts turn on. **They stay off until that passes.**
 
-### P1 — real risk or real friction, but nothing is on fire
+- [ ] **Run TWO SQL files, in this order. The first one is the fix you just asked for and
+      it does not work until you run it.**
+      1. [`supabase/schema-phase2-song-lab-public-votes.sql`](supabase/schema-phase2-song-lab-public-votes.sql)
+         **This is the one that matters.** You tested with an email that already has a CRWN
+         account and got "You already have an account" instead of a counted vote. The code
+         that fixes it is deployed, but it needs this one table to put that vote in, because
+         a normal vote row requires an account and CRWN must not vote as somebody who has
+         not proved they own that address. Until you run it, that one case still shows the
+         sign-in screen (it refuses honestly rather than pretending the vote counted).
+         Everything else already works.
+      2. [`supabase/schema-phase2-song-lab-live-shows.sql`](supabase/schema-phase2-song-lab-live-shows.sql)
+         Two nullable columns: the venue's timezone (so "Show 2 opens at 8:30 PM" uses the
+         venue's clock instead of defaulting to Eastern) and which door each fan came through
+         (QR vs the JUBO text), reported as "not recorded" until it exists.
+      Both are additive and safe to re-run; neither deletes anything. Tell me when they are
+      done and I will re-run the live acceptance test and stamp Julius's night with
+      America/New_York.
+      Verify with: npm run verify:migrations (look for "song lab public votes" and
+      "song lab show timezone")
 
-- [ ] **Run one SQL file so the live-show night is fully wired.** Open and run:
-      [`supabase/schema-phase2-song-lab-live-shows.sql`](supabase/schema-phase2-song-lab-live-shows.sql)
-      Two nullable columns, nothing destructive, safe to re-run. Everything already works
-      without it, so this is not urgent: it adds (a) the event's timezone, so the public
-      "Show 2 voting opens at 8:30 PM" line uses the VENUE's zone rather than defaulting to
-      Eastern, and (b) which door each fan came through (QR vs the JUBO text), which is
-      reported as "not recorded" until the column exists. After running it, tell me and I
-      will stamp Julius's night with America/New_York.
-      Verify with: npm run verify:migrations (look for the "song lab show timezone" line)
+### P1 — real risk or real friction, but nothing is on fire
 
 - [ ] **Julius's Sept 26 night is configured. Two shows, one QR, and it runs itself.**
       (The email problem is fixed in the app, so there is **no Supabase setting to change**.

@@ -1,5 +1,46 @@
 # CRWN Brain — Changelog
 
+## 2026-08-21 (last) - A verified email can vote without signing in, and nobody votes as them
+
+**What v431 got right and wrong.** It refused to write anything when the typed address
+belonged to a VERIFIED account, which correctly protected a real person from having an
+opinion, a badge and a membership attributed to them by anyone who knew their address. It
+was wrong about the remedy: it made an attendee solve an authentication problem mid-set,
+and the screen leaked that the address had an account.
+
+**Why a new table was unavoidable, proven not assumed.** `song_lab_votes.fan_id` is
+`NOT NULL REFERENCES profiles(id)` and `profiles.id REFERENCES auth.users(id)`, so a counted
+vote needs an auth identity; one email can hold only one auth user; `song_lab_offer_claims`
+carries the same NOT NULL fan_id; `fan_contacts` and `lead_magnet_results` have no decision
+or option concept. `song_lab_public_votes` (migration
+`schema-phase2-song-lab-public-votes.sql`, PENDING) holds one vote and nothing else: an HMAC
+`participant_key` (a CHECK pins the digest shape so a raw address cannot be stored), no
+account link, no readable email, service-role writes only, artist-scoped SELECT, no anon
+grant. Dedup is `UNIQUE(decision_id, participant_key)`, upserted, so a re-vote changes the
+pick exactly like an account vote. Reconciliation needs no stored link: the same address
+rehashes to the same key on demand.
+
+**Three identity states, ONE visible outcome.** Captured contact (new address) gets a free
+membership and a canonical vote; unconfirmed capture is reused; public vote participant
+(verified address) gets the vote ONLY. The success payload is shape-identical across all
+three, so the response no longer reveals account existence. The success COPY is conditional
+in one place only, and for truth rather than status: the "you're in the free fan community"
+line renders only when a membership actually exists, because the public participant did not
+join anything.
+
+**The success screen now shows live results** for the poll just voted in, counting both
+sources, with largest-remainder percentages so two options never render as 54% and 47%. This
+is a deliberate, scoped founder exception to the hide-until-closed reveal rule: it applies to
+the person who just voted on the live-show landing. `/api/song-lab/public` (the Lab page) is
+unchanged and still hides open tallies.
+
+Production, v433: a new email votes and sees results (percentages summing to 100, no session
+issued); an authenticated fan votes canonically and sees the same screen; a verified address,
+including the artist's own, writes NOTHING and exposes no role while the migration is pending,
+which is the honest fallback rather than a claimed vote. The verified-address vote begins
+counting the moment that one file is run. `verify:architecture` 825, `npm test` 2939, cold
+build clean.
+
 ## 2026-08-21 (later) - The live-show vote counts on the tap: CAPTURED CONTACT vs VERIFIED OWNER
 
 **Root cause of "Results said 0".** `mailer_autoconfirm` is false, so `supabase.auth.signUp`

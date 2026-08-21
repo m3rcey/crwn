@@ -11,6 +11,13 @@
   nothing private and cannot act anywhere else. Created without a session by
   `/api/song-lab/live-claim` so a live-show vote counts on the tap. NOT a verified user, and
   never to be described as one.
+- **Public vote participant** — an unauthenticated person who cast a live-show advisory vote
+  using an email that already belongs to a VERIFIED account. CRWN counts the vote but does
+  NOT act as that account: no membership is created or changed, no profile is touched, no
+  session exists. The row lives in `song_lab_public_votes`, keyed by an HMAC of the address
+  (never the address, never a user id), so the record says "somebody typed this address and
+  picked this song", which is all CRWN actually knows. It confers nothing. Distinct from a
+  captured contact, which DOES own a free membership because no real account was displaced.
 - **Verified owner** — someone who proved control of the inbox (clicked the emailed link, or
   reset a password). This is the ONLY state that can hold a session, and therefore the only
   state that reaches anything sensitive. CRWN refuses to cast a vote or create a membership
