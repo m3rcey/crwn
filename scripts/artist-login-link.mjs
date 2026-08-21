@@ -68,9 +68,17 @@ if (!uRes.ok || !user?.email) {
 // is not, Supabase rejects the whole call, so the second attempt drops the redirect and
 // lets the project's Site URL decide. A founder running this should never have to debug a
 // redirect allowlist to get a login link.
+// The landing path must be PUBLIC. /home is in middleware's protectedPaths, so the browser
+// arrives with the session still in the URL fragment (the server never sees a fragment),
+// middleware finds no auth cookie, and bounces to /login before the client can store it.
+// /verify is public, is already the page that finishes an auth hand-off, and reads the
+// session once the client has parsed the URL. That is the whole fix for "it dumped me on
+// the sign-in screen".
+const LANDING = 'https://thecrwn.app/verify';
+
 async function mintLink(withRedirect) {
   const body = { type: 'magiclink', email: user.email };
-  if (withRedirect) body.options = { redirect_to: 'https://thecrwn.app/home' };
+  if (withRedirect) body.options = { redirect_to: LANDING };
   const res = await fetch(`${URL_}/auth/v1/admin/generate_link`, {
     method: 'POST',
     headers,
@@ -98,5 +106,9 @@ console.log('');
 console.log(actionLink);
 console.log('');
 console.log('Open it in an INCOGNITO window (a normal window replaces YOUR session).');
-console.log('Single use, expires in about an hour. Re-run this script for a fresh one.');
+console.log('You should land on a page that says "Email verified". That means it worked:');
+console.log('press Continue, then go to thecrwn.app/studio/lab.');
+console.log('');
+console.log('If you land on the SIGN-IN page instead, the link was already used or it');
+console.log('expired. Each link works once. Re-run this command for a fresh one.');
 console.log('The artist keeps their password and their own sessions; nothing was changed.');
