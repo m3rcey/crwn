@@ -66,6 +66,18 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **ASK GB (and Julius) whether they want the "Day One A&R" badge at all, and under that
+      name.** Nothing is broken; this is a naming and product call only CRWN's artists can make.
+      CRWN chose that name, not them, and it appears in their account as if they wrote it, which
+      is how you noticed it (it read like a tier next to "Economy"). Two honest problems with it:
+      it fires on a fan's FIRST vote forever, so someone arriving in month six earns the same
+      "Day One" as someone who was there at the start; and neither artist asked for a badge.
+      As of 2026-08-21 it no longer notifies the artist (fans still get theirs), so it is quiet
+      either way and there is no rush. Three options: keep as is, rename to their words, or drop
+      it entirely and let the Lab's participation count be the recognition. Tell me which and it
+      is a small change: the label lives in `fan_badges` plus the award call in
+      [`src/lib/songLab/server.ts`](src/lib/songLab/server.ts).
+
 - [ ] **Julius's Sept 26 night is configured. Two shows, one QR, and it runs itself.**
       (The email problem is fixed in the app, so there is **no Supabase setting to change**.
       An attendee taps CAST MY VOTE and the vote is counted immediately; the email that

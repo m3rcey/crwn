@@ -1,5 +1,30 @@
 # CRWN Brain — Changelog
 
+## 2026-08-21 (night, later) - A recognition badge was about to flood a live show's notifications
+
+**Song Lab's Day One A&R badge no longer notifies the ARTIST, only the fan.** The badge fires
+on a fan's FIRST vote, and `awardFanBadge` notifies both sides, so every new voter sent the
+artist two notifications: "New subscriber" from the free join, and "X earned Day One A&R" from
+the badge. The live-show path uses the same vote recorder, so a room of a hundred people
+scanning one QR at Julius's Sept 26 show would have produced two hundred notifications in an
+evening and buried the only signal that matters (real people joining) under badge noise, on the
+single night the bell is most useful. Found because the founder read his own notification list
+and asked why it said "Day One A&R" when the tier is called "Economy": two systems, correctly
+reporting, stacked into one confusing column.
+
+**The fix is one new optional flag, `notifyArtist`, defaulting to TRUE.** Every existing caller
+(squads, city unlocks, bounties, the CRM, quests) is untouched and keeps its CRM nudge, which is
+appropriate where an award is rare. Song Lab passes `notifyArtist: false`. The fan still gets
+their recognition, the badge still sits on their record and renders on the Lab, and the artist
+still learns about every one of these people through "New subscriber" and the Fan CRM, which
+started working again earlier the same night.
+
+**Two related observations recorded, NOT acted on, because both are the artist's call.** The
+badge name is one CRWN chose, not one GB wrote, and it appears in his account as though he
+authored it. And "Day One" is a promise the mechanic does not keep: it fires on any fan's first
+vote forever, so someone arriving in month six earns the same badge as someone who was there at
+the start. Renaming or retiring it is a founder/artist decision and is in TODO.md.
+
 ## 2026-08-21 (night) - Every artist's Fan CRM was empty, and nobody could email a subscriber
 
 **One ambiguous database embed silently emptied nine surfaces.** `subscriptions` holds TWO

@@ -182,6 +182,12 @@ export async function recordLabVote(
     icon: '🌅',
     source: 'milestone',
     sourceId: decision.project_id,
+    // The FAN hears about their recognition; the artist does not. This fires on a fan's
+    // FIRST vote, so a live show would otherwise send the artist one of these per
+    // attendee on top of the new-subscriber notification, and drown the signal that
+    // matters. The artist learns about every one of these people through "New
+    // subscriber" and the Fan CRM instead.
+    notifyArtist: false,
   }).catch(() => {});
   return true;
 }

@@ -33,6 +33,18 @@ export interface AwardFanBadgeParams {
   sourceId?: string | null;
   awardedBy?: string | null; // artist user id, null = system
   notify?: boolean; // default true — notify the fan they earned a badge
+  /**
+   * Default true, preserving the CRM signal for the mechanics that earned it (a squad
+   * win, a bounty, a city captain) where an award is rare and worth a nudge to reach out.
+   *
+   * Pass false for HIGH-VOLUME awards. Song Lab does: a badge fires on a fan's first
+   * vote, so a live show with a room full of people scanning one QR would otherwise send
+   * the artist two notifications per attendee (this, plus the new-subscriber one) and
+   * bury the signal that actually matters under badge noise on the single night it is
+   * most needed. The fan still gets their notification; the artist still learns about
+   * every one of these people through "New subscriber" and the Fan CRM.
+   */
+  notifyArtist?: boolean;
   artistName?: string;
 }
 
@@ -90,7 +102,8 @@ export async function awardFanBadge(
       // Also tell the ARTIST one of their fans just leveled up — a CRM/retention
       // signal (superfan, bounty winner, city captain...) the artist previously
       // never saw. Links to the Fan CRM so they can act on the moment.
-      if (params.artistId) {
+      // Skipped for high-volume awards (see notifyArtist).
+      if (params.artistId && params.notifyArtist !== false) {
         try {
           const [{ data: ap }, { data: fp }] = await Promise.all([
             supabaseAdmin.from('artist_profiles').select('user_id').eq('id', params.artistId).single(),
