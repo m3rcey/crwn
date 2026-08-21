@@ -20,22 +20,22 @@
 // labels (not placeholder-only), no CRWN vocabulary, and a confirmation screen rather
 // than a silent redirect.
 //
-// AUTH IS NOT WEAKENED HERE. A logged-out attendee is created through the SAME
-// `signUp` the normal form uses (same endpoint, same rules, same rate limits); this page
-// only stops asking for a username and a password of their own. Because the project
-// requires email confirmation today, that call returns no session, so the page says so
-// plainly and the chosen song rides through verification on the existing
-// user_metadata.pending_next rail (?claim=1&o=<option>), which finishes the join and the
-// vote automatically when they tap the link. If the project is ever switched to
-// auto-confirm, the identical code path completes in the room with no further change.
+// AUTH IS NOT WEAKENED HERE, AND THE VOTE NO LONGER WAITS ON EMAIL. A logged-out
+// attendee's submission goes to /api/song-lab/live-claim, which counts the vote against a
+// CAPTURED CONTACT (an unverified auth user, exactly the row `signUp` already writes)
+// and returns NO session. Nobody is logged in by voting; signing in still requires
+// proving inbox ownership through the emailed link. An address that already belongs to a
+// VERIFIED account is refused and routed to sign-in, because casting a vote in a real
+// person's name on an unproven claim is worse than one extra tap for the rare fan who
+// has an account and is not signed in on this phone.
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { Check, Mail } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { preselectedOption, type DecisionOption } from '@/lib/songLab/core';
+import { accountEmailNote } from '@/lib/songLab/liveClaim';
 import {
   BALLOT_CTA_LABEL,
   BALLOT_SUBMITTING_LABEL,
@@ -85,15 +85,8 @@ interface ClaimResult {
   voted: boolean;
   destination: string;
   rewardPath: string | null;
-}
-
-/** A password the fan never types and never needs: their email is the recovery path, and
- *  Google sign-in remains available. Generated with the platform CSPRNG, never Math.random. */
-function generatePassword(): string {
-  const bytes = new Uint8Array(24);
-  crypto.getRandomValues(bytes);
-  const body = Array.from(bytes, (b) => b.toString(36)).join('').slice(0, 28);
-  return `Crwn-${body}-9Aa!`;
+  /** Whether the account-access email went out. Never a condition of the vote. */
+  emailSent?: boolean;
 }
 
 export function OfferLanding({
@@ -109,14 +102,14 @@ export function OfferLanding({
 }: OfferLandingProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { user, isLoading, signUp } = useAuth();
+  const { user, isLoading } = useAuth();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [errorField, setErrorField] = useState<BallotField | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
   const [firstName, setFirstName] = useState('');
   const [email, setEmail] = useState('');
-  const [sentTo, setSentTo] = useState<string | null>(null);
+  const [needsSignIn, setNeedsSignIn] = useState(false);
   const [done, setDone] = useState<ClaimResult | null>(null);
   const autoClaimed = useRef(false);
   const identityRef = useRef<HTMLDivElement | null>(null);
@@ -190,9 +183,9 @@ export function OfferLanding({
   // Bring the newly revealed identity fields into view without stealing focus (a forced
   // focus mid-flow is hostile to a screen reader and pops the keyboard over the choices).
   useEffect(() => {
-    if (!selected || signedIn || done || sentTo) return;
+    if (!selected || signedIn || done || needsSignIn) return;
     identityRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  }, [selected, signedIn, done, sentTo]);
+  }, [selected, signedIn, done, needsSignIn]);
 
   const submitBallot = async () => {
     if (busy) return;
@@ -206,63 +199,86 @@ export function OfferLanding({
       claim(selected);
       return;
     }
-    // Logged out: create the account through the canonical signup, carrying the chosen
-    // song so it survives email verification. No username and no chosen password: those
-    // are the only two things this form drops, and neither is an authorization control.
+    // Logged out: ONE request counts the vote. The server creates (or reuses) the captured
+    // contact, joins the free tier, records the vote and emails an account link afterward.
+    // It deliberately returns no session, so nothing here logs anybody in.
     setBusy(true);
     setError(null);
     setErrorField(null);
-    const cleanEmail = email.trim();
-    const { error: signUpError } = await signUp(
-      cleanEmail,
-      generatePassword(),
-      undefined,
-      cleanFirstName(firstName),
-      undefined,
-      nextWithVote(selected),
-    );
-    if (signUpError) {
-      // Includes "already registered" where the project reports it. Never assert whether
-      // the address exists: that is the enumeration answer, and the sign-in link below
-      // covers the fan who knows they have an account.
-      setError('We could not finish that. Check the email address, or sign in below.');
-      setErrorField('email');
+    try {
+      const res = await fetch('/api/song-lab/live-claim', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          artistSlug,
+          offerSlug,
+          optionId: selected,
+          decisionId: ballot?.decisionId,
+          firstName: cleanFirstName(firstName),
+          email: email.trim(),
+          ...(sourceParam ? { source: sourceParam } : {}),
+        }),
+      });
+      const data = await res.json().catch(() => null);
+
+      if (res.ok && data?.success) {
+        setDone({
+          joined: !!data.joined,
+          alreadyMember: !!data.alreadyMember,
+          voted: !!data.voted,
+          destination: data.destination,
+          rewardPath: typeof data.rewardPath === 'string' ? data.rewardPath : null,
+          emailSent: !!data.emailSent,
+        });
+        setBusy(false);
+        return;
+      }
+
+      // The address belongs to a real, verified account. CRWN will not vote as somebody
+      // who has not proved they own that inbox, so they sign in and the vote follows.
+      if (data?.needsSignIn) {
+        setNeedsSignIn(true);
+        setBusy(false);
+        return;
+      }
+
+      setError(ballotErrorFor(data?.reason, data?.error));
+      setErrorField(data?.field === 'firstName' || data?.field === 'email' ? data.field : null);
       setBusy(false);
-      return;
+    } catch {
+      setError(BALLOT_NETWORK_ERROR);
+      setBusy(false);
     }
-    // A session exists only when the project auto-confirms. Otherwise the vote completes
-    // when they tap the link in their email.
-    const { data: { session } } = await createBrowserSupabaseClient().auth.getSession();
-    if (session) {
-      claim(selected);
-      return;
-    }
-    setSentTo(cleanEmail);
-    setBusy(false);
   };
 
   const selectedLabel = ballot?.options.find((o) => o.id === selected)?.label ?? '';
 
-  /* ── Sent-the-email state (today's default: confirmation required) ── */
-  if (sentTo) {
+  /* ── The address belongs to a verified CRWN account ──
+     CRWN will not cast a vote or join a membership in a real person's name on an
+     unproven claim, so this is the ONE case that asks for a sign-in. One tap, and the
+     chosen song rides along. */
+  if (needsSignIn) {
     return (
       <Shell>
         <div className="mx-auto mb-6 w-16 h-16 rounded-full bg-crwn-gold flex items-center justify-center">
           <Mail className="w-8 h-8 text-crwn-bg" aria-hidden />
         </div>
-        <h1 className="text-3xl font-bold text-crwn-text mb-4">One more tap</h1>
-        <p className="text-lg text-crwn-text-secondary mb-4">
-          {`We sent a link to ${sentTo}. Open it on this phone and your vote for ${selectedLabel} is in.`}
+        <h1 className="text-3xl font-bold text-crwn-text mb-4">You already have an account</h1>
+        <p className="text-lg text-crwn-text-secondary mb-8">
+          {`Sign in and your vote${selectedLabel ? ` for ${selectedLabel}` : ''} goes straight in.`}
         </p>
-        <p className="text-base text-crwn-text-secondary">
-          {`It can take a minute to arrive. Check your junk folder if you do not see it.`}
-        </p>
-        <p className="mt-6 text-base text-crwn-text-secondary">
-          {`Already have a CRWN account? `}
-          <a href={`/login?next=${encodeURIComponent(nextWithVote(selected))}`} className="text-crwn-gold underline">
-            Sign in to finish
-          </a>
-        </p>
+        <a
+          href={`/login?next=${encodeURIComponent(nextWithVote(selected))}`}
+          className="block w-full py-5 rounded-full bg-crwn-gold text-crwn-bg text-xl font-bold"
+        >
+          Sign in and vote
+        </a>
+        <button
+          onClick={() => { setNeedsSignIn(false); setEmail(''); }}
+          className="mt-5 text-base text-crwn-gold underline"
+        >
+          Use a different email
+        </button>
       </Shell>
     );
   }
@@ -298,6 +314,13 @@ export function OfferLanding({
         >
           {primaryLabel}
         </a>
+        {/* Subordinate on purpose: the vote is already counted, and this email is the key
+            to the account later, never a condition of the vote. */}
+        {done.emailSent ? (
+          <p className="mt-6 text-base text-crwn-text-secondary leading-relaxed">
+            {accountEmailNote(true)}
+          </p>
+        ) : null}
         {done.rewardPath ? (
           <a href={done.destination} className="inline-block mt-5 text-base text-crwn-gold hover:underline">
             See how the vote is going

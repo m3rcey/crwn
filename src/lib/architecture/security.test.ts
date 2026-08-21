@@ -828,6 +828,15 @@ describe('SEC-SERVICE — service-role routes are the only authorization boundar
     'src/app/api/surveys/route.ts',
     'src/app/api/producer/flag/route.ts',
     'src/app/api/notifications/new-artist-hook/route.ts',
+    // Live-show vote capture. A logged-out person standing in a venue IS the intended
+    // caller, exactly like the lead-capture routes above. Declared public deliberately,
+    // and it is the most tightly bounded public write in CRWN: it may only touch the ONE
+    // artist named by a gated slug whose lead magnet is live and whose poll is currently
+    // open, it writes only that artist's free-tier membership, one vote and one claim
+    // row, and it RETURNS NO SESSION, so the caller gains no authenticated capability.
+    // It refuses outright when the email belongs to a VERIFIED account, so it can never
+    // act in a real person's name. Rate limited per IP and per email.
+    'src/app/api/song-lab/live-claim/route.ts',
     // Email-embedded endpoints: the recipient's mail client is the caller, keyed on
     // an unguessable send/enrollment id. Compliance requires unsubscribe to work
     // without a session.
