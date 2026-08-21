@@ -1,4 +1,6 @@
 import { describe, it, expect } from 'vitest';
+import { readFileSync } from 'fs';
+import { join } from 'path';
 import {
   normalizeInbound,
   classifyInbound,
@@ -6,6 +8,8 @@ import {
   noActiveVoteReply,
   twimlMessage,
   formatSmsNumber,
+  sameNumber,
+  isConfiguredPhone,
   CARRIER_RESERVED,
 } from './keywords';
 import { verifyTwilioSignature } from '../webhookSignatures';
@@ -107,6 +111,86 @@ describe('formatSmsNumber', () => {
     expect(formatSmsNumber('+442071234567')).toBe('+442071234567');
     expect(formatSmsNumber('')).toBe('');
     expect(formatSmsNumber(null)).toBe('');
+  });
+});
+
+describe('the JUBO number is its own line', () => {
+  it('matches the number Twilio sends against the number an artist typed', () => {
+    // Twilio always sends E.164; a human types anything.
+    expect(sameNumber('+14045551234', '+14045551234')).toBe(true);
+    expect(sameNumber('+14045551234', '(404) 555-1234')).toBe(true);
+    expect(sameNumber('+14045551234', '404-555-1234')).toBe(true);
+    expect(sameNumber('+14045551234', '14045551234')).toBe(true);
+    expect(sameNumber('+14045551234', ' 4045551234 ')).toBe(true);
+  });
+
+  it('does NOT match a different number', () => {
+    expect(sameNumber('+14045551234', '+14045551235')).toBe(false);
+    expect(sameNumber('+14045551234', '+13145573549')).toBe(false);
+  });
+
+  it('never collides two international numbers on a last-10-digits shortcut', () => {
+    // +44 20 7123 4567 and +1 202 712 34567 style tails must stay distinct.
+    expect(sameNumber('+442071234567', '+12071234567')).toBe(false);
+    expect(sameNumber('+61407123456', '+10407123456')).toBe(false);
+  });
+
+  it('fails closed on anything missing or empty', () => {
+    expect(sameNumber('+14045551234', '')).toBe(false);
+    expect(sameNumber('', '+14045551234')).toBe(false);
+    expect(sameNumber(null, undefined)).toBe(false);
+    expect(sameNumber('+14045551234', 'not a number')).toBe(false);
+  });
+
+  it('isConfiguredPhone rejects blanks, placeholders and truncated values', () => {
+    expect(isConfiguredPhone('+14045551234')).toBe(true);
+    expect(isConfiguredPhone('(404) 555-1234')).toBe(true);
+    expect(isConfiguredPhone('')).toBe(false);
+    expect(isConfiguredPhone(undefined)).toBe(false);
+    expect(isConfiguredPhone('changeme')).toBe(false);
+    expect(isConfiguredPhone('+1404555')).toBe(false);        // truncated
+    expect(isConfiguredPhone('1234567890123456')).toBe(false); // longer than E.164
+  });
+});
+
+describe('the inbound route never borrows the other Twilio number', () => {
+  const routeSource = readFileSync(
+    join(process.cwd(), 'src/app/api/sms/inbound/route.ts'),
+    'utf8',
+  );
+
+  it('reads TWILIO_JUBO_PHONE_NUMBER and never TWILIO_PHONE_NUMBER', () => {
+    expect(routeSource).toContain('TWILIO_JUBO_PHONE_NUMBER');
+    // The other number serves a different purpose. Reading it here, even as a fallback,
+    // would put CRWN replies on a line that is not meant to send them.
+    const borrows = /process\.env\.TWILIO_PHONE_NUMBER/.test(routeSource);
+    expect(borrows, 'the JUBO route must not read TWILIO_PHONE_NUMBER').toBe(false);
+  });
+
+  it('checks the receiving number before answering', () => {
+    expect(routeSource).toContain('sameNumber(params.To');
+    expect(routeSource).toContain('isConfiguredPhone(juboNumber)');
+  });
+
+  it('still verifies the Twilio signature before doing anything', () => {
+    expect(routeSource).toContain('verifyTwilioSignature(');
+    // The signature check must run BEFORE the number check, so an unsigned request is
+    // rejected outright rather than being used to probe which numbers CRWN owns. Compare
+    // the EXECUTABLE references: the header comment names the env var much earlier.
+    expect(routeSource.indexOf('verifyTwilioSignature('))
+      .toBeLessThan(routeSource.indexOf('process.env.TWILIO_JUBO_PHONE_NUMBER'));
+  });
+
+  it('still leaves STOP and HELP to the carrier', () => {
+    expect(routeSource).toContain("intent.kind === 'reserved'");
+  });
+
+  it('logs neither number', () => {
+    // Every console line in this route must be a constant string, never a number.
+    const logs = routeSource.match(/console\.(log|warn|error)\([^)]*\)/g) || [];
+    for (const line of logs) {
+      expect(line, line).not.toMatch(/juboNumber|params\.To|params\.From|\bfrom\b/);
+    }
   });
 });
 

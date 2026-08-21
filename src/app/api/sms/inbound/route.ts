@@ -6,9 +6,14 @@
 // enrolled in anything: the free membership still only happens if they go to the page and
 // complete the vote.
 //
-// DARK BY DEFAULT. Without TWILIO_AUTH_TOKEN and SMS_KEYWORD_ENABLED this route refuses
-// every request. Signature verification fails closed on top of that, so an unconfigured
-// deployment cannot be made to send a single message.
+// DARK BY DEFAULT. Without TWILIO_AUTH_TOKEN, SMS_KEYWORD_ENABLED and
+// TWILIO_JUBO_PHONE_NUMBER this route refuses every request. Signature verification fails
+// closed on top of that, so an unconfigured deployment cannot be made to send a message.
+//
+// ITS OWN NUMBER. The keyword lives on TWILIO_JUBO_PHONE_NUMBER. TWILIO_PHONE_NUMBER
+// belongs to a different purpose and is NEVER read here, not even as a fallback: a reply
+// going out from the wrong line is worse than no reply. A signed request for any other
+// number is ignored in silence.
 //
 // STOP / HELP ARE NOT OURS. Carrier and Twilio Advanced Opt-Out own those words. This
 // route recognises them only in order to STAY SILENT, because answering with our own text
@@ -17,7 +22,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { verifyTwilioSignature } from '@/lib/webhookSignatures';
-import { classifyInbound, twimlMessage, votingLinkReply, noActiveVoteReply } from '@/lib/sms/keywords';
+import {
+  classifyInbound,
+  twimlMessage,
+  votingLinkReply,
+  noActiveVoteReply,
+  isConfiguredPhone,
+  sameNumber,
+} from '@/lib/sms/keywords';
 import { checkRateLimit } from '@/lib/rateLimit';
 import { resolveShowPhase, type ShowPoll } from '@/lib/songLab/schedule';
 import { SHOW_POLL_COLUMNS } from '@/lib/songLab/server';
@@ -73,6 +85,28 @@ export async function POST(req: NextRequest) {
     // Not Twilio, or the public URL is misconfigured. Never answer, never log the body.
     console.error('[sms] inbound rejected: signature did not verify');
     return new NextResponse('Forbidden', { status: 403 });
+  }
+
+  // WHICH CRWN NUMBER WAS TEXTED. JUBO runs on its OWN number
+  // (TWILIO_JUBO_PHONE_NUMBER), separate from TWILIO_PHONE_NUMBER, which belongs to a
+  // different purpose and is deliberately never read here. Twilio sends the receiving
+  // number as `To`, and a TwiML reply goes back out from whichever number received the
+  // message, so this check is what keeps the keyword on its own line instead of answering
+  // on any number that happens to point at this webhook.
+  //
+  // Missing or malformed configuration FAILS SAFE and silent. It must never fall back to
+  // the other number: the two have separate purposes, and borrowing one would put CRWN
+  // replies on a line that is not meant to send them.
+  const juboNumber = process.env.TWILIO_JUBO_PHONE_NUMBER;
+  if (!isConfiguredPhone(juboNumber)) {
+    console.error('[sms] inbound ignored: TWILIO_JUBO_PHONE_NUMBER is not configured');
+    return silent();
+  }
+  if (!sameNumber(params.To, juboNumber)) {
+    // A signed Twilio request for one of CRWN's OTHER numbers. Legitimate traffic, just
+    // not ours to answer. Never log either number.
+    console.warn('[sms] inbound ignored: message was not sent to the JUBO number');
+    return silent();
   }
 
   const from = (params.From || '').trim();

@@ -90,6 +90,41 @@ export function twimlMessage(body: string | null): string {
   return `<?xml version="1.0" encoding="UTF-8"?><Response><Message>${escaped}</Message></Response>`;
 }
 
+/** Digits only. Strips +, spaces, dashes, brackets and anything else a human types. */
+export function phoneDigits(raw: string | null | undefined): string {
+  return (raw || '').replace(/\D/g, '');
+}
+
+/**
+ * Is this a usable phone number to compare against? Deliberately strict enough that a
+ * blank, a placeholder or a truncated value cannot pass and quietly match nothing (or
+ * worse, match everything).
+ */
+export function isConfiguredPhone(raw: string | null | undefined): boolean {
+  const d = phoneDigits(raw);
+  return d.length >= 10 && d.length <= 15;
+}
+
+/**
+ * Do these two strings name the same phone number? Twilio always sends E.164
+ * (+14045551234); a human typing an env var may write (404) 555-1234 or 404-555-1234.
+ *
+ * The ONLY normalization allowed is the US country code: an 11-digit number starting with
+ * 1 matches the same 10 digits without it. A general "compare the last 10 digits" rule
+ * would make different international numbers collide, and this comparison decides whether
+ * CRWN answers a text at all.
+ */
+export function sameNumber(a: string | null | undefined, b: string | null | undefined): boolean {
+  const x = phoneDigits(a);
+  const y = phoneDigits(b);
+  if (!x || !y) return false;
+  if (x === y) return true;
+  const strip1 = (n: string) => (n.length === 11 && n.startsWith('1') ? n.slice(1) : n);
+  const sx = strip1(x);
+  const sy = strip1(y);
+  return sx.length === 10 && sy.length === 10 && sx === sy;
+}
+
 /**
  * Format a configured number for display on a flyer: +14045551234 becomes
  * (404) 555-1234. Anything that is not a US 10-digit number is shown as configured

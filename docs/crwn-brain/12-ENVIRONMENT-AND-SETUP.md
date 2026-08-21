@@ -50,7 +50,10 @@ npm test             # vitest, 820 tests across 50 files (a moving figure: run i
 | `CLOUDFLARE_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET_NAME` | Cloudflare R2 |
 | `LIVEKIT_API_KEY`, `LIVEKIT_API_SECRET`, `LIVE_PROVIDER` | LiveKit |
 | `RESEND_API_KEY`, `FROM_EMAIL` | Resend email |
-| ~~`TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_PHONE_NUMBER`~~ | DEAD since 2026-07-31 (SMS removed; nothing reads them) |
+| `TWILIO_AUTH_TOKEN` | verifies the inbound SMS webhook signature on `/api/sms/inbound` (2026-08-21). No outbound SMS exists; CRWN never sends a message, it answers one with TwiML. |
+| `TWILIO_JUBO_PHONE_NUMBER` | the DEDICATED number the JUBO keyword runs on. `/api/sms/inbound` answers only messages sent to this number and refuses (silently) when it is missing or malformed. Never falls back to `TWILIO_PHONE_NUMBER`. |
+| `SMS_KEYWORD_ENABLED`, `SMS_KEYWORDS` | the keyword gate and its `keyword:artist-slug` map (e.g. `jubo:julius-williams`). Both required; without them the route answers nothing. |
+| `TWILIO_ACCOUNT_SID`, `TWILIO_PHONE_NUMBER` | NOT read by any code (verified by grep 2026-08-21). `TWILIO_PHONE_NUMBER` is reserved for a separate purpose and the JUBO route is test-pinned never to read it. |
 | `FOUNDER_ALERT_SMS_EMAIL` | optional carrier email-to-SMS gateway address for founder hot-lead alerts (plain Resend email, no Twilio) |
 | `DEEPSEEK_API_KEY`, `OPENAI_API_KEY` | AI (DeepSeek also powers the /support chat; if unset, chat escalates to the founder) |
 | `CRON_SECRET` | gates all cron routes (24 after `sms-reset` was deleted 2026-07-31) |
