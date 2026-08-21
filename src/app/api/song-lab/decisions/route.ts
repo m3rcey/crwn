@@ -6,6 +6,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { requireSongLabArtist } from '@/lib/songLab/server';
 import { normalizeOptions, mergeOptionEdit, MAX_TITLE_LENGTH, type DecisionOption } from '@/lib/songLab/core';
+import { zonedTimeToUtc, isValidTimeZone, DEFAULT_SHOW_TIMEZONE, EXTEND_MINUTES } from '@/lib/songLab/schedule';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -18,6 +19,23 @@ function parseWhen(raw: unknown): string | null | undefined {
   if (typeof raw !== 'string' || !raw) return undefined; // not provided
   const t = new Date(raw);
   return Number.isNaN(t.getTime()) ? undefined : t.toISOString();
+}
+
+/**
+ * A wall clock time in a named zone: `{ date: '2026-09-26', time: '20:00',
+ * timeZone: 'America/New_York' }`. Converted to a UTC instant HERE, on the server, so
+ * the stored moment never depends on the browser's timezone. A `datetime-local` input
+ * parsed with `new Date()` would silently mean 8pm wherever the ARTIST is sitting, which
+ * is the bug this exists to avoid.
+ */
+function parseZonedWhen(raw: unknown): string | null | undefined {
+  if (raw === null) return null;
+  if (!raw || typeof raw !== 'object') return undefined;
+  const v = raw as { date?: unknown; time?: unknown; timeZone?: unknown };
+  if (typeof v.date !== 'string' || typeof v.time !== 'string') return undefined;
+  const tz = typeof v.timeZone === 'string' && isValidTimeZone(v.timeZone) ? v.timeZone : DEFAULT_SHOW_TIMEZONE;
+  const utc = zonedTimeToUtc(v.date, v.time, tz);
+  return utc ? utc.toISOString() : undefined;
 }
 
 async function ownTierIds(artistId: string): Promise<string[]> {
@@ -83,8 +101,8 @@ export async function POST(req: NextRequest) {
       options,
       status,
       ...eligibility,
-      opens_at: parseWhen(body.opensAt) ?? null,
-      closes_at: parseWhen(body.closesAt) ?? null,
+      opens_at: parseZonedWhen(body.opensAtLocal) ?? parseWhen(body.opensAt) ?? null,
+      closes_at: parseZonedWhen(body.closesAtLocal) ?? parseWhen(body.closesAt) ?? null,
     })
     .select('id')
     .single();
@@ -156,7 +174,7 @@ export async function PATCH(req: NextRequest) {
 
   const { data: decision } = await supabaseAdmin
     .from('song_lab_decisions')
-    .select('id, status, options')
+    .select('id, status, options, opens_at, closes_at')
     .eq('id', decisionId)
     .eq('artist_id', auth.artistId)
     .maybeSingle();
@@ -170,6 +188,42 @@ export async function PATCH(req: NextRequest) {
   } else if (action === 'close') {
     updates.status = 'closed';
     updates.closed_at = new Date().toISOString();
+  } else if (action === 'open_now') {
+    // MANUAL OPEN. Live music runs early as well as late. Clearing opens_at starts the
+    // poll immediately; a scheduled close in the FUTURE is kept, so the show still ends
+    // itself on time. A close already in the past would re-close it instantly, so that
+    // one is cleared and the artist closes by hand (surfaced in Studio as "no end time").
+    updates.status = 'open';
+    updates.opens_at = null;
+    updates.closed_at = null;
+    if (decision.closes_at && new Date(decision.closes_at).getTime() <= Date.now()) {
+      updates.closes_at = null;
+    }
+  } else if (action === 'extend') {
+    // The set is running long. Push the close time out from NOW, never from the old
+    // value, so pressing it twice during an overrun does the obvious thing.
+    const minutes = Number(body.minutes);
+    if (!EXTEND_MINUTES.includes(minutes as (typeof EXTEND_MINUTES)[number])) {
+      return NextResponse.json({ error: 'Pick one of the offered extension lengths' }, { status: 400 });
+    }
+    updates.status = 'open';
+    updates.closed_at = null;
+    updates.opens_at = null;
+    updates.closes_at = new Date(Date.now() + minutes * 60_000).toISOString();
+  } else if (action === 'reschedule') {
+    // Put an overridden poll back on a schedule: the ONE way to clear an override and
+    // return to automatic. Accepts local wall time plus a zone, converted server-side.
+    const opens = parseZonedWhen(body.opensAtLocal);
+    const closes = parseZonedWhen(body.closesAtLocal);
+    if (opens === undefined && closes === undefined) {
+      return NextResponse.json({ error: 'Give a new open or close time' }, { status: 400 });
+    }
+    if (opens !== undefined) updates.opens_at = opens;
+    if (closes !== undefined) updates.closes_at = closes;
+    // Reopening a closed poll is deliberate here, and only here: `status: closed` is
+    // otherwise sticky so a closed vote can never silently reopen on a window edit.
+    updates.status = 'open';
+    updates.closed_at = null;
   } else if (action === 'finalize') {
     const winner = typeof body.winningOptionId === 'string' ? body.winningOptionId : '';
     const opts = (decision.options || []) as DecisionOption[];
@@ -211,9 +265,13 @@ export async function PATCH(req: NextRequest) {
       updates.is_free = eligibility.is_free;
       updates.allowed_tier_ids = eligibility.allowed_tier_ids;
     }
-    const opens = parseWhen(body.opensAt);
+    // Zoned wall time wins when supplied; `null` from it means "clear", so it cannot be
+    // collapsed with ?? (null ?? x would fall through and silently ignore the clear).
+    const opensZoned = parseZonedWhen(body.opensAtLocal);
+    const opens = opensZoned !== undefined ? opensZoned : parseWhen(body.opensAt);
     if (opens !== undefined) updates.opens_at = opens;
-    const closes = parseWhen(body.closesAt);
+    const closesZoned = parseZonedWhen(body.closesAtLocal);
+    const closes = closesZoned !== undefined ? closesZoned : parseWhen(body.closesAt);
     if (closes !== undefined) updates.closes_at = closes;
   } else {
     return NextResponse.json({ error: 'Unknown action' }, { status: 400 });

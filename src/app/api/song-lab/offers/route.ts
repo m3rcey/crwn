@@ -143,10 +143,12 @@ export async function POST(req: NextRequest) {
   const slug = normalizeOfferSlug(rawSlug) ?? offerSlugFromName(rawSlug);
   if (!slug) return NextResponse.json({ error: 'The name needs at least 3 letters or numbers' }, { status: 400 });
 
-  // A vote magnet with no decision is a broken promise: the landing has no ballot to show,
-  // so it silently falls back to a plain join button and the artist never learns why their
-  // songs are missing. That reached production once (Julius, 2026-08-20). Refuse at create.
-  if ((body.benefitKind ?? 'vote') === 'vote' && !body.decisionId) {
+  // A vote magnet with no ballot is a broken promise: the landing has no songs to show,
+  // so it silently falls back to a plain join button and the artist never learns why.
+  // That reached production once (2026-08-20). A magnet may name EITHER one decision or a
+  // whole PROJECT (an event whose polls hand over to each other during the night), but
+  // never neither.
+  if ((body.benefitKind ?? 'vote') === 'vote' && !body.decisionId && !body.projectId) {
     return NextResponse.json({ error: 'Pick which vote this link opens, or the page has no songs to show' }, { status: 400 });
   }
 

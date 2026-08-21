@@ -9,8 +9,13 @@ import {
   type DecisionOption,
 } from '@/lib/songLab/core';
 import { songLabArtistBySlug } from '@/lib/songLab/access';
-import { resolveOfferEnrollTier } from '@/lib/songLab/server';
-import { OfferLanding, type LandingBallot } from '@/components/songlab/OfferLanding';
+import { resolveOfferEnrollTier, resolveOfferPhase } from '@/lib/songLab/server';
+import { formatTimeInZone } from '@/lib/songLab/schedule';
+import {
+  OfferLanding,
+  type LandingBallot,
+  type LandingInterlude,
+} from '@/components/songlab/OfferLanding';
 
 interface OfferPageProps {
   params: Promise<{ slug: string; offer: string }>;
@@ -58,28 +63,42 @@ export default async function OfferPage({ params }: OfferPageProps) {
   const rawName = profileRow?.display_name ?? null;
   const artistName = isPresentableArtistName(rawName) ? (rawName as string) : 'This artist';
 
-  // Live show mode: a vote offer renders its decision's ballot ON the landing, so the
-  // first screen IS the vote. Only when the vote is open AND the tier this claim will
-  // enroll can cast it; otherwise the landing falls back to the classic join CTA and
-  // the fan votes on the Lab like before.
+  // Live show mode. A vote offer renders a BALLOT on the landing, and which ballot is
+  // resolved HERE, on the server, from the event's polls and the clock. One printed QR
+  // therefore shows Show 1 before its close time and Show 2 after, with no second link
+  // and nothing for the audience to choose. The fan's device clock is never consulted.
   let ballot: LandingBallot | null = null;
-  if (offer.benefit_kind === 'vote' && offer.decision_id) {
-    const { data: decision } = await admin
-      .from('song_lab_decisions')
-      .select('id, question, options, status, is_free, allowed_tier_ids, opens_at, closes_at, winning_option_id')
-      .eq('id', offer.decision_id)
-      .eq('artist_id', artist.artistId)
-      .neq('status', 'draft')
-      .maybeSingle();
-    if (decision) {
+  let interlude: LandingInterlude | null = null;
+
+  if (offer.benefit_kind === 'vote') {
+    const now = new Date();
+    const { phase, timeZone } = await resolveOfferPhase(admin, artist.artistId, offer, now);
+
+    if (phase.kind === 'active') {
       const enrollTierId = await resolveOfferEnrollTier(admin, artist.artistId, offer.tier_id ?? null);
-      if (ballotOpenForFreeJoin(decision as unknown as SongLabDecisionCore, enrollTierId, new Date())) {
+      if (ballotOpenForFreeJoin(phase.poll as unknown as SongLabDecisionCore, enrollTierId, now)) {
         ballot = {
-          question: decision.question,
-          options: (decision.options || []) as DecisionOption[],
+          decisionId: phase.poll.id,
+          question: phase.poll.question,
+          options: (phase.poll.options || []) as DecisionOption[],
         };
       }
+      // A poll open only to PAID tiers cannot be delivered by a free join, so the page
+      // falls back to the classic CTA rather than promising a vote it cannot cast.
+    } else if (phase.kind === 'between') {
+      // Between sets. Name the next show and, when it is scheduled, when it opens.
+      // Timezone comes from the EVENT, never from the visitor's browser.
+      interlude = {
+        kind: 'between',
+        endedLabel: phase.endedPoll?.stage_label ?? null,
+        nextLabel: phase.nextPoll.stage_label,
+        opensAtLabel: formatTimeInZone(phase.opensAt, timeZone) || null,
+      };
+    } else if (phase.kind === 'ended') {
+      interlude = { kind: 'ended', endedLabel: null, nextLabel: null, opensAtLabel: null };
     }
+    // phase.kind === 'none' (nothing published yet) keeps the classic join CTA, so the
+    // link still captures a fan instead of showing an empty screen.
   }
 
   // Ballot mode performs a vote, so the artist's join-flavored CTA label is not sent to
@@ -97,6 +116,7 @@ export default async function OfferPage({ params }: OfferPageProps) {
       description={offer.description}
       ctaLabel={ctaLabel}
       ballot={ballot}
+      interlude={interlude}
     />
   );
 }

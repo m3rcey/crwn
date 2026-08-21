@@ -29,14 +29,16 @@ export async function GET() {
     supabaseAdmin.from('song_lab_offers')
       .select('id, name, slug, is_active, view_count')
       .eq('artist_id', artistId),
+    // select('*') so `source` is included once schema-phase2-song-lab-live-shows.sql is
+    // applied, and simply absent before it, instead of failing the whole query.
     supabaseAdmin.from('song_lab_offer_claims')
-      .select('offer_id, fan_id, join_result, fresh_signup, created_at')
+      .select('*')
       .eq('artist_id', artistId),
     supabaseAdmin.from('song_lab_votes')
-      .select('decision_id, fan_id, created_at')
+      .select('decision_id, fan_id, option_id, created_at')
       .eq('artist_id', artistId),
     supabaseAdmin.from('song_lab_decisions')
-      .select('id, project_id, stage_label, status')
+      .select('id, project_id, stage_label, status, options, opens_at, closes_at, winning_option_id')
       .eq('artist_id', artistId),
     supabaseAdmin.from('subscriptions')
       .select('fan_id, tier_id, status')
@@ -98,6 +100,13 @@ export async function GET() {
       // "Later paid" joins on (artist_id, fan_id) against live paid memberships. It is a
       // COUNT of current paid members among this offer's claimers, not a causal claim.
       nowPaid: claimedFanIds.filter((f) => paidFanIds.has(f)).length,
+      // Which door they came through. Absent before the source column exists, and null
+      // for every claim recorded before it did: reported as "not recorded", never as 0.
+      sources: cs.reduce<Record<string, number>>((acc, c) => {
+        const key = (c as { source?: string | null }).source || 'unknown';
+        acc[key] = (acc[key] ?? 0) + 1;
+        return acc;
+      }, {}),
     };
   });
 
@@ -111,13 +120,34 @@ export async function GET() {
 
   return NextResponse.json({
     offers: offerRows,
-    decisions: (decisions || []).map((d) => ({
-      id: d.id,
-      projectId: d.project_id,
-      stageLabel: d.stage_label,
-      status: d.status,
-      votes: votesByDecision.get(d.id) ?? 0,
-    })),
+    // One row per SHOW, with its own tally. Never summed across shows: two sets on one
+    // night are two separate questions, and merging them would invent a result nobody
+    // voted for.
+    decisions: (decisions || []).map((d) => {
+      const perOption = new Map<string, number>();
+      for (const v of votes || []) {
+        if (v.decision_id !== d.id) continue;
+        perOption.set(v.option_id, (perOption.get(v.option_id) ?? 0) + 1);
+      }
+      const total = votesByDecision.get(d.id) ?? 0;
+      return {
+        id: d.id,
+        projectId: d.project_id,
+        stageLabel: d.stage_label,
+        status: d.status,
+        opensAt: d.opens_at ?? null,
+        closesAt: d.closes_at ?? null,
+        votes: total,
+        winningOptionId: d.winning_option_id ?? null,
+        options: ((d.options || []) as Array<{ id: string; label: string }>).map((o) => ({
+          id: o.id,
+          label: o.label,
+          votes: perOption.get(o.id) ?? 0,
+          // A share is only meaningful against this show's own total.
+          share: total > 0 ? Math.round(((perOption.get(o.id) ?? 0) / total) * 100) : null,
+        })),
+      };
+    }),
     participation: {
       participants,
       repeatParticipants,

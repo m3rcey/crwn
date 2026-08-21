@@ -877,7 +877,11 @@ describe('SEC-SERVICE — service-role routes are the only authorization boundar
     // the caller's OWN artist_profiles row (never a client-supplied id), and additionally
     // requires the server-only song_lab_enabled gate. Strictly stronger than the bare
     // auth.getUser() this pattern already trusts.
-    const ESTABLISHES = /auth\.getUser\s*\(|requireAdmin\s*\(|requireArtistOwner\s*\(|requireSongLabArtist\s*\(|getOwnedArtistIds\s*\(|CRON_SECRET|INTERNAL_[A-Z_]*SECRET|constructEvent\s*\(|verifyWebhookSignature\s*\(|WebhookReceiver|createHmac\s*\(|verifyUnsubscribe[A-Za-z]*\s*\(|verifyCalcomRequest\s*\(|presentedSecret/;
+    // verifyTwilioSignature: the inbound SMS keyword route's authority. It is a provider
+    // signature in the same class as constructEvent (Stripe) and verifyCalcomRequest, and
+    // the HMAC itself is pinned against Twilio's published test vector in
+    // src/lib/sms/keywords.test.ts, so this name cannot come to mean nothing.
+    const ESTABLISHES = /auth\.getUser\s*\(|requireAdmin\s*\(|requireArtistOwner\s*\(|requireSongLabArtist\s*\(|getOwnedArtistIds\s*\(|CRON_SECRET|INTERNAL_[A-Z_]*SECRET|constructEvent\s*\(|verifyWebhookSignature\s*\(|verifyTwilioSignature\s*\(|WebhookReceiver|createHmac\s*\(|verifyUnsubscribe[A-Za-z]*\s*\(|verifyCalcomRequest\s*\(|presentedSecret/;
     const offenders = serviceRoleRoutes
       .filter(f => !DELIBERATELY_PUBLIC.has(f))
       .filter(f => !ESTABLISHES.test(readStripped(f)));

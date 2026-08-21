@@ -68,6 +68,11 @@ const PROBES = [
   // server-only (no client grant) so 42501 is its applied signal, exactly like launch_partner.
   ['song lab projects', 'song_lab_projects?select=id&limit=1', 'schema-phase2-song-lab.sql'],
   ['song lab gate column', 'artist_profiles?select=song_lab_enabled&limit=1', 'schema-phase2-song-lab.sql'],
+  // Live shows. song_lab_projects is publicly readable, so naming the new column resolves
+  // 200 once applied and 42703 while pending. The claims column cannot be probed with the
+  // anon key at all (that table is service-role only, correctly), so this one line is the
+  // signal for both columns in the file.
+  ['song lab show timezone', 'song_lab_projects?select=show_timezone&limit=1', 'schema-phase2-song-lab-live-shows.sql'],
   // Fan Testimonials V1. The PUBLIC VIEW is the probe target, not the base tables: the view is
   // granted to anon (the artist page reads it), so 200 with [] means applied. The two base tables
   // are deliberately CLOSED to anon and answer 42501, which this generic loop would file as

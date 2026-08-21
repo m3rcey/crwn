@@ -54,3 +54,36 @@ export function verifySvixSignature(
     .filter((part) => part.startsWith('v1,'))
     .some((part) => safeEqual(expected, part.slice(3)));
 }
+
+/**
+ * Twilio signs inbound webhooks with HMAC-SHA1 over the exact request URL followed by
+ * every POST parameter, sorted by key and concatenated as key+value, base64 encoded,
+ * sent as the X-Twilio-Signature header.
+ *
+ * Implemented here rather than by adding the Twilio SDK for one hash, the same call this
+ * module already makes for Svix. The algorithm is pinned against Twilio's own published
+ * test vector in webhookSignatures.test.ts, so a mistake fails the suite instead of a show.
+ *
+ * THE URL MUST BE THE ONE TWILIO SIGNED, query string included, with the public scheme
+ * and host. Behind a proxy the internal request URL can arrive as http, which is why the
+ * caller reconstructs an explicit https URL rather than trusting req.url.
+ *
+ * Fails CLOSED: no token, no signature, or a malformed one is a rejection. An inbound SMS
+ * route without this would let anyone on the internet make CRWN send a text.
+ */
+export function verifyTwilioSignature(
+  url: string,
+  params: Record<string, string>,
+  signature: string | null,
+  authToken: string | undefined
+): boolean {
+  if (!authToken || !signature || !url) return false;
+
+  let payload = url;
+  for (const key of Object.keys(params).sort()) {
+    payload += key + (params[key] ?? '');
+  }
+
+  const expected = createHmac('sha1', authToken).update(Buffer.from(payload, 'utf8')).digest('base64');
+  return safeEqual(expected, signature);
+}

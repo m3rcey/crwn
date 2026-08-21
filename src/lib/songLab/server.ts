@@ -9,6 +9,13 @@
 
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { awardFanBadge } from '@/lib/fanBadges';
+import {
+  resolveShowPhase,
+  isValidTimeZone,
+  DEFAULT_SHOW_TIMEZONE,
+  type ShowPhase,
+  type ShowPoll,
+} from './schedule';
 
 export type SongLabArtistAuth =
   | { ok: true; userId: string; artistId: string; slug: string }
@@ -67,6 +74,79 @@ export async function resolveOfferEnrollTier(
     .limit(1)
     .maybeSingle();
   return freeTier?.id ?? null;
+}
+
+/** Columns every poll consumer needs. One list so the page and the claim route agree. */
+export const SHOW_POLL_COLUMNS =
+  'id, project_id, artist_id, stage_label, question, options, status, is_free, allowed_tier_ids, opens_at, closes_at, winning_option_id';
+
+/**
+ * Every PUBLISHED poll behind one lead magnet, newest schedule first.
+ *
+ * Two shapes, one resolver. An offer bound to a PROJECT is an event that can hold several
+ * shows (Julius plays two sets behind one printed QR code); an offer bound to a single
+ * DECISION is the original one-poll magnet and still works untouched. Drafts never load,
+ * so an artist's scratch poll can never reach a fan.
+ */
+export async function loadEventPolls(
+  admin: any,
+  artistId: string,
+  offer: { project_id?: string | null; decision_id?: string | null },
+): Promise<ShowPoll[]> {
+  if (offer.project_id) {
+    const { data } = await admin
+      .from('song_lab_decisions')
+      .select(SHOW_POLL_COLUMNS)
+      .eq('artist_id', artistId)
+      .eq('project_id', offer.project_id)
+      .neq('status', 'draft')
+      .order('created_at', { ascending: true });
+    return (data || []) as ShowPoll[];
+  }
+  if (offer.decision_id) {
+    const { data } = await admin
+      .from('song_lab_decisions')
+      .select(SHOW_POLL_COLUMNS)
+      .eq('artist_id', artistId)
+      .eq('id', offer.decision_id)
+      .neq('status', 'draft')
+      .maybeSingle();
+    return data ? [data as ShowPoll] : [];
+  }
+  return [];
+}
+
+/**
+ * The event's display timezone. Read with select('*') ON PURPOSE: `show_timezone` arrives
+ * with schema-phase2-song-lab-live-shows.sql, and naming a not-yet-existing column would
+ * fail the whole query and 404 a live lead magnet. Absent column simply falls back.
+ */
+export async function eventTimeZone(admin: any, projectId: string | null | undefined): Promise<string> {
+  if (!projectId) return DEFAULT_SHOW_TIMEZONE;
+  const { data } = await admin.from('song_lab_projects').select('*').eq('id', projectId).maybeSingle();
+  const tz = data?.show_timezone;
+  return isValidTimeZone(tz) ? tz : DEFAULT_SHOW_TIMEZONE;
+}
+
+/**
+ * Which poll this lead magnet is showing right now, decided on the SERVER. The landing
+ * page and /api/song-lab/claim both call this, so a fan can never vote into a show the
+ * page is no longer showing (a phone that loaded at 7:58 and submitted at 8:02 gets a
+ * refusal, not a silent vote in the next set).
+ */
+export async function resolveOfferPhase(
+  admin: any,
+  artistId: string,
+  offer: { project_id?: string | null; decision_id?: string | null },
+  now: Date = new Date(),
+): Promise<{ polls: ShowPoll[]; phase: ShowPhase; timeZone: string }> {
+  const polls = await loadEventPolls(admin, artistId, offer);
+  const phase = resolveShowPhase(polls, now);
+  // The zone is only needed to SAY when the next set opens, so it is loaded only then.
+  const timeZone = phase.kind === 'between'
+    ? await eventTimeZone(admin, offer.project_id ?? phase.nextPoll.project_id ?? null)
+    : DEFAULT_SHOW_TIMEZONE;
+  return { polls, phase, timeZone };
 }
 
 /**

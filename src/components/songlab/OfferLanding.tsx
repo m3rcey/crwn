@@ -52,8 +52,19 @@ import {
 } from '@/lib/songLab/voteForm';
 
 export interface LandingBallot {
+  /** Which show's poll this is. Sent back with the vote so the server can refuse a
+   *  submission whose show closed while the page was open. */
+  decisionId: string;
   question: string;
   options: DecisionOption[];
+}
+
+/** No ballot right now: either between sets, or the night is over. */
+export interface LandingInterlude {
+  kind: 'between' | 'ended';
+  endedLabel: string | null;
+  nextLabel: string | null;
+  opensAtLabel: string | null;
 }
 
 interface OfferLandingProps {
@@ -65,6 +76,7 @@ interface OfferLandingProps {
   description: string | null;
   ctaLabel: string;
   ballot?: LandingBallot | null;
+  interlude?: LandingInterlude | null;
 }
 
 interface ClaimResult {
@@ -93,6 +105,7 @@ export function OfferLanding({
   description,
   ctaLabel,
   ballot,
+  interlude,
 }: OfferLandingProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -111,8 +124,12 @@ export function OfferLanding({
   const ballotMode = !!ballot && ballot.options.length >= 2;
   const signedIn = !!user;
   const claimBase = `/${artistSlug}/join/${offerSlug}?claim=1`;
+  // How this fan reached the page (a QR flyer or the JUBO text). Reporting only: it
+  // never affects what they see or what they may do, and the server allowlists it.
+  const sourceParam = searchParams.get('utm_source') || searchParams.get('src') || null;
+  const carrySource = sourceParam ? `&utm_source=${encodeURIComponent(sourceParam)}` : '';
   const nextWithVote = (optionId: string | null) =>
-    optionId ? `${claimBase}&o=${optionId}` : claimBase;
+    `${claimBase}${optionId ? `&o=${optionId}` : ''}${carrySource}`;
 
   const claim = useCallback(async (optionId: string | null) => {
     setBusy(true);
@@ -122,7 +139,16 @@ export function OfferLanding({
       const res = await fetch('/api/song-lab/claim', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ artistSlug, offerSlug, ...(optionId ? { optionId } : {}) }),
+        body: JSON.stringify({
+          artistSlug,
+          offerSlug,
+          ...(optionId ? { optionId } : {}),
+          // The show this page was displaying. The server refuses the vote (but still
+          // joins them) if that show has since closed, so a Show 1 pick submitted after
+          // the handover is never silently counted in Show 2.
+          ...(ballot?.decisionId ? { decisionId: ballot.decisionId } : {}),
+          ...(sourceParam ? { source: sourceParam } : {}),
+        }),
       });
       const data = await res.json().catch(() => null);
       if (res.ok && data?.destination) {
@@ -277,6 +303,45 @@ export function OfferLanding({
             See how the vote is going
           </a>
         ) : null}
+      </Shell>
+    );
+  }
+
+  /* ── Between sets, or the night is over ──
+     One state at a time, in large plain words. A closed poll is never rendered as a
+     greyed-out ballot: for a room that skews 60+, a disabled card reads as "broken". */
+  if (!ballotMode && interlude) {
+    const between = interlude.kind === 'between';
+    return (
+      <Shell>
+        <Hero artistName={artistName} avatarUrl={avatarUrl} headline={headline} description={null} uppercase />
+        <div className="rounded-2xl bg-crwn-surface ring-1 ring-white/10 px-5 py-8">
+          <p className="text-2xl font-bold text-crwn-text uppercase leading-tight" aria-live="polite">
+            {between
+              ? `${interlude.endedLabel || 'This show'} voting has ended`
+              : 'Voting has ended for tonight'}
+          </p>
+          <p className="mt-4 text-xl text-crwn-text-secondary leading-relaxed">
+            {between
+              ? interlude.opensAtLabel
+                ? `${interlude.nextLabel || 'The next show'} voting opens at ${interlude.opensAtLabel}.`
+                : `${interlude.nextLabel || 'The next show'} voting opens soon.`
+              : `Thanks for being part of the show. ${artistName} will share what won.`}
+          </p>
+          {between ? (
+            <p className="mt-4 text-lg text-crwn-text-secondary">
+              Keep this page. Come back when the next set starts.
+            </p>
+          ) : null}
+        </div>
+        {/* Secondary and deliberately not gold: the vote is over, but someone scanning a
+            flyer afterward should still be able to keep in touch. Never a vote action. */}
+        <a
+          href={`/${artistSlug}`}
+          className="mt-6 inline-block text-lg text-crwn-gold underline"
+        >
+          {`See ${possessive(artistName)} page`}
+        </a>
       </Shell>
     );
   }

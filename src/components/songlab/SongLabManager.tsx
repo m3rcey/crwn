@@ -9,6 +9,18 @@ import { useCallback, useEffect, useState } from 'react';
 import { Copy, Check, Plus, Loader2, QrCode, Trash2, Pencil } from 'lucide-react';
 import { OptionSelect } from '@/components/ui/OptionSelect';
 import { RECOGNITION_DISCLAIMER } from '@/lib/songLab/core';
+import { DEFAULT_SHOW_TIMEZONE, EXTEND_MINUTES, formatTimeInZone, scheduleLabel } from '@/lib/songLab/schedule';
+import { liveShowDefaults, validateShowWindows, DEFAULT_SHOW_TIMES } from '@/lib/songLab/liveShowTemplate';
+import { claimSourceLabel } from '@/lib/songLab/claimSource';
+
+/** The zones a US touring artist actually plays. Any IANA id works server-side. */
+const COMMON_TIMEZONES = [
+  { id: 'America/New_York', label: 'Eastern' },
+  { id: 'America/Chicago', label: 'Central' },
+  { id: 'America/Denver', label: 'Mountain' },
+  { id: 'America/Phoenix', label: 'Arizona' },
+  { id: 'America/Los_Angeles', label: 'Pacific' },
+];
 
 /**
  * Open a print-ready sheet for one offer link: a high-contrast QR, plain-language
@@ -50,7 +62,7 @@ async function openQrSheet(url: string, artistName: string) {
 }
 
 interface Tier { id: string; name: string; price: number }
-interface Project { id: string; title: string; status: string; next_note: string | null }
+interface Project { id: string; title: string; status: string; next_note: string | null; show_timezone?: string | null }
 interface Decision {
   id: string; project_id: string; stage_label: string; question: string;
   options: Array<{ id: string; label: string }>;
@@ -63,8 +75,12 @@ interface Offer {
   view_count: number; destination_path: string | null;
 }
 interface AnalyticsPayload {
-  offers: Array<{ id: string; name: string; views: number; claims: number; freeJoins: number; freshSignups: number; participated: number; nowPaid: number; isActive: boolean }>;
-  decisions: Array<{ id: string; stageLabel: string; status: string; votes: number }>;
+  offers: Array<{ id: string; name: string; views: number; claims: number; freeJoins: number; freshSignups: number; participated: number; nowPaid: number; isActive: boolean; sources?: Record<string, number> }>;
+  decisions: Array<{
+    id: string; stageLabel: string; status: string; votes: number;
+    options?: Array<{ id: string; label: string; votes: number; share: number | null }>;
+    winningOptionId?: string | null;
+  }>;
   participation: { participants: number; repeatParticipants: number; multiProjectParticipants: number; totalVotes: number; tierBreakdown: Record<string, number> };
 }
 
@@ -197,6 +213,8 @@ export function SongLabManager() {
           busy={busy}
           call={call}
           remove={remove}
+          displayName={displayName}
+          reload={loadAll}
         />
       ) : null}
 
@@ -221,21 +239,214 @@ export function SongLabManager() {
   );
 }
 
+/* ── New live show ────────────────────────────────────────────────────────────
+   The whole night in one form. Everything that repeats week to week is filled in
+   already; the artist types the show name, picks the date, and enters songs. */
+
+function NewLiveShowForm({ displayName, busy, call, onCreated }: {
+  displayName: string;
+  busy: boolean;
+  call: (url: string, body: Record<string, unknown>, method?: string) => Promise<boolean>;
+  onCreated: () => void;
+}) {
+  const [eventName, setEventName] = useState('');
+  const [date, setDate] = useState('');
+  const [timeZone, setTimeZone] = useState(DEFAULT_SHOW_TIMEZONE);
+  const defaults = liveShowDefaults(displayName, eventName);
+  const [headline, setHeadline] = useState(defaults.headline);
+  const [question, setQuestion] = useState('');
+  const [description, setDescription] = useState('');
+  const [show1, setShow1] = useState(['', '']);
+  const [show2, setShow2] = useState(['', '']);
+  const [close1, setClose1] = useState<string>(DEFAULT_SHOW_TIMES[0].closesAt);
+  const [close2, setClose2] = useState<string>(DEFAULT_SHOW_TIMES[1].closesAt);
+  const [twoShows, setTwoShows] = useState(true);
+  const [created, setCreated] = useState<{ path: string } | null>(null);
+  const [localError, setLocalError] = useState<string | null>(null);
+
+  // The question and the supporting line depend on the artist's name, which arrives
+  // after the first render, so they seed from the template unless the artist edits them.
+  const effectiveQuestion = question || defaults.question;
+  const effectiveDescription = description || defaults.description;
+
+  const submit = async () => {
+    setLocalError(null);
+    const shows = [
+      { label: 'Show 1', options: show1, opensAt: null, closesAt: close1 },
+      ...(twoShows ? [{ label: 'Show 2', options: show2, opensAt: close1, closesAt: close2 }] : []),
+    ];
+    const problem = validateShowWindows(shows);
+    if (problem) { setLocalError(problem); return; }
+
+    const res = await fetch('/api/song-lab/live-show', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        eventName, date, timeZone,
+        headline, question: effectiveQuestion, description: effectiveDescription,
+        shows,
+      }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) { setLocalError(data.error || 'Could not create the show'); return; }
+    setCreated({ path: data.path });
+    onCreated();
+  };
+
+  if (created) {
+    return (
+      <div className="rounded-2xl bg-crwn-surface p-4 space-y-2">
+        <p className="text-sm font-semibold text-crwn-gold">Your show is ready.</p>
+        <p className="text-sm text-crwn-text">
+          One link for the whole night: <span className="text-crwn-text-secondary">{created.path}</span>
+        </p>
+        <p className="text-xs text-crwn-text-secondary">
+          Print the QR from the Lead magnets tab. It shows Show 1 until it closes, then Show 2 by itself.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-2xl bg-crwn-surface p-4 space-y-3">
+      <p className="text-sm font-semibold text-crwn-text">New live show</p>
+      <p className="text-xs text-crwn-text-secondary">
+        Only the show, the date and the songs change from night to night. The rest is filled in.
+      </p>
+
+      <label className="block text-xs font-semibold text-crwn-text pt-1">Show and date, as you would say it</label>
+      <input value={eventName} onChange={(e) => setEventName(e.target.value)}
+        placeholder="St. James Live Sept 26"
+        className="w-full rounded-lg bg-crwn-surface-solid px-3 py-2 text-sm text-crwn-text outline-none" />
+
+      <div className="flex gap-2">
+        <div className="flex-1">
+          <label className="block text-xs font-semibold text-crwn-text">Date of the show</label>
+          <input type="date" value={date} onChange={(e) => setDate(e.target.value)}
+            className="w-full rounded-lg bg-crwn-surface-solid px-3 py-2 text-sm text-crwn-text outline-none" />
+        </div>
+        <div className="flex-1">
+          <label className="block text-xs font-semibold text-crwn-text">Time zone of the venue</label>
+          <OptionSelect
+            options={COMMON_TIMEZONES.map((z) => ({ value: z.id, label: z.label }))}
+            value={timeZone}
+            onChange={(v) => setTimeZone(v || DEFAULT_SHOW_TIMEZONE)}
+          />
+        </div>
+      </div>
+
+      <div className="rounded-xl bg-crwn-surface-solid p-3 space-y-2">
+        <p className="text-xs font-semibold text-crwn-text">Show 1 songs</p>
+        {show1.map((s, i) => (
+          <input key={i} value={s} aria-label={`Show 1 song ${i + 1}`}
+            onChange={(e) => setShow1(show1.map((x, j) => (j === i ? e.target.value : x)))}
+            placeholder={i === 0 ? '"Never Too Much" - Luther Vandross' : 'Second song'}
+            className="w-full rounded-lg bg-crwn-surface px-3 py-2 text-sm text-crwn-text outline-none" />
+        ))}
+        {show1.length < 4 ? (
+          <button onClick={() => setShow1([...show1, ''])} className="text-xs text-crwn-gold">+ one more song</button>
+        ) : null}
+        <div className="flex items-center gap-2 pt-1">
+          <label className="text-xs text-crwn-text-secondary">Voting closes</label>
+          <input type="time" value={close1} onChange={(e) => setClose1(e.target.value)}
+            className="rounded-lg bg-crwn-surface px-2 py-1.5 text-xs text-crwn-text outline-none" />
+        </div>
+      </div>
+
+      <label className="flex items-center gap-2 text-sm text-crwn-text-secondary">
+        <input type="checkbox" checked={twoShows} onChange={(e) => setTwoShows(e.target.checked)} className="accent-crwn-gold" />
+        There is a second show tonight
+      </label>
+
+      {twoShows ? (
+        <div className="rounded-xl bg-crwn-surface-solid p-3 space-y-2">
+          <div className="flex items-center justify-between">
+            <p className="text-xs font-semibold text-crwn-text">Show 2 songs</p>
+            <button onClick={() => setShow2([...show1])} className="text-xs text-crwn-gold">
+              Same songs as Show 1
+            </button>
+          </div>
+          {show2.map((s, i) => (
+            <input key={i} value={s} aria-label={`Show 2 song ${i + 1}`}
+              onChange={(e) => setShow2(show2.map((x, j) => (j === i ? e.target.value : x)))}
+              placeholder={i === 0 ? 'First song' : 'Second song'}
+              className="w-full rounded-lg bg-crwn-surface px-3 py-2 text-sm text-crwn-text outline-none" />
+          ))}
+          {show2.length < 4 ? (
+            <button onClick={() => setShow2([...show2, ''])} className="text-xs text-crwn-gold">+ one more song</button>
+          ) : null}
+          <div className="flex items-center gap-2 pt-1">
+            <label className="text-xs text-crwn-text-secondary">Opens when Show 1 closes, closes</label>
+            <input type="time" value={close2} onChange={(e) => setClose2(e.target.value)}
+              className="rounded-lg bg-crwn-surface px-2 py-1.5 text-xs text-crwn-text outline-none" />
+          </div>
+        </div>
+      ) : null}
+
+      <details className="rounded-xl bg-crwn-surface-solid p-3">
+        <summary className="text-xs font-semibold text-crwn-text cursor-pointer">
+          The words on the page (already written)
+        </summary>
+        <div className="space-y-2 pt-2">
+          <label className="block text-xs text-crwn-text-secondary">Headline</label>
+          <input value={headline} onChange={(e) => setHeadline(e.target.value)}
+            className="w-full rounded-lg bg-crwn-surface px-3 py-2 text-sm text-crwn-text outline-none" />
+          <label className="block text-xs text-crwn-text-secondary">Question fans see</label>
+          <input value={effectiveQuestion} onChange={(e) => setQuestion(e.target.value)}
+            className="w-full rounded-lg bg-crwn-surface px-3 py-2 text-sm text-crwn-text outline-none" />
+          <label className="block text-xs text-crwn-text-secondary">Line underneath</label>
+          <textarea value={effectiveDescription} onChange={(e) => setDescription(e.target.value)} rows={2}
+            className="w-full rounded-lg bg-crwn-surface px-3 py-2 text-sm text-crwn-text outline-none" />
+        </div>
+      </details>
+
+      {localError ? <p className="text-sm text-red-400">{localError}</p> : null}
+
+      <button
+        disabled={busy || !eventName.trim() || !date}
+        onClick={submit}
+        className="px-4 py-2 rounded-full bg-crwn-gold text-crwn-bg text-sm font-semibold disabled:opacity-50"
+      >
+        Create the night
+      </button>
+    </div>
+  );
+}
+
 /* ── Projects ─────────────────────────────────────────────────────────────── */
 
-function ProjectsPanel({ projects, decisions, tiers, busy, call, remove }: {
+function ProjectsPanel({ projects, decisions, tiers, busy, call, remove, displayName, reload }: {
   projects: Project[];
   decisions: Decision[];
   tiers: Tier[];
   busy: boolean;
   call: (url: string, body: Record<string, unknown>, method?: string) => Promise<boolean>;
   remove: (url: string, confirmText: string) => Promise<boolean>;
+  displayName: string;
+  reload: () => Promise<void>;
 }) {
   const [newTitle, setNewTitle] = useState('');
   const [addingTo, setAddingTo] = useState<string | null>(null);
+  const [creatingShow, setCreatingShow] = useState(false);
 
   return (
     <div className="space-y-6">
+      {creatingShow ? (
+        <NewLiveShowForm
+          displayName={displayName}
+          busy={busy}
+          call={call}
+          onCreated={() => { reload(); }}
+        />
+      ) : (
+        <button
+          onClick={() => setCreatingShow(true)}
+          className="w-full py-3 rounded-xl bg-crwn-gold text-crwn-bg font-semibold"
+        >
+          + New live show
+        </button>
+      )}
+
       <div className="flex gap-2">
         <input
           value={newTitle}
@@ -306,7 +517,14 @@ function ProjectsPanel({ projects, decisions, tiers, busy, call, remove }: {
           />
 
           {decisions.filter((d) => d.project_id === project.id).map((d) => (
-            <DecisionRow key={d.id} decision={d} busy={busy} call={call} remove={remove} />
+            <DecisionRow
+              key={d.id}
+              decision={d}
+              busy={busy}
+              call={call}
+              remove={remove}
+              timeZone={project.show_timezone || DEFAULT_SHOW_TIMEZONE}
+            />
           ))}
 
           {addingTo === project.id ? (
@@ -331,11 +549,29 @@ function ProjectsPanel({ projects, decisions, tiers, busy, call, remove }: {
   );
 }
 
-function DecisionRow({ decision: d, busy, call, remove }: {
+/** Plain English for the poll's live state. No hidden override flags: every phrase here
+ *  is derived from status plus the window, so Studio cannot disagree with the public page. */
+function scheduleSentence(d: Decision, timeZone: string): string {
+  const label = scheduleLabel(d as never, new Date());
+  const opens = d.opens_at ? formatTimeInZone(d.opens_at, timeZone) : null;
+  const closes = d.closes_at ? formatTimeInZone(d.closes_at, timeZone) : null;
+  switch (label) {
+    case 'draft': return 'Draft. Fans cannot see this.';
+    case 'scheduled': return opens ? `Scheduled: opens ${opens}${closes ? `, closes ${closes}` : ''}` : 'Scheduled';
+    case 'open': return `Open now, closes ${closes} on its own`;
+    case 'open_no_end': return 'Open now with no end time. You close it by hand.';
+    case 'closed_early': return 'Closed early by hand';
+    case 'closed_on_time': return closes ? `Closed at ${closes}` : 'Closed';
+    default: return '';
+  }
+}
+
+function DecisionRow({ decision: d, busy, call, remove, timeZone }: {
   decision: Decision;
   busy: boolean;
   call: (url: string, body: Record<string, unknown>, method?: string) => Promise<boolean>;
   remove: (url: string, confirmText: string) => Promise<boolean>;
+  timeZone: string;
 }) {
   const [finalizing, setFinalizing] = useState(false);
   const [winner, setWinner] = useState<string | null>(d.winning_option_id);
@@ -371,15 +607,32 @@ function DecisionRow({ decision: d, busy, call, remove }: {
             {d.options.map((o) => o.label).join(' / ')}
             {d.winning_option_id ? ` · winner: ${d.options.find((o) => o.id === d.winning_option_id)?.label ?? d.winning_option_id}` : ''}
           </p>
+          <p className="text-xs text-crwn-gold/80 mt-1">{scheduleSentence(d, timeZone)}</p>
         </div>
-        <div className="flex gap-2 shrink-0">
+        <div className="flex gap-2 shrink-0 flex-wrap justify-end">
           {d.status === 'draft' ? (
             <button disabled={busy} onClick={() => call('/api/song-lab/decisions', { decisionId: d.id, action: 'open' }, 'PATCH')}
               className="text-xs px-3 py-1.5 rounded-full bg-crwn-gold text-crwn-bg font-semibold disabled:opacity-50">Open vote</button>
           ) : null}
+          {/* Live music runs early and late. Start this set's vote now, whatever the
+              schedule said; a future close time is kept so it still ends itself. */}
+          {d.status !== 'closed' && scheduleLabel(d as never, new Date()) === 'scheduled' ? (
+            <button disabled={busy} onClick={() => call('/api/song-lab/decisions', { decisionId: d.id, action: 'open_now' }, 'PATCH')}
+              className="text-xs px-3 py-1.5 rounded-full bg-crwn-gold text-crwn-bg font-semibold disabled:opacity-50">Open now</button>
+          ) : null}
           {d.status === 'open' ? (
             <button disabled={busy} onClick={() => call('/api/song-lab/decisions', { decisionId: d.id, action: 'close' }, 'PATCH')}
-              className="text-xs px-3 py-1.5 rounded-full bg-crwn-surface-solid text-crwn-text ring-1 ring-white/10 disabled:opacity-50">Close vote</button>
+              className="text-xs px-3 py-1.5 rounded-full bg-crwn-surface-solid text-crwn-text ring-1 ring-white/10 disabled:opacity-50">Close now</button>
+          ) : null}
+          {/* Running long: push the close out from now. */}
+          {d.status === 'open' ? (
+            <OptionSelect
+              className="w-32"
+              options={EXTEND_MINUTES.map((m) => ({ value: String(m), label: `+${m} min` }))}
+              value={null}
+              onChange={(v) => v && call('/api/song-lab/decisions', { decisionId: d.id, action: 'extend', minutes: Number(v) }, 'PATCH')}
+              placeholder="Extend"
+            />
           ) : null}
           {d.status === 'closed' && !d.winning_option_id ? (
             <button onClick={() => setFinalizing((f) => !f)}

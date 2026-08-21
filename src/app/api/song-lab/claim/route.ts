@@ -21,7 +21,8 @@ import { createClient } from '@supabase/supabase-js';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { checkRateLimit } from '@/lib/rateLimit';
 import { songLabArtistBySlug } from '@/lib/songLab/access';
-import { resolveOfferEnrollTier, recordLabVote } from '@/lib/songLab/server';
+import { resolveOfferEnrollTier, recordLabVote, resolveOfferPhase } from '@/lib/songLab/server';
+import { normalizeClaimSource } from '@/lib/songLab/claimSource';
 import {
   offerIsLive,
   claimDestination,
@@ -55,6 +56,12 @@ export async function POST(req: NextRequest) {
     // Optional: a vote carried from the vote-first landing (live show mode). Validated
     // against the offer's own decision below; an invalid one never blocks the join.
     const carriedOptionId = typeof body.optionId === 'string' ? body.optionId.trim().slice(0, 8) : '';
+    // Which show the page was displaying, so a submission that crossed a show handover
+    // can be refused instead of counted in the wrong set. A POINTER, never authority.
+    const carriedDecisionId = typeof body.decisionId === 'string' ? body.decisionId.trim().slice(0, 64) : '';
+    // How they arrived (qr / jubo / link). Reporting dimension ONLY: allowlisted, never
+    // used for access, pricing or eligibility.
+    const source = normalizeClaimSource(body.source);
     if (!artistSlug || !offerSlug) {
       return NextResponse.json({ error: 'Missing artistSlug or offerSlug' }, { status: 400 });
     }
@@ -87,16 +94,30 @@ export async function POST(req: NextRequest) {
 
     // The attribution row. UNIQUE(offer_id, fan_id) + ignoreDuplicates keeps the FIRST
     // claim's facts (first-touch, same policy as persisted campaign attribution).
+    const claimRow = {
+      offer_id: offer.id,
+      artist_id: artist.artistId,
+      fan_id: user.id,
+      join_result: join.status === 'joined' ? 'joined' : 'already_member',
+      fresh_signup: isFreshSignup(user.created_at, new Date()),
+    };
     const { error: claimError } = await supabaseAdmin
       .from('song_lab_offer_claims')
-      .upsert({
-        offer_id: offer.id,
-        artist_id: artist.artistId,
-        fan_id: user.id,
-        join_result: join.status === 'joined' ? 'joined' : 'already_member',
-        fresh_signup: isFreshSignup(user.created_at, new Date()),
-      }, { onConflict: 'offer_id,fan_id', ignoreDuplicates: true });
-    if (claimError) console.error('[song-lab] claim record failed (non-fatal):', claimError.message);
+      .upsert(source ? { ...claimRow, source } : claimRow,
+        { onConflict: 'offer_id,fan_id', ignoreDuplicates: true });
+    if (claimError) {
+      // `source` arrives with schema-phase2-song-lab-live-shows.sql. Before it is applied
+      // the column does not exist, and losing the whole attribution row over a reporting
+      // field would be worse than losing the field. Retry without it.
+      if (source && (claimError.code === 'PGRST204' || claimError.code === '42703')) {
+        const { error: retryError } = await supabaseAdmin
+          .from('song_lab_offer_claims')
+          .upsert(claimRow, { onConflict: 'offer_id,fan_id', ignoreDuplicates: true });
+        if (retryError) console.error('[song-lab] claim record failed (non-fatal):', retryError.message);
+      } else {
+        console.error('[song-lab] claim record failed (non-fatal):', claimError.message);
+      }
+    }
 
     // A fan who arrived through an artist's lead magnet is a SUPPORTER. Completing their
     // onboarding here mirrors the setup wizard's "continue as a supporter" server-side
@@ -148,20 +169,24 @@ export async function POST(req: NextRequest) {
     // the decision must be the OFFER'S own, checkVote re-derives open/option/eligibility
     // server-side, and the fan's tier comes from the subscriptions table (which the join
     // above just wrote). A denied vote never un-joins anyone; they pick by hand on the Lab.
+    // The SERVER decides which show is live, never the page and never the phone's clock.
+    // If the fan's page was showing Show 1 and Show 1 closed while they typed, the vote is
+    // refused with `stale_show` rather than silently landing in Show 2's tally.
     let voted = false;
-    if (carriedOptionId && offer.benefit_kind === 'vote' && offer.decision_id) {
-      const { data: decision } = await supabaseAdmin
-        .from('song_lab_decisions')
-        .select('id, artist_id, project_id, options, status, is_free, allowed_tier_ids, opens_at, closes_at, winning_option_id')
-        .eq('id', offer.decision_id)
-        .eq('artist_id', artist.artistId)
-        .maybeSingle();
-      if (decision) {
+    let voteRefusal: string | null = null;
+    if (carriedOptionId && offer.benefit_kind === 'vote') {
+      const { phase } = await resolveOfferPhase(supabaseAdmin, artist.artistId, offer, new Date());
+      if (phase.kind !== 'active') {
+        voteRefusal = 'not_open';
+      } else if (carriedDecisionId && carriedDecisionId !== phase.poll.id) {
+        voteRefusal = 'stale_show';
+      } else {
+        const decision = phase.poll;
         const { data: sub } = await supabaseAdmin
           .from('subscriptions')
           .select('tier_id')
           .eq('fan_id', user.id)
-          .eq('artist_id', decision.artist_id)
+          .eq('artist_id', artist.artistId)
           .eq('status', 'active')
           .maybeSingle();
         const verdict = checkVote({
@@ -171,7 +196,14 @@ export async function POST(req: NextRequest) {
           fanTierId: sub?.tier_id ?? null,
         });
         if (verdict.ok) {
-          voted = await recordLabVote(supabaseAdmin, decision, user.id, carriedOptionId);
+          voted = await recordLabVote(
+            supabaseAdmin,
+            { id: decision.id, artist_id: artist.artistId, project_id: decision.project_id ?? null },
+            user.id,
+            carriedOptionId,
+          );
+        } else {
+          voteRefusal = verdict.reason;
         }
       }
     }
@@ -181,6 +213,7 @@ export async function POST(req: NextRequest) {
       joined: join.status === 'joined',
       alreadyMember: join.status === 'already_member',
       voted,
+      voteRefusal,
       destination: claimDestination(offer as SongLabOfferCore, artist.slug),
       // A vote offer may also carry a reward destination (e.g. a free live performance
       // post). The landing's confirmation screen offers it; the canonical destination
