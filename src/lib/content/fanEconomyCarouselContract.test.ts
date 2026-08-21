@@ -296,6 +296,36 @@ describe.runIf(carouselFiles.length > 0)('FE-CAR-003 every carousel file is well
     expect(slide4Text).not.toMatch(/COMMENT ['"]/i);
   });
 
+  it.each(carouselFiles)('%s slide 1 headline asks a question and names the artist', (file) => {
+    // Slide 1 IS the video sheet, so its headline lives in the source script's prompt.
+    const script = readFileSync(join(SCRIPTS_DIR, file), 'utf8');
+    const prompt = script.split('**NANO BANANA PRO PROMPT:**')[1] ?? '';
+    const m = prompt.match(/with "([^"]+)" on the first line and "([^"]+)" on the second line/);
+    expect(m, 'the sheet prompt must set a two-line headline').toBeTruthy();
+    const headline = `${m![1]} ${m![2]}`.trim();
+
+    // A statement closes the gap on the opening slide, which is the one slide whose only
+    // job is opening it. Four shipped as statements ("HE GAVE 40,000 FANS HIS REAL PHONE
+    // NUMBER.") before this was checked.
+    expect(headline, `slide 1 headline must be a QUESTION: "${headline}"`).toMatch(/\?$/);
+
+    // And it must name the subject. "HE PRESSED ONE ALBUM HOW MANY WAYS?" is a question
+    // about nobody; the name is what makes a scroller stop.
+    const artistLine = script.match(/Artist:\s*([^\n·]+)/);
+    expect(artistLine, 'the script META must name its artist').toBeTruthy();
+    const STOP = new Set(['THE', 'AND', 'GOD', 'VS']);
+    const names = artistLine![1]
+      .split(/\s+vs\s+/i)
+      .flatMap((a) => a.split(/[^A-Za-z0-9$]+/))
+      .map((t) => t.toUpperCase())
+      .filter((t) => t.length > 2 && !STOP.has(t));
+    const upper = headline.toUpperCase();
+    expect(
+      names.some((t) => upper.includes(t)),
+      `slide 1 headline must name the artist (${names.join('/')}): "${headline}"`
+    ).toBe(true);
+  });
+
   it.each(carouselFiles)('%s never writes its own slide 4 prompt', (file) => {
     const md = readFileSync(join(CAROUSELS_DIR, file), 'utf8');
     // The end card is one shared asset copied by the generator.

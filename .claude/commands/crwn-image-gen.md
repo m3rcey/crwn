@@ -212,6 +212,31 @@ For each element, capture:
 
 NEVER allow any typeset, printed, computer, Arial, Helvetica, serif, or sans-serif font anywhere in the image. The bottom tagline, footer text, captions, lists, headers, numbers, labels, every single character must be hand-written with a sharpie marker. If even one word looks computer-generated, the image is a fail and must be regenerated. Reinforce this in the prompt's `[SPECIFIC CONTENT]` body too, especially around any bottom tagline.
 
+## The hook sheet must ASK, and must never answer itself
+
+Two rules on the opening sheet, both learned the hard way across eleven carousels.
+
+**It is a QUESTION, and it names the subject.** Four sheets shipped as statements with no name in
+them: "HE GAVE 40,000 FANS HIS REAL PHONE NUMBER.", "HE CHARGED TO HEAR IT BEFORE ANYBODY ELSE.",
+"700 PEOPLE PAID FOR AN ALBUM THAT DIDNT EXIST.", "HE PRESSED ONE ALBUM HOW MANY WAYS?". A
+statement closes the gap on the one slide whose only job is opening it, and "HE" is a question
+about nobody. The name is what makes a scroller stop.
+This is now machine-checked in `fanEconomyCarouselContract.test.ts`: the headline must end in a
+question mark and must contain a word from the script's `Artist:` line.
+
+**Nothing else on the sheet may answer that question.** This leaks through the notes and the
+bottom lines, not the headline, so it survives a quick glance at the top of the page:
+
+- Sheet 36 asked "HOW MANY WAYS?" and its own bottom line read "HE MADE NINE THINGS.", with a note
+  saying "FIVE IN PRESS ONE". The page asked and answered in the same breath.
+- Sheet 38 asked "HOW MANY ALBUMS?" while its notes read "4 PROJECTS" and its calendar carried
+  exactly four X marks, so the reader could count the answer off the picture.
+
+So the withholding instruction has to name the payoff in BOTH forms, digits and words ("the words
+NINE and FIVE must not appear anywhere on the page"), and the ARTWORK must not be countable either:
+if the reveal is a count, obscure the objects rather than drawing exactly that many of them. Read
+every note and both bottom lines against the headline before rendering, and again after.
+
 ## The headline NAMES the artist, and asks in the reveal's unit
 
 Two separate defects, both caught by Josh on sheets already generated.
