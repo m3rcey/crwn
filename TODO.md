@@ -89,28 +89,29 @@ responsible for. Do not work those.
       covering Luther/Stevie/etc. need licenses CRWN cannot assume, so until he confirms
       rights, point the reward at his page (his original track "Magic" is already free there).
 
-- [ ] **DECIDE whether JUBO texting is worth the Twilio work, before printing flyers that
-      promise it.** The code is built, signature-verified and tested, but it is DARK and
-      cannot work today: I probed your Twilio account and those credentials are **test
-      credentials** (error 20008), which cannot own a number, receive an inbound message or
-      send a reply. There is also nothing to fall back on, because SMS was removed from CRWN
-      in July for exactly this reason. What it would take, in order:
-        1. Twilio Console: buy or re-activate an SMS-capable US number (the old one,
-           +1 314 557 3549, was on the wind-down list, so assume it is gone).
-        2. Complete **A2P 10DLC registration** for that number (brand + campaign). Without
-           it US carriers filter or block application-sent SMS, so the replies would
-           silently not arrive. This is the slow part: allow days, not minutes, and there
-           are small one-time and monthly fees.
-        3. Twilio Console, the number's Messaging settings: set "A message comes in" to
-           **Webhook, HTTP POST, `https://thecrwn.app/api/sms/inbound`**.
-        4. Turn ON Twilio **Advanced Opt-Out** for the messaging service so STOP/HELP are
-           handled by Twilio. CRWN deliberately stays silent on those words.
-        5. Vercel env vars: set `TWILIO_AUTH_TOKEN` to the LIVE auth token, add
-           `SMS_KEYWORDS=jubo:julius-williams`, and `SMS_KEYWORD_ENABLED=true`. Redeploy.
-      Until step 5, the route answers nothing at all, so nothing can misfire. **Do not print
-      "Text JUBO" on a flyer until you have texted it yourself and got the link back.**
-      My recommendation: run Sept 26 on the QR alone (it is proven end to end), and only do
-      the Twilio work if the room shows you that people would not scan.
+- [ ] **JUBO: you added the number, now add THREE more Vercel vars or nothing will reply.**
+      I probed production after deploying: the route is still answering silence, which means
+      `SMS_KEYWORD_ENABLED` and/or `TWILIO_AUTH_TOKEN` are not set (an unsigned POST returns
+      an empty reply; once both are set it returns 403 instead, and I can re-probe to
+      confirm). `TWILIO_JUBO_PHONE_NUMBER` is now wired and is the only number JUBO answers
+      on. `TWILIO_PHONE_NUMBER` is untouched and the code is test-pinned never to read it.
+      In Vercel Production, add:
+        SMS_KEYWORD_ENABLED=true
+        SMS_KEYWORDS=jubo:julius-williams
+        TWILIO_AUTH_TOKEN=<the LIVE auth token, not the test one>
+      The auth token matters: the one in .env.local is a TEST credential (Twilio error
+      20008), and Twilio signs real webhooks with the LIVE token, so a test token means
+      every inbound message is rejected as unsigned. Redeploy after adding them.
+      Then, still in the Twilio Console for the JUBO number:
+        1. Confirm "A message comes in" is Webhook, HTTP POST,
+           `https://thecrwn.app/api/sms/inbound` (you said this is done).
+        2. Turn ON **Advanced Opt-Out** so Twilio handles STOP/HELP. CRWN stays silent on
+           those words deliberately.
+        3. **A2P 10DLC registration** for the number (brand + campaign). Without it US
+           carriers filter application-sent SMS, so replies can silently never arrive. Days,
+           not minutes, plus small fees.
+      **Do not print "Text JUBO" on a flyer until you have texted it yourself and got the
+      link back.** The QR path is proven end to end and needs none of this.
 
 - [ ] **One quick SQL run to finish the surface reduction: drop the retired Manager outcome
       columns** (never written; the file ABORTS if any row unexpectedly holds data, so a surprise
