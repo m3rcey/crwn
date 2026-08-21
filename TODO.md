@@ -44,27 +44,6 @@ responsible for. Do not work those.
       replay, the artist surplus return, a dispute, and a collaborator cashout), then reconcile every
       cent and decide whether payouts turn on. **They stay off until that passes.**
 
-- [ ] **DECIDE before Julius's Sept 26 show: turn Supabase email confirmation OFF, or accept
-      that every attendee must open their email in the venue.** This is the single thing
-      standing between the current flow and "scan, tap a song, done". I probed production:
-      `mailer_autoconfirm` is **false**, so when a fan casts their vote CRWN creates the
-      account but Supabase issues no session until they tap a link in their inbox. The vote
-      is not lost (the chosen song is carried through verification and casts itself when they
-      return), but in a dark room, mid-show, a large share of people aged 60+ will not finish.
-      Worse, signup emails go through Supabase's built-in mailer, which answered my probe with
-      `over_email_send_rate_limit` on the second request, so a room full of scans would hit a
-      wall regardless.
-      Where: Supabase dashboard, project `ecpqtuidtsncjfwtkvwc`, Authentication, Sign In / Up,
-      Email provider, turn **Confirm email** OFF. Nothing to deploy; the code already handles
-      both modes and becomes instant the moment you flip it.
-      **The trade-off, plainly:** with it off, anyone can create a CRWN account with an email
-      they do not own (they still cannot read that inbox or take over an existing account, and
-      every CRWN email carries unsubscribe). With it on, the venue flow keeps the extra step.
-      A middle option, more work: keep confirmation on and configure custom SMTP (you already
-      pay for Resend) so at least the rate limit stops being a wall. My recommendation is OFF
-      for the show, because an unverified free-tier fan is exactly what a live-room capture is,
-      and the cost of the alternative is most of the room.
-
 ### P1 — real risk or real friction, but nothing is on fire
 
 - [ ] **Run one SQL file so the live-show night is fully wired.** Open and run:
@@ -78,6 +57,11 @@ responsible for. Do not work those.
       Verify with: npm run verify:migrations (look for the "song lab show timezone" line)
 
 - [ ] **Julius's Sept 26 night is configured. Two shows, one QR, and it runs itself.**
+      (The email problem is fixed in the app, so there is **no Supabase setting to change**.
+      An attendee taps CAST MY VOTE and the vote is counted immediately; the email that
+      follows is the key to their free account, not a condition of the vote. Verified in
+      production: a brand-new address voted, never opened the inbox, and the vote showed up
+      in Results.)
       Live now: `thecrwn.app/julius-williams/join/st-james-live-sept-26-song-vote`.
       Show 1 is open and closes itself at **8:00 PM Eastern on Sept 26**; Show 2 opens at
       that moment and closes at **11:00 PM Eastern**. Both currently carry the same two

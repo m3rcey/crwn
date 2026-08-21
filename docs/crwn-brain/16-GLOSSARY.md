@@ -3,6 +3,18 @@
 > CRWN-specific terms, roles, tables, and confusing names. Grounded in code/docs.
 
 ## Roles & actors
+- **Captured contact** — an email somebody typed that CRWN has NOT verified. Concretely it is
+  an `auth.users` row with `email_confirmed_at = NULL`, which is what `signUp` already writes
+  the moment a form is submitted (email confirmation is ON, so no session comes back). It may
+  own exactly two low-risk things: ONE advisory Song Lab vote in an open poll, and a free-tier
+  membership with the artist whose page captured it. It holds **no session**, so it can reach
+  nothing private and cannot act anywhere else. Created without a session by
+  `/api/song-lab/live-claim` so a live-show vote counts on the tap. NOT a verified user, and
+  never to be described as one.
+- **Verified owner** — someone who proved control of the inbox (clicked the emailed link, or
+  reset a password). This is the ONLY state that can hold a session, and therefore the only
+  state that reaches anything sensitive. CRWN refuses to cast a vote or create a membership
+  for an email belonging to a verified account on an unauthenticated request.
 - **Fan** — default role (`profiles.role='fan'`); listener/buyer/promoter.
 - **Artist** — `profiles.role='artist'`, has an `artist_profiles` row; publishes + monetizes. Promotion is server-side on publish.
 - **Admin** — `profiles.role='admin'`; CRWN internal operator (Josh).

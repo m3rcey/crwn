@@ -1,5 +1,53 @@
 # CRWN Brain — Changelog
 
+## 2026-08-21 (later) - The live-show vote counts on the tap: CAPTURED CONTACT vs VERIFIED OWNER
+
+**Root cause of "Results said 0".** `mailer_autoconfirm` is false, so `supabase.auth.signUp`
+returns no session; `/api/song-lab/claim` requires one; therefore nothing was written until
+the attendee left the show, opened their inbox and came back. The page worked and the tally
+stayed empty.
+
+**The fix is a named identity distinction, not a weakened gate.** CRWN now separates:
+- **CAPTURED CONTACT**: an email somebody typed. It is the unconfirmed auth user that
+  `signUp` ALREADY creates today, so it is not a new identity class. It may own exactly two
+  things, both promised on the page: ONE advisory vote in an open poll, and a free-tier
+  membership with the artist whose page captured it. `email_confirmed_at` stays NULL.
+- **VERIFIED OWNER**: someone who proved inbox control. Only they can hold a session, and
+  only a session reaches anything sensitive.
+
+`/api/song-lab/live-claim` is the one unauthenticated write path, and its security argument
+is that it **returns no session, no token and no cookie** (asserted in the production run:
+no `set-cookie`). Voting logs nobody in. Signing in still requires the emailed link or a
+password reset, so an attacker who types someone else's address gains nothing.
+
+**It refuses to act for a VERIFIED account.** Casting a vote or joining a membership in a
+real person's name on an unproven claim is the abuse this route is most careful about, so
+that case writes nothing and routes to sign-in with the chosen song carried. The known
+trade-off, accepted deliberately: that branch reveals an address has a CRWN account. Writing
+to a real account on an unproven claim was judged worse than that disclosure. An UNCONFIRMED
+capture account is reused instead (the same fan at the second set), so returning attendees
+are never dead-ended. The admin lookup is a SEARCH, so `identityDecision` re-matches the
+exact address: a near match can never vote one fan as another (pinned by test).
+
+**Nothing else is special-cased**: the membership goes through `joinFreeTier`, the vote
+through `checkVote` + `recordLabVote`, attribution through the same claim row, and one vote
+per email is still `UNIQUE(decision_id, fan_id)`. Rate limited per IP (generous, because a
+venue is one NAT address) and per email (strict). The email now carries the ACCOUNT LINK and
+states the vote is already counted; it is sent through Resend, not Supabase's built-in
+mailer, whose few-per-hour ceiling would have throttled a full room.
+
+**No schema change. No Supabase Auth setting change required**: email confirmation stays ON
+for normal signups, exactly as before.
+
+Verified in production with the founder's own scenario: a brand-new address votes, never
+opens the inbox, and Julius's Results shows the vote; the capture account cannot be signed
+into (400 on a password grant); a repeat submission changes the pick without duplicating
+user, membership, vote or claim; a verified account's address is refused with nothing
+written; a near-match address gets its own identity; cross-artist, invalid-option,
+foreign-decision, invalid-email and closed-poll attempts are all refused AND create no
+account. All fixtures deleted. `verify:architecture` 825, `npm test` 2928, cold build clean,
+sw v431. SEC-SERVICE declares the route deliberately public with its bounds enumerated.
+
 ## 2026-08-21 - One night, two shows, one QR: scheduled poll handover (and JUBO, built dark)
 
 **A lead magnet can now follow a whole night.** Song Lab already expressed the shape, so
