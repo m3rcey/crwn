@@ -73,6 +73,10 @@ const PROBES = [
   // anon key at all (that table is service-role only, correctly), so this one line is the
   // signal for both columns in the file.
   ['song lab show timezone', 'song_lab_projects?select=show_timezone&limit=1', 'schema-phase2-song-lab-live-shows.sql'],
+  // Public votes are service-role only, so anon must NOT be able to read them: 42501 is the
+  // APPLIED signal here (the table exists but is correctly ungranted), exactly like the
+  // song_lab_votes probe. 42P01/PGRST205 means the migration has not run.
+  ['song lab public votes', 'song_lab_public_votes?select=id&limit=1', 'schema-phase2-song-lab-public-votes.sql'],
   // Fan Testimonials V1. The PUBLIC VIEW is the probe target, not the base tables: the view is
   // granted to anon (the artist page reads it), so 200 with [] means applied. The two base tables
   // are deliberately CLOSED to anon and answer 42501, which this generic loop would file as

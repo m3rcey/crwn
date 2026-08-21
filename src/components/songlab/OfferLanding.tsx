@@ -87,6 +87,13 @@ interface ClaimResult {
   rewardPath: string | null;
   /** Whether the account-access email went out. Never a condition of the vote. */
   emailSent?: boolean;
+  /** Where the poll stands now, counting every source. */
+  results?: PollResults | null;
+}
+
+interface PollResults {
+  options: Array<{ id: string; label: string; votes: number; percent: number }>;
+  total: number;
 }
 
 export function OfferLanding({
@@ -152,6 +159,7 @@ export function OfferLanding({
             voted: !!data.voted,
             destination: data.destination,
             rewardPath: typeof data.rewardPath === 'string' ? data.rewardPath : null,
+            results: data.results ?? null,
           });
           setBusy(false);
           return;
@@ -229,13 +237,15 @@ export function OfferLanding({
           destination: data.destination,
           rewardPath: typeof data.rewardPath === 'string' ? data.rewardPath : null,
           emailSent: !!data.emailSent,
+          results: data.results ?? null,
         });
         setBusy(false);
         return;
       }
 
-      // The address belongs to a real, verified account. CRWN will not vote as somebody
-      // who has not proved they own that inbox, so they sign in and the vote follows.
+      // Only reachable before the public-votes migration is applied: the server could not
+      // store a vote for an address that belongs to an account, and says so rather than
+      // pretending. Once that table exists this branch stops happening.
       if (data?.needsSignIn) {
         setNeedsSignIn(true);
         setBusy(false);
@@ -298,7 +308,36 @@ export function OfferLanding({
           {done.voted ? 'Your vote is in' : "You're in"}
         </h1>
         {done.voted && selectedLabel ? (
-          <p className="text-xl text-crwn-text mb-3">{`You picked ${selectedLabel}.`}</p>
+          <p className="text-xl text-crwn-text mb-6">{`You picked ${selectedLabel}.`}</p>
+        ) : null}
+
+        {/* Where the room stands. Real stored votes only, and the bars are the whole
+            visualization: no charts, no legends, nothing small to squint at. */}
+        {done.results && done.results.total > 0 ? (
+          <div className="mb-8 text-left">
+            <p className="text-base font-semibold text-crwn-text-secondary uppercase tracking-wide mb-3">
+              Right now
+            </p>
+            <div className="space-y-4">
+              {done.results.options.map((o) => (
+                <div key={o.id}>
+                  <div className="flex items-baseline justify-between gap-3 mb-1.5">
+                    <span className="text-xl font-bold text-crwn-text">{o.label}</span>
+                    <span className="text-2xl font-bold text-crwn-gold tabular-nums">{o.percent}%</span>
+                  </div>
+                  <div className="h-4 rounded-full bg-crwn-surface overflow-hidden" role="presentation">
+                    <div
+                      className="h-full rounded-full bg-crwn-gold transition-all"
+                      style={{ width: `${o.percent}%` }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+            <p className="mt-3 text-base text-crwn-text-secondary">
+              {done.results.total === 1 ? '1 vote so far' : `${done.results.total} votes so far`}
+            </p>
+          </div>
         ) : null}
         {!done.voted ? (
           <p className="text-lg text-crwn-text-secondary mb-3">

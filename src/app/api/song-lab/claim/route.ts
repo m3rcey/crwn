@@ -23,12 +23,14 @@ import { checkRateLimit } from '@/lib/rateLimit';
 import { songLabArtistBySlug } from '@/lib/songLab/access';
 import { resolveOfferEnrollTier, recordLabVote, resolveOfferPhase } from '@/lib/songLab/server';
 import { normalizeClaimSource } from '@/lib/songLab/claimSource';
+import { mergedResults } from '@/lib/songLab/publicParticipant';
 import {
   offerIsLive,
   claimDestination,
   isFreshSignup,
   checkVote,
   safeLabPath,
+  type DecisionOption,
   type SongLabOfferCore,
   type SongLabDecisionCore,
 } from '@/lib/songLab/core';
@@ -174,6 +176,7 @@ export async function POST(req: NextRequest) {
     // refused with `stale_show` rather than silently landing in Show 2's tally.
     let voted = false;
     let voteRefusal: string | null = null;
+    let votedPoll: { id: string; options?: unknown } | null = null;
     if (carriedOptionId && offer.benefit_kind === 'vote') {
       const { phase } = await resolveOfferPhase(supabaseAdmin, artist.artistId, offer, new Date());
       if (phase.kind !== 'active') {
@@ -202,10 +205,23 @@ export async function POST(req: NextRequest) {
             user.id,
             carriedOptionId,
           );
+          if (voted) votedPoll = { id: decision.id, options: decision.options };
         } else {
           voteRefusal = verdict.reason;
         }
       }
+    }
+
+    // The standing of the poll they just voted in, so a signed-in fan sees the same
+    // success screen as everyone else. Counts both account and public votes.
+    let results: { options: Array<{ id: string; label: string; votes: number; percent: number }>; total: number } | null = null;
+    if (votedPoll) {
+      const [{ data: accountVotes }, publicVotes] = await Promise.all([
+        supabaseAdmin.from('song_lab_votes').select('option_id').eq('decision_id', votedPoll.id),
+        supabaseAdmin.from('song_lab_public_votes').select('option_id').eq('decision_id', votedPoll.id)
+          .then((r) => r.data ?? [], () => []),
+      ]);
+      results = mergedResults((votedPoll.options || []) as DecisionOption[], accountVotes || [], publicVotes || []);
     }
 
     return NextResponse.json({
@@ -214,6 +230,7 @@ export async function POST(req: NextRequest) {
       alreadyMember: join.status === 'already_member',
       voted,
       voteRefusal,
+      results,
       destination: claimDestination(offer as SongLabOfferCore, artist.slug),
       // A vote offer may also carry a reward destination (e.g. a free live performance
       // post). The landing's confirmation screen offers it; the canonical destination

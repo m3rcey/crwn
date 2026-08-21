@@ -27,7 +27,8 @@ import { createClient } from '@supabase/supabase-js';
 import { checkRateLimit } from '@/lib/rateLimit';
 import { songLabArtistBySlug } from '@/lib/songLab/access';
 import { resolveOfferEnrollTier, recordLabVote, resolveOfferPhase } from '@/lib/songLab/server';
-import { offerIsLive, checkVote, claimDestination, safeLabPath, type SongLabOfferCore, type SongLabDecisionCore } from '@/lib/songLab/core';
+import { offerIsLive, checkVote, claimDestination, safeLabPath, type SongLabOfferCore, type SongLabDecisionCore, type DecisionOption } from '@/lib/songLab/core';
+import { participantKey, mergedResults } from '@/lib/songLab/publicParticipant';
 import { normalizeClaimSource } from '@/lib/songLab/claimSource';
 import { normalizeEmail, cleanFirstName, identityDecision, NEEDS_SIGN_IN_MESSAGE } from '@/lib/songLab/liveClaim';
 import { isPlausibleEmail } from '@/lib/songLab/voteForm';
@@ -54,6 +55,61 @@ const EMAIL_MAX = 5;
 function clientIp(req: NextRequest): string {
   const fwd = req.headers.get('x-forwarded-for') || '';
   return fwd.split(',')[0].trim() || req.headers.get('x-real-ip') || 'unknown';
+}
+
+/**
+ * Record a vote that belongs to NO account. Upsert on (decision_id, participant_key), so a
+ * re-vote changes the choice exactly like an account vote does and never double counts.
+ * Returns ok:false when the table is not there yet (migration pending), so the caller can
+ * tell the truth instead of claiming a vote it did not store.
+ */
+async function recordPublicVote(params: {
+  artistId: string;
+  poll: { id: string };
+  optionId: string;
+  email: string;
+  source: string | null;
+}): Promise<{ ok: boolean }> {
+  const key = participantKey(params.email, process.env.SUPABASE_SERVICE_ROLE_KEY);
+  if (!key) return { ok: false };
+
+  const row: Record<string, unknown> = {
+    decision_id: params.poll.id,
+    artist_id: params.artistId,
+    option_id: params.optionId,
+    participant_key: key,
+    updated_at: new Date().toISOString(),
+  };
+  if (params.source) row.source = params.source;
+
+  const { error } = await supabaseAdmin
+    .from('song_lab_public_votes')
+    .upsert(row, { onConflict: 'decision_id,participant_key' });
+  if (error) {
+    console.error('[song-lab] public vote write failed:', error.code, error.message);
+    return { ok: false };
+  }
+  return { ok: true };
+}
+
+/**
+ * Current standing for one poll, for the success screen. Counts BOTH sources, because both
+ * are somebody at the show picking a song; the only difference is whether an account could
+ * be attached. Public by design and safe to return: it exposes counts for a poll the caller
+ * just voted in, and nothing about any person.
+ */
+async function liveResults(artistId: string, poll: { id: string; options?: DecisionOption[] }) {
+  const [{ data: accountVotes }, publicVotes] = await Promise.all([
+    supabaseAdmin.from('song_lab_votes').select('option_id').eq('decision_id', poll.id),
+    supabaseAdmin.from('song_lab_public_votes').select('option_id').eq('decision_id', poll.id)
+      .then((r) => r.data ?? [], () => []),
+  ]);
+  const merged = mergedResults(
+    (poll.options || []) as DecisionOption[],
+    accountVotes || [],
+    publicVotes || [],
+  );
+  return { options: merged.options, total: merged.total };
 }
 
 export async function POST(req: NextRequest) {
@@ -127,10 +183,39 @@ export async function POST(req: NextRequest) {
     }
 
     const decision = identityDecision(email, lookup.users);
+
+    // ── A VERIFIED account owns this address ──
+    // Their vote still counts, but CRWN does not act as them: no membership is created or
+    // changed, no profile is touched, no session exists, and nothing in the response says
+    // the address is known. The vote is recorded as a PUBLIC PARTICIPANT, keyed by an HMAC
+    // of the address, which is an opinion with no account attached.
     if (decision.kind === 'needs_sign_in') {
-      // A real, verified account owns this address. Nothing is written.
-      return NextResponse.json({ error: NEEDS_SIGN_IN_MESSAGE, needsSignIn: true }, { status: 409 });
+      const publicVote = await recordPublicVote({
+        artistId: artist.artistId,
+        poll: phase.poll,
+        optionId,
+        email,
+        source,
+      });
+      if (!publicVote.ok) {
+        // Only reachable before schema-phase2-song-lab-public-votes.sql is applied. Say the
+        // honest thing rather than claiming a vote that was not stored.
+        return NextResponse.json({ error: NEEDS_SIGN_IN_MESSAGE, needsSignIn: true }, { status: 409 });
+      }
+      return NextResponse.json({
+        success: true,
+        voted: true,
+        // Deliberately identical in shape to the capture path: the response must not
+        // reveal that this address belongs to an account.
+        joined: false,
+        alreadyMember: false,
+        emailSent: false,
+        results: await liveResults(artist.artistId, phase.poll),
+        destination: claimDestination(offer as SongLabOfferCore, artist.slug),
+        rewardPath: offer.destination_path ? safeLabPath(offer.destination_path) : null,
+      });
     }
+
     if (decision.kind === 'reuse') {
       userId = decision.userId;
     } else {
@@ -264,6 +349,7 @@ export async function POST(req: NextRequest) {
       joined: join.status === 'joined',
       alreadyMember: join.status === 'already_member',
       emailSent,
+      results: await liveResults(artist.artistId, phase.poll),
       destination: claimDestination(offer as SongLabOfferCore, artist.slug),
       rewardPath: offer.destination_path ? safeLabPath(offer.destination_path) : null,
     });
