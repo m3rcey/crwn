@@ -6,12 +6,19 @@ import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 // Client-safe internal-path validator (same checks as safeRedirect's safeInternalPath;
 // that module imports node:crypto and cannot ship in a client bundle).
 import { safeLabPath as safeInternalPath } from '@/lib/songLab/core';
+import type { EmailOtpType } from '@supabase/supabase-js';
 import { Loader2, CheckCircle } from 'lucide-react';
+
+const OTP_TYPES: readonly string[] = ['magiclink', 'signup', 'invite', 'recovery', 'email_change', 'email'];
 
 export default function VerifyEmailPage() {
   const router = useRouter();
   const supabase = createBrowserSupabaseClient();
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
+  // The provider's own words when an exchange fails. Without this the page said only
+  // "may have expired or already been used" for every cause, which is indistinguishable
+  // from a misconfiguration and cost several rounds of blind guessing to diagnose.
+  const [detail, setDetail] = useState<string | null>(null);
   // Where "Continue" sends them. When the code exchange succeeded (same browser),
   // they're logged in and go straight into onboarding/home. When it didn't (link
   // opened in a different browser/webview), there's no session — their email is
@@ -25,9 +32,40 @@ export default function VerifyEmailPage() {
     let active = true;
     async function resolve() {
       try {
+        // A `token_hash` link exchanges DIRECTLY for a session. It needs no PKCE
+        // code-verifier, no URL fragment and no redirect allowlist, which is what makes
+        // it the only hand-off that survives being opened in a browser that did not
+        // request it: a different device, an email app's in-app browser, or an
+        // admin-minted support link. Read from location rather than useSearchParams so
+        // this page needs no Suspense boundary.
+        const params = new URLSearchParams(window.location.search);
+        const tokenHash = params.get('token_hash');
+        const rawType = params.get('type') || 'magiclink';
+        const otpType = OTP_TYPES.includes(rawType) ? rawType : 'magiclink';
+
+        if (tokenHash) {
+          const { error: otpError } = await supabase.auth.verifyOtp({
+            token_hash: tokenHash,
+            type: otpType as EmailOtpType,
+          });
+          if (otpError) {
+            if (active) {
+              setDetail(otpError.message);
+              setStatus('error');
+            }
+            return;
+          }
+          // Take the single-use credential out of the address bar once it is spent, so it
+          // cannot be replayed from history, a screenshot or a pasted URL.
+          window.history.replaceState({}, '', '/verify');
+        }
+
         const { data: { session }, error } = await supabase.auth.getSession();
         if (error) {
-          if (active) setStatus('error');
+          if (active) {
+            setDetail(error.message);
+            setStatus('error');
+          }
           return;
         }
 
@@ -95,9 +133,16 @@ export default function VerifyEmailPage() {
         ) : (
           <>
             <h1 className="text-2xl font-bold text-crwn-text mb-2">Verification failed</h1>
-            <p className="text-crwn-text-secondary mb-6">
+            <p className="text-crwn-text-secondary mb-4">
               The verification link may have expired or already been used.
             </p>
+            {detail ? (
+              <p className="text-xs text-crwn-text-secondary/70 mb-6 break-words">
+                Reason: {detail}
+              </p>
+            ) : (
+              <div className="mb-6" />
+            )}
             <button
               onClick={() => router.push('/login')}
               className="px-6 py-3 bg-crwn-gold text-crwn-bg rounded-full font-semibold hover:bg-crwn-gold/90 transition-colors"
