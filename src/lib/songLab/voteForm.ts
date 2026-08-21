@@ -113,6 +113,24 @@ export const BALLOT_NETWORK_ERROR = 'We could not submit your vote. Try again.';
 export const BALLOT_CLOSED_ERROR = 'Voting has closed.';
 
 /**
+ * The one action offered after a vote is counted, or nothing.
+ *
+ * THE SUCCESS SCREEN IS THE END OF THE JOURNEY. It already shows the live percentages, so a
+ * "see how the vote is going" button was both redundant and contradictory: it led to the
+ * public Lab, which deliberately hides an open vote's tally until the reveal, so the fan
+ * would have been sent from real numbers to a page telling them numbers come later.
+ *
+ * A reward the artist actually configured is different: that is somewhere better to go, so
+ * it survives as the single gold action. With no reward, the screen simply ends.
+ */
+export function successCta(rewardPath: string | null | undefined, artistName: string):
+  { href: string; label: string } | null {
+  const path = (rewardPath || '').trim();
+  if (!path) return null;
+  return { href: path, label: `See what ${artistName} left for you` };
+}
+
+/**
  * Map a claim-route refusal onto attendee-readable copy. `reason` is the machine code the
  * route already returns for vote denials; anything unrecognized falls back to the generic
  * retry line rather than leaking a server string onto a phone screen.

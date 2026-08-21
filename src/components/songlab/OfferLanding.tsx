@@ -45,6 +45,7 @@ import {
   ballotDisclosure,
   possessive,
   ballotErrorFor,
+  successCta,
   cleanFirstName,
   MAX_FIRST_NAME_LENGTH,
   MAX_EMAIL_LENGTH,
@@ -295,10 +296,9 @@ export function OfferLanding({
 
   /* ── Confirmation state ── */
   if (done) {
-    const primaryHref = done.rewardPath ?? done.destination;
-    const primaryLabel = done.rewardPath
-      ? `See what ${artistName} left for you`
-      : 'See how the vote is going';
+    // This screen ENDS the journey: the live percentages are right here, so there is
+    // nothing worth sending the fan to except a reward the artist actually configured.
+    const cta = successCta(done.rewardPath, artistName);
     return (
       <Shell>
         <div className="mx-auto mb-6 w-16 h-16 rounded-full bg-crwn-gold flex items-center justify-center">
@@ -353,23 +353,20 @@ export function OfferLanding({
             ? `You're in ${possessive(artistName)} free fan community. ${artistName} can send you the result and news about upcoming shows.`
             : `To get the result and news about upcoming shows, sign in to CRWN with that email and join ${possessive(artistName)} free community.`}
         </p>
-        <a
-          href={primaryHref}
-          className="block w-full py-5 rounded-full bg-crwn-gold text-crwn-bg text-xl font-bold hover:bg-crwn-gold/90 active:scale-[0.98] transition"
-        >
-          {primaryLabel}
-        </a>
+        {cta ? (
+          <a
+            href={cta.href}
+            className="block w-full py-5 rounded-full bg-crwn-gold text-crwn-bg text-xl font-bold hover:bg-crwn-gold/90 active:scale-[0.98] transition"
+          >
+            {cta.label}
+          </a>
+        ) : null}
         {/* Subordinate on purpose: the vote is already counted, and this email is the key
             to the account later, never a condition of the vote. */}
         {done.emailSent ? (
           <p className="mt-6 text-base text-crwn-text-secondary leading-relaxed">
             {accountEmailNote(true)}
           </p>
-        ) : null}
-        {done.rewardPath ? (
-          <a href={done.destination} className="inline-block mt-5 text-base text-crwn-gold hover:underline">
-            See how the vote is going
-          </a>
         ) : null}
       </Shell>
     );

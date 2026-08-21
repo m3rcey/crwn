@@ -9,6 +9,7 @@ import {
   ballotDisclosure,
   possessive,
   ballotErrorFor,
+  successCta,
   BALLOT_CLOSED_ERROR,
   BALLOT_NETWORK_ERROR,
   MAX_FIRST_NAME_LENGTH,
@@ -106,6 +107,28 @@ describe('ballotDisclosure', () => {
   });
   it('carries no em dash (copy rule)', () => {
     expect(ballotDisclosure('Julius Williams').includes('—')).toBe(false);
+  });
+});
+
+describe('successCta (the vote screen is the end of the journey)', () => {
+  it('offers NOTHING when the artist configured no reward', () => {
+    // The live percentages are already on screen. Sending the fan to the public Lab, which
+    // hides an open vote's tally, would contradict the numbers they are looking at.
+    expect(successCta(null, 'Julius Williams')).toBeNull();
+    expect(successCta(undefined, 'Julius Williams')).toBeNull();
+    expect(successCta('   ', 'Julius Williams')).toBeNull();
+  });
+
+  it('offers the reward, and only the reward, when one is configured', () => {
+    const cta = successCta('/julius-williams', 'Julius Williams');
+    expect(cta).toEqual({ href: '/julius-williams', label: 'See what Julius Williams left for you' });
+  });
+
+  it('never sends the fan to the vote-status page', () => {
+    for (const reward of [null, '/julius-williams', '/julius-williams/lab']) {
+      const cta = successCta(reward, 'Julius Williams');
+      expect(cta?.label ?? '').not.toMatch(/how the vote is going/i);
+    }
   });
 });
 
