@@ -62,21 +62,36 @@ if (!uRes.ok || !user?.email) {
 }
 
 // 3. Mint the magic link. generate_link returns the action_link WITHOUT emailing anyone.
-const linkRes = await fetch(`${URL_}/auth/v1/admin/generate_link`, {
-  method: 'POST',
-  headers,
-  body: JSON.stringify({
-    type: 'magiclink',
-    email: user.email,
-    options: { redirect_to: 'https://thecrwn.app/home' },
-  }),
-});
-const link = await linkRes.json();
-const actionLink = link?.action_link || link?.properties?.action_link;
-if (!linkRes.ok || !actionLink) {
-  console.error(`generate_link failed: ${JSON.stringify(link)}`);
+//
+// Two attempts on purpose. The first asks Supabase to land the session on /home, which is
+// nicer but only works if that exact URL is on the project's allowed-redirect list. If it
+// is not, Supabase rejects the whole call, so the second attempt drops the redirect and
+// lets the project's Site URL decide. A founder running this should never have to debug a
+// redirect allowlist to get a login link.
+async function mintLink(withRedirect) {
+  const body = { type: 'magiclink', email: user.email };
+  if (withRedirect) body.options = { redirect_to: 'https://thecrwn.app/home' };
+  const res = await fetch(`${URL_}/auth/v1/admin/generate_link`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(body),
+  });
+  const json = await res.json().catch(() => null);
+  const action = json?.action_link || json?.properties?.action_link || null;
+  return { ok: res.ok && !!action, action, json };
+}
+
+let minted = await mintLink(true);
+if (!minted.ok) minted = await mintLink(false);
+
+if (!minted.ok) {
+  console.error('Could not generate the link. Supabase said:');
+  console.error(JSON.stringify(minted.json, null, 2));
+  console.error('');
+  console.error('Send that message to Claude; it names the reason.');
   process.exit(1);
 }
+const actionLink = minted.action;
 
 console.log(`One-time login link for ${slug} (${user.email}):`);
 console.log('');
