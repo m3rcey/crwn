@@ -1,5 +1,65 @@
 # CRWN Brain — Changelog
 
+## 2026-08-21 - One night, two shows, one QR: scheduled poll handover (and JUBO, built dark)
+
+**A lead magnet can now follow a whole night.** Song Lab already expressed the shape, so
+nothing new was invented: a PROJECT is the event and each DECISION is one set's poll, with
+its own ballot, its own votes (UNIQUE per fan per decision) and its own window. Binding a
+vote magnet to the PROJECT (via `song_lab_offers.project_id`, a column that already existed
+and nothing read) makes one printed QR resolve Show 1 before its close time and Show 2
+after, with nothing for the audience to choose. `src/lib/songLab/schedule.ts` is the
+resolver; `resolveOfferPhase` in `server.ts` is the ONE entry point the landing page and
+the claim route both call, so they cannot disagree about which set is live.
+
+**Time is server-side and zone-aware, never a fixed offset.** "8 PM Eastern" in Atlanta is
+UTC-4 in September and UTC-5 in January; a hardcoded EST would have closed Julius's first
+show an hour late. `zonedTimeToUtc` converts wall time plus an IANA zone id using Intl (no
+dependency), and 25 tests pin the DST boundaries including a spring-forward time that does
+not exist and a fall-back time that happens twice. Auto-close needs NO cron: `effectiveStatus`
+already narrows by window on every read, so 8:00:00 PM closes the poll on the next request.
+
+**Override is DERIVED, never a stored flag.** Studio offers Open now, Close now, Extend
+(+15/30/60 from now) and Reschedule; the state sentence comes from status plus window
+(`scheduleLabel`), so "closed early by hand" and "closed at 8:00 PM" are distinguishable
+without a column that can desynchronise from reality. Reschedule is the ONE way a closed
+poll reopens, which keeps `status: closed` sticky everywhere else.
+
+**The handover cannot silently steal a vote.** The page sends the decision it displayed;
+if that set closed while the fan was typing, the claim route refuses with `stale_show` or
+`not_open` and still completes the free join. A Show 1 pick never lands in Show 2's tally.
+
+**Creation is one prefilled form.** `liveShowTemplate.ts` generates the project title,
+stage labels, question (interpolating the artist's first name), headline, supporting line,
+internal magnet name and link slug; only the show/date and the songs are typed, with
+"Same songs as Show 1" as a one-tap copy that does not couple the two polls afterward.
+8pm/11pm are defaults OF THIS TEMPLATE, editable per event, not CRWN-wide constants.
+
+**JUBO is built, signature-verified, and DARK.** `/api/sms/inbound` answers one keyword
+with the same event URL tagged `utm_source=jubo`. Twilio's HMAC-SHA1 is implemented in the
+existing `webhookSignatures.ts` (no SDK, matching the Svix precedent) and pinned against
+Twilio's published test vector. It refuses everything unless `SMS_KEYWORD_ENABLED=true` and
+a live `TWILIO_AUTH_TOKEN` are set, and the account currently holds TEST credentials (probe:
+error 20008), which cannot receive inbound at all. STOP/HELP are recognised only in order to
+stay silent: those words belong to the carrier and Twilio Advanced Opt-Out. Texting a
+keyword enrols nobody in anything; the free membership still happens only on the web page.
+SEC-SERVICE now recognises `verifyTwilioSignature` as an authority, mutation-tested.
+
+**Migration `schema-phase2-song-lab-live-shows.sql` is PENDING and additive**: two nullable
+columns (`song_lab_projects.show_timezone`, `song_lab_offer_claims.source` with a CHECK).
+Every path survives it being unapplied, verified in production: projects read with
+`select('*')`, the claim insert retries without `source` on 42703, and the live-show creator
+drops the timezone on PGRST204. Until applied, QR vs JUBO is reported as "not recorded",
+never as zero.
+
+Verified on production against a throwaway event walked through every phase: Show 1 renders
+alone, its vote lands only in Show 1, a stale Show 1 submission is refused while the join
+still succeeds, the between state shows no ballot and names the next opening time, a
+manually opened Show 2 takes over immediately with its own fresh tally, an invalid option is
+refused server-side, and after the night the page shows the ended state with no vote action.
+All fixtures deleted. Julius's real night is configured on his existing rows (Show 1 closes
+8:00 PM ET Sept 26, Show 2 opens then and closes 11:00 PM ET, one unchanged link and QR).
+`verify:architecture` 825, `npm test` 2916, cold build clean, sw v430.
+
 ## 2026-08-20 (last pass) - The ballot IS the page: vote-first conversion for `A vote` lead magnets
 
 **The songs now come before the ask, and one action does everything.** A `vote` magnet

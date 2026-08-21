@@ -67,25 +67,56 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
-- [ ] **Run Julius's Sept 26 show (his link is built and the ballot is attached).** Live now:
-      `thecrwn.app/julius-williams/join/st-james-live-sept-26-song-vote`, which opens on
-      "YOU PICK THE NEXT SONG" with **Never Too Much** and **Bad Boy** as the two big buttons.
-      Signed in as him at **/studio/lab**:
-      1. Lead magnets tab: press the **QR button** on the St. James row and print the sheet
-         (QR, camera instructions, and the typed-out address for people who will not scan).
-      2. Optional: the vote is already **open**, so the link is live today. If you would rather
-         it only work on show night, close it in Projects and press **Open vote** on the 26th.
-      3. Anything you got wrong is editable now: the pencil on a vote edits the question and
-         the song titles (renaming is always safe, votes keep their place), and "Edit the words
-         on this page" changes the headline, the line underneath, and the reward link. The web
-         address never changes, so a printed QR keeps working. The trash icon deletes, and CRWN
-         refuses once a real fan has joined or voted so you never erase the record.
-      4. After the show: **Results** tab (views, claims, new signups, free joins, voted, now
-         paid, per show). Close the vote, announce the winner, then email the new members from
-         **/studio/fans**. Remember Launch allows one email blast per 30 days.
+- [ ] **Run one SQL file so the live-show night is fully wired.** Open and run:
+      [`supabase/schema-phase2-song-lab-live-shows.sql`](supabase/schema-phase2-song-lab-live-shows.sql)
+      Two nullable columns, nothing destructive, safe to re-run. Everything already works
+      without it, so this is not urgent: it adds (a) the event's timezone, so the public
+      "Show 2 voting opens at 8:30 PM" line uses the VENUE's zone rather than defaulting to
+      Eastern, and (b) which door each fan came through (QR vs the JUBO text), which is
+      reported as "not recorded" until the column exists. After running it, tell me and I
+      will stamp Julius's night with America/New_York.
+      Verify with: npm run verify:migrations (look for the "song lab show timezone" line)
+
+- [ ] **Julius's Sept 26 night is configured. Two shows, one QR, and it runs itself.**
+      Live now: `thecrwn.app/julius-williams/join/st-james-live-sept-26-song-vote`.
+      Show 1 is open and closes itself at **8:00 PM Eastern on Sept 26**; Show 2 opens at
+      that moment and closes at **11:00 PM Eastern**. Both currently carry the same two
+      songs ("I Like" and "Outstanding"); change either set independently in **/studio/lab**.
+      The QR does NOT change between shows.
+      1. Lead magnets tab: press the **QR button** and print the sheet (QR, camera
+         instructions, and the typed-out address for people who will not scan).
+      2. Projects tab: each show has its own line and says in plain words what it is doing
+         ("Open now, closes 8:00 PM on its own"). If the set runs late, press **Extend**
+         (+15/30/60 from now). If it runs early, **Open now**. To stop a vote at once,
+         **Close now**. A closed vote reopens only through Reschedule, deliberately.
+      3. After the night: **Results** tab shows each show separately with its own vote
+         counts and percentages. They are never added together.
       One caution to pass on: reward content must be rights-cleared. Recordings of him
       covering Luther/Stevie/etc. need licenses CRWN cannot assume, so until he confirms
       rights, point the reward at his page (his original track "Magic" is already free there).
+
+- [ ] **DECIDE whether JUBO texting is worth the Twilio work, before printing flyers that
+      promise it.** The code is built, signature-verified and tested, but it is DARK and
+      cannot work today: I probed your Twilio account and those credentials are **test
+      credentials** (error 20008), which cannot own a number, receive an inbound message or
+      send a reply. There is also nothing to fall back on, because SMS was removed from CRWN
+      in July for exactly this reason. What it would take, in order:
+        1. Twilio Console: buy or re-activate an SMS-capable US number (the old one,
+           +1 314 557 3549, was on the wind-down list, so assume it is gone).
+        2. Complete **A2P 10DLC registration** for that number (brand + campaign). Without
+           it US carriers filter or block application-sent SMS, so the replies would
+           silently not arrive. This is the slow part: allow days, not minutes, and there
+           are small one-time and monthly fees.
+        3. Twilio Console, the number's Messaging settings: set "A message comes in" to
+           **Webhook, HTTP POST, `https://thecrwn.app/api/sms/inbound`**.
+        4. Turn ON Twilio **Advanced Opt-Out** for the messaging service so STOP/HELP are
+           handled by Twilio. CRWN deliberately stays silent on those words.
+        5. Vercel env vars: set `TWILIO_AUTH_TOKEN` to the LIVE auth token, add
+           `SMS_KEYWORDS=jubo:julius-williams`, and `SMS_KEYWORD_ENABLED=true`. Redeploy.
+      Until step 5, the route answers nothing at all, so nothing can misfire. **Do not print
+      "Text JUBO" on a flyer until you have texted it yourself and got the link back.**
+      My recommendation: run Sept 26 on the QR alone (it is proven end to end), and only do
+      the Twilio work if the room shows you that people would not scan.
 
 - [ ] **One quick SQL run to finish the surface reduction: drop the retired Manager outcome
       columns** (never written; the file ABORTS if any row unexpectedly holds data, so a surprise

@@ -24,9 +24,17 @@ CRWN is **live in production** (`thecrwn.app`) and the core money loop is real a
   production runs `mailer_autoconfirm: false`, so a logged-out attendee is told to tap the link
   in their email and the chosen song rides verification on `user_metadata.pending_next`; the
   same code completes in the room if auth is switched to auto-confirm.** A vote magnet may not
-  be created without a decision (a null one silently rendered a join button with no songs), and
+  be created without a ballot (a null one silently rendered a join button with no songs), and
   offers/decisions/projects can be edited and deleted after publishing, with deletion refused
-  once a fan has claimed or voted.
+  once a fan has claimed or voted. **Since 2026-08-21 one magnet can carry a whole NIGHT:**
+  bound to a PROJECT instead of a single decision, the same URL resolves whichever set's poll
+  is open (server-side, zone-aware, no cron: `effectiveStatus` already reads the window), shows
+  a between-sets or ended state otherwise, and refuses a submission whose set closed while the
+  page was open rather than counting it in the next set. Override (Open now / Close now /
+  Extend / Reschedule) is derived from status plus window, never a stored flag. SMS entry
+  (`/api/sms/inbound`, one keyword to the same event URL) is BUILT and signature-verified but
+  DARK: it needs `SMS_KEYWORD_ENABLED`, live Twilio credentials (the account holds test
+  credentials today) and A2P registration. `Confirmed`.
   Signup gained a validated `?next=` (rides `user_metadata.pending_next` through email
   verification) so an Instagram tap returns to the claim after account creation. Discovered and
   fixed along the way, live for EVERY artist on deploy: **all $0 tier joins had failed since
