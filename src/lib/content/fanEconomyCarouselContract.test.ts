@@ -334,9 +334,22 @@ describe.runIf(carouselFiles.length > 0)('FE-CAR-003 every carousel file is well
 
   it.each(carouselFiles)('%s draws no CRWN mark on any rendered slide', (file) => {
     const md = readFileSync(join(CAROUSELS_DIR, file), 'utf8');
-    for (const marker of ['**SLIDE 2 PROMPT:**', '**SLIDE 3 PROMPT:**']) {
-      const body = section(md, marker) ?? '';
-      expect(body, `${marker} must forbid the CRWN mark`).toMatch(/[Nn]ever draw the word CRWN/);
+    // Slide 2 is the payoff and never names the product: a plug there interrupts the reveal.
+    const slide2 = section(md, '**SLIDE 2 PROMPT:**') ?? '';
+    expect(slide2, 'slide 2 must forbid the CRWN mark').toMatch(/[Nn]ever draw the word CRWN/);
+
+    // Slide 3 may NAME the app in a plug line (pilot, 2026-08-21), but the crown MARK
+    // stays exclusive to the 128 end card, which is the only place a logo belongs.
+    const slide3 = section(md, '**SLIDE 3 PROMPT:**') ?? '';
+    const hasPlug = /THE CRWN APP/i.test(slide3);
+    if (hasPlug) {
+      expect(slide3, 'a slide 3 that names the app must still ban the crown symbol')
+        .toMatch(/Do NOT draw a crown symbol/);
+      expect(slide3, 'the plug must be the ONLY place the letters CRWN appear')
+        .toMatch(/ONLY inside the one quoted plug line/);
+    } else {
+      expect(slide3, 'slide 3 must forbid the CRWN mark when it carries no plug')
+        .toMatch(/[Nn]ever draw the word CRWN/);
     }
   });
 });
