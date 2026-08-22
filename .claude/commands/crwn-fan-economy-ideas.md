@@ -65,6 +65,29 @@ product sales, demand discovery (cities, songs, merch), fan identification, rete
 A&R, preorders and reservations, owned relationships. Aim for no more than two pitches per
 mechanism in a batch of ten.
 
+## At least HALF of every batch is a VERSUS pitch, and the subject is always ICP
+
+Measured 2026-08-22: scripts 1-30 contain 11 versus posts. Scripts 31-50 contain ZERO. The format
+the founder rates most did not fade, it was switched off, and this skill did it.
+
+**The cause was a mistaken belief, not a real constraint.** Batches 02 and 03 selected on "one
+public checkable number", and I treated a versus post as needing TWO of them, one per side. It does
+not. In every versus post that works, the FOIL's number is an ordinary public stat, usually monthly
+listeners, which takes seconds to confirm. Only the ICP side needs real sourcing. Selecting on a
+single number therefore excluded versus posts for no reason at all.
+
+So: **at least half of every batch must be a versus pitch**, and the research effort goes on the
+ICP side only.
+
+**And the SUBJECT is always ICP.** Snoop Dogg, Spotify and Bandcamp were built as subjects in batch
+03 and all three were rejected by the founder for the same reason: they are not who this is for. A
+megastar or a platform may appear as the FOIL or as a fact inside a post, never as the subject. An
+"industry-anchored" post with no ICP artist in it is not a Fan Economy case study, it is a think
+piece, and the viewer cannot see themselves in it.
+
+Before proposing a batch, count: how many are versus, and is every subject Tier 1? If either answer
+is wrong, the batch is wrong.
+
 ## The pitch rules, inherited and binding
 
 - **ICP fit governs the SUBJECT.** Tier 1 per `docs/ICP.md`: roughly 250k to 5M followers, 100k to

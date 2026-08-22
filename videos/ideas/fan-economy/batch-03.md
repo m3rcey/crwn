@@ -8,6 +8,15 @@ Same selection rule as batch 02, which is the only rule that has ever mattered h
 checkable number. Batch 01 lost both picks at research and batch 02 lost three candidates, so the
 ten below were VERIFIED BEFORE a word of script was written, not after.
 
+## PULLED (founder review, 2026-08-22)
+
+Three of the ten below are **not to be posted**. 46 Snoop Dogg, 48 Bandcamp Friday and 49 Spotify
+were built with a megastar or a platform as the SUBJECT, and none of them is the ICP. The scripts
+and carousels stay on disk as reference; they do not go out, and replacements are owed.
+
+The same review found the real problem underneath: **this batch contains no versus posts at all**,
+against 11 in scripts 1-30. See the versus quota now written into `/crwn-fan-economy-ideas`.
+
 ## BUILT (scripts 41-50)
 
 | # | Subject | Verified number | Mechanism |
