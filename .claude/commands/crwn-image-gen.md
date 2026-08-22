@@ -109,6 +109,19 @@ frequently stale (artists change their hair) or describes one shoot. **If Josh s
 photo, that is the answer**, and the note should be rewritten from what is visible in it. When
 only prose is available, keep the note short and lean on the fetched photo instead.
 
+**A dropped file only works if its NAME matches the slug.** Josh placed `del-the-funky.png` for
+a person registered as `del-the-funky-homosapien`. The lookup builds the filename from the slug, so
+it never saw that file at all and quietly kept using the stale auto-fetched photo. This is NOT the
+shadowing case above: nothing warned, because from the lookup's point of view only one file existed.
+Before rerolling on a supplied reference, list the folder and confirm a file resolves as
+`<slug>.<ext>`. If it does not, copy it into the resolving name and delete the auto-fetched one,
+leaving the original where it was put.
+
+**Do not ask for a colour in a monochrome style.** The same fix described his lenses as
+"YELLOW-TINTED" and the render came back with 28,372 non-greyscale pixels. A tint has to be
+specified as an ink treatment ("tinted lenses drawn in black with light diagonal hatching"), never
+as a colour name. The colour check caught it before anybody looked.
+
 **GLASSES are the feature the model drops.** Roc Marciano, Knxwledge and Oddisee were all drawn
 wrong in the same batch and all three missed the same thing: every one of them wears glasses and
 not one sheet drew any. The model defaults to a bare face, and a bare face still looks like a
