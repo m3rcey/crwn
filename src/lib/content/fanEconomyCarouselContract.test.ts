@@ -168,7 +168,10 @@ describe.runIf(carouselFiles.length > 0)('FE-CAR-003 every carousel file is well
 
   it.each(carouselFiles)('%s puts any proof line AFTER the hook question', (file) => {
     const caption = section(readFileSync(join(CAROUSELS_DIR, file), 'utf8'), '**CAPTION:**') ?? '';
-    const proofAt = caption.search(/Snoop|follow CRWN|reposted/i);
+    // Detect the PROOF LINE by its own phrasing, not by a name. Searching for
+    // "Snoop" matched a post whose SUBJECT is Snoop, where his name is in the
+    // hook itself and legitimately precedes the question.
+    const proofAt = caption.search(/follow the CRWN app|reposted (?:one of these|a video|my|the)/i);
     if (proofAt === -1) return; // proof is optional and rationed
     const questionAt = caption.indexOf('?');
     expect(questionAt, 'caption must ask the hook question').toBeGreaterThan(-1);
@@ -253,12 +256,14 @@ describe.runIf(carouselFiles.length > 0)('FE-CAR-003 every carousel file is well
   it.each(carouselFiles)('%s slide 2 actually reveals a number', (file) => {
     const slide2 = section(readFileSync(join(CAROUSELS_DIR, file), 'utf8'), '**SLIDE 2 PROMPT:**') ?? '';
     // The sheets withhold the payoff on purpose; slide 2 is where it lands. The payoff is
-    // not always money: Rapsody's was 328 songs and Knxwledge's is half a million beats,
-    // so require a substantial NUMBER rather than specifically a dollar figure.
-    expect(slide2, 'slide 2 must reveal a number of at least three digits')
-      // A dollar sign plus digits is a money reveal at any size ($30 counts), and a bare
-      // count needs three digits so a stray year or track number cannot pass for a payoff.
-      .toMatch(/(\$\d[\d,]*|\d[\d,]{2,})/);
+    // not always money and not always large: Rapsody's was 328 songs, SAULT's is 5 days,
+    // Noname's is 24 chapters. A digit floor of any size was the wrong rule. What actually
+    // matters is that a QUOTED line, meaning something that gets drawn on the page, states
+    // a figure at all.
+    const quoted = slide2.match(/"[^"]*"/g) ?? [];
+    const withNumber = quoted.filter((q) => /\d/.test(q));
+    expect(withNumber, 'slide 2 must state its number in a line that actually gets drawn')
+      .not.toHaveLength(0);
   });
 
   it.each(carouselFiles)('%s slide 3 is a takeaway carrying no number', (file) => {
