@@ -360,6 +360,14 @@ responsible for. Do not work those.
 
 ### P2 — worth doing, nothing breaks if you never do it
 
+- [ ] **Decide whether any already-posted Fan Economy carousel needs its caption swapped.**
+      I re-cut all 21 captions off a template they were sharing (the turn line and the wow entry
+      were identical in 21 of 21 posts) and synced every rendered
+      `Dropbox/nano banana output/Carousel Posts/Fan Economy/[N]-[slug]/caption.md`. The slides did
+      not change, so a re-upload is never required. I have no way to see which of the 21 are already
+      live on Instagram: for anything still unposted the new caption is already in place and there is
+      nothing to do, and for anything live it is your call whether editing the caption is worth it.
+
 - [ ] **In about two weeks, run the calculator step-abandonment query and tell me what it says.**
       Open [supabase/query-calculator-step-abandonment.sql](supabase/query-calculator-step-abandonment.sql)
       in the Supabase SQL editor and run it (read only, four queries, nothing writes). I shortened the

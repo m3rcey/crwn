@@ -1,5 +1,40 @@
 # CRWN Brain — Changelog
 
+## 2026-08-22 (later) - The carousel captions were a template wearing 21 different artists
+
+**The AI-tell rule shipped in the morning changed the INSTRUCTIONS and left the 21 existing Fan
+Economy captions alone. That deferral was wrong**, and auditing them found something bigger than the
+paragraph shape the rule was written about. Five connective phrases were near-verbatim across
+unrelated posts: the turn line ("Here's the thing nobody puts side by side") and the wow entry ("And
+here's the crazy part") in 21 of 21, the sidenote plug in 19, the fair-balance opener in 18, and the
+"One is X. One is Y." framing skeleton in 14. Read two of these back to back and the frame is the
+first thing you see, ahead of the artist.
+
+**The wow rotation rule was already written and was ignored by every single post.**
+`/crwn-fan-economy-carousel` beat 11 lists five entry variants and says to rotate them, and
+`/crwn-fan-economy`'s Batch surface variation caps the same phrase at once per batch. Both were in
+the file the whole time. An instruction disobeyed corpus-wide does not need more prose, it needs a
+check, so this adds **FE-CAR-004**: at least three distinct wow entries with none over half the set,
+and no connective sentence in more than half the captions. Ratified repeats are exempt by name (the
+signature line, `ANYWAY.`, `Hold that thought`, and the offer/ask pair, which is one fixed two-line
+form per tool by design). Mutation-verified: forcing all 21 back to one wow entry fails it.
+
+**All 21 captions were re-cut, not rewritten.** Paragraphs went from 18 to 20 down to 13 to 15 by
+grouping beats that carry one thought, the manufactured negations went ("It's not merch." became
+"There's no tier, no paywall, nothing to buy and nothing to upsell."), most "the question ain't X,
+it's Y" pivots became the direct question, and the five connectives now rotate. Numbers, claims,
+research, tiers, CTAs, keywords and every slide prompt are untouched, and the three strongest framing
+lines were KEPT because the distinction is real ("One is wide. One is deep." on the versus post).
+
+**The rendered captions were stale and are the ones that actually get posted.** Every
+`Dropbox/nano banana output/Carousel Posts/Fan Economy/[N]-[slug]/caption.md` still held the old
+text; all 21 were synced from the repo source, which is now byte-identical. Fixing only the repo copy
+would have left the work invisible at upload time.
+
+**One test was rejecting correct copy.** The bare-CRWN check split on the literal lowercase
+`the CRWN app`, so a sentence OPENING on "The CRWN app" counted as a bare mention. Made it case
+insensitive; it still catches real bare CRWN, proven by inserting one and watching it fail.
+
 ## 2026-08-22 - The writing skills learned to stop sounding like AI
 
 **One new canonical section, `Natural Sentence Length and Earned Contrast (the AI-tell pass)`, in
