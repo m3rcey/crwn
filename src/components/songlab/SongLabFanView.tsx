@@ -11,6 +11,7 @@ import Image from 'next/image';
 import { Check, Lock, Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { RECOGNITION_DISCLAIMER } from '@/lib/songLab/core';
+import { VoteCountdown } from '@/components/songlab/VoteCountdown';
 
 interface LabDecision {
   id: string;
@@ -257,6 +258,10 @@ export function SongLabFanView({ artistSlug, artistName }: { artistSlug: string;
                   </p>
                   <h3 className="text-lg font-bold text-crwn-text mb-3">{d.question}</h3>
 
+                  {/* Live countdown, above the options for the same reason it is on the
+                      ballot: how long is left decides whether a fan engages at all. */}
+                  <VoteCountdown closesAt={d.closesAt} onExpire={load} />
+
                   {justVoted === d.id && d.myVote ? (
                     <div className="mb-3 rounded-lg bg-crwn-gold/10 border border-crwn-gold/40 px-3 py-2 text-center">
                       <p className="text-sm font-bold text-crwn-gold uppercase">You helped build {project.title}</p>
@@ -312,11 +317,9 @@ export function SongLabFanView({ artistSlug, artistName }: { artistSlug: string;
                       )}
                     </div>
                   )}
-                  {d.closesAt ? (
-                    <p className="text-xs text-crwn-text-secondary text-center mt-3">
-                      Closes {new Date(d.closesAt).toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' })}
-                    </p>
-                  ) : null}
+                  {/* The closing instant now rides with the countdown above, which shows
+                      the date, the time and how long is left. A second date-only line
+                      here would say less and could disagree with it. */}
                 </div>
               ))}
 

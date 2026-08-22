@@ -36,6 +36,7 @@ import { Check, Mail } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { preselectedOption, type DecisionOption } from '@/lib/songLab/core';
 import { accountEmailNote } from '@/lib/songLab/liveClaim';
+import { VoteCountdown } from '@/components/songlab/VoteCountdown';
 import {
   BALLOT_CTA_LABEL,
   BALLOT_SUBMITTING_LABEL,
@@ -58,6 +59,8 @@ export interface LandingBallot {
   decisionId: string;
   question: string;
   options: DecisionOption[];
+  /** Absolute closing instant, or null when the vote runs until the artist closes it. */
+  closesAt?: string | null;
 }
 
 /** No ballot right now: either between sets, or the night is over. */
@@ -448,6 +451,16 @@ export function OfferLanding({
   return (
     <Shell>
       <Hero artistName={artistName} avatarUrl={avatarUrl} headline={headline} description={description} uppercase />
+
+      {/* The clock sits ABOVE the choices: a fan deciding whether to bother needs to know
+          how long they have before they read the options, not after. Refreshes the page
+          on expiry so the closed state comes from the server rather than from this
+          component's opinion. */}
+      <VoteCountdown
+        closesAt={ballot!.closesAt}
+        size="lead"
+        onExpire={() => router.refresh()}
+      />
 
       <div
         role="radiogroup"

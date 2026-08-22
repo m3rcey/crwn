@@ -81,6 +81,10 @@ export default async function OfferPage({ params }: OfferPageProps) {
           decisionId: phase.poll.id,
           question: phase.poll.question,
           options: (phase.poll.options || []) as DecisionOption[],
+          // The exact closing instant, so the ballot can run a live countdown. Sent as
+          // an absolute timestamp and never as a formatted clock time: the countdown is
+          // a duration, which is true in every timezone the link reaches.
+          closesAt: (phase.poll.closes_at as string | null) ?? null,
         };
       }
       // A poll open only to PAID tiers cannot be delivered by a free join, so the page
