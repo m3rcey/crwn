@@ -56,8 +56,28 @@ const buildNavItems = (isArtist: boolean) =>
         fanLibrarySlot,
       ];
 
+/**
+ * Is the nav actually on screen right now?
+ *
+ * Layouts reserve room for it (`md:pl-64` for the desktop sidebar, `pb-20` for the
+ * mobile tab bar), and that inset has to appear EXACTLY when the nav does. It did not:
+ * the inset was unconditional while the nav returns null for a logged-out visitor, so
+ * every public artist page reserved 256px for a sidebar that was not there and the whole
+ * page read as shifted right. That is the state a QR-scanning attendee and an Instagram
+ * visitor are always in.
+ *
+ * This is the ONE definition, used by the nav itself and by everything that insets for
+ * it, so the two can never disagree again.
+ */
+export function useNavigationVisible(): boolean {
+  const pathname = usePathname();
+  const { user } = useAuth();
+  return !!user && !pathname.startsWith('/login') && !pathname.startsWith('/signup');
+}
+
 export function Navigation() {
   const pathname = usePathname();
+  const navVisible = useNavigationVisible();
   const { user, profile, signOut, isArtist } = useAuth();
   // Artists + admins → Studio. The server-resolved role wins where it exists, so
   // the tab bar is already correct in the first HTML. Without it this rendered the
@@ -91,8 +111,11 @@ export function Navigation() {
     window.location.href = '/login';
   };
 
-  // Don't show nav on auth pages
-  if (!user || pathname.startsWith('/login') || pathname.startsWith('/signup')) {
+  // Don't show nav on auth pages. useNavigationVisible is the rule; every layout that
+  // insets for this nav reads the same one, so the inset cannot outlive the nav.
+  // `!user` is redundant at runtime (navVisible already requires it) and is kept only so
+  // TypeScript narrows `user` for the JSX below, which it cannot do through a hook.
+  if (!navVisible || !user) {
     return null;
   }
 
