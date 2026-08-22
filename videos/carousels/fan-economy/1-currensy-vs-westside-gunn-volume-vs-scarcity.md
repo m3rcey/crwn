@@ -14,7 +14,7 @@ Nobody puts these two next to each other, so here goes. Streaming pays about a p
 
 One is wide. One is deep. So I priced them against each other, and when the numbers landed side by side I had to look again.
 
-Hold that thought. You don't need to market to fans. You need a market FOR fans. Reach and depth ain't the same job, and most artists only got tools for the first. That's what the CRWN app is built around: membership tiers and a vault your top members get into.
+Hold that thought. You don't need to market to fans. You need a market FOR fans. Reach and depth ain't the same job, and most artists only got tools for the first. That's what the CRWN app is built around: membership tiers and a vault your top members get into. It's free to start, and it only takes a cut when you actually get paid.
 
 ANYWAY.
 

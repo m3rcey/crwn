@@ -268,6 +268,33 @@ describe.runIf(carouselFiles.length > 0)('FE-CAR-003 every carousel file is well
       .not.toMatch(/only makes? money when you make money/i);
   });
 
+  it.each(carouselFiles)('%s never states the First Paid Member Guarantee', (file) => {
+    const caption = section(readFileSync(join(CAROUSELS_DIR, file), 'utf8'), '**CAPTION:**') ?? '';
+    // The guarantee is REAL but CONDITIONAL: launch-partner cohort, 100 imported
+    // contacts or 40 proven buyers, and every required action completed
+    // (src/lib/launchPartner.ts). None of that survives a one-line plug, and a
+    // guarantee stripped of its conditions is a promise CRWN has not made.
+    const promises = [
+      /\bguarantee/i,
+      /\bpaid member within\b/i,
+      /\b30 days\b/i,
+      /\bor we rebuild\b/i,
+      /\brelaunch(?:es)? (?:the|your) offer\b/i,
+    ];
+    const hits = promises.filter((re) => re.test(caption)).map((re) => re.source);
+    expect(hits, `the offer belongs after the DM, not in the post (found ${hits.join(', ')})`)
+      .toHaveLength(0);
+  });
+
+  it.each(carouselFiles)('%s states the fee honestly if it mentions cost at all', (file) => {
+    const caption = section(readFileSync(join(CAROUSELS_DIR, file), 'utf8'), '**CAPTION:**') ?? '';
+    // "only makes money when you make money" is true on the free Launch plan and
+    // FALSE for a Pro ($49/mo) or Scale ($199/mo) subscriber, so the unqualified
+    // form may not ship. "Free to start" plus a cut on earnings is the true version.
+    expect(caption, 'the unqualified alignment claim is false on the paid plans')
+      .not.toMatch(/only makes? money when you make money/i);
+  });
+
   it.each(carouselFiles)('%s caption carries no hashtags', (file) => {
     const caption = section(readFileSync(join(CAROUSELS_DIR, file), 'utf8'), '**CAPTION:**') ?? '';
     const tags = caption.match(/#\w+/g) ?? [];

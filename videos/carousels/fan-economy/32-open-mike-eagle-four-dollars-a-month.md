@@ -12,7 +12,7 @@ That last part is the whole thing. Most artists only get paid when they release:
 
 Now set that against the other number. Streaming pays about a penny a month per listener, which is the discovery engine doing its job. So a thousand people at $4 is worth how many of them? Go do that division before I say it.
 
-Hold that thought. You don't need to market to fans. You need a market FOR fans. Most artists are growing the top number when the bottom one is what pays rent. That's the shape of the CRWN app, a ladder of membership tiers with a vault at the top.
+Hold that thought. You don't need to market to fans. You need a market FOR fans. Most artists are growing the top number when the bottom one is what pays rent. That's the shape of the CRWN app, a ladder of membership tiers with a vault at the top. Costs nothing to start, and it only takes a cut when you get paid.
 
 ANYWAY.
 

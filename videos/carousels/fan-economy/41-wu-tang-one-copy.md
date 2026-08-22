@@ -10,7 +10,7 @@ Once Upon a Time in Shaolin. One album, one physical copy, in a silver box. And 
 
 Every other album ever made was priced by dividing it. Press a hundred thousand, charge ten each. This one couldn't be divided, because there was nothing to divide. I still can't get over what happened to it after.
 
-Hold that thought. You don't need to market to fans. You need a market FOR fans. Everybody's fighting to be heard by more people, and almost nobody asks what one person would pay for something nobody else has. That's the shape of the CRWN app, a ladder of membership tiers with a vault at the top.
+Hold that thought. You don't need to market to fans. You need a market FOR fans. Everybody's fighting to be heard by more people, and almost nobody asks what one person would pay for something nobody else has. That's the shape of the CRWN app, a ladder of membership tiers with a vault at the top. Costs nothing to start, and it only takes a cut when you get paid.
 
 ANYWAY.
 

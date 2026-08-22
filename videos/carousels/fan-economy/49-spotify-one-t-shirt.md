@@ -12,7 +12,7 @@ A shirt costs maybe ten to make and sells for thirty five, and the artist keeps 
 
 Every artist I know spends the week chasing the stream number and almost no time on the shirt. The stream number is public and the shirt number isn't, so one feels like success and the other feels like a side hustle. Go guess how many streams one shirt is before I say it.
 
-Hold that thought. You don't need to market to fans. You need a market FOR fans. Most artists have exactly one thing to sell and it's the thing that pays the least. That's the whole idea behind the CRWN app: membership tiers, and a vault only your top members get into.
+Hold that thought. You don't need to market to fans. You need a market FOR fans. Most artists have exactly one thing to sell and it's the thing that pays the least. That's the whole idea behind the CRWN app: membership tiers, and a vault only your top members get into. Free to start, and it only takes a cut once the money actually comes in.
 
 ANYWAY.
 

@@ -12,7 +12,7 @@ It started in March 2020 as an emergency. Shows had stopped, nobody could tour, 
 
 Everything in modern marketing says people respond to discounts. This asks people to pay full price on purpose so somebody else does better. Go guess what one of those days does before I say it.
 
-Hold that thought. You don't need to market to fans. You need a market FOR fans. Most artists have never once told their people that buying direct pays them more, then wonder why everybody streams instead. That's the shape of the CRWN app, a ladder of membership tiers with a vault at the top.
+Hold that thought. You don't need to market to fans. You need a market FOR fans. Most artists have never once told their people that buying direct pays them more, then wonder why everybody streams instead. That's the shape of the CRWN app, a ladder of membership tiers with a vault at the top. It's free to start, and it only takes a cut when you actually get paid.
 
 ANYWAY.
 

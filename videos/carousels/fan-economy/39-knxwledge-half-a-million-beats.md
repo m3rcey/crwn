@@ -12,7 +12,7 @@ He's been uploading since before most people had a Bandcamp. The Hexual Sealings
 
 But released is not the same as made. Everything on that page is what he decided to put out, and behind it is the drive. One is a shop window. One is the warehouse. Go guess the number before I say it.
 
-Hold that thought. You don't need to market to fans. You need a market FOR fans. Almost every artist has the same thing sitting there and treats it like a graveyard instead of a shelf. That's what the CRWN app is built around: membership tiers and a vault your top members pay to get into.
+Hold that thought. You don't need to market to fans. You need a market FOR fans. Almost every artist has the same thing sitting there and treats it like a graveyard instead of a shelf. That's what the CRWN app is built around: membership tiers and a vault your top members pay to get into. It's free to start, and it only takes a cut when you actually get paid.
 
 ANYWAY.
 

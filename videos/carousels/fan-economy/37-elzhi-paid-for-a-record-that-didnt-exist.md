@@ -12,7 +12,7 @@ Elzhi flipped it. He put up a Kickstarter for an album that did not exist and as
 
 And this wasn't label money or an advance he'd owe back forever. It was his own people, one at a time, paying in advance for a record they could not hear yet. A loan is money you pay back. This they were never getting back, and they sent it anyway. Go guess how many before I say it.
 
-Hold that thought. You don't need to market to fans. You need a market FOR fans. Most artists carry all the risk themselves and find out at the end whether anybody cared. The CRWN app exists for that, membership tiers your people pay into and a vault they get access to.
+Hold that thought. You don't need to market to fans. You need a market FOR fans. Most artists carry all the risk themselves and find out at the end whether anybody cared. The CRWN app exists for that, membership tiers your people pay into and a vault they get access to. Free to start, and it only takes a cut once the money actually comes in.
 
 ANYWAY.
 

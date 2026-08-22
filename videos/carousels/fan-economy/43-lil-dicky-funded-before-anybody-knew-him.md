@@ -12,7 +12,7 @@ Every artist has the same idea of the order. Get famous first, then monetise. Bu
 
 And the thing he asked people to buy did not exist, with no evidence he could even make it. They were buying a promise off a stranger. Go guess the number before I say it.
 
-Hold that thought. You don't need to market to fans. You need a market FOR fans. The permission you're waiting for doesn't come from a follower count, it comes from asking. It's what the CRWN app does: membership tiers, with a vault sitting behind the top one.
+Hold that thought. You don't need to market to fans. You need a market FOR fans. The permission you're waiting for doesn't come from a follower count, it comes from asking. It's what the CRWN app does: membership tiers, with a vault sitting behind the top one. Free to start, and it only takes a cut once the money actually comes in.
 
 ANYWAY.
 

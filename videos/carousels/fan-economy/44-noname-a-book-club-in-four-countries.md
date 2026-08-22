@@ -12,7 +12,7 @@ The book club connects people inside and outside prisons with radical books, and
 
 Every artist is told to build a community, and what they usually build is a group chat that goes quiet in a month. Hers meets in actual cities whether or not she puts a record out. Go guess how many chapters before I say it.
 
-Hold that thought. You don't need to market to fans. You need a market FOR fans. The strongest thing you can offer is often not more music, it's a reason to be in a room with each other. The CRWN app exists for that, membership tiers your people pay into and a vault they get access to.
+Hold that thought. You don't need to market to fans. You need a market FOR fans. The strongest thing you can offer is often not more music, it's a reason to be in a room with each other. The CRWN app exists for that, membership tiers your people pay into and a vault they get access to. Costs nothing to start, and it only takes a cut when you get paid.
 
 ANYWAY.
 

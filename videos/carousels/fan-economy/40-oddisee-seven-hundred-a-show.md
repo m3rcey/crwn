@@ -12,7 +12,7 @@ Oddisee didn't wait. He got a rail pass and went country to country, playing roo
 
 That reads like paying dues, like a hard-luck story, and it wasn't. Every one of them rooms was him buying something, and it wasn't the fee. Go guess what a night was paying before I say it.
 
-Hold that thought. You don't need to market to fans. You need a market FOR fans. A show isn't a payday, it's the only place you meet the people who'll pay you for the next twenty years. The CRWN app is built for exactly that: tiers your fans join, and a vault behind the top one.
+Hold that thought. You don't need to market to fans. You need a market FOR fans. A show isn't a payday, it's the only place you meet the people who'll pay you for the next twenty years. The CRWN app is built for exactly that: tiers your fans join, and a vault behind the top one. Free to start, and it only takes a cut once the money actually comes in.
 
 ANYWAY.
 

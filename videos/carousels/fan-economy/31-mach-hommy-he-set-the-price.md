@@ -14,7 +14,7 @@ People said he was crazy. A thousand dollars for a record when the industry trai
 
 Now put that against what happened next. That same record came up for auction in November 2025, so go look at what it went for. He wasn't guessing at that price, but he was wrong about it.
 
-Hold that thought. You don't need to market to fans. You need a market FOR fans. Most artists got tools for getting heard and nothing for pricing what they own. The CRWN app is built for exactly that: tiers your fans join, and a vault behind the top one.
+Hold that thought. You don't need to market to fans. You need a market FOR fans. Most artists got tools for getting heard and nothing for pricing what they own. The CRWN app is built for exactly that: tiers your fans join, and a vault behind the top one. Free to start, and it only takes a cut once the money actually comes in.
 
 ANYWAY.
 

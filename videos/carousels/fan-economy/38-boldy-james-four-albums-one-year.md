@@ -12,7 +12,7 @@ Boldy ignored it completely. Different producer every time, months apart, no rol
 
 Everybody measures that as output, as how much he made. Almost nobody measures it as inventory, and every one of them is still a thing a fan can buy today, years later.
 
-Hold that thought. You don't need to market to fans. You need a market FOR fans. Most artists have a catalog sitting there doing nothing, because the only thing they ever did with it was upload it. That's what we built the CRWN app around: tiers people subscribe to, and a vault for the ones who go deepest.
+Hold that thought. You don't need to market to fans. You need a market FOR fans. Most artists have a catalog sitting there doing nothing, because the only thing they ever did with it was upload it. That's what we built the CRWN app around: tiers people subscribe to, and a vault for the ones who go deepest. Costs nothing to start, and it only takes a cut when you get paid.
 
 ANYWAY.
 

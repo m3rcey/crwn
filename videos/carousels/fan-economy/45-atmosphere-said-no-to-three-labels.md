@@ -10,7 +10,7 @@ By 2002 God Loves Ugly had done its work and the majors noticed. Three of the bi
 
 Saying no to a major is easy to say and expensive to do. An advance is money somebody hands you. The other road is a bill you pick up yourself, and nobody is coming to save it. Go guess what they did instead before I say it.
 
-Hold that thought. You don't need to market to fans. You need a market FOR fans. An offer is only worth what you'd give up to take it, and most artists have never priced the other side. That's what we built the CRWN app around: tiers people subscribe to, and a vault for the ones who go deepest.
+Hold that thought. You don't need to market to fans. You need a market FOR fans. An offer is only worth what you'd give up to take it, and most artists have never priced the other side. That's what we built the CRWN app around: tiers people subscribe to, and a vault for the ones who go deepest. It's free to start, and it only takes a cut when you actually get paid.
 
 ANYWAY.
 

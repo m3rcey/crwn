@@ -12,7 +12,7 @@ Most artists have followers, and a follower is a number on a screen that a platf
 
 Ryan went the other way and collected phone numbers, real ones, about forty thousand of them in a real address book. Fifteen thousand of them bought something. Not fifteen million, fifteen thousand. One number you rent, one you own, so go guess what that came to before I say it.
 
-Hold that thought. You don't need to market to fans. You need a market FOR fans. Reach you can't contact is reach you're renting, and most artists are renting all of it. That's what the CRWN app is built around: membership tiers and a vault your top members pay to get into.
+Hold that thought. You don't need to market to fans. You need a market FOR fans. Reach you can't contact is reach you're renting, and most artists are renting all of it. That's what the CRWN app is built around: membership tiers and a vault your top members pay to get into. Free to start, and it only takes a cut once the money actually comes in.
 
 ANYWAY.
 

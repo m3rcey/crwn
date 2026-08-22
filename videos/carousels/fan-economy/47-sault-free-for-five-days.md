@@ -12,7 +12,7 @@ Then one day: five albums at once, download them all, pay nothing. Except you ne
 
 Free usually means always available and worth nothing. That's the deal everybody made with the internet. This one didn't cost money, it cost attention. Go guess how long the window was before I say it.
 
-Hold that thought. You don't need to market to fans. You need a market FOR fans. Price is only one lever. Time is another one, and hardly anybody touches it. The CRWN app is built for exactly that: tiers your fans join, and a vault behind the top one.
+Hold that thought. You don't need to market to fans. You need a market FOR fans. Price is only one lever. Time is another one, and hardly anybody touches it. The CRWN app is built for exactly that: tiers your fans join, and a vault behind the top one. Costs nothing to start, and it only takes a cut when you get paid.
 
 ANYWAY.
 

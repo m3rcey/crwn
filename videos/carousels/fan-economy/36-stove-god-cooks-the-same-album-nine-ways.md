@@ -12,7 +12,7 @@ Reasonable Drought didn't work like that. The first press alone was five version
 
 Same songs, same tracklist, same everything you can actually hear. One album, many objects. Go count how many that is before I say it.
 
-Hold that thought. You don't need to market to fans. You need a market FOR fans. Most artists sell one thing one time and wonder why the same fan never spends again. It's what the CRWN app does: membership tiers, with a vault sitting behind the top one.
+Hold that thought. You don't need to market to fans. You need a market FOR fans. Most artists sell one thing one time and wonder why the same fan never spends again. It's what the CRWN app does: membership tiers, with a vault sitting behind the top one. It's free to start, and it only takes a cut when you actually get paid.
 
 ANYWAY.
 

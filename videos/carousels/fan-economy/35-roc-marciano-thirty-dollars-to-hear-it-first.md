@@ -12,7 +12,7 @@ Roc runs it different. RR2 went up on his own site first, direct, no store in be
 
 And he wasn't selling a rare object. No numbered vinyl, no signed jacket, no box. It was a file, the same file everybody else would get free on streaming a few weeks later. He was selling the date. Go guess the number before I say it.
 
-Hold that thought. You don't need to market to fans. You need a market FOR fans. Every artist already has something to sell and gives it away by accident: being first. That's what the CRWN app is built around: membership tiers and a vault your top members pay to get into, and early access is one of the things you can put in them.
+Hold that thought. You don't need to market to fans. You need a market FOR fans. Every artist already has something to sell and gives it away by accident: being first. That's what the CRWN app is built around: membership tiers and a vault your top members pay to get into, and early access is one of the things you can put in them. Costs nothing to start, and it only takes a cut when you get paid.
 
 ANYWAY.
 

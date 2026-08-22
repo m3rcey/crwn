@@ -12,7 +12,7 @@ Roughly twenty songs an hour for over a day straight, about 480 songs worth of r
 
 Every artist thinks the catalogue is what they sell and everything else is promotion for it. This was the other way round, and there was nothing to take home. Go think about why anybody sat and watched before I say it.
 
-Hold that thought. You don't need to market to fans. You need a market FOR fans. The most valuable thing you have is often the thing that can only happen once and only with you. It's what the CRWN app does: membership tiers, with a vault sitting behind the top one.
+Hold that thought. You don't need to market to fans. You need a market FOR fans. The most valuable thing you have is often the thing that can only happen once and only with you. It's what the CRWN app does: membership tiers, with a vault sitting behind the top one. Costs nothing to start, and it only takes a cut when you get paid.
 
 ANYWAY.
 

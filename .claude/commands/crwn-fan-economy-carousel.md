@@ -60,6 +60,50 @@ appears in every script and belongs on this slide as the SMALLER second line, bu
 is also the same every time then all 30 carousels end identically. Derive the big line from that
 script's own Wow Factor (carousel 1: "REACH GETS YOU HEARD. DEPTH GETS YOU PAID.").
 
+### The plug is not the offer
+
+The First Revenue Launch offer (done-with-you setup, and the First Paid Member Guarantee) does NOT
+go in a post. It is a closing instrument for somebody who has already raised their hand, and this
+series is written for artists who are UNAWARE. Three reasons it stays out:
+
+- **Two asks compete.** The post already asks for one thing, a comment for the lead magnet. Adding
+  "and we will build your offer with a guarantee" splits the response and wins neither.
+- **The conditions cannot survive the space.** The guarantee is real and SHIPPED, and it is
+  conditional: the launch-partner cohort flag, 100 imported contacts OR 40 proven buyers, and every
+  required action completed (`src/lib/launchPartner.ts`). A one-line version drops all of that,
+  which turns a careful offer into a promise CRWN has not made. Tested.
+- **Slide 3 is full.** Five text zones is the ceiling, already stated above.
+
+**One element does belong: the risk reversal.** Naming the app creates an objection in the same
+breath ("another platform that wants a piece of me"), and one clause answers it: `It's free to
+start, and it only takes a cut when you actually get paid.`
+
+Say it that way and no other way. **"We only make money when you make money" is false as written**:
+it is true on the free Launch plan, and a Pro subscriber pays $49 a month and a Scale subscriber
+$199 whether they earn anything or not (`TIER_PRICING`). The unqualified form is blocked by a test.
+
+### The plug is not the offer
+
+The First Revenue Launch offer (done-with-you setup, and the First Paid Member Guarantee) does NOT
+go in a post. It is a closing instrument for somebody who has already raised their hand, and this
+series is written for artists who are UNAWARE. Three reasons it stays out:
+
+- **Two asks compete.** The post already asks for one thing, a comment for the lead magnet. Adding
+  "and we will build your offer with a guarantee" splits the response and wins neither.
+- **The conditions cannot survive the space.** The guarantee is real and SHIPPED, and it is
+  conditional: the launch-partner cohort flag, 100 imported contacts OR 40 proven buyers, and every
+  required action completed (`src/lib/launchPartner.ts`). A one-line version drops all of that,
+  which turns a careful offer into a promise CRWN has not made. Tested.
+- **Slide 3 is full.** Five text zones is the ceiling, already stated above.
+
+**One element does belong: the risk reversal.** Naming the app creates an objection in the same
+breath ("another platform that wants a piece of me"), and one clause answers it: `It's free to
+start, and it only takes a cut when you actually get paid.`
+
+Say it that way and no other way. **"We only make money when you make money" is false as written**:
+it is true on the free Launch plan, and a Pro subscriber pays $49 a month and a Scale subscriber
+$199 whether they earn anything or not (`TIER_PRICING`). The unqualified form is blocked by a test.
+
 **Slide 3 carries the CRWN plug, one short line above the CTA box** (founder decision,
 2026-08-21, piloted on three carousels first): `THAT'S WHAT THE CRWN APP IS BUILT FOR.` in small
 capitals, between the small scene and the boxed CTA.
