@@ -4,23 +4,13 @@
 
 Comment "VAULT" for what's sitting on your drive unpriced.
 
-Knxwledge has put out more music than most labels release in a decade. Somebody asked him how many beats he's actually made.
-
-How many you think he said?
+Knxwledge has put out more music than most labels release in a decade. Somebody asked him how many beats he's actually made. How many you think he said?
 
 Why me on this: Snoop put his name on the last breakdown I did about him. Four artists who were selling records before streaming existed follow the CRWN app. Not because of me, because of where the money is moving in 2026.
 
-He's been uploading since before most people had a Bandcamp. The Hexual Sealings run, the WrapTapes, the karma loops. Dozens of releases on his own page, no label deciding when.
+He's been uploading since before most people had a Bandcamp. The Hexual Sealings run, the WrapTapes, the karma loops, dozens of releases on his own page with no label deciding when. That's the part people know. Prolific. Fine.
 
-That's the part people know. Prolific. Fine.
-
-Here's the thing nobody puts side by side.
-
-Released is not the same as made. Everything on that page is what he decided to put out. Behind it is the drive.
-
-One is a shop window. One is the warehouse.
-
-Go guess the number before I say it.
+But released is not the same as made. Everything on that page is what he decided to put out, and behind it is the drive. One is a shop window. One is the warehouse. Go guess the number before I say it.
 
 Hold that thought. You don't need to market to fans. You need a market FOR fans. Almost every artist has the same thing sitting there and treats it like a graveyard instead of a shelf. That's what the CRWN app is built around: membership tiers and a vault your top members pay to get into.
 
@@ -32,9 +22,9 @@ He estimated about half a million.
 
 And here's the crazy part. He can't release half a million beats. No feed on earth could carry it and no fan could listen to it. But the people who love him would pay to get inside the drive. Not to own it. Just to be let in.
 
-Now to be fair, most of that is loops and sketches, not finished songs, and half a million of anything is an estimate rather than a receipt. A beat with no home isn't automatically worth money. It's worth money to the people who already care.
+I should say, most of that is loops and sketches rather than finished songs, and half a million of anything is an estimate rather than a receipt. A beat with no home isn't automatically worth money, it's worth money to the people who already care.
 
-But if what you already made is bigger than what you'll ever release, the question ain't what do I put out next. It's who would pay to see what's already on the drive.
+But if what you already made is bigger than what you'll ever release, who would pay to see what's already on the drive?
 
 I built a free Vault Revenue Planner that prices exactly that for your catalog.
 

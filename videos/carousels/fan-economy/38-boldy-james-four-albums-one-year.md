@@ -4,25 +4,15 @@
 
 Comment "VAULT" for what your back catalog is actually worth.
 
-In 2020 Boldy James put out more albums than most artists manage in five years. In one year, with a different producer on every one.
+In 2020 Boldy James put out more albums than most artists manage in five years. In one year, with a different producer on every one. How many?
 
-How many?
-
-The industry teaches one album every two years. Build up to it, roll it out, tour it, disappear, come back.
-
-That schedule wasn't built for the artist. It was built for a supply chain that had to ship plastic to shops.
+The industry teaches one album every two years. Build up to it, roll it out, tour it, disappear, come back. That schedule wasn't built for the artist, it was built for a supply chain that had to ship plastic to shops.
 
 Boldy ignored it completely. Different producer every time, months apart, no rollout, no wait.
 
-Here's the thing nobody puts side by side.
+Everybody measures that as output, as how much he made. Almost nobody measures it as inventory, and every one of them is still a thing a fan can buy today, years later.
 
-Everybody measures that as output. How much he made. Nobody measures it as inventory.
-
-One is a number. One is a shelf.
-
-Every one of them is still a thing a fan can buy today, years later.
-
-Hold that thought. You don't need to market to fans. You need a market FOR fans. Most artists have a catalog sitting there doing nothing, because the only thing they ever did with it was upload it. That's what the CRWN app is built around: membership tiers and a vault your top members pay to get into.
+Hold that thought. You don't need to market to fans. You need a market FOR fans. Most artists have a catalog sitting there doing nothing, because the only thing they ever did with it was upload it. That's what we built the CRWN app around: tiers people subscribe to, and a vault for the ones who go deepest.
 
 ANYWAY.
 
@@ -30,11 +20,11 @@ So how many albums did he put out in that one year?
 
 Four. The Price of Tea in China with Alchemist in February. Manger on McNichols with Sterling Toles in July. The Versace Tape in August. Real Bad Boldy to close it.
 
-And here's the crazy part. Six years later every one of them is still for sale, and the streaming on all four together is a few thousand a month split between them. Four things a fan can still buy, and the only thing anybody ever did with them was upload them.
+And here's what got me. Six years later every one of them is still for sale, and the streaming on all four together is a few thousand a month split between them. Four things a fan can still buy, and the only thing anybody ever did with them was upload them.
 
-Now to be fair, most artists can't work that fast and shouldn't try. Four rushed projects is worse than one finished one. And streaming carried those records to people who'd never have found them.
+Before anybody copies this, most artists can't work that fast and shouldn't try. Four rushed projects is worse than one finished one. And streaming carried those records to people who'd never have found them.
 
-But if you already have a catalog nobody's paying for, the question ain't when do I drop next. It's what's already sitting there, and why is none of it behind a door.
+But if you already have a catalog nobody's paying for, what's already sitting there, and why is none of it behind a door?
 
 I built a free Vault Revenue Planner that prices exactly that for your catalog.
 

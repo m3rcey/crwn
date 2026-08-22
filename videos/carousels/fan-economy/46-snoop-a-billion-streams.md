@@ -4,23 +4,13 @@
 
 Comment "OWN" for how many of your listeners you could actually reach.
 
-Snoop Dogg said publicly that he got paid less than forty five thousand dollars for over a billion streams.
+Snoop Dogg said publicly that he got paid less than forty five thousand dollars for over a billion streams. A billion. So what does a billion plays actually pay?
 
-A billion. So what does a billion plays actually pay?
+He said it out loud, in public, and threatened to take it to court if nobody explained the math. People argued about it, because there's always splits and labels and publishers sitting between an artist and that money, so treat the exact figure as his claim rather than a receipt. That isn't the part that matters.
 
-He said it out loud, in public, and threatened to take it to court if nobody explained the math.
+A billion is the biggest number in this business. It's the one every artist is chasing, the one that means you made it. Go sit with that before I say it.
 
-People argued about it, because there's always splits and labels and publishers sitting between an artist and that money. So treat the exact figure as his claim, not a receipt. That isn't the part that matters.
-
-Here's the thing nobody puts side by side.
-
-A billion is the biggest number in this business. It's the one every artist is chasing, the one that means you made it.
-
-One is a number. One is a business.
-
-Go sit with that before I say it.
-
-Hold that thought. You don't need to market to fans. You need a market FOR fans. Reach and revenue are two different systems and almost nobody has been shown the second one. That's what the CRWN app is built around: membership tiers and a vault your top members pay to get into.
+Hold that thought. You don't need to market to fans. You need a market FOR fans. Reach and revenue are two different systems and almost nobody has been shown the second one. That's what the CRWN app is built around: membership tiers and a vault your top members pay to get into. It's free to start, and it only takes a cut when you actually get paid.
 
 ANYWAY.
 
@@ -28,11 +18,11 @@ So what did he say a billion streams paid?
 
 Under forty five thousand dollars.
 
-And here's the crazy part. If that's what a billion pays at his level, do the math on what your two hundred thousand pays you. And here's what should actually land: a billion plays means an enormous number of people heard it. That's the most valuable thing in the world if you can find any of them. The failure isn't that they listened. It's that a billion listens produced no name, no email, no way to reach one of them.
+And that ain't even the wild part. A billion plays means an enormous number of people heard it, which is the most valuable thing in the world if you can find any of them. The failure isn't that they listened. It's that a billion listens produced no name, no email, no way to reach one of them.
 
-Now to be fair, this is a disputed claim and the true number depends on deals nobody outside can see. Don't repeat it as settled fact. And streaming did its job better than anything in history. A billion people heard him.
+Handle this one carefully. It's a disputed claim and the true number depends on deals nobody outside can see, so don't repeat it as settled fact. And streaming did its job better than anything in history. A billion people heard him.
 
-But if a billion listens can pay like that, the question ain't how do I get more streams. It's what happens to a listener after they listen, and right now the answer is nothing.
+But if a billion listens can pay like that, what happens to a listener after they listen, and why is the answer nothing?
 
 I built a free Own Your Fans Calculator that runs that exact number for your audience.
 

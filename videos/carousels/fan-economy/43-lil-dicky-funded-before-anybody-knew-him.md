@@ -4,25 +4,15 @@
 
 Comment "DEMAND" for whether your next project would fund itself.
 
-In November 2013 a rapper nobody had heard of asked strangers to fund his album. No label, no hits, no track record.
-
-How much did they give him?
+In November 2013 a rapper nobody had heard of asked strangers to fund his album. No label, no hits, no track record. How much did they give him?
 
 Why me on this: Snoop put his name on the last breakdown I did about him. Four artists who were selling records before streaming existed follow the CRWN app. Not because of me, because of where the money is moving in 2026.
 
-Every artist has the same idea of the order. Get famous first, then monetise. Build the following, wait until you're big enough, and only then feel entitled to ask.
+Every artist has the same idea of the order. Get famous first, then monetise. Build the following, wait until you're big enough, and only then feel entitled to ask. So most people ask for nothing for years, then wonder why nobody's in the habit of paying them.
 
-So most people ask for nothing for years, then wonder why nobody's in the habit of paying them.
+And the thing he asked people to buy did not exist, with no evidence he could even make it. They were buying a promise off a stranger. Go guess the number before I say it.
 
-Here's the thing nobody puts side by side.
-
-The thing he asked people to buy did not exist, and there was no evidence he could make it.
-
-One is a product. One is a promise.
-
-Go guess the number before I say it.
-
-Hold that thought. You don't need to market to fans. You need a market FOR fans. The permission you're waiting for doesn't come from a follower count, it comes from asking. That's what the CRWN app is built around: membership tiers and a vault your top members pay to get into.
+Hold that thought. You don't need to market to fans. You need a market FOR fans. The permission you're waiting for doesn't come from a follower count, it comes from asking. It's what the CRWN app does: membership tiers, with a vault sitting behind the top one.
 
 ANYWAY.
 
@@ -30,11 +20,11 @@ So how much did strangers give a rapper nobody knew?
 
 $113,017, from 2,813 people.
 
-And here's the crazy part. That's about forty dollars a head from people with no idea whether he'd deliver. 2,813 people is nothing. It's a small club, not a stadium, not a chart position. And it funded the thing that started the whole career.
+And that ain't even the wild part. That's about forty dollars a head from people with no idea whether he'd deliver, and 2,813 people is nothing. A small club, not a stadium, not a chart position. It funded the thing that started the whole career.
 
-Now to be fair, he had real attention first. The videos did that work, and the internet put him in front of those people. Crowdfunding is not a substitute for anybody caring.
+He wasn't starting from nothing. The attention was real first. The videos did that work, and the internet put him in front of those people. Crowdfunding is not a substitute for anybody caring.
 
-But if 2,813 strangers will fund somebody with no track record, the question ain't when am I big enough to ask. It's how many people already care, and why you've never asked one of them for anything.
+But if 2,813 strangers will fund somebody with no track record, how many people already care about you, and why have you never asked one of them for anything?
 
 I built a free Proof of Demand Test Builder that finds out before you spend a dollar.
 

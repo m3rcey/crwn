@@ -4,23 +4,13 @@
 
 Comment "TOUR" for what the months between shows could pay.
 
-Interscope came for Atmosphere. So did Sony. So did Warner Brothers. They said no to all three.
+Interscope came for Atmosphere. So did Sony. So did Warner Brothers. They said no to all three. So what did they do instead?
 
-So what did they do instead?
+By 2002 God Loves Ugly had done its work and the majors noticed. Three of the biggest in the business came knocking, and for most artists that call is the whole dream. Slug and Ant turned it down and kept building Rhymesayers, their own label.
 
-By 2002 God Loves Ugly had done its work and the majors noticed. Three of the biggest in the business came knocking.
+Saying no to a major is easy to say and expensive to do. An advance is money somebody hands you. The other road is a bill you pick up yourself, and nobody is coming to save it. Go guess what they did instead before I say it.
 
-For most artists that call is the whole dream. Slug and Ant turned it down and kept building Rhymesayers, their own label.
-
-Here's the thing nobody puts side by side.
-
-Saying no to a major is easy to say and expensive to do. It means you fund it, you carry it, and nobody is coming to save it.
-
-One is an advance. One is a bill.
-
-Go guess what they did instead before I say it.
-
-Hold that thought. You don't need to market to fans. You need a market FOR fans. An offer is only worth what you'd give up to take it, and most artists have never priced the other side. That's what the CRWN app is built around: membership tiers and a vault your top members pay to get into.
+Hold that thought. You don't need to market to fans. You need a market FOR fans. An offer is only worth what you'd give up to take it, and most artists have never priced the other side. That's what we built the CRWN app around: tiers people subscribe to, and a vault for the ones who go deepest.
 
 ANYWAY.
 
@@ -30,9 +20,9 @@ They toured 60 shows in 71 days.
 
 And here's the crazy part. Early on they drove Minneapolis to Dallas, about a thousand miles, to play one show for $250. Nobody does that for the fee. They did it because every room was a city they could come back to, and those rooms are still theirs. Rhymesayers became the blueprint half the independent labels in the country copied.
 
-Now to be fair, turning down three majors is a decision you can only make if you already have something they want, and plenty of artists never get that call. And this was brutal. 60 shows in 71 days is not a lifestyle, it's a price.
+There's a catch. Turning down three majors is a decision you can only make if you already have something they want, and plenty of artists never get that call. And this was brutal. 60 shows in 71 days is not a lifestyle, it's a price.
 
-But if the alternative to signing is that much work, the question ain't how do I get a deal. It's what you'd be handing over, and whether it's an audience you could have kept.
+But if the alternative to signing is that much work, what would you be handing over, and is it an audience you could have kept?
 
 I built a free Between-Tour Revenue Calculator that prices the months in between.
 

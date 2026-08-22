@@ -4,37 +4,27 @@
 
 Comment "VAULT" for what your top fans would pay to get into.
 
-Nipsey Hussle put Crenshaw out for free. Same day, he sold physical copies for $100 each.
+Nipsey Hussle put Crenshaw out for free. Same day, he sold physical copies for $100 each. So how many people paid $100 for music they could already have for nothing?
 
-So how many people paid $100 for music they could already have for nothing?
+October 2013. He pressed a thousand CDs, priced them at a hundred apiece, and called it Proud2Pay. Everybody said it was arrogant, a hundred dollars for a mixtape from an unsigned rapper when the free version was going up online twelve hours later.
 
-October 2013. He pressed a thousand CDs, priced them at a hundred apiece, and called it Proud2Pay.
+And it did go up. Free, no paywall, no trick, the exact same music.
 
-Everybody said it was arrogant. A hundred dollars for a mixtape from an unsigned rapper, when the free version was going up online twelve hours later.
+So what were the thousand actually buying? They already had the songs, or they could get them by dinner. They was buying the object, a ticket to the show, and his signature on it. One is a file. One is a thing. I keep coming back to how fast it went.
 
-And it did go up. Free. No paywall, no trick. The exact same music.
-
-Here's the thing nobody puts side by side.
-
-The people buying wasn't buying songs. They already had the songs, or they could get them by dinner. They was buying the object, a ticket to the show, and his signature on it.
-
-One is a file. One is a thing.
-
-I keep coming back to how fast it went.
-
-Hold that thought. You don't need to market to fans. You need a market FOR fans. Most artists put the music behind the paywall and got nothing else to sell, so when it leaks the business is over. That's what the CRWN app is built around: membership tiers and a vault your top members pay to get into.
+Hold that thought. You don't need to market to fans. You need a market FOR fans. Most artists put the music behind the paywall and got nothing else to sell, so when it leaks the business is over. That's the whole idea behind the CRWN app: membership tiers, and a vault only your top members get into. It's free to start, and it only takes a cut when you actually get paid.
 
 ANYWAY.
 
 So how many paid $100 for free music?
 
-All thousand. Sold out in twenty four hours. A hundred thousand dollars in a day.
+All thousand, sold out in twenty four hours. A hundred thousand dollars in a day.
 
-And here's the crazy part. Jay-Z bought a hundred copies himself. Ten thousand dollars from one person, for a tape that was free on the internet.
+That's not even the part that got me. Jay-Z bought a hundred copies himself. Ten thousand dollars from one person, for a tape that was free on the internet.
 
-Now to be fair, the free version is what made the paid one worth buying. Everybody who downloaded it and told a friend built the thing the thousand paid for. Discovery did its job and he let it.
+The other half of this is that the free version is what made the paid one worth buying. Everybody who downloaded it and told a friend built the thing the thousand paid for. Discovery did its job and he let it.
 
-But if the music was free and they still paid, the question ain't how do I stop people getting my music for nothing. It's what do I have that only my people can get.
+But if the music was free and they still paid, what do you have that only your people can get?
 
 I built a free Vault Revenue Planner that prices exactly that for your catalog.
 

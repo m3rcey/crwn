@@ -4,23 +4,15 @@
 
 Comment "OWN" for how many of your listeners would actually pay you.
 
-Open Mike Eagle charges $4 a month. Just over a thousand people pay it.
+Open Mike Eagle charges $4 a month. Just over a thousand people pay it. How many monthly listeners would he need to make that same money?
 
-How many monthly listeners would he need to make that same money?
+$4 is nothing, it's a coffee, and 1,071 people pay it every month whether he puts out a record or not.
 
-$4 is nothing. It's a coffee. And 1,071 people pay it every month whether he puts out a record or not.
+That last part is the whole thing. Most artists only get paid when they release: you drop, you spike, the spike fades, and you go make another one to eat. His money shows up on the first either way. He's put 656 posts behind that paywall, so the membership is the product.
 
-That last part is the whole thing. Most artists only get paid when they release. You drop, you spike, the spike fades, and you go make another one to eat.
+Now set that against the other number. Streaming pays about a penny a month per listener, which is the discovery engine doing its job. So a thousand people at $4 is worth how many of them? Go do that division before I say it.
 
-His money shows up on the first either way. He's put 656 posts behind that paywall. The membership is the product.
-
-Here's the thing nobody puts side by side.
-
-Streaming pays about a penny a month per listener. That's the discovery engine doing its job.
-
-So a thousand people at $4 is worth how many of them? Go do that division before I say it.
-
-Hold that thought. You don't need to market to fans. You need a market FOR fans. Most artists are growing the top number when the bottom one is what pays rent. That's what the CRWN app is built around: membership tiers and a vault your top members pay to get into.
+Hold that thought. You don't need to market to fans. You need a market FOR fans. Most artists are growing the top number when the bottom one is what pays rent. That's the shape of the CRWN app, a ladder of membership tiers with a vault at the top.
 
 ANYWAY.
 
@@ -28,11 +20,11 @@ So how many monthly listeners does 1,071 people at $4 equal?
 
 About 428,000.
 
-And here's the crazy part. That's 400 times fewer people for the same money. A thousand he can name and email, against four hundred thousand he'd never meet. His pay again next month. The rest have to come back on they own.
+And here's what got me. That's 400 times fewer people for the same money. A thousand he can name and email, against four hundred thousand he'd never meet. His pay again next month, and the rest have to come back on they own.
 
-To be fair, $4 is his floor, not his average, so the real number is higher than my math. And streaming is how most of them found him.
+To be fair, $4 is his floor and not his average, so the real number is higher than my math. And streaming is how most of them found him.
 
-So the question ain't how do I get more listeners. It's how many you already got would pay $4, and why you never asked.
+So how many of the listeners you already got would pay $4, and why have you never asked?
 
 I built a free Own Your Fans Calculator that runs that exact number for your audience.
 

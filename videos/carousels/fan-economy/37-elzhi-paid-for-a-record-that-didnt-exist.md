@@ -4,25 +4,15 @@
 
 Comment "DEMAND" for whether your next project would fund itself.
 
-In 2013 Elzhi asked his fans to pay for an album he hadn't made yet. No song, no tracklist, no release date.
+In 2013 Elzhi asked his fans to pay for an album he hadn't made yet. No song, no tracklist, no release date. How many people sent money for nothing?
 
-How many people sent money for nothing?
+Every artist thinks the order is fixed. Make the thing, then find out if anybody wants it. Record it, pay for the mixing, press it, and then pray. All the risk sits on you, up front, before one person has said yes.
 
-Every artist thinks the order is fixed. Make the thing, then find out if anybody wants it. Record it, pay for the mixing, press it, and then pray.
+Elzhi flipped it. He put up a Kickstarter for an album that did not exist and asked people to fund it. No product, just his name and a promise.
 
-All the risk sits on you, up front, before one person has said yes.
+And this wasn't label money or an advance he'd owe back forever. It was his own people, one at a time, paying in advance for a record they could not hear yet. A loan is money you pay back. This they were never getting back, and they sent it anyway. Go guess how many before I say it.
 
-Elzhi flipped it. He put up a Kickstarter for an album that did not exist and asked people to fund it. No product. Just his name and a promise.
-
-Here's the thing nobody puts side by side.
-
-This wasn't label money or an advance he'd owe back forever. It was his own people, one at a time, paying in advance for a record they could not hear yet.
-
-One is a loan. One is a vote.
-
-Go guess how many before I say it.
-
-Hold that thought. You don't need to market to fans. You need a market FOR fans. Most artists carry all the risk themselves and find out at the end whether anybody cared. That's what the CRWN app is built around: membership tiers and a vault your top members pay to get into.
+Hold that thought. You don't need to market to fans. You need a market FOR fans. Most artists carry all the risk themselves and find out at the end whether anybody cared. The CRWN app exists for that, membership tiers your people pay into and a vault they get access to.
 
 ANYWAY.
 
@@ -30,11 +20,11 @@ So how many people paid for a record that didn't exist?
 
 More than seven hundred, and about thirty seven thousand dollars.
 
-And here's the crazy part. That record took nearly three years. Lead Poison finally arrived in 2016. He was open about why: depression, and how hard the writing got. And most of them waited anyway.
+And it gets worse. That record took nearly three years. Lead Poison finally arrived in 2016, and he was open about why: depression, and how hard the writing got. Most of them waited anyway.
 
-Now to be fair, the wait was hard on people and some were angry, and that's the other half of this. Money up front is a promise, and a promise you can't keep on time costs more than the money was worth. Take the pre-orders, then put the delivery date somewhere you can't lose it.
+The honest part is that the wait was hard on people and some were angry, and that's the other half of this. Money up front is a promise, and a promise you can't keep on time costs more than the money was worth. Take the pre-orders, then put the delivery date somewhere you can't lose it.
 
-But if seven hundred people will pay for something that doesn't exist, the question ain't can I afford to make it. It's how many of my people would fund it right now, and have I ever asked.
+But if seven hundred people will pay for something that doesn't exist, how many of yours would fund it right now, and have you ever asked?
 
 I built a free Proof of Demand Test Builder that finds out before you spend a dollar.
 

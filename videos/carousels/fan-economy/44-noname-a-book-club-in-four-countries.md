@@ -4,23 +4,15 @@
 
 Comment "OWN" for what your people would show up for.
 
-Noname runs a book club. Not a fan club, a book club, with chapters in four countries.
+Noname runs a book club. Not a fan club, a book club, with chapters in four countries. So how many chapters does a rapper's reading group actually have?
 
-So how many chapters does a rapper's reading group actually have?
+She's independent. She self-released Sundial in 2023 and it topped Rolling Stone's rap albums list that year, and she's said out loud what pays for the records: ticket sales and vinyl.
 
-She's independent. She self-released Sundial in 2023 and it topped Rolling Stone's rap albums list that year. And she's said out loud what pays for the records: ticket sales and vinyl.
+The book club connects people inside and outside prisons with radical books, and everything it offers is free. There's no tier, no paywall, nothing to buy and nothing to upsell.
 
-The book club connects people inside and outside prisons with radical books, and everything it offers is free. It's not merch. There's no tier, no paywall, nothing to buy.
+Every artist is told to build a community, and what they usually build is a group chat that goes quiet in a month. Hers meets in actual cities whether or not she puts a record out. Go guess how many chapters before I say it.
 
-Here's the thing nobody puts side by side.
-
-Every artist is told to build a community, and what they usually build is a group chat that goes quiet in a month.
-
-One is a following. One is a room.
-
-Go guess how many chapters before I say it.
-
-Hold that thought. You don't need to market to fans. You need a market FOR fans. The strongest thing you can offer is often not more music, it's a reason to be in a room with each other. That's what the CRWN app is built around: membership tiers and a vault your top members pay to get into.
+Hold that thought. You don't need to market to fans. You need a market FOR fans. The strongest thing you can offer is often not more music, it's a reason to be in a room with each other. The CRWN app exists for that, membership tiers your people pay into and a vault they get access to.
 
 ANYWAY.
 
@@ -28,11 +20,11 @@ So how many chapters does the book club have?
 
 Twenty four. Twenty in the United States, plus London, Lagos, Accra and Nairobi.
 
-And here's the crazy part. Every one is free, and they're why her audience is an audience instead of a follower count. When she tours, those are the rooms. When she presses vinyl, those are the buyers. The free thing is what makes the paid thing possible.
+That's not even the part that got me. Every one is free, and they're why her audience is an audience instead of a follower count. When she tours those are the rooms, and when she presses vinyl those are the buyers. The free thing is what makes the paid thing possible.
 
-Now to be fair, a book club is hers specifically and copying it exactly would be nonsense. This ain't a template. And streaming is how most people found the music first.
+One caveat: a book club is hers specifically and copying it exactly would be nonsense. This ain't a template. And streaming is how most people found the music first.
 
-But if a free reading group in four countries is what holds an audience together, the question ain't what else can I sell them. It's what your people would show up for if you never released another song.
+But if a free reading group in four countries is what holds an audience together, what would your people show up for if you never released another song?
 
 I built a free Own Your Fans Calculator that runs that exact number for your audience.
 

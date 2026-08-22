@@ -4,25 +4,17 @@
 
 Comment "VAULT" for what to charge for the thing only you can sell.
 
-Mach-Hommy sold a CD for $300 a copy. Then he put out a record for $999.
-
-Was he overcharging?
+Mach-Hommy sold a CD for $300 a copy. Then he put out a record for $999. Was he overcharging?
 
 Most artists find out what their music is worth after the fact. You put it out, the market decides, and that's what you get.
 
-Mach don't do that. He decides first. 187 copies of H.B.O. at $300 apiece in 2016. No auction, no bidding war. He named the number.
-
-Then The G.A.T. in 2017, vinyl only, at $999. Most of his catalog never went to streaming.
+Mach decides first. 187 copies of H.B.O. at $300 apiece in 2016, no auction and no bidding war, he just named the number. Then The G.A.T. in 2017, vinyl only, at $999, and most of his catalog never went to streaming.
 
 People said he was crazy. A thousand dollars for a record when the industry trained everybody to expect it free.
 
-Here's the thing nobody puts side by side.
+Now put that against what happened next. That same record came up for auction in November 2025, so go look at what it went for. He wasn't guessing at that price, but he was wrong about it.
 
-That same record came up for auction in November 2025. Go look at what it went for.
-
-He wasn't guessing at that price. But he was wrong about it.
-
-Hold that thought. You don't need to market to fans. You need a market FOR fans. Most artists got tools for getting heard and nothing for pricing what they own. That's what the CRWN app is built around: membership tiers and a vault your top members pay to get into.
+Hold that thought. You don't need to market to fans. You need a market FOR fans. Most artists got tools for getting heard and nothing for pricing what they own. The CRWN app is built for exactly that: tiers your fans join, and a vault behind the top one.
 
 ANYWAY.
 
@@ -30,13 +22,11 @@ So was he overcharging at $999?
 
 It sold for $24,400.
 
-And here's the crazy part. He wasn't overcharging. He undercharged by about 24 times. The man they called crazy for asking $999 priced it too low.
-
-And them 187 CDs? That's $56,100 from one release.
+And it gets worse. He undercharged by about 24 times. The man they called crazy for asking $999 priced it too low, and them 187 CDs came to $56,100 from one release.
 
 To be fair, streaming is how most of us found Mach at all. Discovery did its job.
 
-But if you own something nobody else can sell, the question ain't how many people hear it. It's whether you asked for enough.
+But if you own something nobody else can sell, the real question is whether you ever asked for enough.
 
 I built a free Vault Revenue Planner that prices exactly that for your catalog.
 

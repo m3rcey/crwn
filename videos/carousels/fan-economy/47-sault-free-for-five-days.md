@@ -4,23 +4,15 @@
 
 Comment "VAULT" for what your people would move fast for.
 
-In November 2022 SAULT put out five albums on the same day, for free. Free, but you needed a password, and it was only up for a few days.
-
-How long?
+In November 2022 SAULT put out five albums on the same day, for free. Free, but you needed a password, and it was only up for a few days. How long?
 
 SAULT are anonymous on purpose. No interviews, no photographs, barely a face between them.
 
-Then one day: five albums at once. Download them all, pay nothing. Except you needed the password to open the folder, and the folder was not going to stay up.
+Then one day: five albums at once, download them all, pay nothing. Except you needed the password to open the folder, and the folder was not going to stay up.
 
-Here's the thing nobody puts side by side.
+Free usually means always available and worth nothing. That's the deal everybody made with the internet. This one didn't cost money, it cost attention. Go guess how long the window was before I say it.
 
-Free usually means always available and worth nothing. That's the deal everybody made with the internet.
-
-One costs money. One costs attention.
-
-Go guess how long the window was before I say it.
-
-Hold that thought. You don't need to market to fans. You need a market FOR fans. Price is only one lever. Time is another one, and hardly anybody touches it. That's what the CRWN app is built around: membership tiers and a vault your top members pay to get into.
+Hold that thought. You don't need to market to fans. You need a market FOR fans. Price is only one lever. Time is another one, and hardly anybody touches it. The CRWN app is built for exactly that: tiers your fans join, and a vault behind the top one.
 
 ANYWAY.
 
@@ -28,11 +20,11 @@ So how long was five albums of free music available for?
 
 Five days.
 
-And here's the crazy part. Nothing was sold and everybody moved anyway. The cost wasn't money, it was attention and timing. You had to be paying enough attention to know it was happening, get the password, and act inside five days. That's a filter, and everybody who came through it proved something a free download normally never proves.
+And here's what got me. Nothing was sold and everybody moved anyway. You had to be paying enough attention to know it was happening, get the password, and act inside five days. That's a filter, and everybody who came through it proved something a free download normally never proves.
 
-Now to be fair, they can do this because people were already watching closely. A five day window on music nobody's waiting for is just five quiet days. And the rest of their catalog lives on streaming, which is how most people found them.
+This only works in context. They can do it because people were already watching closely. A five day window on music nobody's waiting for is just five quiet days. And the rest of their catalog lives on streaming, which is how most people found them.
 
-But if free can still be scarce, the question ain't what do I charge. It's whether anything you put out has ever had a reason to act now attached to it.
+But if free can still be scarce, has anything you put out ever had a reason to act now attached to it?
 
 I built a free Vault Revenue Planner that prices exactly that for your catalog.
 

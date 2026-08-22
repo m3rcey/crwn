@@ -4,23 +4,13 @@
 
 Comment "OWN" for how many of your people you could still reach tomorrow.
 
-For about thirty years you could not legally stream De La Soul's classic albums. Not one of them.
+For about thirty years you could not legally stream De La Soul's classic albums. Not one of them. Then in March 2023 the catalog finally landed, so how many streams did it do in week one?
 
-Then in March 2023 the catalog finally landed. How many streams did it do in week one?
+3 Feet High and Rising came out in 1989 and is one of the most loved rap records ever made. And for three decades it was not on Spotify, not on Apple, nowhere. Sample clearances and label disputes kept the early catalog locked, and a whole generation had no legal way to press play.
 
-3 Feet High and Rising came out in 1989 and is one of the most loved rap records ever made.
+Every artist alive is told the same thing: if you're not on the platforms you don't exist, you'll be forgotten, the algorithm is the audience. De La Soul ran that experiment for thirty years by accident. Go guess what week one did before I say it.
 
-And for three decades it was not on Spotify, not on Apple, nowhere. Sample clearances and label disputes kept the early catalog locked. A whole generation had no legal way to press play.
-
-Here's the thing nobody puts side by side.
-
-Every artist alive is told the same thing: if you're not on the platforms you don't exist, you'll be forgotten, the algorithm is the audience.
-
-De La Soul ran that experiment for thirty years by accident.
-
-Go guess what week one did before I say it.
-
-Hold that thought. You don't need to market to fans. You need a market FOR fans. Most artists confuse the shelf with the demand, and the shelf is the part somebody else owns. That's what the CRWN app is built around: membership tiers and a vault your top members pay to get into.
+Hold that thought. You don't need to market to fans. You need a market FOR fans. Most artists confuse the shelf with the demand, and the shelf is the part somebody else owns. That's the whole idea behind the CRWN app: membership tiers, and a vault only your top members get into. It's free to start, and it only takes a cut when you actually get paid.
 
 ANYWAY.
 
@@ -28,11 +18,11 @@ So how many streams did thirty years of pent-up demand do in seven days?
 
 Twelve and a half million in the US alone.
 
-And here's the crazy part. 3 Feet High and Rising went straight back onto the Billboard charts. Number eight on Top R&B and Hip-Hop Albums with 26,000 equivalent units, in 2023, off a record from 1989. The audience never left. It just had nowhere to go.
+And here's what got me. 3 Feet High and Rising went straight back onto the Billboard charts, number eight on Top R&B and Hip-Hop Albums with 26,000 equivalent units, in 2023, off a record from 1989. The audience never left. It just had nowhere to go.
 
-Now to be fair, thirty years off streaming cost them enormous money and reach, and nobody should copy that. It happened to them, they didn't choose it. And streaming is exactly what let that stored demand cash out in a week.
+Worth saying plainly: thirty years off streaming cost them enormous money and reach, and nobody should copy that. It happened to them, they didn't choose it. And streaming is exactly what let that stored demand cash out in a week.
 
-But if an audience can wait thirty years, the question ain't how do I stay in the algorithm. It's whether you could reach anybody at all if the shelf disappeared.
+But if an audience can wait thirty years, could you reach anybody at all if the shelf disappeared?
 
 I built a free Own Your Fans Calculator that runs that exact number for your audience.
 

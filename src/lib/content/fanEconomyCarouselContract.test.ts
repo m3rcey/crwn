@@ -198,7 +198,7 @@ describe.runIf(carouselFiles.length > 0)('FE-CAR-003 every carousel file is well
     // stays correct only where the referent is the company or the account, as in
     // 'follow CRWN', because you follow an account and not an app.
     expect(sidenote, 'the sidenote must name the CRWN app, not only the belief')
-      .toMatch(/the CRWN app/);
+      .toMatch(/the CRWN app/i);
     expect(sidenote, 'the sidenote must carry the signature line').toMatch(/market FOR fans/i);
   });
 
@@ -232,10 +232,40 @@ describe.runIf(carouselFiles.length > 0)('FE-CAR-003 every carousel file is well
     // Every mention is "the CRWN app", with no exception, including the follow line:
     // the Instagram handle IS the CRWN app, so naming it is accurate rather than clumsy.
     // Bare CRWN in a product sentence reads as a brand asserting something.
-    const leftover = caption.split('the CRWN app').join('');
+    // Case-insensitive: a sentence that OPENS on "The CRWN app" is correct copy, and the
+    // case-sensitive split counted it as a bare mention. The banned thing is bare CRWN, which
+    // this still catches, because only the full "the CRWN app" phrase is removed first.
+    const leftover = caption.replace(/the CRWN app/gi, '');
     const bare = leftover.match(/\bCRWN\b/g) ?? [];
     expect(bare, `every caption mention must be "the CRWN app", found ${bare.length} bare`)
       .toHaveLength(0);
+  });
+
+  it.each(carouselFiles)('%s never states the First Paid Member Guarantee', (file) => {
+    const caption = section(readFileSync(join(CAROUSELS_DIR, file), 'utf8'), '**CAPTION:**') ?? '';
+    // The guarantee is REAL but CONDITIONAL: launch-partner cohort, 100 imported
+    // contacts or 40 proven buyers, and every required action completed
+    // (src/lib/launchPartner.ts). None of that survives a one-line plug, and a
+    // guarantee stripped of its conditions is a promise CRWN has not made.
+    const promises = [
+      /\bguarantee/i,
+      /\bpaid member within\b/i,
+      /\b30 days\b/i,
+      /\bor we rebuild\b/i,
+      /\brelaunch(?:es)? (?:the|your) offer\b/i,
+    ];
+    const hits = promises.filter((re) => re.test(caption)).map((re) => re.source);
+    expect(hits, `the offer belongs after the DM, not in the post (found ${hits.join(', ')})`)
+      .toHaveLength(0);
+  });
+
+  it.each(carouselFiles)('%s states the fee honestly if it mentions cost at all', (file) => {
+    const caption = section(readFileSync(join(CAROUSELS_DIR, file), 'utf8'), '**CAPTION:**') ?? '';
+    // "only makes money when you make money" is true on the free Launch plan and
+    // FALSE for a Pro ($49/mo) or Scale ($199/mo) subscriber, so the unqualified
+    // form may not ship. "Free to start" plus a cut on earnings is the true version.
+    expect(caption, 'the unqualified alignment claim is false on the paid plans')
+      .not.toMatch(/only makes? money when you make money/i);
   });
 
   it.each(carouselFiles)('%s caption carries no hashtags', (file) => {
@@ -357,5 +387,60 @@ describe.runIf(carouselFiles.length > 0)('FE-CAR-003 every carousel file is well
       .toMatch(/Do NOT draw a crown symbol/);
     expect(slide3, 'the plug must be the ONLY place the letters CRWN appear')
       .toMatch(/ONLY inside the one quoted plug line/);
+  });
+});
+
+describe.runIf(carouselFiles.length > 1)('FE-CAR-004 the connective machinery varies across the corpus', () => {
+  // The skill already TOLD writers to rotate the wow entry ("at most once per batch") and it was
+  // ignored 21 times out of 21, alongside a turn line and a framing skeleton that were also
+  // verbatim across unrelated posts. An instruction that is disobeyed corpus-wide needs a check,
+  // not more prose. These assert DIVERSITY, never a banned word: any single phrase is fine, a
+  // phrase in most of the corpus is the template showing through.
+  const captions = carouselFiles.map(
+    (f) => section(readFileSync(join(CAROUSELS_DIR, f), 'utf8'), '**CAPTION:**') ?? ''
+  );
+
+  // Repeats that are SUPPOSED to be identical: the ratified signature line, the series anchors,
+  // and the offer/ask pair, which is one fixed two-line form per tool by design.
+  const RATIFIED = [
+    /market FOR fans/,
+    /don'?t need to market to fans/,
+    /^ANYWAY/,
+    /^Hold that thought/,
+    /^I built a free /,
+    /^Comment ["']/,
+  ];
+
+  it('no single wow entry phrase dominates the set', () => {
+    const counts = new Map<string, number>();
+    for (const c of captions) {
+      const m = c.match(/here'?s the crazy part|ain'?t even the wild part|here'?s what got me|it gets worse|part that got me/i);
+      const k = (m?.[0] ?? 'MISSING').toLowerCase();
+      counts.set(k, (counts.get(k) ?? 0) + 1);
+    }
+    expect(counts.size, `the wow entry must rotate, found only ${[...counts.keys()].join(', ')}`)
+      .toBeGreaterThanOrEqual(3);
+    const [top, n] = [...counts.entries()].sort((a, b) => b[1] - a[1])[0];
+    expect(n / captions.length, `"${top}" opens the wow in ${n}/${captions.length} captions`)
+      .toBeLessThanOrEqual(0.5);
+  });
+
+  it('no connective sentence appears in more than half the captions', () => {
+    const counts = new Map<string, number>();
+    for (const c of captions) {
+      const seen = new Set<string>();
+      for (const raw of c.split(/(?<=[.?!])\s+/)) {
+        const s = raw.trim();
+        if (s.split(/\s+/).length < 6) continue; // short lines are punchlines, not machinery
+        if (RATIFIED.some((re) => re.test(s))) continue;
+        seen.add(s);
+      }
+      for (const s of seen) counts.set(s, (counts.get(s) ?? 0) + 1);
+    }
+    const worst = [...counts.entries()].sort((a, b) => b[1] - a[1])[0];
+    if (!worst) return;
+    const [sentence, n] = worst;
+    expect(n / captions.length, `"${sentence}" appears in ${n}/${captions.length} captions verbatim`)
+      .toBeLessThanOrEqual(0.5);
   });
 });

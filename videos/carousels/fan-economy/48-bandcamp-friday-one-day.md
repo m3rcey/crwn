@@ -4,23 +4,15 @@
 
 Comment "OWN" for what your people would pay if you told them where it counts.
 
-One day a month, Bandcamp waives its cut and artists keep everything. No discount for the fan. Nothing changes except who keeps the money.
-
-So how much do fans move in a single day?
+One day a month, Bandcamp waives its cut and artists keep everything. No discount for the fan. Nothing changes except who keeps the money. So how much do fans move in a single day?
 
 Quick context: when I did the numbers on Snoop, he reposted it. Four artists who were selling records before streaming existed follow the CRWN app. The people who survived three versions of this business are paying attention to the fourth.
 
-It started in March 2020 as an emergency. Shows had stopped, nobody could tour, and the idea was simple: on these days the platform takes nothing.
+It started in March 2020 as an emergency. Shows had stopped, nobody could tour, and the idea was simple: on these days the platform takes nothing. The fan pays the same price they'd pay any other day, no sale and no bonus track, and the only difference is the artist keeps more.
 
-The fan pays the same price they'd pay any other day. No sale, no bonus track. The only difference is the artist keeps more.
+Everything in modern marketing says people respond to discounts. This asks people to pay full price on purpose so somebody else does better. Go guess what one of those days does before I say it.
 
-Here's the thing nobody puts side by side.
-
-Everything in modern marketing says people respond to discounts. This does the opposite. It asks people to pay full price on purpose so somebody else does better.
-
-Go guess what one of those days does before I say it.
-
-Hold that thought. You don't need to market to fans. You need a market FOR fans. Most artists have never once told their people that buying direct pays them more, then wonder why everybody streams instead. That's what the CRWN app is built around: membership tiers and a vault your top members pay to get into.
+Hold that thought. You don't need to market to fans. You need a market FOR fans. Most artists have never once told their people that buying direct pays them more, then wonder why everybody streams instead. That's the shape of the CRWN app, a ladder of membership tiers with a vault at the top.
 
 ANYWAY.
 
@@ -28,11 +20,11 @@ So what do fans move on a single Bandcamp Friday?
 
 More than $3.8 million in one day, in the best one of 2025.
 
-And here's the crazy part. Since 2020 those days have moved $154 million to artists and labels, $19 million of it in 2025 alone. People organised their spending around a date, at full price, because somebody told them it mattered. Nobody made them.
+That's not even the part that got me. Since 2020 those days have moved $154 million to artists and labels, $19 million of it in 2025 alone. People organised their spending around a date, at full price, because somebody told them it mattered. Nobody made them.
 
-Now to be fair, that money is spread across an enormous number of artists, so it isn't $3.8 million landing in anybody's account. Most got a handful of sales. And people found most of that music through streaming first.
+Read that number carefully: it's spread across an enormous number of artists, so it isn't $3.8 million landing in anybody's account. Most got a handful of sales. And people found most of that music through streaming first.
 
-But if fans will pay full price on a specific day just so more reaches you, the question ain't how do I get people to buy. It's whether you've ever told them where buying helps most.
+But if fans will pay full price on a specific day just so more reaches you, have you ever told them where buying helps most?
 
 I built a free Own Your Fans Calculator that runs that exact number for your audience.
 

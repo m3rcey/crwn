@@ -4,21 +4,13 @@
 
 Comment "OWN" for how many of your fans you could actually reach.
 
-Ryan Leslie gave forty thousand fans his actual phone number. Then he sold to fifteen thousand of them.
-
-How much did that come to?
+Ryan Leslie gave forty thousand fans his actual phone number. Then he sold to fifteen thousand of them. How much did that come to?
 
 Quick context: when I did the numbers on Snoop, he reposted it. Four artists who were selling records before streaming existed follow the CRWN app. The people who survived three versions of this business are paying attention to the fourth.
 
-Most artists have followers. A follower is a number on a screen that a platform lets you rent. You don't have their name, you can't reach them without paying somebody, and the day the algorithm changes they're gone.
+Most artists have followers, and a follower is a number on a screen that a platform lets you rent. You don't have their name, you can't reach them without paying somebody, and the day the algorithm changes they're gone.
 
-Ryan went the other way. He collected phone numbers. Real ones, about forty thousand of them, in a real address book.
-
-Here's the thing nobody puts side by side.
-
-Fifteen thousand of them bought something. Not fifteen million. Fifteen thousand. Go guess what that came to before I say it.
-
-One number you rent. One you own.
+Ryan went the other way and collected phone numbers, real ones, about forty thousand of them in a real address book. Fifteen thousand of them bought something. Not fifteen million, fifteen thousand. One number you rent, one you own, so go guess what that came to before I say it.
 
 Hold that thought. You don't need to market to fans. You need a market FOR fans. Reach you can't contact is reach you're renting, and most artists are renting all of it. That's what the CRWN app is built around: membership tiers and a vault your top members pay to get into.
 
@@ -28,11 +20,11 @@ So what did fifteen thousand people spend with him?
 
 Over two million dollars.
 
-And here's the crazy part. That's about a hundred and thirty three dollars a person. The same fifteen thousand as monthly listeners generate about a hundred and fifty dollars a month, total, for everybody. Not each.
+And here's what got me. That's about a hundred and thirty three dollars a person. The same fifteen thousand as monthly listeners generate about a hundred and fifty dollars a month, total, for everybody. Not each.
 
-Now to be fair, he found a lot of them on the same platforms everybody else uses. Discovery did its job. The difference is he didn't leave them there.
+In fairness to the platforms, he found a lot of them on the same platforms everybody else uses. Discovery did its job. The difference is he didn't leave them there.
 
-But if fifteen thousand people you can reach is worth two million, the question ain't how do I get more followers. It's how many could you text right now, and why is that number zero.
+But if fifteen thousand people you can reach is worth two million, how many could you text right now, and why is that number zero?
 
 I built a free Own Your Fans Calculator that runs that exact number for your audience.
 

@@ -4,25 +4,15 @@
 
 Comment "DEMAND" for what your people would buy before you press it.
 
-Stove God Cooks put out one album called Reasonable Drought. Then he pressed it again. And again.
-
-How many versions of the same record did people buy?
+Stove God Cooks put out one album called Reasonable Drought. Then he pressed it again. And again. How many versions of the same record did people buy?
 
 Most artists press one vinyl. One colour, one jacket, one run. If it sells out that's the end of it, and the fans who missed it just missed it.
 
-Reasonable Drought didn't work like that. The first press alone wasn't one record. It was five versions of the same record. Twenty test presses. A hundred and twenty clear with fruit punch. Three hundred and thirty five with a Japanese obi strip. Three hundred and forty splatter. Four hundred and sixty fruit punch.
+Reasonable Drought didn't work like that. The first press alone was five versions of the same record: twenty test presses, a hundred and twenty clear with fruit punch, three hundred and thirty five with a Japanese obi strip, three hundred and forty splatter, four hundred and sixty fruit punch. Then more came after, two hundred, four hundred, five hundred, and a run of a hundred and fifty with a holographic jacket.
 
-Then more came after. Two hundred. Four hundred. Five hundred. A run of a hundred and fifty with a holographic jacket.
+Same songs, same tracklist, same everything you can actually hear. One album, many objects. Go count how many that is before I say it.
 
-Here's the thing nobody puts side by side.
-
-Same songs. Same tracklist. Same everything you can actually hear.
-
-One album. Many objects.
-
-Go count how many that is before I say it.
-
-Hold that thought. You don't need to market to fans. You need a market FOR fans. Most artists sell one thing one time and wonder why the same fan never spends again. That's what the CRWN app is built around: membership tiers and a vault your top members pay to get into.
+Hold that thought. You don't need to market to fans. You need a market FOR fans. Most artists sell one thing one time and wonder why the same fan never spends again. It's what the CRWN app does: membership tiers, with a vault sitting behind the top one.
 
 ANYWAY.
 
@@ -30,11 +20,11 @@ So how many versions of one album is that?
 
 Nine we can count, and the first press was five by itself.
 
-And here's the crazy part. Collectors buy more than one. The same person owns the splatter and the obi strip, of the same album, with the same songs on it. He wasn't selling the music nine times. He made nine different objects that happen to play it.
+And here's the crazy part. Collectors buy more than one. The same person owns the splatter and the obi strip, of the same album, with the same songs on it. He wasn't selling the music nine times, he made nine different objects that happen to play it.
 
-Now to be fair, this only works because the record is good and people wanted it. Scarcity on something nobody wants is unsold stock in your closet. And streaming is how most people heard it at all.
+This only works because the record is good and people wanted it. Scarcity on something nobody wants is unsold stock in your closet. And streaming is how most people heard it at all.
 
-But if your real fans will own the same record twice, the question ain't how many people can I reach. It's what could I make that the same person would buy again.
+But if your real fans will own the same record twice, what could you make that the same person would buy again?
 
 I built a free Proof of Demand Test Builder that finds out before you press anything.
 

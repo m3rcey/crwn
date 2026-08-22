@@ -4,23 +4,15 @@
 
 Comment "LIVE" for what one night with your people could be worth.
 
-In October 2016 Murs stood in front of a camera and rapped without stopping for over twenty four hours. A Guinness World Record, live on Twitch.
+In October 2016 Murs stood in front of a camera and rapped without stopping for over twenty four hours. A Guinness World Record, live on Twitch. So why would anybody do that?
 
-So why would anybody do that?
+Not a song, not an album. A record attempt, streamed live, that you either watched happen or you missed.
 
-Not a song. Not an album. A record attempt, streamed live, that you either watched happen or you missed.
+Roughly twenty songs an hour for over a day straight, about 480 songs worth of rapping. There is no version of it you can buy afterwards.
 
-Roughly twenty songs an hour for over a day straight. About 480 songs worth of rapping. There is no version of it you can buy afterwards.
+Every artist thinks the catalogue is what they sell and everything else is promotion for it. This was the other way round, and there was nothing to take home. Go think about why anybody sat and watched before I say it.
 
-Here's the thing nobody puts side by side.
-
-Every artist thinks the catalogue is what they sell and everything else is promotion for it.
-
-One is a product. One is a moment.
-
-Go think about why anybody sat and watched before I say it.
-
-Hold that thought. You don't need to market to fans. You need a market FOR fans. The most valuable thing you have is often the thing that can only happen once and only with you. That's what the CRWN app is built around: membership tiers and a vault your top members pay to get into.
+Hold that thought. You don't need to market to fans. You need a market FOR fans. The most valuable thing you have is often the thing that can only happen once and only with you. It's what the CRWN app does: membership tiers, with a vault sitting behind the top one.
 
 ANYWAY.
 
@@ -28,11 +20,11 @@ So how long did he actually go?
 
 Over twenty four hours, nonstop, on a live stream.
 
-And here's the crazy part. Nobody watched all of it and it didn't matter. What they were buying, with their time, was being there while it happened. The being-there is the product, and it expires the second it's over. You can't download that. You can't pirate it. There's no cheaper version anywhere.
+And that ain't even the wild part. Nobody watched all of it and it didn't matter. What they were buying, with their time, was being there while it happened. The being-there is the product and it expires the second it's over. You can't download that, you can't pirate it, there's no cheaper version anywhere.
 
-Now to be fair, a stunt is not a business and doing something exhausting isn't automatically valuable. Plenty of people have done hard things nobody cared about. It worked because he already had people who wanted to be in the room.
+A stunt is not a business, though, and doing something exhausting isn't automatically valuable. Plenty of people have done hard things nobody cared about. It worked because he already had people who wanted to be in the room.
 
-But if being there is the thing that can't be copied, the question ain't how do I get more plays. It's what you could do once, that only you could do, that your people would clear their evening for.
+But if being there is the thing that can't be copied, what could you do once, that only you could do, that your people would clear their evening for?
 
 I built a free Live Experience Calculator that prices exactly that.
 

@@ -4,23 +4,15 @@
 
 Comment "OWN" for what your audience is worth outside the algorithm.
 
-One $35 T-shirt earns an artist the same as a pile of Spotify streams.
-
-How big a pile? That's the whole question.
+One $35 T-shirt earns an artist the same as a pile of Spotify streams. How big a pile? That's the whole question.
 
 Everybody knows streaming pays fractions of a cent. That's not news and complaining about it is boring. What nobody does is convert it.
 
 A shirt costs maybe ten to make and sells for thirty five, and the artist keeps most of the difference. A stream pays a fraction of a cent and somebody takes a slice before it reaches you.
 
-Here's the thing nobody puts side by side.
+Every artist I know spends the week chasing the stream number and almost no time on the shirt. The stream number is public and the shirt number isn't, so one feels like success and the other feels like a side hustle. Go guess how many streams one shirt is before I say it.
 
-Every artist I know spends the week chasing the stream number and almost no time on the shirt. The stream number is public and the shirt number isn't, so one feels like success and the other feels like a side hustle.
-
-One is a scoreboard. One is a business.
-
-Go guess how many streams one shirt is before I say it.
-
-Hold that thought. You don't need to market to fans. You need a market FOR fans. Most artists have exactly one thing to sell and it's the thing that pays the least. That's what the CRWN app is built around: membership tiers and a vault your top members pay to get into.
+Hold that thought. You don't need to market to fans. You need a market FOR fans. Most artists have exactly one thing to sell and it's the thing that pays the least. That's the whole idea behind the CRWN app: membership tiers, and a vault only your top members get into.
 
 ANYWAY.
 
@@ -30,9 +22,9 @@ About 8,750.
 
 And here's the crazy part. At a show, average merch spend per head hit $10.29 in 2025, up 14% on the year before. A room of three hundred people is roughly three thousand dollars of merch on top of the tickets, from people already standing in front of you.
 
-Now to be fair, shirts cost money up front and unsold boxes are real. Streaming has no inventory and no risk, which is exactly why it's the default. And streaming is how nearly everybody finds you now.
+There's a real cost on the other side. Shirts cost money up front and unsold boxes are real. Streaming has no inventory and no risk, which is exactly why it's the default. And streaming is how nearly everybody finds you now.
 
-But if one shirt beats nine thousand plays, the question ain't how do I get more streams. It's what else you'd have to sell if somebody wanted to give you money today.
+But if one shirt beats nine thousand plays, what else would you have to sell if somebody wanted to give you money today?
 
 I built a free Own Your Fans Calculator that runs that exact number for your audience.
 

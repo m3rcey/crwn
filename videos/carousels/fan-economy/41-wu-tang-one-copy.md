@@ -4,23 +4,13 @@
 
 Comment "VAULT" for what one thing of yours could be worth to one person.
 
-In 2015 Wu-Tang made an album and pressed exactly one copy. Not a limited run. One.
+In 2015 Wu-Tang made an album and pressed exactly one copy. Not a limited run. One. So what did that single copy sell for?
 
-So what did that single copy sell for?
+Once Upon a Time in Shaolin. One album, one physical copy, in a silver box. And a legal condition attached: it cannot be released commercially until the year 2103. Not a typo. So whoever owns it owns the only way to hear it, and they can't sell you a copy even if they wanted to.
 
-Once Upon a Time in Shaolin. One album, one physical copy, in a silver box.
+Every other album ever made was priced by dividing it. Press a hundred thousand, charge ten each. This one couldn't be divided, because there was nothing to divide. I still can't get over what happened to it after.
 
-And a legal condition attached: it cannot be released commercially until the year 2103. Not a typo. So whoever owns it owns the only way to hear it, and they can't sell you a copy even if they wanted to.
-
-Here's the thing nobody puts side by side.
-
-Every other album ever made was priced by dividing it. Press a hundred thousand, charge ten each. This one couldn't be divided. There was nothing to divide.
-
-One is a catalogue. One is an object.
-
-I still can't get over what happened to it after.
-
-Hold that thought. You don't need to market to fans. You need a market FOR fans. Everybody's fighting to be heard by more people, and almost nobody asks what one person would pay for something nobody else has. That's what the CRWN app is built around: membership tiers and a vault your top members pay to get into.
+Hold that thought. You don't need to market to fans. You need a market FOR fans. Everybody's fighting to be heard by more people, and almost nobody asks what one person would pay for something nobody else has. That's the shape of the CRWN app, a ladder of membership tiers with a vault at the top.
 
 ANYWAY.
 
@@ -28,11 +18,11 @@ So what did one copy sell for?
 
 Two million dollars, in 2015, through an auction house.
 
-And here's the crazy part. That wasn't the end. The US government seized it and resold it for $2,238,482.30. Then a collective bought it for about four million. The same object, sold three times, and not one owner can legally put it out for another seventy odd years.
+And that ain't even the wild part. The US government seized it and resold it for $2,238,482.30. Then a collective bought it for about four million. The same object, sold three times, and not one owner can legally put it out for another seventy odd years.
 
-Now to be fair, this only worked because Wu-Tang spent twenty years making people care first. Every free listen built the name that made one box worth millions. Scarcity on something nobody wants is a box in a closet.
+None of this works in a vacuum. It only worked because Wu-Tang spent twenty years making people care first. Every free listen built the name that made one box worth millions. Scarcity on something nobody wants is a box in a closet.
 
-But if one object can be worth that, the question ain't how many people can I reach. It's whether you've ever made a single thing only one person can own.
+But if one object can be worth that, have you ever made a single thing only one person can own?
 
 I built a free Vault Revenue Planner that prices exactly that for your catalog.
 

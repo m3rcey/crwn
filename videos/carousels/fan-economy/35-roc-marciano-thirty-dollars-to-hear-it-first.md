@@ -4,23 +4,13 @@
 
 Comment "VAULT" for what hearing it first is worth to your day ones.
 
-Roc Marciano sold an album on his own site before anybody else could hear it. Not the vinyl. The download.
+Roc Marciano sold an album on his own site before anybody else could hear it. Not the vinyl, the download. So what did he charge just to hear it early?
 
-So what did he charge just to hear it early?
+Every artist has the same day circled. Release day, everybody gets it at once, everybody pays the same, which is nothing. Your biggest fan and somebody who never heard your name get the identical thing at the identical second.
 
-Every artist has the same day circled. Release day. Everybody gets it at once, everybody pays the same, which is nothing.
+Roc runs it different. RR2 went up on his own site first, direct, no store in between. If you wanted it before the world had it, you could have it, you just had to pay.
 
-Your biggest fan and somebody who never heard your name get the identical thing at the identical second.
-
-Roc runs it different. RR2 went up on his own site first, direct, no store in between. If you wanted it before the world had it, you could have it. You just had to pay.
-
-Here's the thing nobody puts side by side.
-
-He wasn't selling a rare object. No numbered vinyl, no signed jacket, no box. It was a file. The same file everybody else would get free on streaming a few weeks later.
-
-One is a thing. One is a date.
-
-Go guess the number before I say it.
+And he wasn't selling a rare object. No numbered vinyl, no signed jacket, no box. It was a file, the same file everybody else would get free on streaming a few weeks later. He was selling the date. Go guess the number before I say it.
 
 Hold that thought. You don't need to market to fans. You need a market FOR fans. Every artist already has something to sell and gives it away by accident: being first. That's what the CRWN app is built around: membership tiers and a vault your top members pay to get into, and early access is one of the things you can put in them.
 
@@ -30,11 +20,11 @@ So what did he charge for early access to a download?
 
 Thirty dollars.
 
-And here's the crazy part. Thirty dollars for a file, when a digital album went for about ten and free if you waited. They wasn't paying for the music. They was paying for three weeks.
+And that ain't even the wild part. Thirty dollars for a file, when a digital album went for about ten and free if you waited. They wasn't paying for the music, they was paying for three weeks.
 
-Now to be fair, the wide release is what pays the rest of the year, and streaming is how most people ever found Roc Marciano. Discovery did its job. He just stopped giving the first day away.
+One thing worth saying: the wide release is what pays the rest of the year, and streaming is how most people ever found Roc Marciano. Discovery did its job. He just stopped giving the first day away.
 
-But if your day ones would pay to hear it before anybody, the question ain't what do I charge for the album. It's what is being first worth, and why does everybody get it at the same second.
+But if your day ones would pay to hear it before anybody, what is being first worth, and why does everybody get it at the same second?
 
 I built a free Vault Revenue Planner that prices exactly that for your catalog.
 

@@ -4,23 +4,15 @@
 
 Comment "TOUR" for what the months between shows could pay.
 
-Before anybody knew his name, Oddisee was booking his own shows across Europe. No label, no agent, sleeping on promoters' floors.
-
-So what was he getting paid a night?
+Before anybody knew his name, Oddisee was booking his own shows across Europe. No label, no agent, sleeping on promoters' floors. So what was he getting paid a night?
 
 Most artists wait to be picked. Wait for the booking agent, the support slot, somebody with a spreadsheet deciding your city is worth the risk. And while you wait nothing happens, because nobody is coming.
 
 Oddisee didn't wait. He got a rail pass and went country to country, playing rooms where nobody knew who he was, staying on the floor of whoever booked him.
 
-Here's the thing nobody puts side by side.
+That reads like paying dues, like a hard-luck story, and it wasn't. Every one of them rooms was him buying something, and it wasn't the fee. Go guess what a night was paying before I say it.
 
-That looks like paying dues. It reads like a hard-luck story. It wasn't. Every one of them rooms was him buying something, and it wasn't the fee.
-
-One is a night. One is a city.
-
-Go guess what a night was paying before I say it.
-
-Hold that thought. You don't need to market to fans. You need a market FOR fans. A show isn't a payday, it's the only place you meet the people who'll pay you for the next twenty years. That's what the CRWN app is built around: membership tiers and a vault your top members pay to get into.
+Hold that thought. You don't need to market to fans. You need a market FOR fans. A show isn't a payday, it's the only place you meet the people who'll pay you for the next twenty years. The CRWN app is built for exactly that: tiers your fans join, and a vault behind the top one.
 
 ANYWAY.
 
@@ -28,11 +20,11 @@ So what was he getting a night?
 
 About seven hundred dollars a show.
 
-And here's the crazy part. Seven hundred is nothing once you take out the travel, and he did it anyway, for years. What he was collecting was a room full of people in a city he could come back to. He built an audience one town at a time and it's still his.
+That's not even the part that got me. Seven hundred is nothing once you take out the travel, and he did it anyway, for years. What he was collecting was a room full of people in a city he could come back to. He built an audience one town at a time and it's still his.
 
-Now to be fair, seven hundred with somebody else covering travel is a different job to seven hundred with you covering it, and plenty of artists can't afford that trade. This ain't a suggestion to go lose money on tour.
+It cuts both ways. Seven hundred with somebody else covering travel is a different job to seven hundred with you covering it, and plenty of artists can't afford that trade. This ain't a suggestion to go lose money on tour.
 
-But if the room is worth more than the fee, the question ain't how much does this show pay. It's whether you left with any way to reach the people who came.
+But if the room is worth more than the fee, did you leave with any way to reach the people who came?
 
 I built a free Between-Tour Revenue Calculator that prices the months in between.
 
