@@ -200,3 +200,57 @@ describe('FE-SKILL-005 no em dashes in files that feed user-facing copy', () => 
     });
   }
 });
+
+describe('FE-SKILL-007 the connective machinery varies across the script corpus', () => {
+  // Companion to FE-CAR-004 on the caption side. The carousel captions collapsed to ONE turn line
+  // and ONE wow entry across 21 posts before anyone noticed, and a carousel is a re-cut of one of
+  // these scripts, so the same phrase reaching both surfaces hits a viewer twice. This is a
+  // REGRESSION guard, not a demand: it passes at the corpus's current spread and fails if the
+  // machinery collapses toward one phrase. It asserts diversity, never a banned word.
+  const SCRIPT_DIR = join(ROOT, 'videos', 'scripts', 'fan-economy');
+  const bodies = (existsSync(SCRIPT_DIR) ? readdirSync(SCRIPT_DIR).filter((f) => f.endsWith('.md')) : [])
+    .map((f) => readFileSync(join(SCRIPT_DIR, f), 'utf8'))
+    .map((t) => {
+      if (!t.includes('**SCRIPT:**')) return '';
+      let r = t.slice(t.indexOf('**SCRIPT:**') + '**SCRIPT:**'.length);
+      for (const stop of ['**NANO BANANA', '**META']) {
+        const j = r.indexOf(stop);
+        if (j > 0) r = r.slice(0, j);
+      }
+      return r; // the sheet prompt is boilerplate by design and would swamp the count
+    })
+    .filter(Boolean);
+
+  // Repeats that are SUPPOSED to be identical: the signature line and its ratified rotations, the
+  // series anchor, and the one-CTA close.
+  const RATIFIED = [
+    /market FOR fans/i,
+    /market(?:ing)? to fans/i,
+    /^ANYWAY/,
+    /^Comment /,
+    /free .*(Calculator|Planner|Builder|Test)/i,
+    /^128/, // the silent end-card signature, required in every script
+  ];
+
+  it('no connective sentence appears in more than half the scripts', () => {
+    if (bodies.length < 5) return;
+    const counts = new Map<string, number>();
+    for (const b of bodies) {
+      const seen = new Set<string>();
+      for (const raw of b.split(/(?<=[.?!])\s+|\n/)) {
+        const x = raw.trim();
+        if (x.split(/\s+/).length < 6) continue; // short lines are spoken beats, not machinery
+        if (RATIFIED.some((re) => re.test(x))) continue;
+        seen.add(x);
+      }
+      for (const x of seen) counts.set(x, (counts.get(x) ?? 0) + 1);
+    }
+    const worst = [...counts.entries()].sort((a, b) => b[1] - a[1])[0];
+    if (!worst) return;
+    const [sentence, n] = worst;
+    expect(
+      n / bodies.length,
+      `"${sentence.slice(0, 70)}" is in ${n}/${bodies.length} scripts. Vary the bookends per the skill's Batch surface variation section.`
+    ).toBeLessThanOrEqual(0.5);
+  });
+});
