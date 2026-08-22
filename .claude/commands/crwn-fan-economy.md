@@ -626,6 +626,28 @@ Rules that keep it a signature instead of a slogan:
   to the signature line rather than instead of it.
 - `fanEconomySkillContract.test.ts` fails any saved script that does not contain "market FOR fans".
 
+## The sheet headline is a QUESTION that names the artist
+
+The `NANO BANANA PRO PROMPT` in this file becomes the video sheet AND slide 1 of the carousel, so
+its headline is the first thing anybody reads. Two hard rules, both machine-checked in
+`fanEconomyCarouselContract.test.ts`:
+
+- **It ends in a question mark.** A statement closes the curiosity gap on the one surface whose
+  only job is opening it.
+- **It contains the artist's name.** "HE PRESSED ONE ALBUM HOW MANY WAYS?" is a question about
+  nobody. The name is what makes a scroller stop.
+
+Four sheets shipped breaking both before this was checked ("HE GAVE 40,000 FANS HIS REAL PHONE
+NUMBER.", "HE CHARGED TO HEAR IT BEFORE ANYBODY ELSE.", "700 PEOPLE PAID FOR AN ALBUM THAT DIDNT
+EXIST.", "HE PRESSED ONE ALBUM HOW MANY WAYS?").
+
+**And nothing else on the sheet may answer that question.** This leaks through the note boxes and
+the bottom lines rather than the headline, so it survives a glance at the top of the page: sheet 36
+asked HOW MANY WAYS and its own bottom line read "HE MADE NINE THINGS", and sheet 38 asked HOW MANY
+ALBUMS while its notes said "4 PROJECTS" and its calendar carried exactly four X marks. Ban the
+payoff in digits AND as a word, and never draw a countable number of objects when the reveal is a
+count. Full failure catalogue in `/crwn-image-gen`.
+
 ## Social proof (founder decision, 2026-08-20): NEVER in the hook, and never every script
 
 **It does not go near the beginning.** The hook owns the first one to two sentences and its only

@@ -60,6 +60,24 @@ appears in every script and belongs on this slide as the SMALLER second line, bu
 is also the same every time then all 30 carousels end identically. Derive the big line from that
 script's own Wow Factor (carousel 1: "REACH GETS YOU HEARD. DEPTH GETS YOU PAID.").
 
+**Slide 3 carries the CRWN plug, one short line above the CTA box** (founder decision,
+2026-08-21, piloted on three carousels first): `THAT'S WHAT THE CRWN APP IS BUILT FOR.` in small
+capitals, between the small scene and the boxed CTA.
+
+It goes on slide 3 and never on slide 2. Slide 2 is the payoff, and a plug there interrupts the
+reveal. Slide 3 is the slide most likely to be screenshotted alone, so the plug travels with the
+screenshot, which is the same reason the CTA already lives there. Before this, no SLIDE in any
+carousel named the app: the plug existed only in the caption's sidenote and the 128 card is
+deliberately silent, so the product was invisible in the imagery.
+
+Keep it SMALL. The quotable statement has to stay dominant or the slide stops being a takeaway and
+starts being an ad. Slide 3 now runs five text zones (statement, two belief lines, plug, CTA box),
+which is the ceiling; do not add a sixth.
+
+**The plug names the app, never draws the mark.** The letters CRWN appear in that one line and
+nowhere else on the page, and no crown symbol is drawn on any rendered slide. The logo belongs to
+the 128 end card alone.
+
 **Slide 3 also carries the CTA, and it is the BENEFIT form.** One line, in its own hand-drawn box
 across the bottom: `COMMENT 'KEYWORD' FOR [what the artist gets]`. Same rule as the caption's
 opening CTA, so never the tool's `name`, and the same ManyChat keyword the caption uses. Shorten
