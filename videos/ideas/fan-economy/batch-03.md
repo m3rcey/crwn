@@ -8,14 +8,26 @@ Same selection rule as batch 02, which is the only rule that has ever mattered h
 checkable number. Batch 01 lost both picks at research and batch 02 lost three candidates, so the
 ten below were VERIFIED BEFORE a word of script was written, not after.
 
-## PULLED (founder review, 2026-08-22)
+## REPLACED (founder review, 2026-08-22)
 
-Three of the ten below are **not to be posted**. 46 Snoop Dogg, 48 Bandcamp Friday and 49 Spotify
-were built with a megastar or a platform as the SUBJECT, and none of them is the ICP. The scripts
-and carousels stay on disk as reference; they do not go out, and replacements are owed.
+Three of the ten were built with a megastar or a platform as the SUBJECT, which is not the ICP.
+All three have been **replaced with versus posts**, ICP subject against a bigger foil:
 
-The same review found the real problem underneath: **this batch contains no versus posts at all**,
-against 11 in scripts 1-30. See the versus quota now written into `/crwn-fan-economy-ideas`.
+| Slot | Was | Now | Verified |
+|---|---|---|---|
+| 46 | Snoop Dogg (subject) | **38 Spesh vs Snoop Dogg** | a 1,000-copy 12" at roughly $30 against Snoop's claim of under $45,000 for over a billion streams |
+| 48 | Bandcamp Friday | **Del the Funky Homosapien vs J. Cole** | 9 of Del's 11 studio albums on his own label against about 37M monthly listeners |
+| 49 | The $35 T-shirt | **Benny the Butcher vs Post Malone** | sold out at $24.98, sequel in four variants to $34.98, against 60M+ monthly listeners |
+
+Snoop is not deleted, he is DEMOTED to foil, which is where a megastar belongs. The verified figure
+survived the rewrite; only his role changed.
+
+**The review also found the real problem underneath.** Scripts 1-30 contain 11 versus posts.
+Scripts 31-50 contained ZERO before these three. The cause was a mistaken belief rather than taste:
+batches 02 and 03 selected on "one public checkable number" and I treated a versus post as needing
+TWO, one per side. It does not. The FOIL's number is an ordinary public stat, usually monthly
+listeners; only the ICP side needs sourcing. The versus quota and the ICP-subject rule are now in
+`/crwn-fan-economy-ideas`.
 
 ## BUILT (scripts 41-50)
 
@@ -26,14 +38,14 @@ against 11 in scripts 1-30. See the versus quota now written into `/crwn-fan-eco
 | 43 | Lil Dicky | $113,017 from 2,813 backers in Nov 2013, before anybody knew him | fans fund you before fame |
 | 44 | Noname | 24 book club chapters, 20 US and 4 international; she says tickets and vinyl fund the albums | a community that is not the music |
 | 45 | Atmosphere | 60 shows in 71 days; drove Minneapolis to Dallas for $250; turned down Interscope, Sony and Warner | refuse the deal, build it yourself |
-| 46 | Snoop Dogg (industry-anchored) | publicly claimed under $45,000 for over 1 billion streams | scale is not a business |
+| 46 | **38 Spesh vs Snoop Dogg** | 1,000-copy run at about $30 vs under $45,000 for a billion streams | a countable buyer base against streaming scale |
 | 47 | SAULT | five albums released free, password-protected, available five days only | free, but scarce in TIME |
-| 48 | Bandcamp Friday (industry-anchored) | $154M paid since 2020, $19M in 2025, $3.8M in a single day | fans pay direct when you let them |
-| 49 | The $35 T-shirt (industry-anchored) | one $35 shirt equals about 8,750 Spotify streams; merch per head at shows hit $10.29 in 2025 | the shirt outearns the song |
+| 48 | **Del the Funky Homosapien vs J. Cole** | 9 of 11 albums on his own label vs about 37M monthly listeners | rented reach against an owned catalog |
+| 49 | **Benny the Butcher vs Post Malone** | sold out at $24.98, sequel to $34.98, vs 60M+ monthly listeners | a repeat buyer who trades up |
 | 50 | Murs | Guinness record, rapped over 24 hours nonstop on Twitch, roughly 480 songs' worth | the event IS the product |
 
-Ten distinct mechanisms. Seven are artist-anchored and three are industry-anchored, so the batch
-does not tilt into abstraction.
+Ten distinct mechanisms, and after the replacements every subject is an artist. Three of the ten
+are versus posts.
 
 **RESEARCHED AND REJECTED.** JPEGMAFIA publishes no revenue figures and the only sources are
 net-worth aggregator sites, which are not evidence. Ka's hand-to-hand street selling outside the
