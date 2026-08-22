@@ -143,14 +143,20 @@ export async function POST(req: NextRequest) {
   const slug = normalizeOfferSlug(rawSlug) ?? offerSlugFromName(rawSlug);
   if (!slug) return NextResponse.json({ error: 'The name needs at least 3 letters or numbers' }, { status: 400 });
 
-  // A vote magnet with no ballot is a broken promise: the landing has no songs to show,
-  // so it silently falls back to a plain join button and the artist never learns why.
-  // That reached production once (2026-08-20). A magnet may name EITHER one decision or a
-  // whole PROJECT (an event whose polls hand over to each other during the night), but
-  // never neither.
-  if ((body.benefitKind ?? 'vote') === 'vote' && !body.decisionId && !body.projectId) {
-    return NextResponse.json({ error: 'Pick which vote this link opens, or the page has no songs to show' }, { status: 400 });
-  }
+  // A vote magnet has THREE legal scopes, widest last:
+  //   decision  one vote, and the link ends with it
+  //   project   every vote in one song or one night, handing over as each closes
+  //   artist    whatever this artist has open, across every song (neither id set)
+  //
+  // Artist scope is what a permanent link wants: an artist building songs in public runs
+  // several decisions per song and a new project per song, so anything narrower has to be
+  // re-pointed by hand at every stage.
+  //
+  // The refusal this replaces (added 2026-08-20) existed because a magnet with no ballot
+  // silently rendered a plain join button and no songs. That failure is gone: an unbound
+  // magnet now resolves the artist's open vote, and shows an honest between-votes state
+  // when there is none. The manager names all three scopes explicitly, so artist scope is
+  // a choice rather than something an artist falls into by forgetting to pick.
 
   const validated = await validateOfferFields(auth.artistId, body, false);
   if (!validated.ok) return NextResponse.json({ error: validated.error }, { status: 400 });

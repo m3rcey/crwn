@@ -113,7 +113,24 @@ export async function loadEventPolls(
       .maybeSingle();
     return data ? [data as ShowPoll] : [];
   }
-  return [];
+  // ARTIST-WIDE: neither a decision nor a project, so the link follows whatever this
+  // artist currently has open, across every song.
+  //
+  // This is the binding a permanent link wants. A song built in public runs several
+  // decisions in sequence (beat, then a melody over that beat, then lyrics over that
+  // melody), and each new SONG is a new project. Bound to one decision the link dies
+  // when that vote closes; bound to one project it dies at the next song. An artist
+  // posting a link in an Instagram bio would be re-pointing it after every stage.
+  //
+  // resolveShowPhase picks the poll closing soonest when more than one is open, so a
+  // widened scope stays deterministic rather than arbitrary.
+  const { data } = await admin
+    .from('song_lab_decisions')
+    .select(SHOW_POLL_COLUMNS)
+    .eq('artist_id', artistId)
+    .neq('status', 'draft')
+    .order('created_at', { ascending: true });
+  return (data || []) as ShowPoll[];
 }
 
 /**

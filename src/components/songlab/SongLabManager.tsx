@@ -71,7 +71,7 @@ interface Decision {
 }
 interface Offer {
   id: string; slug: string; name: string; headline: string; description: string | null;
-  cta_label: string; benefit_kind: string; decision_id: string | null; is_active: boolean;
+  cta_label: string; benefit_kind: string; decision_id: string | null; project_id: string | null; is_active: boolean;
   view_count: number; destination_path: string | null;
 }
 interface AnalyticsPayload {
@@ -221,6 +221,7 @@ export function SongLabManager() {
       {panel === 'offers' ? (
         <OffersPanel
           offers={offers}
+          projects={projects}
           decisions={decisions}
           busy={busy}
           call={call}
@@ -800,8 +801,45 @@ function NewDecisionForm({ projectId, tiers, busy, call, onDone }: {
 
 /* ── Offers ───────────────────────────────────────────────────────────────── */
 
-function OffersPanel({ offers, decisions, busy, call, remove, copyLink, copied, slug, displayName }: {
+/**
+ * A vote link's three scopes, widest first. Encoded as one string so a single dropdown
+ * can express all three, then split back into the two columns the API stores.
+ */
+function bindingOptions(projects: Project[], decisions: Decision[], offer: Offer | null) {
+  const opts = [
+    { value: 'any', label: 'Any vote that is open', hint: 'Never goes stale. Follows every vote, in every song.' },
+    ...projects.map((p) => ({
+      value: `project:${p.id}`,
+      label: `Every vote in ${p.title}`,
+      hint: 'Hands over as each vote in that song closes.',
+    })),
+    ...decisions
+      .filter((d) => d.status !== 'closed' || d.id === offer?.decision_id)
+      .map((d) => ({
+        value: `decision:${d.id}`,
+        label: `${d.stage_label}: ${d.question}`,
+        hint: 'This one vote only. The link ends when it closes.',
+      })),
+  ];
+  return opts;
+}
+
+function bindingValue(offer: Offer): string {
+  if (offer.decision_id) return `decision:${offer.decision_id}`;
+  if (offer.project_id) return `project:${offer.project_id}`;
+  return 'any';
+}
+
+/** Turn the dropdown's value back into the two columns, always setting BOTH. */
+function bindingPatch(value: string): { projectId: string | null; decisionId: string | null } {
+  if (value.startsWith('decision:')) return { projectId: null, decisionId: value.slice(9) };
+  if (value.startsWith('project:')) return { projectId: value.slice(8), decisionId: null };
+  return { projectId: null, decisionId: null };
+}
+
+function OffersPanel({ offers, projects, decisions, busy, call, remove, copyLink, copied, slug, displayName }: {
   offers: Offer[];
+  projects: Project[];
   decisions: Decision[];
   busy: boolean;
   call: (url: string, body: Record<string, unknown>, method?: string) => Promise<boolean>;
@@ -817,18 +855,20 @@ function OffersPanel({ offers, decisions, busy, call, remove, copyLink, copied, 
   const [description, setDescription] = useState('');
   const [ctaLabel, setCtaLabel] = useState('Join free');
   const [benefitKind, setBenefitKind] = useState('vote');
-  const [decisionId, setDecisionId] = useState<string | null>(null);
+  // Defaults to the widest scope: the link an artist posts once and leaves up.
+  const [binding, setBinding] = useState('any');
   const [destinationPath, setDestinationPath] = useState('');
 
   const submit = async () => {
+    const scope = benefitKind === 'vote' ? bindingPatch(binding) : { projectId: null, decisionId: null };
     const ok = await call('/api/song-lab/offers', {
       name, slug: name, headline, description, ctaLabel, benefitKind,
-      decisionId: benefitKind === 'vote' ? decisionId : null,
+      ...scope,
       destinationPath: destinationPath.trim() || null,
     });
     if (ok) {
       setCreating(false);
-      setName(''); setHeadline(''); setDescription(''); setCtaLabel('Join free'); setDecisionId(null);
+      setName(''); setHeadline(''); setDescription(''); setCtaLabel('Join free'); setBinding('any');
       setDestinationPath('');
     }
   };
@@ -884,33 +924,21 @@ function OffersPanel({ offers, decisions, busy, call, remove, copyLink, copied, 
             </div>
           </div>
 
-          {/* The failure this catches: a vote link with no ballot renders a plain join
-              button, so the artist's songs never appear and nothing says why. */}
-          {o.benefit_kind === 'vote' && !o.decision_id ? (
-            <div className="mt-3 rounded-xl bg-red-500/10 ring-1 ring-red-500/30 p-3">
-              <p className="text-xs text-red-300 font-semibold mb-2">
-                No vote attached. Fans opening this link see a join button instead of your songs.
-              </p>
-              <OptionSelect
-                options={decisions.filter((d) => d.status !== 'closed').map((d) => ({ value: d.id, label: `${d.stage_label}: ${d.question}` }))}
-                value={null}
-                onChange={(v) => call('/api/song-lab/offers', { offerId: o.id, decisionId: v }, 'PATCH')}
-                placeholder="Pick the vote this link opens"
-              />
-            </div>
-          ) : null}
-
-          {o.benefit_kind === 'vote' && o.decision_id ? (
+          {o.benefit_kind === 'vote' ? (
             <div className="mt-3">
               <p className="text-[11px] text-crwn-text-secondary/70 mb-1.5">
-                Opens this vote (the button always reads &quot;Cast my vote&quot;):
+                What this link opens (the button always reads &quot;Cast my vote&quot;):
               </p>
               <OptionSelect
-                options={decisions.filter((d) => d.status !== 'closed' || d.id === o.decision_id)
-                  .map((d) => ({ value: d.id, label: `${d.stage_label}: ${d.question}` }))}
-                value={o.decision_id}
-                onChange={(v) => call('/api/song-lab/offers', { offerId: o.id, decisionId: v }, 'PATCH')}
+                options={bindingOptions(projects, decisions, o)}
+                value={bindingValue(o)}
+                onChange={(v) => call('/api/song-lab/offers', { offerId: o.id, ...bindingPatch(v) }, 'PATCH')}
               />
+              {!o.project_id && !o.decision_id ? (
+                <p className="text-[11px] text-crwn-gold/80 mt-1.5">
+                  This link never goes stale. Put it in your bio once and it follows every vote you open.
+                </p>
+              ) : null}
             </div>
           ) : null}
 
@@ -953,14 +981,15 @@ function OffersPanel({ offers, decisions, busy, call, remove, copyLink, copied, 
           {benefitKind === 'vote' ? (
             <div>
               <OptionSelect
-                options={decisions.filter((d) => d.status !== 'closed').map((d) => ({ value: d.id, label: `${d.stage_label}: ${d.question}` }))}
-                value={decisionId}
-                onChange={setDecisionId}
-                placeholder="Which vote this link opens (required)"
+                options={bindingOptions(projects, decisions, null)}
+                value={binding}
+                onChange={setBinding}
               />
               <p className="text-[11px] text-crwn-text-secondary/70 mt-1">
-                The songs on this vote become the buttons fans tap. Without it the page has nothing to show,
-                so CRWN will not create the link. The button always reads &quot;Cast my vote&quot;.
+                The songs on the open vote become the buttons fans tap. &quot;Any vote that is open&quot; is
+                the one to pick for a link you post once and leave up: it follows every vote you open,
+                in every song, so you never have to swap the link. The button always reads
+                &quot;Cast my vote&quot;.
               </p>
             </div>
           ) : null}
@@ -976,7 +1005,7 @@ function OffersPanel({ offers, decisions, busy, call, remove, copyLink, copied, 
           </div>
           <div className="flex gap-2">
             <button
-              disabled={busy || !name.trim() || !headline.trim() || (benefitKind === 'vote' && !decisionId)}
+              disabled={busy || !name.trim() || !headline.trim()}
               onClick={submit}
               className="px-4 py-2 rounded-full bg-crwn-gold text-crwn-bg text-sm font-semibold disabled:opacity-50"
             >
