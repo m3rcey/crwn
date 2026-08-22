@@ -109,6 +109,20 @@ frequently stale (artists change their hair) or describes one shoot. **If Josh s
 photo, that is the answer**, and the note should be rewritten from what is visible in it. When
 only prose is available, keep the note short and lean on the fetched photo instead.
 
+**GLASSES are the feature the model drops.** Roc Marciano, Knxwledge and Oddisee were all drawn
+wrong in the same batch and all three missed the same thing: every one of them wears glasses and
+not one sheet drew any. The model defaults to a bare face, and a bare face still looks like a
+plausible person, so nothing about the drawing announces the error. The same applies to a
+consistently worn hat, a distinctive chain, or a face covering (see Mach-Hommy). If the reference
+photo shows an accessory the person always wears, put it in the `draw` note WITH the negative
+("NEVER draw him without glasses"), because the photo alone has not been enough.
+
+**A founder-supplied reference is the fix of last resort and it outranks everything.** Auto-fetch
+picked the wrong person or the wrong era for all three of these, and vision approved each one,
+because the gate can only ask "is this plausibly him" and a different bearded man in the right
+genre passes. When Josh drops files into `people/`, leave them alone: rewrite the `draw` note from
+what is visible in them, delete the stale sheet, and re-render.
+
 **When search cannot find the artist, PIN THE PHOTO with `photoUrl`.** Two of the search failures
 so far were not bad queries, they were names the search engine cannot disambiguate. "redveil"
 reads as an ordinary word, so Brave returned 24 stock-photo rappers out of 25 and every real
