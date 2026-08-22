@@ -173,6 +173,17 @@ complete the documented required actions acquire at least one paid member within
 CRWN rebuilds and relaunches the offer at no additional service charge (new audit, benefit and
 pricing revision, campaign rewrite, relaunch support). It is not an income guarantee.
 
+**The rendered wording is shorter than this paragraph, on purpose (founder decision, 2026-08-22).**
+`GUARANTEE_BODY` in [src/lib/positioning/story.ts](src/lib/positioning/story.ts) now states the
+condition and the remedy in ONE sentence and stops. Two supporting sentences were cut as defensive
+asides: an explicit "not a specific income result", and the live-checklist line. The TERMS above are
+unchanged, and both are still enforced elsewhere: the remedy clause carries the income limit (a
+rebuild and relaunch is all CRWN owes) and is pinned by `toolPositioning.test.ts` and
+`pageComposition.test.ts`, while the measured conditions below are enforced in code by
+`launchPartner.ts` regardless of what the marketing copy says about them. Do not restore the cut
+sentences without a founder decision, and do not cut the remedy clause: a guarantee that names a
+consequence without naming its remedy reads as a promise of the outcome.
+
 **Supporting (internal SLA, not a promoted second guarantee): the 14-Day Implementation
 Commitment.** Once the artist provides required assets and approvals, setup deliverables
 complete within 14 days; delays caused by CRWN never bill additional implementation fees.

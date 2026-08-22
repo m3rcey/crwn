@@ -336,8 +336,11 @@ describe('the canonical story has exactly one source', () => {
 
   it('uses the current guarantee semantics: a rebuild, never an income result', () => {
     expect(GUARANTEE_BODY).toMatch(/at least one\s+paid member within 30 days/);
-    expect(GUARANTEE_BODY).toMatch(/rebuilds and relaunches/);
-    expect(GUARANTEE_BODY).toMatch(/not a specific income result/);
+    // The remedy clause carries the limit. Until 2026-08-22 a second sentence restated it
+    // ("not a specific income result"); the founder cut it as a defensive aside, so the WHOLE
+    // remedy is asserted here instead of the two words it opens with. A guarantee that named a
+    // consequence without naming its remedy would read as a promise of the outcome.
+    expect(GUARANTEE_BODY).toMatch(/rebuilds and relaunches the offer at no additional service charge/);
     expect(GUARANTEE_BODY.toLowerCase()).not.toMatch(/guaranteed income|guaranteed revenue|guaranteed subscribers/);
     expect(FRL_BODY).toMatch(/qualified artists/i);
   });

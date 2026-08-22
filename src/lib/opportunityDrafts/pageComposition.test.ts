@@ -522,9 +522,11 @@ describe('Homepage marketing narrative (HomeMarketing)', () => {
     // state it identically; the homepage renders it from there.
     expect(story).toContain('First Paid Member Guarantee');
     expect(homeMarketing).toContain('GUARANTEE_TITLE');
-    // The boundary is stated as a precise term rather than a defensive aside, but it is
-    // still stated: the guarantee covers the relaunch, never an income amount.
-    expect(story).toContain('not a specific income result');
+    // The boundary is carried by the REMEDY clause, which names what CRWN owes: a rebuild and
+    // relaunch at no additional charge, never an income amount. A second sentence restated that
+    // ("not a specific income result") until the founder cut it on 2026-08-22 as a defensive
+    // aside. The clause below is the one that must survive, because a guarantee that states a
+    // consequence without stating its remedy reads as a promise of the outcome.
     expect(story).toMatch(/rebuilds and relaunches the offer at no additional\s+service charge/);
     expect(story).not.toMatch(/guaranteed (income|revenue|earnings)/i);
     expect(homeMarketing).not.toMatch(/guaranteed (income|revenue|earnings)/i);

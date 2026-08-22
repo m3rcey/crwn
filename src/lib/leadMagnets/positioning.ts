@@ -117,9 +117,9 @@ export const TOOL_DOORWAYS: Record<string, ToolDoorway> = {
     lens: 'What this reveals',
     revealsTitle: 'Reach is not the same as a relationship you control.',
     revealsBody:
-      'Your followers matter. What you do not have is the relationship underneath them: a name, permission to make contact, a record of what they bought, a way to reach them with no algorithm in between. You cannot own a person. You can own every one of those things, and today almost none of them are yours.',
+      'Your followers matter. What you do not have is the relationship underneath them: a name, permission to make contact, a record of what they bought, a way to reach them with no algorithm in between. You cannot own a person. With the CRWN app you can own every one of those things, but today almost none of them are yours.',
     connectsBody:
-      'A contact you can reach is where the whole system starts: the difference between an audience you rent and a buyer record you can build an offer on, invite first, and measure what you earned against.',
+      'With the CRWN app a contact you can reach is where the whole system starts: the difference between an audience you rent and a buyer record you can build an offer on, invite first, and measure what you earned against.',
   },
 
   // The complete diagnosis. The only tool that models every opportunity at once.

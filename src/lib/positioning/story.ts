@@ -45,12 +45,12 @@ export const LOOP = ['See it.', 'Find the block.', 'One move.', 'Deliver it.', '
 
 /** What the assisted layer actually is. Premium, optional, and never a gate on the free path. */
 export const FRL_BODY =
-  'For qualified artists, CRWN does the work with you: consolidate what you already run, build the offer best suited to your fans, invite your warmest buyers first, and launch. Not software access, not setup help. A launched direct-to-fan operation with real paying members.';
+  'For qualified artists, the CRWN app does the work with you: consolidate what you already run, build the offer best suited to your fans, invite your warmest buyers first, and launch.';
 
 /** The guarantee, verbatim from the offer. A rebuild and relaunch, never an income result. */
 export const GUARANTEE_TITLE = 'The First Paid Member Guarantee';
 export const GUARANTEE_BODY =
-  'Qualified artists who complete the required actions acquire at least one paid member within 30 days, or CRWN rebuilds and relaunches the offer at no additional service charge. The remedy is that rebuild and relaunch, not a specific income result. Both sides work one live checklist, so it runs on evidence, not self-reporting.';
+  'Qualified artists who complete the required actions acquire at least one paid member within 30 days, or CRWN rebuilds and relaunches the offer at no additional service charge.';
 
 /** Why the assisted path is capacity-limited, and the standing promise that self-serve stays open. */
 export const FRL_CAPACITY_NOTE =
