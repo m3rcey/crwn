@@ -312,16 +312,18 @@ export function OfferLanding({
         ) : null}
 
         {/* Where the room stands. Real stored votes only, and the bars are the whole
-            visualization: no charts, no legends, nothing small to squint at. */}
+            visualization: no charts, no legends, nothing small to squint at. Centered to
+            match every other block on this screen; the BAR still spans the full width,
+            because a progress bar whose length is trimmed stops meaning anything. */}
         {done.results && done.results.total > 0 ? (
-          <div className="mb-8 text-left">
+          <div className="mb-8">
             <p className="text-base font-semibold text-crwn-text-secondary uppercase tracking-wide mb-3">
               Right now
             </p>
             <div className="space-y-4">
               {done.results.options.map((o) => (
                 <div key={o.id}>
-                  <div className="flex items-baseline justify-between gap-3 mb-1.5">
+                  <div className="flex items-baseline justify-center gap-3 mb-1.5">
                     <span className="text-xl font-bold text-crwn-text">{o.label}</span>
                     <span className="text-2xl font-bold text-crwn-gold tabular-nums">{o.percent}%</span>
                   </div>
@@ -482,8 +484,11 @@ export function OfferLanding({
         })}
       </div>
 
+      {/* Labels centered with the rest of the screen. The INPUTS keep their own
+          left-aligned text: centered text inside a field fights the caret and is
+          unreadable the moment someone types a long address. */}
       {selected && needsIdentity(signedIn) ? (
-        <div ref={identityRef} className="text-left space-y-4 mb-6">
+        <div ref={identityRef} className="space-y-4 mb-6">
           <div>
             <label htmlFor="ballot-first-name" className="block text-base font-semibold text-crwn-text mb-1.5">
               First name
@@ -497,7 +502,7 @@ export function OfferLanding({
               autoCapitalize="words"
               maxLength={MAX_FIRST_NAME_LENGTH}
               aria-invalid={errorField === 'firstName'}
-              className="w-full min-h-[60px] rounded-2xl bg-crwn-surface px-4 py-4 text-xl text-crwn-text ring-1 ring-white/15 outline-none focus:ring-2 focus:ring-crwn-gold"
+              className="w-full min-h-[60px] rounded-2xl bg-crwn-surface px-4 py-4 text-xl text-left text-crwn-text ring-1 ring-white/15 outline-none focus:ring-2 focus:ring-crwn-gold"
             />
           </div>
           <div>
@@ -516,7 +521,7 @@ export function OfferLanding({
               spellCheck={false}
               maxLength={MAX_EMAIL_LENGTH}
               aria-invalid={errorField === 'email'}
-              className="w-full min-h-[60px] rounded-2xl bg-crwn-surface px-4 py-4 text-xl text-crwn-text ring-1 ring-white/15 outline-none focus:ring-2 focus:ring-crwn-gold"
+              className="w-full min-h-[60px] rounded-2xl bg-crwn-surface px-4 py-4 text-xl text-left text-crwn-text ring-1 ring-white/15 outline-none focus:ring-2 focus:ring-crwn-gold"
             />
           </div>
         </div>

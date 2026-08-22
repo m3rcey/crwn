@@ -196,9 +196,12 @@ export function SongLabFanView({ artistSlug, artistName }: { artistSlug: string;
           const openOnes = decisions.filter((d) => d.status === 'open');
           const scheduled = decisions.filter((d) => d.status === 'scheduled');
 
+          // Centered throughout, matching the ballot and confirmation screens the fan just
+          // came from. Rows that pair a label with a value center as a pair rather than
+          // pushing to opposite edges.
           return (
-            <section key={project.id} className="mb-10 rounded-2xl bg-crwn-surface p-5">
-              <div className="flex items-center gap-4 mb-4">
+            <section key={project.id} className="mb-10 rounded-2xl bg-crwn-surface p-5 text-center">
+              <div className="flex items-center justify-center gap-4 mb-4">
                 {project.artwork_url ? (
                   <Image src={project.artwork_url} alt="" width={56} height={56} className="rounded-xl object-cover" />
                 ) : null}
@@ -215,7 +218,7 @@ export function SongLabFanView({ artistSlug, artistName }: { artistSlug: string;
                 const winner = d.options.find((o) => o.id === d.winningOptionId);
                 return (
                   <div key={d.id} id={`decision-${d.id}`} className="py-3 border-t border-white/5">
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-center gap-2 flex-wrap">
                       <p className="text-sm text-crwn-text-secondary">{d.stageLabel}</p>
                       <p className="text-sm text-crwn-text flex items-center gap-1.5">
                         <Check className="w-4 h-4 text-crwn-gold" />
@@ -270,7 +273,7 @@ export function SongLabFanView({ artistSlug, artistName }: { artistSlug: string;
                             key={o.id}
                             onClick={() => vote(d, o.id)}
                             disabled={votingOn === d.id}
-                            className={`w-full py-3.5 px-4 rounded-xl text-left font-semibold transition active:scale-[0.98] disabled:opacity-60 ${
+                            className={`w-full py-3.5 px-4 rounded-xl text-center font-semibold transition active:scale-[0.98] disabled:opacity-60 ${
                               selected
                                 ? 'bg-crwn-gold text-crwn-bg'
                                 : 'bg-crwn-surface-solid text-crwn-text ring-1 ring-white/10 hover:ring-crwn-gold/50'
@@ -319,7 +322,7 @@ export function SongLabFanView({ artistSlug, artistName }: { artistSlug: string;
 
               {/* What's next */}
               {scheduled.map((d) => (
-                <div key={d.id} id={`decision-${d.id}`} className="py-3 border-t border-white/5 flex items-center justify-between">
+                <div key={d.id} id={`decision-${d.id}`} className="py-3 border-t border-white/5 flex items-center justify-center gap-2 flex-wrap">
                   <p className="text-sm text-crwn-text-secondary">{d.stageLabel}</p>
                   <p className="text-xs text-crwn-text-secondary">
                     {d.opensAt ? `Opens ${new Date(d.opensAt).toLocaleDateString(undefined, { weekday: 'long' })}` : 'Coming up'}
