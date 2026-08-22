@@ -41,9 +41,9 @@ export const TOOL_DOORWAYS: Record<string, ToolDoorway> = {
     lens: 'What this reveals',
     revealsTitle: 'Reach and direct fan value are two different numbers.',
     revealsBody:
-      'Streaming and social built the reach, and they are good at that job. What they cannot do is tell you which of those listeners would pay you directly, how much, or for how long. The figure above is not a verdict on streaming. It is the size of the direct relationship sitting inside an audience you already built, and the reason it stays theoretical is that nothing in your stack can identify the people it belongs to.',
+      'Streaming and social built your reach, and they are good at that job. What they cannot tell you is which of those listeners would pay you directly, how much, or for how long. That is why the figure above stays theoretical: nothing in your stack can name the people it belongs to.',
     connectsBody:
-      'That group is not a separate audience to go and find. It is the paying end of the audience you already have, and once it is identified it becomes one membership ladder, one buyer record and one next move rather than a number on a page.',
+      'They are not a separate audience to go and find. They are the paying end of the one you already have, and until they are identified they stay a number on a page instead of a ladder, a buyer record and a next move.',
   },
 
   // Unreleased catalog as a REASON for the most committed fans to identify themselves and climb,
@@ -52,9 +52,9 @@ export const TOOL_DOORWAYS: Record<string, ToolDoorway> = {
     lens: 'What this reveals',
     revealsTitle: 'Your unreleased work is the reason a fan moves up a rung.',
     revealsBody:
-      'The value of the catalog on your phone is not the files. It is that deeper access is the clearest reason a committed fan has to identify themselves, pay, and keep paying. Most of your audience will never want it. The ones who do are the ones already carrying most of your direct revenue, and right now you have nothing to hand them.',
+      'The catalog on your phone is not worth the files. It is worth deeper access: the clearest reason a committed fan has to pay and keep paying. Most of your audience will never want it. The ones who do already carry most of your direct revenue, and today you have nothing to hand them.',
     connectsBody:
-      'A vault is not a second product with its own subscribers. In the recommended ladder it is what makes the middle rung worth its price, which is why the money it creates belongs inside your membership number rather than beside it.',
+      'A vault is not a second product with its own members. It is what makes the middle rung worth its price, so the money it creates sits inside your membership number, never beside it.',
   },
 
   // Advocacy as ATTRIBUTABLE ACQUISITION into the same economy. Never a second revenue stack.
@@ -62,9 +62,9 @@ export const TOOL_DOORWAYS: Record<string, ToolDoorway> = {
     lens: 'What this reveals',
     revealsTitle: 'Some of your fans are already doing acquisition for you.',
     revealsBody:
-      'A small group of your fans put other people onto you, and that contribution is worth more than a play. Untracked and unrewarded, it never compounds and you can never tell which fans did it. The number above is what that advocacy would be worth if it were identifiable, attributable and paid.',
+      'A small group of your fans put other people onto you, and that is worth more than a play. Untracked, it never compounds and you never learn who did it. The number above is what that advocacy is worth once it is identifiable, attributable and paid.',
     connectsBody:
-      'Sharing is how supporters ARRIVE, not a separate place they pay. Every referred fan joins the same ladder at the same prices, so the revenue is already counted once inside your membership number and is never added on top of it.',
+      'Sharing is how supporters ARRIVE, not a separate place they pay. Referred fans join the same ladder at the same prices, so that revenue is counted once inside your membership number, never added on top.',
   },
 
   // Premium PARTICIPATION and the high-value end of the economy. Not a seat-count revenue hack.
@@ -72,9 +72,9 @@ export const TOOL_DOORWAYS: Record<string, ToolDoorway> = {
     lens: 'What this reveals',
     revealsTitle: 'The top of your fan economy is invisible until you offer it something.',
     revealsBody:
-      'A small number of fans want access, participation and a real part in the work, and they will pay many times what a listener pays for it. That group does not show up in a follower count. It shows up only when there is something worth their money, which is why premium participation is less a ticket than a way for your highest-value fans to reveal themselves.',
+      'A small number of fans want access, participation and a real part in the work, and they will pay many times what a listener pays. That group never shows up in a follower count. It shows up only when there is something worth their money, and today you are offering them nothing.',
     connectsBody:
-      'Where the session sits decides what it earns. As a benefit it is what makes your top rung worth its price and it earns nothing separately. Sold as seats it earns on its own, from fans who are not members, and the model prices it for your audience size rather than assuming a room without limits.',
+      'Where the session sits decides what it earns. As a benefit it makes your top rung worth its price and earns nothing separately. Sold as seats it earns on its own, from fans who are not members, priced for your audience size rather than a room without limits.',
   },
 
   // The sibling of the Executive Producer doorway, deliberately the other half of one idea: EP
@@ -84,9 +84,9 @@ export const TOOL_DOORWAYS: Record<string, ToolDoorway> = {
     lens: 'What this reveals',
     revealsTitle: 'A free stream is a show with no box office.',
     revealsBody:
-      'Going live only to promote makes every stream free, unticketed and gone the second it ends, so the hour you spend performing earns nothing and leaves nothing behind. The figure above is what that same hour is worth when it is an event with a door price: your most committed fans will pay for real access, and they are a small part of your audience worth far more than the rest of it.',
+      'A promo stream is free, unticketed and gone the second it ends, so the hour you perform earns nothing and leaves nothing behind. The figure above is that same hour with a door price on it. Your most committed fans pay for real access, and that small group is worth far more than the rest.',
     connectsBody:
-      'Where the live sits decides what it earns. Tickets earn on their own from any fan, member or not, and the replay becomes membership material your paying rungs keep. The Executive Producer Session is the premium version of the same idea: fewer seats, in the room where the work happens, at many times the price.',
+      'Where the live sits decides what it earns. Tickets earn on their own from any fan, member or not, and the replay becomes material your paying rungs keep. The Executive Producer Session is the premium version: fewer seats, in the room where the work happens, at many times the price.',
   },
 
   // Show-night proof carried into the OFF months. The VIP buyer is a proven direct spender, and
@@ -96,9 +96,9 @@ export const TOOL_DOORWAYS: Record<string, ToolDoorway> = {
     lens: 'What this reveals',
     revealsTitle: 'Tour revenue is a spike with a cliff, and the cliff is optional.',
     revealsBody:
-      'The fans who buy VIP on a show night are proven direct spenders, and most artists offer them nothing until the next run. The figure above is not new fans and not more shows. It is the months your income currently drops toward zero, refilled by a recurring membership offered to buyers who already paid a premium for access once.',
+      'Fans who buy VIP on a show night are proven direct spenders, and most artists offer them nothing until the next run. The figure above is not new fans or more shows. It is the months your income drops toward zero, refilled by a membership sold to buyers who already paid a premium once.',
     connectsBody:
-      'A VIP membership is not a second business beside the tour. It is the same ladder your whole fan economy runs on, entered by the fans your shows already converted, so show-night proof becomes year-round recurring revenue counted once inside your membership number.',
+      'A VIP membership is not a second business beside the tour. It is the same ladder, entered by the fans your shows already converted, so show-night proof becomes year-round revenue counted once inside your membership number.',
   },
 
   // Demand proven BEFORE money is spent. The test chooses the next offer inside the one economy;
@@ -107,9 +107,9 @@ export const TOOL_DOORWAYS: Record<string, ToolDoorway> = {
     lens: 'What this reveals',
     revealsTitle: 'Demand is knowable before you spend a dollar on it.',
     revealsBody:
-      'Most merch runs, shows and deluxe drops are funded on a guess, and the guess is the expensive part. Your committed fans will tell you what they want before you commit money to it, if you give them one specific way to say so: an RSVP, a vote, a place in line. The test above is that mechanism, with a threshold that turns interest into a go decision.',
+      'Most merch runs, shows and deluxe drops are funded on a guess, and the guess is the expensive part. Your fans will tell you what they want first, if you give them one way to say so: an RSVP, a vote, a place in line. The test above adds the threshold that turns interest into a go decision.',
     connectsBody:
-      'A demand test is not a separate product. It is how the next offer inside your fan economy gets chosen: the fans who raise their hands are the same members and buyers every other number here models, so the ladder only ever adds a rung somebody already asked for.',
+      'A demand test is not a separate product. It is how the next offer gets chosen: the fans who raise their hands are the same members and buyers every other number here models, so the ladder only adds a rung somebody asked for.',
   },
 
   // Platform reach versus an IDENTIFIABLE, PERMISSIONED relationship. Never literal ownership.
@@ -117,9 +117,9 @@ export const TOOL_DOORWAYS: Record<string, ToolDoorway> = {
     lens: 'What this reveals',
     revealsTitle: 'Reach is not the same as a relationship you control.',
     revealsBody:
-      'Your followers are real and they matter. What you do not have is the relationship underneath them: a name, permission to make contact, a record of what they bought, and a way to reach them that no algorithm sits in front of. You cannot own a person. You can own the relationship, the data and the contact permission, and today almost none of that is yours.',
+      'Your followers matter. What you do not have is the relationship underneath them: a name, permission to make contact, a record of what they bought, a way to reach them with no algorithm in between. You cannot own a person. You can own every one of those things, and today almost none of them are yours.',
     connectsBody:
-      'A contact you can reach is where the whole system starts. It is the difference between an audience you rent and a buyer record you can build an offer on, invite first, and measure against what you actually earned.',
+      'A contact you can reach is where the whole system starts: the difference between an audience you rent and a buyer record you can build an offer on, invite first, and measure what you earned against.',
   },
 
   // The complete diagnosis. The only tool that models every opportunity at once.
@@ -127,9 +127,9 @@ export const TOOL_DOORWAYS: Record<string, ToolDoorway> = {
     lens: 'What this reveals',
     revealsTitle: 'One audience, one paying group, one system to operate it.',
     revealsBody:
-      'This is the whole picture rather than one slice of it: the audience you built, the part of it you can actually reach, the smaller group inside that who ever pay, and how unevenly the money sits among them. The split above is your own, computed from your own answers, which is why the smallest rung usually carries the most revenue.',
+      'This is the whole picture, not one slice: the audience you built, the part you can actually reach, the smaller group inside it who ever pay, and how unevenly the money sits among them. The split above is computed from your own answers, which is why the smallest rung usually carries the most revenue.',
     connectsBody:
-      'Every opportunity here is modeled against the SAME fans and the same dollars, so nothing is counted twice: sharing and clipping move the supporter count rather than adding a revenue line, the vault is a rung rather than a second membership, and events sell only to fans who are not already members.',
+      'Every opportunity here is modeled against the SAME fans and the same dollars, so nothing is counted twice: sharing moves the supporter count rather than adding a revenue line, the vault is a rung and not a second membership, and events sell only to fans who are not members.',
   },
 };
 

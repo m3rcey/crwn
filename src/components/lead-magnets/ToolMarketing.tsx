@@ -211,8 +211,8 @@ export function ToolMarketing({
         <H2>{completed || continueHref ? 'Your plan is already built above.' : 'Start with your own numbers.'}</H2>
         <p className="text-crwn-text-secondary leading-relaxed mb-7 max-w-xl mx-auto">
           {completed || continueHref
-            ? 'Everything above was computed from your answers. Save it and CRWN turns it into the ladder, the calendar and the one next move you work from.'
-            : 'It takes a couple of minutes and nothing is gated. You get the figure, the offer we would build, and the first move to make.'}
+            ? 'Everything above came from your answers. Save it and CRWN turns it into your ladder, your calendar and your next move.'
+            : 'A couple of minutes, nothing gated. You get the figure, the offer we would build, and the first move to make.'}
         </p>
         {continueHref ? (
           <Link

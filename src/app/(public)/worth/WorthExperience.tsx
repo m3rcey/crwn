@@ -674,9 +674,9 @@ export function WorthExperience({
         <section className="mb-14">
           <SectionHeading>The ladder that holds it</SectionHeading>
           <p className="text-crwn-text-secondary text-xl mb-5">
-            A free front door to identify everyone, then paid rungs so your most committed fans
-            have somewhere to go. The top rung is the smallest group and carries the most money,
-            which is why an artist who launches one flat tier stalls well short of their number.
+            A free front door to identify everyone, then paid rungs for your most committed fans.
+            The smallest rung carries the most money, which is why one flat tier stalls well short
+            of your number.
             {hasNumber ? ' Here is how your ' + fmtCount(result.payers) + ' paying fans split across them:' : ''}
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

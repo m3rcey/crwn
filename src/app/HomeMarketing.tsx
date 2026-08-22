@@ -93,7 +93,7 @@ const TRUST = [
 const JOBS: { job: string; body: string }[] = [
   {
     job: 'Build what fans can buy',
-    body: 'An offer builder and a membership ladder, so your most committed fans have somewhere to go. The higher rungs are where most recurring revenue lives.',
+    body: 'An offer builder and a membership ladder, so committed fans have somewhere to go. The higher rungs carry most of the recurring revenue.',
   },
   {
     job: 'Monetize the direct fan relationship',
@@ -105,30 +105,30 @@ const JOBS: { job: string; body: string }[] = [
   },
   {
     job: 'See who creates the value',
-    body: 'Who actually pays you, what each relationship is worth, and what you still owe them, in one place. That record is what your next move is calculated from.',
+    body: 'Who pays you, what each relationship is worth, and what you still owe them, in one place. Your next move is calculated from that record.',
   },
 ];
 
 const FAQS: { q: string; a: string }[] = [
   {
     q: 'I already use Patreon, Shopify, Discord and a mailing tool.',
-    a: 'Then you already proved the model, and you are running it across tools that cannot see the same fan. Each one does its job. What none of them can do, alone or together, is show you the whole economic relationship or tell you what to do next. Keep any tool for as long as it earns its place, and keep releasing on streaming exactly as you do now: that is your discovery engine, and CRWN works on the direct side.',
+    a: 'Then you already proved the model, and you are running it across tools that cannot see the same fan. None of them, alone or together, shows you the whole economic relationship or tells you what to do next. Keep any tool that earns its place, and keep releasing on streaming: that is your discovery engine, and CRWN works on the direct side.',
   },
   {
     q: 'Will I have to move everything at once?',
-    a: 'No. Most artists start by importing their fan contacts (a CSV works, and a Patreon member export is recognized automatically, with tier matching suggested) and building the ladder. Products and catalog follow at your pace. For qualified artists on the assisted launch, CRWN does the migration work with you by hand.',
+    a: 'No. Most artists import their fan contacts first (a CSV works, and a Patreon export is recognized automatically, with tier matching suggested) and build the ladder. Products and catalog follow at your pace. On the assisted launch, CRWN does the migration with you by hand.',
   },
   {
     q: 'I do not have time to run another platform.',
-    a: 'The time you are spending now is the fragmented version: five logins, no shared record, and every decision made from memory. CRWN hands you one next move instead of another dashboard, and it tracks what you promised fans so keeping your word does not depend on remembering it.',
+    a: 'You are already spending it: five logins, no shared record, every decision made from memory. CRWN hands you one move instead of another dashboard, and tracks what you promised fans so keeping your word does not depend on remembering it.',
   },
   {
     q: 'What does CRWN cost?',
-    a: 'A free plan and two paid plans, listed above. Launch has no monthly fee: you pay the platform percentage only when you earn. Pro and Scale add a monthly subscription and take a lower percentage as the business grows.',
+    a: 'A free plan and two paid plans, listed above. On Launch you pay the platform percentage only when you earn. Pro and Scale charge monthly and take a lower percentage as you grow.',
   },
   {
     q: 'What happens first after I sign up?',
-    a: 'A short setup: your artist page, the recommended four-rung ladder with the workload each promise creates shown before you commit, payments, and your first import of warm fans. Then the roadmap points you at one thing: your first paid member.',
+    a: 'A short setup: your artist page, the four-rung ladder (with the workload each promise creates shown before you commit), payments, and your first import of warm fans. Then the roadmap points at one thing: your first paid member.',
   },
 ];
 
@@ -205,10 +205,10 @@ export function HomeMarketing({ completed = false }: { completed?: boolean }) {
         <H2>Your audience is visible. Your fan economy isn&apos;t.</H2>
         <p className="text-crwn-text-secondary text-lg leading-relaxed mb-8">
           You already sell direct. The proof is spread across a membership tool, a store, an email
-          list, a ticketing platform and a chat server. Each one sees its own piece of the fan.
-          None of them can see the whole relationship, so the decision about what to do next still
-          lives in your head. The cost is not the software bills. It is the fans who already proved
-          they would buy from you, sitting in six lists nobody is deliberately building.
+          list, a ticketing platform and a chat server, and none of them see the whole fan, so
+          every decision still lives in your head. The real cost is not the software bills. It is
+          the fans who already proved they would buy, sitting in six lists nobody is building on
+          purpose.
         </p>
         {/* The transformation has to read on a phone too: the horizontal arrow becomes a
             vertical one when the columns stack, or the two cards read as unrelated lists.
@@ -272,7 +272,7 @@ export function HomeMarketing({ completed = false }: { completed?: boolean }) {
         <Eyebrow art={SECTION_ART.operatingSystem}>The operating system</Eyebrow>
         <H2>One fan economy. One next move.</H2>
         <p className="text-crwn-text-secondary text-lg leading-relaxed mb-6">
-          Most tools give you the numbers and leave the next decision to you. CRWN shows you the one
+          Most tools hand you numbers and leave the decision to you. CRWN shows you the one
           move your numbers support next, tracks what you promised fans, and measures what changed.
         </p>
         <p className="text-lg font-semibold mb-8">
@@ -295,8 +295,8 @@ export function HomeMarketing({ completed = false }: { completed?: boolean }) {
             Why this
           </p>
           <p className="text-sm text-crwn-text-secondary leading-relaxed">
-            Fans who bought from you before are the most likely first members, and they cannot
-            join an offer nobody has put in front of them.
+            Past buyers are your most likely first members, and they cannot join an offer nobody
+            has put in front of them.
           </p>
           <p className="text-sm text-crwn-text-secondary mt-4">
             After this: open the offer to the rest of your list.
@@ -315,7 +315,7 @@ export function HomeMarketing({ completed = false }: { completed?: boolean }) {
           ))}
         </div>
         <p className="text-sm text-crwn-text-secondary mt-5">
-          And when there is not enough evidence to be sure, CRWN tells you that instead of guessing.
+          When there is not enough evidence to be sure, CRWN says so instead of guessing.
         </p>
       </section>
 
@@ -378,8 +378,8 @@ export function HomeMarketing({ completed = false }: { completed?: boolean }) {
         </div>
         <p className="text-sm text-crwn-text-secondary leading-relaxed">
           Launch has no monthly fee. Pro and Scale add a monthly subscription and take a lower
-          percentage of what you earn. The First Revenue Launch is a separate,
-          qualification-based service priced per engagement, not a software plan.
+          percentage of what you earn. The First Revenue Launch is a separate qualification-based
+          service, priced per engagement, not a software plan.
         </p>
       </section>
 
