@@ -98,6 +98,7 @@ describe('FE-SKILL-003 the load-bearing gates cannot be silently edited out', ()
     'Voice (founder correction, 2026-08-16)',
     'THE HOOK-REVEAL CONTRACT',
     'Social proof (founder decision, 2026-08-20)',
+    'Earned contrast and natural sentence length',
   ];
   for (const a of anchors) {
     it(`still carries: ${a}`, () => {
@@ -105,8 +106,20 @@ describe('FE-SKILL-003 the load-bearing gates cannot be silently edited out', ()
     });
   }
 
-  it('the eval doc still carries all nine fixtures', () => {
-    for (let i = 1; i <= 9; i++) {
+  it('the /crwn-shortform voice reference still carries the canonical AI-tell pass', () => {
+    // This skill delegates sentence-length and contrast judgement to /crwn-shortform rather than
+    // keeping a second copy. If that section is edited out over there, this skill silently loses
+    // the rule and the staccato/forced-negation output comes straight back.
+    const shortform = readFileSync(join(ROOT, '.claude', 'commands', 'crwn-shortform.md'), 'utf8');
+    expect(
+      shortform.includes('Natural Sentence Length and Earned Contrast'),
+      '/crwn-shortform lost the canonical AI-tell section that /crwn-fan-economy points at'
+    ).toBe(true);
+    expect(skill).toContain("`/crwn-shortform`'s **\"Natural Sentence Length and Earned Contrast");
+  });
+
+  it('the eval doc still carries all ten fixtures', () => {
+    for (let i = 1; i <= 10; i++) {
       expect(evalDoc.includes(`## ${i}.`), `EVAL.md lost fixture ${i}`).toBe(true);
     }
   });

@@ -332,6 +332,18 @@ Producer runs longer and can split). Order:
 - **Plain, calm, neutral English.** NOT AAVE. These are patient "here are the numbers"
   explainers, not hype reels. Josh reads them straight to camera.
 - **5th-grade reading level.** Short words, short sentences. No sentence over ~15 words.
+- **Run the AI-tell pass** in `/crwn-shortform` ("Natural Sentence Length and Earned Contrast").
+  These scripts fail it in one specific place every time: the SETUP beat, where "what fans
+  already do" and "why it dead-ends" come out as a stack of identical fragments. Real shipped
+  examples: "They post lyrics. They send clips to friends. They talk about how her music makes
+  them feel." and "They cannot pitch a beat. They cannot submit vocals. They cannot suggest a
+  hook." Write those as one sentence that keeps every specific: "They post lyrics, send clips to
+  friends and tell everybody how her music makes them feel." The turn (beat 10) is ONE beat too,
+  not three lines ("BUT... / There is a bigger question. / How much are YOU leaving on the
+  table?" shipped as three and the skeleton always said one).
+- **The one-number-per-line rule in beat 5 is the MATH walkthrough only.** Numbers land cleaner
+  one at a time and that stays exactly as it is. It is not a license to chop the prose beats
+  (setup, the better way, the signature beat, the turn) into matching fragments.
 - **Never use em dashes** anywhere (CLAUDE.md rule). Rewrite with a comma, colon, or two
   sentences.
 - **Loss-framed throughout** (missing / losing / leaving on the table), never gain-framed.

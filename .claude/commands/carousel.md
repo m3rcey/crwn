@@ -103,7 +103,7 @@ Save it in this exact structure (everything below the fence is the file contents
 ```
 [Hook line: the strongest title-style line for this carousel. Title-cased, under 60 characters. Stops the scroll in the feed before the swipe starts. Different wording than slide 1.]
 
-[Optional body: 1 to 3 short lines. One idea per line. Plain language, 5th grade reading level. Adds context the slides don't, or sharpens the takeaway. Skip the body entirely if the hook plus CTA stand on their own.]
+[Optional body: 1 to 3 short lines. One THOUGHT per line, which is not one SENTENCE per line: when two sentences are really one thought, join them and give them one line. Plain language, 5th grade reading level. Adds context the slides don't, or sharpens the takeaway. Skip the body entirely if the hook plus CTA stand on their own.]
 
 Link in bio to [holy grail outcome from this specific carousel] with CRWN. Free to start at thecrwn.app.
 ```
@@ -120,6 +120,10 @@ Caption rules:
 - **Don't repeat slide 1 verbatim.** The caption complements the carousel, doesn't echo it.
 - **No "swipe" prompts in the caption text.** The "SWIPE for More ->" cue lives on the slide-1 image only (stamped per the swipe step); it never goes in the Instagram caption.
 - **Plain talk.** Same voice as the slides. Short sentences. Direct.
+- **Run the AI-tell pass** in `/crwn-shortform` ("Natural Sentence Length and Earned Contrast")
+  before saving. A caption is read, not performed, so it gets less fragmentation than a script:
+  no stack of three-plus fragments, and no "it aint X, it's Y" built on a premise nobody held.
+  Short is still fine. The hook line and the CTA stay exactly as short as they are.
 
 ## prompts.md Output Format
 

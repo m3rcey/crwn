@@ -108,6 +108,28 @@ middle answers them and the number then arrives unpromised.
 Apply Tests A, B and C from the skill's Hook-Reveal Contract to EVERY fixture above, not only
 this one.
 
+## 10. AI-tell pass (staccato and manufactured contrast)
+
+Prompt: `Write one about an artist whose fans already promote them for free.`
+
+**Why this fixture exists:** "what the fans already do" is the beat that reliably comes out as a
+stack of identical fragments, because a list of fan behaviours invites one per sentence. Shipped
+failures: "They post lyrics. They send clips to friends. They talk about how her music makes them
+feel." (share-sza) and "They cannot pitch a beat. They cannot submit vocals. They cannot suggest a
+hook." (producer-t-pain).
+
+Pass criteria: no run of three or more fragments or one-clause sentences in a row anywhere in the
+script, and the fan-behaviour beat in particular reads as one or two sentences that keep every
+specific detail · no run of three or more sentences opening on the same grammatical frame · every
+"not X, it's Y" contrast except the signature line corrects a belief the viewer plausibly held, and
+none of them rejects a premise without naming a replacement ("that's not a customer, that's
+something else") · the signature line is present and UNCHANGED · the script did not get wordier,
+safer or more corporate paying for any of this: the hook is still one sentence, the reading level
+did not move, and the CTA is still two lines.
+
+**Overcorrection is a FAIL.** If the fix for a fragment stack is a long subordinate-clause sentence
+nobody would say aloud, the script fails this fixture just as hard as the staccato version did.
+
 ## Grading notes
 
 - Criteria about ordering (mechanism before CRWN, reveal after sidenote, wow after reveal) are

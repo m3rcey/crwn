@@ -804,6 +804,26 @@ repetition · never 17 visible template sections. Numbers as digits with friendl
 compare sub-penny fractions aloud (scale to whole cents per 10/100). No em dashes, ever. Banned
 words: leverage, optimize, diversify, ecosystem, monetize.
 
+## Earned contrast and natural sentence length
+
+The canonical rule is `/crwn-shortform`'s **"Natural Sentence Length and Earned Contrast (the
+AI-tell pass)"**, the same file this skill already treats as the reference for the marker set. Read
+it and run it on every script and every caption. It is one rule, not a second voice system, and the
+Voice section's "staccato fragment stacks (merge them into flowing sentences)" bullet above is its
+short form. Two things are specific to this series:
+
+- **The signature line is the RATIFIED exception and is never "fixed".** "You dont need to market to
+  fans. You need a market FOR fans." is a negation contrast on purpose: marketing TO fans and a
+  market FOR fans are genuinely two different things, the whole case study exists to earn the
+  distinction, and `fanEconomySkillContract.test.ts` fails any script missing it. The AI-tell pass
+  covers the OTHER contrasts in the script, never this one. Same for a versus script's central
+  comparison, which is the format's entire reason to exist.
+- **Spend the contrast where it pays.** With the signature line already taking one, the Big Reveal
+  and the Wow Factor are the only other places a "not X, it's Y" earns its keep, and only when the
+  reveal actually overturns what the viewer walked in believing. Everywhere else, say the thing.
+  "That's not a customer. That's something else." shipped in script 37 and it rejects a premise
+  without naming a replacement, which is the manufactured form.
+
 ## Content diversity
 
 Before writing, scan `videos/scripts/fan-economy/`. Filenames carry the NUMBER and the artist; for
@@ -958,6 +978,8 @@ its own META. End the chat response with clickable markdown links to the saved f
 - [ ] No em dashes, no banned words, no beginner framing, streaming not the villain, no
       guaranteed/passive income, no network-effect claims, loss named before the fix
 - [ ] Differs from recent scripts in artist, family, and mechanism (unless user pinned them)
+- [ ] AI-tell pass run: no stack of 3+ fragments, no 3 sentences in a row on the same frame, and
+      every negation contrast besides the signature line corrects a belief the viewer actually held
 
 ## User Argument
 

@@ -154,7 +154,7 @@ Always use "you" instead of he/she throughout the script body (titles can be dif
 - "Keep 92 cents" / "Keep 92%" / "92¢" — the platform-fee callout. That belongs in the caption.
 - "Download CRWN" / "Check out CRWN" / "Sign up" — direct CTAs.
 
-A good payoff ends on a punchy reframe like "Streams build the label. Fans build the artist." The viewer walks away with a new lens, not a to-do. But "punchy reframe" does NOT mean predictable: the line should still surprise (see TWIST / SURPRISE ENDING). The best closers feel inevitable in hindsight yet unexpected in the moment.
+A good payoff ends on a punchy reframe like the #2 closer that reversed a $2M deal into a debt he owe $11M on. (The old example here, "Streams build the label. Fans build the artist.", is BANNED further down as a saturated belief-confirming payoff, and it is also the manufactured two-clause parallel the AI-tell pass catches. Do not model closers on it.) The viewer walks away with a new lens, not a to-do. But "punchy reframe" does NOT mean predictable: the line should still surprise (see TWIST / SURPRISE ENDING). The best closers feel inevitable in hindsight yet unexpected in the moment.
 
 ## Comparison ("X vs Y") topics
 
@@ -229,6 +229,10 @@ The `[SPECIFIC CONTENT]` section describes every word, number, drawing, circle, 
   - **The "Yea X. But Y." closer template — banned as a default.** Do NOT end scripts with "Yea [old way]. But [new way]." every time. The AAVE reframe is right; the fixed two-clause "Yea ___. But ___." shape on every script is not. See the closing-line guidance under Voice Register and vary the closer's structure every script.
   - **The "Here go what it means for you" avatar-pivot — banned as a default.** Do NOT open the twist or payoff with the same formulaic turn to the viewer every script ("Here go what it mean for you", "Here go the part that should hit you", "Here go what flips it for you", "Here go what most artists sleep on"). The lesson still has to land on the avatar, but a strong story or a sharp contrast usually lands it WITHOUT an announced pivot. You don't have to address "you" in every script. Vary it: sometimes walk straight into the reframe, sometimes let the numbers carry it, sometimes end on the subject's lesson and let the viewer apply it themselves, sometimes keep a direct "you". Never announce the lesson the same way two scripts in a row.
   - **"Yo" / "Yo," — banned entirely.** Never open a script or any sentence with "Yo" or "Yo,", and never use "yo" as filler anywhere in the spoken script. Start on the named subject and the concrete hook. AAVE voice still comes through "ya", "em", "aint", "gon", dropped g's, copula drop — just never "yo".
+  - **Chopped-sentence rhythm and manufactured contrast.** Deliberately NOT a phrase blacklist:
+    the tell is habitual reliance, so it is judged per script by the tests in "Natural Sentence
+    Length and Earned Contrast" below. A stack of three-plus fragments, or an "it aint X, it's Y"
+    built on a premise nobody held, fails that pass even though no individual phrase is banned.
   - In-spoken-script CTA: "Build a free tier", "Build a paid tier", "Set up your tiers", "Keep 92 cents/percent of every dollar", any "X¢" platform-fee callout. These belong in the caption, never spoken.
 - MrBeast pacing: short, punchy, constant momentum
 - Talk like a friend who figured it out first, not a teacher or brand
@@ -269,6 +273,71 @@ Josh has repeatedly edited drafts for these patterns. Apply them as you write, t
 - **Stitch staccato lists into flowing sentences when reading aloud.** Three sentences of "No X" feels lecture-y. Merge with conjunctions: "No recoupment no 18% or $2M to come out from."
 - **Cut dated idioms.** "a dime" → "any of it". "back in the day" → "before". Date-anchored slang ages the script.
 - **Add articles where natural delivery needs them.** "Fans are" → "The fans are" when the line needs rhythmic symmetry with a previous clause.
+
+### Natural Sentence Length and Earned Contrast (the AI-tell pass)
+
+Two habits make otherwise strong copy read as machine-written. Both are about HABIT, never about
+any single sentence: one chopped line is fine, one sharp contrast is fine, a whole script built out
+of them is what gives the writing away. Run this pass on the finished draft, alongside Word Economy.
+
+**1. Write the thought in the amount of language the thought needs.**
+
+Do not split one thought across several sentences to manufacture emphasis. The test: **if these
+lines were joined into one natural sentence, would anything be lost?** If nothing is lost, join them.
+
+- Chopped: "Most artists think they need more fans. They don't. They need buyers. Real buyers.
+  People who care. People who pay."
+- Natural: "Most artists think they need more fans when what they really need is buyers."
+
+Three or more fragments in a row is the tell, and it gets louder when they open on the same word.
+Real failures from this pipeline: "They post lyrics. They send clips to friends. They talk about how
+her music makes them feel." and "They cannot pitch a beat. They cannot submit vocals. They cannot
+suggest a hook." Merge the stack and keep every specific: "They post lyrics, send clips to friends
+and tell everybody how the music make em feel." / "They cant pitch a beat, submit vocals or suggest
+a hook."
+
+**Short sentences are NOT the problem.** A hook, a CTA, a punchline, a turn, a one-line gut-punch
+number stays exactly as short as it is. What reads as AI is the RHYTHM: every beat the same length,
+chopped the same way, all the way down the page.
+
+**Merging never means longer.** The 15-word cap still holds and the reading level does not move. If
+joining two lines would push past 15 words, leave them as two sentences and just make sure they are
+not the same length and the same shape. The goal is natural, not wordy.
+
+**Line breaks in the saved file are not sentence chopping.** These scripts are performed to camera
+and the one-idea-per-line layout is a delivery aid. This rule governs SENTENCES, not the formatting
+around them: a merged thought can still sit on its own line.
+
+**Spoken scripts get more room than written captions.** Real speech has fragments, restarts and
+dropped words, and Josh records these himself, so read every line aloud. If he would say it that way
+at a kitchen table, keep it. If it only works as text with hard line breaks propping it up, merge it.
+
+**2. Make a contrast only when the two things are actually different.**
+
+"It's not X, it's Y" is a real construction, and so are its cousins ("this aint about X, it's about
+Y", "you dont need X, you need Y", "that's not A, that's B"). They earn their place when the viewer
+genuinely believes X and needs correcting. They turn into a tell when they exist to make an ordinary
+point sound sharp, which is when the writer invents a premise nobody held just to knock it over. The
+test: **is the negation needed to understand the idea, or did I make up a wrong belief so I could
+reject it?** If it is not needed, state the actual point.
+
+- Manufactured: "That's not a customer. That's something else." (rejects a premise, then names
+  nothing in its place)
+- Direct: "700 people paid three years before there was anything to play."
+- Manufactured: "Artists dont have a fan problem. They have a monetization problem."
+- Direct: "Most of these artists already got enough fans to make way more money off em."
+
+Earned, and left alone: a reframe that corrects a belief the audience really holds ("a $2M deal
+read like winning, it's a debt he owe $11M on"), the central comparison of a versus script, and the
+Fan Economy signature line. Roughly one per script, and it should be the strongest line in the
+script rather than connective tissue between beats.
+
+**3. Vary the shape, not just the words.**
+
+Before saving, scan for three or more sentences in a row that open on the same grammatical frame
+("When she tours... When she presses vinyl..."), and for the same point said two or three times in
+slightly different words. Keep the strongest one and vary the rest. Parallel structure is a tool for
+the one line meant to be quoted, not the default sentence shape.
 
 ### Voice Register
 
@@ -432,6 +501,8 @@ Before saving, self-score honestly on both axes. **If the total is under 8, REWR
 - [ ] No em dashes anywhere
 - [ ] No banned words (leverage, optimize, diversify, ecosystem, monetize)
 - [ ] No "Same X. Same Y. Same Z." triplet (or longer) anywhere in the script
+- [ ] Ran the AI-tell pass: no stack of 3+ fragments, no invented premise behind a "not X, it's Y",
+      no 3 sentences in a row on the same grammatical frame, and nothing got wordier fixing it
 - [ ] PAYOFF does not contain banned closers: "That's the move/play/answer/math", "Build a free/paid tier", "Keep X cents/%", "92¢"
 - [ ] PAYOFF ends on an insight line that reframes the topic, not on a how-to or CTA
 - [ ] No spoken sentence trails off with a missing number — every "$___", "%___", or "for that's about ___" has the real value filled in

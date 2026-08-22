@@ -1,5 +1,47 @@
 # CRWN Brain — Changelog
 
+## 2026-08-22 - The writing skills learned to stop sounding like AI
+
+**One new canonical section, `Natural Sentence Length and Earned Contrast (the AI-tell pass)`, in
+`.claude/commands/crwn-shortform.md`.** It sits next to Word Economy and Voice Register, which is
+where the scattered half-versions of it already lived ("stitch staccato lists into flowing
+sentences", "merge over-staccato fragments"). Those were written as final-pass niceties and were
+being skipped, so the same two fingerprints kept reaching finished scripts: stacks of three or more
+identical fragments ("They post lyrics. They send clips to friends. They talk about how her music
+makes them feel." in share-sza; "They cannot pitch a beat. They cannot submit vocals. They cannot
+suggest a hook." in producer-t-pain), and negation contrasts built on a premise nobody held
+("That's not a customer. That's something else." in fan-economy 37).
+
+**It teaches two tests, not a blacklist.** Would anything be lost if these lines were joined into
+one natural sentence? Is the negation needed to understand the idea, or was a wrong belief invented
+so it could be rejected? Habitual reliance is the defect, so a single short line or a single sharp
+contrast still passes.
+
+**What it explicitly protects, because the naive fix would have destroyed all of it.** Short hooks,
+CTAs, punchlines and one-line gut-punch numbers stay short. The 15-word cap and the reading level do
+not move, and a merge that would break either is not made (overcorrecting into long clauses is a
+FAIL, not a fix). One-idea-per-line formatting in the saved files is a delivery aid for camera, not
+sentence chopping, so it stays. The `/crwn-lead-magnet` math walkthrough keeps one number per line.
+And the Fan Economy signature line, "You dont need to market to fans. You need a market FOR fans.",
+is the RATIFIED exception: it is the one negation contrast in the series that carries real
+information, `fanEconomySkillContract.test.ts` requires it in every script, and the new section says
+so by name so a later pass does not "fix" it.
+
+**Four skills point at the one section instead of copying it**: `/crwn-fan-economy` (plus a section
+naming its own exception), `/crwn-lead-magnet` (the setup beat is where it fails every time),
+`/crwn-fan-economy-carousel` (a caption paragraph is a THOUGHT, not a sentence: carousel 1 shipped
+fourteen one-line paragraphs) and `/carousel` (whose body spec literally said "one idea per line").
+
+**One skill example was contradicting a ratified rule and had to go.** `/crwn-shortform` held up
+"Streams build the label. Fans build the artist." as the model of a good payoff while banning that
+exact line further down as a saturated belief-confirming closer. It is also the manufactured
+two-clause parallel this pass catches. Replaced with the #2 closer that actually earned 3.4% share.
+
+**Pinned by tests, mutation-verified.** A new anchor in FE-SKILL-003, a cross-file check that the
+`/crwn-shortform` section the other skills delegate to still exists, EVAL fixture 10 (whose pass
+criteria include the overcorrection failure), and a FE-CAR-001 assertion on the caption paragraph
+rule. All four were mutated, watched fail for the right reason, and reverted.
+
 ## 2026-08-21 (night, later) - A recognition badge was about to flood a live show's notifications
 
 **Song Lab's Day One A&R badge no longer notifies the ARTIST, only the fan.** The badge fires

@@ -185,6 +185,23 @@ Write these beats, in this order:
     **never reword or invent one**: read it off the script's `Lead magnet:` line. Benefit at the
     top, product at the bottom, one keyword across both.
 
+**A paragraph is a THOUGHT, not a sentence.** A caption is read, not performed, so it gets less
+fragmentation than a script, not more. A beat is a job in the argument; it is not automatically its
+own one-line paragraph. Beats that carry one thought together belong in one paragraph: the two setup
+sides (2) each run as a paragraph, and the turn, the tease and the framing line (3, 4, 5) usually
+read as one. Keep these standing alone, because their job depends on it: the opening CTA (0), the
+proof line (1b), `ANYWAY.`, the re-ask (9), and the offer and ask (13, 14). Anything else that ends
+up alone on a line should be there because that line is the strongest in the post, never to
+manufacture visual rhythm. Carousel 1 shipped with fourteen one-line paragraphs, which is what a
+stack of AI punchlines looks like on a phone.
+
+**The framing line (5) has to be a real distinction.** "One is wide. One is deep." works because the
+two artists genuinely differ on that axis and the whole post rests on it. The same shape wrapped
+around two things that are not actually different is the manufactured contrast the AI-tell pass
+catches. Run that pass, in `/crwn-shortform`'s "Natural Sentence Length and Earned Contrast", over
+the whole caption before saving; the signature line in beat 7 is the ratified exception to it and is
+never rewritten.
+
 **No hashtags.** Founder decision, 2026-08-20. Do not add a hashtag line, and do not scatter tags
 inline either.
 

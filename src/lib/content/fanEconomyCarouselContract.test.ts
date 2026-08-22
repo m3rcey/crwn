@@ -57,6 +57,9 @@ describe('FE-CAR-001 the skill file is intact and invocable', () => {
     // post spends a call redrawing an identical page and they stop matching each other.
     expect(skill).toMatch(/fixed asset you never write a prompt for/i);
     expect(skill).toContain('128-end-card.jpg');
+    // A caption is read, not performed. Without this rule every beat ships as its own one-line
+    // paragraph, which is what a stack of AI punchlines looks like on a phone (carousel 1).
+    expect(skill).toContain('A paragraph is a THOUGHT');
   });
 });
 
