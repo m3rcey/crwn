@@ -24,7 +24,7 @@ export const PATH_STEPS: { name: string; body: string }[] = [
   },
   {
     name: 'Build',
-    body: 'The recurring offer your fans are most likely to buy: a free front door, then paid rungs your most committed fans can climb.',
+    body: 'The recurring offer your fans are most likely to buy: a free front door, then paid levels your most committed fans can climb.',
   },
   {
     name: 'Convert',
