@@ -67,6 +67,19 @@ Rerolling 58 against real photos then tripped the colour guard at 361,630 non-gr
 the colour reference photos bled skin tone into a black-ink page. A skin rule was added stating
 that darker skin is denser hatching, never a colour.
 
+**All ten sheets are now photo-grounded.** Registering the nine people fixed 57 and 58 immediately,
+but left 51, 54, 55, 59 and 60 still carrying prose-drawn likenesses of Little Simz, Ledisi,
+H.E.R., Freddie Gibbs, Ella Mai and Kool Keith. Those five were re-rendered against the real
+references, with the skin rule applied BEFORE the render rather than after, and none tripped the
+colour guard. Each was compared side by side against the version it replaced rather than swapped
+blind: all five came back equal or better, and the two that looked risky at montage scale (55's
+note boxes, 59's layout) were both cleaner at full resolution than the originals. The before
+versions were kept until that comparison was made, so a worse reroll would have cost nothing.
+
+The judgment worth keeping: "it looked plausible to me" is the standard that failed on Saba,
+redveil, Tech N9ne and Del. A likeness drawn from prose can look completely fine and still be the
+wrong person, so the fix is not a better description, it is a photo.
+
 ---
 
 **1. Little Simz (vs Bad Bunny) — the tour she could not afford**
