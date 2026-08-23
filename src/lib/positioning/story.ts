@@ -32,7 +32,7 @@ export const PATH_STEPS: { name: string; body: string }[] = [
   },
   {
     name: 'Prove',
-    body: 'Your first paid CRWN member. Not a published page, not a connected account: a real person paying you on a system you run.',
+    body: 'Your first paid CRWN member. A real person paying you on a system you run, not just a published page or a connected account.',
   },
   {
     name: 'Expand',
