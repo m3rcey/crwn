@@ -441,7 +441,7 @@ export function WorthExperience({
   const builderSection = (
     <section ref={worthBuilderRef} className="mb-14 scroll-mt-[200px]">
       <SectionHeading>Turn this estimate into an offer your fans can join</SectionHeading>
-      <p className="text-crwn-text-secondary text-xl mb-5">
+      <p className="text-crwn-text-secondary text-xl mb-5 max-w-2xl mx-auto text-center">
         We prefilled it from your numbers. Edit anything. Nothing is live until you publish it.
       </p>
       <div className="max-w-lg">
@@ -673,7 +673,7 @@ export function WorthExperience({
             below replaces all of it. */}
         <section className="mb-14">
           <SectionHeading>The ladder that holds it</SectionHeading>
-          <p className="text-crwn-text-secondary text-xl mb-5">
+          <p className="text-crwn-text-secondary text-xl mb-5 max-w-2xl mx-auto text-center">
             A free front door to identify everyone, then paid rungs for your most committed fans.
             The smallest rung carries the most money, which is why one flat tier stalls well short
             of your number.
@@ -826,7 +826,7 @@ function PrimaryCTA({
 // the offer built from it would interrupt the one sequence on this page that must not be
 // interrupted. The section photography belongs to ToolMarketing, below the funnel.
 function SectionHeading({ children }: { children: ReactNode }) {
-  return <h2 className="text-2xl sm:text-3xl font-bold mb-2">{children}</h2>;
+  return <h2 className="text-2xl sm:text-3xl font-bold mb-2 text-center">{children}</h2>;
 }
 
 

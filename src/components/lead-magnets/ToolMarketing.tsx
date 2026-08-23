@@ -113,14 +113,14 @@ export function ToolMarketing({
   };
 
   return (
-    <div className="mt-16 space-y-20 text-crwn-text">
+    <div className="mt-16 space-y-20 text-crwn-text text-center">
       <div className="border-t border-crwn-elevated" />
 
       {/* A. WHAT THIS REVEALS. The one section that is genuinely different per calculator. */}
       <section>
         <Eyebrow art={SECTION_ART.reveals}>{door.lens}</Eyebrow>
         <H2>{door.revealsTitle}</H2>
-        <p className="text-crwn-text-secondary text-lg leading-relaxed">{door.revealsBody}</p>
+        <p className="text-crwn-text-secondary text-lg leading-relaxed max-w-2xl mx-auto">{door.revealsBody}</p>
       </section>
 
       {/* B. FROM ONE OPPORTUNITY TO ONE SYSTEM. The beat that stops six calculators reading as
@@ -128,14 +128,14 @@ export function ToolMarketing({
       <section>
         <Eyebrow art={SECTION_ART.oneEconomy}>One fan economy</Eyebrow>
         <H2>This is one lens, not a separate business.</H2>
-        <p className="text-crwn-text-secondary text-lg leading-relaxed mb-6">{door.connectsBody}</p>
-        <ul className="grid sm:grid-cols-2 gap-3">
+        <p className="text-crwn-text-secondary text-lg leading-relaxed mb-6 max-w-2xl mx-auto">{door.connectsBody}</p>
+        <ul className="grid sm:grid-cols-2 gap-3 max-w-2xl mx-auto">
           {ONE_SYSTEM.map((t) => (
             <li
               key={t}
-              className="flex items-start gap-2 rounded-2xl border border-crwn-gold/30 bg-gradient-to-b from-crwn-gold/10 to-crwn-surface p-4 font-medium"
+              className="flex items-center justify-center gap-2 rounded-2xl border border-crwn-gold/30 bg-gradient-to-b from-crwn-gold/10 to-crwn-surface p-4 font-medium"
             >
-              <Check className="w-4 h-4 text-crwn-gold shrink-0 mt-1" aria-hidden="true" /> {t}
+              <Check className="w-4 h-4 text-crwn-gold shrink-0" aria-hidden="true" /> {t}
             </li>
           ))}
         </ul>
@@ -146,19 +146,15 @@ export function ToolMarketing({
       <section>
         <Eyebrow art={SECTION_ART.path}>The path</Eyebrow>
         <H2>From the number above to your first paid member.</H2>
-        <div className="space-y-0">
+        <div className="flex flex-col items-center">
           {PATH_STEPS.map((s, i) => (
-            <div key={s.name} className="flex gap-4">
-              <div className="flex flex-col items-center">
-                <div className="w-8 h-8 rounded-full bg-crwn-gold/15 border border-crwn-gold/40 flex items-center justify-center text-sm font-bold text-crwn-gold shrink-0">
-                  {i + 1}
-                </div>
-                {i < PATH_STEPS.length - 1 && <div className="w-px flex-1 bg-crwn-elevated my-1" />}
+            <div key={s.name} className="flex flex-col items-center">
+              <div className="w-8 h-8 rounded-full bg-crwn-gold/15 border border-crwn-gold/40 flex items-center justify-center text-sm font-bold text-crwn-gold shrink-0">
+                {i + 1}
               </div>
-              <div className={i < PATH_STEPS.length - 1 ? 'pb-6' : ''}>
-                <p className="font-semibold">{s.name}</p>
-                <p className="text-crwn-text-secondary text-sm leading-relaxed mt-1">{s.body}</p>
-              </div>
+              <p className="font-semibold mt-3">{s.name}</p>
+              <p className="text-crwn-text-secondary text-sm leading-relaxed mt-1 max-w-md">{s.body}</p>
+              {i < PATH_STEPS.length - 1 && <div className="w-px h-6 bg-crwn-elevated my-3" />}
             </div>
           ))}
         </div>
@@ -175,12 +171,12 @@ export function ToolMarketing({
       <section>
         <Eyebrow art={SECTION_ART.launch}>First Revenue Launch</Eyebrow>
         <H2>Want us to launch it with you?</H2>
-        <p className="text-crwn-text-secondary text-lg leading-relaxed mb-6">{FRL_BODY}</p>
-        <div className="rounded-2xl border border-crwn-gold/30 bg-crwn-surface p-6 mb-6">
+        <p className="text-crwn-text-secondary text-lg leading-relaxed mb-6 max-w-2xl mx-auto">{FRL_BODY}</p>
+        <div className="rounded-2xl border border-crwn-gold/30 bg-crwn-surface p-6 mb-6 max-w-2xl mx-auto">
           <p className="font-semibold mb-2">{GUARANTEE_TITLE}</p>
           <p className="text-sm text-crwn-text-secondary leading-relaxed">{GUARANTEE_BODY}</p>
         </div>
-        <p className="text-sm text-crwn-text-secondary leading-relaxed mb-8">{FRL_CAPACITY_NOTE}</p>
+        <p className="text-sm text-crwn-text-secondary leading-relaxed mb-8 max-w-2xl mx-auto">{FRL_CAPACITY_NOTE}</p>
         <div className="text-center">
           {continueHref ? (
             <Link
