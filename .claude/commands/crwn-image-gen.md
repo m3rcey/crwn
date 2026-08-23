@@ -109,6 +109,36 @@ frequently stale (artists change their hair) or describes one shoot. **If Josh s
 photo, that is the answer**, and the note should be rewritten from what is visible in it. When
 only prose is available, keep the note short and lean on the fetched photo instead.
 
+**An artist who is not REGISTERED is invisible to the reference pipeline.** This is not the
+slug-name case below, where a file exists but does not resolve. `findMentionedSlugs` only matches
+people that already have an entry in `known-people.json`, so an unregistered artist is never
+searched for, never fetched, never vision-checked, and is drawn from the PROSE IN YOUR PROMPT alone.
+Nothing warns you. Batch 04 rendered nine of its twenty people that way (Little Simz, Ledisi,
+H.E.R., Freddie Gibbs, Tha God Fahim, Killer Mike, El-P, Ella Mai, Kool Keith) before anybody
+noticed. **Before rendering a set, list every artist the prompts name and check each one against
+the registry**, and add the missing ones with a draw note first. The pipeline fetches and
+vision-approves them automatically once the entry exists.
+
+**A bad reference photo produces a confidently wrong likeness, and a record with no draw note has
+nothing to correct it with.** Doja Cat WAS registered and WAS referenced, and she still came back
+as a pale blonde white woman, because her stored photo was a 30KB washed-out blonde-era frame and
+the model drew exactly what it was given. A photo outranking a description is only a good rule when
+the photo is good. **Open the stored reference before blaming the prompt**, and give every person a
+`draw` note, because a note is the only thing that can contradict a weak photo. Fix is: delete the
+photo so it refetches, and write the note.
+
+**Colour reference photos bleed SKIN TONE into a black-ink page.** Rerolling that same sheet
+against three freshly fetched colour photos tripped the colour guard at 361,630 non-greyscale
+pixels: every face came back rendered in brown and tan. The general monochrome rule was not enough
+because skin does not read to the model as "a colour" the way a gold chain does. Say it explicitly:
+darker skin is DENSER BLACK HATCHING and lighter skin is sparser hatching, and there is no skin
+tone anywhere on the page.
+
+**Ask for a count and the model will miss it by one.** A "6 YEARS SIGNED" headline came back over a
+row of FIVE boxes. On a page whose entire point is a number, a viewer counts. When a quantity in the
+art has to match a quantity in the headline, make the prompt count out loud ("one, two, three, four,
+five, six, never five and never seven") and then count them yourself in the render.
+
 **A dropped file only works if its NAME matches the slug.** Josh placed `del-the-funky.png` for
 a person registered as `del-the-funky-homosapien`. The lookup builds the filename from the slug, so
 it never saw that file at all and quietly kept using the stale auto-fetched photo. This is NOT the

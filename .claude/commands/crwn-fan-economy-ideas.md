@@ -104,6 +104,19 @@ is wrong, the batch is wrong.
   deliberately or the batch drifts entirely male, the same way the first image set came out 93%
   male because every prompt just said "artist".
 
+## Name the women while PITCHING, not while picking
+
+The versus quota worked first time: batch 04 came out 26 versus pitches of 50 and 9 versus builds
+of 10, against zero across the previous twenty scripts. The gender rule did not. Batch 04's ten
+built subjects were three women to seven men, because women were noticed at PICK time, when the
+only names left to choose from were the ones already pitched.
+
+By pick time it is too late. The picks can only be as balanced as the pitch list, and the pitch
+list drifts male by default because the exclusion list grows and the remaining pool of famous
+independent artists skews male. **So the count happens on the pitch list**: before writing the
+batch file, count the women in the fifty and fix it there, not in the ten. Same failure mode as the
+first image set coming out 93% male because every prompt just said "artist".
+
 ## The math gate, and honesty at pitch stage
 
 A Fan Economy post is a withheld number that pays off. So every pitch must name:
