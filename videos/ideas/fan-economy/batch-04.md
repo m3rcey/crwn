@@ -24,7 +24,7 @@ the strength of a number that later turns out not to exist.
 | 5 | Freddie Gibbs vs Lil Baby | Alfredo released on his own ESGN, peaked at 15 on the Billboard 200, nominated for Best Rap Album (Wikipedia, NPR) |
 | 6 | Big K.R.I.T. vs Gunna | six years signed to Def Jam produced two albums (HipHopWired, AllMusic) |
 | 7 | Tha God Fahim vs Playboi Carti | roughly 70 tapes in about three years, sold direct on Bandcamp (Bandcamp Daily) |
-| 8 | Run the Jewels vs Doja Cat | album given away free while the deluxe bundles ran from $10 to $5,000 (Stereogum) |
+| 8 | Run the Jewels vs Doja Cat, RETIRED 2026-08-23 and replaced by **DJ Muggs vs DJ Khaled** | six albums released in 2021 on his own Soul Assassins (AllMusic, Album of the Year, Wikipedia) |
 | 9 | Jorja Smith vs Ella Mai | three studio albums, all on her own FAMM, never signed a major deal (Wikipedia, MBW) |
 | 10 | Kool Keith | 47 studio albums, 24 solo and 23 collaborative (Wikipedia discography) |
 
@@ -44,6 +44,44 @@ numbers (5.5M silent streams paying $19,655; eight albums in one year on his own
 are funk bands rather than hip hop or R&B artists. Batch 03 had three picks rejected for exactly
 this, a subject the viewer cannot see themselves in, so a verified number was not allowed to
 override ICP fit. They sit at 11 and 12 in the passed list if the rule ever changes.
+
+## Founder review, 2026-08-23: eight corrections
+
+The batch was reviewed after delivery and eight things came back. Two changed what a post IS, four
+changed a hook or a headline, and two were factual errors about real people.
+
+| # | Correction | What changed |
+|---|---|---|
+| 58 | the concept itself is retired, and slide 1 gave the reveal away | whole case study REPLACED with DJ Muggs vs DJ Khaled |
+| 59 | slide 1 answered its own question | headline asks the album count; every ownership note removed from slide 1 |
+| 60 | the hook asked a trivia fact, not the ICP's takeaway | 47 albums becomes SETUP; the hook now asks how many buyers he can reach |
+| 51 | viewers already know the answer | the cancellation becomes SETUP; the hook now asks WHY, which is the part nobody knows |
+| 56 | "WHOSE CALENDAR IS IT?" is unclear | headline now asks the album count directly |
+| 56 | Big K.R.I.T. does not have a low cut | he has shoulder-length locs; draw note added, prompt corrected |
+| 53 | Brent Faiyaz has a low cut, not braids | new photo supplied by the founder, draw note added, prompt corrected |
+| all | slide 1 does not need a large bottom takeaway | removed from all ten sheet prompts |
+
+**The banned concept is the one that matters most.** The Run the Jewels post was built on a free
+album with buyer-chosen tiers running to $5,000, and CRWN's model is the ARTIST setting the rungs
+while the fan chooses which to JOIN. Those are different stories and only the second is ours, so
+the case study was retired rather than edited. DJ Muggs replaced it: six albums in one calendar
+year on his own Soul Assassins, against DJ Khaled needing a building to say yes. The withheld
+variable is a count instead of a price.
+
+**Both likeness errors had the same cause, and it is a new one.** The reference photo was CORRECT
+in both cases and my prompt text contradicted it, so the model drew my words. Big K.R.I.T.'s stored
+photo plainly shows locs and a heavy beard; the prompt said "short fade". That inverts the
+photo-outranks-description rule: a description cannot outrank a photo unless somebody writes one
+that fights it. The prompt now describes pose, composition and clothing only, and identity comes
+from the photo plus the draw note.
+
+**Two of the eight are now machine-checked** (no bottom takeaway on slide 1 from script 51 onward,
+and no fan-chosen-price framing), both scoped forward because the founder scoped the change forward
+and 30 of scripts 1-50 carry a takeaway while script 17 is a LaRussell pay-what-you-want study that
+was legitimate when written. The takeaway guard was mutation-tested: injecting a takeaway into 59
+failed that one test for the intended reason, and reverting returned the suite to green. The other
+six are judgment calls and are written into the skills rather than into a test, because "is this
+hook already public knowledge" is not something a regex can answer.
 
 ## What the review caught after rendering
 

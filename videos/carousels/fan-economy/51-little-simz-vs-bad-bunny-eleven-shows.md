@@ -4,31 +4,31 @@
 
 Comment "TOUR" for what your fans are worth on the nights you're not on stage.
 
-In 2022 Bad Bunny played eighty one shows and grossed four hundred and thirty five million dollars. That same year Little Simz had eleven American dates on sale and a BRIT award on her shelf.
+In 2022 Bad Bunny played eighty one shows and grossed four hundred and thirty five million dollars. That same year Little Simz had a BRIT award, eleven American dates on sale, and she cancelled every single one.
 
-How many of the eleven did she actually play?
+What actually stopped it?
 
 Bad Bunny's run was the highest grossing calendar year any artist has ever had. Eighty one nights, stadiums, a record that had stood since the eighties broken in one go. That is the ceiling of this business and nobody is arguing with it.
 
 Little Simz was not small that year either. Best New Artist at the BRITs. Her album on every list in the country. Millions of people listening every month.
 
-Eleven dates. Portland first, then across the country.
+Eleven dates. Portland first, then across the country. Then nothing.
 
 Here's the thing nobody puts side by side.
 
-One of them was selling out stadiums. The other one was selling tickets too. Only one of them made it to the stage.
+When a tour gets pulled you assume illness, or visas, or that nobody bought a ticket. It was none of those.
 
-Go think about why before I say it.
+Go guess before I say it.
 
 Hold that thought. You don't need to market to fans. You need a market FOR fans. Reach and revenue are two different systems and almost nobody has been shown the second one. The CRWN app is built for the second one: tiers your fans join, and a vault behind the top one. Costs nothing to start, and it only takes a cut when you get paid.
 
 ANYWAY.
 
-So how many of the eleven did she play?
+So what stopped eleven shows for a BRIT winner?
 
-Zero. She cancelled the whole run in April.
+She was paying for the whole thing out of her own pocket, and she said going ahead would leave her in a huge deficit.
 
-And it gets worse. She didn't cancel because nobody bought tickets. She cancelled because she was funding the entire thing herself, and she said going ahead would leave her in a huge deficit. An artist with an award, a hit album and millions of listeners could not afford to go and stand in a room with them.
+And it gets worse. The tickets were selling. The demand was there, the award was weeks old, the album was everywhere, and the arithmetic still came out negative before she played a single note. An artist with millions of listeners could not afford to go and stand in a room with them.
 
 Now to be fair, Bad Bunny's scale is real and took years to build, and Simz got that award and those listeners because streaming put her in front of the world. Discovery did its job. She also went back out the following year and played the rooms.
 
@@ -48,7 +48,7 @@ Comment "TOUR" and I'll DM you the link.
 
 **SLIDE 2 PROMPT:**
 
-Flat scan of a white sheet of paper filling the entire frame. No desk, no surface, no edges visible, just white paper. Black sharpie marker handwriting and clean hand-drawn comic line art with heavy solid-black fills, so that roughly a third of the page is solid black for strong contrast, while the paper background stays pure white. Across the top in a compact block taking no more than the top fifth of the page, hand-letter the headline as large black sharpie capitals across two lines (thick uneven hand-drawn marker strokes, NOT a printed or display font), with "11 DATES ON SALE." on the first line and "SHE PLAYED 0 OF THEM." on the second line. Below the headline, filling the middle of the page, draw a long horizontal row of exactly ELEVEN identical plain hand-drawn ticket shapes standing side by side, every ticket completely blank with no writing on it, and draw one heavy hand-drawn X struck through each and every one of the eleven tickets. To the right of that row, clearly separated, draw one plain empty stage riser in simple outline with a single microphone stand on it and nobody standing there. Down the lower left, hand-letter a tidy stack of exactly TWO small notes, one per line, each appearing exactly once, each in a small hand-drawn box: "A BRIT WEEKS EARLIER", "MILLIONS LISTENING". Down the lower right, hand-letter a tidy stack of exactly TWO small notes, one per line, each appearing exactly once, each in a small hand-drawn box: "FUNDING IT HERSELF", "A HUGE DEFICIT". Across the middle of the page, hand-letter exactly ONE line in medium capitals: "THE TICKETS WERE NOT THE PROBLEM". Across the very bottom of the page, centered, hand-letter exactly TWO short notes in larger capitals, one above the other, each appearing exactly once: "THE DEMAND WAS THERE.", "THE MONEY WASNT.". Render only the exact words given inside quotation marks; never draw any instruction words, labels, or parentheses from this prompt. CRITICAL ANTI-DUPLICATION RULE: each quoted line appears exactly ONCE on the entire page. Never draw the same words a second time in another position, at another size, or anywhere else. No garment, ticket, riser or object carries any text beyond the quoted notes; every one is left entirely blank and unlettered, with no slogan, no brand mark and no logo. Every word is hand-lettered sharpie, never a printed or typeset font, written horizontally and upright, never rotated or sideways. Spell every word completely and correctly; invent no extra words, no nonsense words, no partial words, no misspellings and no extra numbers beyond the ones quoted. Do NOT draw any human portrait or any recognizable face on this page; the only figures are simple stick figures. Never draw the word CRWN, a crown, or any logo. Solid black fills look hand-colored with visible directional marker streaks and tiny flecks of white paper showing through. The background is pure white (#FFFFFF). The image is shot perfectly straight on, no angle, no shadow, no background elements. Pure white paper fills the entire 3:4 frame edge to edge.
+Flat scan of a white sheet of paper filling the entire frame. No desk, no surface, no edges visible, just white paper. Black sharpie marker handwriting and clean hand-drawn comic line art. This is a DIAGRAM page, not a portrait page: the only black on it is the lettering, the outlines, and the fill inside small solid stick figures. The paper itself is NEVER filled, shaded, scribbled or blocked in. There are no black background panels, no black bands, no filled rectangles behind the drawing and no shaded ground; every part of the page that is not a deliberate ink mark stays pure white. Across the top in a compact block taking no more than the top fifth of the page, hand-letter the headline as large black sharpie capitals across two lines (thick uneven hand-drawn marker strokes, NOT a printed or display font), with "SHE FUNDED ALL 11 HERSELF." on the first line and "GOING AHEAD MEANT A DEFICIT." on the second line. Below the headline, filling the middle of the page, draw a simple hand-drawn balance scale seen straight on, tipping heavily DOWN on the right side. On the raised LEFT pan sits a small tidy row of exactly THREE plain hand-drawn ticket shapes, every ticket completely blank with no writing on it. On the lowered RIGHT pan sits a single large plain hand-drawn crate or road case in simple outline, drawn much bigger and heavier than the tickets, completely blank with no writing on it. Down the lower left, hand-letter a tidy stack of exactly TWO small notes, one per line, each appearing exactly once, each in a small hand-drawn box: "THE TICKETS SOLD", "THE DEMAND WAS REAL". Down the lower right, hand-letter a tidy stack of exactly TWO small notes, one per line, each appearing exactly once, each in a small hand-drawn box: "TRUCKS, CREW, ROOMS", "ALL OUT OF HER POCKET". Across the middle of the page, hand-letter exactly ONE line in medium capitals: "SHE NEVER PLAYED A NOTE". Across the very bottom of the page, centered, hand-letter exactly TWO short notes in larger capitals, one above the other, each appearing exactly once: "AN AWARD WEEKS EARLIER.", "IT STILL DIDNT ADD UP.". Render only the exact words given inside quotation marks; never draw any instruction words, labels, or parentheses from this prompt. CRITICAL ANTI-DUPLICATION RULE: each quoted line appears exactly ONCE on the entire page. Never draw the same words a second time in another position, at another size, or anywhere else. No ticket, crate, scale or object carries any text beyond the quoted notes; every one is left entirely blank and unlettered, with no slogan, no brand mark and no logo. Do NOT draw any coin, banknote or currency mark anywhere. Every word is hand-lettered sharpie, never a printed or typeset font, written horizontally and upright, never rotated or sideways. Spell every word completely and correctly; invent no extra words, no nonsense words, no partial words, no misspellings and no extra numbers. Do NOT draw any human portrait or any recognizable face on this page; the only figures are simple stick figures. Never draw the word CRWN, a crown, or any logo. Solid black fills look hand-colored with visible directional marker streaks and tiny flecks of white paper showing through. The background is pure white (#FFFFFF). The image is shot perfectly straight on, no angle, no shadow, no background elements. Pure white paper fills the entire 3:4 frame edge to edge.
 
 ---
 
@@ -62,4 +62,4 @@ Flat scan of a white sheet of paper filling the entire frame. No desk, no surfac
 
 ---
 
-**META:** Source script: 51-little-simz-vs-bad-bunny-eleven-shows · Big Reveal: she played zero of the eleven and cancelled the run in April 2022 · Wow Factor: she cancelled for money rather than demand, weeks after winning a BRIT · Lead magnet: between-tour-calculator + TOUR · CRWN claim tier: shipped · Polarity: Little Simz is the ICP subject, Bad Bunny is the foil
+**META:** Source script: 51-little-simz-vs-bad-bunny-eleven-shows · Big Reveal: she was self-funding the tour and going ahead meant a huge deficit · Wow Factor: the tickets were selling and the arithmetic was still negative before she played a note · Lead magnet: between-tour-calculator + TOUR · CRWN claim tier: shipped · Polarity: Little Simz is the ICP subject, Bad Bunny is the foil

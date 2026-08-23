@@ -146,6 +146,13 @@ describe('FE-SKILL-006 every saved script declares its hook promise', () => {
     expect(scripts.length, 'no fan-economy scripts found; the folder moved or emptied').toBeGreaterThan(0);
   });
 
+  // The 2026-08-23 slide-1 rules apply from script 51 onward. A file with no leading
+  // number is treated as new, so a future rename cannot silently opt out of them.
+  const RULE_0823_EXEMPT = (f: string) => {
+    const n = parseInt(f.match(/^(\d+)-/)?.[1] ?? '', 10);
+    return Number.isFinite(n) && n < 51;
+  };
+
   for (const file of scripts) {
     it(`${file} carries a Hook promise and a Big Reveal in its META`, () => {
       const body = readFileSync(join(SCRIPT_DIR, file), 'utf8');
@@ -155,6 +162,42 @@ describe('FE-SKILL-006 every saved script declares its hook promise', () => {
         `${file} does not declare a "Hook promise:" in its META, so its Hook-Reveal Contract was never written down`
       ).toBe(true);
       expect(/Big Reveal:\s*\S+/.test(body), `${file} does not declare a "Big Reveal:"`).toBe(true);
+    });
+
+    it(`${file} keeps the large takeaway OFF slide 1`, () => {
+      // Founder call 2026-08-23. The sheet prompt IS carousel slide 1, and its job is to open
+      // the gap, not to summarise it. Every batch 04 sheet ended with two big bottom lines and
+      // all ten were stripped. Slide 2 and slide 3 keep theirs; they are read after the reveal.
+      // SCOPED FORWARD from script 51: the founder scoped the change "moving forward", and 30
+      // of scripts 1-50 carry one. Enforcing backwards would re-render forty sheets nobody
+      // asked to change.
+      if (RULE_0823_EXEMPT(file)) return;
+      const body = readFileSync(join(SCRIPT_DIR, file), 'utf8');
+      expect(
+        /Across the very bottom of the page[^.]*hand-letter exactly TWO short notes in larger capitals/i.test(body),
+        `${file} still ends its sheet prompt with a large bottom takeaway; slide 1 does not carry one`
+      ).toBe(false);
+    });
+
+    it(`${file} never sells a fan-chosen price`, () => {
+      // Founder decision 2026-08-23: CRWN's model is the ARTIST setting the rungs and the fan
+      // choosing which to join. Pay-what-you-want is a different product and is not ours. A Run
+      // the Jewels case study built on buyer-chosen tiers was retired rather than edited.
+      // SCOPED FORWARD from script 51, same reason as above: script 17 is a LaRussell case
+      // study whose entire subject is pay-what-you-want, written before the rule existed.
+      if (RULE_0823_EXEMPT(file)) return;
+      const body = readFileSync(join(SCRIPT_DIR, file), 'utf8');
+      const banned = [
+        /pay what you want/i,
+        /name your (own )?price/i,
+        /choose the price/i,
+        /(fans?|they|buyers?) (choose|chose|pick|picked) (the|their) price/i,
+      ];
+      const hit = banned.find((re) => re.test(body));
+      expect(
+        hit,
+        `${file} frames the FAN as choosing the price, which is a retired concept`
+      ).toBeUndefined();
     });
 
     it(`${file} says the market-FOR-fans signature line`, () => {

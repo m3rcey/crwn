@@ -9,6 +9,38 @@ This is a different series from `/crwn-shortform` (paper/sharpie label-industry 
 case studies: flexible content families, one storytelling architecture, and a hard curiosity-gap
 math gate. Voice is Josh talking to camera, in HIS voice (see the Voice section below).
 
+
+## The hook must be UNKNOWN, and it must be the ICP's takeaway
+
+Two hook failures, both founder-caught on 2026-08-23, both of which passed every existing gate
+because the reveal really did answer the hook. Answering the hook is necessary and not sufficient.
+
+**A hook whose answer the viewer already knows opens no gap.** The Little Simz sheet asked how many
+of her eleven announced dates she played. Anyone who followed it knows the tour was cancelled, so
+the "reveal" landed as a fact they already had. The fix was to move the known part into the SETUP
+("she cancelled every one of them") and withhold the part almost nobody knows, which was the
+reason: she was self-funding it and going ahead meant a deficit. **Test it by asking whether a fan
+of that artist could answer the hook from memory. If yes, the withheld variable is wrong, not the
+script.**
+
+**A hook must ask the thing that matters to the ICP, not a trivia fact about the artist.** The Kool
+Keith sheet asked how many albums he has. Forty seven is a good number and a bad question: it is
+pub quiz, not the artist's problem. The lesson underneath it, that he cannot reach a single person
+who ever bought one, is the ICP takeaway, so THAT became the hook and the 47 became setup. When a
+post has a striking number and a painful truth, the number is usually the setup and the truth is
+usually the question.
+
+## Banned concept: the fan does not choose the price
+
+Founder decision, 2026-08-23. Do not build a case study whose lesson is pay-what-you-want,
+name-your-price, or a ladder framed as the FAN picking what to pay. A Run the Jewels post built on
+a free album with buyer-chosen tiers up to $5,000 was retired for this rather than edited.
+
+CRWN's model is that the ARTIST sets the rungs and prices them, and the fan chooses which rung to
+join. Those are different stories and only the second one is ours. Tiers, vaults and premium
+pricing are all still fair game; the framing where the buyer names the number is not.
+
+
 ## Invocation
 
 `/crwn-fan-economy <request>`

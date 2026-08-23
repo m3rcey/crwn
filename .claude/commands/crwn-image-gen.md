@@ -109,6 +109,33 @@ frequently stale (artists change their hair) or describes one shoot. **If Josh s
 photo, that is the answer**, and the note should be rewritten from what is visible in it. When
 only prose is available, keep the note short and lean on the fetched photo instead.
 
+**Slide 1 carries NO large bottom takeaway.** Founder call, 2026-08-23. Every batch 04 sheet ended
+with two big summary lines across the bottom ("HE NEVER RAN OUT OF SONGS. / HE RAN OUT OF
+PERMISSION."). They are not needed: the sheet's job is to open the gap, and a summary at the bottom
+competes with the headline for the same job. Bottom takeaway lines stay on carousel SLIDE 2 and
+SLIDE 3, which are read after the reveal. Slide 1 ends with the note stacks.
+
+**No note on slide 1 may answer the headline question.** The Jorja Smith sheet asked "WHO OWNS WHAT
+THEY MADE?" and then listed "HER OWN LABEL" and "SHE KEEPS EVERY RECORD" directly underneath it, so
+the page answered itself before anybody read a word of the caption. Before rendering, read the
+headline, then read every note as if you had never seen the script: if any note, name label or
+drawn object gives away the reveal, it is setup that belongs after the payoff, not on slide 1.
+Draw the withheld quantity as uncountable (an ambiguous stack, a partly hidden row) rather than as
+a countable group, because a viewer WILL count it.
+
+**The headline is a plain question, never a riddle.** "WHOSE CALENDAR IS IT?" was rejected as
+unclear. The reliable form is to ask directly for the one withheld thing: "HOW MANY ALBUMS CAME
+OUT?", "WHAT ACTUALLY STOPPED HER?", "HOW MANY BUYERS CAN HE REACH?". If the question needs the
+caption to be understood, it is the wrong question.
+
+**Never write an identity detail that contradicts the reference photo.** This is the inverse of the
+photo-outranks-description rule and it bit twice on the same batch. Big K.R.I.T.'s stored photo
+plainly shows shoulder-length locs and a heavy beard; the prompt said "a short fade", and the model
+drew the prompt. Brent Faiyaz has a low cut; the prompt said "short dark twists", and again the
+model drew the prompt. **The prompt describes POSE, COMPOSITION and CLOTHING. Identity comes from
+the photo and the `draw` note.** If you must describe a face at all, open the reference first and
+describe what is actually in it.
+
 **An artist who is not REGISTERED is invisible to the reference pipeline.** This is not the
 slug-name case below, where a file exists but does not resolve. `findMentionedSlugs` only matches
 people that already have an entry in `known-people.json`, so an unregistered artist is never
