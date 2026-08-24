@@ -87,6 +87,39 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **Create the Meta app and give me two values, so the Instagram publish proof can run.**
+      This is the ONLY thing standing between the Phase 0 proof and a real published carousel.
+      The code is written, tested and preflight-clean; it refuses to run without these rather
+      than guessing. Nothing to run in SQL. **No Meta App Review and no Business Verification
+      is required for this**, because publishing to an account that holds a role on your own app
+      is Standard Access, which is granted automatically.
+      Steps, once, about 20 minutes:
+        1. developers.facebook.com → Create App → type **Business**.
+        2. Add the **Instagram** product. Under App roles, add your Instagram account as an
+           **Instagram Tester**, then accept the invite from Instagram (Settings → Apps and
+           websites → Tester invites).
+        3. Make sure the Instagram account is a **professional** account (Business or Creator).
+        4. Use the Graph API Explorer to generate a token with **`instagram_basic`** and
+           **`instagram_content_publish`**, then exchange it for a long-lived token (it lasts
+           about 60 days).
+        5. Get the **IG User ID** (Graph API Explorer: `me/accounts` then the linked
+           `instagram_business_account`, or `me?fields=id` on the Instagram login path).
+      Then put these two lines in `.env.local`. Do not paste them to me, and do not commit them:
+        IG_USER_ID=<the numeric id>
+        IG_ACCESS_TOKEN=<the long-lived token>
+      Then tell me and I will run the real publish. Or run it yourself:
+        node scripts/test-instagram-carousel-publish.mjs "/mnt/c/Users/Josh/Dropbox/nano banana output/Carousel Posts/Fan Economy/41-wu-tang-one-copy" --publish
+      Without `--publish` it is a dry run and posts nothing, which is worth doing first.
+
+- [ ] **Decide whether the caption generator should be capped at 2200 characters.** A product
+      call, not a bug. Instagram rejects any caption over 2200, and **8 of your 31 Fan Economy
+      carousels are over it** (51, 52, 53, 55, 57, 58, 59 and 60; the longest is 2,492). Those
+      eight cannot be published by any tool, Later included, without being cut by hand. Two
+      options: (a) I add a hard 2200 ceiling to the carousel skills so it can never happen again
+      and you trim the eight existing ones, or (b) the publisher auto-trims at the last paragraph
+      break under the limit, which is quicker but silently drops the closing CTA line, and on
+      these captions the CTA is the last line. I recommend (a). Tell me which.
+
 - [ ] **ASK GB (and Julius) whether they want the "Day One A&R" badge at all, and under that
       name.** Nothing is broken; this is a naming and product call only CRWN's artists can make.
       CRWN chose that name, not them, and it appears in their account as if they wrote it, which
