@@ -9,7 +9,14 @@ import {
 } from './queries';
 import { matchPost, toMatchedPosts } from './matching';
 import { dedupePosts, postKey, pageKey, uniqueAuthors, canonicalPostUrl } from './dedupe';
-import { computeDistributionScore, SCORE_WEIGHTS } from './score';
+import {
+  AFFINITY_WEIGHTS,
+  DISTRIBUTION_WEIGHTS,
+  PRIORITY_EXPONENTS,
+  computeAffinity,
+  computeDistributionValue,
+  computePriority,
+} from './score';
 import {
   assembleResults,
   isArtistOwnAccount,
@@ -202,40 +209,85 @@ describe('artist self-exclusion', () => {
   });
 });
 
-describe('distribution score', () => {
-  it('scores higher for more recent coverage, all else equal', () => {
-    const recent = computeDistributionScore({ followers: 300_000, daysSinceLatest: 4, postCount: 3, avgEngagement: 5000, strongEvidenceRatio: 1, windowDays: 90 });
-    const stale = computeDistributionScore({ followers: 300_000, daysSinceLatest: 80, postCount: 3, avgEngagement: 5000, strongEvidenceRatio: 1, windowDays: 90 });
-    expect(recent.score).toBeGreaterThan(stale.score);
+describe('affinity score', () => {
+  it('rises with recency and frequency', () => {
+    const base = { strongEvidenceRatio: 1, avgEngagement: 5000, followers: 300_000, windowDays: 90 };
+    const recent = computeAffinity({ ...base, daysSinceLatest: 4, postCount: 3 });
+    const stale = computeAffinity({ ...base, daysSinceLatest: 80, postCount: 3 });
+    const often = computeAffinity({ ...base, daysSinceLatest: 10, postCount: 6 });
+    const once = computeAffinity({ ...base, daysSinceLatest: 10, postCount: 1 });
+    expect(recent.affinity).toBeGreaterThan(stale.affinity);
+    expect(often.affinity).toBeGreaterThan(once.affinity);
   });
 
-  it('scores higher for more matched posts, all else equal', () => {
-    const often = computeDistributionScore({ followers: 300_000, daysSinceLatest: 10, postCount: 6, avgEngagement: 5000, strongEvidenceRatio: 1, windowDays: 90 });
-    const once = computeDistributionScore({ followers: 300_000, daysSinceLatest: 10, postCount: 1, avgEngagement: 5000, strongEvidenceRatio: 1, windowDays: 90 });
-    expect(often.score).toBeGreaterThan(once.score);
-  });
-
-  it('does not let raw follower count dominate frequent recent coverage', () => {
-    // A 300K page that posted the artist six times recently should outrank a
-    // 3M page that mentioned the artist once, months ago.
-    const focused = computeDistributionScore({ followers: 300_000, daysSinceLatest: 5, postCount: 6, avgEngagement: 8000, strongEvidenceRatio: 1, windowDays: 90 });
-    const celeb = computeDistributionScore({ followers: 3_000_000, daysSinceLatest: 75, postCount: 1, avgEngagement: 8000, strongEvidenceRatio: 0, windowDays: 90 });
-    expect(focused.score).toBeGreaterThan(celeb.score);
+  it('lets a tiny superfan page legitimately max affinity', () => {
+    const fan = computeAffinity({ daysSinceLatest: 2, postCount: 9, strongEvidenceRatio: 1, avgEngagement: 200, followers: 1_000, windowDays: 90 });
+    expect(fan.affinity).toBeGreaterThan(85);
   });
 
   it('treats null engagement as unobserved, not zero', () => {
-    const nullEng = computeDistributionScore({ followers: 300_000, daysSinceLatest: 10, postCount: 3, avgEngagement: null, strongEvidenceRatio: 1, windowDays: 90 });
-    const zeroEng = computeDistributionScore({ followers: 300_000, daysSinceLatest: 10, postCount: 3, avgEngagement: 0, strongEvidenceRatio: 1, windowDays: 90 });
+    const nullEng = computeAffinity({ daysSinceLatest: 10, postCount: 3, strongEvidenceRatio: 1, avgEngagement: null, followers: 300_000, windowDays: 90 });
+    const zeroEng = computeAffinity({ daysSinceLatest: 10, postCount: 3, strongEvidenceRatio: 1, avgEngagement: 0, followers: 300_000, windowDays: 90 });
     expect(nullEng.components.engagement).toBeNull();
     expect(zeroEng.components.engagement).toBe(0);
-    // Renormalization: the unobserved component must not drag the score down
-    // the way an observed zero does.
-    expect(nullEng.score).toBeGreaterThan(zeroEng.score);
+    expect(nullEng.affinity).toBeGreaterThan(zeroEng.affinity);
+  });
+});
+
+describe('distribution value score', () => {
+  it('is reach-dominated: a 1K page can never beat a healthy 500K page', () => {
+    const tiny = computeDistributionValue({ followers: 1_000, avgEngagement: 500 });
+    const big = computeDistributionValue({ followers: 500_000, avgEngagement: 2_000 });
+    expect(big.distributionValue).toBeGreaterThan(tiny.distributionValue + 30);
   });
 
-  it('keeps weights centralized and summing to 100', () => {
-    const total = Object.values(SCORE_WEIGHTS).reduce((a, b) => a + b, 0);
-    expect(total).toBe(100);
+  it('renormalizes unobserved engagement instead of counting it as zero', () => {
+    const nullEng = computeDistributionValue({ followers: 500_000, avgEngagement: null });
+    const zeroEng = computeDistributionValue({ followers: 500_000, avgEngagement: 0 });
+    expect(nullEng.components.engagement).toBeNull();
+    expect(nullEng.distributionValue).toBeGreaterThan(zeroEng.distributionValue);
+    // A small OBSERVED follower count is an honest zero, not a null.
+    expect(computeDistributionValue({ followers: 1_000, avgEngagement: null }).components.audience).toBe(0);
+  });
+});
+
+describe('priority (required ranking behaviors)', () => {
+  function scorePage(p: { followers: number; posts: number; daysSinceLatest: number; avgEngagement: number; strong: number }) {
+    const { affinity } = computeAffinity({
+      daysSinceLatest: p.daysSinceLatest,
+      postCount: p.posts,
+      strongEvidenceRatio: p.strong,
+      avgEngagement: p.avgEngagement,
+      followers: p.followers,
+      windowDays: 90,
+    });
+    const { distributionValue } = computeDistributionValue({ followers: p.followers, avgEngagement: p.avgEngagement });
+    return { affinity, distributionValue, priority: computePriority(affinity, distributionValue) };
+  }
+
+  it('Case A: strong recent affinity at 300K outranks one stale mention at 3M', () => {
+    const focused = scorePage({ followers: 300_000, posts: 6, daysSinceLatest: 5, avgEngagement: 8000, strong: 1 });
+    const celeb = scorePage({ followers: 3_000_000, posts: 1, daysSinceLatest: 75, avgEngagement: 8000, strong: 1 });
+    expect(focused.priority).toBeGreaterThan(celeb.priority);
+  });
+
+  it('Case B: a 1K superfan posting 9 times has higher affinity but dramatically lower priority than a 500K page with 2 recent posts', () => {
+    const fanPage = scorePage({ followers: 1_000, posts: 9, daysSinceLatest: 2, avgEngagement: 200, strong: 1 });
+    const bigPage = scorePage({ followers: 500_000, posts: 2, daysSinceLatest: 8, avgEngagement: 2_000, strong: 1 });
+    expect(fanPage.affinity).toBeGreaterThan(bigPage.affinity);
+    expect(bigPage.distributionValue).toBeGreaterThan(fanPage.distributionValue + 40);
+    expect(bigPage.priority).toBeGreaterThan(fanPage.priority + 20);
+  });
+
+  it('is multiplicative: zero reach cannot be rescued by maxed affinity', () => {
+    expect(computePriority(100, 0)).toBe(0);
+    expect(computePriority(0, 100)).toBe(0);
+  });
+
+  it('keeps weights centralized: each score sums to 100, exponents to 1', () => {
+    expect(Object.values(AFFINITY_WEIGHTS).reduce((a, b) => a + b, 0)).toBe(100);
+    expect(Object.values(DISTRIBUTION_WEIGHTS).reduce((a, b) => a + b, 0)).toBe(100);
+    expect(PRIORITY_EXPONENTS.distribution + PRIORITY_EXPONENTS.affinity).toBeCloseTo(1);
   });
 });
 
@@ -254,10 +306,27 @@ describe('assembleResults', () => {
       ['privatepage', profile({ username: 'privatepage', isPrivate: true })],
       ['ryanleslie', profile({ username: 'ryanleslie', followers: 1_000_000 })],
     ]);
-    const { results, unenrichedAuthors, belowThresholdCount } = assembleResults(posts, profiles, ryan(), OPTIONS);
+    const { results, unenrichedAuthors, belowThresholdCount, totalMatchedPages } = assembleResults(posts, profiles, ryan(), OPTIONS);
     expect(results.map((r) => r.username)).toEqual(['rnbpage']);
     expect(unenrichedAuthors).toEqual(['unenriched']);
     expect(belowThresholdCount).toBe(1);
+    // The empty-state contract: filtered matches are still MATCHES.
+    expect(totalMatchedPages).toBe(4);
+  });
+
+  it('Case C: matches below the minimum leave the table empty but are still reported as found', () => {
+    const posts: MatchedPost[] = [
+      matched({ ownerUsername: 'smallfan1', postId: 's1' }),
+      matched({ ownerUsername: 'smallfan2', postId: 's2' }),
+    ];
+    const profiles = new Map<string, PageProfile>([
+      ['smallfan1', profile({ username: 'smallfan1', followers: 900 })],
+      ['smallfan2', profile({ username: 'smallfan2', followers: 12_000 })],
+    ]);
+    const { results, belowThresholdCount, totalMatchedPages } = assembleResults(posts, profiles, ryan(), OPTIONS);
+    expect(results).toEqual([]);
+    expect(totalMatchedPages).toBe(2);
+    expect(belowThresholdCount).toBe(2);
   });
 
   it('computes latest post, average engagement over observed metrics only, and ranks by score', () => {
@@ -276,7 +345,7 @@ describe('assembleResults', () => {
     expect(results[0].avgEngagement).toBe(8300);
     expect(results[0].latestPostUrl).toBe('https://instagram.com/p/a/');
     expect(results[0].postCount).toBe(2);
-    expect(results[0].score).toBeGreaterThan(results[1].score);
+    expect(results[0].priority).toBeGreaterThan(results[1].priority);
   });
 
   it('a post outside the window does not count toward a page', () => {

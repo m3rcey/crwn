@@ -14,6 +14,11 @@ import type { DiscoveredPost, PageProfile, SourceKind } from './types';
 const APIFY_BASE = 'https://api.apify.com/v2';
 const DISCOVERY_ACTOR = 'apify~instagram-hashtag-scraper';
 const PROFILE_ACTOR = 'apify~instagram-profile-scraper';
+// Big Page Index refresh: recent posts of KNOWN profiles. Contract verified
+// against the live Apify store 2026-08-24: `username` accepts an array,
+// `resultsLimit` is PER PROFILE, `onlyPostsNewerThan` takes relative dates.
+// Pay-per-result (~$2.30-2.70 per 1,000 posts).
+const POSTS_ACTOR = 'apify~instagram-post-scraper';
 
 /** Results requested per discovery query term. Cost control, not a UI knob. */
 export const RESULTS_PER_QUERY = 40;
@@ -106,6 +111,27 @@ export async function startProfileRun(usernames: string[]): Promise<RunRef> {
   return parseRunRef(body, 'profile start');
 }
 
+/** Start one recent-posts run over a batch of known usernames. */
+export async function startPostsRun(
+  usernames: string[],
+  postsPerPage: number,
+  newerThanDays: number,
+): Promise<RunRef> {
+  const body = await apifyFetch(
+    `/acts/${POSTS_ACTOR}/runs`,
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        username: usernames,
+        resultsLimit: postsPerPage,
+        onlyPostsNewerThan: `${newerThanDays} days`,
+      }),
+    },
+    'posts start',
+  );
+  return parseRunRef(body, 'posts start');
+}
+
 export async function getRunStatus(runId: string): Promise<ApifyRunStatus> {
   const body = await apifyFetch(`/actor-runs/${encodeURIComponent(runId)}`, { method: 'GET' }, 'run status');
   const status = (body as { data?: { status?: unknown } })?.data?.status;
@@ -162,6 +188,37 @@ export async function getDiscoveredPosts(
       ownerId: asString(raw.ownerId) ?? (typeof raw.ownerId === 'number' ? String(raw.ownerId) : null),
       sourceQuery,
       sourceKind,
+    });
+  }
+  return posts;
+}
+
+/**
+ * Fetch + normalize a posts-run's items into corpus posts (sourceKind
+ * 'corpus': caption evidence only, no provenance fallback in matching).
+ * Malformed items are skipped, not fatal.
+ */
+export async function getPagePosts(runId: string): Promise<DiscoveredPost[]> {
+  const items = await getRunItems(runId);
+  const posts: DiscoveredPost[] = [];
+  for (const item of items) {
+    const raw = item as Record<string, unknown>;
+    const ownerUsername = asString(raw.ownerUsername)?.toLowerCase() ?? null;
+    const url = asString(raw.url);
+    if (!ownerUsername || !url) continue;
+    posts.push({
+      postId: asString(raw.id),
+      shortcode: asString(raw.shortCode),
+      url,
+      caption: asString(raw.caption),
+      postedAt: asString(raw.timestamp),
+      likes: asCount(raw.likesCount),
+      comments: asCount(raw.commentsCount),
+      views: asCount(raw.videoViewCount) ?? asCount(raw.videoPlayCount),
+      ownerUsername,
+      ownerId: asString(raw.ownerId) ?? (typeof raw.ownerId === 'number' ? String(raw.ownerId) : null),
+      sourceQuery: '',
+      sourceKind: 'corpus',
     });
   }
   return posts;

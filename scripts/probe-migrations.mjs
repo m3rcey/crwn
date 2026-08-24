@@ -54,6 +54,10 @@ const PROBES = [
   // finder still searches live but caches nothing.
   ['distribution pages', 'distribution_pages?select=id&limit=1', 'schema-phase3-distribution-finder.sql'],
   ['distribution mentions', 'distribution_mentions?select=id&limit=1', 'schema-phase3-distribution-finder.sql'],
+  // Big Page Index corpus, same admin-only lockdown: 42501 = applied. The four new
+  // distribution_pages columns cannot be probed separately (the whole table already
+  // answers 42501), so the corpus table is the file's probe.
+  ['distribution page posts', 'distribution_page_posts?select=id&limit=1', 'schema-phase3-distribution-page-index.sql'],
   // FRL tables are admin-only RLS: anon resolves the table (zero rows) = applied.
   ['frl engagements', 'frl_engagements?select=id&limit=1', 'schema-phase2-frl-engagements.sql'],
   ['frl work entries', 'frl_work_entries?select=id&limit=1', 'schema-phase2-frl-engagements.sql'],

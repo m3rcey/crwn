@@ -7,10 +7,11 @@ import type {
   DistributionResult,
   MatchedPost,
   PageProfile,
+  ResultSource,
   SearchOptions,
 } from './types';
 import { collapseToTag } from './queries';
-import { computeDistributionScore } from './score';
+import { computeAffinity, computeDistributionValue, computePriority } from './score';
 
 /** Bounded profile enrichment: never enrich more than this many authors. */
 export const MAX_ENRICHED_AUTHORS = 30;
@@ -68,6 +69,12 @@ export interface AssembledResults {
   unenrichedAuthors: string[];
   /** Pages excluded only because they sit below the follower threshold. */
   belowThresholdCount: number;
+  /**
+   * Pages that MATCHED the artist inside the window (before any eligibility
+   * filtering, after self-exclusion). The empty state must report this,
+   * never "0 pages matched" when matches were merely filtered.
+   */
+  totalMatchedPages: number;
 }
 
 export function assembleResults(
@@ -75,6 +82,7 @@ export function assembleResults(
   profiles: Map<string, PageProfile>,
   identity: ArtistIdentity,
   options: SearchOptions,
+  sources?: Map<string, ResultSource>,
 ): AssembledResults {
   const inWindow = posts.filter((p) => withinWindow(p.postedAt, options));
 
@@ -120,13 +128,17 @@ export function assembleResults(
 
     const strongCount = authorPosts.filter((p) => p.strongEvidence).length;
 
-    const { score, components } = computeDistributionScore({
-      followers: profile.followers,
+    const { affinity, components: affinityComponents } = computeAffinity({
       daysSinceLatest,
       postCount: authorPosts.length,
-      avgEngagement,
       strongEvidenceRatio: authorPosts.length > 0 ? strongCount / authorPosts.length : 0,
+      avgEngagement,
+      followers: profile.followers,
       windowDays: options.windowDays,
+    });
+    const { distributionValue, components: distributionComponents } = computeDistributionValue({
+      followers: profile.followers,
+      avgEngagement,
     });
 
     results.push({
@@ -137,11 +149,15 @@ export function assembleResults(
       latestPostAt,
       latestPostUrl: latest?.url ?? null,
       avgEngagement,
-      score,
-      components,
+      affinity,
+      affinityComponents,
+      distributionValue,
+      distributionComponents,
+      priority: computePriority(affinity, distributionValue),
+      source: sources?.get(username) ?? 'global',
     });
   }
 
-  results.sort((a, b) => b.score - a.score || (b.profile.followers ?? 0) - (a.profile.followers ?? 0));
-  return { results, unenrichedAuthors, belowThresholdCount };
+  results.sort((a, b) => b.priority - a.priority || (b.profile.followers ?? 0) - (a.profile.followers ?? 0));
+  return { results, unenrichedAuthors, belowThresholdCount, totalMatchedPages: byAuthor.size };
 }

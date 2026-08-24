@@ -765,10 +765,11 @@ Everything else (Rise Mode, quests, playbooks, builders) is execution and may no
 - **Does:** installable app shell and an aggressive service worker cache (bumped on every frontend change).
 - **Missing:** no push notifications.
 
-### I-11 Artist Distribution Finder · BUILT 2026-08-24, DARK until `APIFY_API_TOKEN` set
-- **Does:** founder enters an artist before publishing a carousel; the tool searches public Instagram (Apify, server-side, async runs polled from the admin UI), matches posts to the artist with auditable reasons, dedupes, enriches page profiles, and ranks pages by a deterministic Distribution Score (audience/recency/frequency/engagement/evidence, weights in `src/lib/distribution/score.ts`). Results are best public matches, never an exhaustive index.
-- **Boundary:** research and discovery only. No outreach automation, no private data, no LLM anywhere in the pipeline.
-- **Persistence:** `distribution_pages` + `distribution_mentions` (migration `schema-phase3-distribution-finder.sql`, PENDING) form a compounding artist-to-page graph and the 24h cache; until applied the finder works live-only.
+### I-11 Artist Distribution Finder · LIVE (hybrid Big Page Index since 2026-08-24)
+- **Does:** founder enters an artist before publishing a carousel; the tool merges TWO sources: the Big Page Index (a persistent universe of significant pages whose recent public posts are cached in `distribution_page_posts` and searched locally) and live global Instagram discovery (Apify, server-side, async runs polled from the admin UI). Posts match with auditable reasons, dedupe across sources, pages enrich, and results rank by an explainable two-score model: Affinity (does this page care about THIS artist), Distribution Value (reach-dominated, a 1K page can never beat a healthy 500K page), and Priority (geometric blend; weights in `src/lib/distribution/score.ts`). Results are best public matches, never an exhaustive index.
+- **Why hybrid:** the first live test proved global keyword discovery structurally surfaces tiny superfan pages (a 1K account posting the artist 9 times ranked #1). Index population: automatic promotion at 50K+ followers from any search, manual handle adds, and reference-artist bootstrap (drives the normal search flow per artist).
+- **Boundary:** research and discovery only. No outreach automation, no private data, no LLM anywhere in the pipeline, no cron (all maintenance is founder-triggered).
+- **Persistence:** `distribution_pages` + `distribution_mentions` (applied, probe-verified 2026-08-24) form the compounding artist-to-page graph and the 24h cache; `schema-phase3-distribution-page-index.sql` (index metadata + corpus, pending founder application) unlocks the index half, with fail-soft behavior until then.
 
 ---
 

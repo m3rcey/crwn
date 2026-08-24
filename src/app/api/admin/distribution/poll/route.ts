@@ -21,7 +21,14 @@ import { artistKey } from '@/lib/distribution/queries';
 import { toMatchedPosts } from '@/lib/distribution/matching';
 import { dedupePosts } from '@/lib/distribution/dedupe';
 import { assembleResults, selectEnrichmentCandidates } from '@/lib/distribution/pipeline';
-import { readFreshProfiles, upsertMentions, upsertPages } from '@/lib/distribution/store';
+import { pageSources } from '@/lib/distribution/corpus';
+import {
+  corpusMatchesFor,
+  readFreshProfiles,
+  readProfiles,
+  upsertMentions,
+  upsertPages,
+} from '@/lib/distribution/store';
 import {
   getDiscoveredPosts,
   getProfiles,
@@ -48,24 +55,36 @@ async function collectDiscoveredPosts(runs: RunRefPayload[]): Promise<{ posts: D
 }
 
 async function finishWithResults(
-  matched: MatchedPost[],
+  globalMatched: MatchedPost[],
   profiles: Map<string, PageProfile>,
   identity: ArtistIdentity,
   options: SearchOptions,
   extraMeta: Record<string, unknown>,
 ) {
   const key = artistKey(identity);
+  // The index half: cached recent posts of known pages, matched through the
+  // same deterministic matcher. Merged pre-dedupe so a post found both ways
+  // still marks its page as source 'both'.
+  const corpus = await corpusMatchesFor(identity, options.windowDays, new Date());
+  const merged = [...corpus.posts, ...globalMatched];
+  const deduped = dedupePosts(merged);
+  const withProfiles = new Map(profiles);
+  const missing = [...new Set(corpus.posts.map((p) => p.ownerUsername))].filter((u) => !withProfiles.has(u));
+  for (const [username, profile] of await readProfiles(missing)) withProfiles.set(username, profile);
+
   // Persist ALL matched observations (not only in-window ones): the
   // artist-to-page graph compounds, and the window is a read-time filter.
-  await upsertMentions(key, identity.handle, matched);
-  const assembled = assembleResults(matched, profiles, identity, options);
+  await upsertMentions(key, identity.handle, deduped);
+  const assembled = assembleResults(deduped, withProfiles, identity, options, pageSources(merged));
   return NextResponse.json({
     phase: 'done',
     source: 'live',
     observedAt: new Date().toISOString(),
     results: assembled.results,
     meta: {
-      postsFound: matched.length,
+      postsFound: deduped.length,
+      indexedMatches: corpus.posts.length,
+      totalMatchedPages: assembled.totalMatchedPages,
       unenrichedAuthors: assembled.unenrichedAuthors,
       belowThresholdCount: assembled.belowThresholdCount,
       ...extraMeta,
@@ -121,13 +140,8 @@ export async function POST(req: NextRequest) {
     const partial = failedRuns + failures > 0;
 
     if (matched.length === 0) {
-      return NextResponse.json({
-        phase: 'done',
-        source: 'live',
-        observedAt: now.toISOString(),
-        results: [],
-        meta: { postsFound: 0, unenrichedAuthors: [], belowThresholdCount: 0, partialProviderFailure: partial },
-      });
+      // No GLOBAL matches; the index may still answer.
+      return finishWithResults([], new Map(), identity, options, { partialProviderFailure: partial });
     }
 
     const candidates = selectEnrichmentCandidates(matched, identity);
@@ -192,7 +206,8 @@ export async function POST(req: NextRequest) {
   const candidates = selectEnrichmentCandidates(matched, identity);
   const profiles = await readFreshProfiles(candidates, now);
   for (const profile of enriched) profiles.set(profile.username, profile);
-  await upsertPages(enriched);
+  // Automatic index promotion: qualifying pages join the Big Page Index here.
+  await upsertPages(enriched, 'global_search');
 
   return finishWithResults(matched, profiles, identity, options, {
     partialProviderFailure: enrichmentFailed || failures > 0,

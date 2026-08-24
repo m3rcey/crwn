@@ -20,7 +20,16 @@ export interface QuerySet {
   hashtags: string[];
 }
 
-export type SourceKind = 'keyword' | 'hashtag';
+/**
+ * How a post reached the matcher. 'keyword'/'hashtag' are live global
+ * discovery runs; 'corpus' is the cached Big Page Index recent-post corpus.
+ * Corpus posts get NO provenance fallback in matching: an ilike prefilter hit
+ * is not evidence, so they must match on caption content.
+ */
+export type SourceKind = 'keyword' | 'hashtag' | 'corpus';
+
+/** Which discovery source(s) produced a page's matches. */
+export type ResultSource = 'indexed' | 'global' | 'both';
 
 export interface DiscoveredPost {
   /** Instagram's post id when available. Strongest dedupe key. */
@@ -55,6 +64,11 @@ export interface MatchedPost extends DiscoveredPost {
   strongEvidence: boolean;
 }
 
+/** Origin of a matched post, derived from its sourceKind. */
+export function postOrigin(post: Pick<DiscoveredPost, 'sourceKind'>): 'indexed' | 'global' {
+  return post.sourceKind === 'corpus' ? 'indexed' : 'global';
+}
+
 export interface PageProfile {
   igUserId: string | null;
   /** Lowercased username. */
@@ -69,13 +83,17 @@ export interface PageProfile {
   profileUrl: string;
 }
 
-export interface ScoreComponents {
+export interface AffinityComponents {
   /** Each component is 0-100, or null when genuinely unobserved. */
-  audience: number | null;
   recency: number | null;
-  frequency: number | null;
+  frequency: number;
+  evidence: number;
   engagement: number | null;
-  evidence: number | null;
+}
+
+export interface DistributionValueComponents {
+  audience: number | null;
+  engagement: number | null;
 }
 
 export interface DistributionResult {
@@ -87,8 +105,16 @@ export interface DistributionResult {
   latestPostUrl: string | null;
   /** Average of likes+comments across posts with observed metrics; null when none observed. */
   avgEngagement: number | null;
-  score: number;
-  components: ScoreComponents;
+  /** How strong is the evidence this page cares about THIS artist? 0-100. */
+  affinity: number;
+  affinityComponents: AffinityComponents;
+  /** How valuable could distribution from this page be, artist aside? 0-100. */
+  distributionValue: number;
+  distributionComponents: DistributionValueComponents;
+  /** The founder-facing combined ranking. 0-100. */
+  priority: number;
+  /** Which discovery source(s) surfaced this page's matched posts. */
+  source: ResultSource;
 }
 
 export interface SearchOptions {

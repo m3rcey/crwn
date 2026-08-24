@@ -87,24 +87,27 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
-- [ ] **Two steps to switch on the Artist Distribution Finder (new Distribution tab on /admin).**
-      Built and deployed: type an artist before you post a carousel and it finds the biggest
-      public Instagram pages that recently posted about them, ranked, with links to the page
-      and the matching posts. Until you do these two things it shows "Provider not configured"
-      and caches nothing:
-      1. Create an Apify account (apify.com, free tier is fine to start), copy the API token
-         from Settings, and add it in Vercel Production as
-           APIFY_API_TOKEN=<the token>
-         then redeploy. Server-side only; do not paste the token to me or commit it.
-         Cost per fresh artist search is roughly $0.50 to $0.75 at current Apify prices
-         (pay-per-result), and repeat searches inside 24 hours are free (served from cache).
-      2. Run [supabase/schema-phase3-distribution-finder.sql](supabase/schema-phase3-distribution-finder.sql)
-         in the Supabase SQL editor (two admin-only tables; additive, safe to re-run). Without
-         it every search still works but is live-only: nothing is cached and the
-         artist-to-page graph never compounds.
-      Verify with: npm run verify:migrations (look for "distribution pages" and
-      "distribution mentions")
-      Then open /admin, Distribution tab, search "Ryan Leslie" and confirm results.
+- [ ] **One SQL run unlocks the Distribution Finder's Big Page Index, then bootstrap it once.**
+      The finder is upgraded: your Ryan Leslie test proved global keyword search only finds tiny
+      superfan pages (big pages post artists without tagging them), so searches now ALSO check a
+      persistent index of big pages and their cached recent posts, with two scores (Affinity =
+      do they care about this artist, Distribution = is their reach worth anything) and one
+      Priority ranking. Until you run the migration, searches still work but the index cannot
+      store anything.
+      1. Run [supabase/schema-phase3-distribution-page-index.sql](supabase/schema-phase3-distribution-page-index.sql)
+         in the Supabase SQL editor (additive: four columns + one corpus table, safe to re-run).
+         Verify with: npm run verify:migrations (look for "distribution page posts")
+      2. Then, in /admin, Distribution tab, open the **Big Page Index** panel and seed it once
+         (keep the tab open while it runs):
+         a. Paste any big music/culture page handles you already know into **Add Pages**.
+         b. Put 6 to 12 reference artists (SZA, Brent Faiyaz, Lucky Daye, Chris Brown, Usher,
+            Summer Walker, ...) into **Bootstrap From Artists**. It shows the estimated provider
+            runs before starting; expect a few dollars and 15 to 45 minutes.
+         c. Press **Refresh Index** to cache the indexed pages' recent posts (about $6 per 100
+            pages, only stale pages are fetched, 7-day freshness).
+      3. Re-run Ryan Leslie (handle @ryanleslie, 90 days, 50,000 minimum). The standard is not
+         "rows returned": it is whether you would genuinely send your carousel to the pages at
+         the top because they have both reach and demonstrated Ryan Leslie interest.
 
 - [ ] **Create the Meta app and give me two values, so the Instagram publish proof can run.**
       This is the ONLY thing standing between the Phase 0 proof and a real published carousel.

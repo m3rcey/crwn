@@ -1,5 +1,43 @@
 # CRWN Brain — Changelog
 
+## 2026-08-24 (later) - The finder learns which pages are worth knowing, not just who tagged the artist
+
+**The first live Ryan Leslie search worked and proved the architecture insufficient.** With the
+follower minimum removed it returned 17 posts across 9 pages, the largest around 12-14K followers,
+and the #1 result was a ~1K superfan account that had posted Ryan Leslie nine times. Root cause,
+structural not a bug: hashtag/keyword discovery surfaces whoever TAGS the artist, which is
+superfans; big media pages post artists without those tags, so global discovery cannot see them.
+
+**The upgrade makes the finder hybrid: a Big Page Index plus global discovery.**
+- **Big Page Index:** `distribution_pages` gained index metadata (`first_discovered_at`,
+  `discovery_source`, `index_eligible`, `last_posts_refresh_at`) and a recent-post corpus table
+  `distribution_page_posts` (public captions stored deliberately, so future artist searches match
+  against the cache; ~24 posts per page, 90-day floor, admin-only lockdown). Migration
+  `schema-phase3-distribution-page-index.sql`, pending founder application, fail-soft until then.
+- **Population, three paths, no cron:** automatic promotion (any search's enriched pages at 50K+
+  followers join the index), manual handle adds, and reference-artist bootstrap, which is
+  deliberately ZERO new server machinery: the admin UI drives the existing search/poll flow once
+  per founder-supplied artist and promotion happens in the normal finish path.
+- **Search flow:** every response path (fresh cache, live, provider-down, not-configured) merges
+  corpus matches with global matches, dedupes across sources, and labels each page Indexed /
+  Global / Both. Corpus posts get NO provenance fallback: an ilike prefilter hit is not evidence,
+  so they match on caption content only. An artist search never scrapes the index.
+- **Two-score model** replacing the single Distribution Score: **Affinity** (recency 40 /
+  frequency 35 / evidence 15 / engagement-rate 10), **Distribution Value** (audience 70 /
+  absolute-engagement 30, log-scaled, reach-dominated), and **Priority** = 100 · DV^0.6 · AF^0.4,
+  multiplicative so maxed affinity cannot rescue near-zero reach. The required behaviors are
+  pinned by tests: 300K with 6 recent posts outranks 3M with 1 stale post; the 1K superfan keeps
+  higher Affinity but loses Priority to a 500K page with 2 recent posts.
+- **The empty state stopped lying:** "9 matching pages found, but all were below your 50,000
+  follower minimum" (with actions), never "no pages matched" when matches were merely filtered.
+  The API distinguishes `totalMatchedPages` from eligible results, pinned by test.
+- **Refresh** is a founder button: stale eligible pages (7-day freshness) batch 25 usernames per
+  `apify/instagram-post-scraper` run (`resultsLimit` per profile, `onlyPostsNewerThan` floor,
+  contract verified 2026-08-24); a failed batch is counted and skipped, never fatal. Full-refresh
+  cost ceilings: 100 pages ≈ $6, 500 ≈ $28-32, 1,000 ≈ $55-65 at ~$2.30-2.70 per 1,000 results.
+- `schema-phase3-distribution-finder.sql` was founder-applied and probe-verified the same day, so
+  its registry row moved pending → applied.
+
 ## 2026-08-24 - The founder can now see who already cares about the artist they are about to post
 
 **The Artist Distribution Finder shipped: a Distribution tab on `/admin` (admin-only, founder
@@ -26,9 +64,9 @@ says so.
   drift assertion (`secretIsolation.test.ts`) pins that no component can import the provider or
   the service-role store.
 - **Persistence is the compounding asset:** `distribution_pages` + `distribution_mentions`
-  (migration `schema-phase3-distribution-finder.sql`, PENDING founder application) cache
-  observations for 24h and accumulate the artist-to-page graph, so future searches answer
-  "which pages repeatedly cover CRWN-relevant artists". Until applied, searches run live-only.
+  (migration `schema-phase3-distribution-finder.sql`, applied by the founder later the same day)
+  cache observations for 24h and accumulate the artist-to-page graph, so future searches answer
+  "which pages repeatedly cover CRWN-relevant artists".
 - **Boundary:** public Instagram data only, research and discovery only. No outreach automation,
   no DMs, no private data, no login automation. The founder decides whom to contact, manually.
 
