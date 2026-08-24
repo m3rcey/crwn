@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { resend } from '@/lib/resend';
 import { outreachEmail, resolveOutreachTokens } from '@/lib/emails/outreachEmail';
+import { CRWN_PLATFORM, appendUnsubscribeToken, emailRecipient } from '@/lib/emails/unsubscribeToken';
 import { requireAdmin } from '@/lib/auth/requireAdmin';
 
 const supabaseAdmin = createClient(
@@ -154,7 +155,18 @@ export async function POST(req: NextRequest) {
           first_name: firstName,
         });
 
-        const unsubscribeUrl = `${BASE_URL}/api/admin/crm/outreach/unsubscribe/${send.id}`;
+        // CRWN's own outreach list, so the scope belongs to no artist. The verifying route
+        // derives the recipient from the row's email, which emailRecipient lowercases the same
+        // way on both sides.
+        const unsubscribeUrl = appendUnsubscribeToken(
+          `${BASE_URL}/api/admin/crm/outreach/unsubscribe/${send.id}`,
+          {
+            kind: 'crm-outreach',
+            id: send.id,
+            artistId: CRWN_PLATFORM,
+            recipient: emailRecipient(send.email),
+          },
+        );
         const trackingPixelUrl = `${BASE_URL}/api/admin/crm/outreach/track/${send.id}?pixel=1`;
 
         const html = outreachEmail({

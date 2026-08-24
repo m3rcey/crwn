@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { resend, FROM_EMAIL } from '@/lib/resend';
 import { campaignEmail, resolveTokens } from '@/lib/emails/campaignEmail';
+import { appendUnsubscribeToken, contactRecipient, fanRecipient } from '@/lib/emails/unsubscribeToken';
 import { recordFunnelEvent } from '@/lib/analytics/funnelEvents';
 import { getEmailLimit } from '@/lib/platformTier';
 import { countMonthlyEmailUsage, emailQuotaMessage } from '@/lib/emailQuota';
@@ -369,7 +370,18 @@ export async function POST(
           latest_release: latestTrack?.title || null,
         });
 
+        // Signed so the link cannot be edited onto another fan or another artist's list.
+        // Same shape as src/lib/campaignSender.ts: the template signs the two BODY links from
+        // this descriptor, and the RFC 8058 header needs its own signed copy because one-click
+        // posts to the URL itself rather than to the confirm form.
+        const unsubscribeSigning = { recipient: fanRecipient(send.fan_id), artistId: campaign.artist_id as string };
         const unsubscribeUrl = `${BASE_URL}/api/campaigns/unsubscribe/${send.id}`;
+        const signedUnsubscribeUrl = appendUnsubscribeToken(unsubscribeUrl, {
+          kind: 'campaign-artist',
+          id: send.id,
+          artistId: unsubscribeSigning.artistId,
+          recipient: unsubscribeSigning.recipient,
+        });
         const trackingPixelUrl = `${BASE_URL}/api/campaigns/track/${send.id}?pixel=1`;
 
         const html = campaignEmail({
@@ -379,6 +391,7 @@ export async function POST(
           unsubscribeUrl,
           trackingPixelUrl,
           platformTier: artist.platform_tier || 'starter',
+          unsubscribeSigning,
         });
 
         const { data: sendResult, error } = await resend.emails.send({
@@ -387,7 +400,7 @@ export async function POST(
           subject: personalizedSubject,
           html,
           headers: {
-            'List-Unsubscribe': `<${unsubscribeUrl}>`,
+            'List-Unsubscribe': `<${signedUnsubscribeUrl}>`,
             'X-Campaign-Send-Id': send.id,
           },
         });
@@ -558,7 +571,21 @@ async function sendToContacts(args: {
         const personalizedBody = resolveTokens(String(campaign.body || ''), tokens);
         const personalizedSubject = resolveTokens(String(campaign.subject || campaign.name || ''), tokens);
 
+        // An imported CONTACT, not a fan, so the row carries contact_id and no fan_id. Both
+        // unsubscribe routes derive `contact:<contact_id>` for such a row, so that is what the
+        // signature must cover; signing it as a fan would mint a token that never verifies and
+        // refuse a real person's opt-out.
+        const unsubscribeSigning = {
+          recipient: contactRecipient(contact?.id),
+          artistId: campaign.artist_id as string,
+        };
         const unsubscribeUrl = `${BASE_URL}/api/campaigns/unsubscribe/${send.id}`;
+        const signedUnsubscribeUrl = appendUnsubscribeToken(unsubscribeUrl, {
+          kind: 'campaign-artist',
+          id: send.id,
+          artistId: unsubscribeSigning.artistId,
+          recipient: unsubscribeSigning.recipient,
+        });
         const trackingPixelUrl = `${BASE_URL}/api/campaigns/track/${send.id}?pixel=1`;
 
         const html = campaignEmail({
@@ -568,6 +595,7 @@ async function sendToContacts(args: {
           unsubscribeUrl,
           trackingPixelUrl,
           platformTier,
+          unsubscribeSigning,
         });
 
         const { data: sendResult, error } = await resend.emails.send({
@@ -576,7 +604,7 @@ async function sendToContacts(args: {
           subject: personalizedSubject,
           html,
           headers: {
-            'List-Unsubscribe': `<${unsubscribeUrl}>`,
+            'List-Unsubscribe': `<${signedUnsubscribeUrl}>`,
             'X-Campaign-Send-Id': send.id,
           },
         });

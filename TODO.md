@@ -196,27 +196,18 @@ responsible for. Do not work those.
       **Do not print "Text JUBO" on a flyer until you have texted it yourself and got the
       link back.** The QR path is proven end to end and needs none of this.
 
-- [ ] **Sign the three remaining unsubscribe senders, then flip the legacy flag.** Unsubscribe is
-      already safe (the GET only renders a confirm page; the mutation needs a POST with a
-      server-minted token), but three senders still emit UNSIGNED links, so
-      `ALLOW_UNSIGNED_LEGACY_LINKS` in src/lib/emails/unsubscribeToken.ts must stay true until they
-      are updated. Copy the pattern from src/lib/campaignSender.ts:294-305:
-        src/app/api/campaigns/[id]/send/route.ts:370 and :559
-          pass `unsubscribeSigning` to campaignEmail, and sign the List-Unsubscribe header too
-        src/app/api/cron/sequences/route.ts:210
-          cannot use `unsubscribeSigning` (that descriptor signs with sendId, this link is keyed on
-          enrollment.id). Use appendUnsubscribeToken(url, { kind: 'sequence-artist',
-          id: enrollment.id, artistId: enrollment.artist_id, recipient: fanRecipient(enrollment.fan_id) })
-        src/app/api/admin/crm/outreach/route.ts:157
-          appendUnsubscribeToken(url, { kind: 'crm-outreach', id: send.id,
-          artistId: CRWN_PLATFORM, recipient: emailRecipient(send.email) })
-      Then flip the flag to false, which stops a bare row id being a capability at all. Do not flip
-      it before, or you strand every already-sent email, which is a compliance failure.
-
-- [ ] **Migrate src/middleware.ts to the "proxy" convention.** Next 16.3.0 prints a deprecation
-      warning for the middleware file convention. It builds clean today so this is not urgent, but
-      that file carries the load-bearing rule that the matcher MUST exclude api/, and getting it
-      wrong makes every POST 404. It needs a deliberate pass, not a codemod run in passing.
+- [ ] **Nothing to do here, just do not let anyone "fix" the middleware deprecation warning.**
+      Next 16.3 prints `The "middleware" file convention is deprecated. Please use "proxy" instead.`
+      on every build, and suggests a codemod. **I tried it on 2026-08-24 and reverted it.** The
+      rename builds GREEN, prints no warning, and still says "Proxy (Middleware)" in the route
+      summary, while compiling nothing at all: a clean build from `src/proxy.ts` produced an empty
+      middleware manifest with no matcher and no edge chunks, where the identical build from
+      `src/middleware.ts` produces both. Shipping it would have silently stopped every
+      protected-page auth redirect and the email-verification (PKCE) exchange, with no error
+      anywhere. The reasoning is now recorded at the top of
+      [src/middleware.ts](src/middleware.ts) so the next person does not repeat it. Revisit on a
+      later Next; the test is whether the built manifest still carries the matcher after the
+      rename, never whether the build passes.
 
 - [ ] **Enforce CSP (currently Report-Only).** `Content-Security-Policy-Report-Only` is live in
       production and its origins were derived from the code, but it carries `script-src 'self'
@@ -235,32 +226,6 @@ responsible for. Do not work those.
       found only the apex resolving, so it looks safe, but that is a dictionary sample and not
       proof. Set it in the Vercel dashboard, then confirm exactly one STS header comes back:
         curl -sI https://thecrwn.app
-
-- [ ] **Three crons filter on `artist_profiles.is_active`, a column that DOES NOT EXIST, and all
-      three have been silently doing nothing for months.** Found 2026-08-11 while tracing the
-      Manager loop. Verified against production: `artist_profiles.is_active` returns
-      `42703 column does not exist`, while `profiles.is_active` (a different table) does exist.
-      None of the three checks the error, so `data` comes back `null` and each one early-returns
-      as if there were simply no artists. Affected: `/api/cron/ai-manager` (proven dead: its
-      heartbeat has said **"No active artists" every single day**, and `agent-health` reads that
-      heartbeat as PROOF OF LIFE, so the safety net is masking the outage it exists to catch),
-      and `/api/cron/weekly-report`. **`weekly-payout` is no longer on this list: it was RETIRED
-      2026-08-11** after live Stripe inspection proved it had never created a single payout while
-      Stripe had been paying artists automatically the whole time.
-      **So this item is now only about `/api/cron/weekly-report`** (`ai-manager` has its own item
-      below). Decide: fix the filter so the weekly report resumes, or retire it too. It has been
-      sending nothing for months and nobody noticed, which is the same evidence pattern.
-
-- [ ] **Decide whether the autonomous (scheduled) AI Manager should run at all. My recommendation:
-      keep it dormant, do not delete it.** Full reasoning in `docs/crwn-brain/02-FEATURE-MAP.md`.
-      Short version: there are TWO gates holding it shut, not one. Fixing `is_active` alone would
-      NOT restart autonomous actions today, because all 9 artists are on `starter` and the action
-      generator returns early for starter. It would restart daily rule-based nudges and push
-      notifications for 9 artists. **Autonomy switches itself on the day one artist upgrades to
-      Pro**, with no further code change, so this decision has a deadline set by your first Pro
-      signup. Also worth knowing before you decide: of the only two actions that can auto-execute
-      without you, one (`send_reengagement`) duplicates a deterministic cron that already runs
-      daily, and both end in emails to fans.
 
 - [ ] **Tag every calculator video link BEFORE you publish it.** An untagged link still works, it
       just lands under "unknown" forever and that video can never be compared to another one. No
@@ -510,6 +475,15 @@ Things that are never finished. Cadence, then the thing.
 ---
 
 ## On Claude's plate (not yours)
+
+- **Flip `ALLOW_UNSIGNED_LEGACY_LINKS` to false, NOT BEFORE 2026-09-24 (30 days).** The signing
+  half is done and shipped (2026-08-24): all four fan/prospect senders now emit signed unsubscribe
+  links, so nothing NEW carries a bare row id. The flag stays true until the unsigned generation
+  ages out of inboxes, because flipping it early refuses the unsubscribe link in every email
+  already sent, which is a worse compliance failure than the one it closes. 30 days is the CAN-SPAM
+  floor; I will take 90 unless you want it sooner. Nothing for you to do: remind me, or I will
+  raise it. What the flip buys: today anyone holding a send id can load the confirm page (the GET
+  mints the token), and after the flip an unsigned link is refused outright.
 
 Listed so you know what you are not carrying. Ask for any of these to jump the queue.
 

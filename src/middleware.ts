@@ -27,6 +27,15 @@ function getUserIdFromCookie(request: NextRequest): string | null {
   return null;
 }
 
+// DO NOT rename this file to `proxy.ts` yet, despite the Next 16.3 deprecation warning.
+// Tried and reverted 2026-08-24. Next 16.3.0 accepts `src/proxy.ts` as a location and the build
+// SUCCEEDS, prints no warning, and still prints "Proxy (Middleware)" in its route summary, but it
+// compiles NOTHING: a clean build produced an empty `middleware-manifest.json` (no matcher) and no
+// `.next/server/edge/chunks` at all, where the same build from `middleware.ts` produces both.
+// A green build is not evidence here. Shipping that rename would silently stop this file running,
+// and with it every protected-page auth redirect and the PKCE exchange below.
+// Re-test on a later Next by diffing `.next/server/middleware-manifest.json` across the rename;
+// migrate only when the matcher survives it.
 export async function middleware(request: NextRequest) {
   // Update session and get response
   const response = await updateSession(request);

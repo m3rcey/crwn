@@ -24,6 +24,15 @@ interface CampaignEmailParams {
     /** fanRecipient(...) / contactRecipient(...) / emailRecipient(...) */
     recipient: string;
     artistId: string;
+    /**
+     * Set when the caller has ALREADY signed `unsubscribeUrl` itself, because its link is not
+     * keyed on `sendId`. The sequence rail is the case: its body link points at
+     * /api/sequences/unsubscribe/<enrollmentId> and must be signed with kind 'sequence-artist'
+     * over the enrollment id, which this template cannot mint. Without this the template would
+     * append a SECOND, wrong-kind token to an already-signed URL. The all-artists link below is
+     * still keyed on sendId, so it is signed here either way.
+     */
+    bodyLinkPreSigned?: boolean;
   };
 }
 
@@ -96,14 +105,15 @@ export function campaignEmail({
   const wrappedBody = wrapLinks(bodyToHtml(body), sendId, trackBasePath, utmParams);
 
   const allUrl = `${BASE_URL}/api/campaigns/unsubscribe-all/${sendId}`;
-  const signedUnsubscribeUrl = unsubscribeSigning
-    ? appendUnsubscribeToken(unsubscribeUrl, {
-        kind: 'campaign-artist',
-        id: sendId,
-        artistId: unsubscribeSigning.artistId,
-        recipient: unsubscribeSigning.recipient,
-      })
-    : unsubscribeUrl;
+  const signedUnsubscribeUrl =
+    unsubscribeSigning && !unsubscribeSigning.bodyLinkPreSigned
+      ? appendUnsubscribeToken(unsubscribeUrl, {
+          kind: 'campaign-artist',
+          id: sendId,
+          artistId: unsubscribeSigning.artistId,
+          recipient: unsubscribeSigning.recipient,
+        })
+      : unsubscribeUrl;
   const signedAllUrl = unsubscribeSigning
     ? appendUnsubscribeToken(allUrl, {
         kind: 'campaign-all',
