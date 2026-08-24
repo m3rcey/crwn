@@ -97,6 +97,11 @@ export default defineConfig({
       'src/lib/architecture/testimonials.test.ts',
       'src/lib/testimonials/core.test.ts',
       'src/lib/brainContract.test.ts',
+      // The public legal pages. In the GATE because the failure is silent and external: the
+      // A2P 10DLC campaign for JNW Creative Enterprises, Inc. is vetted against the live text
+      // of /privacy and /terms, so a disclosure quietly edited out stops the founder's
+      // speed-to-lead alert without anything in the product going red.
+      'src/lib/legal/legalPages.test.ts',
     ],
   },
   resolve: {

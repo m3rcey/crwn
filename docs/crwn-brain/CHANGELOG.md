@@ -1,5 +1,59 @@
 # CRWN Brain — Changelog
 
+## 2026-08-24 - The legal pages learn to say what CRWN actually does with a phone number
+
+**Founder decision: ONE narrow Twilio A2P 10DLC campaign is authorized, and broad CRWN SMS
+marketing stays removed.** The campaign is registered to **JNW Creative Enterprises, Inc.** (Low
+Volume Standard), and its ONLY recipients are authorized internal company personnel: when a
+qualified artist raises their hand through `CallRequestCard`, an operational alert identifying the
+lead and carrying their callback number reaches a representative who then CALLS them. The artist is
+not a recipient. This is recorded as a LATER, NARROWER EXCEPTION to the 2026-07-31 removal, not a
+reversal of it: everything on that deleted list (fan/artist SMS marketing, the CRM SMS tab, the
+campaign SMS channel, SMS plan limits, fan SMS preferences, mass texting) stays deleted.
+
+**What actually shipped is legal copy, not a sender.** Twilio requires a publicly reachable privacy
+policy and terms URL on the campaign form (mandatory since 2026-06-30) and vets their CONTENT: error
+30908 rejects a policy missing the statement that mobile numbers and messaging consent are not
+shared with third parties or affiliates for marketing or promotional purposes, and rejects a website
+opt-in with no message-frequency or message-and-data-rates disclosure.
+- **`/privacy` gained section 8** (SMS, Mobile Numbers, and Messaging Consent), and Twilio joined
+  the section 5 processor list. It carries the required non-sharing sentence verbatim, the
+  carrier-standard mobile-information and opt-in-data exclusion, where a number is collected and
+  why, the internal-only description of the program, frequency, message and data rates, STOP/HELP,
+  and an honest processor paragraph. It deliberately does NOT claim numbers are never disclosed:
+  Twilio, Supabase and Resend all touch one, and a false absolute is both a lie and, next to the
+  campaign, "conflicting information". Sections 8 to 11 renumbered to 9 to 12.
+- **`/terms` gained section 13** (SMS Messaging): sender identity, program description, recipients,
+  what CRWN does not send, frequency, charges, STOP/HELP, that consent is never a condition of
+  purchase, and a link to the policy. A DIFFERENT §13 was deleted on 2026-07-31; this one is
+  narrower and is not that program returning.
+- **`CallRequestCard` gained the point-of-opt-in disclosure** under its consent box. Twilio's
+  reviewer opens the page a person sees BEFORE consenting, and the linked policies do not satisfy
+  that on their own. Static copy only: qualification, `decideCallRequest`, scoring, the uniform
+  `{ok:true}` response and the alert channel are all untouched.
+
+**No product code sends an SMS, and none was added.** `/api/lead-magnets/call-request` still alerts
+by Resend email plus the optional `FOUNDER_ALERT_SMS_EMAIL` carrier gateway. Building the Twilio
+sender is separate work, gated on the campaign being approved.
+
+**Internal-recipient consent is a business record, not software.** A2P 10DLC accepts paper/verbal
+consent for non-web opt-in, so a signed one-page record for the single internal recipient is the
+correct instrument. Building a consent-management system for one person would have been the wrong
+answer to a real requirement. `TODO.md` carries the exact record to write and the exact strings to
+paste into the campaign form.
+
+**Pinned:** `src/lib/legal/legalPages.test.ts`, 20 assertions, added to
+`vitest.architecture.config.ts` so it runs in `npm run verify:architecture`. It is in the GATE
+because this failure is silent and external: a disclosure quietly edited out does not break the
+product, it breaks a carrier vetting review nobody is watching. Mutation-verified (removed the
+required non-sharing sentence, grep confirmed 1 to 0, one test failed for the intended reason,
+reverted, suite green). It also asserts the negative: the deleted `src/lib/twilio.ts` and
+`/api/sms/send` stay gone, and `campaignSender.ts` / `AudienceTab.tsx` never grow an SMS channel.
+
+**Evidence:** `npm test` 3681 passed (149 files), `npm run verify:architecture` 848 passed (50
+files), `npm run build` exit 0. Lint on `terms/page.tsx` improved 21 to 12 errors (both
+`<a href="/privacy">` links became `<Link>`); privacy and the new test file add zero.
+
 ## 2026-08-24 - The narrow-result → flagship bridge, and /worth stops being blind at completion
 
 **Founder-ratified acquisition architecture for the first external carousel batch** (from the

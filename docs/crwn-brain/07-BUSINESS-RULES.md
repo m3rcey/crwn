@@ -167,7 +167,13 @@ Source: `src/lib/teamSplits/*`. `Confirmed`.
 - **Email blasts:** Free 1/mo, Pro 10/mo (`EMAIL_LIMITS`). PRD also cites "2 campaigns/week" — reconcile. `Confirmed` on `EMAIL_LIMITS`.
 - **Imported-contact invites (2026-07-30):** a `fan_contacts` row is emailable ONLY when its import carried the artist's permission attestation (`consent_attested_at`) AND `is_subscribed_email` is still true AND the address is not globally suppressed. Importing a file never creates consent by itself; the attestation is what CRWN records, versioned (`src/lib/fanImportConsent.ts`). Contact campaigns count against the same `EMAIL_LIMITS` quota, cannot be scheduled (interactive send only; the cron sender refuses them), default toward a small test group, and their unsubscribe flips `fan_contacts.is_subscribed_email`. `Confirmed`.
 - **Call-request consent (2026-07-30, alert channel changed 2026-07-31):** a founder alert fires ONLY when calculator completed + server-recomputed `sales_priority` + valid callback number + explicit versioned consent + an active request. Inferred interest never alerts; unqualified requests are recorded in the admin Calls tab but never alerted. One alert per phone per day, DB-claimed. Since the SMS removal the alert is EMAIL always (joshn.wms@gmail.com), optionally mirrored to a carrier email-to-SMS gateway via `FOUNDER_ALERT_SMS_EMAIL` (plain Resend, no Twilio). `Confirmed`.
-- **SMS: REMOVED 2026-07-31** (founder decision: A2P 10DLC compliance cost not worth it). The Pro+ gating, quiet hours, 1 SMS/mo/fan cap and `sms-reset` cron are all gone with the feature; `sms_*` tables stay dormant for consent history. Terms §13 (SMS Messaging Program) was removed from the legal pages.
+- **SMS: REMOVED 2026-07-31** (founder decision: A2P 10DLC compliance cost not worth it). The Pro+ gating, quiet hours, 1 SMS/mo/fan cap and `sms-reset` cron are all gone with the feature; `sms_*` tables stay dormant for consent history. Terms §13 (SMS Messaging Program) was removed from the legal pages. **A different, narrower §13
+was added on 2026-08-24** (founder decision): it describes ONE automated SMS program whose only
+recipients are authorized JNW Creative Enterprises, Inc. personnel receiving a speed-to-lead alert
+when a qualified artist requests a call. It explicitly states CRWN operates no marketing or
+promotional SMS program and gives artists no tool for texting fans. Privacy Policy section 8
+carries the matching mobile-number and messaging-consent disclosures. Both are pinned by
+`src/lib/legal/legalPages.test.ts`, which is in `npm run verify:architecture`.
 - **Suppression:** hard bounce → global suppress; spam complaint → opt out of all artist marketing; senders check before send. `Confirmed`.
 - **Sequences:** triggers `new_subscription|new_purchase|new_post|abandoned_cart|tier_upgrade|loyalty_survey`; multi-step delays; auto-enroll on trigger; conversion checked in a 7-day window. `Confirmed`.
 

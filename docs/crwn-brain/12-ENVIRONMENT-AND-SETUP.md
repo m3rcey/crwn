@@ -4,7 +4,7 @@
 
 ## 1. Prerequisites
 - Node 20+ (`@types/node: ^20`), npm. Next.js 16 + Turbopack.
-- Accounts/services: Supabase project (`ecpqtuidtsncjfwtkvwc`, US East), Stripe (platform + Connect), Cloudflare R2, LiveKit, Resend, DeepSeek + OpenAI, Vercel. (Twilio is no longer needed: SMS was removed 2026-07-31.)
+- Accounts/services: Supabase project (`ecpqtuidtsncjfwtkvwc`, US East), Stripe (platform + Connect), Cloudflare R2, LiveKit, Resend, DeepSeek + OpenAI, Vercel. (Twilio carries no SMS marketing since 2026-07-31; it is retained for the inbound keyword webhook and, from 2026-08-24, the authorized internal speed-to-lead alert campaign.)
 - **This repo lives in WSL** (`\\wsl.localhost\Ubuntu\home\merce\workspace-crwn`). Per project memory, **run `npm run build` and `git` inside WSL** — the Windows-side Bash tool build can fake-pass, and Windows git fabricates deletions from colon-named sidecar files. `Confirmed` (user memory).
 
 ## 2. Install & run

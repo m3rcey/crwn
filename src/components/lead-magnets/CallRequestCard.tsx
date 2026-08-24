@@ -126,6 +126,22 @@ export function CallRequestCard({ toolSlug, calculatorInputs, planSummary, publi
             />
             <span>{CALL_CONSENT_TEXT}</span>
           </label>
+          {/* Point-of-opt-in disclosure. Required wherever a mobile number is collected from a
+              person who may then be contacted by text (A2P 10DLC / CTIA): frequency, carrier
+              charges, how to stop, how to get help, and links to the policies that carry the
+              full terms. Static copy, no product behavior attached. */}
+          <p className="text-[11px] leading-relaxed text-crwn-text-secondary">
+            Message frequency varies. Message and data rates may apply. Reply STOP to opt out,
+            HELP for help. Consent is not a condition of purchase. See our{' '}
+            <a href="/privacy" target="_blank" rel="noopener noreferrer" className="underline">
+              Privacy Policy
+            </a>{' '}
+            and{' '}
+            <a href="/terms" target="_blank" rel="noopener noreferrer" className="underline">
+              Terms
+            </a>
+            .
+          </p>
           {error && <p className="text-xs text-crwn-error">{error}</p>}
           <button
             onClick={submit}

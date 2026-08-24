@@ -14,7 +14,7 @@
 | DeepSeek (via `openai` SDK) | AI Manager + admin agent + /support chat (2026-07-31) | Complete | n/a |
 | OpenAI (`gpt-4o-mini`) | `sync-opportunities` cron only | Complete (narrow) | n/a |
 | Anthropic (`@anthropic-ai/sdk`) | Acquisition lead decision on the ManyChat inbound path | Complete (narrow) | n/a |
-| Twilio (raw REST) | SMS/MMS marketing | **REMOVED 2026-07-31** (founder decision: A2P 10DLC compliance cost not worth it) | n/a (routes deleted) |
+| Twilio (raw REST) | SMS/MMS **marketing**: REMOVED 2026-07-31. Inbound keyword reply (`/api/sms/inbound`, dark) since 2026-08-21. Internal speed-to-lead alert AUTHORIZED 2026-08-24, not yet built | Marketing removed; narrow non-marketing use only | n/a (webhook signature-verified) |
 | Calendly (`react-calendly`) | Booking embed | **Orphaned/unused** | n/a |
 | `@google/genai` | — | **Scaffolded, unused by app** | n/a |
 | DiceBear | Demo avatars only | Not a real integration | n/a |
@@ -107,12 +107,30 @@ this: **9 model call sites** (admin analyze holds two).
   user's or artist's private data. This describes CRWN's code boundary; it makes no claim about
   provider-side retention.
 
-## Twilio: REMOVED 2026-07-31
-The entire SMS feature was removed on 2026-07-31 (founder decision: the A2P 10DLC compliance cost was not worth it). Twilio is no longer an integration.
+## Twilio: SMS MARKETING REMOVED 2026-07-31, two narrow non-marketing exceptions since
+The entire SMS **marketing** feature was removed on 2026-07-31 (founder decision: the A2P 10DLC
+compliance cost was not worth it). **That removal stands and is not being reversed.** Two narrower
+uses have been authorized since, each on its own line and neither of them marketing. Read the
+removal and the exceptions together: the exceptions do not restore anything on the deleted list.
 - **Deleted:** `src/lib/twilio.ts`, all `/api/sms/*` routes (send, webhook, status, provision, upload), `/api/cron/sms-reset` (and its `vercel.json` cron), `/api/admin/twilio-health`, the `SmsSetup` component, the SMS tab in the Fan CRM (AudienceTab), SMS limits in `platformTier.ts`, SMS mentions in tier upgrade emails / `PlatformTierModal` / `PlatformBilling` / the worth page, the SMS consent checkbox on lead capture, the fan SMS marketing toggle, and Terms §13 (SMS Messaging Program) plus the privacy policy's Twilio mention.
 - **DB tables kept, dormant:** `artist_phone_numbers`, `sms_subscribers`, `sms_consent_log` were NOT dropped. They preserve historical consent records; nothing reads or writes them anymore.
 - **Founder alerts:** hot-lead call-request alerts are now EMAIL always (joshn.wms@gmail.com), plus an optional carrier email-to-SMS gateway via `FOUNDER_ALERT_SMS_EMAIL` (plain Resend email, no Twilio).
 - **Twilio (INBOUND ONLY, since 2026-08-21):** CRWN still sends no SMS. One route, `/api/sms/inbound`, answers a texted keyword with a link, via TwiML, so the reply leaves from whichever number received it. It runs on its OWN number, `TWILIO_JUBO_PHONE_NUMBER`, and ignores messages sent to any other number; `TWILIO_PHONE_NUMBER` is reserved for a different purpose and is test-pinned out of that route. Signature verification is HMAC-SHA1 in `src/lib/webhookSignatures.ts` (no SDK), pinned against Twilio's published vector. STOP/HELP belong to the carrier and Twilio Advanced Opt-Out; CRWN stays silent on them. Live traffic additionally requires A2P 10DLC registration.
+- **Twilio (INTERNAL OUTBOUND, AUTHORIZED 2026-08-24, NOT YET BUILT):** the founder authorized ONE
+  outbound A2P 10DLC campaign, registered to **JNW Creative Enterprises, Inc.** (Low Volume
+  Standard), whose ONLY recipient is authorized internal company personnel. When a qualified
+  artist submits the `CallRequestCard` hand-raiser, an operational alert naming the lead and their
+  callback number goes to an authorized representative so they can return the call **by phone**.
+  The artist is not a recipient of that campaign. **No sending code exists yet**: today
+  `/api/lead-magnets/call-request` still alerts by Resend email plus the optional
+  `FOUNDER_ALERT_SMS_EMAIL` carrier gateway, and that is what ships. What DID change on 2026-08-24
+  is the public legal surface the campaign is vetted against: `/privacy` section 8 and `/terms`
+  section 13. See `11-SECURITY-AND-PRIVACY.md`.
+- **What is still forbidden.** Fan or artist SMS marketing, an SMS tab in the Fan CRM, an SMS
+  campaign channel, SMS plan limits, fan SMS preferences, mass texting, and any artist-facing tool
+  for texting fans. The deleted list above is the definition, and
+  `src/lib/legal/legalPages.test.ts` (LEGAL-SMS-004) asserts neither the legal copy nor
+  `campaignSender.ts` / `AudienceTab.tsx` has grown one back.
 - The 2026-07-30 test-credentials saga and the earlier webhook-signature work are recorded in `CHANGELOG.md`; they describe what was true before the removal.
 
 ## Calendly — booking embed (orphaned)

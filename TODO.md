@@ -122,6 +122,43 @@ responsible for. Do not work those.
       covering Luther/Stevie/etc. need licenses CRWN cannot assume, so until he confirms
       rights, point the reward at his page (his original track "Magic" is already free there).
 
+- [ ] **A2P 10DLC campaign form: the legal pages are ready, here is exactly what to paste.**
+      Both URLs are live and now carry every disclosure Twilio vets for. Paste them verbatim:
+        Privacy Policy URL:        https://thecrwn.app/privacy
+        Terms & Conditions URL:    https://thecrwn.app/terms
+      The campaign description and sample messages must MATCH what those pages say, or the
+      reviewer rejects it as conflicting information. Describe it as:
+      *JNW Creative Enterprises, Inc., operating the CRWN platform (thecrwn.app), sends
+      internal operational alerts to its own authorized personnel. When an artist requests a
+      call through a CRWN calculator and qualifies, an alert with the lead's details and
+      callback number is sent to an authorized representative so they can return the call.
+      No messages are sent to artists, fans, prospects or customers.*
+      For opt-in, describe it truthfully as WRITTEN CONSENT ON FILE from the internal
+      recipient, not a website form. Twilio accepts paper/verbal consent for non-web opt-in;
+      it does not accept a web opt-in description you cannot show a reviewer.
+      See "Write down the internal recipient's consent" below: do that FIRST, so the answer
+      on the form points at a record that exists.
+
+- [ ] **Write down the internal recipient's SMS consent before you submit the campaign.**
+      The campaign's only recipient is an authorized JNW Creative Enterprises, Inc.
+      representative. Twilio requires documented consent for every recipient, including
+      internal staff, and it accepts a business record for non-web opt-in. I deliberately
+      built NO consent UI for one internal recipient: a signed one-page record is the
+      correct instrument and takes five minutes.
+      Write and sign (a dated email or a PDF in the company records is enough), covering:
+      the person's name and mobile number, that they are an authorized representative of
+      JNW Creative Enterprises, Inc., that they agree to receive automated operational
+      lead-alert text messages from the company at that number, that message frequency
+      varies, that message and data rates may apply, and that they may reply STOP at any
+      time to stop them. Keep it where you can produce it if a carrier asks.
+
+- [ ] **The internal alert still goes out by EMAIL. Nothing texts yet.** Registering the
+      campaign does not make CRWN send an SMS. `/api/lead-magnets/call-request` alerts you
+      through Resend, plus the optional `FOUNDER_ALERT_SMS_EMAIL` carrier gateway. Once the
+      campaign is approved and you want a real Twilio send, tell me and I will build it as
+      one server-only sender. Do not add `TWILIO_*` sending vars expecting it to start
+      working on its own: no code reads them for outbound.
+
 - [ ] **JUBO: you added the number, now add THREE more Vercel vars or nothing will reply.**
       I probed production after deploying: the route is still answering silence, which means
       `SMS_KEYWORD_ENABLED` and/or `TWILIO_AUTH_TOKEN` are not set (an unsigned POST returns

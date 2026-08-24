@@ -13,7 +13,7 @@ export default function TermsPage() {
           ← Back to CRWN
         </Link>
         <h1 className="text-3xl font-bold text-crwn-gold mb-2">Terms of Service</h1>
-        <p className="text-crwn-text-secondary mb-8">Effective Date: July 24, 2026</p>
+        <p className="text-crwn-text-secondary mb-8">Effective Date: August 24, 2026</p>
 
         <div className="prose prose-invert max-w-none space-y-6 text-crwn-text-secondary">
           <h2 className="text-xl font-semibold text-crwn-text">1. Acceptance of Terms</h2>
@@ -48,7 +48,7 @@ export default function TermsPage() {
           <p>Treat all users with respect. No harassment, hate speech, threats, spam, scams, impersonation, or illegal content. Artists may moderate their own communities. CRWN reserves the right to remove content or suspend accounts that violate these guidelines.</p>
 
           <h2 className="text-xl font-semibold text-crwn-text">7. Privacy</h2>
-          <p>Your use of CRWN is also governed by our <a href="/privacy" className="text-crwn-gold hover:underline">Privacy Policy</a>.</p>
+          <p>Your use of CRWN is also governed by our <Link href="/privacy" className="text-crwn-gold hover:underline">Privacy Policy</Link>.</p>
 
           <h2 className="text-xl font-semibold text-crwn-text">8. Prohibited Uses</h2>
           <p>Do not use the Platform for unlawful purposes, attempt unauthorized access, use bots or scrapers, circumvent content gating, redistribute content without authorization, or upload malware.</p>
@@ -65,6 +65,16 @@ export default function TermsPage() {
           <h2 className="text-xl font-semibold text-crwn-text">12. General Provisions</h2>
           <p><strong>Governing Law:</strong> State of Missouri.</p>
           <p><strong>Contact:</strong> support@thecrwn.app</p>
+          <h2 className="text-xl font-semibold text-crwn-text">13. SMS Messaging</h2>
+          <p><strong>Sender:</strong> text messages associated with CRWN are sent by JNW Creative Enterprises, Inc., the company that operates CRWN.</p>
+          <p><strong>What the program is:</strong> JNW Creative Enterprises, Inc. operates one automated SMS program, an internal operational alert. When an artist uses the optional &quot;Get a call now&quot; request on a CRWN calculator and qualifies for a conversation with our team, the system sends a notification to an authorized JNW Creative Enterprises, Inc. representative with the information needed to identify the artist and return their call.</p>
+          <p><strong>Recipients:</strong> only authorized JNW Creative Enterprises, Inc. personnel who agreed in advance to receive these operational alerts. Artists, fans, prospects, and customers are not recipients of this program.</p>
+          <p><strong>What we do not send:</strong> CRWN does not operate a marketing or promotional SMS program. We do not send marketing text messages to artists or fans, we provide artists with no tool for texting their fans, and we do not sell or rent mobile numbers.</p>
+          <p><strong>Frequency:</strong> message frequency varies and depends on inbound requests. This is a low volume program.</p>
+          <p><strong>Charges:</strong> message and data rates may apply. Charges from your mobile carrier are your responsibility.</p>
+          <p><strong>Opt out and help:</strong> reply STOP to any message to stop receiving messages. Reply HELP for help. You may also contact support@thecrwn.app.</p>
+          <p><strong>Giving us your number:</strong> providing CRWN with a callback number is optional and requires you to tick an unchecked consent box first. It means a CRWN representative may call or text you about the request you made. It does not subscribe you to a recurring or automated messaging program, and consent is never a condition of using CRWN or of any purchase.</p>
+          <p><strong>Privacy:</strong> how we handle mobile numbers and text messaging consent, including the fact that we do not share, sell, or provide them to third parties or affiliates for marketing or promotional purposes, is described in our <Link href="/privacy" className="text-crwn-gold hover:underline">Privacy Policy</Link>.</p>
         </div>
 
         <div className="mt-12 pt-6 border-t border-crwn-elevated text-center text-xs text-crwn-text-secondary">
