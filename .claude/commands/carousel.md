@@ -115,6 +115,10 @@ Caption rules:
 - **The CTA is always last and always uses the shortform format verbatim:** `Link in bio to [outcome] with CRWN. Free to start at thecrwn.app.` Do not invent alternative CTA wordings. Do not add lines after it. Do not append hashtags.
 - **The `[outcome]` connects to THIS carousel's specific payoff** (e.g. "turn one true fan into real monthly income", "stop selling streams and start selling fans", "own the price you charge"). Never use a generic CRWN line.
 - **No hashtags.** Do not append any hashtag block to the caption.
+- **Hard ceiling of 2,200 characters, counted not estimated.** Instagram refuses a longer caption,
+  so it cannot be posted by any tool. A caption in this format sits far under, but count it before
+  saving anyway: 8 of the first 31 Fan Economy carousels shipped over the limit precisely because
+  everyone assumed they were nowhere near it. If it is over, cut the body, never the CTA.
 - **No em dashes.** Same rule as the slides.
 - **No name/signature.** No "Josh", "Mercey", or "- Mercey" sign-off.
 - **Don't repeat slide 1 verbatim.** The caption complements the carousel, doesn't echo it.

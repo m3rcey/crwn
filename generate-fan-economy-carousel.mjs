@@ -50,6 +50,9 @@ const END_CARD_PROMPT =
   "Flat scan of a white sheet of paper filling the entire frame. No desk, no surface, no edges visible, just white paper. Black sharpie marker line art on pure white, with heavy solid-black fills. This page is an END CARD and is almost entirely empty white space. Centered in the middle of the page, draw the CRWN logo from the attached reference image: a bold angular geometric crown with sharp pointed peaks and a solid bar across its base, filled solid black, redrawn by hand in sharpie with slightly uneven marker edges and a few tiny flecks of white paper showing through the fill. The crown is large and is the only illustration on the page. Directly BELOW the crown, hand-letter exactly ONE line in large black sharpie capitals: \"128\". Nothing else appears anywhere on the page: no other words, no tagline, no call to action, no website, no handle, no letters spelling CRWN, no border and no frame. Render only the crown mark and the three characters \"128\". Invent no extra words, no nonsense words, no partial words and no extra numbers. Every mark is hand-drawn sharpie, never a printed or typeset font, and the \"128\" must look written by hand with a marker with slightly imperfect strokes. Center the crown and the number together as one group in the exact middle of the page, with roughly equal empty white margins above and below that group. The background is pure white (#FFFFFF). The image is shot perfectly straight on, no angle, no shadow, no background elements. Pure white paper fills the entire 3:4 frame edge to edge.";
 const DELAY_MS = 8000;
 const WHITE_THRESHOLD = 200;
+// Instagram's hard cap. A caption over this cannot be posted by any tool, Later
+// included, so it is a publish blocker rather than a style note.
+const CAPTION_CHAR_LIMIT = 2200;
 
 const STYLE_REFS = [
   "openart-image_1775581308623_d7e64984_1775581308661_33c1d1ba.png",
@@ -146,6 +149,7 @@ console.log(`Generating ${files.length} carousel(s) for ${START}-${END}`);
 console.log(`Output: ${OUTPUT_BASE}\n`);
 
 let rendered = 0, copied = 0, failed = 0;
+const overLongCaptions = [];
 
 for (const entry of files) {
   const md = fs.readFileSync(path.join(CAROUSELS_DIR, entry.file), "utf-8");
@@ -157,7 +161,18 @@ for (const entry of files) {
   const caption = section(md, "**CAPTION:**");
   if (caption) {
     fs.writeFileSync(path.join(outDir, "caption.md"), caption + "\n");
-    console.log(`  caption.md (${caption.split(/\s+/).length} words)`);
+    const chars = caption.length;
+    console.log(`  caption.md (${caption.split(/\s+/).length} words, ${chars} chars)`);
+    // Instagram REJECTS a caption over 2,200 characters. Nobody can count 2,200
+    // characters by eye, and a caption that reads fine is exactly how eight of the
+    // first thirty one shipped over the limit, unpublishable by any tool.
+    if (chars > CAPTION_CHAR_LIMIT) {
+      console.warn(
+        `  CAPTION TOO LONG: ${chars} chars, ${chars - CAPTION_CHAR_LIMIT} over Instagram's `
+        + `${CAPTION_CHAR_LIMIT} limit. Instagram will refuse to post this. Cut it back before upload.`
+      );
+      overLongCaptions.push({ num: entry.num, slug: entry.slug, chars });
+    }
   } else {
     console.warn(`  no **CAPTION:** block`);
   }
@@ -281,3 +296,12 @@ for (const entry of files) {
 
 console.log("=== DONE ===");
 console.log(`rendered: ${rendered}  copied: ${copied}  failed: ${failed}`);
+
+// Printed last, because a warning eighty lines up in a batch run is a warning nobody reads.
+if (overLongCaptions.length) {
+  console.warn(`\n${overLongCaptions.length} caption(s) OVER Instagram's ${CAPTION_CHAR_LIMIT} character limit:`);
+  for (const c of overLongCaptions) {
+    console.warn(`  [${c.num}] ${c.slug}: ${c.chars} chars (${c.chars - CAPTION_CHAR_LIMIT} over)`);
+  }
+  console.warn(`Instagram will refuse these. Trim the source .md in ${CAROUSELS_DIR} and rerun.`);
+}
