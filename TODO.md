@@ -44,26 +44,6 @@ responsible for. Do not work those.
       replay, the artist surplus return, a dispute, and a collaborator cashout), then reconcile every
       cent and decide whether payouts turn on. **They stay off until that passes.**
 
-- [ ] **Run TWO SQL files, in this order. The first one is the fix you just asked for and
-      it does not work until you run it.**
-      1. [`supabase/schema-phase2-song-lab-public-votes.sql`](supabase/schema-phase2-song-lab-public-votes.sql)
-         **This is the one that matters.** You tested with an email that already has a CRWN
-         account and got "You already have an account" instead of a counted vote. The code
-         that fixes it is deployed, but it needs this one table to put that vote in, because
-         a normal vote row requires an account and CRWN must not vote as somebody who has
-         not proved they own that address. Until you run it, that one case still shows the
-         sign-in screen (it refuses honestly rather than pretending the vote counted).
-         Everything else already works.
-      2. [`supabase/schema-phase2-song-lab-live-shows.sql`](supabase/schema-phase2-song-lab-live-shows.sql)
-         Two nullable columns: the venue's timezone (so "Show 2 opens at 8:30 PM" uses the
-         venue's clock instead of defaulting to Eastern) and which door each fan came through
-         (QR vs the JUBO text), reported as "not recorded" until it exists.
-      Both are additive and safe to re-run; neither deletes anything. Tell me when they are
-      done and I will re-run the live acceptance test and stamp Julius's night with
-      America/New_York.
-      Verify with: npm run verify:migrations (look for "song lab public votes" and
-      "song lab show timezone")
-
 - [ ] **Before carousel post #1: verify the six keyword flows in ManyChat and tag them at
       campaign level.** The repo side is done and tested: every batch keyword resolves to the
       right calculator (VAULT, OWN, DEMAND, TOUR, ROYALTY, LIVE, plus STACK and FREE/PLAN if
@@ -86,28 +66,6 @@ responsible for. Do not work those.
          grouped by Campaign. Until that row appears, the flow is not tagged.
 
 ### P1 — real risk or real friction, but nothing is on fire
-
-- [ ] **One SQL run unlocks the Distribution Finder's Big Page Index, then bootstrap it once.**
-      The finder is upgraded: your Ryan Leslie test proved global keyword search only finds tiny
-      superfan pages (big pages post artists without tagging them), so searches now ALSO check a
-      persistent index of big pages and their cached recent posts, with two scores (Affinity =
-      do they care about this artist, Distribution = is their reach worth anything) and one
-      Priority ranking. Until you run the migration, searches still work but the index cannot
-      store anything.
-      1. Run [supabase/schema-phase3-distribution-page-index.sql](supabase/schema-phase3-distribution-page-index.sql)
-         in the Supabase SQL editor (additive: four columns + one corpus table, safe to re-run).
-         Verify with: npm run verify:migrations (look for "distribution page posts")
-      2. Then, in /admin, Distribution tab, open the **Big Page Index** panel and seed it once
-         (keep the tab open while it runs):
-         a. Paste any big music/culture page handles you already know into **Add Pages**.
-         b. Put 6 to 12 reference artists (SZA, Brent Faiyaz, Lucky Daye, Chris Brown, Usher,
-            Summer Walker, ...) into **Bootstrap From Artists**. It shows the estimated provider
-            runs before starting; expect a few dollars and 15 to 45 minutes.
-         c. Press **Refresh Index** to cache the indexed pages' recent posts (about $6 per 100
-            pages, only stale pages are fetched, 7-day freshness).
-      3. Re-run Ryan Leslie (handle @ryanleslie, 90 days, 50,000 minimum). The standard is not
-         "rows returned": it is whether you would genuinely send your carousel to the pages at
-         the top because they have both reach and demonstrated Ryan Leslie interest.
 
 - [ ] **Create the Meta app and give me two values, so the Instagram publish proof can run.**
       This is the ONLY thing standing between the Phase 0 proof and a real published carousel.
@@ -237,30 +195,6 @@ responsible for. Do not work those.
            not minutes, plus small fees.
       **Do not print "Text JUBO" on a flyer until you have texted it yourself and got the
       link back.** The QR path is proven end to end and needs none of this.
-
-- [ ] **One quick SQL run to finish the surface reduction: drop the retired Manager outcome
-      columns** (never written; the file ABORTS if any row unexpectedly holds data, so a surprise
-      is a loud error, not a loss). Open and run:
-      [`supabase/schema-phase2-drop-manager-outcome-schema.sql`](supabase/schema-phase2-drop-manager-outcome-schema.sql)
-      (A live_tips flag-off used to be step 1 here. RETRACTED 2026-08-16, file deleted: you are
-      promoting Live Experiences and EP Sessions in content, and tips are part of the live room
-      those funnels sell. The flag was never turned off, so there is nothing to undo.)
-
-- [ ] **RE-RUN the earnings/recruiters SELECT policy migration (the fixed version).** Open and run:
-      [`supabase/schema-phase2-sec-earnings-recruiters-select-policies.sql`](supabase/schema-phase2-sec-earnings-recruiters-select-policies.sql)
-      Your first run on 2026-08-12 DID take effect: the transaction committed, and both tables now
-      answer the anon key with 42501 instead of 200, so the access hole is closed. What failed was
-      the self-verify block that runs after COMMIT, on this line:
-        MIGRATION FAILED: recruiters has a policy reachable by anon/authenticated/PUBLIC
-      That was a real defect in the migration, not a fluke. Its cleanup loop only dropped policies
-      whose USING clause was literally `true`, but its assertion forbids ANY policy naming a Data
-      API role, so a non-permissive recruiters policy survived and the file was asserting something
-      it never enforced. The loop now uses the exact predicate the assertion checks. Re-running is
-      safe and idempotent: everything else in the file is CREATE OR REPLACE / DROP IF EXISTS /
-      REVOKE. Watch for a `NOTICE: Dropped recruiters policy <name>` line, and tell me the name,
-      because nothing in version control records what that policy was.
-      Expected on success: `earnings + recruiters verified: ...` and no exception.
-      Verify after with: npm run verify:migrations (both SEC-EARN lines must read DENIED (closed))
 
 - [ ] **Sign the three remaining unsubscribe senders, then flip the legacy flag.** Unsubscribe is
       already safe (the GET only renders a confirm page; the mutation needs a POST with a
@@ -473,16 +407,6 @@ responsible for. Do not work those.
 
 ### P2 — worth doing, nothing breaks if you never do it
 
-- [ ] **In about two weeks, run the calculator step-abandonment query and tell me what it says.**
-      Open [supabase/query-calculator-step-abandonment.sql](supabase/query-calculator-step-abandonment.sql)
-      in the Supabase SQL editor and run it (read only, four queries, nothing writes). I shortened the
-      Opportunity Calculator from 13 screens to 8 and the ten two-question tools from 3 to 2, and I
-      cannot see production data. Query 2 says whether completion rose. **Query 3 is the one that
-      decides whether it was a good change**: if completion rose but `builder`, `accounts` and
-      `first_paid` did not follow, the shorter wizard bought opt-ins instead of artists and I should
-      put screens back. `total_steps` in query 1 separates the old cohort from the new one on its own,
-      so no flag or experiment is needed.
-
 - [ ] **Decide the public "you keep" number, because the homepage states two.** The fee source of
       truth is `TIER_LIMITS` in [src/lib/platformTier.ts](src/lib/platformTier.ts): Launch 12%
       (keep 88), Pro 8% (keep 92), Scale 5% (keep 95). Eight public strings say **"up to 92%"**
@@ -526,8 +450,6 @@ Things that are never finished. Cadence, then the thing.
 
 ### Every time Claude ships
 
-- **Apply any new SQL migration.** Claude cannot. It will always hand you the exact file path.
-  If it shipped code that needs a migration and did not tell you, that is a bug.
 - **Set any new env var** it names. It cannot touch Vercel.
 
 ### After every sales call
