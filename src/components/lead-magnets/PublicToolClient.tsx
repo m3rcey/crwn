@@ -11,7 +11,9 @@ import { ToolMarketing } from './ToolMarketing';
 import { hasDoorway } from '@/lib/leadMagnets/positioning';
 import { LeadMagnetResult } from './LeadMagnetResult';
 import { ToolHero } from './ToolHero';
+import Link from 'next/link';
 import { buildContinueUrl } from '@/lib/leadMagnets/continuationCta';
+import { flagshipBridgeFor } from '@/lib/leadMagnets/flagshipBridge';
 import { ResultToBuilder } from '@/components/opportunity/ResultToBuilder';
 import { transitionFor, buildCtaFor } from '@/lib/opportunityDrafts/deliverableSpecs';
 import { LeadCaptureForm, type LeadCaptureValues } from './LeadCaptureForm';
@@ -515,6 +517,38 @@ export function PublicToolClient({
               <ConvertToFeatureButton config={config} result={result} context="public" publicToken={publicToken} resultId={resultId} />
             )}
           </div>
+
+          {/* THE FLAGSHIP BRIDGE, below the builder (founder decision 2026-08-24): a narrow
+              calculator earns the click, the whole-business Opportunity Calculator earns the
+              account, so the second is offered only AFTER the first has delivered everything it
+              promised. Secondary treatment on purpose: the gold CTA on this page is the builder,
+              and this must never read as the required next step. Eligibility is derived from the
+              flagship's own entryContexts (see flagshipBridge.ts), so a tool whose transition is
+              not honest (Royalty Readiness) renders nothing here, and `from=` hands the flagship
+              the originating angle so its wizard opens on what brought them. Tracked with the
+              EXISTING ctaClicked event, discriminated by variant: no new event name, no new stage. */}
+          {(() => {
+            const bridge = flagshipBridgeFor(config.slug);
+            if (!bridge) return null;
+            return (
+              <Link
+                href={bridge.href}
+                prefetch
+                onClick={() =>
+                  trackOpportunity(OPPORTUNITY_EVENTS.ctaClicked, {
+                    toolKey: config.slug,
+                    opportunityKey: 'crwn-opportunity',
+                    variant: 'flagship_bridge',
+                    context: 'public',
+                  })
+                }
+                className="block rounded-2xl bg-crwn-surface border border-crwn-elevated p-4 text-left"
+              >
+                <div className="text-sm font-semibold text-crwn-text">{bridge.label}</div>
+                <p className="text-sm text-crwn-text-secondary mt-1">{bridge.body}</p>
+              </Link>
+            );
+          })()}
 
           {/* Optional hand-raiser, BELOW the builder (nothing may gate the builder): a qualified
               artist can request an immediate launch call. The server alone decides whether a

@@ -1,6 +1,36 @@
 # CRWN Brain — Changelog
 
-## 2026-08-22 (later) - The carousel captions were a template wearing 21 different artists
+## 2026-08-24 - The narrow-result → flagship bridge, and /worth stops being blind at completion
+
+**Founder-ratified acquisition architecture for the first external carousel batch** (from the
+`auditing-crwn-work` audit): angle carousel → angle keyword → angle calculator → full narrow
+result → the whole-business Opportunity Calculator as a SECONDARY continuation → signup. The
+narrow tool earns the click; the flagship earns the account. No new flagship was built, no
+flagship repositioning, no universal keyword, no carousel asset touched, no post-level
+attribution infrastructure: campaign/angle-level attribution is the founder's chosen resolution
+for this batch, and `video` stays honestly unknown.
+
+**The bridge** ([src/lib/leadMagnets/flagshipBridge.ts](../../src/lib/leadMagnets/flagshipBridge.ts)):
+one pure helper whose eligibility is DERIVED from the flagship's own `entryContexts`, so there is
+no second list. It renders BELOW the builder on `PublicToolClient` and `/worth` (the complete
+narrow result and its builder always come first), links to
+`/tools/opportunity-calculator?from=<slug>` (the existing entry-context reorder + acknowledgement),
+and is tracked with the EXISTING `opportunity_cta_clicked` event discriminated by
+`variant: 'flagship_bridge'` — no new event name, no new funnel stage. Royalty Readiness is
+deliberately NOT bridged (POSITIONING.md section 18: royalty recovery is money already earned;
+the fan-economy continuation does not apply), expressed as the absence of an entry context and
+pinned by [flagshipBridge.test.ts](../../src/lib/leadMagnets/flagshipBridge.test.ts)
+(mutation-verified: pointing the bridge at /signup failed 2 tests, reverted).
+`proof-of-demand-test-builder` gained the one missing entry context (DEMAND is a batch angle).
+
+**/worth emitted no completion event, ever.** It fired `started`, `leadSubmitted` and
+`leadCaptureViewed` but never `resultGenerated`, so its funnel line showed starts with zero
+completions and the decisive stage was invisible. Fixed at the entry wizard's `onComplete`, the
+same moment `PublicToolClient` emits it; a tokenized `?result=` arrival still emits nothing,
+matching the registry tools' resume semantics. Historical rows are untouched: pre-promotion
+funnel data is founder/internal testing and is not market evidence.
+
+
 
 **The AI-tell rule shipped in the morning changed the INSTRUCTIONS and left the 21 existing Fan
 Economy captions alone. That deferral was wrong**, and auditing them found something bigger than the

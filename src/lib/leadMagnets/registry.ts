@@ -1078,6 +1078,18 @@ const UNIFIED_OPPORTUNITY: LeadMagnetConfig = {
       note: 'You came here about clips, so we will start there. Clips convert the fans you already reach, so your audience is next.',
       priorityStepIds: ['fans', 'audience'],
     },
+    // Added 2026-08-24 for the narrow-result -> flagship bridge: DEMAND is a promoted carousel
+    // angle and its calculator had no declared context, so its bridge arrival would have landed
+    // on a generic questionnaire. A demand test proves fans will pay for work that is not out
+    // yet, so the continuation starts from what they already pay for and what is sitting
+    // unreleased. Royalty Readiness deliberately gets NO entry here: its result is recovered
+    // royalties, not fan spending, and the fan-economy continuation does not apply to it
+    // (docs/POSITIONING.md section 18), so the bridge derives it as ineligible.
+    'proof-of-demand-test-builder': {
+      label: 'Proof of Demand',
+      note: 'You came here about proving fans would pay before you release, so we start with what they already pay for and what is sitting unreleased.',
+      priorityStepIds: ['proof', 'vault', 'audience'],
+    },
     worth: {
       label: 'Streaming Loss',
       note: 'You came here about what streaming pays you, so we start with your audience and what you already earn direct.',

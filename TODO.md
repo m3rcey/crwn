@@ -64,6 +64,27 @@ responsible for. Do not work those.
       Verify with: npm run verify:migrations (look for "song lab public votes" and
       "song lab show timezone")
 
+- [ ] **Before carousel post #1: verify the six keyword flows in ManyChat and tag them at
+      campaign level.** The repo side is done and tested: every batch keyword resolves to the
+      right calculator (VAULT, OWN, DEMAND, TOUR, ROYALTY, LIVE, plus STACK and FREE/PLAN if
+      used), no keyword maps to two tools, and the narrow-result-to-flagship bridge is live on
+      every eligible calculator. What only you can check, in the ManyChat UI:
+      1. Each keyword the batch uses has a LIVE, PUBLISHED flow, and (for engine flows) the
+         External Request body's `lead_magnet_id` matches the keyword's tool:
+         vault → vault-revenue-planner, own → own-your-fans-calculator,
+         demand → proof-of-demand-test-builder, tour → between-tour-calculator,
+         royalty → royalty-readiness-check, live → live-experience-calculator.
+         A half-edited clone (keyword changed, id not) silently runs the wrong tool; the
+         Vercel warning "[acquisition] session_start keyword ... maps to ..." is the tell.
+      2. Tag each flow at CAMPAIGN level per Procedure A in
+         [docs/acquisition/campaign-tagging.md](docs/acquisition/campaign-tagging.md)
+         (utm_campaign = the angle, e.g. vault). Do NOT put one video's utm_content on a
+         shared any-post flow; video stays honestly unknown for this batch (your call,
+         2026-08-24: campaign-level attribution is sufficient).
+      3. After tagging each flow, comment the keyword from a test account, run the DM to the
+         result, and confirm the row appears in /admin → Lead Magnets → Content scorecard,
+         grouped by Campaign. Until that row appears, the flow is not tagged.
+
 ### P1 — real risk or real friction, but nothing is on fire
 
 - [ ] **ASK GB (and Julius) whether they want the "Day One A&R" badge at all, and under that

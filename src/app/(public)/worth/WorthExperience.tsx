@@ -8,8 +8,11 @@ import { LeadMagnetWizard } from '@/components/lead-magnets/LeadMagnetWizard';
 import { ToolHero } from '@/components/lead-magnets/ToolHero';
 import { WIZARD_ANCHOR_ID } from '@/components/lead-magnets/PublicToolClient';
 import type { LeadMagnetConfig } from '@/lib/leadMagnets/types';
+import Link from 'next/link';
 import { buildContinueUrl } from '@/lib/leadMagnets/continuationCta';
+import { flagshipBridgeFor } from '@/lib/leadMagnets/flagshipBridge';
 import { LM_EVENTS, trackLeadMagnet } from '@/lib/leadMagnets/analytics';
+import { OPPORTUNITY_EVENTS, trackOpportunity } from '@/lib/opportunityFunnels/analytics';
 import { useViewportExposure } from '@/hooks/useViewportExposure';
 import { Check, ChevronDown, ArrowRight } from 'lucide-react';
 import { SectionImage } from '@/components/ui/SectionImage';
@@ -459,6 +462,31 @@ export function WorthExperience({
     </section>
   );
 
+  // THE FLAGSHIP BRIDGE (founder decision 2026-08-24), same contract as the registry tools:
+  // after the complete narrow result and BELOW the navigating builder, offer the whole-business
+  // Opportunity Calculator with this tool as the originating context. Secondary treatment, never
+  // gold: the builder above is the CTA on this page. Eligibility and copy come from the one
+  // shared helper, so /worth cannot drift from the registry tools' bridge.
+  const worthBridge = flagshipBridgeFor('worth');
+  const flagshipBridgeCard = worthBridge ? (
+    <Link
+      href={worthBridge.href}
+      prefetch
+      onClick={() =>
+        trackOpportunity(OPPORTUNITY_EVENTS.ctaClicked, {
+          toolKey: 'worth',
+          opportunityKey: 'crwn-opportunity',
+          variant: 'flagship_bridge',
+          context: 'public',
+        })
+      }
+      className="block rounded-2xl bg-crwn-surface border border-crwn-elevated p-5 mb-14"
+    >
+      <div className="font-semibold text-crwn-text">{worthBridge.label}</div>
+      <p className="text-crwn-text-secondary mt-1">{worthBridge.body}</p>
+    </Link>
+  ) : null;
+
   // Arrived from an Instagram comment/DM: her number is already in, so lead with the loss.
   const leadView = !!resultToken;
 
@@ -541,6 +569,13 @@ export function WorthExperience({
           if (num(v.monthly_listeners)) setListeners(num(v.monthly_listeners));
           if (num(v.followers)) setFollowers(num(v.followers));
           if (num(v.streaming_revenue)) setStreaming(num(v.streaming_revenue));
+          // The canonical completion event, at the same moment PublicToolClient emits it (the
+          // wizard finished and the result is about to render). /worth was the ONE calculator
+          // that never emitted it, so its funnel line showed starts with zero completions and
+          // the decisive stage was invisible. The wizard unmounts on entryDone, so this fires
+          // once per completion; a tokenized ?result= arrival never runs the wizard and rightly
+          // never emits it, mirroring the registry tools' resume semantics.
+          trackLeadMagnet(LM_EVENTS.resultGenerated, { toolSlug: 'worth', context: 'public' });
           setEntryDone(true);
           // The wizard sat below a full-height hero, so unmounting it leaves the browser at that
           // scroll offset, landing mid-page instead of on the result. Same reset PublicToolClient
@@ -657,6 +692,7 @@ export function WorthExperience({
                 gates the builder or the inputs. */}
             {emailCaptureCard}
             {builderSection}
+            {flagshipBridgeCard}
             {inputsCard}
             {claimCtaCard}
           </>
