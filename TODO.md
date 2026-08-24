@@ -87,6 +87,25 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **Two steps to switch on the Artist Distribution Finder (new Distribution tab on /admin).**
+      Built and deployed: type an artist before you post a carousel and it finds the biggest
+      public Instagram pages that recently posted about them, ranked, with links to the page
+      and the matching posts. Until you do these two things it shows "Provider not configured"
+      and caches nothing:
+      1. Create an Apify account (apify.com, free tier is fine to start), copy the API token
+         from Settings, and add it in Vercel Production as
+           APIFY_API_TOKEN=<the token>
+         then redeploy. Server-side only; do not paste the token to me or commit it.
+         Cost per fresh artist search is roughly $0.50 to $0.75 at current Apify prices
+         (pay-per-result), and repeat searches inside 24 hours are free (served from cache).
+      2. Run [supabase/schema-phase3-distribution-finder.sql](supabase/schema-phase3-distribution-finder.sql)
+         in the Supabase SQL editor (two admin-only tables; additive, safe to re-run). Without
+         it every search still works but is live-only: nothing is cached and the
+         artist-to-page graph never compounds.
+      Verify with: npm run verify:migrations (look for "distribution pages" and
+      "distribution mentions")
+      Then open /admin, Distribution tab, search "Ryan Leslie" and confirm results.
+
 - [ ] **Create the Meta app and give me two values, so the Instagram publish proof can run.**
       This is the ONLY thing standing between the Phase 0 proof and a real published carousel.
       The code is written, tested and preflight-clean; it refuses to run without these rather

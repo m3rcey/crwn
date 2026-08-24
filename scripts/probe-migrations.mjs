@@ -49,6 +49,11 @@ const PROBES = [
   ['platform sequence sends', 'platform_sequence_sends?select=id&limit=1', 'schema-phase2-platform-sequence-sends.sql'],
   // launch_partner is a server-only column (no client grants), so 42501 = applied.
   ['launch partner flag', 'artist_profiles?select=launch_partner&limit=1', 'schema-phase2-launch-partner.sql'],
+  // Distribution Finder tables are admin-only with ALL revoked from anon, so 42501
+  // (reads revoked, expected) is the applied signal; 42P01/PGRST205 means not run and the
+  // finder still searches live but caches nothing.
+  ['distribution pages', 'distribution_pages?select=id&limit=1', 'schema-phase3-distribution-finder.sql'],
+  ['distribution mentions', 'distribution_mentions?select=id&limit=1', 'schema-phase3-distribution-finder.sql'],
   // FRL tables are admin-only RLS: anon resolves the table (zero rows) = applied.
   ['frl engagements', 'frl_engagements?select=id&limit=1', 'schema-phase2-frl-engagements.sql'],
   ['frl work entries', 'frl_work_entries?select=id&limit=1', 'schema-phase2-frl-engagements.sql'],

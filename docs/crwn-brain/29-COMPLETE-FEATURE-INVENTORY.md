@@ -765,6 +765,11 @@ Everything else (Rise Mode, quests, playbooks, builders) is execution and may no
 - **Does:** installable app shell and an aggressive service worker cache (bumped on every frontend change).
 - **Missing:** no push notifications.
 
+### I-11 Artist Distribution Finder · BUILT 2026-08-24, DARK until `APIFY_API_TOKEN` set
+- **Does:** founder enters an artist before publishing a carousel; the tool searches public Instagram (Apify, server-side, async runs polled from the admin UI), matches posts to the artist with auditable reasons, dedupes, enriches page profiles, and ranks pages by a deterministic Distribution Score (audience/recency/frequency/engagement/evidence, weights in `src/lib/distribution/score.ts`). Results are best public matches, never an exhaustive index.
+- **Boundary:** research and discovery only. No outreach automation, no private data, no LLM anywhere in the pipeline.
+- **Persistence:** `distribution_pages` + `distribution_mentions` (migration `schema-phase3-distribution-finder.sql`, PENDING) form a compounding artist-to-page graph and the 24h cache; until applied the finder works live-only.
+
 ---
 
 ## 11. Group J: Cross-cutting rules that are features in their own right

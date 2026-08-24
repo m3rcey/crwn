@@ -1,5 +1,37 @@
 # CRWN Brain — Changelog
 
+## 2026-08-24 - The founder can now see who already cares about the artist they are about to post
+
+**The Artist Distribution Finder shipped: a Distribution tab on `/admin` (admin-only, founder
+tool).** Before publishing a carousel about an artist, the founder types the artist's name
+(optionally their handle and aliases), and CRWN searches public Instagram data through Apify
+server-side, matches posts to the artist with an auditable reason on every match, deduplicates
+posts (id > shortcode > canonical URL) and pages (user id > username), enriches up to 30 authors
+with follower/profile data, filters (own account out, private accounts out, below the follower
+minimum out), and ranks by a deterministic Distribution Score (audience 30 / recency 25 /
+frequency 25 / engagement 15 / evidence 5, weights in one file, `src/lib/distribution/score.ts`).
+Results are BEST PUBLIC MATCHES, never claimed as an exhaustive index of Instagram, and the UI
+says so.
+
+- **Async by necessity:** an Apify actor run takes minutes and a Vercel Hobby function gets 60
+  seconds, so `/api/admin/distribution/search` starts bounded runs and the admin UI polls
+  `/api/admin/distribution/poll`; the server holds no run state between polls (the client carries
+  run references, Apify keeps the datasets). Partial failure degrades instead of failing: a dead
+  discovery run drops that query's coverage, a dead enrichment run returns posts without profiles.
+- **No LLM anywhere.** Query expansion, matching and ranking are all deterministic and tested
+  (32 tests in `src/lib/distribution/`). Hidden like counts (-1 from Instagram) are NULL, never
+  zero, and a null engagement component renormalizes out of the score instead of sinking it.
+- **Secrets:** `APIFY_API_TOKEN` is read only inside `apifyProvider.ts` (Bearer header, never a
+  URL), never logged, never dummy-substituted into a real request, and a mutation-tested
+  drift assertion (`secretIsolation.test.ts`) pins that no component can import the provider or
+  the service-role store.
+- **Persistence is the compounding asset:** `distribution_pages` + `distribution_mentions`
+  (migration `schema-phase3-distribution-finder.sql`, PENDING founder application) cache
+  observations for 24h and accumulate the artist-to-page graph, so future searches answer
+  "which pages repeatedly cover CRWN-relevant artists". Until applied, searches run live-only.
+- **Boundary:** public Instagram data only, research and discovery only. No outreach automation,
+  no DMs, no private data, no login automation. The founder decides whom to contact, manually.
+
 ## 2026-08-24 - The legal pages learn to say what CRWN actually does with a phone number
 
 **Founder decision: ONE narrow Twilio A2P 10DLC campaign is authorized, and broad CRWN SMS

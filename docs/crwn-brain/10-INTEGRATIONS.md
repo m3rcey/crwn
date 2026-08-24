@@ -15,6 +15,7 @@
 | OpenAI (`gpt-4o-mini`) | `sync-opportunities` cron only | Complete (narrow) | n/a |
 | Anthropic (`@anthropic-ai/sdk`) | Acquisition lead decision on the ManyChat inbound path | Complete (narrow) | n/a |
 | Twilio (raw REST) | SMS/MMS **marketing**: REMOVED 2026-07-31. Inbound keyword reply (`/api/sms/inbound`, dark) since 2026-08-21. Internal speed-to-lead alert AUTHORIZED 2026-08-24, not yet built | Marketing removed; narrow non-marketing use only | n/a (webhook signature-verified) |
+| Apify (raw REST) | Artist Distribution Finder (admin-only): public Instagram post discovery + profile enrichment via `apify/instagram-hashtag-scraper` and `apify/instagram-profile-scraper` | Built 2026-08-24; DARK until `APIFY_API_TOKEN` is set in Vercel | n/a (no webhook; the admin UI polls run status) |
 | Calendly (`react-calendly`) | Booking embed | **Orphaned/unused** | n/a |
 | `@google/genai` | — | **Scaffolded, unused by app** | n/a |
 | DiceBear | Demo avatars only | Not a real integration | n/a |
@@ -132,6 +133,14 @@ removal and the exceptions together: the exceptions do not restore anything on t
   `src/lib/legal/legalPages.test.ts` (LEGAL-SMS-004) asserts neither the legal copy nor
   `campaignSender.ts` / `AudienceTab.tsx` has grown one back.
 - The 2026-07-30 test-credentials saga and the earlier webhook-signature work are recorded in `CHANGELOG.md`; they describe what was true before the removal.
+
+## Apify — Artist Distribution Finder (admin-only, built 2026-08-24)
+- **Env:** `APIFY_API_TOKEN` (server-side only; never `NEXT_PUBLIC_`). Until it is set in Vercel the finder renders a "Provider not configured" state and sends nothing: `isApifyConfigured()` refuses dummy build fallbacks, so no provider request can ever carry one.
+- **Files:** `src/lib/distribution/apifyProvider.ts` is the ONLY Apify code (raw `fetch` against `api.apify.com/v2`, Bearer auth so the token never sits in a URL; no SDK dependency). Everything else in `src/lib/distribution/` operates on normalized internal types. Routes: `src/app/api/admin/distribution/{search,poll}` (both `requireAdmin()`); UI: `src/components/admin/DistributionFinder.tsx` (the Distribution tab on `/admin`).
+- **Actors:** `apify/instagram-hashtag-scraper` (discovery; `keywordSearch: true` toggles free-text mode, `-1` likes = hidden and is normalized to NULL) and `apify/instagram-profile-scraper` (enrichment by `usernames[]`). Contracts verified against the live Apify store 2026-08-24. Runs are started async and POLLED because an actor run takes minutes, past any Vercel function budget.
+- **Scope:** PUBLIC Instagram data only, research/discovery only. No outreach automation, no private data, no login automation, no follower-list scraping. Coverage is best-effort public matches, **not** an exhaustive index of Instagram.
+- **Cost controls:** bounded query set (max 4 keyword + 4 hashtag terms, 40 results each), max 30 profile enrichments per search, 24h observation cache in `distribution_pages`/`distribution_mentions` (admin-only tables, `supabase/schema-phase3-distribution-finder.sql`), explicit Refresh to bypass.
+- This is a data provider, not an AI model provider: the "THREE providers" count in the AI section is unchanged, and no LLM is involved anywhere in the finder (queries, matching and ranking are all deterministic).
 
 ## Calendly — booking embed (orphaned)
 - **Env:** `CALCOM_API_KEY` exists in `.env.local` but **no cal.com server integration found**. `react-calendly` is installed.

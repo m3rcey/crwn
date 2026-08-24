@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
-import { Loader2, BarChart3, Users, Mail, Filter, Instagram, Megaphone, LifeBuoy, Banknote } from 'lucide-react';
+import { Loader2, BarChart3, Users, Mail, Filter, Instagram, Megaphone, LifeBuoy, Banknote, Radar } from 'lucide-react';
 // The old 1,000-line dashboard (AdminDashboard.tsx) is preserved in the repo, unmounted: it read
 // LGP:CAC, per-tier Hormozi economics, payback period, cohort retention and projections over nine
 // artists. The Dashboard tab now renders the 90-day experiment scorecard instead.
@@ -26,20 +26,24 @@ import ApprovalsManager from '@/components/admin/ApprovalsManager';
 import AcquisitionView from '@/components/admin/AcquisitionView';
 import SupportChatView from '@/components/admin/SupportChatView';
 import MoneyModelView from '@/components/admin/MoneyModelView';
+import DistributionFinder from '@/components/admin/DistributionFinder';
 // ManagerOpsView (ARTIST-facing Manager telemetry) was removed from admin navigation by the
 // 2026-08-13 surface reduction: it reports on a system with 7 actions and 7 insights all time,
 // whose scheduled half is being deleted and whose artist-facing half is hidden. The component
 // and its API remain in the repo.
 
 type AdminTab =
-  | 'dashboard' | 'acquisition' | 'leadmagnets' | 'funnel' | 'pipeline' | 'support' | 'moneymodel' | 'email'
+  | 'dashboard' | 'acquisition' | 'leadmagnets' | 'distribution' | 'funnel' | 'pipeline' | 'support' | 'moneymodel' | 'email'
   | 'avatars' | 'experiments' | 'crm' | 'partners' | 'access' | 'sequences';
 
-/** The eight buttons. Order is the founder's reading order, not alphabetical. */
+/** The nine buttons. Order is the founder's reading order, not alphabetical.
+ *  Distribution joined 2026-08-24 by founder request: it is used immediately
+ *  before publishing each carousel, so it earns a button. */
 const PRIMARY_TABS: { id: AdminTab; label: string; Icon: typeof BarChart3 }[] = [
   { id: 'dashboard',   label: 'Dashboard',   Icon: BarChart3 },
   { id: 'acquisition', label: 'Acquisition', Icon: Instagram },
   { id: 'leadmagnets', label: 'Lead Magnets', Icon: Megaphone },
+  { id: 'distribution', label: 'Distribution', Icon: Radar },
   { id: 'funnel',      label: 'Funnel',      Icon: Filter },
   { id: 'pipeline',    label: 'Pipeline',    Icon: Users },
   { id: 'support',     label: 'Support',     Icon: LifeBuoy },
@@ -108,7 +112,8 @@ export default function AdminPage() {
   return (
     <div className="min-h-screen bg-[#0D0D0D]">
       {/* Admin tab nav.
-          PRE-PMF SURFACE REDUCTION, 2026-08-13. Fifteen buttons became EIGHT.
+          PRE-PMF SURFACE REDUCTION, 2026-08-13. Fifteen buttons became EIGHT
+          (Distribution joined later as the ninth, by founder request 2026-08-24).
           The founder should not operate a nine-artist business through a mature-SaaS cockpit.
           The eight left answer, in reading order: is acquisition working (Acquisition, Lead
           Magnets), where are the artists in activation (Funnel, Pipeline), what did my
@@ -202,6 +207,12 @@ export default function AdminPage() {
       {activeTab === 'moneymodel' && (
         <div className="max-w-7xl mx-auto px-4 pb-12">
           <MoneyModelView />
+        </div>
+      )}
+
+      {activeTab === 'distribution' && (
+        <div className="max-w-7xl mx-auto px-4 pb-12">
+          <DistributionFinder />
         </div>
       )}
 
