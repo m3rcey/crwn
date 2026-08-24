@@ -193,7 +193,7 @@ describe('Worth page order', () => {
     for (const heading of [
       'Go live, and get paid for it',
       'A gated community they pay to be in',
-      'Keep up to 92%, paid to your bank',
+      'Keep up to 95%, paid to your bank',
       'A manager built in',
       'Bonus: get your music placed',
       'Release like the majors',

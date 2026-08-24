@@ -75,17 +75,19 @@ describe('registry + config validation', () => {
     expect(isKnownExperience('own-your-fans')).toBe(true);
     expect(isKnownExperience('streaming-loss')).toBe(true);
     expect(isKnownExperience('made-up')).toBe(false);
-    expect(EXPERIMENT_CONFIGS.length).toBeGreaterThanOrEqual(2);
+    // Was >= 2 until oyf-signup-timing-v1 was retired 2026-08-24. The machinery, not the
+    // catalogue size, is what these tests protect.
+    expect(EXPERIMENT_CONFIGS.length).toBeGreaterThanOrEqual(1);
   });
 
   it('validates variant membership', () => {
-    expect(isKnownVariant('oyf-signup-timing-v1', 'save')).toBe(true);
-    expect(isKnownVariant('oyf-signup-timing-v1', 'nope')).toBe(false);
+    expect(isKnownVariant('primary-experience-v1', 'own-your-fans')).toBe(true);
+    expect(isKnownVariant('primary-experience-v1', 'nope')).toBe(false);
     expect(isKnownVariant('missing', 'save')).toBe(false);
   });
 
   it('public projection hides private config (hypothesis/metrics/notes)', () => {
-    const cfg = getExperimentConfig('oyf-signup-timing-v1')!;
+    const cfg = getExperimentConfig('primary-experience-v1')!;
     const pub = toPublicExperiment(cfg);
     // Assert the KEY is absent, not merely that its value reads undefined: a projection that
     // copied `hypothesis: undefined` would still leak the field name over the wire.

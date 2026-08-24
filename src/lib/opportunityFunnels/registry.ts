@@ -128,9 +128,12 @@ const OVERLAYS: Record<string, FunnelOverlay> = {
   // analytics events 'lossResult@1' and silently pool them with sixteen other tools' results, the
   // exact mislabelling the royalty overlay above exists to prevent.
   //
-  // Promotion stays 'secondary', deliberately. Own Your Fans is 'primary' and is the assigned
-  // experience of a RUNNING experiment (oyf-signup-timing-v1); demoting it mid-flight would break
-  // that experiment's readout. Promoting this to primary is a founder call once it has data.
+  // Promotion stays 'secondary'. The old reason (Own Your Fans was the assigned experience of a
+  // running signup-timing experiment) expired when that experiment was retired on 2026-08-24, so
+  // promoting this to primary is now a plain founder call with nothing blocking it. Worth knowing
+  // before making it: `promotion`/`promotionRank` order the /tools directory and label the admin
+  // table, and nothing else reads them. They do not decide where a link, a DM keyword or a
+  // carousel CTA lands.
   'opportunity-calculator': {
     opportunityKey: 'crwn-opportunity',
     toolType: 'calculator',

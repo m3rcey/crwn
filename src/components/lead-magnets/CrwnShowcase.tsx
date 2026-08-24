@@ -59,7 +59,7 @@ const COMPARE = [
   { label: 'Who you reach', streaming: 'The algorithm decides', crwn: 'Every fan, directly' },
   // Mechanics, not accusations. CRWN cannot evidence that a DSP "keeps most of it" or might not
   // pay at all, and streaming is the discovery job this product depends on rather than an enemy.
-  { label: 'Your cut', streaming: 'Split before it reaches you', crwn: 'You keep up to 92%' },
+  { label: 'Your cut', streaming: 'Split before it reaches you', crwn: 'You keep up to 95%' },
   { label: 'Fan data', streaming: 'You get none', crwn: 'Names, emails, phones' },
   { label: 'Payout', streaming: 'Months later', crwn: 'Straight to your bank' },
 ];
@@ -77,7 +77,7 @@ const STEPS = [
 ];
 
 const FAQS = [
-  { q: 'What does it cost?', a: 'Free to start. You keep 88 to 92% of what you earn depending on your plan; CRWN only takes a small fee on actual sales.' },
+  { q: 'What does it cost?', a: 'Free to start. You keep 88 to 95% of what you earn depending on your plan; CRWN only takes a small fee on actual sales.' },
   { q: 'How do fans pay me?', a: 'By card through Stripe. Every subscription, sale, and tip is paid straight to your bank account.' },
   { q: 'Do I keep my masters and rights?', a: 'Yes, 100%. It is your catalog, your audience, and your data. CRWN is a tool, not a label.' },
   { q: 'Can I still release on Spotify and Apple?', a: 'Absolutely. CRWN is additive. Use the release waterfall so paying fans get new music first and the DSPs get it last.' },
@@ -144,7 +144,7 @@ export function CrwnShowcase({ claimed, claimHref }: { claimed: boolean; claimHr
         <Heading icon={Crown}>Wait, what is CRWN?</Heading>
         <p className="text-white/75 text-lg leading-relaxed">
           A platform to sell directly to your fans: memberships, songs, stems, live sessions, even
-          access to you. No label. No middleman. No algorithm. You keep up to 92%, paid to your
+          access to you. No label. No middleman. No algorithm. You keep up to 95%, paid to your
           bank. Your fans pick a tier and pay you every month.
         </p>
       </section>
@@ -296,9 +296,9 @@ export function CrwnShowcase({ claimed, claimHref }: { claimed: boolean; claimHr
         <AiActionsMock />
       </MockSection>
 
-      {/* Keep 92% + money flow */}
+      {/* Keep 95% + money flow */}
       <section>
-        <Heading icon={Wallet}>Keep up to 92%, paid to your bank</Heading>
+        <Heading icon={Wallet}>Keep up to 95%, paid to your bank</Heading>
         <p className="text-white/60 mb-6">
           Streaming pays fractions of a cent and keeps most of it. On CRWN the money flows straight
           to you, powered by Stripe. No label cut, no 30% middleman.
@@ -307,7 +307,7 @@ export function CrwnShowcase({ claimed, claimHref }: { claimed: boolean; claimHr
           {[
             { icon: CreditCard, top: 'Fan pays', bottom: 'by card' },
             { icon: Repeat, top: 'CRWN', bottom: 'handles it' },
-            { icon: Landmark, top: 'Your bank', bottom: 'up to 92%' },
+            { icon: Landmark, top: 'Your bank', bottom: 'up to 95%' },
           ].map((node, i, arr) => (
             <div key={node.top} className="flex items-center gap-2 flex-1">
               <div className="rounded-xl bg-white/[0.02] border border-white/[0.08] p-3 text-center flex-1">
@@ -322,10 +322,10 @@ export function CrwnShowcase({ claimed, claimHref }: { claimed: boolean; claimHr
         <div className="rounded-2xl bg-white/[0.02] border border-white/[0.08] p-5 mb-6">
           <div className="flex items-baseline justify-between mb-2">
             <span className="text-white/70">You keep</span>
-            <span className="text-xl font-bold" style={{ color: GOLD }}>up to 92%</span>
+            <span className="text-xl font-bold" style={{ color: GOLD }}>up to 95%</span>
           </div>
           <div className="h-3 rounded-full bg-white/10 overflow-hidden">
-            <div className="h-full rounded-full" style={{ width: '92%', backgroundColor: GOLD }} />
+            <div className="h-full rounded-full" style={{ width: '95%', backgroundColor: GOLD }} />
           </div>
           <p className="text-white/45 text-xs mt-3">
             Launch (free) keeps you 88%. Pro keeps 92%, Scale 95%. Every plan pays out straight to your bank.
@@ -337,7 +337,7 @@ export function CrwnShowcase({ claimed, claimHref }: { claimed: boolean; claimHr
       <ShowcaseCta
         claimed={claimed}
         href={href}
-        label="Start collecting, keep up to 92%"
+        label="Start collecting, keep up to 95%"
         sub="Paid straight to your bank, powered by Stripe."
       />
 
@@ -406,7 +406,7 @@ export function CrwnShowcase({ claimed, claimHref }: { claimed: boolean; claimHr
           {ctaLabel}
           <ArrowRight className="w-4 h-4" />
         </Link>
-        <p className="text-white/40 text-xs mt-4">Free to start. No card required. Keep up to 92%.</p>
+        <p className="text-white/40 text-xs mt-4">Free to start. No card required. Keep up to 95%.</p>
       </div>
     </div>
   );

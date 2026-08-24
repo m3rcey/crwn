@@ -370,27 +370,16 @@ responsible for. Do not work those.
       reads them anymore. KEEP `FOUNDER_ALERT_SMS_EMAIL` if you want hot-lead texts.
       The old `sms_*` tables keep their consent history; they are simply unused.
 
-- [ ] **First check whether the `oyf-signup-timing-v1` A/B test is even running. If it is not,
-      say so and I will promote the all-in-one calculator today.**
-      In plain terms: there is a live A/B test that splits Own Your Fans traffic two ways to learn
-      whether artists sign up more when asked BEFORE they see a preview or AFTER they save. While
-      that test is collecting, Own Your Fans has to stay the tool your traffic lands on, because
-      changing which calculator gets the traffic mid-test destroys the answer you are paying for
-      in time. That is the only reason the all-in-one calculator is not already primary.
-      **What to do, once:** open `/admin` → **Experiments** and look at the status next to
-      "Own Your Fans: when to ask for signup". Then tell me which of these it says:
-        - **draft or scheduled** = it never actually started. Nothing is being learned and nothing
-          is being protected, so the block is imaginary. Tell me and I promote the calculator now.
-        - **running** = leave it. Come back when it has enough signups to call, mark it
-          **completed** with the winning variant, then tell me.
-        - **completed or archived** = it is done. Tell me and I promote the calculator.
-      I cannot read this myself: the status is a production database row, and this environment has
-      no production credentials. The code default for an experiment with no row is `draft`, so
-      "never started" is genuinely the most likely answer.
-      When you give me the word, I flip two lines in
-      [`src/lib/opportunityFunnels/registry.ts`](src/lib/opportunityFunnels/registry.ts)
-      (opportunity-calculator to `primary`/rank 0, Own Your Fans to `secondary`). That is the whole
-      change: it decides which calculator your funnels lead with, nothing about pricing or money.
+- [ ] **Optional, and much smaller than it used to sound: do you want the all-in-one calculator
+      listed FIRST in the /tools directory?** The A/B test that used to block this was deleted on
+      2026-08-24 (your call: content now sends a different calculator per carousel post, so there
+      was no single stream of Own Your Fans traffic left to measure). Nothing blocks it now.
+      What promoting it actually does, in full: it moves the all-in-one calculator to the top of
+      the list at /tools, and changes a label in the admin table. That is all. `promotion` and
+      `promotionRank` are read by the directory sort and nothing else, so it does NOT change where
+      any link, DM keyword or carousel CTA lands. Your funnels are unaffected either way.
+      Say the word and I flip two lines in
+      [`src/lib/opportunityFunnels/registry.ts`](src/lib/opportunityFunnels/registry.ts).
 
 - [ ] **Point your video funnels at the all-in-one calculator (here is exactly where and how).**
       This is only about the LINKS you paste places, nothing inside CRWN or ManyChat flows
@@ -420,23 +409,6 @@ responsible for. Do not work those.
       (one automation per video, forever). Do it ONLY for a hero video you want to measure.
 
 ### P2 — worth doing, nothing breaks if you never do it
-
-- [ ] **Decide the public "you keep" number, because the homepage states two.** The fee source of
-      truth is `TIER_LIMITS` in [src/lib/platformTier.ts](src/lib/platformTier.ts): Launch 12%
-      (keep 88), Pro 8% (keep 92), Scale 5% (keep 95). Eight public strings say **"up to 92%"**
-      (both comparison tables, the money-flow bar, the FAQ, `IndependenceSection`, two CTA subs),
-      while the money-flow detail line right under the "Keep up to 92%" heading says **"Scale 95%"**.
-      One of the two is wrong. It is a pricing-communication call, not a code fix, which is why it
-      is yours: the question is only whether the headline advertises the BEST rate any artist can
-      reach (95, true only on Scale at $199/mo) or the rate a realistic artist reaches (92, on Pro).
-      Nothing else changes either way, and no artist is being over- or under-charged today.
-      **Correction, 2026-08-24: the old reason to prefer 92 is gone.** This item used to say that
-      raising the headline to 95 would also mean touching the legal pages because they mention only
-      12% and 8%. They do not: [/terms](src/app/(public)/terms/page.tsx) already names all three
-      (12% Launch, 8% Pro, 5% Scale) and the [artist agreement](src/app/(public)/artist-agreement/page.tsx)
-      already has a three-row table with Scale at 5%. So both answers are now a copy change only.
-      Tell me 92 or 95 and I make all eight strings agree in one pass.
-      Found in the Z2B-2 homepage audit; nothing is broken today, the page is just inconsistent.
 
 - [ ] **Add the FREE keyword to ManyChat before posting the Akeem Ali all-in video.** The
       script ([videos/scripts/lead-magnets/free-akeem-ali.md](videos/scripts/lead-magnets/free-akeem-ali.md))

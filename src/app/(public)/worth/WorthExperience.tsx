@@ -767,7 +767,7 @@ export function WorthExperience({
             <p className="text-crwn-text-secondary">
               Set up your page free, identify the fans who actually pay, and work from one next move.
             </p>
-            <PrimaryCTA homepage={homepage} claimHref={claimHref} sub="Free to start. No card required. Keep up to 92%.">
+            <PrimaryCTA homepage={homepage} claimHref={claimHref} sub="Free to start. No card required. Keep up to 95%.">
               Start free on CRWN
             </PrimaryCTA>
           </div>
