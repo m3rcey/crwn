@@ -286,23 +286,35 @@ describe('sync opportunities: the synthetic generator stays deleted', () => {
 // Inventory drift: the provider count is a fact future agents rely on
 // ---------------------------------------------------------------------------
 describe('the documented AI provider inventory matches the code', () => {
-  it('documents three providers, not the stale two-provider claim', () => {
+  it('documents two providers: OpenAI died with the synthetic sync generator (2026-08-25)', () => {
     const doc = readRaw('docs/crwn-brain/10-INTEGRATIONS.md');
-    // Assert the CURRENT claim rather than the absence of the string "two providers": the doc
-    // deliberately keeps a note explaining that it USED to say two, and that history is worth
-    // preserving. What must never drift is the heading that states the real number.
+    // Assert the CURRENT claim rather than the absence of an old string: the doc deliberately
+    // keeps its history notes (it said "two" while Anthropic was live, then "three" until the
+    // OpenAI generator was deleted). What must never drift is the heading with the real number.
+    // The count moved because the code moved: no OPENAI_API_KEY read survives outside tests,
+    // and the model-driven sync writer is banned by the suite above.
     expect(
       doc,
-      violation('REGISTRY', '10-INTEGRATIONS.md must declare THREE model providers; Anthropic is the third', { file: 'docs/crwn-brain/10-INTEGRATIONS.md' }),
-    ).toMatch(/THREE providers/);
-    for (const p of ['DeepSeek', 'OpenAI', 'Anthropic']) {
+      violation('REGISTRY', '10-INTEGRATIONS.md must declare TWO model providers; OpenAI is retired', { file: 'docs/crwn-brain/10-INTEGRATIONS.md' }),
+    ).toMatch(/TWO providers/);
+    for (const p of ['DeepSeek', 'Anthropic']) {
       expect(doc, `provider ${p} must be documented`).toContain(p);
     }
   });
 
-  it('the coding-agent manual names all three providers and no moving test count', () => {
+  it('no live OPENAI_API_KEY read exists to contradict the two-provider claim', () => {
+    // The enforcement behind the count above: if someone wires OpenAI back in, this fails
+    // before the doc gets a chance to lie. Reintroducing a provider means updating the doc,
+    // this test, CLAUDE.md, and the privacy policy processor list together.
+    const readers = listSourceFiles('src').filter(
+      (f) => !f.endsWith('.test.ts') && readStripped(f).includes('OPENAI_API_KEY'),
+    );
+    expect(readers, `OPENAI_API_KEY is read by: ${readers.join(', ')}`).toEqual([]);
+  });
+
+  it('the coding-agent manual names both live providers and no moving test count', () => {
     const doc = readRaw('docs/crwn-brain/15-AI-AGENT-INSTRUCTIONS.md');
-    for (const p of ['DeepSeek', 'OpenAI', 'Anthropic']) {
+    for (const p of ['DeepSeek', 'Anthropic']) {
       expect(doc).toContain(p);
     }
     // A hardcoded total is guaranteed drift: it was "820 tests across 50 files" while the

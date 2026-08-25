@@ -178,6 +178,29 @@ responsible for. Do not work those.
       covering Luther/Stevie/etc. need licenses CRWN cannot assume, so until he confirms
       rights, point the reward at his page (his original track "Magic" is already free there).
 
+- [ ] **P1: Register the DMCA agent with the US Copyright Office, or the safe harbor does not
+      exist.** The /dmca page and dmca@thecrwn.app are necessary but NOT sufficient: DMCA
+      512(c) safe harbor requires the designated agent to be registered in the Copyright
+      Office's online directory (dmca.copyright.gov, $6, renew every 3 years). Without it,
+      hosting user-uploaded music has no takedown shield. Ten minutes, one form, entity
+      JNW Creative Enterprises, Inc., agent email dmca@thecrwn.app.
+
+- [ ] **P2: Read the new Partner Program Terms before recruiting anyone you don't know.**
+      /partner and /recruit publicly promise cash and now link /partner-terms (qualifying
+      rules, FTC disclosure duty for partner content, fraud, taxes, termination). It states
+      rules, never rates: rates stay on the partner page so there is one source. If any rule
+      there doesn't match what you intend to pay, tell Claude before the first stranger joins.
+
+- [ ] **P2: Before the FIRST standard-price First Revenue Launch sale ($1,500+), the offer
+      needs written service terms.** The homepage guarantee is live copy; the paid service
+      behind it has no contract defining "qualified", the "required actions", or the remedy
+      (rebuild + relaunch, not a refund). Beta deals traded for case-study rights need that
+      in writing too. Say the word and Claude drafts it for your and a lawyer's review.
+
+- [ ] **P2: Delete OPENAI_API_KEY from Vercel.** Nothing reads it since the synthetic sync
+      generator was deleted (verified by scan and now enforced by a test). A live key nothing
+      uses is pure attack surface.
+
 - [ ] **A2P 10DLC campaign form: the legal pages are ready, here is exactly what to paste.**
       Both URLs are live and now carry every disclosure Twilio vets for. Paste them verbatim:
         Privacy Policy URL:        https://thecrwn.app/privacy

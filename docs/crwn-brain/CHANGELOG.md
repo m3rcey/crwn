@@ -1,5 +1,66 @@
 # CRWN Brain — Changelog
 
+## 2026-08-25 - The legal pages audited against the whole product, and the product wins every disagreement
+
+**A full audit of every legal surface against the live product and strategy** (founder-approved
+recommendations, executed same day). The organizing rule: a promise the product does not keep is
+worse than a missing section. Every change below exists because the code already did the thing.
+
+**The privacy policy stopped lying about fan emails.** It said "Artists CANNOT see: Your email
+address (unless you share it)" while `buildAudience` has been returning fan AUTH emails to the
+owning artist's CRM all along, and the strategy's core pitch is owning the fan list. Founder call:
+disclose, not suppress. Section 4 now says an artist you subscribe to or join can see the email on
+your account; the Artist Agreement's rewritten "Fan Data and Communications" section carries the
+matching obligations (permission-only imports, CRWN-enforced unsubscribes, export = your problem,
+abuse = suspension).
+
+**The processor list caught up with the infrastructure.** Added to section 5: Cloudflare (all
+media files), LiveKit (live audio/video), DeepSeek (support chat + artist insights; it was
+processing user conversations while the policy named only Anthropic). OpenAI was deliberately NOT
+added, because it is DEAD: the synthetic sync generator is deleted, nothing reads
+`OPENAI_API_KEY`, so the true inventory is **TWO providers, 8 call sites**. Doc 10, doc 15,
+CLAUDE.md and `agentSecurityBoundaries.test.ts` all moved together per the doc-26 workflow, and a
+new assertion fails if any live `OPENAI_API_KEY` read reappears.
+
+**Pre-account collection is now described.** Privacy section 7 generalized to "Free Tools, Lead
+Conversations, and Live Events": calculator answers + attribution stored at a private link,
+optional email into nurture, and the Song Lab captured-contact model (a typed email at a show owns
+a free membership and a vote, no password). Section 2 gained "Information we receive from
+artists" covering imported third-party contacts. Retention now separates server logs (90 days)
+from analytics events (kept while needed): funnel_events are retained indefinitely and the old
+wording implied otherwise.
+
+**The terms caught up with the money.** Section 4 gained Automatic Renewal (fan memberships AND
+platform plans: California ARL / FTC negative-option exposure, there was ZERO renewal language),
+Tips (voluntary, non-refundable, fee applies), and Artist Benefits and Promotions (fulfilling
+promised benefits is the artist's responsibility; CRWN is not a party). New section 14, Fan
+Earnings Program: the $25.00 cashout minimum the code enforces, Stripe KYC, taxes, fraud voids,
+prospective program changes, and the MONEY-005 line that organic artist referrals are unpaid.
+
+**The cash recruiting pages finally have governing terms.** `/partner` and `/recruit` promise
+tier fees plus a revenue percentage with Stripe payouts; no agreement existed.
+`src/app/(public)/partner-terms/page.tsx` now defines qualifying (paid + 30 days, first link
+wins), self-referral bans, FTC endorsement disclosure for partner content, fraud, taxes,
+termination, independent-contractor status. It deliberately carries NO rate numbers (the rates
+live on the partner page and in the payout code; a duplicated rate map caused the 5x overpay),
+and a test enforces that absence. Both recruiting pages link it.
+
+**The Artist Agreement grew what selling a SaaS plan requires**: Platform Plan Billing (auto-
+renewal, cancel = Launch at period end, 30-day fee-change notice, promotional pricing reverts), a
+Team Splits paragraph deferring to the accepted in-product agreement, and the disclaimers carve-
+out "except as expressly stated in a written CRWN offer" so the public First Paid Member
+Guarantee no longer sits beside an unqualified no-guarantees clause.
+
+**Notice given, as the Terms promise.** `notice_legal_2026_08_25` banner (same pattern as the
+2026-07-24 notice: priority 10, once, announcedAt so post-update signups never see it), key
+frozen in ID-004.
+
+**Pinned:** `legalPages.test.ts` grew from 20 to 33 assertions (renewal, earnings, email
+disclosure, processors, pre-account surfaces, partner terms, no-rate-map). Mutation-verified on
+the renewal pin (grep 1 to 0, one intended failure, reverted, green). Deferred with TODO items:
+Copyright Office DMCA agent registration (founder-only), FRL service terms (gates the first
+standard-price sale), deleting the dead OPENAI_API_KEY from Vercel.
+
 ## 2026-08-24 (third pass) - The index learns to find big pages directly, instead of hoping artists reveal them
 
 **Brent Faiyaz confirmed the remaining bottleneck.** With filtering removed, global discovery

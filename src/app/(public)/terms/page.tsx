@@ -13,7 +13,7 @@ export default function TermsPage() {
           ← Back to CRWN
         </Link>
         <h1 className="text-3xl font-bold text-crwn-gold mb-2">Terms of Service</h1>
-        <p className="text-crwn-text-secondary mb-8">Effective Date: August 24, 2026</p>
+        <p className="text-crwn-text-secondary mb-8">Effective Date: August 25, 2026</p>
 
         <div className="prose prose-invert max-w-none space-y-6 text-crwn-text-secondary">
           <h2 className="text-xl font-semibold text-crwn-text">1. Acceptance of Terms</h2>
@@ -32,11 +32,14 @@ export default function TermsPage() {
           <p>Artists may upload and distribute music, create subscription tiers, sell digital products and experiences, build communities, and receive payouts through Stripe Connect. Artists are subject to the additional terms in the CRWN Artist Agreement.</p>
 
           <h2 className="text-xl font-semibold text-crwn-text">4. Subscriptions and Payments</h2>
+          <p><strong>Automatic Renewal:</strong> Paid subscriptions on CRWN (fan memberships and CRWN platform plans) renew automatically at the end of each billing period, monthly or annual, until canceled. You can cancel at any time from your account settings or by contacting support@thecrwn.app, and your access continues until the end of the current billing period. We will notify you before a price change takes effect; continued use after that date constitutes acceptance of the new price.</p>
           <p><strong>Upgrades:</strong> If you upgrade to a higher tier, you will be charged a prorated amount immediately for the remainder of your current billing period.</p>
           <p><strong>Downgrades:</strong> If you downgrade to a lower tier, the change takes effect at the end of your current billing period.</p>
           <p><strong>Cancellations:</strong> You may cancel your subscription at any time. Your access continues until the end of the current billing period. No partial refunds are issued for unused time.</p>
           <p><strong>Shop Purchases:</strong> All shop purchases are final and non-refundable unless the product is not delivered as described. Contact us within 14 days of purchase if you believe a product was misrepresented.</p>
           <p><strong>Live Session Tickets:</strong> A ticket to a live session, including a seat in an Executive Producer Session, gives you access to that session at its scheduled time and to any replay the artist chooses to include. Once the session takes place, the ticket is final and non-refundable, including if you do not attend. If the artist cancels the session, or reschedules it to a time you cannot attend, you are entitled to a refund of the ticket price. Request a refund at support@thecrwn.app within 14 days of the affected session.</p>
+          <p><strong>Tips:</strong> Tips sent to an artist (for example during a live session) are voluntary payments. A tip is not a purchase of goods or services and is non-refundable. Platform and payment processing fees apply to tips.</p>
+          <p><strong>Artist Benefits and Promotions:</strong> Membership benefits, promised content, and rewards offered in an artist&apos;s campaigns or promotions are offers made by the artist, and fulfilling them is the artist&apos;s sole responsibility. CRWN is not a party to those offers. If an artist repeatedly fails to deliver promised benefits, contact support@thecrwn.app; we may take action against the artist&apos;s account, and any refund beyond your cancellation rights is at our discretion.</p>
           <p><strong>Platform Fees:</strong> CRWN charges a platform fee on all fan-to-artist transactions. The fee is 12% on Launch (the free plan), 8% on Pro ($49/month), and 5% on Scale ($199/month). Promotional rates may apply if you join through a partner offer. Stripe processing fees are separate.</p>
 
           <h2 className="text-xl font-semibold text-crwn-text">5. Content and Intellectual Property</h2>
@@ -75,6 +78,14 @@ export default function TermsPage() {
           <p><strong>Opt out and help:</strong> reply STOP to any message to stop receiving messages. Reply HELP for help. You may also contact support@thecrwn.app.</p>
           <p><strong>Giving us your number:</strong> providing CRWN with a callback number is optional and requires you to tick an unchecked consent box first. It means a CRWN representative may call or text you about the request you made. It does not subscribe you to a recurring or automated messaging program, and consent is never a condition of using CRWN or of any purchase.</p>
           <p><strong>Privacy:</strong> how we handle mobile numbers and text messaging consent, including the fact that we do not share, sell, or provide them to third parties or affiliates for marketing or promotional purposes, is described in our <Link href="/privacy" className="text-crwn-gold hover:underline">Privacy Policy</Link>.</p>
+
+          <h2 className="text-xl font-semibold text-crwn-text">14. Fan Earnings Program</h2>
+          <p>CRWN may offer programs that let fans earn money, such as referral commissions when someone joins through your link, or clip commissions at a rate set by the artist. These terms apply to all such earnings.</p>
+          <p><strong>Accrual and cashout:</strong> Earnings accrue to your CRWN balance as the underlying transactions settle. Cashing out requires a minimum balance of $25.00 and a connected Stripe account, including completing Stripe&apos;s identity verification. Earnings may be adjusted for refunds, chargebacks, and canceled transactions.</p>
+          <p><strong>Taxes:</strong> You are responsible for any taxes on amounts you receive. We may require tax information and may issue tax forms where the law requires.</p>
+          <p><strong>Fraud:</strong> Earnings generated through fraud, self-referral, accounts you control, or artificial activity are void and may be reversed, and we may suspend the account involved.</p>
+          <p><strong>Program changes:</strong> We may change or end an earnings program prospectively at any time. Balances already earned under the program rules remain payable unless obtained through fraud.</p>
+          <p><strong>Unpaid referrals:</strong> Recommending CRWN to another artist outside of a written partner program is voluntary and unpaid. Compensation for partner referrals is governed by the <Link href="/partner-terms" className="text-crwn-gold hover:underline">Partner Program Terms</Link>.</p>
         </div>
 
         <div className="mt-12 pt-6 border-t border-crwn-elevated text-center text-xs text-crwn-text-secondary">

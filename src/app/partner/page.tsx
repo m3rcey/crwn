@@ -371,6 +371,7 @@ export default function PartnerPage() {
       <div className="border-t border-[#1a1a1a] py-8 text-center">
         <p className="text-[#666] text-xs">
           JNW Creative Enterprises, Inc. &copy; {new Date().getFullYear()}.{' '}
+          <Link href="/partner-terms" className="text-[#D4AF37] hover:underline">Partner Program Terms</Link> &middot;{' '}
           <Link href="/terms" className="text-[#D4AF37] hover:underline">Terms</Link> &middot;{' '}
           <Link href="/privacy" className="text-[#D4AF37] hover:underline">Privacy</Link>
         </p>

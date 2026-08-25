@@ -12,7 +12,6 @@
 | LiveKit | Live streaming + egress→VOD | Complete | ✅ yes |
 | Resend | Transactional + marketing email | Complete | ❌ **no (High)** |
 | DeepSeek (via `openai` SDK) | AI Manager + admin agent + /support chat (2026-07-31) | Complete | n/a |
-| OpenAI (`gpt-4o-mini`) | `sync-opportunities` cron only | Complete (narrow) | n/a |
 | Anthropic (`@anthropic-ai/sdk`) | Acquisition lead decision on the ManyChat inbound path | Complete (narrow) | n/a |
 | Twilio (raw REST) | SMS/MMS **marketing**: REMOVED 2026-07-31. Inbound keyword reply (`/api/sms/inbound`, dark) since 2026-08-21. Internal speed-to-lead alert AUTHORIZED 2026-08-24, not yet built | Marketing removed; narrow non-marketing use only | n/a (webhook signature-verified) |
 | Apify (raw REST) | Artist Distribution Finder (admin-only): public Instagram discovery, profile enrichment, and Big Page Index post refresh via `apify/instagram-hashtag-scraper`, `apify/instagram-profile-scraper`, `apify/instagram-post-scraper` | LIVE (token set + first search ran 2026-08-24) | n/a (no webhook; the admin UI polls run status) |
@@ -59,16 +58,20 @@
 - **✅ Signature gap FIXED 2026-07-14** (an earlier version of this line still called it an open HIGH): all four webhooks verify via `src/lib/webhookSignatures.ts` and **fail closed**, including when the secret is unset. `/api/webhooks/resend` uses `RESEND_WEBHOOK_SECRET`, `/api/outreach/webhook` uses `RESEND_OUTREACH_SECRET`.
 - **🔴 OPEN, found 2026-07-30: the webhook was never REGISTERED in the Resend dashboard.** The code is right; nobody ever told Resend to call it. Evidence: the only row in `email_suppressions` is the `victim@example.com` row from the July security test, so no real delivery event has ever arrived. Consequence: hard bounces and spam complaints have never been suppressed in production, which degrades the sending domain that all acquisition email depends on. Fix is founder-side (create the webhook at `resend.com/webhooks`, then set `RESEND_WEBHOOK_SECRET` in Vercel); it is the P0 item in `TODO.md`. **Lesson: a verified, correct, deployed webhook route proves nothing about whether the provider is actually calling it. Check for received data, not for code.**
 
-## AI — THREE providers (scan-verified 2026-08-12)
+## AI — TWO providers (scan-verified 2026-08-25)
 
-An earlier version of this doc said "two providers". That was stale: the Anthropic acquisition
-surface was already live and undocumented. The inventory below came from a repository-wide scan
-for provider clients and completion call sites, not from the previous doc. Re-scan when you touch
-this: **9 model call sites** (admin analyze holds two).
+The count has moved twice, each time verified by a repository-wide scan for provider clients and
+completion call sites, never by trusting the previous doc. It said "two providers" while the
+Anthropic acquisition surface was live and undocumented (fixed 2026-08-12 as "three"); then the
+OpenAI synthetic sync-listings generator was deleted (its route no longer exists, and
+`agentSecurityBoundaries.test.ts` asserts no sync_opportunities writer talks to any model), which
+makes the current truth **TWO providers, 8 model call sites** (admin analyze holds two). OpenAI
+appears below only as history. Re-scan when you touch this.
 
-- **Env:** `DEEPSEEK_API_KEY` (baseURL `https://api.deepseek.com`, model `deepseek-chat`),
-  `OPENAI_API_KEY` (`gpt-4o-mini`), `ANTHROPIC_API_KEY` (`src/lib/ai/anthropicClient.ts`).
-  All three fall back to a dummy build key, so an unset key is a supported way to run CRWN.
+- **Env:** `DEEPSEEK_API_KEY` (baseURL `https://api.deepseek.com`, model `deepseek-chat`) and
+  `ANTHROPIC_API_KEY` (`src/lib/ai/anthropicClient.ts`). Both fall back to a dummy build key, so
+  an unset key is a supported way to run CRWN. `OPENAI_API_KEY` is dead: nothing reads it since
+  the synthetic sync generator was deleted, and it can be removed from Vercel.
 
 | # | Surface | Provider | Class | Source |
 |---|---|---|---|---|
@@ -78,8 +81,7 @@ this: **9 model call sites** (admin analyze holds two).
 | 4-5 | Admin agent analyze (**2 calls**) | DeepSeek | privileged | `src/app/api/admin/agent/analyze/route.ts` |
 | 6 | Manager insights | DeepSeek | user-facing | `src/lib/ai/generateInsights.ts` |
 | 7 | Manager actions | DeepSeek | user-facing | `src/lib/ai/generateActions.ts` |
-| 8 | Sync Opportunities | OpenAI | internal/cron | `src/app/api/cron/sync-opportunities/route.ts` |
-| 9 | Acquisition lead decision | Anthropic | internal | `src/lib/acquisition/claudeDecisionService.ts` |
+| 8 | Acquisition lead decision | Anthropic | internal | `src/lib/acquisition/claudeDecisionService.ts` |
 
 - **DeepSeek powers:** the artist **Manager** (which explains canonical Constraint/Roadmap
   priority and never creates its own), the **admin agent**, and the **/support live chat**
@@ -87,9 +89,9 @@ this: **9 model call sites** (admin analyze holds two).
   `src/lib/supportKnowledge.ts`). If `DEEPSEEK_API_KEY` is unset, the AI flags the question, or
   the user taps "Talk to a human", the conversation escalates to `human_requested` and the founder
   is emailed a link to `/admin?tab=support` (SupportChatView), where admin replies email the user.
-- **OpenAI powers:** exactly one place, the `sync-opportunities` cron, which generates
-  **synthetic** sync-licensing listings. Model text there is not authoritative business or legal
-  truth.
+- **OpenAI powers nothing** since the synthetic sync-listings generator was deleted. The
+  surviving `/api/sync-opportunities` POST is CRON_SECRET-authenticated manual ingestion with no
+  model, and the boundary test forbids any sync writer from talking to a provider.
 - **Anthropic powers:** exactly one place, the acquisition lead decision reached from the ManyChat
   inbound webhook. It is narrow structured extraction, not a strategy owner. Its design is worth
   copying: the tool call is **forced** (`tool_choice`), so prose is not a legal output and an
@@ -141,7 +143,7 @@ removal and the exceptions together: the exceptions do not restore anything on t
 - **Hybrid architecture:** the WHY is that global keyword/hashtag discovery structurally surfaces superfan accounts (big media pages post artists without tagging them), proven twice: Ryan Leslie (largest hit ~14K) and Brent Faiyaz (overwhelmingly sub-1K accounts, while the 2-page index correctly surfaced @purestrap at 1.2M). The ratified finding: **artist keyword/hashtag discovery is a supplemental source, never the way to construct the large-page universe.** So searches merge TWO sources: the local `distribution_page_posts` corpus (recent posts of known significant pages, matched deterministically, an artist search never scrapes the index) and live global discovery, whose qualifying finds auto-join the index. The universe itself is built by **Discover Big Pages** (topic profile search via the search scraper, plus depth-1 related-profile expansion from indexed seeds), which returns a REVIEW table of candidates ranked by a deterministic Seed Value (audience 50 / corroboration 25 / relevance 15 / verification 10, in `src/lib/distribution/discovery.ts`); relevance boosts and never rejects. Founder maintenance is button-driven, never a cron: Discover, Add Pages (handles), Bootstrap From Artists (supplemental), Refresh Index (stale pages in batches of 25). "Add Selected" reuses the manual-add flow, so the index keeps ONE write path.
 - **Scope:** PUBLIC Instagram data only, research/discovery only. No outreach automation, no private data, no login automation, no follower-list scraping. Coverage is best-effort public matches, **not** an exhaustive index of Instagram.
 - **Cost controls:** bounded query set (max 4 keyword + 4 hashtag terms, 40 results each), max 30 profile enrichments per search, 24h observation cache, 7-day recent-post freshness with max 24 posts per page per refresh and a 90-day date floor. Full-refresh ceilings at pay-per-result pricing: 100 pages ≈ $6, 500 ≈ $28-32, 1,000 ≈ $55-65; only STALE pages are touched, so routine refreshes cost less.
-- This is a data provider, not an AI model provider: the "THREE providers" count in the AI section is unchanged, and no LLM is involved anywhere in the finder (queries, matching and ranking are all deterministic; the two-score model is Affinity + Distribution Value + a geometric Priority, weights in `src/lib/distribution/score.ts`).
+- This is a data provider, not an AI model provider: the provider count in the AI section is unchanged, and no LLM is involved anywhere in the finder (queries, matching and ranking are all deterministic; the two-score model is Affinity + Distribution Value + a geometric Priority, weights in `src/lib/distribution/score.ts`).
 
 ## Calendly — booking embed (orphaned)
 - **Env:** `CALCOM_API_KEY` exists in `.env.local` but **no cal.com server integration found**. `react-calendly` is installed.
@@ -154,7 +156,7 @@ removal and the exceptions together: the exceptions do not restore anything on t
 
 ## Vercel — hosting + cron
 - 25 crons in `vercel.json`, all ≤ daily (Hobby-plan constraint). Each cron route checks `Authorization: Bearer ${CRON_SECRET}` (100% coverage). CLI is linked to project `crwn`.
-- Crons with external deps: `sync-opportunities`→OpenAI; `ai-manager`, `admin/agent/briefing`→DeepSeek(+Resend); `recruiter-*`→Stripe (`weekly-payout` retired 2026-08-11: Stripe pays artists on its own automatic daily schedule and CRWN runs no artist-payout cron); `onboarding-health`/`rls-canary`→Supabase+Resend.
+- Crons with external deps: `ai-manager`, `admin/agent/briefing`→DeepSeek(+Resend); `recruiter-*`→Stripe (`weekly-payout` retired 2026-08-11: Stripe pays artists on its own automatic daily schedule and CRWN runs no artist-payout cron); `onboarding-health`/`rls-canary`→Supabase+Resend.
 
 ## Analytics / error monitoring — ABSENT
 No Sentry, PostHog, Segment, Amplitude, Mixpanel, or GA anywhere in `src/`. CRWN relies entirely on first-party tables (`admin_metrics_cache`, funnel/visit tracking). Error handling is `console.log` + `try/catch` → 500. `Confirmed`.

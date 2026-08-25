@@ -202,7 +202,7 @@ upsert); free tier bypasses Stripe; deferred downgrade.
 Three providers, verified by scan on 2026-08-12. Do not repeat the stale two-provider claim.
 - **DeepSeek** (`deepseek-chat`) — support chat, admin support, admin agent briefing, admin agent
   analyze (two calls), Manager insights, Manager actions.
-- **OpenAI** (`gpt-4o-mini`) — Sync Opportunities generation.
+- **OpenAI** — RETIRED: the synthetic Sync Opportunities generator was deleted; no call site remains and `OPENAI_API_KEY` is unread.
 - **Anthropic** — acquisition lead decision (`src/lib/acquisition/claudeDecisionService.ts`),
   reached from the ManyChat inbound webhook.
 

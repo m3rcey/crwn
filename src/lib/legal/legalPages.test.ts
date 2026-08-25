@@ -20,6 +20,8 @@ const root = process.cwd();
 const privacy = readFileSync(join(root, 'src/app/(public)/privacy/page.tsx'), 'utf-8');
 const terms = readFileSync(join(root, 'src/app/(public)/terms/page.tsx'), 'utf-8');
 const callCard = readFileSync(join(root, 'src/components/lead-magnets/CallRequestCard.tsx'), 'utf-8');
+const artistAgreement = readFileSync(join(root, 'src/app/(public)/artist-agreement/page.tsx'), 'utf-8');
+const partnerTerms = readFileSync(join(root, 'src/app/(public)/partner-terms/page.tsx'), 'utf-8');
 
 describe('LEGAL-SMS-001 the privacy policy carries the A2P 10DLC mobile disclosures', () => {
   it('states the non-sharing rule in the exact form Twilio vets for', () => {
@@ -158,7 +160,7 @@ describe('LEGAL-SMS-005 the rest of the legal pages survived the edit', () => {
 
   it('the terms still number every section once, in order', () => {
     const headings = [...terms.matchAll(/text-xl font-semibold text-crwn-text">(\d+)\./g)].map((m) => Number(m[1]));
-    expect(headings).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]);
+    expect(headings).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]);
   });
 
   it('keeps the plan fee percentages the pricing strategy ratified', () => {
@@ -179,10 +181,117 @@ describe('LEGAL-SMS-005 the rest of the legal pages survived the edit', () => {
       ['privacy', privacy],
       ['terms', terms],
       ['CallRequestCard', callCard],
+      ['artist agreement', artistAgreement],
+      ['partner terms', partnerTerms],
     ];
     for (const [name, src] of sources) {
       expect(src.includes('—'), `${name} contains an em dash`).toBe(false);
       expect(src.includes('–'), `${name} contains an en dash`).toBe(false);
     }
+  });
+});
+
+// ---------------------------------------------------------------------------
+// 2026-08-25 legal audit pins. Each of these sentences was added because the
+// PRODUCT already did the thing and the legal pages did not say so (or said the
+// opposite). Removing one without changing the product reopens that gap.
+// ---------------------------------------------------------------------------
+
+describe('LEGAL-RENEW-001 auto-renewal and tips are disclosed', () => {
+  it('the terms disclose automatic renewal and how to cancel', () => {
+    // California ARL / FTC negative-option exposure: both fan memberships and the
+    // artist SaaS plans renew automatically, so the terms must say so.
+    expect(terms).toContain('renew automatically at the end of each billing period');
+    expect(terms).toContain('You can cancel at any time');
+  });
+
+  it('the artist agreement discloses plan billing and renewal', () => {
+    expect(artistAgreement).toContain('Platform Plan Billing');
+    expect(artistAgreement).toContain('renew automatically until canceled');
+    expect(artistAgreement.toLowerCase()).toContain('moves to the launch plan');
+  });
+
+  it('tips are disclosed as voluntary and non-refundable', () => {
+    // live-tip-checkout takes an application fee; a money flow with no terms.
+    expect(terms.toLowerCase()).toContain('a tip is not a purchase of goods or services and is non-refundable');
+  });
+});
+
+describe('LEGAL-EARN-001 the fan earnings program has terms', () => {
+  // ReferralDashboard cashes out real dollars via /api/stripe/fan-cashout with a
+  // $25 minimum enforced in code. The code and the terms must state the same number.
+  it('states the cashout minimum, Stripe requirement, taxes, and fraud rule', () => {
+    expect(terms).toContain('14. Fan Earnings Program');
+    expect(terms).toContain('minimum balance of $25.00');
+    expect(terms.toLowerCase()).toContain('connected stripe account');
+    expect(terms.toLowerCase()).toContain('responsible for any taxes');
+    expect(terms.toLowerCase()).toContain('fraud, self-referral');
+  });
+
+  it('states that organic artist referrals are unpaid (MONEY-005)', () => {
+    expect(terms.toLowerCase()).toContain('outside of a written partner program is voluntary and unpaid');
+  });
+
+  it('the disclosed minimum matches the enforced minimum', () => {
+    const cashout = readFileSync(join(root, 'src/app/api/stripe/fan-cashout/route.ts'), 'utf-8');
+    expect(cashout).toContain('$25.00');
+  });
+});
+
+describe('LEGAL-DATA-001 the privacy policy matches what artists actually see', () => {
+  it('discloses that subscribed/joined artists can see the account email', () => {
+    // buildAudience returns fan auth emails to the owning artist. The old policy
+    // said artists CANNOT see your email, which was false. Never reintroduce that
+    // claim while the CRM shows emails.
+    expect(privacy).toContain('that artist can also see the email address on your account');
+    expect(privacy).not.toContain('Your email address (unless you share it)');
+  });
+
+  it('artist agreement carries the matching data obligations', () => {
+    expect(artistAgreement).toContain('Fan Data and Communications');
+    expect(artistAgreement.toLowerCase()).toContain('the email address on their account');
+    expect(artistAgreement.toLowerCase()).toContain('unsubscribe link');
+    expect(artistAgreement.toLowerCase()).toContain('grounds for suspension');
+  });
+
+  it('names every live processor, and no dead one', () => {
+    // DeepSeek (support chat + insights), Cloudflare (media), LiveKit (live) are
+    // live and were undisclosed. OpenAI has zero live call sites and must not be
+    // listed: naming a processor that receives nothing is its own false statement.
+    for (const processor of ['DeepSeek', 'Cloudflare', 'LiveKit', 'Anthropic', 'Stripe', 'Supabase', 'Resend', 'ManyChat', 'Twilio']) {
+      expect(privacy, `processor ${processor} missing`).toContain(processor);
+    }
+    expect(privacy).not.toContain('OpenAI');
+  });
+
+  it('discloses the pre-account collection surfaces', () => {
+    expect(privacy).toContain('Free Tools, Lead Conversations, and Live Events');
+    expect(privacy.toLowerCase()).toContain('without an account');
+    expect(privacy.toLowerCase()).toContain('create a free membership for that email');
+    expect(privacy).toContain('Information we receive from artists');
+  });
+});
+
+describe('LEGAL-PARTNER-001 the cash recruiting pages have governing terms', () => {
+  it('the partner terms page exists with the load-bearing rules', () => {
+    expect(partnerTerms.toLowerCase()).toContain('remains an active paying subscriber through the qualifying period');
+    expect(partnerTerms.toLowerCase()).toContain('accounts you own or control');
+    expect(partnerTerms.toLowerCase()).toContain('disclose your material connection');
+    expect(partnerTerms.toLowerCase()).toContain('independent contractor');
+  });
+
+  it('carries no duplicate commission rate map', () => {
+    // Rates live on the partner page and in the payout code. A duplicated rate map
+    // in legal copy is how a 5x overpay happened once; this page must reference the
+    // published schedule, never restate a number.
+    expect(partnerTerms).not.toMatch(/\$\d+ (flat|per)/i);
+    expect(partnerTerms).not.toContain('1% of');
+  });
+
+  it('both recruiting pages link the partner terms', () => {
+    const partnerPage = readFileSync(join(root, 'src/app/partner/page.tsx'), 'utf-8');
+    const recruitPage = readFileSync(join(root, 'src/app/(main)/recruit/page.tsx'), 'utf-8');
+    expect(partnerPage).toContain('href="/partner-terms"');
+    expect(recruitPage).toContain('href="/partner-terms"');
   });
 });

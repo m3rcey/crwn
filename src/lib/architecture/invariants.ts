@@ -879,6 +879,7 @@ export const FROZEN_POPUP_KEYS: readonly string[] = [
   'announce_support_chat',
   'notice_terms_2026_07_24',
   'fan_share_experience',
+  'notice_legal_2026_08_25',
 ];
 
 /** ID-006. Tour anchors that are persistence keys (localStorage dismissal state). */

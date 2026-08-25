@@ -560,6 +560,28 @@ export const POPUPS: PopupDef[] = [
     cta: { label: 'Read the Terms', href: '/terms' },
     dismissLabel: 'Got it',
   },
+
+  // ---- Notice: Terms + Privacy updated 2026-08-25 (legal audit) ----
+  // Same pattern as the 2026-07-24 notice: Terms section 1 promises notice of material
+  // changes, and this banner is that notice. The audit added auto-renewal disclosure, the
+  // Fan Earnings Program terms, tips terms, and the privacy policy now names every live
+  // processor and states what artists can see. Not marketing, so not loss-framed, and
+  // lowest priority for the same reason as its predecessor.
+  {
+    key: 'notice_legal_2026_08_25',
+    kind: 'banner',
+    pages: ['/home', '/explore', '/library', '/studio', '/profile/artist'],
+    audience: () => true,
+    frequency: { type: 'once' },
+    priority: 10,
+    // Accounts created after the update accepted the CURRENT documents at signup.
+    announcedAt: '2026-08-25',
+    goal: 'Satisfy the Terms own notice promise for the 2026-08-25 legal update.',
+    title: 'Our Terms and Privacy Policy were updated on August 25, 2026.',
+    body: 'Clearer renewal terms, new terms for fan earnings and tips, and a fuller account of what we store and share.',
+    cta: { label: 'Read the Terms', href: '/terms' },
+    dismissLabel: 'Got it',
+  },
 ];
 
 /** Does this pop-up's page list arm it for the given pathname? */
