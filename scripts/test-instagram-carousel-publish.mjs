@@ -100,7 +100,16 @@ const env = (k) => process.env[k] ?? fileEnv[k] ?? '';
 const IG_USER_ID = env('IG_USER_ID');
 const IG_ACCESS_TOKEN = env('IG_ACCESS_TOKEN');
 const GRAPH_VERSION = env('GRAPH_API_VERSION') || 'v26.0';
-const GRAPH = `https://graph.facebook.com/${GRAPH_VERSION}`;
+
+// There are TWO Instagram publishing paths and they live on DIFFERENT hosts. Getting this
+// wrong produces an auth error that reads exactly like a bad token, so it is worth naming:
+//   Instagram API with Facebook Login    -> graph.facebook.com   (IG account linked to a Page;
+//                                           the IG User ID comes from `instagram_business_account`)
+//   Instagram API with Instagram Login   -> graph.instagram.com  (no Facebook Page needed)
+// Set GRAPH_HOST=graph.instagram.com in .env.local if the token came from the Instagram Login
+// flow. Everything else about the request shape is the same.
+const GRAPH_HOST = (env('GRAPH_HOST') || 'graph.facebook.com').replace(/^https?:\/\//, '');
+const GRAPH = `https://${GRAPH_HOST}/${GRAPH_VERSION}`;
 
 const R2_ACCOUNT = env('CLOUDFLARE_ACCOUNT_ID');
 const R2_KEY = env('R2_ACCESS_KEY_ID');
@@ -131,6 +140,7 @@ console.log('  ' + '='.repeat(58));
 console.log(`  mode           ${DO_PUBLISH ? 'PUBLISH (real post)' : 'DRY RUN (no post)'}`);
 console.log(`  folder         ${folder}`);
 console.log(`  slug           ${slug}`);
+console.log(`  graph host     ${GRAPH_HOST}`);
 console.log(`  graph version  ${GRAPH_VERSION}`);
 console.log('');
 
@@ -246,6 +256,39 @@ if (fs.existsSync(RECEIPT) && !FORCE) {
 
 console.log(`  PREFLIGHT OK: ${result.slides.length} slides, order verified, caption within limits.`);
 console.log('');
+
+// If credentials are present, prove them with read-only GETs. This is still a dry run: a GET
+// creates nothing and publishes nothing. It is here because an invalid token, the wrong host,
+// or the wrong IG User ID otherwise surfaces halfway through a real publish, after containers
+// already exist on Meta's side.
+if (IG_USER_ID && IG_ACCESS_TOKEN) {
+  console.log('  CREDENTIAL CHECK (read-only)');
+  try {
+    const me = await graph('GET', IG_USER_ID, { fields: 'id,username' });
+    console.log(`    account          @${me.username ?? 'unknown'} (id ${me.id})`);
+    const limit = await graph('GET', `${IG_USER_ID}/content_publishing_limit`, {
+      fields: 'config,quota_usage',
+    });
+    const usage = limit?.data?.[0]?.quota_usage ?? 0;
+    const quota = limit?.data?.[0]?.config?.quota_total ?? 100;
+    console.log(`    publishing quota ${usage}/${quota} used in the last 24h`);
+    console.log('    token is valid and can reach the publishing endpoints.');
+  } catch (e) {
+    console.error(`    FAILED: ${safe(e.message)}`);
+    if (e.classification?.kind === 'auth') {
+      console.error('    That is an auth failure. The usual causes, in order:');
+      console.error(`      - GRAPH_HOST is wrong. It is currently ${GRAPH_HOST}.`);
+      console.error('        Use graph.instagram.com if the token came from Instagram Login,');
+      console.error('        or graph.facebook.com if it came from Facebook Login.');
+      console.error('      - the token expired (short-lived tokens last about 1 hour)');
+      console.error('      - the token is missing instagram_basic or instagram_content_publish');
+      console.error('      - IG_USER_ID is the Facebook Page id or the @handle, not the IG User ID');
+    }
+    console.error('');
+    process.exit(1);
+  }
+  console.log('');
+}
 
 if (!DO_PUBLISH && !CHECK_UPLOAD) {
   console.log('  DRY RUN COMPLETE. Nothing was uploaded and nothing was published.');
