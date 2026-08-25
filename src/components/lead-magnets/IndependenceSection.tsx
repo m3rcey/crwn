@@ -13,7 +13,7 @@ const GOLD = '#D4AF37';
 const RENT_VS_OWN = [
   { rent: 'The algorithm decides who sees you', own: 'A direct line to every fan' },
   { rent: 'You get none of their contact info', own: 'Names, emails, and phones you keep' },
-  { rent: 'Their rules, their cut of your income', own: 'Paid to your bank, up to 92%' },
+  { rent: 'Their rules, their cut of your income', own: 'Paid to your bank, up to 95%' },
   { rent: 'Leave, and your audience is gone', own: 'Your fans go with you, anywhere' },
 ];
 

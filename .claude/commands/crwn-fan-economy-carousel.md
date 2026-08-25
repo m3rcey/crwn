@@ -214,8 +214,27 @@ is where the first version failed: a summary states the setup then states the an
 the curiosity gap on the way past it. The script withholds, and the caption has to withhold the
 same way, in the same order, in the same voice.
 
-Target **260 to 310 words** of body, both CTAs and the CRWN plug included, or up to **350** on the roughly one caption in three or four that also carries a social-proof line. The target tracks the BEAT LIST: it moved up when the closing CTA became two beats rather than one, which is a structural cost, not slack. The earlier 220 to 270 figure was measured against a caption that was wrongly missing its CRWN plug. The hard ceiling is Instagram's 2,200 characters, which none of these approach. The beat structure costs more
+Target **260 to 310 words** of body, both CTAs and the CRWN plug included, or up to **350** on the roughly one caption in three or four that also carries a social-proof line. The target tracks the BEAT LIST: it moved up when the closing CTA became two beats rather than one, which is a structural cost, not slack. The earlier 220 to 270 figure was measured against a caption that was wrongly missing its CRWN plug. The beat structure costs more
 words than a summary does; that is the trade and it is worth it.
+
+**HARD CEILING: 2,200 characters, and it is a publish blocker, not a style note.** Instagram
+refuses any caption over 2,200 characters, so an over-length caption cannot be posted by any tool,
+Later and the API included, without being cut by hand at upload time. This section used to claim
+"none of these approach" the ceiling. That was false: **8 of the first 31 shipped over it** (51,
+52, 53, 55, 57, 58, 59 and 60, the longest at 2,492), because the word target above kept being
+overrun. Those eight ran 399 to 471 words against a 310 word target, and roughly 400 words is
+where 2,200 characters lands.
+
+So the ceiling is checked, never estimated:
+- **Count the characters of the finished caption before saving it.** Not the words. The word
+  target is the aim; the character count is the law, and no one can judge 2,200 by eye.
+- **If it is over, cut a beat, do not shave adjectives.** The candidates in order: the
+  social-proof line (it is rationed anyway), then the "to be fair" concession, then tighten the
+  setup. Never cut the opening CTA, the CRWN plug or the closing CTA: those are the whole point
+  of the caption.
+- The renderer enforces the same limit. `generate-fan-economy-carousel.mjs` prints the character
+  count for every caption, warns on each one over 2,200, and lists every offender again under
+  `=== DONE ===`, so an over-length caption cannot quietly reach the upload.
 
 Write these beats, in this order:
 
@@ -392,6 +411,7 @@ warns on any colour intrusion (a correct slide scores **0** non-greyscale pixels
 5. Check slide 2's numbers against the script's `Big Reveal:` character by character, and confirm
    slide 3 carries no number at all. A carousel that contradicts its own video is worse than no
    carousel.
-6. Report the folder path, the caption word count, and anything you had to reroll.
+6. Report the folder path, the caption word count AND its character count (which must be 2,200
+   or under), and anything you had to reroll.
 
 $ARGUMENTS

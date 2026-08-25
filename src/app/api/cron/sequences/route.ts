@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { resend, FROM_EMAIL } from '@/lib/resend';
 import { campaignEmail, resolveTokens } from '@/lib/emails/campaignEmail';
+import { appendUnsubscribeToken, fanRecipient } from '@/lib/emails/unsubscribeToken';
 import { createSurveyToken } from '@/lib/surveyTokens';
 import { dispatchCalendarReminders } from '@/lib/calendarReminders';
 
@@ -207,7 +208,24 @@ export async function GET(req: NextRequest) {
         .single();
 
       const sendId = seqSend?.id || enrollment.id;
-      const unsubscribeUrl = `https://thecrwn.app/api/sequences/unsubscribe/${enrollment.id}`;
+      // This body link is keyed on the ENROLLMENT, not on sendId, so the template cannot mint its
+      // token: it signs 'campaign-artist' over sendId. Sign it here with the descriptor the
+      // sequence route actually verifies, then tell the template it is already signed. The
+      // all-artists link IS keyed on sendId, so the template still signs that one.
+      const unsubscribeSigning = {
+        recipient: fanRecipient(enrollment.fan_id),
+        artistId: enrollment.artist_id as string,
+        bodyLinkPreSigned: true,
+      };
+      const unsubscribeUrl = appendUnsubscribeToken(
+        `https://thecrwn.app/api/sequences/unsubscribe/${enrollment.id}`,
+        {
+          kind: 'sequence-artist',
+          id: enrollment.id,
+          artistId: unsubscribeSigning.artistId,
+          recipient: unsubscribeSigning.recipient,
+        },
+      );
       const trackingPixelUrl = `https://thecrwn.app/api/sequences/track/${sendId}?pixel=1`;
 
       const html = campaignEmail({
@@ -217,6 +235,7 @@ export async function GET(req: NextRequest) {
         unsubscribeUrl,
         trackingPixelUrl,
         platformTier: artistData?.platform_tier || 'starter',
+        unsubscribeSigning,
         trackBasePath: '/api/sequences/track',
         utmParams: {
           source: 'crwn_sequence',

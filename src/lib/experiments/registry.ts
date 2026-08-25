@@ -97,21 +97,20 @@ export const EXPERIENCES: ExperienceDef[] = [
 ];
 
 // ---- Experiment configurations (prebuilt, reviewed). NONE runs by default; status lives in DB. ----
+//
+// RETIRED 2026-08-24: `oyf-signup-timing-v1` (Own Your Fans signup timing) was deleted on the
+// founder's call. Content now routes a DIFFERENT calculator per carousel post, so Own Your Fans
+// no longer receives one coherent traffic stream, and an arm-vs-arm readout over traffic whose
+// composition changes with the posting schedule measures the schedule, not the boundary.
+//
+// Deleting the CONFIG is the whole kill switch and needs no database write:
+// getRunningExperimentForExperience() looks every running row up by key and skips any row whose
+// config is absent, so even a row still marked `running` assigns nothing. Every consumer already
+// fails safe to the control arm (FanCaptureBuilder defaults signupBoundary to 'save'), so the
+// product behavior is the control behavior, unchanged.
+//
+// Re-run it later by restoring the config block from git history; the machinery is untouched.
 export const EXPERIMENT_CONFIGS: ExperimentConfigDef[] = [
-  {
-    key: 'oyf-signup-timing-v1',
-    title: 'Own Your Fans: when to ask for signup',
-    hypothesis:
-      'Asking for signup at save (after the artist builds a fan page) yields more signup completions and more published features than asking at preview.',
-    experienceKeys: ['own-your-fans'],
-    variants: [
-      { key: 'save', title: 'Signup at save', isControl: true, config: { signupBoundary: 'save', prefill: 'minimal' } },
-      { key: 'preview', title: 'Signup at preview', config: { signupBoundary: 'preview', prefill: 'minimal' } },
-    ],
-    primaryMetric: 'signup_completion_rate',
-    secondaryMetrics: ['builder_start_rate', 'feature_published_rate'],
-    configVersion: '1',
-  },
   {
     key: 'primary-experience-v1',
     title: 'Primary experience: Own Your Fans vs Streaming Loss',

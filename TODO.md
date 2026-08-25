@@ -44,26 +44,6 @@ responsible for. Do not work those.
       replay, the artist surplus return, a dispute, and a collaborator cashout), then reconcile every
       cent and decide whether payouts turn on. **They stay off until that passes.**
 
-- [ ] **Run TWO SQL files, in this order. The first one is the fix you just asked for and
-      it does not work until you run it.**
-      1. [`supabase/schema-phase2-song-lab-public-votes.sql`](supabase/schema-phase2-song-lab-public-votes.sql)
-         **This is the one that matters.** You tested with an email that already has a CRWN
-         account and got "You already have an account" instead of a counted vote. The code
-         that fixes it is deployed, but it needs this one table to put that vote in, because
-         a normal vote row requires an account and CRWN must not vote as somebody who has
-         not proved they own that address. Until you run it, that one case still shows the
-         sign-in screen (it refuses honestly rather than pretending the vote counted).
-         Everything else already works.
-      2. [`supabase/schema-phase2-song-lab-live-shows.sql`](supabase/schema-phase2-song-lab-live-shows.sql)
-         Two nullable columns: the venue's timezone (so "Show 2 opens at 8:30 PM" uses the
-         venue's clock instead of defaulting to Eastern) and which door each fan came through
-         (QR vs the JUBO text), reported as "not recorded" until it exists.
-      Both are additive and safe to re-run; neither deletes anything. Tell me when they are
-      done and I will re-run the live acceptance test and stamp Julius's night with
-      America/New_York.
-      Verify with: npm run verify:migrations (look for "song lab public votes" and
-      "song lab show timezone")
-
 - [ ] **Before carousel post #1: verify the six keyword flows in ManyChat and tag them at
       campaign level.** The repo side is done and tested: every batch keyword resolves to the
       right calculator (VAULT, OWN, DEMAND, TOUR, ROYALTY, LIVE, plus STACK and FREE/PLAN if
@@ -133,15 +113,6 @@ responsible for. Do not work those.
       Then tell me and I will run the real publish. Or run it yourself:
         node scripts/test-instagram-carousel-publish.mjs "/mnt/c/Users/Josh/Dropbox/nano banana output/Carousel Posts/Fan Economy/41-wu-tang-one-copy" --publish
       Without `--publish` it is a dry run and posts nothing, which is worth doing first.
-
-- [ ] **Decide whether the caption generator should be capped at 2200 characters.** A product
-      call, not a bug. Instagram rejects any caption over 2200, and **8 of your 31 Fan Economy
-      carousels are over it** (51, 52, 53, 55, 57, 58, 59 and 60; the longest is 2,492). Those
-      eight cannot be published by any tool, Later included, without being cut by hand. Two
-      options: (a) I add a hard 2200 ceiling to the carousel skills so it can never happen again
-      and you trim the eight existing ones, or (b) the publisher auto-trims at the last paragraph
-      break under the limit, which is quicker but silently drops the closing CTA line, and on
-      these captions the CTA is the last line. I recommend (a). Tell me which.
 
 - [ ] **ASK GB (and Julius) whether they want the "Day One A&R" badge at all, and under that
       name.** Nothing is broken; this is a naming and product call only CRWN's artists can make.
@@ -281,51 +252,17 @@ responsible for. Do not work those.
       **Do not print "Text JUBO" on a flyer until you have texted it yourself and got the
       link back.** The QR path is proven end to end and needs none of this.
 
-- [ ] **One quick SQL run to finish the surface reduction: drop the retired Manager outcome
-      columns** (never written; the file ABORTS if any row unexpectedly holds data, so a surprise
-      is a loud error, not a loss). Open and run:
-      [`supabase/schema-phase2-drop-manager-outcome-schema.sql`](supabase/schema-phase2-drop-manager-outcome-schema.sql)
-      (A live_tips flag-off used to be step 1 here. RETRACTED 2026-08-16, file deleted: you are
-      promoting Live Experiences and EP Sessions in content, and tips are part of the live room
-      those funnels sell. The flag was never turned off, so there is nothing to undo.)
-
-- [ ] **RE-RUN the earnings/recruiters SELECT policy migration (the fixed version).** Open and run:
-      [`supabase/schema-phase2-sec-earnings-recruiters-select-policies.sql`](supabase/schema-phase2-sec-earnings-recruiters-select-policies.sql)
-      Your first run on 2026-08-12 DID take effect: the transaction committed, and both tables now
-      answer the anon key with 42501 instead of 200, so the access hole is closed. What failed was
-      the self-verify block that runs after COMMIT, on this line:
-        MIGRATION FAILED: recruiters has a policy reachable by anon/authenticated/PUBLIC
-      That was a real defect in the migration, not a fluke. Its cleanup loop only dropped policies
-      whose USING clause was literally `true`, but its assertion forbids ANY policy naming a Data
-      API role, so a non-permissive recruiters policy survived and the file was asserting something
-      it never enforced. The loop now uses the exact predicate the assertion checks. Re-running is
-      safe and idempotent: everything else in the file is CREATE OR REPLACE / DROP IF EXISTS /
-      REVOKE. Watch for a `NOTICE: Dropped recruiters policy <name>` line, and tell me the name,
-      because nothing in version control records what that policy was.
-      Expected on success: `earnings + recruiters verified: ...` and no exception.
-      Verify after with: npm run verify:migrations (both SEC-EARN lines must read DENIED (closed))
-
-- [ ] **Sign the three remaining unsubscribe senders, then flip the legacy flag.** Unsubscribe is
-      already safe (the GET only renders a confirm page; the mutation needs a POST with a
-      server-minted token), but three senders still emit UNSIGNED links, so
-      `ALLOW_UNSIGNED_LEGACY_LINKS` in src/lib/emails/unsubscribeToken.ts must stay true until they
-      are updated. Copy the pattern from src/lib/campaignSender.ts:294-305:
-        src/app/api/campaigns/[id]/send/route.ts:370 and :559
-          pass `unsubscribeSigning` to campaignEmail, and sign the List-Unsubscribe header too
-        src/app/api/cron/sequences/route.ts:210
-          cannot use `unsubscribeSigning` (that descriptor signs with sendId, this link is keyed on
-          enrollment.id). Use appendUnsubscribeToken(url, { kind: 'sequence-artist',
-          id: enrollment.id, artistId: enrollment.artist_id, recipient: fanRecipient(enrollment.fan_id) })
-        src/app/api/admin/crm/outreach/route.ts:157
-          appendUnsubscribeToken(url, { kind: 'crm-outreach', id: send.id,
-          artistId: CRWN_PLATFORM, recipient: emailRecipient(send.email) })
-      Then flip the flag to false, which stops a bare row id being a capability at all. Do not flip
-      it before, or you strand every already-sent email, which is a compliance failure.
-
-- [ ] **Migrate src/middleware.ts to the "proxy" convention.** Next 16.3.0 prints a deprecation
-      warning for the middleware file convention. It builds clean today so this is not urgent, but
-      that file carries the load-bearing rule that the matcher MUST exclude api/, and getting it
-      wrong makes every POST 404. It needs a deliberate pass, not a codemod run in passing.
+- [ ] **Nothing to do here, just do not let anyone "fix" the middleware deprecation warning.**
+      Next 16.3 prints `The "middleware" file convention is deprecated. Please use "proxy" instead.`
+      on every build and suggests a codemod. **I tried it on 2026-08-24 and reverted it.** The
+      rename builds GREEN, drops the warning, and still prints "Proxy (Middleware)" in the route
+      summary, while compiling nothing at all: a clean build from `src/proxy.ts` produced an empty
+      middleware manifest with no matcher and zero edge chunks, where the identical build from
+      [src/middleware.ts](src/middleware.ts) produces both (1 entry, the api/-excluding matcher, 6
+      edge chunks). Shipping it would have silently stopped every protected-page auth redirect and
+      the email-verification (PKCE) exchange, with no error anywhere. Reasoning is recorded at the
+      top of that file. Revisit on a later Next; the test is whether the BUILT MANIFEST still
+      carries the matcher, never whether the build passes.
 
 - [ ] **Enforce CSP (currently Report-Only).** `Content-Security-Policy-Report-Only` is live in
       production and its origins were derived from the code, but it carries `script-src 'self'
@@ -344,32 +281,6 @@ responsible for. Do not work those.
       found only the apex resolving, so it looks safe, but that is a dictionary sample and not
       proof. Set it in the Vercel dashboard, then confirm exactly one STS header comes back:
         curl -sI https://thecrwn.app
-
-- [ ] **Three crons filter on `artist_profiles.is_active`, a column that DOES NOT EXIST, and all
-      three have been silently doing nothing for months.** Found 2026-08-11 while tracing the
-      Manager loop. Verified against production: `artist_profiles.is_active` returns
-      `42703 column does not exist`, while `profiles.is_active` (a different table) does exist.
-      None of the three checks the error, so `data` comes back `null` and each one early-returns
-      as if there were simply no artists. Affected: `/api/cron/ai-manager` (proven dead: its
-      heartbeat has said **"No active artists" every single day**, and `agent-health` reads that
-      heartbeat as PROOF OF LIFE, so the safety net is masking the outage it exists to catch),
-      and `/api/cron/weekly-report`. **`weekly-payout` is no longer on this list: it was RETIRED
-      2026-08-11** after live Stripe inspection proved it had never created a single payout while
-      Stripe had been paying artists automatically the whole time.
-      **So this item is now only about `/api/cron/weekly-report`** (`ai-manager` has its own item
-      below). Decide: fix the filter so the weekly report resumes, or retire it too. It has been
-      sending nothing for months and nobody noticed, which is the same evidence pattern.
-
-- [ ] **Decide whether the autonomous (scheduled) AI Manager should run at all. My recommendation:
-      keep it dormant, do not delete it.** Full reasoning in `docs/crwn-brain/02-FEATURE-MAP.md`.
-      Short version: there are TWO gates holding it shut, not one. Fixing `is_active` alone would
-      NOT restart autonomous actions today, because all 9 artists are on `starter` and the action
-      generator returns early for starter. It would restart daily rule-based nudges and push
-      notifications for 9 artists. **Autonomy switches itself on the day one artist upgrades to
-      Pro**, with no further code change, so this decision has a deadline set by your first Pro
-      signup. Also worth knowing before you decide: of the only two actions that can auto-execute
-      without you, one (`send_reengagement`) duplicates a deterministic cron that already runs
-      daily, and both end in emails to fans.
 
 - [ ] **Tag every calculator video link BEFORE you publish it.** An untagged link still works, it
       just lands under "unknown" forever and that video can never be compared to another one. No
@@ -479,13 +390,16 @@ responsible for. Do not work those.
       reads them anymore. KEEP `FOUNDER_ALERT_SMS_EMAIL` if you want hot-lead texts.
       The old `sms_*` tables keep their consent history; they are simply unused.
 
-- [ ] **Promote the all-in-one calculator to PRIMARY when `oyf-signup-timing-v1` concludes.**
-      Decision made 2026-07-30 (you delegated it): do NOT promote while the experiment runs,
-      because Own Your Fans is its assigned experience and swapping traffic mid-flight burns the
-      readout we are paying for. The moment you conclude the experiment in `/admin` →
-      Experiments, tell Claude "promote the opportunity calculator" and it will flip the two
-      lines in [`src/lib/opportunityFunnels/registry.ts`](src/lib/opportunityFunnels/registry.ts)
-      (opportunity-calculator to `primary`/rank 0, Own Your Fans to `secondary`).
+- [ ] **Optional, and much smaller than it used to sound: do you want the all-in-one calculator
+      listed FIRST in the /tools directory?** The A/B test that used to block this was deleted on
+      2026-08-24 (your call: content now sends a different calculator per carousel post, so there
+      was no single stream of Own Your Fans traffic left to measure). Nothing blocks it now.
+      What promoting it actually does, in full: it moves the all-in-one calculator to the top of
+      the list at /tools and changes a label in the admin table. That is all. `promotion` and
+      `promotionRank` are read by the directory sort and nothing else, so it does NOT change where
+      any link, DM keyword or carousel CTA lands. Your funnels are unaffected either way.
+      Say the word and I flip two lines in
+      [`src/lib/opportunityFunnels/registry.ts`](src/lib/opportunityFunnels/registry.ts).
 
 - [ ] **Point your video funnels at the all-in-one calculator (here is exactly where and how).**
       This is only about the LINKS you paste places, nothing inside CRWN or ManyChat flows
@@ -515,43 +429,6 @@ responsible for. Do not work those.
       (one automation per video, forever). Do it ONLY for a hero video you want to measure.
 
 ### P2 — worth doing, nothing breaks if you never do it
-
-- [ ] **In about two weeks, run the calculator step-abandonment query and tell me what it says.**
-      Open [supabase/query-calculator-step-abandonment.sql](supabase/query-calculator-step-abandonment.sql)
-      in the Supabase SQL editor and run it (read only, four queries, nothing writes). I shortened the
-      Opportunity Calculator from 13 screens to 8 and the ten two-question tools from 3 to 2, and I
-      cannot see production data. Query 2 says whether completion rose. **Query 3 is the one that
-      decides whether it was a good change**: if completion rose but `builder`, `accounts` and
-      `first_paid` did not follow, the shorter wizard bought opt-ins instead of artists and I should
-      put screens back. `total_steps` in query 1 separates the old cohort from the new one on its own,
-      so no flag or experiment is needed.
-
-- [ ] **Decide the public "you keep" number, because the homepage states two.** The fee source of
-      truth is `TIER_LIMITS` in [src/lib/platformTier.ts](src/lib/platformTier.ts): Launch 12%
-      (keep 88), Pro 8% (keep 92), Scale 5% (keep 95). Eight public strings say **"up to 92%"**
-      (both comparison tables, the money-flow bar, the FAQ, `IndependenceSection`, two CTA subs),
-      while the money-flow detail line right under the "Keep up to 92%" heading says **"Scale 95%"**.
-      One of the two is wrong and it is a pricing-communication call, not a code fix, so I left both
-      alone: /terms and /artist-agreement are hand-kept and mention only 12% and 8%, so raising the
-      headline to 95% would also mean touching the legal pages, and lowering it means dropping a real
-      rate. Tell me which and I will make all eight strings plus the legal pages agree in one pass.
-      Found in the Z2B-2 homepage audit; nothing is broken today, the page is just inconsistent.
-
-- [ ] **Ratify (or reject) the four Automated Fan Testimonials decisions, or the design stays on
-      the shelf.** Architecture only, nothing was built and no migration exists:
-      [docs/crwn-brain/27-AUTOMATED-FAN-TESTIMONIALS-ARCHITECTURE.md](docs/crwn-brain/27-AUTOMATED-FAN-TESTIMONIALS-ARCHITECTURE.md),
-      section 23 has the full trade-off for each. The short version, with my recommendation:
-        1. **Build now, or wait for more paying fans?** The eligible population is fans who paid
-           AND then experienced value, which is small while `first_paid_conversion` is still the
-           constraint. I say build the small version now, because proof is perishable and the
-           asset compounds. Waiting is a defensible call and is the strongest argument against.
-        2. **Does V1 show featured testimonials on the public artist page, or stop at the private
-           library?** I say show them. A library nobody can see is inventory, not value.
-        3. **Fan deletes their account: delete their testimonials, or keep them anonymized?** I say
-           delete, matching every other fan table and "the fan owns the statement."
-        4. **Can an artist switch the automation off?** I say on by default with one toggle.
-      Answer those four and the build is mechanical. Everything else in that document is already
-      settled by repository evidence.
 
 - [ ] **Build the two all-in-one ManyChat automations: FREE and PLAN.** Both route to the same
       tool (`opportunity-calculator`). Full step by step, including the exact one-line request
@@ -663,6 +540,22 @@ Things that are never finished. Cadence, then the thing.
 ---
 
 ## On Claude's plate (not yours)
+
+- **Flip `ALLOW_UNSIGNED_LEGACY_LINKS` to false, NOT BEFORE 2026-09-24 (30 days).** The signing
+  half shipped 2026-08-24: all four fan/prospect senders now emit signed unsubscribe links, so
+  nothing NEW carries a bare row id. The flag stays true until the unsigned generation ages out of
+  inboxes, because flipping early refuses the unsubscribe link in every email already sent, which
+  is a worse compliance failure than the one it closes. 30 days is the CAN-SPAM floor; I will take
+  90 unless you want it sooner. Nothing for you to do. What the flip buys: today anyone holding a
+  send id can load the confirm page (the GET mints the token); after it, an unsigned link is
+  refused outright.
+
+- **Trim the nine over-length carousel captions.** Instagram refuses anything over 2,200
+  characters. Measured 2026-08-25 against the current files: 52 (+382), 60 (+322), 57 (+307),
+  59 (+255), 51 (+218), 58 (+161), 53 (+139), 55 (+108), 49 (+55). It became nine, not eight,
+  when the loss-framing pass added a beat to every caption. The generator now flags these on every
+  render. Say the word and I cut the beat the skill names (social proof, then the concession),
+  never either CTA.
 
 Listed so you know what you are not carrying. Ask for any of these to jump the queue.
 

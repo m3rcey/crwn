@@ -44,18 +44,33 @@ interface Resolved {
  * compliance failure the signing work is meant to protect.
  */
 async function resolve(sendId: string): Promise<Resolved | null> {
-  const { data: send } = await supabaseAdmin
+  // contact_id exists only after the fan-invites migration, so a miss retries without it and
+  // pre-migration rows keep resolving. Same graceful shape as the per-artist route.
+  let send: { fan_id: string | null; contact_id?: string | null; email: string | null; campaign_id: string | null } | null = null;
+  const withContact = await supabaseAdmin
     .from('campaign_sends')
-    .select('fan_id, email, campaign_id')
+    .select('fan_id, contact_id, email, campaign_id')
     .eq('id', sendId)
     .maybeSingle();
+  if (!withContact.error) {
+    send = withContact.data;
+  } else {
+    const legacy = await supabaseAdmin
+      .from('campaign_sends')
+      .select('fan_id, email, campaign_id')
+      .eq('id', sendId)
+      .maybeSingle();
+    send = legacy.data;
+  }
 
   let fanId: string | null = null;
+  let contactId: string | null = null;
   let email: string | null = null;
   let campaignId: string | null = null;
 
   if (send) {
     fanId = send.fan_id || null;
+    contactId = send.contact_id || null;
     email = send.email || null;
     campaignId = send.campaign_id || null;
   } else {
@@ -78,7 +93,12 @@ async function resolve(sendId: string): Promise<Resolved | null> {
       kind: 'campaign-all',
       id: sendId,
       artistId: ALL_ARTISTS,
-      recipient: fanId ? fanRecipient(fanId) : contactRecipient(email),
+      // An imported contact is identified by contact_id, exactly as the per-artist route derives
+      // it. The two routes MUST agree: campaignEmail signs both links from one recipient, so a
+      // route that derived the address here while the other derived the id would refuse every
+      // signed "unsubscribe from all" a contact ever clicked. Falls back to the address for a
+      // sequence_sends row (which carries no contact_id) and for pre-migration rows.
+      recipient: fanId ? fanRecipient(fanId) : contactRecipient(contactId || email),
     },
   };
 }
