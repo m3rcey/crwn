@@ -535,13 +535,26 @@ them into a single row forever.
      substring match will DM people who wrote "free game".
    - DM keyword trigger with the same word plus case variants. This is the unlimited test path;
      comment triggers fire once per person per post.
-3. **Node 2 (Actions, `session_start`) body.** One line, the pill inserted with
-   `+ Add Full Contact Data`, never typed:
+3. **Node 2 (Actions, `session_start`) body.** Build it in THREE moves, never one paste. Click
+   into the body field, select all, delete, then:
 
-   FREE:
-   `{"event_type":"session_start","lead_magnet_id":"opportunity-calculator","keyword":"FREE","consent_dm":true,"utm_source":"instagram","utm_medium":"organic","utm_campaign":"all_in_one_calculator","utm_content":"free_v1","contact": <Full Contact Data pill> }`
+   **a.** Paste this. It ends with a colon and no quote, and it MUST start with `{`:
 
-   PLAN: identical except `"keyword":"PLAN"` and `"utm_content":"plan_v1"`.
+       {"event_type":"session_start","lead_magnet_id":"opportunity-calculator","keyword":"FREE","consent_dm":true,"utm_source":"instagram","utm_medium":"organic","utm_campaign":"all_in_one_calculator","utm_content":"free_v1","contact":
+
+   **b.** Click **`+ Add Full Contact Data`**. The pill drops in at the cursor. No quotes around
+   it, and it can never be typed.
+
+   **c.** Paste a single `}`.
+
+   PLAN is identical except `"keyword":"PLAN"` and `"utm_content":"plan_v1"`.
+
+   **`Invalid JSON: Unexpected non-whitespace character after JSON at position 12` means the
+   leading `{` is missing.** The arithmetic is exact: without the brace the parser reads
+   `"event_type"` (12 characters, positions 0 to 11) as a complete JSON document, then trips on
+   the `:` at position 12. It is the signature of pasting into a field that was not fully
+   cleared, or of a paste that clipped the first character. Nothing else in the body is wrong
+   when you see that number. Select all, delete, and redo a, b, c.
 
    Confirm the exact normalized `utm_campaign` / `utm_content` values in the Campaign link builder
    (`/admin` → Lead Magnets) rather than inventing them; that builder is the normalizer.
