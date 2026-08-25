@@ -330,8 +330,11 @@ the invariants (`unifiedModel.test.ts`, `unifiedFunnel.test.ts`).
 Additive, no migration, no feature flag: it is an 18th entry in the existing lead-magnet registry,
 so it inherits the tool page, wizard, capture, tokenized result, email, prospect nurture, draft
 claiming and the journey resolver. All 17 individual calculators are untouched and still work.
-Promotion is `secondary` on purpose (Own Your Fans stays `primary`: it is the assigned experience of
-the RUNNING `oyf-signup-timing-v1` experiment). `?from=<tool-slug>` entry contexts reorder the
+Promotion is `secondary`. That used to be because Own Your Fans was the assigned experience of a
+running signup-timing experiment; that experiment was retired 2026-08-25, so promoting the all-in-one
+calculator is now a plain founder call. Note what `promotion`/`promotionRank` actually control: the
+/tools directory sort order and an admin label, and nothing else. They do not decide where a link, a
+DM keyword or a carousel CTA lands. `?from=<tool-slug>` entry contexts reorder the
 wizard for a single-opportunity video without changing the model. Three analytics events added
 (`opportunity_overlap_explained`, `_recommendation_edited`, `_estimate_recalculated`) and the server
 allowlist in `/api/lead-magnets/analytics` is now DERIVED from `ALL_OPPORTUNITY_EVENT_NAMES` rather
