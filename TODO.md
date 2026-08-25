@@ -212,24 +212,43 @@ responsible for. Do not work those.
       call through a CRWN calculator and qualifies, an alert with the lead's details and
       callback number is sent to an authorized representative so they can return the call.
       No messages are sent to artists, fans, prospects or customers.*
-      For opt-in, describe it truthfully as WRITTEN CONSENT ON FILE from the internal
-      recipient, not a website form. Twilio accepts paper/verbal consent for non-web opt-in;
-      it does not accept a web opt-in description you cannot show a reviewer.
-      See "Write down the internal recipient's consent" below: do that FIRST, so the answer
-      on the form points at a record that exists.
+      For opt-in, point Twilio at the LIVE PAGE (this replaces the paper-form answer that
+      was rejected):
+        https://thecrwn.app/sms-alert-consent
+      The exact wording to paste into "How do end-users consent to receive messages?" is
+      in the item below. Submit your own consent on that page FIRST, so the record exists
+      before a reviewer looks.
 
-- [ ] **Write down the internal recipient's SMS consent before you submit the campaign.**
-      The campaign's only recipient is an authorized JNW Creative Enterprises, Inc.
-      representative. Twilio requires documented consent for every recipient, including
-      internal staff, and it accepts a business record for non-web opt-in. I deliberately
-      built NO consent UI for one internal recipient: a signed one-page record is the
-      correct instrument and takes five minutes.
-      Write and sign (a dated email or a PDF in the company records is enough), covering:
-      the person's name and mobile number, that they are an authorized representative of
-      JNW Creative Enterprises, Inc., that they agree to receive automated operational
-      lead-alert text messages from the company at that number, that message frequency
-      varies, that message and data rates may apply, and that they may reply STOP at any
-      time to stop them. Keep it where you can produce it if a carrier asks.
+- [ ] **P0: Run the consent migration, then submit your own consent on the live page.**
+      Two steps, in this order, before you resubmit the Twilio campaign.
+      1. Open and run:
+         supabase/schema-phase2-internal-sms-alert-consent.sql
+         It creates ONE table, internal_sms_alert_consents, with RLS on and anon/authenticated
+         grants revoked, and it self-verifies (it RAISEs if any piece did not land). Then:
+           npm run verify:migrations
+         For this line 42501 is the PASS (the table exists and anon correctly cannot read a log
+         of real phone numbers). A 200 there is an incident, not a green light.
+      2. Go to https://thecrwn.app/sms-alert-consent on your phone, enter the number that will
+         receive the alerts, tick the box, and submit. You will get an email copy of the record.
+         The page works even if step 1 is not done yet (the email is the fallback), but do step 1
+         so the durable row exists.
+
+- [ ] **P0: Paste this into Twilio's "How do end-users consent to receive messages?" field.**
+      Copy it verbatim; it matches the live page, the privacy policy and the terms, and a
+      mismatch between them is the rejection reason:
+        Authorized personnel of JNW Creative Enterprises, Inc. opt in at
+        https://thecrwn.app/sms-alert-consent, a publicly accessible web form. The person enters
+        their mobile number and actively checks an unchecked consent box reading: "I agree to
+        receive low-volume internal CRWN operational lead alerts by SMS from JNW Creative
+        Enterprises, Inc. at the mobile number I provide. Message frequency varies. Message and
+        data rates may apply. Reply STOP to opt out or HELP for help." The page identifies the
+        sender, describes the program, links the Privacy Policy and Terms, and states consent is
+        not a condition of purchase. We store the number, the exact consent language, its
+        version, the timestamp and the IP address. Recipients are our own authorized personnel
+        only; no messages are sent to artists, fans, prospects or customers.
+      If the form offers an opt-in METHOD choice, select the web/online form option. Twilio's own
+      documented campaign form asks you to DESCRIBE the process rather than pick from a list, so
+      the text above is the answer that matters.
 
 - [ ] **The internal alert still goes out by EMAIL. Nothing texts yet.** Registering the
       campaign does not make CRWN send an SMS. `/api/lead-magnets/call-request` alerts you

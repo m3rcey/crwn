@@ -828,6 +828,13 @@ describe('SEC-SERVICE — service-role routes are the only authorization boundar
     'src/app/api/surveys/route.ts',
     'src/app/api/producer/flag/route.ts',
     'src/app/api/notifications/new-artist-hook/route.ts',
+    // Internal SMS alert consent. Public because a Twilio campaign reviewer has no CRWN
+    // account and must be able to walk the opt-in experience end to end; that is the whole
+    // reason the page exists. It is the most capability-free public write in CRWN: it holds
+    // no Twilio client and no credentials, sends no SMS, reads nothing back, and can only
+    // append a consent row for the number in the request into a table that RLS and revoked
+    // grants keep closed to anon and authenticated alike.
+    'src/app/api/sms-alert-consent/route.ts',
     // Live-show vote capture. A logged-out person standing in a venue IS the intended
     // caller, exactly like the lead-capture routes above. Declared public deliberately,
     // and it is the most tightly bounded public write in CRWN: it may only touch the ONE

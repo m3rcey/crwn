@@ -93,6 +93,11 @@ const PROBES = [
   // and the view is the one that also proves the SELECT list and the publication predicate landed.
   ['fan testimonials public view', 'fan_testimonials_public?select=id&limit=1', 'schema-phase2-fan-testimonials.sql'],
   ['fan testimonial requests (closed to anon)', 'fan_testimonial_requests?select=id&limit=1', 'schema-phase2-fan-testimonials.sql'],
+  // Internal SMS alert consent. The semantics INVERT here, like the song_lab_public_votes probe:
+  // 42501 is the PASS (the table exists and anon correctly holds no grant on a log of real phone
+  // numbers), while 42P01/PGRST205 means the migration has not run. A 200 would be a FAILURE and
+  // should be treated as an incident, not a green line.
+  ['internal SMS alert consents (closed to anon)', 'internal_sms_alert_consents?select=id&limit=1', 'schema-phase2-internal-sms-alert-consent.sql'],
   // NOT PROBED HERE, deliberately: schema-phase2-earnings-live-tip-type.sql only widens a CHECK
   // constraint (earnings_type_check), and PostgREST cannot see a constraint. Probing
   // `earnings?select=type` would return 200 whether or not the fix ran, i.e. it would certify

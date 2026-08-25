@@ -102,6 +102,10 @@ export default defineConfig({
       // of /privacy and /terms, so a disclosure quietly edited out stops the founder's
       // speed-to-lead alert without anything in the product going red.
       'src/lib/legal/legalPages.test.ts',
+      // The public A2P opt-in page. Same class of silent, external failure as the legal pages:
+      // Twilio vets the LIVE consent experience, so a disclosure or the unchecked checkbox
+      // quietly edited out breaks a carrier review while the product looks fine.
+      'src/lib/sms/alertConsent.test.ts',
     ],
   },
   resolve: {

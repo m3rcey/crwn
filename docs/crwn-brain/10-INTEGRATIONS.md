@@ -129,6 +129,16 @@ removal and the exceptions together: the exceptions do not restore anything on t
   `FOUNDER_ALERT_SMS_EMAIL` carrier gateway, and that is what ships. What DID change on 2026-08-24
   is the public legal surface the campaign is vetted against: `/privacy` section 8 and `/terms`
   section 13. See `11-SECURITY-AND-PRIVACY.md`.
+- **The A2P opt-in is a PUBLIC PAGE, because Twilio refused the paper form (2026-08-25).** The
+  campaign was rejected when the opt-in was described as a signed internal record Twilio could not
+  inspect; its documented evidence standard is "a live, publicly-accessible website with opt-in
+  functionality". `/sms-alert-consent` is that page: brand identified, an UNCHECKED checkbox
+  carrying the full disclosure (frequency, message and data rates, STOP, HELP, consent not a
+  condition of purchase), links to `/privacy` and `/terms`, and a mobile number field. It records
+  consent and **sends nothing**: the route holds no Twilio client and no credentials, and a test
+  asserts that on comment-stripped source. Consent evidence goes to `internal_sms_alert_consents`
+  (phone, server-owned disclosure text + version, source, timestamp, IP, user agent) and a copy is
+  emailed to the internal recipient, so a consent is never lost while the migration is pending.
 - **What is still forbidden.** Fan or artist SMS marketing, an SMS tab in the Fan CRM, an SMS
   campaign channel, SMS plan limits, fan SMS preferences, mass texting, and any artist-facing tool
   for texting fans. The deleted list above is the definition, and

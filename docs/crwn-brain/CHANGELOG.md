@@ -1,5 +1,67 @@
 # CRWN Brain — Changelog
 
+## 2026-08-25 (2) - Twilio would not take our word for the paper form, so the opt-in became a page
+
+**Twilio rejected the campaign because the opt-in was described as a signed internal record it
+could not inspect.** Its documented evidence standard is "a live, publicly-accessible website with
+opt-in functionality", so `/sms-alert-consent` is now that website. This is the same narrow
+2026-08-24 exception, not a new one: recipients are still only authorized personnel of JNW
+Creative Enterprises, Inc., and broad CRWN SMS marketing is still removed. Yesterday's
+"consent is a business record outside the product" conclusion is SUPERSEDED, not deleted: it was
+correct about the rules and wrong about what this reviewer would accept.
+
+**The page** (`src/app/(public)/sms-alert-consent/page.tsx` + `src/components/sms/AlertConsentForm.tsx`)
+is written for a compliance reviewer, not for conversion: brand and platform named up top, a
+plain table of who sends / who receives / message type / frequency / cost / how to stop, then the
+form. Mobile number field, a checkbox that starts UNCHECKED and is never programmatically checked,
+the full disclosure as the label, "consent is not a condition of purchase" beneath it, and links
+to `/privacy` and `/terms`. Submit stays disabled until the number looks real AND the box is
+ticked, but the browser is not the gate.
+
+**It sends nothing, and cannot.** The route holds no Twilio client, no credentials, no message
+body and no destination beyond the number being consented; a test asserts that against
+comment-stripped source, because the route's own comments explain the absence and a naive
+substring ban would forbid documenting it. No outbound sender was built: that stays gated on the
+campaign being approved.
+
+**Consent evidence: a new table, and reuse was rejected for cause.** `sms_consent_log` was
+structurally impossible (`artist_id UUID NOT NULL REFERENCES artist_profiles`, and this consent
+belongs to no artist) and semantically false (its `action` CHECK lists four fan-marketing actions
+from the product removed 2026-07-31). `acquisition_events` is the LEAD outbox and is read by
+acquisition analytics. So `supabase/schema-phase2-internal-sms-alert-consent.sql` adds ONE small
+table, `internal_sms_alert_consents`: phone, the SERVER's copy of the disclosure, its version, the
+source, timestamp, IP, user agent, and a `revoked_at` so a withdrawal is recorded rather than the
+row deleted. RLS on with NO policies plus grants revoked from `anon`/`authenticated` by name,
+because a consent log is a list of real personal phone numbers; the probe treats 42501 as the PASS
+and a 200 as an incident.
+
+**The disclosure is a server constant, and the form renders that same constant.** If the browser
+posted its own consent text, anyone could store any sentence against any number and the record
+would prove nothing. `src/lib/sms/alertConsent.ts` owns the wording and the version; the route
+reads only the boolean. Mutation-verified both ways: pre-checking the box and retyping the
+disclosure in the form each failed exactly one intended test (grep 1 to 0, reverted, green).
+
+**A consent is never lost while the migration is pending.** I cannot apply migrations, so the
+route writes the row AND emails the internal recipient their own copy of the record on every
+accepted consent, and only reports failure when BOTH sinks fail. A compliance page that says
+"recorded" while storing nothing would be the worst possible outcome.
+
+**Security:** public by necessity (a reviewer has no account), declared in `DELIBERATELY_PUBLIC`,
+rate limited per IP (5/hour) and per phone (3/day), body size bounded, phone normalized
+server-side through the EXISTING `normalizeCallbackPhone` rather than a second phone standard,
+consent enforced server-side and checked BEFORE the number (an unchecked box is a refusal, not a
+bad number), nothing ever read back, `GET` returns 405, and logs carry only a masked tail.
+Deliberately no CAPTCHA: the endpoint sends nothing, spends nothing, and writes to a table no one
+can read, so a challenge on a page a handful of people use once would be theatre.
+
+**A build lesson worth keeping.** `next build` exited **0** while printing "Failed to type check"
+(an ES2018 regex flag in the new test against an ES2017 target). The earlier grep missed it
+because it looked for "Failed to compile", not "Failed to type check". Grep for both.
+
+**Evidence:** `alertConsent.test.ts` 38 assertions (added to `verify:architecture`),
+`npm test` 3855 passed / 156 files, `verify:architecture` 900 passed / 51 files, `npm run build`
+clean with `/sms-alert-consent` and `/api/sms-alert-consent` both in the route manifest.
+
 ## 2026-08-25 - The legal pages audited against the whole product, and the product wins every disagreement
 
 **A full audit of every legal surface against the live product and strategy** (founder-approved
