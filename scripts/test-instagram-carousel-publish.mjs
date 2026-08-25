@@ -351,16 +351,26 @@ for (let i = 0; i < result.slides.length; i++) {
   });
 
   // Prove Meta will be able to fetch it, before asking Meta to try.
-  const head = await fetch(url, { method: 'HEAD' });
-  if (!head.ok) {
-    console.error(`  FAIL: presigned URL for ${file} is not fetchable (HTTP ${head.status}).`);
+  //
+  // This is a ranged GET, not a HEAD, and that detail matters: SigV4 signs the HTTP METHOD,
+  // so a URL presigned from GetObjectCommand returns 403 to a HEAD request even though the
+  // object is perfectly readable. Asking for one byte exercises the identical signature Meta
+  // will use, transfers nothing, and returns 206.
+  const probe = await fetch(url, { headers: { Range: 'bytes=0-0' } });
+  if (!probe.ok) {
+    console.error(`  FAIL: presigned URL for ${file} is not fetchable (HTTP ${probe.status}).`);
+    process.exit(1);
+  }
+  const reportedType = probe.headers.get('content-type');
+  if (reportedType && !/^image\/jpe?g$/i.test(reportedType)) {
+    console.error(`  FAIL: ${file} is served as "${reportedType}"; Instagram requires image/jpeg.`);
     process.exit(1);
   }
 
   uploaded.push({ file, key, url });
   console.log(
     `    ${String(i + 1).padStart(2)}. ${file.padEnd(14)} ${meta.width}x${meta.height}` +
-      `  ${(buf.length / 1048576).toFixed(2)}MB  uploaded, HEAD ${head.status}`
+      `  ${(buf.length / 1048576).toFixed(2)}MB  uploaded, fetchable ${probe.status} ${reportedType ?? ''}`
   );
 }
 console.log('');
