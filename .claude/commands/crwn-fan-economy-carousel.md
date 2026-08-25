@@ -60,7 +60,53 @@ appears in every script and belongs on this slide as the SMALLER second line, bu
 is also the same every time then all 30 carousels end identically. Derive the big line from that
 script's own Wow Factor (carousel 1: "REACH GETS YOU HEARD. DEPTH GETS YOU PAID.").
 
-### The plug is not the offer
+### Both CTAs are LOSS-framed
+
+Founder call, 2026-08-25. The opening CTA and the closing ask both name what the artist LOSES by
+not doing it, never what they gain. This is the standing copy rule in CLAUDE.md and every batch 04
+caption broke it: "for what your audience is worth", "for what your people would pay you", "for
+what yours is worth" are all gain frames.
+
+The rule and the two constraints that shape it:
+
+- The opening CTA must still contain `for <something>` (the contract asserts it), so the loss frame
+  lives inside that clause: `Comment "OWN" for what every middleman takes off the top before you
+  see a cent.`
+- The caption must END on `DM you the link.` (the contract asserts that too), so a loss clause can
+  never be appended after the ask. It goes MID-sentence: `Comment "OWN" before you hand over
+  another release, and I'll DM you the link.`
+- The OFFER line above the ask carries the loss as well, because it is the sentence that actually
+  describes the tool: "shows what the middle is costing you", not "shows what your audience is
+  worth".
+- Slide 3's boxed CTA is the same CTA rendered as art and gets the same treatment, or one carousel
+  ships both framings.
+
+**One frame per KEYWORD, not one per post.** The same tool should name the same loss every time it
+is offered, and the CTA forms are RATIFIED repeats in the diversity guard so identical CTAs across
+posts sharing a keyword cannot trip it. The current set:
+
+| Keyword | Opening `for` clause | Slide 3 box |
+|---|---|---|
+| TOUR | what you lose on every night you are not on stage | COMMENT 'TOUR' FOR WHAT THE NIGHTS OFF COST |
+| VAULT | what you lose every month your best fans have nothing to buy | COMMENT 'VAULT' FOR WHAT YOURS IS LOSING |
+| OWN | what every middleman takes off the top before you see a cent | COMMENT 'OWN' FOR WHAT THE MIDDLE TAKES |
+| ROYALTY | the money you're already owed that nobody is going to send you | COMMENT 'ROYALTY' FOR WHAT YOU NEVER COLLECTED |
+| DEMAND | what it costs you to make something nobody was going to buy | COMMENT 'DEMAND' FOR WHAT A MISS COSTS |
+
+
+**VAULT is used on membership posts AND catalog posts**, so its frame names the FAN side rather
+than the catalog. A catalog-specific loss reads wrong on a membership case study, which is how the
+first version of this table shipped before it was read aloud.
+
+**"Whenever possible" is the founder's wording and it is real.** A loss frame that requires an
+invented consequence is worse than a clean gain frame. If a tool genuinely has no honest loss to
+name, say what it costs to keep guessing rather than manufacturing a threat.
+
+This is deliberately NOT machine-checked. Whether a sentence is loss-framed is a judgment, and a
+regex that greps for "lose" would pass "never lose sight of what your audience is worth", which is
+a gain frame wearing the word.
+
+## The plug is not the offer
 
 The First Revenue Launch offer (done-with-you setup, and the First Paid Member Guarantee) does NOT
 go in a post. It is a closing instrument for somebody who has already raised their hand, and this
