@@ -550,15 +550,6 @@ Things that are never finished. Cadence, then the thing.
   send id can load the confirm page (the GET mints the token); after it, an unsigned link is
   refused outright.
 
-- **Trim the nine over-length carousel captions.** Instagram refuses anything over 2,200
-  characters. Measured 2026-08-25 against the current files: 52 (+382), 60 (+322), 57 (+307),
-  59 (+255), 51 (+218), 58 (+161), 53 (+139), 55 (+108), 49 (+55). It became nine, not eight,
-  when the loss-framing pass added a beat to every caption. The generator now flags these on every
-  render. Say the word and I cut the beat the skill names (social proof, then the concession),
-  never either CTA.
-
-Listed so you know what you are not carrying. Ask for any of these to jump the queue.
-
 - **Single-offer entry bridge: SHIPPED 2026-08-16.** An artist who came in through the Vault
   Revenue Planner, the Live Experience Calculator or the Executive Producer Session now gets told
   where the one thing they planned lands and what keeping only that thing costs them, on the

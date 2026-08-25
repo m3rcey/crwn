@@ -4,19 +4,19 @@
 
 Comment "VAULT" for what you lose every month your best fans have nothing to buy.
 
-DJ Khaled puts out a record and a whole building moves behind it. Radio, features, a rollout, a date everybody agreed on months ago. DJ Muggs runs his own label out of his own studio and asks nobody for anything.
+DJ Khaled puts out a record and a whole building moves behind it. Radio, features, a rollout, a date agreed months ago. DJ Muggs runs his own label out of his own studio and asks nobody for anything.
 
 How many albums did Muggs put out in 2021 alone?
 
-Khaled's model is the biggest version of the normal one. Assemble the stars, spend the budget, pick the quarter, push it everywhere at once. It works, and that is what a major label machine is FOR.
+Khaled's model is the biggest version of the normal one. Assemble the stars, spend the budget, pick the quarter, push it everywhere at once. That is what a major label machine is FOR.
 
-Muggs came out of Cypress Hill and built Soul Assassins into his own thing. A rapper turns up, they make a record, it goes out.
+Muggs came out of Cypress Hill and built Soul Assassins into his own label. A rapper turns up, they make a record, it goes out.
 
 No single. No radio. No quarter. Finished, then out.
 
 Here's what nobody lines up next to each other.
 
-One of them needs a building to say yes. The other one needs an afternoon.
+One needs a building to say yes. The other needs an afternoon.
 
 Go guess the count before I say it.
 
@@ -28,11 +28,11 @@ So how many albums did DJ Muggs release in 2021?
 
 Six. In one calendar year.
 
-And here's what got me. Not one of them needed anybody's approval. Six records, most with a different rapper each time, every one going straight to an audience that already buys whatever he makes. He wasn't waiting on a slot, because there was no slot. A signed artist can wait six years for two albums. He did six in twelve months.
+And here's what got me. Not one of them needed anybody's approval. Six records, most with a different rapper, straight to an audience that already buys whatever he makes. A signed artist can wait six years for two albums. He did six in twelve months.
 
-Now to be fair, one Khaled record reaches more people in a week than six Muggs albums reach in a year, and that machine puts artists in front of audiences no independent can buy their way to. And six albums a year only works because Muggs spent thirty years earning people who show up without being told.
+Now to be fair, one Khaled record reaches more people in a week than six Muggs albums reach in a year, and that machine reaches audiences no independent can buy. Six albums only works because Muggs spent thirty years earning people who turn up unprompted.
 
-But if the whole difference is whether somebody has to approve you, the question ain't how do I get in the building. It's whether the people who already buy from you can be reached the day you finish something.
+But if the whole difference is whether somebody has to approve you, the question ain't how do I get in the building. It's whether the people who already buy from you can be reached the day you finish.
 
 I built a free vault revenue planner that shows what you're leaving on the table every month.
 

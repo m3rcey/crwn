@@ -8,17 +8,15 @@ Future has tens of millions of people listening to him every month. Joe Budden h
 
 One of those numbers arrives whether he releases anything or not. How much is it?
 
-Lyfe Jennings, LL Cool J, Jagged Edge and Carl Thomas all follow the CRWN app. People who sold records back when you could still count your buyers tend to recognise what this is the moment they see it.
+Future is one of the most streamed rappers alive. Decades of records, features on everything, a catalog that runs on its own. That reach is real and it took twenty years.
 
-Future is one of the most streamed rappers alive. Decades of records, features on everything, a catalog that runs on its own. That reach took twenty years to build and it is real.
-
-Joe Budden stopped rapping. He built a show, put it behind a paywall, and asked the people who already listened to him to pay for it directly.
+Joe Budden stopped rapping. He built a show, put it behind a paywall, and asked the people already listening to pay him directly.
 
 About seventy thousand of them said yes.
 
 Here's the part that never gets compared.
 
-One of those numbers is in the millions. The other is in the tens of thousands. The small one is the one that shows up on the first of every month.
+One number is in the millions. The other is in the tens of thousands. The small one shows up on the first of every month.
 
 Go think about which you'd rather have before I say it.
 
@@ -30,11 +28,11 @@ So what do seventy thousand paying people add up to?
 
 Billboard put it at about one point zero four million dollars a month in 2025.
 
-And here's the crazy part. There's no album behind that. No tour, no label, no release schedule, no radio. He isn't waiting on a rollout and nobody can drop him. And he can name every one of the seventy thousand, because they handed him their details in order to pay him.
+And here's the crazy part. There's no album behind that. No tour, no label, no radio, and nobody who can drop him. He can also name all seventy thousand, because they handed him their details in order to pay him.
 
-Now to be fair, Future's catalog earns in ways a subscription never will, and touring and publishing are their own machines. Streaming put him in front of more people in a month than a paywall reaches in a decade. And Budden built that audience on radio and records for twenty years first.
+Now to be fair, Future's catalog earns in ways a subscription never will, and streaming reached more people in a month than a paywall does in a decade. Budden also spent twenty years on radio and records first.
 
-But if seventy thousand people can do that, the question ain't how do I get more listeners. It's how many of your listeners would pay you something small every month, and whether you have ever once asked them.
+But if seventy thousand people can do that, the question ain't how do I get more listeners. It's how many of yours would pay you something small every month, and whether you have ever asked.
 
 I built a free vault revenue planner that shows what you're leaving on the table every month.
 

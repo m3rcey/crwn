@@ -4,19 +4,19 @@
 
 Comment "OWN" for what every middleman takes off the top before you see a cent.
 
-PARTYNEXTDOOR signed to one of the biggest labels in R&B and it worked. Brent Faiyaz got offered a major deal too, early, before anybody knew him. He said no.
+PARTYNEXTDOOR signed to one of the biggest labels in R&B and it worked. Brent Faiyaz was offered a major deal too, early, before anybody knew him. He said no.
 
 What was on the table when he said it?
 
-A major deal for a new R&B singer is the thing everybody is waiting for. The machine, the budget, the playlists, the rooms you cannot get into on your own. PARTYNEXTDOOR took his and built a career most singers will never touch.
+A major deal for a new R&B singer is what everybody waits for. The machine, the budget, the playlists, the rooms you cannot get into alone. PARTYNEXTDOOR took his and built a career most singers never touch.
 
-Brent Faiyaz was unsigned, uploading records, with a manager who kept reading the terms out loud.
+Brent Faiyaz was unsigned, uploading records, with a manager reading the terms out loud.
 
 He turned it down and started Lost Kids instead.
 
 Here's what nobody lines up next to each other.
 
-Saying no to a major as a nobody sounds insane until you know what the number was. Then it sounds worse. Then it sounds right.
+Saying no to a major as a nobody sounds insane until you know the number. Then it sounds worse. Then it sounds right.
 
 Go guess the figure before I say it.
 
@@ -26,13 +26,13 @@ ANYWAY.
 
 So what did he turn down?
 
-A reported quarter of a million dollars. Two hundred and fifty thousand, up front, to a kid with no album out.
+A reported quarter of a million dollars. Up front, to a kid with no album out.
 
-And here's what got me. That money was never a gift. An advance is a loan against your own royalties. You pay it back out of your own sales, and at the end of it they still own the recordings. He said no to two hundred and fifty thousand dollars of his own future money, and kept his masters instead.
+And here's what got me. That money was never a gift. An advance is a loan against your own royalties, paid back out of your own sales, and they still own the recordings. He said no to a quarter of a million dollars of his own future money and kept his masters.
 
-Now to be fair, a major does things an independent cannot. Radio, sync, international, the weight of a whole building pushing one record. PARTYNEXTDOOR's deal put him in front of the world and it paid. And turning that cheque down only works if you can survive without it.
+Now to be fair, a major does what an independent cannot. Radio, sync, international, a building behind one record. PARTYNEXTDOOR's deal put him in front of the world and it paid, and turning that cheque down only works if you can survive without it.
 
-But if the biggest offer in the building is really your own money handed to you early, the question ain't how do I get signed. It's how much of your own money is already out there, and whether you have ever tried to collect it directly.
+But if the biggest offer in the building is really your own money handed to you early, the question ain't how do I get signed. It's how much of it is already out there, and whether you ever tried to collect directly.
 
 I built a free own your fans calculator that shows what the middle is costing you.
 

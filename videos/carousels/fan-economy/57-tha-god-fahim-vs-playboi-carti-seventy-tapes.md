@@ -8,9 +8,7 @@ Playboi Carti has released three studio albums in his entire career and has tens
 
 How many is that?
 
-Snoop reposted one of these breakdowns a while back. The people who lived through the record deal era tend to recognise this math faster than anybody, because they already paid to learn it.
-
-Carti's whole model is scarcity. Years between records, no explanation, the wait doing the marketing for him. Three albums, and it works, because when he shows up the entire internet stops.
+Carti's whole model is scarcity. Years between records, no explanation, the wait doing the marketing. Three albums, and it works, because when he shows up the internet stops.
 
 Fahim went the opposite way. Atlanta, no label, tape after tape, sold straight off his own page.
 
@@ -30,11 +28,11 @@ So how many tapes did Fahim put out?
 
 Around seventy. In about three years.
 
-And here's what got me. Every one of them sold direct. That means seventy releases worth of people who typed in an email and a card number to get it. Not seventy releases worth of plays. Seventy releases worth of BUYERS. Carti reached a hundred times more people and cannot name one of them.
+And here's what got me. Every one sold direct. That means seventy releases worth of people who typed in an email and a card number. Not plays. BUYERS. Carti reached a hundred times more people and cannot name one of them.
 
-Now to be fair, Carti's three albums have shaped more of this decade's sound than seventy tapes will, and scarcity pays enormously when you can hold attention that long. Streaming put him in front of a generation. And seventy releases only works if people will already buy the next one unheard.
+Now to be fair, Carti's three albums have shaped more of this decade's sound than seventy tapes will, and scarcity pays enormously when you can hold attention that long. Seventy releases only works if people will already buy the next one unheard.
 
-But if a man in Atlanta with no label can build a buyer list seventy releases deep, the question ain't how do I get more plays. It's how many people would actually buy the next thing, and whether you have any way to ask them.
+But if a man in Atlanta with no label can build a buyer list seventy releases deep, the question ain't how do I get more plays. It's how many would actually buy the next thing, and whether you can ask them.
 
 I built a free proof of demand test builder that tells you before you spend the money.
 

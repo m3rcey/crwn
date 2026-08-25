@@ -8,7 +8,7 @@ Lil Baby's records come out of one of the biggest machines in rap and land at th
 
 Both of them ended up in the same Grammy category. How high did the independent one chart?
 
-A major label album gets radio, marketing, playlist relationships and a release date the whole industry moves around. Lil Baby has all of it and uses it, and nobody is pretending that isn't an advantage.
+A major label album gets radio, marketing, playlist relationships and a release date the industry moves around. Lil Baby has all of it, and nobody is pretending that isn't an advantage.
 
 Gibbs made Alfredo with Alchemist and put it out on ESGN, his own label. He still needed distribution and used Empire for that, but the record belonged to him.
 
@@ -28,11 +28,11 @@ So where did the self released one chart?
 
 Number fifteen on the Billboard 200.
 
-And here's the crazy part. It got nominated for Best Rap Album. It sat in a category with records carrying hundred person teams and eight figure budgets, and it came off a label one man owns. Same shelf. Very different split on every single copy.
+And here's the crazy part. It got nominated for Best Rap Album, in a category with records carrying hundred person teams and eight figure budgets, off a label one man owns. Same shelf. Very different split on every copy.
 
-Now to be fair, Lil Baby's numbers dwarf a number fifteen peak and a major can move a record in ways an independent simply cannot. Streaming and radio put him in front of an audience Gibbs would take years to reach. And Gibbs had fifteen years of records behind him before Alfredo, which is why anybody was waiting.
+Now to be fair, Lil Baby's numbers dwarf a number fifteen peak, and a major moves a record in ways an independent cannot. Gibbs also had fifteen years of records behind him before Alfredo, which is why anybody was waiting.
 
-But if you can reach the same shelf on your own imprint, the question ain't how do I get somebody to put me there. It's what you keep when you arrive, and whether the people who bought it are yours or theirs.
+But if you can reach the same shelf on your own imprint, the question ain't how do I get somebody to put me there. It's what you keep when you arrive, and whether the buyers are yours or theirs.
 
 I built a free royalty readiness check that finds what you're owed and never collected.
 

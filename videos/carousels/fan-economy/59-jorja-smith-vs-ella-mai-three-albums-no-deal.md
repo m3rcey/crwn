@@ -8,8 +8,6 @@ Two British singers broke through at almost exactly the same moment. Ella Mai we
 
 How many albums has Jorja put out without a major label?
 
-Lyfe Jennings, LL Cool J, Jagged Edge and Carl Thomas all follow the CRWN app. Artists who watched a whole generation hand over their masters tend to spot this argument coming before you finish it.
-
 Ella Mai signed, got the machine, got the record that went everywhere, got the Grammy. That is the path working exactly as advertised, and it is a real career built a real way.
 
 Jorja came up on the same wave of British R&B and went the other way. Everything she has released has come out through FAMM, her own label.
@@ -30,9 +28,9 @@ So how many albums with no major label?
 
 Three. Plus the EPs. All on her own.
 
-And here's the crazy part. Not one of them is owned by anybody else. No option to pick up. No advance to recoup. No shelf they can sit on if a campaign goes badly. Her whole catalog, start to finish, belongs to her. She was one of the biggest new voices in the country and never had to hand a single record over to find out.
+And here's the crazy part. Not one of them is owned by anybody else. No option to pick up. No advance to recoup. No shelf they can sit on. Her whole catalog belongs to her, and she was one of the biggest new voices in the country without handing over a single record.
 
-Now to be fair, a major moved Ella Mai's record onto radio in a way an independent fights years for, and that reach turned into a career still running today. The deal did what a deal is supposed to do. And Jorja had a huge cosign early, which is not nothing and not repeatable on demand.
+Now to be fair, a major moved Ella Mai's record onto radio in a way an independent fights years for, and the deal did exactly what a deal is supposed to do. Jorja also had a huge cosign early, which is not nothing and not repeatable on demand.
 
 But if you can build all of that and keep every record, the question ain't who is going to sign me. It's what you already own, and whether you have any direct way to sell it to the people who want it.
 

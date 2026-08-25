@@ -4,11 +4,11 @@
 
 Comment "VAULT" for the second sale you lose every time there is nothing else to buy.
 
-Post Malone has more than sixty million monthly listeners. Benny the Butcher sold a record that went out of print, then put the sequel out at a higher price.
+Post Malone has more than sixty million monthly listeners. Benny the Butcher sold a record that went out of print, then priced the sequel higher.
 
 Did they still buy it?
 
-Sixty million people a month is an audience the size of a country. About as much reach as this business has to give. And every one of those listens is the same transaction, once, worth a fraction of a cent.
+Sixty million people a month is an audience the size of a country, about as much reach as this business has to give. Every one of those listens is the same transaction, once, worth a fraction of a cent.
 
 Benny runs the other model. Stabbed & Shot with 38 Spesh sold at $24.98 and went out of stock.
 
@@ -16,7 +16,7 @@ Then the sequel came, and it didn't come cheaper.
 
 Here's the thing nobody puts side by side.
 
-The second record cost MORE than the first one, and it came out for the same people who already bought the first one.
+The second record cost MORE than the first, and it came out for the same people who already bought the first.
 
 One audience can only listen. One can buy again.
 
@@ -30,11 +30,11 @@ So did they pay the higher price?
 
 The first sold out at $24.98. The sequel shipped in four versions, up to $34.98.
 
-And here's the crazy part. Nobody raises the price on people who barely wanted it the first time. He raised it because the same people came back, and the version with the obi strip cost the most of all. That's a customer. Sixty million monthly listeners contains almost none of those, because there's nothing there to buy.
+And here's the crazy part. Nobody raises the price on people who barely wanted it the first time. He raised it because the same people came back, and the obi strip version cost the most. That's a customer. Sixty million monthly listeners contains almost none, because there's nothing there to buy.
 
-Now to be fair, Post Malone's reach is worth an enormous amount in ways a vinyl run never is, and most of those sixty million found him because streaming works exactly as designed. And a price ladder only works when missing the record hurts.
+Now to be fair, Post Malone's reach is worth an enormous amount a vinyl run never will be, and most of those sixty million found him because streaming works as designed. A price ladder only works when missing the record hurts.
 
-But if the same person will buy the same record twice at a higher price, the question ain't how many people heard it. It's whether anybody in your world has ever been given a second thing to buy.
+But if the same person will buy the same record twice at a higher price, the question ain't how many people heard it. It's whether anybody in your world has ever had a second thing to buy.
 
 I built a free Vault Revenue Planner that shows what having one thing to sell costs.
 

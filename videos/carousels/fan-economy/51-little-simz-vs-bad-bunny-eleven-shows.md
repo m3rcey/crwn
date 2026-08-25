@@ -4,19 +4,19 @@
 
 Comment "TOUR" for what you lose on every night you're not on stage.
 
-In 2022 Bad Bunny played eighty one shows and grossed four hundred and thirty five million dollars. That same year Little Simz had a BRIT award, eleven American dates on sale, and she cancelled every single one.
+In 2022 Bad Bunny played eighty one shows and grossed four hundred and thirty five million dollars. That same year Little Simz had a BRIT award, eleven American dates on sale, and cancelled every one.
 
 What actually stopped it?
 
-Bad Bunny's run was the highest grossing calendar year any artist has ever had. Eighty one nights, stadiums, a record that had stood since the eighties broken in one go. That is the ceiling of this business and nobody is arguing with it.
+Bad Bunny's run was the highest grossing calendar year any artist has ever had. Eighty one nights, stadiums, a record from the eighties broken in one go.
 
-Little Simz was not small that year either. Best New Artist at the BRITs. Her album on every list in the country. Millions of people listening every month.
+Little Simz was not small that year either. Best New Artist at the BRITs. Her album on every list in the country. Millions listening monthly.
 
 Eleven dates. Portland first, then across the country. Then nothing.
 
 Here's the thing nobody puts side by side.
 
-When a tour gets pulled you assume illness, or visas, or that nobody bought a ticket. It was none of those.
+When a tour gets pulled you assume illness, visas, or no ticket sales. It was none of those.
 
 Go guess before I say it.
 
@@ -26,13 +26,13 @@ ANYWAY.
 
 So what stopped eleven shows for a BRIT winner?
 
-She was paying for the whole thing out of her own pocket, and she said going ahead would leave her in a huge deficit.
+She was paying for the whole thing out of her own pocket, and said going ahead would leave her in a huge deficit.
 
-And it gets worse. The tickets were selling. The demand was there, the award was weeks old, the album was everywhere, and the arithmetic still came out negative before she played a single note. An artist with millions of listeners could not afford to go and stand in a room with them.
+And it gets worse. The tickets were selling. The award was weeks old, the album everywhere, and the arithmetic still came out negative before she played a note. An artist with millions of listeners could not afford to stand in a room with them.
 
-Now to be fair, Bad Bunny's scale is real and took years to build, and Simz got that award and those listeners because streaming put her in front of the world. Discovery did its job. She also went back out the following year and played the rooms.
+Now to be fair, Bad Bunny's scale took years to build, and Simz got that award and those listeners because streaming put her in front of the world. She went back out the next year and played the rooms.
 
-But if a BRIT winner with millions of listeners can be one tour away from losing money, the question ain't how do I get bigger. It's how many of those listeners have ever paid you anything, and whether you could reach them if you had to.
+But if a BRIT winner with millions of listeners can be one tour away from losing money, the question ain't how do I get bigger. It's how many of them ever paid you anything, and whether you could reach them if you had to.
 
 I built a free between tour calculator that shows what the nights off are costing you.
 

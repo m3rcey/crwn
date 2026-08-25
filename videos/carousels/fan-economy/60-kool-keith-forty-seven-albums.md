@@ -4,19 +4,17 @@
 
 Comment "VAULT" for what you lose every month your best fans have nothing to buy.
 
-Kool Keith has forty seven studio albums. Not mixtapes, not features. Studio albums, since the eighties. Every one of them was bought by somebody who paid for it, took it home and played it.
+Kool Keith has forty seven studio albums. Not mixtapes, not features. Studio albums, since the eighties. Every one bought by somebody who paid for it and took it home.
 
 How many of those buyers can he reach today?
 
-Forty seven is not a typo. Twenty four on his own and twenty three with other people. Solo records, records under other names, records with producers, records with other rappers.
+Forty seven is not a typo. Twenty four on his own and twenty three with other people.
 
-Decade after decade, straight through every change this business has been through. He never stopped, and the whole time people were buying.
-
-Cassettes, then CDs, then vinyl, then downloads. Every one of those buyers went and found him. Nobody made them.
+Decade after decade, through every format this business went through: cassettes, then CDs, then vinyl, then downloads. He never stopped, and the whole time people were buying. Nobody made them.
 
 Here's the thing nobody stops to work out.
 
-Forty years of people paying for your records is forty years of people raising their hand. Ask where all those hands went.
+Forty years of people paying for records is forty years of hands going up. Ask where those hands went.
 
 Go guess before I say it.
 
@@ -26,13 +24,13 @@ ANYWAY.
 
 So how many of those buyers can Kool Keith actually reach?
 
-Not one. There is no list. Forty seven albums and he cannot send a message to a single person who bought one.
+Not one. There is no list. Forty seven albums and he cannot message a single person who bought one.
 
-And it gets worse. That is one of the deepest catalogs in rap, and it is worth less than a list of the people who already paid for it. The records are an asset he owns. The buyers were never his. The store kept them, the label kept them, the platform kept them, and he got a payment and a thank you. Every one of those people would probably buy again, and he has no way to ask.
+And it gets worse. That is one of the deepest catalogs in rap, and it is worth less than a list of the people who already paid for it. The records are an asset he owns. The buyers were never his. The store kept them, then the label, then the platform. Every one of those people would probably buy again, and he has no way to ask.
 
-Now to be fair, streaming is the reason a forty year catalog is still findable at all. A kid can hear a 1996 record tonight without knowing one thing about him, and that is genuinely new. And a catalog that deep earns quietly in ways a new artist's does not.
+Now to be fair, streaming is the reason a forty year catalog is still findable at all. A kid can hear a 1996 record tonight without knowing one thing about him, and that is genuinely new.
 
-But if forty seven albums can be worth less than the list of people who bought them, the question ain't how do I make more. It's whether the people who already paid you once have any way to hear from you again.
+But if forty seven albums can be worth less than the list of people who bought them, the question ain't how do I make more. It's whether anyone who already paid you has a way to hear from you again.
 
 I built a free vault revenue planner that shows what you're leaving on the table every month.
 
