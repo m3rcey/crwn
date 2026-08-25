@@ -88,6 +88,10 @@ export async function middleware(request: NextRequest) {
 
   // Fire-and-forget visitor tracking (non-blocking, skip bots)
   try {
+    // Founder devices are never counted (src/lib/analytics/doNotTrack.ts). This gate also
+    // covers /api/admin/track's visit writes, because this fetch is their only trusted caller.
+    if (request.cookies.get('crwn_dnt')?.value === '1') return response;
+
     const visitorHash = await hashVisitor(request.headers);
     if (!visitorHash) return response; // Bot detected, skip tracking
 

@@ -5,6 +5,7 @@ import { recordFunnelEvent, LM_EVENT_TO_STAGE } from '@/lib/analytics/funnelEven
 import { ALL_OPPORTUNITY_EVENT_NAMES } from '@/lib/opportunityFunnels/analytics';
 import { isSubAvatarId } from '@/lib/avatars/taxonomy';
 import { attributionToFunnelDims, sanitizeStoredAttribution } from '@/lib/analytics/campaignAttribution';
+import { requestHasDnt } from '@/lib/analytics/doNotTrack';
 
 // PUBLIC analytics sink. Append-only. The server allowlists fields (recordLmEvent),
 // so no raw email/phone/answers/payloads can land here even if a client sends them.
@@ -45,6 +46,10 @@ const ALLOWED_EVENTS = new Set([
 ]);
 
 export async function POST(req: NextRequest) {
+  // Founder devices are never counted (src/lib/analytics/doNotTrack.ts). A 200 keeps the
+  // beacon quiet; nothing lands in lead_magnet_events or the funnel mirror.
+  if (requestHasDnt(req.headers)) return NextResponse.json({ ok: true });
+
   let body: { event?: string; meta?: Record<string, unknown> };
   try {
     body = await req.json();

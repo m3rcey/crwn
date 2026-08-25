@@ -11,6 +11,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { recordFunnelEvent, isFunnelStage } from '@/lib/analytics/funnelEvents';
+import { requestHasDnt } from '@/lib/analytics/doNotTrack';
 import { recomputeArtistOpportunity } from '@/lib/analytics/opportunityLedger';
 import { checkRateLimit } from '@/lib/rateLimit';
 
@@ -21,6 +22,10 @@ const supabaseAdmin = createClient(
 );
 
 export async function POST(req: NextRequest) {
+  // Founder devices are never counted (src/lib/analytics/doNotTrack.ts). Answer success so the
+  // beacon never retries; the row simply does not exist.
+  if (requestHasDnt(req.headers)) return NextResponse.json({ ok: true });
+
   let body: {
     stage?: string;
     calculator?: string;

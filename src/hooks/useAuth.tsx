@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { User, AuthError } from '@supabase/supabase-js';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
+import { markDeviceDnt } from '@/lib/analytics/doNotTrack';
 
 type UserRole = 'fan' | 'artist' | 'admin';
 
@@ -93,6 +94,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .single();
     
     if (!error && data) {
+      // Founder exclusion: the moment an admin profile loads in this browser, mark the DEVICE
+      // as never-counted for a year. Every tracking write path checks this cookie, so the
+      // founder's own browsing (any account, logged out included) stops feeding the metrics.
+      if ((data as Profile).role === 'admin') markDeviceDnt();
+
       // Logging back in reactivates a deactivated account (the promise shown in
       // the Deactivate modal). Deactivation only flips profiles.is_active to false,
       // so the first authenticated profile load flips it back to true.

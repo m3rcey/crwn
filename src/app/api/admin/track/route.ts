@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { recordFunnelEvent } from '@/lib/analytics/funnelEvents';
+import { requestHasDnt } from '@/lib/analytics/doNotTrack';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -24,6 +25,11 @@ const supabaseAdmin = createClient(
 //    authenticated user marking THEIR OWN signup (userId === session user).
 export async function POST(req: NextRequest) {
   try {
+    // Founder devices are never counted (src/lib/analytics/doNotTrack.ts). The trusted
+    // middleware caller sends no cookies, so this only drops direct browser calls (the
+    // markConverted path) from a marked device.
+    if (requestHasDnt(req.headers)) return NextResponse.json({ ok: true });
+
     const expected = process.env.INTERNAL_TRACK_SECRET;
     const trustedInternal = !!expected && req.headers.get('x-internal-secret') === expected;
     const trackingAllowed = !expected || trustedInternal;

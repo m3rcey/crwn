@@ -5,6 +5,7 @@ import { Track } from '@/types';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/components/shared/Toast';
+import { clientHasDnt } from '@/lib/analytics/doNotTrack';
 
 type RepeatMode = 'off' | 'all' | 'one';
 
@@ -139,7 +140,11 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
   // Log play history - declared before play
   const logPlayHistory = useCallback(async () => {
     if (!user || !currentTrack || !playStartTime) return;
-    
+    // Founder devices are never counted (src/lib/analytics/doNotTrack.ts): no play_history
+    // row, no play_count increment. Trade-off, accepted: recently-played stops accruing on a
+    // marked device, because play_history is also what artist analytics counts plays from.
+    if (clientHasDnt()) return;
+
     const durationPlayed = Math.floor((Date.now() - playStartTime) / 1000);
     const completed = duration >= 30 && durationPlayed >= duration * 0.8;
     await supabase.from('play_history').insert({

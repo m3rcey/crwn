@@ -108,6 +108,39 @@ describe('recordFunnelEvent: dedup at the DB, and fail-safe', () => {
     expect(calls).not.toHaveBeenCalled();
   });
 
+  // Founder exclusion: an event attributed to an admin user id is never written. The device
+  // cookie covers browser paths; this chokepoint covers webhooks and other server call sites.
+  function roleDb(roleAnswer: () => Promise<{ data: { role: string } | null }>) {
+    const upsert = vi.fn().mockResolvedValue({ error: null });
+    const db = {
+      from: (t: string) =>
+        t === 'profiles'
+          ? { select: () => ({ eq: () => ({ maybeSingle: roleAnswer }) }) }
+          : { upsert },
+    };
+    return { upsert, db };
+  }
+
+  it('skips an event whose userId resolves to an admin profile', async () => {
+    const { upsert, db } = roleDb(async () => ({ data: { role: 'admin' } }));
+    await recordFunnelEvent(db, { stage: 'setup_completed', userId: 'josh', dedupeKey: 'x' });
+    expect(upsert).not.toHaveBeenCalled();
+  });
+
+  it('records an event for a non-admin user', async () => {
+    const { upsert, db } = roleDb(async () => ({ data: { role: 'artist' } }));
+    await recordFunnelEvent(db, { stage: 'setup_completed', userId: 'artist-1', dedupeKey: 'x' });
+    expect(upsert).toHaveBeenCalledTimes(1);
+  });
+
+  it('fails OPEN when the role read blows up (a real event is never dropped)', async () => {
+    const { upsert, db } = roleDb(async () => {
+      throw new Error('profiles unreachable');
+    });
+    await recordFunnelEvent(db, { stage: 'setup_completed', userId: 'artist-1', dedupeKey: 'x' });
+    expect(upsert).toHaveBeenCalledTimes(1);
+  });
+
   it('never throws, even if the DB blows up (pre-migration or otherwise)', async () => {
     const db = {
       from: () => ({

@@ -120,6 +120,18 @@ export function buildFunnelRow(input: RecordFunnelInput): Record<string, unknown
 export async function recordFunnelEvent(db: Db, input: RecordFunnelInput): Promise<void> {
   const row = buildFunnelRow(input);
   if (!row) return;
+  // Founder exclusion (see src/lib/analytics/doNotTrack.ts): an event attributed to an admin
+  // user is never recorded. This is the chokepoint that covers server-side call sites
+  // (webhooks, auto-claim) where the device cookie never travels. Fails OPEN: an unreadable
+  // role must never drop a real user's event.
+  if (input.userId) {
+    try {
+      const { data } = await db.from('profiles').select('role').eq('id', input.userId).maybeSingle();
+      if (data?.role === 'admin') return;
+    } catch {
+      // fail open — record the event
+    }
+  }
   try {
     // ON CONFLICT (dedupe_key) DO NOTHING — the whole no-duplicate guarantee, at the DB.
     await db.from('funnel_events').upsert(row, { onConflict: 'dedupe_key', ignoreDuplicates: true });

@@ -23,6 +23,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { hashVisitor } from '@/lib/analytics/visitorHash';
+import { requestHasDnt } from '@/lib/analytics/doNotTrack';
 import { recordTierEvent } from '@/lib/analytics/tierEvents';
 
 const supabaseAdmin = createClient(
@@ -50,6 +51,9 @@ export async function POST(req: NextRequest) {
       .filter((v): v is string => typeof v === 'string' && v.length > 0 && v.length <= 64)
       .slice(0, 12);
     if (ids.length === 0) return OK;
+
+    // Founder devices are never counted (src/lib/analytics/doNotTrack.ts).
+    if (requestHasDnt(req.headers)) return OK;
 
     const visitorHash = await hashVisitor(req.headers);
     if (!visitorHash) return OK; // bot, or no usable identity: never counted

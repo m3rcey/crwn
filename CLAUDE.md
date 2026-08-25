@@ -257,6 +257,24 @@ third state.
 If you add a plan limit, it needs an enforcement point that a browser cannot route around, or it
 does not go in the marketing copy.
 
+## Founder traffic is never counted (2026-08-25)
+
+`src/lib/analytics/doNotTrack.ts` is the one definition. Two mechanisms: the `crwn_dnt` DEVICE
+cookie (set for a year by `useAuth` the moment an admin profile loads in a browser; covers every
+later request from that device, any account, logged out included) and the ACCOUNT rule
+(`recordFunnelEvent` skips events attributed to an admin user id, covering webhook/server call
+sites the cookie never reaches; it fails OPEN so a broken role read never drops a real event).
+**Every tracking write path checks it**: middleware visit tracking, `/api/tier-events`,
+`/api/funnel/track`, `/api/lead-magnets/analytics`, `/api/admin/track`, and the player's play
+logging. **If you add a new tracking write path, gate it with `requestHasDnt` (server) or
+`clientHasDnt` (browser) in the same commit.** Two deliberate exceptions: `popup_events` are the
+pop-up governor's frequency-cap STATE, not a metric, and are never gated or deleted; and this is
+an analytics exclusion ONLY — it must never gate a product behavior, entitlement, or
+authorization, since anyone can hand-set the cookie. Historical founder rows were removed by
+[supabase/cleanup-founder-analytics.sql](supabase/cleanup-founder-analytics.sql) (anonymous rows
+reachable only through the visitor-hash and anon-id bridges; unbridged anonymous rows are
+unattributable by design and stay).
+
 ## Campaign attribution — one normalizer, one durable home, no new table
 
 Organic video links are TAGGED (`docs/acquisition/campaign-tagging.md`).
