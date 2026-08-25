@@ -506,3 +506,62 @@ reply satisfies Meta's interaction requirement the same way a tap does.
   `last_input_text` entirely (it is stale there, usually the comment keyword itself).
 - If ManyChat refuses a Data Collection block on the private-reply node, keep the button opener
   for comment triggers; the pattern still works for DM-keyword automations.
+
+---
+
+## 11. The two all-in-one clones: FREE and PLAN (2026-08-25)
+
+Two automations, both routing to the **same** tool (`opportunity-calculator`, the all-in-one
+calculator). They exist as two flows and not one because a ManyChat comment trigger cannot tell
+CRWN which word fired it: the `keyword` and `utm_content` in the body are what separate the two
+hooks in `/admin` → Lead Magnets → Content scorecard. One flow serving both words would collapse
+them into a single row forever.
+
+**The backend needs no change.** Verified 2026-08-25:
+
+- `opportunity-calculator` is a live adapter (`toolAdapters.ts`), one required field
+  (`social_followers`), so it is a ONE question DM.
+- `free` and `plan` are already in that tool's `dmKeywords` (`registry.ts`), so the orchestrator's
+  keyword pivot already knows them and no other tool claims either word.
+- `acquisition_engine` is **enabled** in production. A correct Test Request returns `200`, not the
+  `503` the earlier sections describe. A `400` is still the only failure that matters.
+
+### Clone procedure (per flow, twice)
+
+1. Duplicate the **worth** automation. Name the copies `ALL-IN-ONE / FREE` and `ALL-IN-ONE / PLAN`.
+2. **Re-create both triggers. They do not survive duplication** (Trap in section 10, step 5):
+   - Comment trigger: `any post or reel`, comment has `free, FREE` (or `plan, PLAN`).
+     Set the match to the **whole word**, not "contains". `free` is a common comment word and a
+     substring match will DM people who wrote "free game".
+   - DM keyword trigger with the same word plus case variants. This is the unlimited test path;
+     comment triggers fire once per person per post.
+3. **Node 2 (Actions, `session_start`) body.** One line, the pill inserted with
+   `+ Add Full Contact Data`, never typed:
+
+   FREE:
+   `{"event_type":"session_start","lead_magnet_id":"opportunity-calculator","keyword":"FREE","consent_dm":true,"utm_source":"instagram","utm_medium":"organic","utm_campaign":"all_in_one_calculator","utm_content":"free_v1","contact": <Full Contact Data pill> }`
+
+   PLAN: identical except `"keyword":"PLAN"` and `"utm_content":"plan_v1"`.
+
+   Confirm the exact normalized `utm_campaign` / `utm_content` values in the Campaign link builder
+   (`/admin` → Lead Magnets) rather than inventing them; that builder is the normalizer.
+4. **Node 4 (`answer`) needs no edit.** Session routing owns the tool.
+5. **Node 1 copy** is a bridge, never a re-ask. The lead already said yes by commenting. Something
+   like: "One question and you'll see the whole picture: what you're leaving on the table every
+   month." Do not hand-type a CRWN question here; the real question arrives as `crwn_message`.
+6. **Verify the five response-mapping rows survived** the duplicate (action / message /
+   question_key / result_url / session_id).
+
+### Smoke test before publishing
+
+Test Request on node 2 with a test contact must return `200` and:
+
+- `action`: `ask_question`
+- `message`: `Roughly how many followers do you have across your socials?`
+
+A **listeners** question ("monthly listeners") means the body edit did not save and the flow is
+still running Worth. Do not publish until the followers question comes back.
+
+Then DM the keyword and run it end to end. The result topline is the unified model's own line
+("You could build an estimated $X to $Y a month..."), and the button opens
+`https://thecrwn.app/tools/opportunity-calculator/result/<token>`.

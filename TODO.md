@@ -511,13 +511,21 @@ responsible for. Do not work those.
       Answer those four and the build is mechanical. Everything else in that document is already
       settled by repository evidence.
 
-- [ ] **Add the FREE keyword to ManyChat before posting the Akeem Ali all-in video.** The
-      script ([videos/scripts/lead-magnets/free-akeem-ali.md](videos/scripts/lead-magnets/free-akeem-ali.md))
-      says "Comment FREE and I'll DM you the link", and ManyChat keywords are pills configured
-      in its UI, so only you can add the trigger (point it at the same flow as the other
-      calculator keywords; the tool link is `/tools/opportunity-calculator`). The code side is
-      done: `free` is in the opportunity-calculator `dmKeywords`, live once the branch lands
-      on master.
+- [ ] **Build the two all-in-one ManyChat automations: FREE and PLAN.** Both route to the same
+      tool (`opportunity-calculator`). Full step by step, including the exact one-line request
+      bodies, is section 11 of
+      [docs/acquisition/manychat-setup-guide.md](docs/acquisition/manychat-setup-guide.md).
+      Short version: duplicate the **worth** automation twice, re-create BOTH triggers on each
+      copy (they do not survive duplication) with whole-word matching, and edit only node 2's
+      body so `lead_magnet_id` is `opportunity-calculator` and `keyword` is `FREE` / `PLAN`
+      with `utm_content` `free_v1` / `plan_v1`. Node 4 needs no edit.
+      Smoke test before publishing: node 2's Test Request must return `200` with
+      `action: ask_question` and the message "Roughly how many followers do you have across
+      your socials?". A monthly-listeners question means the body edit did not save and the
+      copy is still running Worth.
+      Repo side is done and verified 2026-08-25: the adapter exists, `free` and `plan` are in
+      that tool's `dmKeywords` and no other tool claims either word, `acquisition_engine` is
+      enabled in production, and the deployed webhook is at the current commit.
 
 ---
 
