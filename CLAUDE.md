@@ -271,9 +271,12 @@ logging. **If you add a new tracking write path, gate it with `requestHasDnt` (s
 pop-up governor's frequency-cap STATE, not a metric, and are never gated or deleted; and this is
 an analytics exclusion ONLY — it must never gate a product behavior, entitlement, or
 authorization, since anyone can hand-set the cookie. Historical founder rows were removed by
-[supabase/cleanup-founder-analytics.sql](supabase/cleanup-founder-analytics.sql) (anonymous rows
-reachable only through the visitor-hash and anon-id bridges; unbridged anonymous rows are
-unattributable by design and stay).
+[supabase/cleanup-founder-analytics.sql](supabase/cleanup-founder-analytics.sql) (applied
+2026-08-25; account-attributable rows verified 0 by live probe). Anonymous history only carries
+the one-way IP+UA visitor hash, so no after-the-fact SQL can name it; `/admin/forget-device`
+(admin-only) is the eraser: the device making the request computes its own current hash, every
+row under it is deleted, and the response stamps the crwn_dnt cookie. History under an old IP or
+browser version is unattributable by design and stays.
 
 ## Campaign attribution — one normalizer, one durable home, no new table
 

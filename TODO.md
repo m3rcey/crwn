@@ -67,17 +67,16 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
-- [ ] **Delete your own historical analytics: run [supabase/cleanup-founder-analytics.sql](supabase/cleanup-founder-analytics.sql)
-      in the Supabase SQL Editor.** One file, one run. It removes every metric row attributable
-      to your accounts (admin, joshn.wms@gmail.com, the m3rcey account) and the devices those
-      accounts were seen on: site visits, artist page visits, tier views, funnel events,
-      calculator events tied to your claimed results, play history (and it decrements the
-      public play counts your completed listens inflated). It does NOT touch money rows,
-      pop-up cap state, or your claimed calculator results (they seed your plan and roadmap).
-      Then, so future traffic is never counted: open the app **logged in as your admin account
-      once on your PC and once on your phone**. That stamps a year-long `crwn_dnt` cookie on
-      the device, and every tracking path now drops requests carrying it, whichever account is
-      signed in. (Already-shipped code; the SQL is the only thing you must run.)
+- [ ] **Open thecrwn.app/admin/forget-device once on your PC and once on your phone** (and again
+      on any other device or network you browse CRWN from). Each visit erases that device's
+      anonymous metric history under its current network identity (site visits, artist page
+      visits, tier views, plus funnel rows stitched to that browser) and stamps the year-long
+      never-count-me cookie so nothing new is written. The account-level cleanup SQL is already
+      run and verified (probe showed 0 attributable rows); what remains is anonymous
+      device-hash history that only the device itself can identify. Reload the page once after
+      the first run so the visit that raced the wipe is caught too. History under an old IP or
+      old browser version is unattributable (one-way hash) and will remain; that is the stated
+      limit, not a bug.
 
 - [ ] **Build the page universe with the new Discover Big Pages tool (no SQL, no env var).**
       Your Brent Faiyaz test proved the point: global discovery returned accounts with 1K down
