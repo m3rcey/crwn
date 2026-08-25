@@ -36,7 +36,7 @@ const VAULT_REVENUE_PLANNER: LeadMagnetConfig = {
     // inventory beat, and it is why the vault lives inside the ladder rather than beside it.
     headline: 'Your most committed fans have nowhere to go.',
     subheadline: 'The unreleased work on your phone is the reason they would pay you more. See if you have enough to run it, and what to charge.',
-    primaryCta: 'Plan my Vault',
+    primaryCta: 'See what I am leaving unsold',
     image: '/hero-vault.webp',
     imageAlt: 'Illustration of an artist at a desk facing shelves of tapes and records lit in gold',
   },
@@ -593,7 +593,7 @@ const TEAM_SPLIT: LeadMagnetConfig = {
     hero: {
       headline: 'An uncapped split keeps paying after the work stops.',
       subheadline: 'A cap, a duration, and a gross-versus-net basis change what you actually owe a collaborator. See the difference on your revenue.',
-      primaryCta: 'See the difference',
+      primaryCta: 'See what uncapped costs me',
       image: '/tool-team-split.jpg',
       imageAlt: 'Illustration of an artist holding a phone with gold threads streaming outward across the frame',
     },
@@ -618,7 +618,7 @@ const SHARE_TO_EARN = lossToolBase({
     // mechanism produces (supporters) rather than implying a second income stream.
     headline: 'Some of your fans are already doing your acquisition.',
     subheadline: 'Nothing in your stack tells you which ones, so it never compounds and never gets paid. See what it is worth tracked.',
-    primaryCta: 'See what my fans bring in',
+    primaryCta: 'See what goes untracked',
     image: '/hero-share-to-earn.webp',
     imageAlt: 'Illustration of an artist holding a phone with gold threads streaming outward across the frame',
   },
@@ -646,7 +646,7 @@ const OWN_YOUR_FANS = lossToolBase({
     // below talk about the relationship, the data and the contact permission instead.
     headline: 'You have reach. You do not have the relationship underneath it.',
     subheadline: 'No names, no permission to make contact, no record of what they bought. See how much of your audience you can actually reach.',
-    primaryCta: 'See what I can actually reach',
+    primaryCta: 'See how many I cannot reach',
     image: '/hero-own-your-fans.webp',
     imageAlt: 'Illustration of an artist with a palm pressed to a glass wall, fans reaching from the far side',
   },
@@ -694,7 +694,7 @@ const EXECUTIVE_PRODUCER = lossToolBase({
     // the model prices a seat for the artist's audience and never assumes a room without limits.
     headline: 'Your highest-value fans are invisible until you offer them a way in.',
     subheadline: 'A few will pay many times what a listener does for real access. See what a seat in the room is worth.',
-    primaryCta: 'See what a seat is worth',
+    primaryCta: 'See what an empty room costs',
     image: '/hero-executive-producer.webp',
     imageAlt: 'Illustration of an artist at a large studio mixing console',
   },
@@ -820,7 +820,7 @@ const UNIFIED_OPPORTUNITY: LeadMagnetConfig = {
     headline: 'The fans who would pay you most are the ones you cannot see.',
     subheadline:
       'Your buyers, members and contacts sit in tools that cannot see the same person. See what that group is worth.',
-    primaryCta: 'See what my fans are worth',
+    primaryCta: 'See what I am missing',
     image: '/hero-opportunity.webp',
     imageAlt: 'Illustration of an artist touching the one point where gold threads from every part of the wall converge',
   },
@@ -1258,7 +1258,7 @@ const BETWEEN_TOUR: LeadMagnetConfig = {
     headline: 'Your income stops the night the tour does.',
     subheadline:
       'Your VIP buyers prove they pay on show nights, then get nothing the rest of the year. See what a recurring membership earns between runs.',
-    primaryCta: 'See what the off-months are worth',
+    primaryCta: 'See what the off-months cost me',
     image: '/hero-between-tour.webp',
     imageAlt: 'A young artist with a microphone beside tall gold show-night spikes, a steady amber band bridging the quiet months between them',
   },

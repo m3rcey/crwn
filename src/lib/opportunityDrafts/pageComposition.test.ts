@@ -593,7 +593,7 @@ describe('Homepage marketing narrative (HomeMarketing)', () => {
   it('ends on ONE action that is useful before AND after completion', () => {
     // Before completion it re-offers the calculator. After completion the visitor already
     // has the number, so the close returns them to the plan they built instead.
-    expect(homeMarketing).toContain('See what my fans are worth');
+    expect(homeMarketing).toContain('See what I am missing');
     expect(homeMarketing).toContain('Back to my plan');
     expect(homeMarketing).toContain('scrollToCalculator');
     expect(homeMarketing).toMatch(/if \(!completed \|\| !scrollToAnchor\(PLAN_ANCHOR_ID\)\) scrollToCalculator\(\)/);

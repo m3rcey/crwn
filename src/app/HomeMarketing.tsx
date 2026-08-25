@@ -405,7 +405,7 @@ export function HomeMarketing({ completed = false }: { completed?: boolean }) {
             : 'One number from your own inputs, the offer to build first, and the next move after that.'}
         </p>
         <Cta
-          label={completed ? 'Back to my plan' : 'See what my fans are worth'}
+          label={completed ? 'Back to my plan' : 'See what I am missing'}
           onClick={goToContinuation}
           sub={
             completed

@@ -95,7 +95,7 @@ const V3: NurtureSequence = {
         { kind: 'p', text: 'It measures one thing: value that exists in your fanbase today and has nowhere to land. The fan is in one tool, the sale happens in a second, the list lives in a third, and the next offer needs all three to talk. So the value sits between them.' },
         { kind: 'p', text: 'Worth doing today: open your result and read the assumptions. If an input looks wrong, change it. The figure moves. A number you cannot audit is a number you should not act on.' },
       ],
-      primaryCta: { kind: 'result', label: 'Open my result and check the inputs' },
+      primaryCta: { kind: 'result', label: 'Check what the number left out' },
     },
     {
       id: 'v3.a.not-a-selling-problem',
@@ -297,7 +297,7 @@ const V3: NurtureSequence = {
         { kind: 'p', text: 'The second is that you do not want another login, which is fair. So here is the honest version: the CRWN app only earns its place if it eventually replaces things you are already paying for. Membership, paid vaults, live experiences, a store, referrals, the checkout, the fan list, the data, all in the same place.' },
         { kind: 'p', text: 'You test that with one offer. If it does not pull its weight, you have added nothing and you stop. If it does, you have found the first tool you can cancel, and the second decision gets easier than the first.' },
       ],
-      primaryCta: { kind: 'result', label: 'See my number again' },
+      primaryCta: { kind: 'result', label: 'See what fine is costing me' },
     },
 
     // ─── Phase D: EVERGREEN (days 60-365) ────────────────────────────────────────────────────────

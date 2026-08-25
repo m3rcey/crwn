@@ -101,6 +101,32 @@ not upside. Gain-framed: "One clear mission beats 'please support me.'" Loss-fra
 "'Please support me' is why your fans do nothing." Name the cost of inaction (money not earned,
 fans not converted, reach going to someone else) first, then the fix.
 
+### CTAs are loss-framed too, but only where the tool can back it
+
+Extended 2026-08-25. The rule above already governed heroes and landing pages, and every lead
+magnet headline complied. The CTAs did not, so they do now: calculator hero buttons, carousel
+caption CTAs, and nurture email CTAs all lead with the cost of not acting.
+
+Three things decide whether a given CTA can actually take a loss frame, and "when possible" is
+real: a forced loss frame is worse than an honest gain frame.
+
+- **The hero CTA IS the wizard submit label** (`PublicToolClient` reuses it), so it has to read as
+  "press this to get your result". `conversionContract.test.ts` pins it to
+  `/^(See|Plan|Build|Generate|Show|Find)\b/` and under 45 characters. A slogan will not fit.
+- **A CTA may only promise a number the tool actually produces.** `artist-quest-path` outputs an
+  ORDER, not a cost, so "see what the wrong order costs" would sell a figure it never computes.
+  Builder tools (`proof-of-demand-test-builder`, `fan-mission-generator`,
+  `clip-to-earn-campaign-planner`) keep their action labels for the same reason: the loss lives in
+  their headline, which is where it belongs.
+- **Post-result ACTION buttons stay actions.** `cta.publicPrimary`, `cta.artistPrimary`,
+  `continuationCta.ts` labels ("Build My Vault", "Email my plan") and the nurture navigation labels
+  ("Reopen my result") describe what the click does. Loss-framing a confirm button makes it vague,
+  and the persuasion already happened in the headline and the result.
+
+Carousel captions are the one surface where BOTH ends are loss-framed and it is machine-checked;
+see the coverage guard in `fanEconomyCarouselContract.test.ts`, which exists because a first pass
+converted one batch and silently left 21 other carousels gain-framed.
+
 ## Brand Imagery — flat vector poster art, dark + gold, artists aged 18-32
 
 **Every image generated for the app or for an email is a FLAT VECTOR POSTER ILLUSTRATION**
