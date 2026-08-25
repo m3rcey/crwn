@@ -1,5 +1,40 @@
 # CRWN Brain — Changelog
 
+## 2026-08-24 (third pass) - The index learns to find big pages directly, instead of hoping artists reveal them
+
+**Brent Faiyaz confirmed the remaining bottleneck.** With filtering removed, global discovery
+again returned overwhelmingly tiny personal accounts (1K down to double digits), while the
+2-page index correctly surfaced @purestrap (1.2M followers, 5 Brent posts, Priority 80) and
+@plugcaptions (130K). The downstream pipeline is proven; the page UNIVERSE was the problem, and
+"Bootstrap From Artists" could not fix it because it rides the same weak global discovery.
+**Ratified finding: artist keyword/hashtag discovery is a supplemental source, not a way to
+construct the large-page universe.**
+
+**Direct Big Page Discovery shipped inside the Big Page Index panel**, two mechanisms, both
+contract-verified against the live Apify store:
+- **Topic profile search** (`apify/instagram-search-scraper`, `searchType: 'user'`): editable
+  topics (defaults: r&b, hip hop, music news, music media, black music, music culture,
+  independent music), one run per term for clean provenance, 25 results per term. User results
+  carry followersCount/verified/private/category/bio DIRECTLY, so candidates filter with zero
+  enrichment calls. A 7-topic discovery costs ~175 results (~$0.30-0.47).
+- **Related-profile expansion** (`relatedProfiles` from the profile scraper, verified: username +
+  is_verified + is_private, NO follower counts): up to 10 indexed seeds, depth 1 only, dedupe and
+  drop indexed/private BEFORE paying for the one bounded enrichment run (cap 100).
+
+**Candidates are reviewed, never auto-ingested.** The review table shows followers, category,
+found-via provenance ("2 topics + related to @purestrap"), bio excerpt, and a deterministic
+**Seed Value** (audience 50 / corroboration 25 / relevance 15 / verification 10; relevance terms
+boost and never reject, so a Black-culture page without a "music" label still qualifies). Hard
+gate: 50K+ (the existing centralized threshold), public, not already indexed, known size.
+Select All / Add Selected runs the EXISTING manual-add flow, so the index keeps one write path
+and provenance is honestly `manual` (founder-reviewed, founder-selected); "Add Selected &
+Refresh Posts" chains straight into the existing refresh pipeline. **No schema change and no new
+job system were needed.** Artist search remains index-scrape-free.
+
+Also: both distribution migrations are now applied and probe-verified (the Brent search proved
+the corpus live); the index summary now shows pages at 50K+ and names the 250-500 page operating
+target while the universe is small; Bootstrap From Artists is relabeled supplemental.
+
 ## 2026-08-24 (later) - The finder learns which pages are worth knowing, not just who tagged the artist
 
 **The first live Ryan Leslie search worked and proved the architecture insufficient.** With the

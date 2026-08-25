@@ -19,6 +19,13 @@ const PROFILE_ACTOR = 'apify~instagram-profile-scraper';
 // `resultsLimit` is PER PROFILE, `onlyPostsNewerThan` takes relative dates.
 // Pay-per-result (~$2.30-2.70 per 1,000 posts).
 const POSTS_ACTOR = 'apify~instagram-post-scraper';
+// Direct big-page discovery: Instagram USER search by topic keyword. Contract
+// verified against the live Apify store 2026-08-24: input is
+// { search, searchType: 'user', searchLimit (per term, max 250) } and user
+// results carry username, fullName, followersCount, verified, private,
+// businessCategoryName and biography DIRECTLY, so topic candidates need no
+// enrichment hop before the follower filter. Pay-per-result.
+const SEARCH_ACTOR = 'apify~instagram-search-scraper';
 
 /** Results requested per discovery query term. Cost control, not a UI knob. */
 export const RESULTS_PER_QUERY = 40;
@@ -132,6 +139,19 @@ export async function startPostsRun(
   return parseRunRef(body, 'posts start');
 }
 
+/** Start one topic profile-search run (one term per run: clean provenance). */
+export async function startProfileSearchRun(term: string, resultsPerTerm: number): Promise<RunRef> {
+  const body = await apifyFetch(
+    `/acts/${SEARCH_ACTOR}/runs`,
+    {
+      method: 'POST',
+      body: JSON.stringify({ search: term, searchType: 'user', searchLimit: resultsPerTerm }),
+    },
+    'profile search start',
+  );
+  return parseRunRef(body, 'profile search start');
+}
+
 export async function getRunStatus(runId: string): Promise<ApifyRunStatus> {
   const body = await apifyFetch(`/actor-runs/${encodeURIComponent(runId)}`, { method: 'GET' }, 'run status');
   const status = (body as { data?: { status?: unknown } })?.data?.status;
@@ -224,25 +244,73 @@ export async function getPagePosts(runId: string): Promise<DiscoveredPost[]> {
   return posts;
 }
 
+function itemToProfile(item: unknown): PageProfile | null {
+  const raw = item as Record<string, unknown>;
+  const username = asString(raw.username)?.toLowerCase() ?? null;
+  if (!username) return null;
+  return {
+    igUserId: asString(raw.id) ?? (typeof raw.id === 'number' ? String(raw.id) : null),
+    username,
+    displayName: asString(raw.fullName),
+    followers: asCount(raw.followersCount),
+    verified: typeof raw.verified === 'boolean' ? raw.verified : null,
+    isPrivate: typeof raw.private === 'boolean' ? raw.private : null,
+    category: asString(raw.businessCategoryName),
+    biography: asString(raw.biography),
+    profileUrl: asString(raw.url) ?? `https://www.instagram.com/${username}/`,
+  };
+}
+
 /** Fetch + normalize profile items. One bad profile never fails the batch. */
 export async function getProfiles(runId: string): Promise<PageProfile[]> {
   const items = await getRunItems(runId);
   const profiles: PageProfile[] = [];
   for (const item of items) {
-    const raw = item as Record<string, unknown>;
-    const username = asString(raw.username)?.toLowerCase() ?? null;
-    if (!username) continue;
-    profiles.push({
-      igUserId: asString(raw.id) ?? (typeof raw.id === 'number' ? String(raw.id) : null),
-      username,
-      displayName: asString(raw.fullName),
-      followers: asCount(raw.followersCount),
-      verified: typeof raw.verified === 'boolean' ? raw.verified : null,
-      isPrivate: typeof raw.private === 'boolean' ? raw.private : null,
-      category: asString(raw.businessCategoryName),
-      biography: asString(raw.biography),
-      profileUrl: asString(raw.url) ?? `https://www.instagram.com/${username}/`,
-    });
+    const profile = itemToProfile(item);
+    if (profile) profiles.push(profile);
   }
   return profiles;
+}
+
+/**
+ * Fetch + normalize a topic profile-search run's items. The search actor's
+ * user results share the profile-scraper field names, so one mapper serves
+ * both; malformed items are skipped, not fatal.
+ */
+export async function getSearchProfiles(runId: string): Promise<PageProfile[]> {
+  return getProfiles(runId);
+}
+
+export interface RelatedProfileStub {
+  username: string;
+  verified: boolean | null;
+  isPrivate: boolean | null;
+}
+
+/**
+ * Related-profile stubs from a profile-scraper run, keyed by the SEED page
+ * that listed them. Stubs carry no follower counts (verified against the live
+ * output schema 2026-08-24), so expansion candidates need one enrichment run.
+ */
+export async function getRelatedProfiles(runId: string): Promise<Map<string, RelatedProfileStub[]>> {
+  const items = await getRunItems(runId);
+  const bySeed = new Map<string, RelatedProfileStub[]>();
+  for (const item of items) {
+    const raw = item as Record<string, unknown>;
+    const seed = asString(raw.username)?.toLowerCase() ?? null;
+    if (!seed || !Array.isArray(raw.relatedProfiles)) continue;
+    const stubs: RelatedProfileStub[] = [];
+    for (const rel of raw.relatedProfiles) {
+      const rawRel = rel as Record<string, unknown>;
+      const username = asString(rawRel.username)?.toLowerCase() ?? null;
+      if (!username) continue;
+      stubs.push({
+        username,
+        verified: typeof rawRel.is_verified === 'boolean' ? rawRel.is_verified : null,
+        isPrivate: typeof rawRel.is_private === 'boolean' ? rawRel.is_private : null,
+      });
+    }
+    bySeed.set(seed, stubs);
+  }
+  return bySeed;
 }

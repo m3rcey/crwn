@@ -13,6 +13,7 @@ import { toMatchedPosts } from './matching';
 import {
   CORPUS_MATCH_LIMIT,
   POSTS_FRESH_HOURS,
+  SIGNIFICANT_PAGE_FOLLOWERS,
   buildCorpusSearchPatterns,
   corpusRowToDiscoveredPost,
   decideIndexEligibility,
@@ -390,8 +391,28 @@ export async function readStaleEligiblePages(now: Date): Promise<{ stale: string
   return { stale: selectStalePages(pages, now, POSTS_FRESH_HOURS), total: pages.length, migrationPending: false };
 }
 
+/**
+ * Which of these usernames are already INDEXED (index_eligible), for
+ * discovery-candidate exclusion. A page merely known from old mentions but
+ * not indexed stays a valid candidate: adding it promotes the existing row.
+ */
+export async function readIndexedUsernameSet(usernames: string[]): Promise<Set<string>> {
+  const set = new Set<string>();
+  if (usernames.length === 0) return set;
+  const { data, error } = await supabaseAdmin
+    .from('distribution_pages')
+    .select('username')
+    .eq('index_eligible', true)
+    .in('username', usernames);
+  if (error) return set;
+  for (const row of (data ?? []) as Array<{ username: string }>) set.add(row.username);
+  return set;
+}
+
 export interface IndexSummary {
   pageCount: number;
+  /** Indexed pages at or above the significant-page threshold. */
+  pages50k: number;
   medianFollowers: number | null;
   staleCount: number;
   postsCached: number;
@@ -408,6 +429,7 @@ export async function readIndexSummary(now: Date): Promise<IndexSummary> {
   if (error) {
     return {
       pageCount: 0,
+      pages50k: 0,
       medianFollowers: null,
       staleCount: 0,
       postsCached: 0,
@@ -418,6 +440,7 @@ export async function readIndexSummary(now: Date): Promise<IndexSummary> {
   const pages = (data ?? []) as Array<{ username: string; followers: number | null; last_posts_refresh_at: string | null }>;
   const followers = pages.map((p) => p.followers).filter((f): f is number => f !== null).sort((a, b) => a - b);
   const medianFollowers = followers.length > 0 ? followers[Math.floor(followers.length / 2)] : null;
+  const pages50k = followers.filter((f) => f >= SIGNIFICANT_PAGE_FOLLOWERS).length;
   const staleCount = selectStalePages(pages, now, POSTS_FRESH_HOURS).length;
   const refreshTimes = pages.map((p) => p.last_posts_refresh_at).filter((t): t is string => t !== null).sort();
   const lastRefreshAt = refreshTimes.length > 0 ? refreshTimes[refreshTimes.length - 1] : null;
@@ -428,6 +451,7 @@ export async function readIndexSummary(now: Date): Promise<IndexSummary> {
 
   return {
     pageCount: pages.length,
+    pages50k,
     medianFollowers,
     staleCount,
     postsCached: count ?? 0,

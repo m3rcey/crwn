@@ -87,27 +87,28 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
-- [ ] **One SQL run unlocks the Distribution Finder's Big Page Index, then bootstrap it once.**
-      The finder is upgraded: your Ryan Leslie test proved global keyword search only finds tiny
-      superfan pages (big pages post artists without tagging them), so searches now ALSO check a
-      persistent index of big pages and their cached recent posts, with two scores (Affinity =
-      do they care about this artist, Distribution = is their reach worth anything) and one
-      Priority ranking. Until you run the migration, searches still work but the index cannot
-      store anything.
-      1. Run [supabase/schema-phase3-distribution-page-index.sql](supabase/schema-phase3-distribution-page-index.sql)
-         in the Supabase SQL editor (additive: four columns + one corpus table, safe to re-run).
-         Verify with: npm run verify:migrations (look for "distribution page posts")
-      2. Then, in /admin, Distribution tab, open the **Big Page Index** panel and seed it once
-         (keep the tab open while it runs):
-         a. Paste any big music/culture page handles you already know into **Add Pages**.
-         b. Put 6 to 12 reference artists (SZA, Brent Faiyaz, Lucky Daye, Chris Brown, Usher,
-            Summer Walker, ...) into **Bootstrap From Artists**. It shows the estimated provider
-            runs before starting; expect a few dollars and 15 to 45 minutes.
-         c. Press **Refresh Index** to cache the indexed pages' recent posts (about $6 per 100
-            pages, only stale pages are fetched, 7-day freshness).
-      3. Re-run Ryan Leslie (handle @ryanleslie, 90 days, 50,000 minimum). The standard is not
-         "rows returned": it is whether you would genuinely send your carousel to the pages at
-         the top because they have both reach and demonstrated Ryan Leslie interest.
+- [ ] **Build the page universe with the new Discover Big Pages tool (no SQL, no env var).**
+      Your Brent Faiyaz test proved the point: global discovery returned accounts with 1K down
+      to double-digit followers, while the index (2 pages) correctly surfaced @purestrap at
+      1.2M. The bottleneck was never the finder; it was that the index only had 2 pages, and
+      artist bootstrap cannot fill it because it rides the same weak global search. The fix is
+      live: /admin, Distribution tab, Big Page Index panel, **Discover Big Pages**. Keep the tab
+      open while each step runs.
+      1. Press **Discover Pages** with the default topics (edit them freely; one per line).
+         Cost is tiny: 7 searches, up to 175 candidates, under a dollar.
+      2. Review the candidate table (all 50K+, public, not yet indexed, ranked by reach +
+         corroboration). Untick anything you would not want distributing CRWN content, then
+         press **Add Selected & Refresh Posts**. That both indexes them and caches their
+         recent posts in one go.
+      3. Optional: put @purestrap and @plugcaptions (and any other strong pages) into
+         **Expand From Indexed Pages** and repeat the review. Each expansion is one seed lookup
+         plus at most 100 enrichments, well under a dollar.
+      4. Repeat discovery with more specific topics whenever you like (rap news, soul music,
+         r&b singers, producers, etc.). The operating target is 250 to 500 meaningful pages;
+         the panel tells you where you are.
+      5. Then search Brent Faiyaz and Ryan Leslie (90 days, 50,000 minimum). The standard: would
+         you genuinely send the carousel to the top rows because they have BOTH meaningful reach
+         AND recent posts about that artist?
 
 - [ ] **Create the Meta app and give me two values, so the Instagram publish proof can run.**
       This is the ONLY thing standing between the Phase 0 proof and a real published carousel.

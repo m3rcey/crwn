@@ -6,6 +6,17 @@
 //   'refresh_start'      {}                         -> plan stale-page batches, start first
 //   'refresh_poll'       { job }                    -> ingest batch, start next
 //   'estimate_bootstrap' { artists: string[] }      -> provider-run estimate only
+//   'discover_start'     { topics: string[] }       -> topic profile searches (one run per term)
+//   'discover_poll'      { runs }                   -> collect + qualify candidates for REVIEW
+//   'expand_start'       { seeds: string[] }        -> related-profile expansion, depth 1
+//   'expand_poll_seeds'  { runId, seeds }           -> plan + start bounded enrichment
+//   'expand_poll_enrich' { runId, provenance }      -> qualify enriched candidates for REVIEW
+//
+// Discovery returns CANDIDATES, never writes to the index: the founder
+// reviews them and "Add Selected" runs the EXISTING add_start/add_poll manual
+// flow, so the canonical index keeps exactly one write path and candidates
+// enter as discovery_source 'manual' (founder-reviewed, founder-selected:
+// that IS what manual means here).
 //
 // Same stateless pattern as the search/poll pair: the server holds no job
 // state, the admin UI carries the job descriptor between polls, and Apify
@@ -32,7 +43,20 @@ import {
   parseHandleList,
 } from '@/lib/distribution/corpus';
 import {
+  EXPANSION_ENRICH_CAP,
+  MAX_DISCOVERY_TOPICS,
+  MAX_EXPANSION_SEEDS,
+  SEARCH_RESULTS_PER_TOPIC,
+  estimateTopicDiscovery,
+  mergeCandidates,
+  parseSeedList,
+  parseTopicList,
+  planExpansionEnrichment,
+  qualifyCandidates,
+} from '@/lib/distribution/discovery';
+import {
   markPagesRefreshed,
+  readIndexedUsernameSet,
   readStaleEligiblePages,
   upsertPagePosts,
   upsertPages,
@@ -40,11 +64,14 @@ import {
 import {
   getPagePosts,
   getProfiles,
+  getRelatedProfiles,
   getRunStatus,
+  getSearchProfiles,
   isApifyConfigured,
   isTerminalStatus,
   startPostsRun,
   startProfileRun,
+  startProfileSearchRun,
 } from '@/lib/distribution/apifyProvider';
 
 const RUN_ID = /^[A-Za-z0-9]{5,40}$/;
@@ -162,6 +189,180 @@ export async function POST(req: NextRequest) {
       phase: 'complete',
       added: publicProfiles.length,
       skippedPrivate: profiles.length - publicProfiles.length,
+    });
+  }
+
+  if (action === 'discover_start') {
+    const topics = parseTopicList(
+      Array.isArray(raw.topics) ? raw.topics.filter((t): t is string => typeof t === 'string').slice(0, MAX_DISCOVERY_TOPICS * 2) : [],
+    );
+    if (topics.length === 0) return NextResponse.json({ error: 'Enter at least one discovery topic.' }, { status: 400 });
+    const runs: Array<{ runId: string; term: string }> = [];
+    await Promise.all(
+      topics.map(async (term) => {
+        try {
+          const { runId } = await startProfileSearchRun(term, SEARCH_RESULTS_PER_TOPIC);
+          runs.push({ runId, term });
+        } catch {
+          /* one failed topic never kills the discovery */
+        }
+      }),
+    );
+    if (runs.length === 0) {
+      return NextResponse.json({ error: 'The provider rejected every topic search. Try again shortly.' }, { status: 502 });
+    }
+    return NextResponse.json({
+      phase: 'discovering',
+      runs,
+      estimate: estimateTopicDiscovery(topics),
+      partialStart: runs.length < topics.length,
+    });
+  }
+
+  if (action === 'discover_poll') {
+    const runs = Array.isArray(raw.runs) ? raw.runs.slice(0, MAX_DISCOVERY_TOPICS) : null;
+    if (!runs || runs.length === 0) return NextResponse.json({ error: 'Invalid run references' }, { status: 400 });
+    const parsedRuns: Array<{ runId: string; term: string }> = [];
+    for (const item of runs) {
+      const r = item as Record<string, unknown>;
+      const runId = typeof r.runId === 'string' && RUN_ID.test(r.runId) ? r.runId : null;
+      const term = typeof r.term === 'string' && r.term.length > 0 && r.term.length <= 40 ? r.term : null;
+      if (!runId || !term) return NextResponse.json({ error: 'Invalid run references' }, { status: 400 });
+      parsedRuns.push({ runId, term });
+    }
+
+    const statuses = await Promise.all(
+      parsedRuns.map(async (run) => {
+        try {
+          return await getRunStatus(run.runId);
+        } catch {
+          return 'FAILED' as const;
+        }
+      }),
+    );
+    if (statuses.some((s) => !isTerminalStatus(s))) {
+      return NextResponse.json({ phase: 'discovering', pending: true });
+    }
+
+    let fetchFailures = 0;
+    const observations: Array<{ profile: import('@/lib/distribution/types').PageProfile; topic: string }> = [];
+    for (let i = 0; i < parsedRuns.length; i += 1) {
+      if (statuses[i] !== 'SUCCEEDED') {
+        fetchFailures += 1;
+        continue;
+      }
+      try {
+        const profiles = await getSearchProfiles(parsedRuns[i].runId);
+        for (const profile of profiles) observations.push({ profile, topic: parsedRuns[i].term });
+      } catch {
+        fetchFailures += 1;
+      }
+    }
+
+    const merged = mergeCandidates(observations);
+    const indexed = await readIndexedUsernameSet([...merged.keys()]);
+    const { qualified, excluded } = qualifyCandidates(merged.values(), indexed);
+    return NextResponse.json({
+      phase: 'candidates',
+      candidates: qualified.slice(0, 200),
+      excluded,
+      totalSeen: merged.size,
+      partialProviderFailure: fetchFailures > 0,
+    });
+  }
+
+  if (action === 'expand_start') {
+    const seeds = parseSeedList(
+      Array.isArray(raw.seeds) ? raw.seeds.filter((s): s is string => typeof s === 'string').slice(0, MAX_EXPANSION_SEEDS * 2) : [],
+    );
+    if (seeds.length === 0) return NextResponse.json({ error: 'Enter at least one seed page handle.' }, { status: 400 });
+    try {
+      const { runId } = await startProfileRun(seeds);
+      return NextResponse.json({ phase: 'expanding_seeds', runId, seeds });
+    } catch {
+      return NextResponse.json({ error: 'The provider rejected the seed lookup. Try again shortly.' }, { status: 502 });
+    }
+  }
+
+  if (action === 'expand_poll_seeds') {
+    const runId = typeof raw.runId === 'string' && RUN_ID.test(raw.runId) ? raw.runId : null;
+    if (!runId) return NextResponse.json({ error: 'Invalid run reference' }, { status: 400 });
+    let status;
+    try {
+      status = await getRunStatus(runId);
+    } catch {
+      return NextResponse.json({ error: 'The provider lookup failed. Try again.' }, { status: 502 });
+    }
+    if (!isTerminalStatus(status)) return NextResponse.json({ phase: 'expanding_seeds', pending: true });
+    if (status !== 'SUCCEEDED') {
+      return NextResponse.json({ error: 'The seed lookup failed at the provider. Try again shortly.' }, { status: 502 });
+    }
+
+    const bySeed = await getRelatedProfiles(runId);
+    const indexed = await readIndexedUsernameSet([...bySeed.values()].flat().map((s) => s.username));
+    const plan = planExpansionEnrichment(bySeed, indexed);
+    if (plan.usernames.length === 0) {
+      return NextResponse.json({
+        phase: 'candidates',
+        candidates: [],
+        excluded: { belowThreshold: 0, privateAccounts: plan.droppedPrivate, alreadyIndexed: plan.droppedIndexed, unknownFollowers: 0 },
+        totalSeen: 0,
+      });
+    }
+    try {
+      const { runId: enrichRunId } = await startProfileRun(plan.usernames);
+      return NextResponse.json({
+        phase: 'expanding_enrich',
+        runId: enrichRunId,
+        provenance: plan.provenance,
+        droppedByCap: plan.droppedByCap,
+      });
+    } catch {
+      return NextResponse.json({ error: 'The provider rejected the enrichment. Try again shortly.' }, { status: 502 });
+    }
+  }
+
+  if (action === 'expand_poll_enrich') {
+    const runId = typeof raw.runId === 'string' && RUN_ID.test(raw.runId) ? raw.runId : null;
+    const provRaw = raw.provenance as Record<string, unknown> | undefined;
+    if (!runId || !provRaw || typeof provRaw !== 'object') {
+      return NextResponse.json({ error: 'Invalid expansion job' }, { status: 400 });
+    }
+    const provenance: Record<string, string[]> = {};
+    const entries = Object.entries(provRaw).slice(0, EXPANSION_ENRICH_CAP);
+    for (const [username, seeds] of entries) {
+      if (!USERNAME.test(username) || !Array.isArray(seeds)) return NextResponse.json({ error: 'Invalid expansion job' }, { status: 400 });
+      const clean = seeds.filter((s): s is string => typeof s === 'string' && USERNAME.test(s)).slice(0, MAX_EXPANSION_SEEDS);
+      if (clean.length === 0) return NextResponse.json({ error: 'Invalid expansion job' }, { status: 400 });
+      provenance[username] = clean;
+    }
+
+    let status;
+    try {
+      status = await getRunStatus(runId);
+    } catch {
+      return NextResponse.json({ error: 'The provider lookup failed. Try again.' }, { status: 502 });
+    }
+    if (!isTerminalStatus(status)) return NextResponse.json({ phase: 'expanding_enrich', pending: true });
+    if (status !== 'SUCCEEDED') {
+      return NextResponse.json({ error: 'The enrichment failed at the provider. Try again shortly.' }, { status: 502 });
+    }
+
+    const profiles = await getProfiles(runId);
+    const observations: Array<{ profile: import('@/lib/distribution/types').PageProfile; seed: string }> = [];
+    for (const profile of profiles) {
+      for (const seed of provenance[profile.username] ?? []) {
+        observations.push({ profile, seed });
+      }
+    }
+    const merged = mergeCandidates(observations);
+    const indexed = await readIndexedUsernameSet([...merged.keys()]);
+    const { qualified, excluded } = qualifyCandidates(merged.values(), indexed);
+    return NextResponse.json({
+      phase: 'candidates',
+      candidates: qualified.slice(0, 200),
+      excluded,
+      totalSeen: merged.size,
     });
   }
 

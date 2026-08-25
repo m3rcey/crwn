@@ -23,6 +23,7 @@ import {
   Search,
 } from 'lucide-react';
 import { OptionSelect } from '@/components/ui/OptionSelect';
+import { DEFAULT_DISCOVERY_TOPICS, SEARCH_RESULTS_PER_TOPIC } from '@/lib/distribution/discovery';
 
 interface AffinityComponents {
   recency: number | null;
@@ -85,11 +86,43 @@ type Status =
 
 interface IndexSummary {
   pageCount: number;
+  pages50k?: number;
   medianFollowers: number | null;
   staleCount: number;
   postsCached: number;
   lastRefreshAt: string | null;
   migrationPending: boolean;
+}
+
+interface DiscoveryCandidate {
+  username: string;
+  displayName: string | null;
+  followers: number | null;
+  verified: boolean | null;
+  category: string | null;
+  bioExcerpt: string | null;
+  profileUrl: string;
+  topics: string[];
+  seeds: string[];
+  seedValue: number;
+}
+
+interface CandidateExcluded {
+  belowThreshold: number;
+  privateAccounts: number;
+  alreadyIndexed: number;
+  unknownFollowers: number;
+}
+
+function foundVia(candidate: DiscoveryCandidate): string {
+  const parts: string[] = [];
+  if (candidate.topics.length > 0) {
+    parts.push(candidate.topics.length === 1 ? `"${candidate.topics[0]}"` : `${candidate.topics.length} topics`);
+  }
+  if (candidate.seeds.length > 0) {
+    parts.push(`related to ${candidate.seeds.length === 1 ? `@${candidate.seeds[0]}` : `${candidate.seeds.length} indexed pages`}`);
+  }
+  return parts.join(' + ') || 'search';
 }
 
 interface IndexPage {
@@ -161,6 +194,11 @@ function IndexPanel({ onIndexChanged }: { onIndexChanged: number }) {
   const [handlesText, setHandlesText] = useState('');
   const [artistsText, setArtistsText] = useState('');
   const [bootstrapProgress, setBootstrapProgress] = useState<string | null>(null);
+  const [topicsText, setTopicsText] = useState(DEFAULT_DISCOVERY_TOPICS.join('\n'));
+  const [seedsText, setSeedsText] = useState('');
+  const [candidates, setCandidates] = useState<DiscoveryCandidate[]>([]);
+  const [candidateInfo, setCandidateInfo] = useState<{ excluded: CandidateExcluded; totalSeen: number } | null>(null);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
   const alive = useRef(true);
   useEffect(() => () => { alive.current = false; }, []);
 
@@ -181,31 +219,43 @@ function IndexPanel({ onIndexChanged }: { onIndexChanged: number }) {
     // onIndexChanged bumps after searches/jobs so the panel stays current.
   }, [load, filter, onIndexChanged]);
 
+  /**
+   * The ONE write path into the index: the existing manual-add flow (profile
+   * enrichment, founder-curated). Both the handle textarea and the discovery
+   * candidates' Add Selected go through here.
+   */
+  const addHandles = useCallback(
+    async (handles: string[]): Promise<boolean> => {
+      if (handles.length === 0) return false;
+      const start = await postJson('/api/admin/distribution/index/jobs', { action: 'add_start', handles });
+      if (start.phase === 'not_configured') { setNotice('Provider not configured.'); return false; }
+      while (alive.current) {
+        await new Promise((r) => setTimeout(r, POLL_MS));
+        const poll = await postJson('/api/admin/distribution/index/jobs', { action: 'add_poll', runId: start.runId });
+        if (poll.phase === 'complete') {
+          setNotice(`Added or updated ${poll.added} pages${poll.skippedPrivate ? `, skipped ${poll.skippedPrivate} private` : ''}.`);
+          return true;
+        }
+      }
+      return false;
+    },
+    [],
+  );
+
   const addPages = useCallback(async () => {
     const handles = handlesText.split(/[\s,]+/).filter(Boolean);
     if (handles.length === 0) return;
     setBusy('add');
     setNotice(null);
     try {
-      const start = await postJson('/api/admin/distribution/index/jobs', { action: 'add_start', handles });
-      if (start.phase === 'not_configured') { setNotice('Provider not configured.'); return; }
-      let done = false;
-      while (!done && alive.current) {
-        await new Promise((r) => setTimeout(r, POLL_MS));
-        const poll = await postJson('/api/admin/distribution/index/jobs', { action: 'add_poll', runId: start.runId });
-        if (poll.phase === 'complete') {
-          setNotice(`Added or updated ${poll.added} pages${poll.skippedPrivate ? `, skipped ${poll.skippedPrivate} private` : ''}.`);
-          setHandlesText('');
-          done = true;
-        }
-      }
+      if (await addHandles(handles)) setHandlesText('');
       await load();
     } catch (err) {
       setNotice(err instanceof Error ? err.message : 'Adding pages failed.');
     } finally {
       if (alive.current) setBusy(null);
     }
-  }, [handlesText, load]);
+  }, [handlesText, addHandles, load]);
 
   const refreshIndex = useCallback(async () => {
     setBusy('refresh');
@@ -234,6 +284,111 @@ function IndexPanel({ onIndexChanged }: { onIndexChanged: number }) {
       if (alive.current) setBusy(null);
     }
   }, [load]);
+
+  const receiveCandidates = useCallback((state: Record<string, unknown>) => {
+    const list = (state.candidates ?? []) as DiscoveryCandidate[];
+    setCandidates(list);
+    setSelected(new Set(list.map((c) => c.username)));
+    setCandidateInfo({
+      excluded: (state.excluded ?? { belowThreshold: 0, privateAccounts: 0, alreadyIndexed: 0, unknownFollowers: 0 }) as CandidateExcluded,
+      totalSeen: typeof state.totalSeen === 'number' ? state.totalSeen : list.length,
+    });
+  }, []);
+
+  const discover = useCallback(async () => {
+    const topics = topicsText.split('\n').map((t) => t.trim()).filter(Boolean);
+    if (topics.length === 0) return;
+    setBusy('discover');
+    setNotice(`${topics.length} profile searches, up to ${topics.length * SEARCH_RESULTS_PER_TOPIC} candidates. Searching...`);
+    setCandidates([]);
+    setCandidateInfo(null);
+    try {
+      const start = await postJson('/api/admin/distribution/index/jobs', { action: 'discover_start', topics });
+      if (start.phase === 'not_configured') { setNotice('Provider not configured.'); return; }
+      let state = start;
+      while (alive.current && state.phase !== 'candidates') {
+        await new Promise((r) => setTimeout(r, POLL_MS));
+        const next = await postJson('/api/admin/distribution/index/jobs', { action: 'discover_poll', runs: start.runs });
+        if (!next.pending) state = next;
+      }
+      if (!alive.current) return;
+      receiveCandidates(state);
+      setNotice(null);
+    } catch (err) {
+      setNotice(err instanceof Error ? err.message : 'Discovery failed.');
+    } finally {
+      if (alive.current) setBusy(null);
+    }
+  }, [topicsText, receiveCandidates]);
+
+  const expand = useCallback(async () => {
+    const seeds = seedsText.split(/[\s,]+/).filter(Boolean);
+    if (seeds.length === 0) return;
+    setBusy('expand');
+    setNotice('Looking up related profiles from the seed pages...');
+    setCandidates([]);
+    setCandidateInfo(null);
+    try {
+      const start = await postJson('/api/admin/distribution/index/jobs', { action: 'expand_start', seeds });
+      if (start.phase === 'not_configured') { setNotice('Provider not configured.'); return; }
+      let state = start;
+      while (alive.current && state.phase === 'expanding_seeds') {
+        await new Promise((r) => setTimeout(r, POLL_MS));
+        const next = await postJson('/api/admin/distribution/index/jobs', { action: 'expand_poll_seeds', runId: start.runId });
+        if (!next.pending) state = next;
+      }
+      if (state.phase === 'expanding_enrich') {
+        setNotice('Enriching related profiles...');
+        let enrichState = state;
+        while (alive.current && enrichState.phase === 'expanding_enrich') {
+          await new Promise((r) => setTimeout(r, POLL_MS));
+          const next = await postJson('/api/admin/distribution/index/jobs', {
+            action: 'expand_poll_enrich',
+            runId: state.runId,
+            provenance: state.provenance,
+          });
+          if (!next.pending) enrichState = next;
+        }
+        state = enrichState;
+      }
+      if (!alive.current) return;
+      if (state.phase === 'candidates') {
+        receiveCandidates(state);
+        setNotice(null);
+      }
+    } catch (err) {
+      setNotice(err instanceof Error ? err.message : 'Expansion failed.');
+    } finally {
+      if (alive.current) setBusy(null);
+    }
+  }, [seedsText, receiveCandidates]);
+
+  const addSelected = useCallback(
+    async (refreshAfter: boolean) => {
+      const handles = candidates.filter((c) => selected.has(c.username)).map((c) => c.username);
+      if (handles.length === 0) return;
+      setBusy('addSelected');
+      setNotice(null);
+      try {
+        const added = await addHandles(handles);
+        if (added) {
+          setCandidates((prev) => prev.filter((c) => !selected.has(c.username)));
+          setSelected(new Set());
+        }
+        await load();
+        if (added && refreshAfter) {
+          setBusy(null);
+          await refreshIndex();
+          return;
+        }
+      } catch (err) {
+        setNotice(err instanceof Error ? err.message : 'Adding selected pages failed.');
+      } finally {
+        if (alive.current) setBusy((b) => (b === 'addSelected' ? null : b));
+      }
+    },
+    [candidates, selected, addHandles, load, refreshIndex],
+  );
 
   const bootstrap = useCallback(async () => {
     const artists = artistsText.split(/\n|,/).map((a) => a.trim()).filter(Boolean).slice(0, 25);
@@ -307,9 +462,144 @@ function IndexPanel({ onIndexChanged }: { onIndexChanged: number }) {
           )}
           {summary && !summary.migrationPending && (
             <p className="text-xs text-crwn-text-secondary">
+              {typeof summary.pages50k === 'number' && `${summary.pages50k} pages at 50K+ · `}
               Median followers {formatFollowers(summary.medianFollowers)} · last refresh {daysAgo(summary.lastRefreshAt)}
+              {summary.pageCount < 50 && (
+                <span className="text-amber-400"> · The universe is still small; the operating target is 250 to 500 meaningful pages.</span>
+              )}
             </p>
           )}
+
+          <div className="rounded-xl border border-crwn-gold/30 p-4 space-y-3">
+            <p className="text-sm font-semibold text-crwn-text">Discover Big Pages</p>
+            <p className="text-xs text-crwn-text-secondary">
+              The primary way to build the page universe: search Instagram profiles by topic, or
+              expand from pages already in the index. You review every candidate before it is added.
+            </p>
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="block text-sm text-crwn-text-secondary">Discovery topics (one per line)</label>
+                <textarea
+                  value={topicsText}
+                  onChange={(e) => setTopicsText(e.target.value)}
+                  rows={5}
+                  className="w-full rounded-xl border border-crwn-elevated bg-crwn-surface-solid px-3 py-2 text-sm text-crwn-text"
+                />
+                <p className="text-xs text-crwn-text-secondary">
+                  {topicsText.split('\n').filter((t) => t.trim()).length} profile searches, up to{' '}
+                  {topicsText.split('\n').filter((t) => t.trim()).length * SEARCH_RESULTS_PER_TOPIC} candidates.
+                </p>
+                <button
+                  onClick={discover}
+                  disabled={busy !== null}
+                  className="px-4 py-2 rounded-full bg-crwn-gold text-black text-sm font-semibold disabled:opacity-50"
+                >
+                  {busy === 'discover' ? 'Discovering...' : 'Discover Pages'}
+                </button>
+              </div>
+              <div className="space-y-2">
+                <label className="block text-sm text-crwn-text-secondary">Expand from indexed pages (seed handles)</label>
+                <textarea
+                  value={seedsText}
+                  onChange={(e) => setSeedsText(e.target.value)}
+                  placeholder={'@purestrap\n@plugcaptions'}
+                  rows={5}
+                  className="w-full rounded-xl border border-crwn-elevated bg-crwn-surface-solid px-3 py-2 text-sm text-crwn-text placeholder:text-crwn-text-secondary/60"
+                />
+                <p className="text-xs text-crwn-text-secondary">
+                  Depth 1 only: Instagram&apos;s related profiles for up to 10 seeds, then enrichment.
+                </p>
+                <button
+                  onClick={expand}
+                  disabled={busy !== null}
+                  className="px-4 py-2 rounded-full text-sm font-medium text-crwn-text bg-crwn-elevated disabled:opacity-50"
+                >
+                  {busy === 'expand' ? 'Expanding...' : 'Expand From Indexed Pages'}
+                </button>
+              </div>
+            </div>
+
+            {candidateInfo && (
+              <p className="text-xs text-crwn-text-secondary">
+                {candidates.length} candidates from {candidateInfo.totalSeen} profiles seen.
+                {candidateInfo.excluded.belowThreshold > 0 && ` ${candidateInfo.excluded.belowThreshold} below 50K.`}
+                {candidateInfo.excluded.alreadyIndexed > 0 && ` ${candidateInfo.excluded.alreadyIndexed} already indexed.`}
+                {candidateInfo.excluded.privateAccounts > 0 && ` ${candidateInfo.excluded.privateAccounts} private.`}
+                {candidateInfo.excluded.unknownFollowers > 0 && ` ${candidateInfo.excluded.unknownFollowers} with unknown size.`}
+              </p>
+            )}
+
+            {candidates.length > 0 && (
+              <div className="space-y-2">
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => setSelected(selected.size === candidates.length ? new Set() : new Set(candidates.map((c) => c.username)))}
+                    className="text-xs text-crwn-text-secondary hover:text-crwn-text"
+                  >
+                    {selected.size === candidates.length ? 'Select none' : 'Select all'}
+                  </button>
+                  <button
+                    onClick={() => addSelected(false)}
+                    disabled={busy !== null || selected.size === 0}
+                    className="px-3 py-1.5 rounded-full bg-crwn-gold text-black text-xs font-semibold disabled:opacity-50"
+                  >
+                    Add Selected ({selected.size})
+                  </button>
+                  <button
+                    onClick={() => addSelected(true)}
+                    disabled={busy !== null || selected.size === 0}
+                    className="px-3 py-1.5 rounded-full text-xs font-medium text-crwn-text bg-crwn-elevated disabled:opacity-50"
+                  >
+                    Add Selected & Refresh Posts
+                  </button>
+                </div>
+                <div className="overflow-x-auto max-h-96 overflow-y-auto">
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr className="text-left text-crwn-text-secondary">
+                        <th className="px-2 py-2"></th>
+                        <th className="px-2 py-2 font-medium">Page</th>
+                        <th className="px-2 py-2 font-medium">Followers</th>
+                        <th className="px-2 py-2 font-medium">Category</th>
+                        <th className="px-2 py-2 font-medium">Found via</th>
+                        <th className="px-2 py-2 font-medium">Value</th>
+                        <th className="px-2 py-2 font-medium">Bio</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {candidates.map((c) => (
+                        <tr key={c.username} className="border-t border-crwn-elevated/40">
+                          <td className="px-2 py-2">
+                            <input
+                              type="checkbox"
+                              checked={selected.has(c.username)}
+                              onChange={() => {
+                                const next = new Set(selected);
+                                if (next.has(c.username)) next.delete(c.username);
+                                else next.add(c.username);
+                                setSelected(next);
+                              }}
+                            />
+                          </td>
+                          <td className="px-2 py-2">
+                            <a href={c.profileUrl} target="_blank" rel="noopener noreferrer" className="text-crwn-text hover:text-crwn-gold inline-flex items-center gap-1">
+                              @{c.username}
+                              {c.verified && <BadgeCheck className="w-3 h-3 text-crwn-gold" />}
+                            </a>
+                          </td>
+                          <td className="px-2 py-2 text-crwn-text">{formatFollowers(c.followers)}</td>
+                          <td className="px-2 py-2 text-crwn-text-secondary">{c.category ?? ''}</td>
+                          <td className="px-2 py-2 text-crwn-text-secondary">{foundVia(c)}</td>
+                          <td className="px-2 py-2 text-crwn-gold font-semibold">{c.seedValue}</td>
+                          <td className="px-2 py-2 text-crwn-text-secondary max-w-xs truncate" title={c.bioExcerpt ?? ''}>{c.bioExcerpt ?? ''}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+          </div>
 
           <div className="grid md:grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -330,7 +620,9 @@ function IndexPanel({ onIndexChanged }: { onIndexChanged: number }) {
               </button>
             </div>
             <div className="space-y-2">
-              <label className="block text-sm text-crwn-text-secondary">Bootstrap from reference artists (one per line)</label>
+              <label className="block text-sm text-crwn-text-secondary">
+                Bootstrap from reference artists (supplemental: artist search rarely reveals big pages; use Discover above to build the universe)
+              </label>
               <textarea
                 value={artistsText}
                 onChange={(e) => setArtistsText(e.target.value)}
