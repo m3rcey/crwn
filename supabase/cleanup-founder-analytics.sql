@@ -39,11 +39,18 @@ CREATE TEMP TABLE founder_anon_ids ON COMMIT DROP AS
 SELECT DISTINCT anon_id FROM funnel_events
 WHERE user_id IN (SELECT id FROM founder_ids) AND anon_id IS NOT NULL;
 
--- 4) Founder-claimed lead results identify the founder's calculator events.
+-- 4) Founder-claimed lead results identify the founder's calculator events. The conversion
+--    link (converted_user_id) and the typed email live on lead_magnet_leads, not on the
+--    results row, so the second arm joins through lead_id. The email arm catches test
+--    submissions typed into a capture card before any account ever linked them.
 CREATE TEMP TABLE founder_result_ids ON COMMIT DROP AS
 SELECT id FROM lead_magnet_results
 WHERE user_id IN (SELECT id FROM founder_ids)
-   OR converted_user_id IN (SELECT id FROM founder_ids);
+   OR lead_id IN (
+        SELECT id FROM lead_magnet_leads
+        WHERE converted_user_id IN (SELECT id FROM founder_ids)
+           OR lower(email) = 'joshn.wms@gmail.com'
+      );
 
 -- 5) Give plays back before deleting the rows that count them: only COMPLETED listens ever
 --    incremented tracks.play_count, so decrement by exactly those.
