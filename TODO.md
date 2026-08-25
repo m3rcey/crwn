@@ -187,22 +187,8 @@ responsible for. Do not work those.
       was rejected):
         https://thecrwn.app/sms-alert-consent
       The exact wording to paste into "How do end-users consent to receive messages?" is
-      in the item below. Submit your own consent on that page FIRST, so the record exists
-      before a reviewer looks.
-
-- [ ] **P0: Run the consent migration, then submit your own consent on the live page.**
-      Two steps, in this order, before you resubmit the Twilio campaign.
-      1. Open and run:
-         supabase/schema-phase2-internal-sms-alert-consent.sql
-         It creates ONE table, internal_sms_alert_consents, with RLS on and anon/authenticated
-         grants revoked, and it self-verifies (it RAISEs if any piece did not land). Then:
-           npm run verify:migrations
-         For this line 42501 is the PASS (the table exists and anon correctly cannot read a log
-         of real phone numbers). A 200 there is an incident, not a green light.
-      2. Go to https://thecrwn.app/sms-alert-consent on your phone, enter the number that will
-         receive the alerts, tick the box, and submit. You will get an email copy of the record.
-         The page works even if step 1 is not done yet (the email is the fallback), but do step 1
-         so the durable row exists.
+      in the item below. Your own consent is already recorded (2026-08-25), so a reviewer
+      opening that page sees a working form backed by a real record.
 
 - [ ] **P0: Paste this into Twilio's "How do end-users consent to receive messages?" field.**
       Copy it verbatim; it matches the live page, the privacy policy and the terms, and a
