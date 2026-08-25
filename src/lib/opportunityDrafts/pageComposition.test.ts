@@ -562,7 +562,7 @@ describe('Homepage marketing narrative (HomeMarketing)', () => {
     expect(homeMarketing).toMatch(/const scrollToCalculator[\s\S]{0,220}scrollToAnchor\(WIZARD_ANCHOR_ID, 'start'\)/);
     // The nav CTA is on the same rule.
     expect(worth).toContain('WIZARD_ANCHOR_ID');
-    const nav = worth.slice(worth.indexOf('See my opportunity') - 900, worth.indexOf('See my opportunity'));
+    const nav = worth.slice(worth.indexOf('See what I am missing') - 900, worth.indexOf('See what I am missing'));
     expect(nav).toContain('getElementById(WIZARD_ANCHOR_ID)');
     // The top-of-page fallback survives ONLY as the no-wizard case (a finished visitor), never
     // as the primary target.

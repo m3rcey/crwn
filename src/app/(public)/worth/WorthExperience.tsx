@@ -798,6 +798,7 @@ export function HomeNav() {
             Pricing
           </a>
           <a href="/login" className="text-crwn-text hover:text-crwn-gold transition-colors">Log in</a>
+          <a href="/signup?ref=homepage" className="text-crwn-text hover:text-crwn-gold transition-colors">Sign up</a>
           <button
             onClick={() => {
               // The calculator, not the top of the document. The top is a headline the visitor
@@ -809,7 +810,7 @@ export function HomeNav() {
             }}
             className="bg-crwn-gold text-crwn-bg font-semibold px-4 py-2 rounded-full hover:bg-crwn-gold/90 transition-colors"
           >
-            See my opportunity
+            See what I am missing
           </button>
         </div>
       </div>
