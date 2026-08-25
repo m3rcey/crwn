@@ -211,6 +211,32 @@ describe.runIf(carouselFiles.length > 0)('FE-CAR-003 every carousel file is well
       .toMatch(/here'?s the crazy part|ain'?t even the wild part|here'?s what got me|it gets worse|part that got me/i);
   });
 
+  it.each(carouselFiles)('%s frames BOTH CTAs around a loss', (file) => {
+    // Founder call 2026-08-25, and the standing copy rule in CLAUDE.md: lead with what the
+    // artist LOSES, never what they gain. This is a COVERAGE proxy, not a judge of copy. It
+    // cannot tell a sharp loss frame from a clumsy one. What it reliably catches is the thing
+    // that actually went wrong: converting one batch and silently leaving 21 others gain-framed.
+    const caption = section(readFileSync(join(CAROUSELS_DIR, file), 'utf8'), '**CAPTION:**') ?? '';
+    const LOSS =
+      /\b(lose|loses|losing|lost|costs?|costing|never|nobody|nothing|no longer|give up|takes|stops|stopped|before|without|unreachable|signed away|leaving|would have)\b/i;
+
+    const lines = caption.split('\n').map((l) => l.trim()).filter(Boolean);
+
+    const opening = lines[0];
+    expect(LOSS.test(opening), `the opening CTA is gain-framed: ${opening}`).toBe(true);
+
+    const offer = caption.match(/I built a free [^\n]*/)?.[0] ?? '';
+    expect(LOSS.test(offer), `the offer line is gain-framed: ${offer}`).toBe(true);
+
+    // The ask carries its loss as a CLAUSE, not a word, so the lexicon is the wrong instrument.
+    // The old gain-framed ask had no clause at all, which is an exact structural tell.
+    const ask = lines[lines.length - 1];
+    expect(
+      /^Comment "[A-Z0-9]+" and I'll DM you the link\.$/.test(ask),
+      `the closing ask carries no loss clause: ${ask}`
+    ).toBe(false);
+  });
+
   it.each(carouselFiles)('%s closes on an OFFER line then the ask, never collapsed', (file) => {
     const caption = section(readFileSync(join(CAROUSELS_DIR, file), 'utf8'), '**CAPTION:**') ?? '';
     // "I built a free X that Y" does three jobs the collapsed one-liner cannot: a person

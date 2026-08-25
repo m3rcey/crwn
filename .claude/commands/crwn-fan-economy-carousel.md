@@ -98,6 +98,24 @@ posts sharing a keyword cannot trip it. The current set:
 than the catalog. A catalog-specific loss reads wrong on a membership case study, which is how the
 first version of this table shipped before it was read aloud.
 
+**Write the loss PER POST, not per keyword.** The first pass used one frame per keyword and it is
+the weaker pattern: "for what hearing it first is worth to your day ones" is sharper than a generic
+VAULT line, because it is about THIS story. Invert the post's own CTA instead of replacing it. The
+keyword table above is the fallback when a post has no specific angle, not the target.
+
+**The loss must stay inside what the tool actually does.** A post-specific CTA is only better if the
+calculator can deliver what it promises. "For what your people would show up for" is a nice line and
+the Own Your Fans Calculator does not answer it. Name a loss the tool genuinely measures, or the
+post sells a feature CRWN does not have.
+
+**Apply it to the WHOLE library, never a numeric slice.** The first pass filtered on `^(5[1-9]|60)-`
+and covered 10 of 31 carousels, leaving 21 gain-framed while the skill claimed the rule was in
+force. That is now caught by a COVERAGE guard in `fanEconomyCarouselContract.test.ts`: every
+caption's opening and offer must contain a loss marker, and the ask must not be the bare
+`Comment "X" and I'll DM you the link.` form. It is a proxy and it is documented as one, because it
+cannot judge whether a frame is any good. It exists to fail the moment one batch is converted and
+another is left behind.
+
 **"Whenever possible" is the founder's wording and it is real.** A loss frame that requires an
 invented consequence is worse than a clean gain frame. If a tool genuinely has no honest loss to
 name, say what it costs to keep guessing rather than manufacturing a threat.
