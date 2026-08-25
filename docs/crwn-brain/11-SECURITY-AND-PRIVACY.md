@@ -70,8 +70,24 @@
 ### 🟡 LOW-1 — `smart-links/capture` doesn't bind `artistId` to the link owner
 **File:** `src/app/api/smart-links/capture/route.ts`. `Confirmed`. Public-by-design write; a forged POST can misattribute a captured lead to the wrong artist (integrity, not confidentiality). Remediation: derive artist from the `linkId`'s owning row.
 
-### 🟡 LOW-2 — No CSP or HSTS header configured in-repo
-**File:** `next.config.ts`. `Confirmed`. Vercel's edge may add HSTS by default (not verifiable from source), and there is no `Content-Security-Policy` — reduces defense-in-depth against XSS/clickjacking beyond `X-Frame-Options`. Remediation: add a CSP and explicit HSTS.
+### 🟡 LOW-2 — CSP exists but contains nothing; HSTS comes from the Vercel edge
+**File:** `next.config.ts`. `Confirmed 2026-08-25 against live headers.` Superseded the original
+finding, which said no CSP or HSTS header existed at all. Both now exist, and the honest reading is:
+
+- `Content-Security-Policy: frame-ancestors 'self'` is ENFORCED, so clickjacking is covered
+  (alongside `X-Frame-Options: SAMEORIGIN`).
+- `Content-Security-Policy-Report-Only` carries `script-src 'self' 'unsafe-inline'`, so it provides
+  **ZERO XSS containment** and reports almost nothing. Do not describe CSP as protecting users.
+- `Strict-Transport-Security: max-age=63072000` is served by the Vercel edge, not by
+  `next.config.ts`. Adding a second STS header from the app risks two competing values, and a
+  browser honours only one, so `includeSubDomains` belongs at the domain layer.
+
+**Deliberately not remediated (founder decision, 2026-08-25).** Removing `unsafe-inline` requires a
+per-request nonce minted in `src/middleware.ts` and is a single cutover, not a gradual one. The
+surface it would contain is not currently open: the app has **no uses of
+`dangerouslySetInnerHTML`** (every match in the repo is a comment or the test asserting its
+absence), so all user-supplied text renders through React's escaping. Revisit when the app renders
+user-supplied HTML, adds a third-party script tag, or a partner security review requires it.
 
 ### ✅ LOW-3: RESOLVED BY REMOVAL 2026-07-31. SMS quiet-hour sends were silently dropped
 **File (deleted):** `src/app/api/sms/send/route.ts:155` (`// TODO: implement deferred send queue`). Messages during 9pm–9am were counted but never queued/sent. The entire SMS feature was removed 2026-07-31, so this gap no longer exists.

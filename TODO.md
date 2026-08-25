@@ -262,14 +262,26 @@ responsible for. Do not work those.
       top of that file. Revisit on a later Next; the test is whether the BUILT MANIFEST still
       carries the matcher, never whether the build passes.
 
-- [ ] **Enforce CSP (currently Report-Only).** `Content-Security-Policy-Report-Only` is live in
-      production and its origins were derived from the code, but it carries `script-src 'self'
-      'unsafe-inline'`, so it provides ZERO XSS containment today. Removing `unsafe-inline` needs a
-      per-request nonce minted in middleware, because the static `headers()` block in
-      next.config.ts cannot produce one. Once a nonce is present browsers ignore `'unsafe-inline'`,
-      so it is a single cutover rather than a gradual one. There is also no report collector, so
-      violations only reach the console of whoever is looking; a `/api/csp-report` sink would need
-      its own rate limit and body cap. Until both land, do not describe CSP as protecting users.
+- [ ] **CSP: my recommendation is DO NOTHING, and here is why, so you can overrule it.**
+      You asked what to do here. Short version: this is defence-in-depth against an attack surface
+      you do not currently have, and doing it now risks breaking the site during a content launch.
+      What is actually true in production today (checked, not assumed):
+        - `Content-Security-Policy: frame-ancestors 'self'` is ENFORCED. Clickjacking is genuinely
+          covered, by that plus `X-Frame-Options: SAMEORIGIN`.
+        - `Content-Security-Policy-Report-Only` carries `script-src 'self' 'unsafe-inline'`, which
+          means it blocks nothing and reports almost nothing. It is decorative.
+        - The thing a real CSP would contain is XSS via injected HTML. **The app has ZERO uses of
+          `dangerouslySetInnerHTML`** (all four matches in the repo are comments and a test that
+          asserts it is never used). Every piece of fan and artist text renders through React,
+          which escapes it. So the hole CSP would plug is not currently open.
+      The cost of doing it: a per-request nonce minted in `src/middleware.ts`, which is the file
+      that silently stopped compiling when it was renamed on 2026-08-24, plus roughly 20 minutes of
+      YOUR time clicking through signup, a calculator, checkout, an artist page and /studio on a
+      preview deploy with the browser console open, looking for `Refused to execute inline script`.
+      If a page is missed, that page breaks in production for everyone.
+      **Do it when one of these becomes true**, not before: you start rendering user-supplied HTML
+      anywhere, you add a third-party script tag, or a partner security review asks for it.
+      Nothing in the product claims CSP protects users, so there is no dishonest copy to fix.
 
 - [ ] **Set HSTS `includeSubDomains` at the Vercel domain layer, not in code.** Production's
       `Strict-Transport-Security: max-age=63072000` comes from the Vercel edge, not from
