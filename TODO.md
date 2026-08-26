@@ -22,6 +22,19 @@ responsible for. Do not work those.
 
 ### P0 — money flows or acquisition are blocked
 
+- [ ] **Renew the ManyChat subscription. Every DM keyword is dead until you do, and posts are
+      still going out promising a DM.** Confirmed 2026-08-26 by a real lead: @iamisaiahlee (7.2K
+      followers) commented OWN on the Open Mike Eagle carousel, got the opener, tapped Show Me,
+      and ManyChat answered with a bare "Automation powered by @Manychat" and nothing else. That
+      stub with an empty body is what a lapsed plan sends. Your own OWN test then returned nothing
+      at all, which rules out that one lead being unlucky.
+      Nothing is wrong in CRWN: the webhook, the engine and the calculators are untouched, and the
+      same flow ran end to end the night before.
+      **This is the acquisition funnel, so it outranks everything else in this file.** Scheduled
+      posts keep publishing on their own and every one of them ends with "comment OWN and I'll DM
+      you the link", so each hour it stays lapsed spends real reach on a promise CRWN cannot keep.
+      Either renew, or tell me and I will pause the queue until it is back.
+
 - [ ] **To finish Team Splits I need a test-mode sandbox. This is the only thing left, and it is
       environment setup, not code.** Nothing to run in SQL.
       I checked rather than assumed: your Stripe key really is live (I asked Stripe, and the balance
