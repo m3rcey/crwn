@@ -554,8 +554,13 @@ describe('tool adapters (parity with the five existing lead magnets)', () => {
 
   it('asks only for the fields the selected tool actually needs', () => {
     const worth = getTool('worth')!;
-    expect(missingRequiredFields(worth, {})).toEqual(['monthly_listeners']);
-    expect(missingRequiredFields(worth, { monthly_listeners: 1000 })).toEqual([]);
+    // The tool's own field, then the proof question every tool ends on (see the
+    // "the DM asks the proof question" suite for why it is required and why it is last).
+    expect(missingRequiredFields(worth, {})).toEqual(['monthly_listeners', 'monetization_status']);
+    expect(missingRequiredFields(worth, { monthly_listeners: 1000 })).toEqual(['monetization_status']);
+    expect(
+      missingRequiredFields(worth, { monthly_listeners: 1000, monetization_status: 'direct_some' }),
+    ).toEqual([]);
   });
 
   it('runs every tool without throwing on an empty profile', () => {
@@ -1084,5 +1089,50 @@ describe('destination registry (Claude can never return a URL)', () => {
       setupComplete: true,
     });
     expect(route).toBe('/profile/artist');
+  });
+});
+
+// After the audience question the DM must ask whether these fans have ever paid them. That answer
+// is 40% of the ICP score and the only thing standing between a DM lead and `sales_priority`, the
+// band that alerts the founder and the band a call request has to reach. Before this, every DM
+// tool stopped at a follower count, so the highest-intent channel produced unqualifiable leads.
+describe('the DM asks the proof question', () => {
+  it('every acquisition tool requires monetization_status, and asks it LAST', () => {
+    for (const id of ACQUISITION_TOOL_IDS) {
+      const tool = getTool(id)!;
+      expect(tool.requiredFields, id).toContain('monetization_status');
+      // Last, because the ManyChat openers hand-duplicate question ONE. Reordering these
+      // desyncs every live flow's opening message.
+      expect(tool.requiredFields[tool.requiredFields.length - 1], id).toBe('monetization_status');
+    }
+  });
+
+  it('has question copy, so the DM does not fall through to "Tell me a bit more."', () => {
+    const def = getField('monetization_status')!;
+    expect(def.question).toBeTruthy();
+    expect(def.retryHint).toBeTruthy();
+    expect(def.question).not.toMatch(/[—–]/);
+    expect(def.retryHint).not.toMatch(/[—–]/);
+  });
+
+  it('reads a real typed answer with no model call', () => {
+    const cases: [string, string][] = [
+      ['yeah, patreon every month', 'direct_established'],
+      ['I run a membership', 'direct_some'],
+      ['just merch at shows', 'merch_only'],
+      ['nah, only streaming so far', 'streaming_only'],
+      ['no', 'none'],
+      ['not yet', 'none'],
+      ['a few times', 'direct_some'],
+      ['yes', 'direct_some'],
+      ['direct_established', 'direct_established'],
+    ];
+    for (const [raw, expected] of cases) {
+      expect(normalizeDeterministic('monetization_status', raw), raw).toBe(expected);
+    }
+  });
+
+  it('still returns null on a genuinely unreadable answer, so the retry hint fires', () => {
+    expect(normalizeDeterministic('monetization_status', 'idk man')).toBeNull();
   });
 });

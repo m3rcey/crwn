@@ -72,6 +72,12 @@ export interface WorthPrefill {
   listeners?: string;
   followers?: string;
   streaming?: string;
+  /**
+   * The proof answer (`monetization_status`). Not an input to the money model, and it never
+   * changes the number. It is the 40% dimension of the ICP scorer, so it is the difference
+   * between a call request that can qualify and one that is filed and forgotten.
+   */
+  monetization?: string;
 }
 
 /**
@@ -124,6 +130,9 @@ export function WorthExperience({
   const [listeners, setListeners] = useState(prefill?.listeners || '150000');
   const [followers, setFollowers] = useState(prefill?.followers || '');
   const [streaming, setStreaming] = useState(prefill?.streaming || '');
+  // Answered on the wizard's proof screen, or carried in from the DM funnel's stored profile.
+  // Feeds the hand-raiser ONLY; the money model never reads it.
+  const [monetization, setMonetization] = useState(prefill?.monetization || '');
   const [preset, setPreset] = useState<AggressivenessPreset>('conservative');
   const [showAdvanced, setShowAdvanced] = useState(false);
 
@@ -487,6 +496,7 @@ export function WorthExperience({
           { id: 'listeners', group: 'Audience', title: 'How big is your audience?', subtitle: 'A rough number is fine.' },
           { id: 'followers', group: 'Audience', title: 'And your socials?', subtitle: 'Instagram, TikTok, all of it.' },
           { id: 'streaming', group: 'Audience', title: 'What does streaming pay you?', subtitle: 'Optional. We estimate it if you skip.' },
+          { id: 'proof', group: 'Proof', title: 'Have your fans ever paid you directly?', subtitle: 'Streaming is exposure. A sale is proof.' },
           { id: 'review', group: 'Review', title: 'Review', subtitle: 'Check your answers, then see what you are worth.' },
         ],
         inputs: [
@@ -517,6 +527,25 @@ export function WorthExperience({
             max: 1000000,
             step: 'streaming',
           },
+          {
+            // The 40% question, matching DIRECT_SALES_INPUT on every registry loss tool.
+            // /worth was the one hand-raiser calculator that never asked it, so its call card
+            // could not qualify anyone: `scoreLead` caps the fit at 60 while monetization is
+            // unknown, which puts the ceiling under the `sales_priority` threshold no matter
+            // how large the audience is. It does not touch the number, only who gets a call.
+            key: 'monetization_status',
+            type: 'option',
+            label: 'Have you ever sold anything directly to your fans?',
+            help: 'This shapes what we recommend. It does not change the number.',
+            required: true,
+            step: 'proof',
+            options: [
+              { value: 'direct_established', label: 'Yes, regularly (memberships, drops, VIP)', icon: '👑' },
+              { value: 'direct_some', label: 'Yes, a few times', icon: '💸' },
+              { value: 'merch_only', label: 'Merch or tickets only', icon: '👕' },
+              { value: 'streaming_only', label: 'No, streaming and socials only', icon: '🎧' },
+            ],
+          },
         ],
       }) as unknown as LeadMagnetConfig,
     [],
@@ -544,6 +573,7 @@ export function WorthExperience({
           monthly_listeners: Number(listeners) || undefined,
           followers: Number(followers) || undefined,
           streaming_revenue: Number(streaming) || undefined,
+          monetization_status: monetization || undefined,
         } as unknown as Record<string, never>}
         submitLabel="See what I am worth"
         onComplete={(v) => {
@@ -551,6 +581,9 @@ export function WorthExperience({
           if (num(v.monthly_listeners)) setListeners(num(v.monthly_listeners));
           if (num(v.followers)) setFollowers(num(v.followers));
           if (num(v.streaming_revenue)) setStreaming(num(v.streaming_revenue));
+          if (typeof v.monetization_status === 'string' && v.monetization_status) {
+            setMonetization(v.monetization_status);
+          }
           // The canonical completion event, at the same moment PublicToolClient emits it (the
           // wizard finished and the result is about to render). /worth was the ONE calculator
           // that never emitted it, so its funnel line showed starts with zero completions and
@@ -710,6 +743,10 @@ export function WorthExperience({
                   monthly_listeners: Number(listeners) || 0,
                   followers: Number(followers) || 0,
                   streaming_revenue: Number(streaming) || 0,
+                  // Omitted rather than sent empty when unknown: the scorer treats a MISSING
+                  // monetization answer as "never asked" (fit capped, honest) and an empty
+                  // string would be dropped by the allowlist anyway.
+                  ...(monetization ? { monetization_status: monetization } : {}),
                 }}
                 planSummary={hasNumber ? `${fmtDollars(result.netMrrCents)}/mo direct-to-fan system` : null}
                 publicToken={resultToken}

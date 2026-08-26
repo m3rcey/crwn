@@ -2,7 +2,9 @@ import { describe, it, expect } from 'vitest';
 import {
   CALL_CONSENT_TEXT,
   CALL_CONSENT_VERSION,
+  CALL_HAND_RAISER_TOOLS,
   QUALIFIED_BAND,
+  WORTH_CALL_INPUT_DEFS,
   approxCount,
   buildFounderSmsBody,
   decideCallRequest,
@@ -168,5 +170,40 @@ describe('the consent contract', () => {
     expect(CALL_CONSENT_VERSION).toMatch(/^call-consent-\d{4}-\d{2}-\d{2}\.v\d+$/);
     expect(CALL_CONSENT_TEXT.length).toBeGreaterThan(20);
     expect(CALL_CONSENT_TEXT).not.toMatch(/[—–]/);
+  });
+});
+
+// A hand-raiser is only honest if the tool behind it collects enough to reach the qualifying
+// band. /worth failed this for its whole life: its three inputs were audience only, and
+// `scoreLead` caps the fit at 60 whenever monetization is unknown, so the total topped out in
+// the 40s and no answer to those three questions could ever produce a founder alert.
+describe('every hand-raiser tool can actually qualify a lead', () => {
+  it('/worth collects the proof answer, so a Tier 1 seller qualifies', () => {
+    const inputs = sanitizeCalculatorInputs(WORTH_CALL_INPUT_DEFS, {
+      monthly_listeners: 150_000,
+      followers: 400_000,
+      streaming_revenue: 900,
+      monetization_status: 'direct_established',
+    });
+    expect(inputs.monetization_status).toBe('direct_established');
+    expect(decideCallRequest(inputs).qualified).toBe(true);
+  });
+
+  it('/worth on audience alone still cannot qualify, which is the honest answer', () => {
+    const inputs = sanitizeCalculatorInputs(WORTH_CALL_INPUT_DEFS, {
+      monthly_listeners: 150_000,
+      followers: 400_000,
+    });
+    const decision = decideCallRequest(inputs);
+    expect(decision.qualified).toBe(false);
+    expect(decision.reasons).toContain('monetization_unknown');
+  });
+
+  it('every allowlisted tool carries a monetization input, or its card is decoration', () => {
+    for (const slug of CALL_HAND_RAISER_TOOLS) {
+      const defs = slug === 'worth' ? WORTH_CALL_INPUT_DEFS : getLeadMagnet(slug)?.inputs;
+      expect(defs, slug).toBeTruthy();
+      expect((defs as { key: string }[]).some((d) => d.key === 'monetization_status'), slug).toBe(true);
+    }
   });
 });

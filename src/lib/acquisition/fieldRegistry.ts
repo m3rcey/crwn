@@ -39,6 +39,15 @@ export interface FieldDefinition {
   inputType?: QuestionInputType;
   /** enum only */
   values?: string[];
+  /**
+   * enum only. Ordered natural-language rules, tried BEFORE we spend a Claude call.
+   *
+   * A DM answer is a sentence, not an enum value ("yeah, patreon and some merch"), so a bare
+   * enum match resolves almost nothing: every lead would cost a model call, and a miss burns
+   * one of the three retries that hand the artist to a human. First match wins, so these are
+   * ordered most-specific first.
+   */
+  aliasPatterns?: { pattern: RegExp; value: string }[];
   /** integer/cents only. Values outside are rejected, not clamped silently. */
   min?: number;
   max?: number;
@@ -298,13 +307,49 @@ export const FIELD_REGISTRY: Record<string, FieldDefinition> = {
     values: [...ARTIST_SEGMENTS],
     minConfidence: 0.6,
   },
+  // THE 40% QUESTION, and the one that decides how a lead gets handled.
+  //
+  // leadScoring weights direct monetization history at 40 of 100, ahead of audience at 25, and
+  // caps the whole fit at 60 with `monetization_unknown` when it was never answered. A lead who
+  // is never asked this therefore CANNOT reach `sales_priority`: the band that alerts the founder
+  // (rescore.ts) and the band `decideCallRequest` requires before a call request is anything more
+  // than a stored row. Every WEB calculator has asked it since the avatar landed
+  // (DIRECT_SALES_INPUT in leadMagnets/registry.ts). The DM asked a follower count and stopped,
+  // so the highest-intent channel CRWN has was producing its least qualified leads.
+  //
+  // Copy carries examples because a DM answer is typed, not tapped off a dropdown.
   monetization_status: {
     key: 'monetization_status',
     type: 'enum',
     column: 'monetization_status',
     label: 'Monetization status',
     aiExtractable: true,
+    question:
+      'Last one: have your fans ever paid you directly? Patreon, a membership, merch, tickets, beats, a VIP thing, anything counts.',
+    retryHint:
+      'Whichever is closest: yes regularly, yes a few times, merch or tickets only, or streaming only so far.',
+    inputType: 'text',
     values: [...MONETIZATION_STATUS],
+    aliasPatterns: [
+      // Ordered on purpose. A cadence word beats a platform name, a platform name beats merch,
+      // and the bare yes/no rules come LAST so "no, just merch" lands on merch_only and
+      // "nah, only streaming" lands on streaming_only instead of both collapsing to none.
+      {
+        pattern: /\b(regularly|every month|monthly|all the time|consistently|income stream|main income|full[- ]?time)\b/,
+        value: 'direct_established',
+      },
+      {
+        pattern: /\b(patreon|membership|members|subscription|subscribers|vip|bandcamp|gumroad|shopify|discord|kajabi|beats?|drops?|presale)\b/,
+        value: 'direct_some',
+      },
+      { pattern: /\b(merch|shirts?|hoodies?|tickets?|vinyl|cds?|shows?)\b/, value: 'merch_only' },
+      { pattern: /\b(only streaming|just streaming|streaming only|spotify only|socials only|streams only)\b/, value: 'streaming_only' },
+      {
+        pattern: /\b(a few|few times|couple|once|twice|sometimes|here and there|yeah|yea|yes|yep|yup|sure|i have|we have)\b/,
+        value: 'direct_some',
+      },
+      { pattern: /\b(no|nope|nah|never|not yet|none|nothing)\b/, value: 'none' },
+    ],
     minConfidence: 0.6,
   },
   team_status: {
@@ -513,7 +558,14 @@ export function normalizeDeterministic(fieldKey: string, raw: string): unknown |
       return parseBoolean(raw);
     case 'enum': {
       const s = raw.toLowerCase().trim().replace(/[\s-]+/g, '_');
-      return def.values?.includes(s) ? s : null;
+      if (def.values?.includes(s)) return s;
+      // Nobody types `direct_established` into Instagram. The alias rules are what let a real
+      // sentence resolve with no model call and no retry spent.
+      const natural = raw.toLowerCase().trim();
+      for (const rule of def.aliasPatterns ?? []) {
+        if (rule.pattern.test(natural) && def.values?.includes(rule.value)) return rule.value;
+      }
+      return null;
     }
     case 'string': {
       const s = raw.trim();

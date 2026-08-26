@@ -75,6 +75,7 @@ export default async function ResultPage({
       monthly_listeners?: number;
       social_followers?: number;
       streaming_revenue_cents?: number;
+      monetization_status?: string;
     };
 
     return (
@@ -85,6 +86,10 @@ export default async function ResultPage({
           // The UI takes DOLLARS and converts to cents itself. We store cents. Convert back,
           // or she sees a streaming figure 100x too big and stops trusting the whole page.
           streaming: centsToDollars(input.streaming_revenue_cents),
+          // The DM now asks the proof question, so a lead arriving from Instagram already
+          // answered it. Carrying it here is what lets their hand-raiser qualify without
+          // asking the same question twice on two surfaces.
+          monetization: typeof input.monetization_status === 'string' ? input.monetization_status : undefined,
         }}
         claimHref={result.claimedAt ? undefined : `/claim/${encodeURIComponent(token)}`}
         resultToken={token}

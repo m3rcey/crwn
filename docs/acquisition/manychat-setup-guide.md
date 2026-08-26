@@ -578,3 +578,28 @@ still running Worth. Do not publish until the followers question comes back.
 Then DM the keyword and run it end to end. The result topline is the unified model's own line
 ("You could build an estimated $X to $Y a month..."), and the button opens
 `https://thecrwn.app/tools/opportunity-calculator/result/<token>`.
+
+---
+
+## 12. EVERY tool is now a two-question DM (2026-08-26)
+
+Every flow asks its own question, then one more: **"have your fans ever paid you directly?"**
+(`monetization_status`, always LAST in `requiredFields`). Nothing in ManyChat changes. The
+Condition's if-not branch already loops back to the question node, which is the same path a
+two-question tool has always taken (§10).
+
+**Why it was added.** `leadScoring` weights direct monetization history at 40 of 100 and caps the
+whole fit at 60 while it is unknown, so a DM lead who only ever gave a follower count could not
+reach `sales_priority` no matter how large their audience was. That is the band that fires the
+founder's high-intent alert (`rescore.ts`) and the band a call request must clear
+(`decideCallRequest`). Every WEB calculator has asked this question since the avatar landed; the
+DM did not, so the highest-intent channel CRWN has was producing its least actionable leads.
+
+**What changes in a smoke test.** After the first answer the response is `ask_question` again,
+carrying the proof question, and only the second answer returns `send_result`. A flow that ends
+after one answer is a flow whose Condition no-branch is not wired back to the question node.
+
+**The answer is read without a model call.** `fieldRegistry.aliasPatterns` resolves the sentences
+people actually type ("yeah, patreon every month", "just merch at shows", "nah, only streaming"),
+so the retry ladder is not spent on a parser gap. Anything genuinely unreadable falls through to
+Claude, then to the retry hint, then to `/admin` → Acquisition → Needs you, as before.

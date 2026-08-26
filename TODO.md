@@ -67,6 +67,24 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **Run ONE ManyChat flow end to end. Every DM tool now asks a second question, and only a
+      live run proves your flows loop.** No ManyChat edit should be needed: the Condition's
+      if-not branch already loops back to the question node, which is the same path Royalty
+      Readiness has always used. But three of these flows were cloned by hand, and a clone that
+      lost that connection will now stall after question one instead of delivering the result.
+      DM the `FREE` keyword from a test account and confirm you see, in order:
+        1. "Roughly how many followers do you have across your socials?"
+        2. "Last one: have your fans ever paid you directly? ..." (this is the new one)
+        3. The topline plus the `See My Numbers` button.
+      If it stops after step 1, that flow's Condition no-branch is not wired back to the
+      question node. Fix it in ManyChat; there is nothing to change in the code.
+      Why the second question exists: without it every DM lead scored as `monetization_unknown`,
+      which caps the ICP fit at 60 and made `sales_priority` unreachable. That is the band that
+      emails you a hot lead, and the band a "call me" request has to clear. It has never fired
+      for an Instagram lead.
+      Full note: [docs/acquisition/manychat-setup-guide.md](docs/acquisition/manychat-setup-guide.md) §12.
+
+
 - [ ] **The full metrics wipe, in order (three files, run 1 and 2 now):**
       1. Run [supabase/wipe-analytics-keep-real-money.sql](supabase/wipe-analytics-keep-real-money.sql)
          in the SQL Editor. One transaction. It deletes the ENTIRE demo seed (the 20 fake fans,

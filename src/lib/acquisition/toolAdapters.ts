@@ -36,7 +36,17 @@ export interface AcquisitionTool {
   id: string;
   /** Human label used in DM copy. */
   name: string;
-  /** Profile field keys that MUST be known before we can run this tool. */
+  /**
+   * Profile field keys that MUST be known before we can run this tool.
+   *
+   * EVERY tool ends on `monetization_status`, and it is always LAST. It is not an input to any
+   * model here (no result changes because of it); it is the 40% dimension of the ICP scorer, and
+   * without it `leadScoring` caps the fit at 60 so no DM lead can ever reach `sales_priority`.
+   * That band is what alerts the founder and what `decideCallRequest` requires, so a DM that
+   * stops at a follower count produces a lead nobody can act on. Last, because the ManyChat
+   * openers hand-duplicate question ONE (`manychat-setup-guide.md` §10): reordering these
+   * silently desyncs every live flow's opening message.
+   */
   requiredFields: string[];
   /** Nice-to-have fields. We ask for these only if the conversation is still going. */
   optionalFields: string[];
@@ -99,7 +109,7 @@ const s = (v: string | null | undefined, d = ''): string => (typeof v === 'strin
 const worth: AcquisitionTool = {
   id: 'worth',
   name: 'Streaming Loss Calculator',
-  requiredFields: ['monthly_listeners'],
+  requiredFields: ['monthly_listeners', 'monetization_status'],
   optionalFields: ['social_followers', 'streaming_revenue_cents'],
   resultRouteBase: '/tools/worth/result',
   formulaVersion: 'leadCalculator@1',
@@ -201,7 +211,7 @@ const vault: AcquisitionTool = {
   // Two inputs: the unreleased count drives the PLAN (runway, schedule), and the audience drives
   // the loss-framed MONEY topline. Both required, because a Vault DM that cannot show a dollar
   // figure breaks the funnel's "here is what you are missing" hook.
-  requiredFields: ['catalog_size', 'monthly_listeners'],
+  requiredFields: ['catalog_size', 'monthly_listeners', 'monetization_status'],
   optionalFields: ['artist_name', 'genre'],
   resultRouteBase: '/tools/vault-revenue-planner/result',
   formulaVersion: GENERATOR_VERSION,
@@ -303,7 +313,7 @@ const vault: AcquisitionTool = {
 const proofOfDemand: AcquisitionTool = {
   id: 'proof-of-demand-test-builder',
   name: 'Proof of Demand Test Builder',
-  requiredFields: ['social_followers'],
+  requiredFields: ['social_followers', 'monetization_status'],
   optionalFields: ['artist_name', 'primary_goal'],
   resultRouteBase: '/tools/proof-of-demand-test-builder/result',
   formulaVersion: GENERATOR_VERSION,
@@ -343,7 +353,7 @@ const fanMission: AcquisitionTool = {
   name: 'Fan Mission Generator',
   // Goal shapes the mission; audience prices the loss-framed money topline. Both required, same
   // pattern as the Vault: a DM that cannot show a dollar figure breaks the funnel's hook.
-  requiredFields: ['primary_goal', 'social_followers'],
+  requiredFields: ['primary_goal', 'social_followers', 'monetization_status'],
   optionalFields: ['artist_name'],
   resultRouteBase: '/tools/fan-mission-generator/result',
   formulaVersion: GENERATOR_VERSION,
@@ -436,7 +446,7 @@ const clipToEarn: AcquisitionTool = {
   name: 'Clip-to-Earn Campaign Planner',
   // Audience prices the money topline (the old required field was artist_name, which cannot
   // produce a dollar figure and read as an odd opening question in a DM).
-  requiredFields: ['social_followers'],
+  requiredFields: ['social_followers', 'monetization_status'],
   optionalFields: ['artist_name', 'genre', 'catalog_size'],
   resultRouteBase: '/tools/clip-to-earn-campaign-planner/result',
   formulaVersion: GENERATOR_VERSION,
@@ -539,7 +549,7 @@ const clipToEarn: AcquisitionTool = {
 const founderWindow: AcquisitionTool = {
   id: 'founder-window-builder',
   name: 'Founder Window Builder',
-  requiredFields: ['social_followers'],
+  requiredFields: ['social_followers', 'monetization_status'],
   optionalFields: ['direct_fan_revenue_cents', 'artist_name'],
   resultRouteBase: '/tools/founder-window-builder/result',
   formulaVersion: 'lossResult@1',
@@ -626,7 +636,7 @@ const founderWindow: AcquisitionTool = {
 const movementPage: AcquisitionTool = {
   id: 'movement-page-blueprint',
   name: 'Movement Page Blueprint',
-  requiredFields: ['social_followers'],
+  requiredFields: ['social_followers', 'monetization_status'],
   optionalFields: ['primary_goal', 'artist_name'],
   resultRouteBase: '/tools/movement-page-blueprint/result',
   formulaVersion: 'lossResult@1',
@@ -714,7 +724,7 @@ const movementPage: AcquisitionTool = {
 const fanJourney: AcquisitionTool = {
   id: 'fan-journey-builder',
   name: 'Fan Journey Builder',
-  requiredFields: ['social_followers'],
+  requiredFields: ['social_followers', 'monetization_status'],
   optionalFields: ['direct_fan_revenue_cents', 'artist_name'],
   resultRouteBase: '/tools/fan-journey-builder/result',
   formulaVersion: 'lossResult@1',
@@ -803,7 +813,7 @@ const fanJourney: AcquisitionTool = {
 const topFan: AcquisitionTool = {
   id: 'top-fan-leaderboard-builder',
   name: 'Top Fan Leaderboard Builder',
-  requiredFields: ['social_followers'],
+  requiredFields: ['social_followers', 'monetization_status'],
   optionalFields: ['direct_fan_revenue_cents', 'artist_name'],
   resultRouteBase: '/tools/top-fan-leaderboard-builder/result',
   formulaVersion: 'lossResult@1',
@@ -894,7 +904,7 @@ const questPath: AcquisitionTool = {
   // both. The result never claims to be built from them (see the copy below), which is what keeps
   // that honest. The WEB tool asks nothing at all, because on that surface the answers were stored
   // and then ignored.
-  requiredFields: ['primary_goal', 'primary_blocker'],
+  requiredFields: ['primary_goal', 'primary_blocker', 'monetization_status'],
   optionalFields: ['artist_name'],
   resultRouteBase: '/tools/artist-quest-path/result',
   // Its own version, not the shared lossResult@1. The output below is materially different from the
@@ -968,7 +978,7 @@ const questPath: AcquisitionTool = {
 const supporterPromise: AcquisitionTool = {
   id: 'supporter-promise-calendar',
   name: 'Supporter Promise Calendar Builder',
-  requiredFields: ['social_followers'],
+  requiredFields: ['social_followers', 'monetization_status'],
   optionalFields: ['artist_name'],
   resultRouteBase: '/tools/supporter-promise-calendar/result',
   formulaVersion: 'lossResult@1',
@@ -1054,7 +1064,7 @@ const supporterPromise: AcquisitionTool = {
 const teamSplit: AcquisitionTool = {
   id: 'team-split-deal-builder',
   name: 'Team Split Deal Builder',
-  requiredFields: ['social_followers'],
+  requiredFields: ['social_followers', 'monetization_status'],
   optionalFields: ['artist_name'],
   resultRouteBase: '/tools/team-split-deal-builder/result',
   formulaVersion: 'lossResult@1',
@@ -1141,7 +1151,7 @@ const teamSplit: AcquisitionTool = {
 const shareToEarn: AcquisitionTool = {
   id: 'share-to-earn-planner',
   name: 'Share-to-Earn Revenue Calculator',
-  requiredFields: ['social_followers'],
+  requiredFields: ['social_followers', 'monetization_status'],
   optionalFields: ['artist_name'],
   resultRouteBase: '/tools/share-to-earn-planner/result',
   formulaVersion: 'lossResult@1',
@@ -1240,7 +1250,7 @@ const shareToEarn: AcquisitionTool = {
 const execProducer: AcquisitionTool = {
   id: 'executive-producer-session',
   name: 'Executive Producer Session Calculator',
-  requiredFields: ['social_followers'],
+  requiredFields: ['social_followers', 'monetization_status'],
   optionalFields: ['artist_name'],
   resultRouteBase: '/tools/executive-producer-session/result',
   formulaVersion: 'lossResult@1',
@@ -1336,7 +1346,7 @@ const execProducer: AcquisitionTool = {
 const ownYourFans: AcquisitionTool = {
   id: 'own-your-fans-calculator',
   name: 'Own Your Fans Calculator',
-  requiredFields: ['social_followers'],
+  requiredFields: ['social_followers', 'monetization_status'],
   optionalFields: ['artist_name'],
   resultRouteBase: '/tools/own-your-fans-calculator/result',
   formulaVersion: 'lossResult@1',
@@ -1441,7 +1451,7 @@ const ownYourFans: AcquisitionTool = {
 const liveExperience: AcquisitionTool = {
   id: 'live-experience-calculator',
   name: 'Live Experience Calculator',
-  requiredFields: ['social_followers'],
+  requiredFields: ['social_followers', 'monetization_status'],
   optionalFields: ['artist_name'],
   resultRouteBase: '/tools/live-experience-calculator/result',
   formulaVersion: 'lossResult@1',
@@ -1568,7 +1578,7 @@ const liveExperience: AcquisitionTool = {
 const royaltyReadiness: AcquisitionTool = {
   id: 'royalty-readiness-check',
   name: 'Royalty Readiness Check',
-  requiredFields: ['writes_music', 'pro_registered', 'songs_registered'],
+  requiredFields: ['writes_music', 'pro_registered', 'songs_registered', 'monetization_status'],
   optionalFields: ['mechanical_collection', 'soundexchange', 'unregistered_backlog', 'artist_name'],
   resultRouteBase: '/tools/royalty-readiness-check/result',
   formulaVersion: 'readiness@1',
@@ -1662,7 +1672,7 @@ const royaltyReadiness: AcquisitionTool = {
 const unifiedOpportunity: AcquisitionTool = {
   id: 'opportunity-calculator',
   name: 'CRWN Opportunity Calculator',
-  requiredFields: ['social_followers'],
+  requiredFields: ['social_followers', 'monetization_status'],
   optionalFields: ['monthly_listeners', 'email_list_size', 'direct_fan_revenue_cents', 'catalog_size', 'artist_name'],
   resultRouteBase: '/tools/opportunity-calculator/result',
   formulaVersion: UNIFIED_MODEL_VERSION,
@@ -1709,7 +1719,7 @@ const unifiedOpportunity: AcquisitionTool = {
 const fanStack: AcquisitionTool = {
   id: 'fan-stack-calculator',
   name: 'Fan Stack Consolidation Calculator',
-  requiredFields: ['social_followers'],
+  requiredFields: ['social_followers', 'monetization_status'],
   optionalFields: ['artist_name', 'email_list_size', 'direct_fan_revenue_cents'],
   resultRouteBase: '/tools/fan-stack-calculator/result',
   formulaVersion: FAN_STACK_MODEL_VERSION,
@@ -1848,7 +1858,7 @@ const fanStack: AcquisitionTool = {
 const betweenTour: AcquisitionTool = {
   id: 'between-tour-calculator',
   name: 'Between-Tour Revenue Calculator',
-  requiredFields: ['social_followers'],
+  requiredFields: ['social_followers', 'monetization_status'],
   optionalFields: ['artist_name'],
   resultRouteBase: '/tools/between-tour-calculator/result',
   formulaVersion: BETWEEN_TOUR_MODEL_VERSION,

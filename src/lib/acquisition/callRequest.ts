@@ -65,6 +65,22 @@ export const WORTH_CALL_INPUT_DEFS: CalculatorInputDef[] = [
   { key: 'monthly_listeners', type: 'number' },
   { key: 'followers', type: 'number' },
   { key: 'streaming_revenue', type: 'currency' },
+  // The proof answer. Without it this list carried audience only, and audience alone can never
+  // qualify: `scoreLead` caps the fit at 60 when monetization is unknown, which tops the total
+  // out in the low 40s, well under the `sales_priority` threshold. So /worth rendered a call
+  // card that was mathematically incapable of alerting anyone. Same enum as the DM funnel and
+  // the registry tools, so all three halves speak one language.
+  {
+    key: 'monetization_status',
+    type: 'option',
+    options: [
+      { value: 'direct_established' },
+      { value: 'direct_some' },
+      { value: 'merch_only' },
+      { value: 'streaming_only' },
+      { value: 'none' },
+    ],
+  },
 ];
 
 export function sanitizeCalculatorInputs(
