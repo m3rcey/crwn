@@ -25,6 +25,20 @@ export const CALL_CONSENT_TEXT =
 /** The one band that triggers a founder alert. Same threshold the high-intent email alert uses. */
 export const QUALIFIED_BAND: ScoreBand = 'sales_priority';
 
+/**
+ * The calculators that carry the call hand-raiser (founder decision 2026-08-25: every
+ * tier-modeling calculator offers "call me and set it up with me", qualified artists only).
+ * ONE list, read by the route's allowlist AND by every surface that renders the card, so a
+ * surface cannot offer a call the server will refuse. Widening it further is a product
+ * decision, and the constraint is real: the tool's inputs must carry at least one signal
+ * `scoreCalculatorLead` reads, or the card would offer a call nobody can ever qualify for.
+ */
+export const CALL_HAND_RAISER_TOOLS: ReadonlySet<string> = new Set([
+  'opportunity-calculator',
+  'between-tour-calculator',
+  'worth',
+]);
+
 // Mirrors fieldRegistry's MAX_AUDIENCE / MAX_CENTS bounds.
 const MAX_COUNT = 100_000_000;
 const MAX_CENTS = 100_000_000;
@@ -43,6 +57,16 @@ export type SanitizedCalculatorInputs = Record<string, number | string>;
  * Currency inputs arrive in DOLLARS from the wizard (same convention PublicToolClient uses)
  * and are stored in cents. Unknown keys are dropped, not stored.
  */
+/**
+ * /worth is not registry-driven, so the route cannot read its input definitions from
+ * `getLeadMagnet`. These mirror the standalone calculator's three answers exactly.
+ */
+export const WORTH_CALL_INPUT_DEFS: CalculatorInputDef[] = [
+  { key: 'monthly_listeners', type: 'number' },
+  { key: 'followers', type: 'number' },
+  { key: 'streaming_revenue', type: 'currency' },
+];
+
 export function sanitizeCalculatorInputs(
   defs: CalculatorInputDef[],
   raw: unknown,
@@ -95,7 +119,8 @@ export function normalizeCallbackPhone(raw: unknown): string | null {
  */
 export function scoreCalculatorLead(inputs: SanitizedCalculatorInputs): LeadScore {
   const profile = {
-    social_followers: numOrNull(inputs.social_followers),
+    // /worth asks for `followers` rather than `social_followers`; same fact, one scorer.
+    social_followers: numOrNull(inputs.social_followers) ?? numOrNull(inputs.followers),
     monthly_listeners: numOrNull(inputs.monthly_listeners),
     email_list_size: numOrNull(inputs.owned_contacts),
     direct_fan_revenue_cents: numOrNull(inputs.direct_fan_revenue_cents),

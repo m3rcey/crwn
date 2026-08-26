@@ -28,6 +28,9 @@ import {
 } from '@/lib/leadCalculator';
 
 import { ToolMarketing } from '@/components/lead-magnets/ToolMarketing';
+import { LadderSection } from '@/components/lead-magnets/LadderSection';
+import { CallRequestCard } from '@/components/lead-magnets/CallRequestCard';
+import { QUALIFY_ANCHOR_ID } from '@/components/lead-magnets/PublicToolClient';
 import { continueCtaFor } from '@/lib/leadMagnets/continuationCta';
 
 // Primary CTA target: the scheduling page where the artist books a Zoom call.
@@ -44,27 +47,6 @@ const PRESETS: { key: AggressivenessPreset; label: string }[] = [
   { key: 'conservative', label: 'Conservative' },
   { key: 'punchy', label: 'Realistic' },
   { key: 'aggressive', label: 'Optimistic' },
-];
-
-// The recommended tier blueprint the calculator's math rests on.
-// `subs` maps a paid tier to its computed headcount; the free tier has none.
-const TIERS: { name: string; price: string; accent: boolean; subs?: 'tier1' | 'tier2' | 'tier3'; perks: string[] }[] = [
-  {
-    name: 'Bronze', price: 'Free', accent: false,
-    perks: ['Free tracks and public posts', 'Join the community', 'Public livestream access', 'New music after the paid windows'],
-  },
-  {
-    name: 'Silver', price: '$10/mo', accent: false, subs: 'tier1',
-    perks: ['Exclusive tracks and demos', '7-day early access', 'Private community posts', 'Vote on cover art and drops', '10% shop discount'],
-  },
-  {
-    name: 'Gold', price: '$25/mo', accent: true, subs: 'tier2',
-    perks: ['Unreleased songs and alternate versions', '14-day early access', 'A monthly Vault unlock from your archive', 'Private listening-party replays', 'Early ticket and merch access', '15% shop discount'],
-  },
-  {
-    name: 'Platinum', price: '$100/mo', accent: false, subs: 'tier3',
-    perks: ['Everything in Gold', 'Day-0 private first listen', 'Limited membership', 'Supporter credits on releases', 'Private group listening events', '20% shop discount'],
-  },
 ];
 
 // Every revenue stream that adds up to the number at the top of the page.
@@ -679,11 +661,32 @@ export function WorthExperience({
             then the derivation, then the inputs to adjust. Cold view: inputs first, because
             there is no number yet. */}
         {useEntryWizard ? (
-          entryWizard
+          <>
+            {entryWizard}
+            <div className="mb-14">
+              <LadderSection />
+            </div>
+          </>
         ) : (
           <>
             {resultCard}
             {derivationCard}
+            {/* THE LADDER, right under the result (founder decision 2026-08-25): the split of
+                the artist's own payers across the real rungs, before any ask. Personalized from
+                the SAME live model as the number above, so correcting an input re-splits it. */}
+            <div className="mb-14">
+              <LadderSection
+                modeled={
+                  hasNumber
+                    ? [
+                        { name: 'Silver', priceCents: RECOMMENDED_TIER_PRICES.tier1PriceCents, projectedSubs: Math.floor(result.tier1Subs) },
+                        { name: 'Gold', priceCents: RECOMMENDED_TIER_PRICES.tier2PriceCents, projectedSubs: Math.floor(result.tier2Subs) },
+                        { name: 'Platinum', priceCents: RECOMMENDED_TIER_PRICES.tier3PriceCents, projectedSubs: Math.floor(result.tier3Subs) },
+                      ]
+                    : []
+                }
+              />
+            </div>
             {/* Optional email continuation sits ABOVE the builder for the same reason it does on
                 the registry calculators: `builderSection` mounts the shared DeliverableBuilder,
                 whose Wizard footer is `sticky bottom-0` and whose final press navigates to signup.
@@ -695,56 +698,25 @@ export function WorthExperience({
             {flagshipBridgeCard}
             {inputsCard}
             {claimCtaCard}
+            {/* The call hand-raiser, LAST and below the builder (nothing may gate the builder):
+                a qualified artist can ask CRWN to set it up with them. The server alone decides
+                qualification from these same answers; unqualified requests are recorded, never
+                alerted. Carries the QUALIFY anchor so the narrative's "See if I qualify" lands
+                here instead of falling back to the calculator. */}
+            <div id={QUALIFY_ANCHOR_ID} className="scroll-mt-4 mb-14">
+              <CallRequestCard
+                toolSlug="worth"
+                calculatorInputs={{
+                  monthly_listeners: Number(listeners) || 0,
+                  followers: Number(followers) || 0,
+                  streaming_revenue: Number(streaming) || 0,
+                }}
+                planSummary={hasNumber ? `${fmtDollars(result.netMrrCents)}/mo direct-to-fan system` : null}
+                publicToken={resultToken}
+              />
+            </div>
           </>
         )}
-
-        {/* THE LADDER, personalized. This section is what survived the 2026-08-14 positioning
-            pass, because it is the ONE place on this page that shows economic depth from the
-            artist's OWN result: their payers, split across the real rungs. That is evidence, not
-            a benchmark, which is exactly the beat POSITIONING.md permits. Everything that used to
-            follow it (the revenue-mix bar, the "what is CRWN" mock, the streaming comparison
-            table, the six-way monetization grid and the shop mock, the objections, the steps and
-            the FAQ) was a feature-led marketing stack from an older era, and two of its entries
-            advertised surfaces the pre-PMF reduction has hidden. The shared Zero to One narrative
-            below replaces all of it. */}
-        <section className="mb-14">
-          <SectionHeading>The ladder that holds it</SectionHeading>
-          <p className="text-crwn-text-secondary text-xl mb-5 max-w-2xl mx-auto text-center">
-            A free front door to identify everyone, then paid rungs for your most committed fans.
-            The smallest rung carries the most money, which is why one flat tier stalls well short
-            of your number.
-            {hasNumber ? ' Here is how your ' + fmtCount(result.payers) + ' paying fans split across them:' : ''}
-          </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {TIERS.map((t) => {
-              const subsById: Record<string, number> = { tier1: result.tier1Subs, tier2: result.tier2Subs, tier3: result.tier3Subs };
-              const count = hasNumber && t.subs ? Math.floor(subsById[t.subs]) : null;
-              return (
-                <div
-                  key={t.name}
-                  className={`rounded-2xl p-5 border ${
-                    t.accent ? 'border-crwn-gold/50 bg-crwn-gold/5' : 'border-crwn-elevated bg-crwn-surface'
-                  }`}
-                >
-                  <div className="font-semibold">{t.name}</div>
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-crwn-gold text-lg font-bold">{t.price}</span>
-                    {count !== null && (
-                      <span className="text-xs text-crwn-text-secondary">{count.toLocaleString('en-US')} fans</span>
-                    )}
-                  </div>
-                  <ul className="space-y-1.5">
-                    {t.perks.map((perk) => (
-                      <li key={perk} className="text-sm text-crwn-text-secondary flex items-start gap-2">
-                        <Check className="w-4 h-4 text-crwn-gold shrink-0 mt-0.5" /> {perk}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              );
-            })}
-          </div>
-        </section>
 
         {/* The SHARED Zero to One narrative, identical to the one under every other promoted
             calculator. /worth keeps its own calculator internals (they work, and forcing it into

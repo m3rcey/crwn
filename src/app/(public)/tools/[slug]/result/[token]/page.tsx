@@ -23,6 +23,10 @@ import { Check, Crown, ArrowRight, ArrowDown } from 'lucide-react';
 import { getResultByToken, recordView } from '@/lib/leadResults/resultAccess';
 import { CrwnShowcase } from '@/components/lead-magnets/CrwnShowcase';
 import { ToolMarketing } from '@/components/lead-magnets/ToolMarketing';
+import { LadderSection, type ModeledLadderRung } from '@/components/lead-magnets/LadderSection';
+import { CallRequestCard } from '@/components/lead-magnets/CallRequestCard';
+import { CALL_HAND_RAISER_TOOLS } from '@/lib/acquisition/callRequest';
+import type { LeadMagnetInputValues } from '@/lib/leadMagnets/types';
 import { hasDoorway } from '@/lib/leadMagnets/positioning';
 import { ToolShowcase } from '@/components/lead-magnets/ToolShowcase';
 import { LeadEmailCta } from '@/components/lead-magnets/LeadEmailCta';
@@ -96,7 +100,14 @@ export default async function ResultPage({
     heroValue?: string;
     heroSuffix?: string;
     heroEyebrow?: string;
+    conversionPayload?: { ladder?: unknown };
   };
+  // The modeled tier ladder the generator stored, when this tool models one. Renders the SAME
+  // shared LadderSection the live calculator page shows, in the same position (right under the
+  // result), so a ManyChat arrival and a direct visit read the same page.
+  const modeledLadder: ModeledLadderRung[] = Array.isArray(data.conversionPayload?.ladder)
+    ? (data.conversionPayload.ladder as ModeledLadderRung[])
+    : [];
   const sections = Array.isArray(data.sections) ? data.sections : [];
   // Worth-style hero: pull the estimate tiles into the big-number card.
   const heroTiles = data.heroValue ? sections.find((s) => s.kind === 'projection') : undefined;
@@ -139,7 +150,15 @@ export default async function ResultPage({
           </div>
         )}
 
-        {/* Above the fold: collect the email, then sign up directly under it. */}
+        {/* THE LADDER, right under the result, matching the live calculator page's order:
+            result, then the ladder that holds it, then the email ask. */}
+        {modeledLadder.length > 0 && (
+          <div className="mb-6 sm:mb-10">
+            <LadderSection modeled={modeledLadder} />
+          </div>
+        )}
+
+        {/* Collect the email, then sign up directly under it. */}
         <LeadEmailCta claimed={claimed} claimHref={claimHref} toolSlug={result.toolSlug || slug} ctaLabel={continueLabel} />
 
         {/* The supporting tiles sit BELOW the ask, not inside the hero card above it. On a phone
@@ -178,6 +197,20 @@ export default async function ResultPage({
 
         {result.disclaimerVersion && (
           <p className="text-[11px] text-white/30 mt-12 leading-relaxed">{ESTIMATE_DISCLAIMER}</p>
+        )}
+
+        {/* The call hand-raiser, same contract as the live calculator page: after the email
+            ask, only on tools the call-request route accepts, scored server-side from the
+            STORED answers. Unqualified requests are recorded, never alerted. */}
+        {CALL_HAND_RAISER_TOOLS.has(result.toolSlug || slug) && (
+          <div className="mt-10">
+            <CallRequestCard
+              toolSlug={result.toolSlug || slug}
+              calculatorInputs={(result.inputData || {}) as LeadMagnetInputValues}
+              planSummary={data.heroValue ? `${data.heroValue}${data.heroSuffix || ''} system` : data.headline || null}
+              publicToken={token}
+            />
+          </div>
         )}
 
         {/* THE LOWER PAGE. A PROMOTED tool gets the same Zero to One narrative its own funnel

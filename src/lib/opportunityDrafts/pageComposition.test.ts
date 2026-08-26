@@ -3,6 +3,7 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import { DELIVERABLE_SPECS, buildCtaFor, transitionFor, DELIVERABLE_TOOL_SLUGS } from './deliverableSpecs';
 import { LEAD_MAGNETS } from '@/lib/leadMagnets/registry';
+import { CALL_HAND_RAISER_TOOLS } from '@/lib/acquisition/callRequest';
 
 // Structural tests for the universal Opportunity Funnel page composition:
 // result -> transition -> BUILDER -> secondary actions -> supporting content.
@@ -128,6 +129,51 @@ describe('PublicToolClient page order (shared template for 16 tools + OYF)', () 
     const capture = fullPhase.indexOf('LeadCaptureForm');
     expect(fullPhase.indexOf('<LeadMagnetResult')).toBeLessThan(capture);
     expect(fullPhase.indexOf('<ResultToBuilder')).toBeLessThan(capture);
+  });
+
+  // THE TIER-CALCULATOR ORDER (founder decision 2026-08-25): result, then the ladder the
+  // number rests on, then the email ask, then the builder, then the call hand-raiser last.
+  // The ladder renders only for tools whose generator modeled `conversionPayload.ladder`, and
+  // it is presentation: it gates nothing, so the capture invariant above is untouched.
+  it('shows the modeled ladder between the result and the email ask, with the call last', () => {
+    const ladder = fullPhase.indexOf('<LadderSection');
+    const capture = fullPhase.indexOf('LeadCaptureForm');
+    const builder = fullPhase.indexOf('ref={builderRef}');
+    const call = fullPhase.indexOf('<CallRequestCard');
+    expect(ladder, 'ladder section missing from the result surface').toBeGreaterThan(-1);
+    expect(fullPhase.indexOf('<LeadMagnetResult')).toBeLessThan(ladder);
+    expect(ladder).toBeLessThan(capture);
+    expect(capture).toBeLessThan(builder);
+    expect(builder).toBeLessThan(call);
+    // The gate is the modeled payload, not a hand-kept slug list.
+    expect(fullPhase).toMatch(/conversionPayload[\s\S]{0,120}ladder/);
+  });
+
+  it('the tokenized ManyChat result page renders the same ladder and call sections', () => {
+    // A lead arriving from a DM link must read the same page a direct visitor reads: result,
+    // ladder, email ask, then the call hand-raiser, from the STORED result and inputs.
+    const resultPage = readFileSync(join(root, 'src/app/(public)/tools/[slug]/result/[token]/page.tsx'), 'utf-8');
+    const ladder = resultPage.indexOf('<LadderSection');
+    const email = resultPage.indexOf('<LeadEmailCta');
+    const call = resultPage.indexOf('<CallRequestCard');
+    expect(ladder, 'ladder missing from tokenized page').toBeGreaterThan(-1);
+    expect(ladder).toBeLessThan(email);
+    expect(email).toBeLessThan(call);
+    // The call card is offered only where the call-request route will accept it.
+    expect(resultPage).toContain('CALL_HAND_RAISER_TOOLS.has(result.toolSlug || slug)');
+  });
+
+  it('every surface that renders the call card is on the route allowlist', () => {
+    // ONE list decides who may offer the call: the route refuses everything else, so a surface
+    // outside the list would render a card whose submit always 404s.
+    expect(publicToolClient).toContain('CALL_HAND_RAISER_TOOLS.has(config.slug)');
+    const worthSrc = worth;
+    expect(worthSrc).toContain('toolSlug="worth"');
+    expect(CALL_HAND_RAISER_TOOLS.has('worth')).toBe(true);
+    expect(CALL_HAND_RAISER_TOOLS.has('opportunity-calculator')).toBe(true);
+    const route = readFileSync(join(root, 'src/app/api/lead-magnets/call-request/route.ts'), 'utf-8');
+    expect(route).toContain('CALL_HAND_RAISER_TOOLS.has(slug)');
+    expect(route).not.toContain('const ALLOWED_TOOLS');
   });
 
   it('never turns the capture into a gate', () => {

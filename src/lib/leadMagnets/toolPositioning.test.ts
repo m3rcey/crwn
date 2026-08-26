@@ -504,8 +504,16 @@ describe('page composition', () => {
 
   it('/worth joins the same positioning system without losing its own calculator', () => {
     expect(worth).toMatch(/<ToolMarketing slug="worth"/);
-    // Its personalized ladder survives: that is the one evidence-backed depth beat on the page.
-    expect(worth).toMatch(/The ladder that holds it/);
+    // Its personalized ladder survives, now through the SHARED LadderSection (2026-08-25), and
+    // it moved up: the split of the artist's own payers renders directly under the result
+    // (before the email ask), not below the builder. That is the one evidence-backed depth
+    // beat on the page, and every tier-modeling calculator now shows the same section.
+    expect(worth).toMatch(/<LadderSection/);
+    const ladderSection = readFileSync(join(root, 'src/components/lead-magnets/LadderSection.tsx'), 'utf-8');
+    expect(ladderSection).toMatch(/The ladder that holds it/);
+    expect(ladderSection).toMatch(/RECOMMENDED_LADDER/);
+    const resultBranch = worth.slice(worth.indexOf('{resultCard}'));
+    expect(resultBranch.indexOf('<LadderSection')).toBeLessThan(resultBranch.indexOf('{emailCaptureCard}'));
     // The feature-led stack it used to carry is gone.
     for (const gone of ['CompareTable', 'RevenueStack', 'MONETIZE_WAYS', 'ShopMock', 'TiersMock']) {
       expect(worth, gone).not.toContain(gone);

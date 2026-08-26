@@ -10,6 +10,8 @@ import { ToolShowcase } from './ToolShowcase';
 import { ToolMarketing } from './ToolMarketing';
 import { hasDoorway } from '@/lib/leadMagnets/positioning';
 import { LeadMagnetResult } from './LeadMagnetResult';
+import { LadderSection, type ModeledLadderRung } from './LadderSection';
+import { CALL_HAND_RAISER_TOOLS } from '@/lib/acquisition/callRequest';
 import { ToolHero } from './ToolHero';
 import Link from 'next/link';
 import { buildContinueUrl } from '@/lib/leadMagnets/continuationCta';
@@ -457,6 +459,18 @@ export function PublicToolClient({
             </button>
           )}
 
+          {/* THE LADDER, right under the result (founder decision 2026-08-25): a calculator
+              whose number is BUILT on the recommended ladder shows that ladder, personalized
+              with its own modeled projections, before any ask. Tier-modeling tools only: the
+              trigger is the modeled `conversionPayload.ladder` the generator produced, so a
+              tool that never modeled tiers renders nothing here. Presentation only; it gates
+              nothing and the capture and builder below are unchanged. */}
+          {(() => {
+            const ladder = (result.conversionPayload as Record<string, unknown> | undefined)?.ladder;
+            if (!Array.isArray(ladder) || ladder.length === 0) return null;
+            return <LadderSection modeled={ladder as ModeledLadderRung[]} />;
+          })()}
+
           {/* OPTIONAL EMAIL CONTINUATION, above the builder. Founder decision 2026-08-15.
               THE RULE IT SATISFIES: the result is never gated, and the builder is never gated. This
               is not the same as "capture may never precede the builder", which is what the previous
@@ -554,7 +568,7 @@ export function PublicToolClient({
               artist can request an immediate launch call. The server alone decides whether a
               founder alert fires; unqualified requests are recorded, never alerted. It sits after
               the email ask deliberately: this is the higher-commitment rung of the same ladder. */}
-          {config.slug === 'opportunity-calculator' && (
+          {CALL_HAND_RAISER_TOOLS.has(config.slug) && (
             <div id={QUALIFY_ANCHOR_ID} className="scroll-mt-4">
               <CallRequestCard
                 toolSlug={config.slug}

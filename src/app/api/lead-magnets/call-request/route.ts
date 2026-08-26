@@ -8,6 +8,8 @@ import { claimEvent, cacheResponse } from '@/lib/acquisition/eventOutbox';
 import {
   CALL_CONSENT_TEXT,
   CALL_CONSENT_VERSION,
+  CALL_HAND_RAISER_TOOLS,
+  WORTH_CALL_INPUT_DEFS,
   buildFounderSmsBody,
   decideCallRequest,
   normalizeCallbackPhone,
@@ -45,8 +47,8 @@ const FOUNDER_EMAIL = 'joshn.wms@gmail.com';
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://thecrwn.app';
 const TOKEN_TTL_DAYS = 30;
 
-// The only tool with a hand-raiser today. Widening this list is a product decision, not a default.
-const ALLOWED_TOOLS = new Set(['opportunity-calculator']);
+// The allowlist lives in the pure lib (CALL_HAND_RAISER_TOOLS), shared with every surface
+// that renders the card, so a surface cannot offer a call this route will refuse.
 
 export async function POST(req: NextRequest) {
   const ip = (req.headers.get('x-forwarded-for') || '').split(',')[0].trim() || 'unknown';
@@ -72,8 +74,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid body' }, { status: 400 });
   }
 
-  const config = getLeadMagnet(String(body.toolSlug || ''));
-  if (!config || !ALLOWED_TOOLS.has(config.slug)) {
+  // /worth is the one hand-raiser tool outside the registry; its input defs live beside the
+  // scorer. Everything else reads its own registry definitions.
+  const slug = String(body.toolSlug || '');
+  const inputDefs = slug === 'worth' ? WORTH_CALL_INPUT_DEFS : getLeadMagnet(slug)?.inputs;
+  if (!CALL_HAND_RAISER_TOOLS.has(slug) || !inputDefs) {
     return NextResponse.json({ error: 'Unknown tool' }, { status: 404 });
   }
 
@@ -88,7 +93,7 @@ export async function POST(req: NextRequest) {
 
   // Allowlist + bound the calculator answers against the tool's own input definitions, then
   // recompute qualification server-side. A client-sent band or score is never read.
-  const inputs = sanitizeCalculatorInputs(config.inputs, body.inputs);
+  const inputs = sanitizeCalculatorInputs(inputDefs, body.inputs);
   if (!Object.keys(inputs).length) {
     return NextResponse.json({ error: 'Complete the calculator first' }, { status: 400 });
   }
@@ -112,20 +117,20 @@ export async function POST(req: NextRequest) {
       .from('lead_magnet_results')
       .select('id')
       .eq('public_token', offeredToken)
-      .eq('tool_slug', config.slug)
+      .eq('tool_slug', slug)
       .maybeSingle();
     resultId = existing?.id ?? null;
   }
   if (!resultId) {
     try {
-      const tool = getTool(config.slug);
+      const tool = getTool(slug);
       const profile: Record<string, unknown> = { ...inputs };
       const result = tool ? tool.execute(profile as unknown as LeadProfileValues) : null;
       if (result) {
         const { data: saved } = await supabaseAdmin
           .from('lead_magnet_results')
           .insert({
-            tool_slug: config.slug,
+            tool_slug: slug,
             status: 'draft',
             source: 'public',
             title: result.headline.slice(0, 200),
@@ -149,7 +154,7 @@ export async function POST(req: NextRequest) {
     kind: 'call_request',
     phone,
     artist_name: (body.artistName || '').trim().slice(0, 120) || null,
-    tool_slug: config.slug,
+    tool_slug: slug,
     result_id: resultId,
     calculator_inputs: inputs,
     plan_summary: (body.planSummary || '').trim().slice(0, 200) || null,
@@ -162,7 +167,7 @@ export async function POST(req: NextRequest) {
       text: CALL_CONSENT_TEXT,
       version: CALL_CONSENT_VERSION,
       consented_at: requestedAt,
-      source: `${config.slug}-call-request`,
+      source: `${slug}-call-request`,
       phone,
     },
     qualification: {
@@ -236,7 +241,7 @@ export async function POST(req: NextRequest) {
 
   // Analytics. Server-side, deduped per phone per day; never blocks the response.
   await recordLmEvent(supabaseAdmin, 'lead_magnet_call_requested', {
-    toolSlug: config.slug,
+    toolSlug: slug,
     context: 'public',
     resultId: resultId || undefined,
     source: body.utm?.source || 'direct',
@@ -247,7 +252,7 @@ export async function POST(req: NextRequest) {
   const callAttributionDims = attributionToFunnelDims(sanitizeStoredAttribution(body.attribution));
   await recordFunnelEvent(supabaseAdmin, {
     stage: 'call_requested',
-    calculator: config.slug,
+    calculator: slug,
     campaign: callAttributionDims.campaign ?? body.utm?.campaign ?? null,
     referrer: callAttributionDims.referrer ?? body.utm?.source ?? null,
     video: callAttributionDims.video ?? body.utm?.content ?? null,
