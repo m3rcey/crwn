@@ -32,6 +32,8 @@ import { ToolShowcase } from '@/components/lead-magnets/ToolShowcase';
 import { LeadEmailCta } from '@/components/lead-magnets/LeadEmailCta';
 import { continueCtaFor } from '@/lib/leadMagnets/continuationCta';
 import { ESTIMATE_DISCLAIMER } from '@/lib/leadMagnets/disclaimers';
+import { getLeadMagnet } from '@/lib/leadMagnets/registry';
+import { restoreWizardValues } from '@/lib/leadMagnets/resumeInputs';
 import { WorthExperience } from '@/app/(public)/worth/WorthExperience';
 import type { ResultSection } from '@/lib/leadMagnets/types';
 
@@ -118,6 +120,24 @@ export default async function ResultPage({
   const heroTiles = data.heroValue ? sections.find((s) => s.kind === 'projection') : undefined;
   const bodySections = heroTiles ? sections.filter((s) => s !== heroTiles) : sections;
 
+  // HOW MUCH OF THIS NUMBER IS ACTUALLY THEIRS.
+  //
+  // A DM collects one or two answers. The same calculator on the web asks between two and
+  // fourteen, and every question the DM did not ask fell back to a conservative default, so a
+  // ManyChat lead reads a deliberately understated figure. The adapters justify that trade by
+  // saying the result page lets the artist correct it. On this page it did not: there is no
+  // wizard here, and the only way out was the claim link. So the thinnest results in the funnel
+  // were also the only ones nobody could improve.
+  //
+  // Derived, never stored: count the tool's OWN declared inputs that this row actually carries.
+  // A direct visitor who answered everything sees nothing, which is why this is a count and not
+  // a "came from Instagram" flag.
+  const toolConfig = getLeadMagnet(result.toolSlug || slug);
+  const answeredCount = toolConfig
+    ? Object.keys(restoreWizardValues(toolConfig, result.inputData)).length
+    : 0;
+  const unansweredCount = toolConfig ? Math.max(0, toolConfig.inputs.length - answeredCount) : 0;
+
   const claimed = !!result.claimedAt;
   const claimHref = `/claim/${encodeURIComponent(token)}`;
   const continueLabel = continueCtaFor(result.toolSlug || slug);
@@ -153,6 +173,23 @@ export default async function ResultPage({
             </h1>
             {data.summary && <p className="text-white/50 text-lg mt-6 leading-relaxed max-w-lg">{data.summary}</p>}
           </div>
+        )}
+
+        {/* The correction control, in the same slot the live calculator page puts it: directly
+            under the result, low emphasis, before anything is asked for. It is the honest
+            counterpart to a two-question DM. Shown only when questions really were left
+            unanswered, so a visitor who filled the whole wizard is never told their own number
+            is thin. It gates nothing and is deliberately not gold: the CTA on this page is the
+            email ask below. */}
+        {toolConfig && answeredCount >= 1 && unansweredCount >= 2 && (
+          <p className="mb-6 sm:mb-10 text-sm text-white/50 leading-relaxed">
+            This is built from the {answeredCount === 1 ? 'one answer' : `${answeredCount} answers`} you
+            gave. The other {unansweredCount} questions used conservative defaults, so treat this as
+            the floor.{' '}
+            <Link href={toolConfig.publicRoute} className="text-[#D4AF37] underline underline-offset-4">
+              Answer the rest and see your real number.
+            </Link>
+          </p>
         )}
 
         {/* THE LADDER, right under the result, matching the live calculator page's order:

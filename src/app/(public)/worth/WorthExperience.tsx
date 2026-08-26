@@ -133,6 +133,8 @@ export function WorthExperience({
   // Answered on the wizard's proof screen, or carried in from the DM funnel's stored profile.
   // Feeds the hand-raiser ONLY; the money model never reads it.
   const [monetization, setMonetization] = useState(prefill?.monetization || '');
+  // Whether the post-wizard correction form has been opened. See `inputsCard`.
+  const [showInputs, setShowInputs] = useState(false);
   const [preset, setPreset] = useState<AggressivenessPreset>('conservative');
   const [showAdvanced, setShowAdvanced] = useState(false);
 
@@ -602,21 +604,42 @@ export function WorthExperience({
   );
 
 
-  const inputsCard = (
-    <div className="bg-crwn-surface border border-crwn-elevated rounded-2xl p-6 mb-4">
-      <div className="grid sm:grid-cols-3 gap-4">
-        <Field label="Monthly listeners" hint="if you have it" value={listeners} onChange={setListeners} placeholder="150,000" />
-        <Field label="Followers" hint="if you have it" value={followers} onChange={setFollowers} placeholder="250,000" />
-        <Field label="Streaming $ / mo" hint="optional" value={streaming} onChange={setStreaming} placeholder="auto" prefix="$" />
+  // The correction surface. Its FORM depends on how the visitor got here, because the same three
+  // fields mean two different things.
+  //
+  // A cold visitor now answers these in the entry wizard, so leaving the identical form standing
+  // five sections below the result asked them for their follower count a second time, under
+  // cold-visitor copy ("Enter whatever you have"), as though the wizard had not happened. That is
+  // the one thing every registry calculator solved with a single line of text, and /worth predates
+  // that pattern. Collapsed by default for them, expandable, same live recalculation inside.
+  //
+  // The homepage has no wizard, so this IS the calculator there. A lead arriving on their own
+  // tokenized result never ran a wizard on this device either, and their copy was already right.
+  // Both keep the open form.
+  const answeredHere = entryDone && !homepage && !leadView;
+  const inputsCard =
+    answeredHere && !showInputs ? (
+      <button
+        onClick={() => setShowInputs(true)}
+        className="w-full mb-4 text-sm text-crwn-text-secondary underline decoration-crwn-text-secondary/40 underline-offset-4"
+      >
+        These are your numbers. Change an answer and recalculate.
+      </button>
+    ) : (
+      <div className="bg-crwn-surface border border-crwn-elevated rounded-2xl p-6 mb-4">
+        <div className="grid sm:grid-cols-3 gap-4">
+          <Field label="Monthly listeners" hint="if you have it" value={listeners} onChange={setListeners} placeholder="150,000" />
+          <Field label="Followers" hint="if you have it" value={followers} onChange={setFollowers} placeholder="250,000" />
+          <Field label="Streaming $ / mo" hint="optional" value={streaming} onChange={setStreaming} placeholder="auto" prefix="$" />
+        </div>
+        <p className="text-lg text-crwn-text-secondary/70 mt-3">
+          {answeredHere || leadView
+            ? 'These are the numbers you gave us. Change any of them and the figure above recalculates.'
+            : 'Enter whatever you have. Just monthly listeners or just followers (Instagram, TikTok) is enough, both is sharper.'}
+        </p>
+        {assumptionsBlock}
       </div>
-      <p className="text-lg text-crwn-text-secondary/70 mt-3">
-        {leadView
-          ? 'These are the numbers you gave us. Change any of them and the figure above recalculates.'
-          : 'Enter whatever you have. Just monthly listeners or just followers (Instagram, TikTok) is enough, both is sharper.'}
-      </p>
-      {assumptionsBlock}
-    </div>
-  );
+    );
 
   const resultCard = (
     <div id="worth-result" className="scroll-mt-20 bg-gradient-to-b from-crwn-gold/10 to-crwn-surface border border-crwn-gold/30 rounded-2xl p-6 sm:p-8 mb-6 text-center">

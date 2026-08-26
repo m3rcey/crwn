@@ -23,6 +23,7 @@ import { ResultActions } from './ResultActions';
 import { ConvertToFeatureButton } from './ConvertToFeatureButton';
 import { generateResult } from '@/lib/leadMagnets/resultGenerators';
 import { resolveEntryContext } from '@/lib/leadMagnets/entryContext';
+import { restoreWizardValues } from '@/lib/leadMagnets/resumeInputs';
 import { getTool, type LeadProfileValues } from '@/lib/acquisition/toolAdapters';
 import { LM_EVENTS, trackLeadMagnet, readUtm, readCampaignAttribution } from '@/lib/leadMagnets/analytics';
 import { OPPORTUNITY_EVENTS, JOURNEY_EVENTS, trackOpportunity, type OpportunityEventMeta } from '@/lib/opportunityFunnels/analytics';
@@ -169,6 +170,11 @@ export function PublicToolClient({
         const data = await res.json();
         if (res.ok && data.result) {
           setResult(data.result);
+          // The ANSWERS, not just the number. Without them the correction control hides itself,
+          // the call hand-raiser posts an empty input set and the route refuses it, and a second
+          // email submit recomputes the result from nothing. `data.inputs` has always been in
+          // this response (ArtistToolClient reads it); this client dropped it.
+          setValues(restoreWizardValues(config, data.inputs));
           setPublicToken(token);
           setPhase('full');
           trackOpportunity(OPPORTUNITY_EVENTS.resultViewed, opportunityMeta({ resultVersion: data.result?.generatorVersion }));
