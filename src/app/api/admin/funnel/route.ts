@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { requireAdmin } from '@/lib/auth/requireAdmin';
+import { founderTestArtists } from '@/lib/analytics/founderTestExclusion';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -32,7 +33,9 @@ export async function GET(req: NextRequest) {
   }
 
   const { data: artists } = await artistQuery;
-  const allArtists = artists || [];
+  // Founder test accounts are not acquisition (fail-soft: empty set until the migration runs).
+  const founderTest = await founderTestArtists(supabaseAdmin);
+  const allArtists = (artists || []).filter((a) => !founderTest.artistIds.has(a.id));
 
   // Filter by source
   const filtered = source === 'all'

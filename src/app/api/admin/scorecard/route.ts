@@ -13,6 +13,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { requireAdmin } from '@/lib/auth/requireAdmin';
+import { founderTestArtists } from '@/lib/analytics/founderTestExclusion';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -30,19 +31,15 @@ async function tile<T>(fn: () => Promise<T>): Promise<T | null> {
   }
 }
 
-async function countExact(table: string, filter: (q: any) => any): Promise<number> {
-  const q = supabaseAdmin.from(table).select('id', { count: 'exact', head: true });
-  const { count, error } = await filter(q);
-  if (error) throw error;
-  return count ?? 0;
-}
-
 export async function GET(req: NextRequest) {
   const admin = await requireAdmin();
   if (!admin) return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
 
   const days = Math.min(365, Math.max(1, parseInt(req.nextUrl.searchParams.get('days') || '30', 10) || 30));
   const since = new Date(Date.now() - days * 86_400_000).toISOString();
+
+  // Founder test accounts are not the experiment (fail-soft: empty until the migration runs).
+  const founderTest = await founderTestArtists(supabaseAdmin);
 
   const [
     qualifiedLeads,
@@ -74,7 +71,7 @@ export async function GET(req: NextRequest) {
         .select('user_id')
         .not('user_id', 'is', null);
       if (error) throw error;
-      return new Set((data || []).map((r) => r.user_id as string)).size;
+      return new Set((data || []).map((r) => r.user_id as string).filter((id) => !founderTest.userIds.has(id))).size;
     }),
 
     // 3-5. Setup progress, from the same activation_milestones the Funnel tab reads. ALL-TIME on
@@ -84,7 +81,7 @@ export async function GET(req: NextRequest) {
         .from('artist_profiles')
         .select('id, created_at, setup_completed, activation_milestones');
       if (error) throw error;
-      const rows = data || [];
+      const rows = (data || []).filter((a) => !founderTest.artistIds.has(a.id));
       const ms = (a: (typeof rows)[number]) => (a.activation_milestones || {}) as Record<string, string>;
       return {
         artists: rows.length,
@@ -99,11 +96,15 @@ export async function GET(req: NextRequest) {
     tile(async () => {
       const { data, error } = await supabaseAdmin.from('fan_contacts').select('artist_id');
       if (error) throw error;
-      return new Set((data || []).map((r) => r.artist_id as string)).size;
+      return new Set((data || []).map((r) => r.artist_id as string).filter((id) => !founderTest.artistIds.has(id))).size;
     }),
 
     // 6. Launch campaigns actually SENT (a draft costs nothing and proves nothing).
-    tile(() => countExact('campaigns', (q) => q.eq('status', 'sent'))),
+    tile(async () => {
+      const { data, error } = await supabaseAdmin.from('campaigns').select('artist_id').eq('status', 'sent');
+      if (error) throw error;
+      return (data || []).filter((r) => !founderTest.artistIds.has(r.artist_id as string)).length;
+    }),
 
     // 8-9. THE metric: first paid conversions (deduped stage covering all six paid rails), plus
     // each artist's timestamp so the median signup->first-paid time derives from real rows.
@@ -115,7 +116,7 @@ export async function GET(req: NextRequest) {
         .not('artist_id', 'is', null);
       if (error) throw error;
       const firstByArtist = new Map<string, string>();
-      for (const r of data || []) {
+      for (const r of (data || []).filter((x) => !founderTest.artistIds.has(x.artist_id as string))) {
         const prev = firstByArtist.get(r.artist_id as string);
         if (!prev || (r.occurred_at as string) < prev) firstByArtist.set(r.artist_id as string, r.occurred_at as string);
       }

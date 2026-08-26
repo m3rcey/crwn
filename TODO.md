@@ -67,16 +67,26 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
-- [ ] **Open thecrwn.app/admin/forget-device once on your PC and once on your phone** (and again
-      on any other device or network you browse CRWN from). Each visit erases that device's
-      anonymous metric history under its current network identity (site visits, artist page
-      visits, tier views, plus funnel rows stitched to that browser) and stamps the year-long
-      never-count-me cookie so nothing new is written. The account-level cleanup SQL is already
-      run and verified (probe showed 0 attributable rows); what remains is anonymous
-      device-hash history that only the device itself can identify. Reload the page once after
-      the first run so the visit that raced the wipe is caught too. History under an old IP or
-      old browser version is unattributable (one-way hash) and will remain; that is the stated
-      limit, not a bug.
+- [ ] **The full metrics wipe, in order (three files, run 1 and 2 now):**
+      1. Run [supabase/wipe-analytics-keep-real-money.sql](supabase/wipe-analytics-keep-real-money.sql)
+         in the SQL Editor. One transaction. It deletes the ENTIRE demo seed (the 20 fake fans,
+         the $2,408 fake earnings, demo subscriptions), every behavioral analytics row (lead
+         magnet events, funnel events, site visits, artist page visits, opportunity ledger,
+         your lead and all results), and recomputes public play counts from what survives.
+         It keeps real Stripe money and the analytics rows of real paying fans (your GB
+         purchase and m3rcey's one real subscriber). Every table is copied to a
+         wipe_backup_20260825_* table first, so nothing is unrecoverable.
+      2. Run [supabase/schema-phase2-founder-test-exclusion.sql](supabase/schema-phase2-founder-test-exclusion.sql).
+         The Acquisition Funnel and 90-day scorecard count ACCOUNTS, so they need your test
+         accounts flagged, not deleted. It flags m3rcey and the '<their-real-slug>' placeholder
+         account; edit the slug list in the file first if any other account (lago/lagoo?) is
+         also you. Real artists (gb, julius-williams, lakes...) stay counted on purpose.
+      3. Later, once the dashboards look right, run
+         [supabase/drop-wipe-backups.sql](supabase/drop-wipe-backups.sql) to delete the safety
+         copies.
+      Future traffic: your logged-in admin session stamps the never-count cookie automatically;
+      open the app once on your PC and once on your phone. A brand-new device or network can
+      also visit /admin/forget-device to erase any residue it created before the cookie landed.
 
 - [ ] **Build the page universe with the new Discover Big Pages tool (no SQL, no env var).**
       Your Brent Faiyaz test proved the point: global discovery returned accounts with 1K down

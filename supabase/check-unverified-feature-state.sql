@@ -135,3 +135,15 @@ SELECT 'schema-phase2-drop-manager-outcome-schema.sql' AS migration,
               AND column_name IN ('baseline_metrics', 'outcome_metrics', 'outcome_delta')
          )
        ) AS applied;
+
+-- 8. Founder-test exclusion (2026-08-25). 'sql-check' because the column carries no
+--    anon grant, so an anon probe answers 42501 whether or not the migration ran.
+--    Expect applied = true after running supabase/schema-phase2-founder-test-exclusion.sql
+--    (that file's own self-verify asserts at least the admin-owned account is flagged).
+--    information_schema only, so this statement parses even before the column exists.
+SELECT 'schema-phase2-founder-test-exclusion.sql' AS migration,
+       EXISTS (
+         SELECT 1 FROM information_schema.columns
+          WHERE table_name = 'artist_profiles'
+            AND column_name = 'is_founder_test'
+       ) AS applied;

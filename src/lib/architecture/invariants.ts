@@ -1321,6 +1321,12 @@ export const EXPECTED_MIGRATION_STATE: ReadonlyArray<{
   { file: 'schema-phase3-distribution-finder.sql', state: 'applied', note: 'Founder-applied and probe-verified 2026-08-24: both admin-only tables (distribution_pages, distribution_mentions) answer the anon key 42501 (reads revoked, expected), and the first live Ryan Leslie search ran end to end the same day.' },
   { file: 'schema-phase3-distribution-page-index.sql', state: 'applied', note: 'Founder-applied and probe-verified 2026-08-24 (distribution_page_posts answers the anon key 42501, reads revoked as expected), and the live Brent Faiyaz search surfaced @purestrap (1.2M) from the indexed corpus the same day, proving the hybrid path end to end. The fail-soft fallbacks in store.ts stay as a guard.' },
   { file: 'schema-phase2-song-lab.sql', state: 'applied', note: 'Founder-applied 2026-08-20 and probe-verified the same day: anon reads song_lab_projects 200 [], the gate column answers 42501, song_lab_votes answers 42501, day_one_anr badge seeded, and the live /api/song-lab/public?artist=gb answers 200 with the real free tier id. The gate was gb-only at apply time; julius-williams was enabled later the same day by a service-role data write (probe: public?artist=julius-williams answers 200), so the file self-verify now asserts gb-is-enabled, not exactly-one.' },
+
+  // Founder metric hygiene (2026-08-25): artist_profiles.is_founder_test, read only by admin
+  // metric routes through founderTestExclusion.ts, which fails SOFT (counts everyone) until this
+  // runs. sql-check because the column carries no anon grant, so an anon probe answers 42501
+  // whether or not the migration ran and can certify nothing.
+  { file: 'schema-phase2-founder-test-exclusion.sql', state: 'pending', liveCheck: 'sql-check', note: 'Adds is_founder_test and flags admin-owned artists plus the literal placeholder account. Until it runs, the acquisition funnel and 90-day scorecard keep counting founder test accounts; nothing else depends on it.' },
 ];
 
 /** Words that mean "this migration has not been applied" when they share a doc line with its filename. */

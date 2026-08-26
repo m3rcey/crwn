@@ -121,7 +121,7 @@ export default function ExperimentScorecard({ userId }: { userId: string }) {
 
       <p className="text-xs uppercase tracking-wide text-[#777] mb-2">Activation</p>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-        <Tile label="Artists" value={act?.artists ?? null} sub="all accounts, founder tests included" />
+        <Tile label="Artists" value={act?.artists ?? null} sub="real accounts, founder tests excluded" />
         <Tile label="Setup completed" value={act?.setupCompleted ?? null} />
         <Tile label="Stripe connected" value={act?.stripeConnected ?? null} />
         <Tile label="Imported contacts" value={act?.contactsImportedArtists ?? null} sub="artists with any imported fans" />
