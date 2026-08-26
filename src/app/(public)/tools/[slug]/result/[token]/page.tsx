@@ -33,7 +33,7 @@ import { LeadEmailCta } from '@/components/lead-magnets/LeadEmailCta';
 import { continueCtaFor } from '@/lib/leadMagnets/continuationCta';
 import { ESTIMATE_DISCLAIMER } from '@/lib/leadMagnets/disclaimers';
 import { getLeadMagnet } from '@/lib/leadMagnets/registry';
-import { restoreWizardValues } from '@/lib/leadMagnets/resumeInputs';
+import { restoreWizardValues, prefillQueryString } from '@/lib/leadMagnets/resumeInputs';
 import { WorthExperience } from '@/app/(public)/worth/WorthExperience';
 import type { ResultSection } from '@/lib/leadMagnets/types';
 
@@ -133,10 +133,16 @@ export default async function ResultPage({
   // A direct visitor who answered everything sees nothing, which is why this is a count and not
   // a "came from Instagram" flag.
   const toolConfig = getLeadMagnet(result.toolSlug || slug);
-  const answeredCount = toolConfig
-    ? Object.keys(restoreWizardValues(toolConfig, result.inputData)).length
-    : 0;
+  const alreadyAnswered = toolConfig ? restoreWizardValues(toolConfig, result.inputData) : {};
+  const answeredCount = Object.keys(alreadyAnswered).length;
   const unansweredCount = toolConfig ? Math.max(0, toolConfig.inputs.length - answeredCount) : 0;
+  // Carry those answers into the wizard, or "answer the rest" opens on a question they already
+  // answered in the DM. Read back through the tool's own input definitions on arrival, so a URL
+  // can only ever set a value that field would have accepted anyway.
+  const sharpenQuery = prefillQueryString(alreadyAnswered);
+  const sharpenHref = toolConfig
+    ? `${toolConfig.publicRoute}${sharpenQuery ? `?${sharpenQuery}` : ''}`
+    : '';
 
   const claimed = !!result.claimedAt;
   const claimHref = `/claim/${encodeURIComponent(token)}`;
@@ -186,7 +192,7 @@ export default async function ResultPage({
             This is built from the {answeredCount === 1 ? 'one answer' : `${answeredCount} answers`} you
             gave. The other {unansweredCount} questions used conservative defaults, so treat this as
             the floor.{' '}
-            <Link href={toolConfig.publicRoute} className="text-[#D4AF37] underline underline-offset-4">
+            <Link href={sharpenHref} className="text-[#D4AF37] underline underline-offset-4">
               Answer the rest and see your real number.
             </Link>
           </p>

@@ -28,6 +28,9 @@ import type { LeadMagnetConfig, LeadMagnetInputValues } from './types';
 /** Reserved keys stored alongside the answers. Never inputs, never restored. */
 const RESERVED_PREFIX = '_';
 
+/** Matches MAX_COUNT in acquisition/callRequest.ts. Larger than any real artist, on any metric. */
+const ABSOLUTE_MAX = 100_000_000;
+
 export function restoreWizardValues(
   config: Pick<LeadMagnetConfig, 'inputs'>,
   stored: unknown,
@@ -48,4 +51,71 @@ export function restoreWizardValues(
   }
 
   return out as LeadMagnetInputValues;
+}
+
+/**
+ * Seed a wizard from the URL, so "answer the rest" does not mean "start over".
+ *
+ * A ManyChat lead answers two questions and their tokenized result page offers the full
+ * calculator. Sending them to a cold wizard makes the FIRST screen a question they already
+ * answered, at the exact moment friction costs the most. The answers ride in the link because
+ * the alternative (resolving the result token on `/tools/<slug>`) would force that page dynamic
+ * and lose the static prerender on all nineteen tool routes for a minority path. `/worth` has
+ * accepted `?listeners=&followers=` this way since it shipped; this is the same pattern, made
+ * general and validated against the tool's own input definitions.
+ *
+ * A calculator input is NOT authority: it decides a displayed estimate, never a price, a fee, an
+ * entitlement or a permission, and the artist can see and change every value in the wizard. What
+ * this must never do is accept a key the tool never declared, or a value its own field would
+ * reject, which is what the allowlist below is for.
+ */
+export function prefillFromQuery(
+  config: Pick<LeadMagnetConfig, 'inputs'>,
+  search: URLSearchParams,
+): LeadMagnetInputValues {
+  const out: Record<string, unknown> = {};
+
+  for (const input of config.inputs ?? []) {
+    if (input.key.startsWith(RESERVED_PREFIX)) continue;
+    const raw = search.get(input.key);
+    if (raw === null || raw.trim() === '') continue;
+
+    if (input.type === 'number' || input.type === 'currency') {
+      const n = Number(raw.replace(/[,$\s]/g, ''));
+      if (!Number.isFinite(n) || n < 0) continue;
+      if (typeof input.min === 'number' && n < input.min) continue;
+      if (typeof input.max === 'number' && n > input.max) continue;
+      // An absolute ceiling on top of the field's own, because not every input declares a max:
+      // the unified calculator's `social_followers` does not, so without this a link could seed
+      // a trillion followers and render an estimate with no relationship to a real career.
+      // Same bound the funnel's other allowlist uses (sanitizeCalculatorInputs). Reject rather
+      // than clamp: a silently corrected number is a number nobody can explain.
+      if (n > ABSOLUTE_MAX) continue;
+      out[input.key] = n;
+      continue;
+    }
+
+    if (input.type === 'option') {
+      // Only a value this field actually offers. Anything else is someone editing the URL.
+      if (input.options?.some((o) => o.value === raw)) out[input.key] = raw;
+      continue;
+    }
+
+    // Free text: bounded, and never longer than a real answer.
+    const s = raw.trim();
+    if (s.length > 0 && s.length <= 120) out[input.key] = s;
+  }
+
+  return out as LeadMagnetInputValues;
+}
+
+/** Build the query string that `prefillFromQuery` reads back. */
+export function prefillQueryString(values: LeadMagnetInputValues): string {
+  const params = new URLSearchParams();
+  for (const [key, v] of Object.entries(values as Record<string, unknown>)) {
+    if (v === null || v === undefined || v === '') continue;
+    if (typeof v !== 'string' && typeof v !== 'number' && typeof v !== 'boolean') continue;
+    params.set(key, String(v));
+  }
+  return params.toString();
 }

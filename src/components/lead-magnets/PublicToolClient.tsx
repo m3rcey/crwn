@@ -23,7 +23,7 @@ import { ResultActions } from './ResultActions';
 import { ConvertToFeatureButton } from './ConvertToFeatureButton';
 import { generateResult } from '@/lib/leadMagnets/resultGenerators';
 import { resolveEntryContext } from '@/lib/leadMagnets/entryContext';
-import { restoreWizardValues } from '@/lib/leadMagnets/resumeInputs';
+import { restoreWizardValues, prefillFromQuery } from '@/lib/leadMagnets/resumeInputs';
 import { getTool, type LeadProfileValues } from '@/lib/acquisition/toolAdapters';
 import { LM_EVENTS, trackLeadMagnet, readUtm, readCampaignAttribution } from '@/lib/leadMagnets/analytics';
 import { OPPORTUNITY_EVENTS, JOURNEY_EVENTS, trackOpportunity, type OpportunityEventMeta } from '@/lib/opportunityFunnels/analytics';
@@ -161,6 +161,10 @@ export function PublicToolClient({
     trackLeadMagnet(LM_EVENTS.viewed, { toolSlug: config.slug, context: 'public', ...readUtm() });
     trackOpportunity(OPPORTUNITY_EVENTS.funnelViewed, opportunityMeta());
     if (!token) {
+      // Answers carried in the link (a ManyChat lead coming back from their result page to
+      // answer the questions the DM never asked). Batched with the phase change below, so the
+      // wizard's FIRST render already has them and never mounts empty and then jumps.
+      setValues(prefillFromQuery(config, params));
       setPhase('hero');
       return;
     }
@@ -390,6 +394,9 @@ export function PublicToolClient({
               context="public"
               entryContext={entryContext}
               storageKey={`lm:${config.slug}:public`}
+              // Answers the visitor already gave, when the link carried them. Empty on a cold
+              // arrival, which is every direct visit.
+              initialValues={values}
               // The submit button is the real conversion moment, so it repeats the promise the hero
               // CTA made instead of a generic "See my result": the artist clicked "See what I am
               // leaving", and that is what the button that reveals it should say.

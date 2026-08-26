@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'fs';
 import { join } from 'path';
-import { restoreWizardValues } from './resumeInputs';
+import { restoreWizardValues, prefillFromQuery, prefillQueryString } from './resumeInputs';
 import { getLeadMagnet } from './registry';
 
 const root = process.cwd();
@@ -114,6 +114,66 @@ describe('the tokenized result page offers a way to sharpen a thin result', () =
   });
 
   it('links to the calculator itself, never a hardcoded route', () => {
-    expect(page).toContain('href={toolConfig.publicRoute}');
+    expect(page).toContain('toolConfig.publicRoute');
+    expect(page).toContain('href={sharpenHref}');
+  });
+});
+
+// "Answer the rest" has to mean answer the REST. Dropping a ManyChat lead into a cold wizard
+// makes the first screen a question they already answered in the DM, at the moment friction is
+// most expensive. /worth has taken ?listeners=&followers= since it shipped; this is that pattern
+// generalized and validated against each tool's own input definitions.
+describe('prefillFromQuery', () => {
+  const unified = getLeadMagnet('opportunity-calculator')!;
+  const q = (s: string) => new URLSearchParams(s);
+
+  it('round-trips the answers a DM lead already gave', () => {
+    const answers = { social_followers: 250_000, monetization_status: 'direct_some' };
+    const restored = prefillFromQuery(unified, q(prefillQueryString(answers as never)));
+    expect(restored).toEqual(answers);
+  });
+
+  it('refuses a key the tool never declared', () => {
+    expect(prefillFromQuery(unified, q('shows_per_year=20&social_followers=1000'))).toEqual({
+      social_followers: 1000,
+    });
+  });
+
+  it('refuses an option value the field does not offer', () => {
+    expect(prefillFromQuery(unified, q('monetization_status=owns_a_label'))).toEqual({});
+    expect(prefillFromQuery(unified, q('monetization_status=direct_established'))).toEqual({
+      monetization_status: 'direct_established',
+    });
+  });
+
+  it('refuses a number outside the field own bounds, and junk', () => {
+    expect(prefillFromQuery(unified, q('social_followers=-5'))).toEqual({});
+    expect(prefillFromQuery(unified, q('social_followers=999999999999'))).toEqual({});
+    expect(prefillFromQuery(unified, q('social_followers=drop%20table'))).toEqual({});
+  });
+
+  it('reads the numbers a human would paste', () => {
+    expect(prefillFromQuery(unified, q('social_followers=250,000'))).toEqual({ social_followers: 250_000 });
+  });
+
+  it('ignores an empty param rather than storing an empty answer', () => {
+    expect(prefillFromQuery(unified, q('social_followers=&monetization_status='))).toEqual({});
+  });
+});
+
+describe('the sharpen link carries the answers into the wizard', () => {
+  const page = readFileSync(join(root, 'src/app/(public)/tools/[slug]/result/[token]/page.tsx'), 'utf-8');
+  const client = readFileSync(join(root, 'src/components/lead-magnets/PublicToolClient.tsx'), 'utf-8');
+
+  it('builds the link from the stored answers, not a bare route', () => {
+    expect(page).toContain('prefillQueryString(alreadyAnswered)');
+    expect(page).toContain('href={sharpenHref}');
+  });
+
+  it('the wizard reads them back on arrival', () => {
+    expect(client).toContain('setValues(prefillFromQuery(config, params));');
+    // Seeded before the hero renders, so the wizard never mounts empty and then jumps.
+    const effect = client.slice(client.indexOf('Resume from an emailed link'), client.indexOf('const onComplete'));
+    expect(effect.indexOf('prefillFromQuery')).toBeLessThan(effect.indexOf("setPhase('hero')"));
   });
 });
