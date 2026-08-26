@@ -75,13 +75,30 @@ export async function GET(req: NextRequest) {
   // If credentials are absent the queue must NOT be drained. Leaving rows queued means the
   // founder can fix the environment and the backlog still goes out; marking them failed would
   // silently throw away a scheduled batch because of a missing variable.
+  //
+  // But it must not be SILENT either. A row sitting at 'queued' past its slot is ambiguous: it
+  // looks identical whether the tick ran and bailed or the tick never ran at all. Stamping
+  // last_error (without touching status, so nothing is consumed) turns that silence into a
+  // readable answer, which is the only way to tell those two apart without the CRON_SECRET.
   if (!igUserId || !accessToken) {
+    const missing = [!igUserId && 'IG_USER_ID', !accessToken && 'IG_ACCESS_TOKEN']
+      .filter(Boolean)
+      .join(' and ');
+    await supabaseAdmin
+      .from('social_posts')
+      .update({
+        last_error: `tick ran at ${now.toISOString()} but ${missing} is not readable on this deployment; left queued on purpose`,
+      })
+      .eq('status', 'queued')
+      .lte('scheduled_for', now.toISOString());
+
     return NextResponse.json({
       ok: false,
       reason: 'instagram_credentials_missing',
+      missing,
       expired: expired?.length ?? 0,
       published: 0,
-      note: 'IG_USER_ID and IG_ACCESS_TOKEN are not set on this deployment. Queue left intact.',
+      note: 'Queue left intact. Due rows were stamped with the reason.',
     });
   }
 
