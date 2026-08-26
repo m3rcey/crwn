@@ -170,6 +170,34 @@ for (const f of files.filter((f) => /^slide-\d+\.jpe?g$/i.test(f)).sort()) {
 
 const result = validateFolder({ folder, files, captionRaw, images: slidePreview });
 
+// caption.md is a DERIVED copy. The source of truth is the **CAPTION:** section of the repo's
+// carousel markdown, and the generator is the only thing that copies one to the other. Editing
+// the source without re-running the generator leaves a stale caption here that looks fine and
+// publishes the OLD words. That is not hypothetical: nine captions were trimmed under
+// Instagram's 2,200 limit on 2026-08-25 and all nine derived copies stayed over it, so every
+// one of those posts would still have been rejected. Fail closed rather than publish stale copy.
+{
+  const repoSource = fileURLToPath(
+    new URL(`../videos/carousels/fan-economy/${slug}.md`, import.meta.url)
+  );
+  if (fs.existsSync(repoSource)) {
+    const md = fs.readFileSync(repoSource, 'utf8');
+    const i = md.indexOf('**CAPTION:**');
+    if (i >= 0) {
+      const rest = md.slice(i + '**CAPTION:**'.length);
+      const end = rest.indexOf('---');
+      const sourceCaption = (end < 0 ? rest : rest.slice(0, end)).trim();
+      if (sourceCaption && sourceCaption !== result.caption) {
+        result.errors.push(
+          `caption.md is STALE. It differs from the source in videos/carousels/fan-economy/${slug}.md ` +
+            `(source ${sourceCaption.length} chars, folder copy ${result.caption.length}). ` +
+            `Re-run the generator to re-sync it: node generate-fan-economy-carousel.mjs`
+        );
+      }
+    }
+  }
+}
+
 console.log('  SLIDE ORDER (this is the order they will appear in the post)');
 if (result.slides.length === 0) {
   console.log('    none found');
@@ -231,7 +259,7 @@ if (result.warnings.length) {
   console.log('');
 }
 
-if (!result.ok) {
+if (result.errors.length) {
   console.error('  PREFLIGHT FAILED');
   for (const e of result.errors) console.error(`    - ${e}`);
   process.exit(1);
