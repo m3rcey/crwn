@@ -73,15 +73,10 @@ responsible for. Do not work those.
       Not P0 only because the flow still completes and still delivers the number. It is the first
       thing a lead ever reads from CRWN, and it contradicts itself one message later.
       In each automation, open **node 1** (the private reply / opening DM) and delete any claim
-      about how many questions are coming. Promise the outcome instead. Drop-in replacements:
-        WORTH        Here comes what streaming is costing you every month.
-        OWN          Here comes what it costs you to rent your fanbase instead of owning it.
-        VAULT        30 seconds, and you'll see what's sitting in your vault.
-        LIVE         Here comes what one night with your real fans is worth.
-        PRODUCER     Here comes what your fans would pay to be in the room.
-        FREE / PLAN  Here comes the whole picture: what you're leaving on the table every month.
-        ROYALTY      Here comes the money you already earned and are not collecting.
-      Any flow not listed: same rule, its own outcome, no count.
+      about how many questions are coming. Promise the outcome instead.
+      **All 20 flows, with copy-paste replacement copy, the exact first question each one asks,
+      and a per-flow smoke test:** https://claude.ai/code/artifact/618ca780-e34f-4605-a057-0a09077c013f
+      Only edit the automations you have actually built.
       **Never put a number of questions in an opener again.** The count lives in
       `requiredFields` and changes without touching ManyChat, so any opener that states one is a
       promise CRWN can break from the server. A test now stops the setup guide from handing you
