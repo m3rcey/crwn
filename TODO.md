@@ -80,6 +80,16 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **Watch the first machine-made silent video and say keep or fix.** The video pipeline is
+      live: script → storyboard → your sharpie-style images → automated motion cut to your own
+      instrumentals → finished 9:16 MP4, roughly $2 of API per video, no editing app involved.
+      The first one is the Ryan Leslie script, rendered at
+      videos/output/34-ryan-leslie-forty-thousand-numbers/render/final.mp4 (open it from
+      Explorer via \\wsl.localhost\Ubuntu). Three verdicts you can give me: approve it, fix ONE
+      scene ("regen scene 4"), or change the sound ("rerender with Makavhan"). Each of those is
+      one command I run; nothing sends or posts anything on its own. How it works and every
+      command: [docs/VIDEO_PIPELINE.md](docs/VIDEO_PIPELINE.md).
+
 - [ ] **Run ONE ManyChat flow end to end. Every DM tool now asks a second question, and only a
       live run proves your flows loop.** No ManyChat edit should be needed: the Condition's
       if-not branch already loops back to the question node, which is the same path Royalty
