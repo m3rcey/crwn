@@ -54,10 +54,15 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const igUserId = process.env.IG_USER_ID || '';
-  const accessToken = process.env.IG_ACCESS_TOKEN || '';
-  const host = (process.env.GRAPH_HOST || 'graph.instagram.com').replace(/^https?:\/\//, '');
-  const version = process.env.GRAPH_API_VERSION || 'v26.0';
+  // TRIM EVERY ONE OF THESE. A value pasted into the Vercel dashboard keeps whatever whitespace
+  // came with it, and process.env hands it back verbatim; only the local .env.local parser
+  // trimmed. A single trailing space on IG_USER_ID sends Meta "<id> /media", which it cannot
+  // resolve, and it answers code 100/33 with an EMPTY message. That reads like a permissions
+  // problem or a wrong account and is neither, so it costs an hour to diagnose. It cost one here.
+  const igUserId = (process.env.IG_USER_ID || '').trim();
+  const accessToken = (process.env.IG_ACCESS_TOKEN || '').trim();
+  const host = (process.env.GRAPH_HOST || 'graph.instagram.com').trim().replace(/^https?:\/\//, '');
+  const version = (process.env.GRAPH_API_VERSION || 'v26.0').trim();
 
   const now = new Date();
 
