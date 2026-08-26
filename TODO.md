@@ -67,32 +67,17 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
-- [ ] **Rewrite the opening message on every ManyChat flow. They promise one question and then
-      ask two, and you can see it happen (you found it on OWN).** Do this in the same sitting as
-      the end-to-end test below; it is the same set of flows.
-      Not P0 only because the flow still completes and still delivers the number. It is the first
-      thing a lead ever reads from CRWN, and it contradicts itself one message later.
-      In each automation, open **node 1** (the private reply / opening DM) and delete any claim
-      about how many questions are coming. Promise the outcome instead.
-      **All 20 flows, with copy-paste replacement copy, the exact first question each one asks,
-      and a per-flow smoke test:** https://claude.ai/code/artifact/618ca780-e34f-4605-a057-0a09077c013f
-      Only edit the automations you have actually built.
-      **Never put a number of questions in an opener again.** The count lives in
-      `requiredFields` and changes without touching ManyChat, so any opener that states one is a
-      promise CRWN can break from the server. A test now stops the setup guide from handing you
-      counting copy for the next flow you clone
-      ([docs/acquisition/manychat-setup-guide.md](docs/acquisition/manychat-setup-guide.md) §10,
-      the box).
-
 - [ ] **Run ONE ManyChat flow end to end. Every DM tool now asks a second question, and only a
       live run proves your flows loop.** No ManyChat edit should be needed: the Condition's
       if-not branch already loops back to the question node, which is the same path Royalty
       Readiness has always used. But three of these flows were cloned by hand, and a clone that
       lost that connection will now stall after question one instead of delivering the result.
+      Openers were rewritten 2026-08-26, so this is now only about the WIRING.
       DM the `FREE` keyword from a test account and confirm you see, in order:
-        1. "Roughly how many followers do you have across your socials?"
-        2. "Last one: have your fans ever paid you directly? ..." (this is the new one)
-        3. The topline plus the `See My Numbers` button.
+        1. The opener, naming no number of questions.
+        2. "Roughly how many followers do you have across your socials?"
+        3. "Last one: have your fans ever paid you directly? ..." (this is the new one)
+        4. The topline plus the `See My Numbers` button.
       If it stops after step 1, that flow's Condition no-branch is not wired back to the
       question node. Fix it in ManyChat; there is nothing to change in the code.
       Why the second question exists: without it every DM lead scored as `monetization_unknown`,
