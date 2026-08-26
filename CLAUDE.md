@@ -350,22 +350,31 @@ primitive, never 19 copies. `src/lib/leadMagnets/conversionContract.test.ts` pin
   there is no `preview` phase, and **no signup link and no booking flow** may appear between the
   result and the builder. The post-result "change an answer and recalculate" control must keep
   working: a number the artist cannot touch is a number they do not believe.
-- **The OPTIONAL email capture is the one exception, and it belongs ABOVE the builder** (founder
-  decision 2026-08-15, replacing "nothing may appear between the result and the builder"). Gating
-  and ordering are different things: the capture card may precede the builder as long as the result
-  is already delivered, the card is skippable, and the builder works without it. It must precede the
-  builder because the builder's own action is `stickyFooter` (`sticky bottom-0`), so its
-  Continue/Save is pinned to the viewport the whole time and the final press `router.push`es to
-  signup. Anything below the builder is therefore behind a permanently visible exit, which is why
-  production captured **zero** leads across every calculator. `ResultToBuilder` scrolls straight to
-  `builderRef`, so an artist who wants to build skips the card entirely. Asserted by
-  `pageComposition.test.ts` and `prospectNurture/capture.test.ts`; the signup/booking half of the
-  rule above is unchanged and still asserted.
-- **Tier-modeling calculators show the ladder under the result, and the call hand-raiser is
-  ONE allowlist** (founder decision 2026-08-25). Page order on those tools: result, the shared
-  `LadderSection` (rungs from `RECOMMENDED_LADDER`, overlaid with the calculator's own modeled
-  `conversionPayload.ladder` prices and projected fans), the email ask, the builder, then the
-  `CallRequestCard` last. The ladder's trigger is the modeled payload, never a slug list; the
+- **The OPTIONAL email capture is the one exception, and it sits INSIDE THE HERO, directly under
+  the primary CTA** (founder decision 2026-08-26, revising 2026-08-15's "above the builder", which
+  in turn replaced "nothing may appear between the result and the builder"). Gating and ordering
+  are different things: the capture card may precede the builder as long as the result is already
+  delivered, the card is skippable, and the builder works without it. It must precede the builder
+  because the builder's own action is `stickyFooter` (`sticky bottom-0`), so its Continue/Save is
+  pinned to the viewport the whole time and the final press `router.push`es to signup. Anything
+  below the builder is therefore behind a permanently visible exit, which is why production
+  captured **zero** leads across every calculator. **Above the builder was not far enough.** It
+  goes in the `afterHero` slot, whose own contract is "rendered directly under the hero, above the
+  fold (e.g. email + signup CTAs)", because the hero's 2x3 metric grid renders AFTER that slot: a
+  capture placed as a sibling instead lands under roughly 230px of tiles, and on a tier-modeling
+  tool under a whole ladder section as well. The tokenized DM page had already reached the same
+  conclusion for those tiles. `ResultToBuilder` still scrolls straight to `builderRef`, so an
+  artist who wants to build skips the card entirely. Asserted by `pageComposition.test.ts` (order,
+  hero placement, and the mutation test behind both) and `prospectNurture/capture.test.ts`; the
+  signup/booking half of the rule above is unchanged and still asserted.
+- **Tier-modeling calculators show the ladder under the EMAIL ASK, and the call hand-raiser is
+  ONE allowlist** (founder decision 2026-08-26, revising 2026-08-25). Page order on those tools:
+  result with the primary CTA and the email ask inside its hero, then the shared `LadderSection`
+  (rungs from `RECOMMENDED_LADDER`, overlaid with the calculator's own modeled
+  `conversionPayload.ladder` prices and projected fans), then the builder, then the
+  `CallRequestCard` last. The ladder is EVIDENCE for the number, and evidence may follow the ask;
+  it previously sat between the result and the ask, which pushed the only ask on the page well
+  below the fold. The ladder's trigger is the modeled payload, never a slug list; the
   call card renders only for `CALL_HAND_RAISER_TOOLS` (`src/lib/acquisition/callRequest.ts`),
   the SAME set the call-request route enforces, so a surface cannot offer a call the server
   refuses. The tokenized ManyChat result page renders the same ladder and call sections from the

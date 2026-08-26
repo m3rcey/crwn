@@ -131,33 +131,55 @@ describe('PublicToolClient page order (shared template for 16 tools + OYF)', () 
     expect(fullPhase.indexOf('<ResultToBuilder')).toBeLessThan(capture);
   });
 
-  // THE TIER-CALCULATOR ORDER (founder decision 2026-08-25): result, then the ladder the
-  // number rests on, then the email ask, then the builder, then the call hand-raiser last.
-  // The ladder renders only for tools whose generator modeled `conversionPayload.ladder`, and
-  // it is presentation: it gates nothing, so the capture invariant above is untouched.
-  it('shows the modeled ladder between the result and the email ask, with the call last', () => {
+  // THE TIER-CALCULATOR ORDER (founder decision 2026-08-26, revising 2026-08-25): result, then
+  // the email ask directly under the primary CTA, then the ladder, then the builder, then the
+  // call hand-raiser last.
+  //
+  // WHAT CHANGED AND WHY. The ladder used to sit between the result and the ask. On a
+  // tier-modeling tool that put a whole ladder section, plus the hero's own 2x3 metric grid,
+  // between the number and the only ask on the page, so the capture was well below the fold on a
+  // phone. The ladder is EVIDENCE for the number, and evidence can come after the ask: the
+  // tokenized page had already reached that conclusion for the supporting tiles. The ladder still
+  // renders only for tools whose generator modeled `conversionPayload.ladder`, and it is still
+  // presentation that gates nothing, so the capture invariant above is untouched.
+  it('shows the email ask under the primary CTA, then the ladder, with the call last', () => {
     const ladder = fullPhase.indexOf('<LadderSection');
     const capture = fullPhase.indexOf('LeadCaptureForm');
     const builder = fullPhase.indexOf('ref={builderRef}');
     const call = fullPhase.indexOf('<CallRequestCard');
     expect(ladder, 'ladder section missing from the result surface').toBeGreaterThan(-1);
-    expect(fullPhase.indexOf('<LeadMagnetResult')).toBeLessThan(ladder);
-    expect(ladder).toBeLessThan(capture);
-    expect(capture).toBeLessThan(builder);
+    expect(fullPhase.indexOf('<LeadMagnetResult')).toBeLessThan(capture);
+    // The ask is directly under the primary CTA, and both are inside the hero.
+    expect(fullPhase.indexOf('<ResultToBuilder')).toBeLessThan(capture);
+    expect(capture, 'the email ask must precede the ladder, not follow it').toBeLessThan(ladder);
+    expect(ladder).toBeLessThan(builder);
     expect(builder).toBeLessThan(call);
     // The gate is the modeled payload, not a hand-kept slug list.
     expect(fullPhase).toMatch(/conversionPayload[\s\S]{0,120}ladder/);
   });
 
+  it('renders the email ask inside the hero card, above the supporting metric tiles', () => {
+    // The reason the ask moved INTO the hero rather than merely up a few siblings: the hero's
+    // metric grid renders after `afterHero`, so anything in that slot lands above roughly 230px
+    // of tiles instead of below them. If the capture ever moves back out to a sibling, it drops
+    // under the tiles again and this fails.
+    expect(fullPhase, 'capture is no longer in the afterHero slot').toMatch(
+      /afterHero=\{[\s\S]*?LeadCaptureForm[\s\S]*?\}\s*\/>/
+    );
+    const result = readFileSync(join(root, 'src/components/lead-magnets/LeadMagnetResult.tsx'), 'utf-8');
+    expect(result.indexOf('{afterHero}'), 'afterHero missing from the result hero').toBeGreaterThan(-1);
+    expect(result.indexOf('{afterHero}')).toBeLessThan(result.indexOf('heroTiles?.metrics'));
+  });
+
   it('the tokenized ManyChat result page renders the same ladder and call sections', () => {
     // A lead arriving from a DM link must read the same page a direct visitor reads: result,
-    // ladder, email ask, then the call hand-raiser, from the STORED result and inputs.
+    // email ask, ladder, then the call hand-raiser, from the STORED result and inputs.
     const resultPage = readFileSync(join(root, 'src/app/(public)/tools/[slug]/result/[token]/page.tsx'), 'utf-8');
     const ladder = resultPage.indexOf('<LadderSection');
     const email = resultPage.indexOf('<LeadEmailCta');
     const call = resultPage.indexOf('<CallRequestCard');
     expect(ladder, 'ladder missing from tokenized page').toBeGreaterThan(-1);
-    expect(ladder).toBeLessThan(email);
+    expect(email, 'the email ask must precede the ladder here too').toBeLessThan(ladder);
     expect(email).toBeLessThan(call);
     // The call card is offered only where the call-request route will accept it.
     expect(resultPage).toContain('CALL_HAND_RAISER_TOOLS.has(result.toolSlug || slug)');

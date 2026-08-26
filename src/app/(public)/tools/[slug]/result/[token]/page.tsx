@@ -198,16 +198,18 @@ export default async function ResultPage({
           </p>
         )}
 
-        {/* THE LADDER, right under the result, matching the live calculator page's order:
-            result, then the ladder that holds it, then the email ask. */}
+        {/* THE EMAIL ASK FIRST, then the ladder (founder decision 2026-08-26, matching the live
+            calculator page). It used to sit under the ladder, which on a tier-modeling tool put a
+            whole ladder section between the number and the only ask on the page. The ladder is
+            evidence for the number and evidence can come after the ask, the same reasoning that
+            already moved the supporting tiles below it. */}
+        <LeadEmailCta claimed={claimed} claimHref={claimHref} toolSlug={result.toolSlug || slug} ctaLabel={continueLabel} />
+
         {modeledLadder.length > 0 && (
-          <div className="mb-6 sm:mb-10">
+          <div className="mt-6 sm:mt-10">
             <LadderSection modeled={modeledLadder} />
           </div>
         )}
-
-        {/* Collect the email, then sign up directly under it. */}
-        <LeadEmailCta claimed={claimed} claimHref={claimHref} toolSlug={result.toolSlug || slug} ctaLabel={continueLabel} />
 
         {/* The supporting tiles sit BELOW the ask, not inside the hero card above it. On a phone
             that 2x2 grid was roughly 230px of detail wedged between the number and the only

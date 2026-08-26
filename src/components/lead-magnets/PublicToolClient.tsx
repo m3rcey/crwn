@@ -446,12 +446,40 @@ export function PublicToolClient({
             result={result}
             mode="full"
             afterHero={
-              <ResultToBuilder
-                toolSlug={config.slug}
-                transition={config.slug === OYF_TOOL_KEY ? 'Turn this into a fan page you actually own.' : transitionFor(config.slug)}
-                buildCta={config.slug === OYF_TOOL_KEY ? 'Build my fan page' : buildCtaFor(config.slug)}
-                builderRef={builderRef}
-              />
+              // BOTH ASKS IN THE HERO, IN THIS ORDER (founder decision 2026-08-26): the primary
+              // CTA, then the email ask directly under it. This slot is documented as "rendered
+              // directly under the hero, above the fold (e.g. email + signup CTAs)", which is
+              // exactly what these two are; the capture had drifted well below it.
+              //
+              // WHAT WAS WRONG. The capture sat after the modeled ladder, so on a tier-modeling
+              // tool an entire ladder section stood between the result and the ask, and the hero's
+              // own metric tiles (a 2x3 grid) stood between the CTA and everything after it. The
+              // tokenized DM page had already found and fixed the same defect on its own copy,
+              // noting the tiles were "roughly 230px of detail wedged between the number and the
+              // only buttons on the page, which put every CTA off the first screen". The live
+              // calculator page never got that fix. Rendering the capture HERE puts it above the
+              // tiles rather than below them, which is the whole reason it moves inside the hero
+              // rather than merely moving up a few siblings.
+              //
+              // NOTHING ABOUT GATING CHANGES. `leadCapture.required` is still false on every tool,
+              // the result is already rendered above this, and `ResultToBuilder` still scrolls
+              // straight past to `builderRef`. The card remains skippable, and it is still not
+              // gold, because the gold primary is the CTA immediately above it.
+              <div className="space-y-4">
+                <ResultToBuilder
+                  toolSlug={config.slug}
+                  transition={config.slug === OYF_TOOL_KEY ? 'Turn this into a fan page you actually own.' : transitionFor(config.slug)}
+                  buildCta={config.slug === OYF_TOOL_KEY ? 'Build my fan page' : buildCtaFor(config.slug)}
+                  builderRef={builderRef}
+                />
+                {resultId ? (
+                  <ResultActions config={config} result={result} context="public" publicToken={publicToken} resultId={resultId} />
+                ) : (
+                  <div ref={captureRef} className="scroll-mt-4 rounded-2xl bg-crwn-bg/40 border border-crwn-elevated p-4">
+                    <LeadCaptureForm config={config} submitting={submitting} onSubmit={submitCapture} />
+                  </div>
+                )}
+              </div>
             }
           />
 
@@ -484,34 +512,18 @@ export function PublicToolClient({
             return <LadderSection modeled={ladder as ModeledLadderRung[]} />;
           })()}
 
-          {/* OPTIONAL EMAIL CONTINUATION, above the builder. Founder decision 2026-08-15.
-              THE RULE IT SATISFIES: the result is never gated, and the builder is never gated. This
-              is not the same as "capture may never precede the builder", which is what the previous
-              wording implied and what kept this card unreachable.
+          {/* The email ask used to sit HERE, below the ladder. It now renders inside the hero,
+              directly under the primary CTA (see the `afterHero` block above). The rule it has to
+              satisfy is unchanged and still holds: the result is never gated, and the builder is
+              never gated. Moving it UP cannot violate either, because the result is already
+              rendered above it and the gold CTA still scrolls straight past it to the builder.
 
-              WHY ABOVE: the builder's own primary action is `stickyFooter` (Wizard renders it
-              `sticky bottom-0 z-20`), so its Continue/Save button is pinned to the viewport the
-              entire time the builder is on screen, and the last press calls `router.push` to signup.
-              Anything BELOW the builder therefore sits behind a permanently visible exit. Moving
-              this card from "after the hand-raiser" to "directly after the builder" only shortened
-              the distance to that exit; it did not remove it. Production had zero captures across
-              every calculator.
-
-              WHY IT STILL DOES NOT GATE: `ResultToBuilder` (the gold primary CTA inside the result
-              above) scrolls straight to `builderRef`, so an artist who wants to build jumps past
-              this card entirely. It is skippable by design, `leadCapture.required` is false on every
-              tool, and nothing here blocks or precedes the RESULT itself.
-
-              Deliberately NOT gold: the gold primary CTA is ResultToBuilder, immediately above. A
-              second gold block here would read as the required next step, which is the opposite of
-              what this is. */}
-          {resultId ? (
-            <ResultActions config={config} result={result} context="public" publicToken={publicToken} resultId={resultId} />
-          ) : (
-            <div ref={captureRef} className="scroll-mt-4 rounded-2xl bg-crwn-surface border border-crwn-elevated p-4">
-              <LeadCaptureForm config={config} submitting={submitting} onSubmit={submitCapture} />
-            </div>
-          )}
+              WHY IT MUST STAY ABOVE THE BUILDER, wherever it lives: the builder's own primary
+              action is `stickyFooter` (Wizard renders it `sticky bottom-0 z-20`), so its
+              Continue/Save is pinned to the viewport the whole time the builder is on screen and
+              the last press calls `router.push` to signup. Anything below the builder sits behind
+              a permanently visible exit. Production captured ZERO leads across every calculator
+              while that was true. */}
 
           {/* THE BUILDER: the immediate continuation of the result. Carries a stable id so a
               closing CTA below the funnel can return the visitor to the plan they built. */}
