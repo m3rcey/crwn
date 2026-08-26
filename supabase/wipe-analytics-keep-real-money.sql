@@ -44,7 +44,11 @@ CREATE TABLE wipe_backup_20260825_demo_profiles AS
   SELECT * FROM profiles WHERE id::text LIKE 'dd000001-%';
 
 -- ------------------------------------------- 1) THE DEMO SEED, GONE ENTIRELY
--- This is seed-demo-data.sql's own cleanup block, run without the re-insert.
+-- Based on seed-demo-data.sql's own cleanup block, but the fan purge is DYNAMIC: the seed's
+-- list predates newer tables (sequence_enrollments blocked the first run with 23503), so
+-- instead of naming children by hand, every table with a foreign key to profiles or
+-- auth.users gets its demo-fan rows deleted. Three passes with per-statement FK tolerance
+-- clear chains; the final strict deletes raise loudly if anything still holds a reference.
 DO $$
 DECLARE
   v_artist_profile_id UUID := '0cfd2ad9-c37c-4b68-863e-6db0aa939893'; -- m3rcey
@@ -57,18 +61,35 @@ DECLARE
     FROM generate_series(1, 5) n
   );
   v_campaign_1 UUID := 'dd000004-de00-4000-a000-000000000001';
+  r RECORD;
 BEGIN
+  -- Rows keyed to fixed demo ids rather than a fan id.
   DELETE FROM campaign_sends WHERE campaign_id = v_campaign_1;
   DELETE FROM campaigns WHERE id = v_campaign_1;
   DELETE FROM ai_insights WHERE artist_id = v_artist_profile_id AND title LIKE '%[demo]%';
-  DELETE FROM likes WHERE user_id = ANY(v_all_fans);
   DELETE FROM likes WHERE likeable_type = 'post' AND likeable_id = ANY(v_posts);
-  DELETE FROM comments WHERE author_id = ANY(v_all_fans);
   DELETE FROM posts WHERE id = ANY(v_posts);
-  DELETE FROM cancellation_reasons WHERE user_id = ANY(v_all_fans);
-  DELETE FROM earnings WHERE stripe_payment_id LIKE 'demo!_%' ESCAPE '!' OR fan_id = ANY(v_all_fans);
-  DELETE FROM subscriptions WHERE fan_id = ANY(v_all_fans);
-  DELETE FROM play_history WHERE user_id = ANY(v_all_fans);
+  DELETE FROM earnings WHERE stripe_payment_id LIKE 'demo!_%' ESCAPE '!';
+
+  -- Every row in ANY table that references a demo fan, discovered from the catalog.
+  FOR pass IN 1..3 LOOP
+    FOR r IN
+      SELECT c.conrelid::regclass::text AS tbl, a.attname AS col
+      FROM pg_constraint c
+      JOIN pg_attribute a ON a.attrelid = c.conrelid AND a.attnum = ANY (c.conkey)
+      WHERE c.contype = 'f'
+        AND c.confrelid IN ('public.profiles'::regclass, 'auth.users'::regclass)
+        AND c.conrelid <> 'public.profiles'::regclass
+    LOOP
+      BEGIN
+        EXECUTE format('DELETE FROM %s WHERE %I = ANY($1)', r.tbl, r.col) USING v_all_fans;
+      EXCEPTION WHEN foreign_key_violation THEN
+        NULL; -- its own children clear on a later pass
+      END;
+    END LOOP;
+  END LOOP;
+
+  -- Strict: if these still fail, a reference survived and the error should name it.
   DELETE FROM profiles WHERE id = ANY(v_all_fans);
   DELETE FROM auth.users WHERE id = ANY(v_all_fans);
 END $$;
