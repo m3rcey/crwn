@@ -58,6 +58,11 @@ const PROBES = [
   // distribution_pages columns cannot be probed separately (the whole table already
   // answers 42501), so the corpus table is the file's probe.
   ['distribution page posts', 'distribution_page_posts?select=id&limit=1', 'schema-phase3-distribution-page-index.sql'],
+  // Social publishing queue. RLS is on with ZERO policies and ALL revoked from anon, so 42501
+  // (reads revoked, expected) is the applied signal; 42P01/PGRST205 means the founder has not run
+  // it and every scheduled post is silently going nowhere. The queue is the only durable record
+  // of what is due, so a missing table is not a degraded feature, it is a dead one.
+  ['social publish queue', 'social_posts?select=id&limit=1', 'schema-phase3-social-publish-queue.sql'],
   // FRL tables are admin-only RLS: anon resolves the table (zero rows) = applied.
   ['frl engagements', 'frl_engagements?select=id&limit=1', 'schema-phase2-frl-engagements.sql'],
   ['frl work entries', 'frl_work_entries?select=id&limit=1', 'schema-phase2-frl-engagements.sql'],
