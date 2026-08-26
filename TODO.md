@@ -67,30 +67,6 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
-- [ ] **Prove the cron tick can see your Instagram credentials in Vercel. One curl.** The migration
-      is applied and live-probed, the two IG variables are set, and the route is deployed (it
-      answers 401 to a wrong secret, which is the auth guard working). The one thing nobody has
-      confirmed is whether the deployment can actually READ those variables, and the symptom of
-      getting that wrong is posts silently not going out.
-      Copy `CRON_SECRET` from Vercel (Settings → Environment Variables), then run:
-        curl -H "Authorization: Bearer PASTE_CRON_SECRET" https://thecrwn.app/api/cron/publish-tick
-      Reading the answer:
-        {"ok":true,"due":0,...}                      credentials are readable. Done, delete this item.
-        {"ok":false,"reason":"instagram_credentials_missing"}   the variables did not land, or the
-                                                     deployment predates them. Redeploy and re-run.
-      This is safe to run any time the queue is empty: with nothing due it cannot publish anything.
-      **You do NOT need to set GRAPH_HOST.** It is not a value from Meta, just a literal string
-      naming which host to call, and the server already defaults to `graph.instagram.com`. Set it
-      only if the account ever moves to the Facebook Login path.
-      **Then, to schedule a batch (yours to run, from this machine, because the slides live in
-      Dropbox):**
-        node scripts/queue-carousels.mjs --range 31-40 --date 2026-08-27 --start 09:00 --end 12:00
-      That is a DRY RUN and writes nothing. Add `--queue` when the schedule looks right. After
-      that the laptop can be closed; 54 cron ticks cover 7am to 11pm your time and publish
-      whatever is due. Start with two posts, not ten, and watch them land.
-
-
-
 - [ ] **Run ONE ManyChat flow end to end. Every DM tool now asks a second question, and only a
       live run proves your flows loop.** No ManyChat edit should be needed: the Condition's
       if-not branch already loops back to the question node, which is the same path Royalty
@@ -523,6 +499,17 @@ Things that are never finished. Cadence, then the thing.
   a mis-click is recoverable until 5am, when the dispatcher runs.
 
 ### Daily-ish, now that the Instagram engine is LIVE
+
+- **Queue the day's carousels.** From this machine, because the slides live in Dropbox. Times are
+  your own clock. Dry run first, it writes nothing:
+    node scripts/queue-carousels.mjs --range 31-40 --date 2026-08-27 --start 09:00 --end 12:00
+  Add `--queue` when the schedule reads right, then close the laptop; the cron publishes without
+  you. It refuses a carousel that is already published, a caption over 2,200 characters, and a
+  `caption.md` that has drifted from its source in the repo.
+  **Expect a post to land inside its slot, not on the minute.** Vercel cron timing on this plan is
+  best-effort: the first scheduled post went out 26 minutes after its slot. Anything more than 90
+  minutes late is dropped rather than published stale, which is deliberate.
+  Check what happened: `/admin` has no screen for this yet, so ask me and I will read the queue.
 
 - **Answer high-intent lead alerts.** The engine emails you (once per lead, ever) when a lead
   scores into `sales_priority`. It deliberately stops automating at that point because the lead
