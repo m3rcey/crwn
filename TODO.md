@@ -131,29 +131,14 @@ responsible for. Do not work those.
          you genuinely send the carousel to the top rows because they have BOTH meaningful reach
          AND recent posts about that artist?
 
-- [ ] **Create the Meta app and give me two values, so the Instagram publish proof can run.**
-      This is the ONLY thing standing between the Phase 0 proof and a real published carousel.
-      The code is written, tested and preflight-clean; it refuses to run without these rather
-      than guessing. Nothing to run in SQL. **No Meta App Review and no Business Verification
-      is required for this**, because publishing to an account that holds a role on your own app
-      is Standard Access, which is granted automatically.
-      Steps, once, about 20 minutes:
-        1. developers.facebook.com → Create App → type **Business**.
-        2. Add the **Instagram** product. Under App roles, add your Instagram account as an
-           **Instagram Tester**, then accept the invite from Instagram (Settings → Apps and
-           websites → Tester invites).
-        3. Make sure the Instagram account is a **professional** account (Business or Creator).
-        4. Use the Graph API Explorer to generate a token with **`instagram_basic`** and
-           **`instagram_content_publish`**, then exchange it for a long-lived token (it lasts
-           about 60 days).
-        5. Get the **IG User ID** (Graph API Explorer: `me/accounts` then the linked
-           `instagram_business_account`, or `me?fields=id` on the Instagram login path).
-      Then put these two lines in `.env.local`. Do not paste them to me, and do not commit them:
-        IG_USER_ID=<the numeric id>
-        IG_ACCESS_TOKEN=<the long-lived token>
-      Then tell me and I will run the real publish. Or run it yourself:
-        node scripts/test-instagram-carousel-publish.mjs "/mnt/c/Users/Josh/Dropbox/nano banana output/Carousel Posts/Fan Economy/41-wu-tang-one-copy" --publish
-      Without `--publish` it is a dry run and posts nothing, which is worth doing first.
+- [ ] **Refresh IG_ACCESS_TOKEN before it expires around 2026-10-25.** Instagram long-lived
+      tokens last about 60 days, and yours was issued 2026-08-26. When it dies, publishing stops
+      and the only symptom is an auth error, so this is a diary item rather than something you
+      will notice going wrong. Regenerate in the Meta app dashboard, exchange for a long-lived
+      token, and replace the `IG_ACCESS_TOKEN=` line in `.env.local`. Nothing else changes.
+      Check any time with a dry run, which posts nothing:
+        node scripts/test-instagram-carousel-publish.mjs "/mnt/c/Users/Josh/Dropbox/nano banana output/Carousel Posts/Fan Economy/31-mach-hommy-he-set-the-price"
+      It prints the account and the publishing quota if the token is alive.
 
 - [ ] **ASK GB (and Julius) whether they want the "Day One A&R" badge at all, and under that
       name.** Nothing is broken; this is a naming and product call only CRWN's artists can make.
