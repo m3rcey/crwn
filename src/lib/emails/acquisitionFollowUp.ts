@@ -168,23 +168,36 @@ Which one sounds more like you?`,
   };
 }
 
-/** She walked away mid-conversation, before we had enough to run anything. */
-export function sessionAbandoned(): FollowUpCopy {
+/**
+ * She walked away mid-conversation, before we had enough to run anything.
+ *
+ * Takes the question SHE was actually left on, and the tool she was actually running. It used to
+ * take neither: it hardcoded "Roughly how many monthly listeners do you have?" and a /worth CTA,
+ * so someone who abandoned the OWN or ROYALTY flow got chased with a question their conversation
+ * never asked, pointing at a calculator they never opened.
+ *
+ * It also claimed she stopped "one answer short". Only the caller knows how many were left, and
+ * since 2026-08-26 every tool has at least two, so the count is not the copy's to assert. Rule 1
+ * still holds: this ends on a real question, which is what reopens the 24-hour window.
+ */
+export function sessionAbandoned(opts?: { question?: string | null; toolUrl?: string | null }): FollowUpCopy {
+  const question = opts?.question?.trim() || 'Want me to pick it back up where you left it?';
+  const ctaUrl = opts?.toolUrl?.trim() || 'https://thecrwn.app/worth';
   return {
-    dm: `You stopped one answer short, so I never got to show you the number. It does not go away because you did not look at it, it just keeps being money you are not collecting.
+    dm: `You stopped before I could show you the number. It does not go away because you did not look at it, it just keeps being money you are not collecting.
 
-Roughly how many monthly listeners do you have?`,
+${question}`,
 
-    subject: 'You stopped one answer short',
+    subject: 'You stopped before the number',
     html: shell({
-      heading: 'You stopped one answer short',
+      heading: 'You stopped before the number',
       body: `
-        <p style="${P}">We were one question away from showing you what your fanbase is actually worth, and then you went quiet.</p>
+        <p style="${P}">We were nearly at the point of showing you what your fanbase is actually worth, and then you went quiet.</p>
         <p style="${P}">That number does not go away because you did not look at it. It just keeps being money you are not collecting.</p>
-        <p style="${P}"><strong style="color:#FFF;">Roughly how many monthly listeners do you have?</strong></p>
+        <p style="${P}"><strong style="color:#FFF;">${question}</strong></p>
       `,
       cta: 'Finish it',
-      ctaUrl: 'https://thecrwn.app/worth',
+      ctaUrl,
     }),
   };
 }

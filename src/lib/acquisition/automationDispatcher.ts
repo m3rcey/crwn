@@ -25,7 +25,8 @@ import { ABANDON_AFTER_HOURS } from './stateMachine';
 import * as copy from '../emails/acquisitionFollowUp';
 import { resend, FROM_EMAIL } from '../resend';
 import { buildResultUrl, mintToken, expiresAt, RESULT_TTL_SECONDS } from '../leadResults/resultToken';
-import { LEAD_MAGNETS } from '../leadMagnets/registry';
+import { LEAD_MAGNETS, getLeadMagnet } from '../leadMagnets/registry';
+import { getField } from './fieldRegistry';
 import type { LeadIdentity } from './types';
 
 const BATCH_SIZE = 50;
@@ -383,13 +384,20 @@ async function handleAbandoned(row: OutboxRow, identity: LeadIdentity | null): P
   // Came back on their own between the sweep and now? Leave them alone.
   const { data: session } = await supabaseAdmin
     .from('lead_sessions')
-    .select('status')
+    .select('status, lead_magnet_id, current_question_key')
     .eq('id', row.session_id ?? '')
     .maybeSingle();
 
   if (session?.status === 'open') return { done: true, sent: false };
 
-  const c = copy.sessionAbandoned();
+  // Chase them with THEIR question, on THEIR tool. The copy used to hardcode the Worth
+  // question and the /worth CTA for every flow, so a lead who walked away from OWN or ROYALTY
+  // was asked about monthly listeners and sent to a calculator they had never opened.
+  // `worth` is the one tool outside the registry, so an unknown slug and the worth slug both
+  // land on /worth, which is where a worth lead belongs anyway.
+  const route = getLeadMagnet(session?.lead_magnet_id ?? '')?.publicRoute ?? '/worth';
+  const question = session?.current_question_key ? getField(session.current_question_key)?.question : null;
+  const c = copy.sessionAbandoned({ question, toolUrl: `${APP_URL}${route}` });
   return dispatchToBestChannel(identity, c, `abandoned:${row.session_id}`);
 }
 

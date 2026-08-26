@@ -237,7 +237,9 @@ export async function orchestrate(
 
   // An ASK-IN-OPENER flow collects the first answer inside the opening private reply and sends
   // it WITH session_start (question_key hardcoded in the body, the reply in last_input_text).
-  // That saves the lead a whole interaction: one question tool goes reply -> result directly.
+  // That saves the lead a whole interaction. Since 2026-08-26 no tool finishes on that first
+  // answer (every one ends on the proof question), so the response is `ask_question` again and
+  // the Condition's no-branch carries it. The opener must therefore never promise a count.
   const hasInlineAnswer =
     payload.event_type === 'session_start' && !!payload.question_key && !!payload.answer;
 

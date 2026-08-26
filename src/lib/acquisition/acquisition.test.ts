@@ -7,6 +7,8 @@
 
 import { beforeEach, describe, expect, it } from 'vitest';
 import { createHmac } from 'crypto';
+import { readFileSync } from 'fs';
+import { join } from 'path';
 
 import { validateDecision, MAX_CLAUDE_SCORE_SIGNAL } from './decisionSchema';
 import {
@@ -700,11 +702,12 @@ describe('lead scoring (explainable, deterministic, Claude-bounded)', () => {
     // The first real lead through the live funnel: 100,000 monthly listeners, opened her result,
     // edited the assumptions, and CRWN filed her as "unqualified" so no alert ever fired.
     //
-    // The worth funnel asks ONE question, so it can never learn goal, blocker, or sales history.
-    // It must still recognise a warm lead from reach + behavior alone, WITHOUT promoting her to
-    // sales priority on a single data point.
+    // She answered the audience question and nothing else, which is what a lead who drops out
+    // before the proof question looks like: no goal, no blocker, no sales history. CRWN must
+    // still recognise a warm lead from reach + behavior alone, WITHOUT promoting her to sales
+    // priority on a single data point.
     const s = scoreLead({
-      profile: { monthly_listeners: 100_000 }, // one question. That is all this funnel asks.
+      profile: { monthly_listeners: 100_000 }, // the audience answer, and nothing after it.
       behavior: { ...EMPTY_BEHAVIOR, resultViewed: true, resultRecalculated: true },
     });
 
@@ -1134,5 +1137,54 @@ describe('the DM asks the proof question', () => {
 
   it('still returns null on a genuinely unreadable answer, so the retry hint fires', () => {
     expect(normalizeDeterministic('monetization_status', 'idk man')).toBeNull();
+  });
+});
+
+// Josh, 2026-08-26, the day after the proof question shipped: "some of these manychat flows says
+// to the user it will only ask one question but proceeds to ask the second. (example: OWN flow)".
+//
+// The opener lives in ManyChat, where no test can reach it, so what IS testable is the thing Josh
+// copies openers out of. A guide that hands him "One question and you'll see..." rebuilds the same
+// contradiction on the next flow he clones.
+describe('nothing CRWN writes promises a question count', () => {
+  const guide = readFileSync(join(process.cwd(), 'docs/acquisition/manychat-setup-guide.md'), 'utf-8');
+
+  it('the setup guide never hands Josh opener copy that counts the questions', () => {
+    // Scoped to quoted example copy, so the guide can still DISCUSS counts in prose (it must:
+    // §12 exists to explain that every tool now asks two). The rule box states the rule with
+    // BACKTICKS for exactly this reason.
+    //
+    // Whitespace is collapsed FIRST because markdown wraps: the guide's example openers run
+    // across two source lines, and a line-anchored scan silently passed every one of them. That
+    // hole was found by mutation-testing this assertion, not by reading it.
+    const flat = guide.replace(/\s+/g, ' ');
+    const quoted = flat.match(/"[^"]{10,300}"/g) ?? [];
+    const counting = quoted.filter((q) => /\b(one|two|1|2)\s+(quick\s+)?questions?\b/i.test(q));
+    expect(counting, `opener copy that states a count:\n${counting.join('\n')}`).toEqual([]);
+  });
+
+  it('the guide states the rule, so it is not just absent by luck', () => {
+    expect(guide).toContain('THE OPENER NEVER STATES A QUESTION COUNT');
+  });
+
+  it('the abandonment chase asks HER question, on HER tool', () => {
+    const own = copy.sessionAbandoned({
+      question: 'Have your fans ever paid you directly?',
+      toolUrl: 'https://thecrwn.app/tools/own-your-fans-calculator',
+    });
+    expect(own.dm).toContain('Have your fans ever paid you directly?');
+    expect(own.html).toContain('https://thecrwn.app/tools/own-your-fans-calculator');
+    // The Worth question is no longer baked into copy every tool shares.
+    expect(own.dm).not.toContain('monthly listeners');
+    expect(own.html).not.toContain('monthly listeners');
+  });
+
+  it('and never claims how many answers were left', () => {
+    const c = copy.sessionAbandoned();
+    for (const text of [c.dm, c.subject, c.html]) {
+      expect(text).not.toMatch(/\bone (answer|question)\b/i);
+    }
+    // Rule 1 of this module: every DM still ends on a question, or the 24-hour window closes.
+    expect(c.dm.trim().endsWith('?')).toBe(true);
   });
 });

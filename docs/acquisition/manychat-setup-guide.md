@@ -460,8 +460,10 @@ them in order; do not publish until the smoke test passes.
 6. **Opening message = a BRIDGE, not a question and not a re-pitch.** The lead already said yes
    by commenting (the Reel made the pitch), so never re-ask ("Want to see...?" is a double-ask).
    The node itself cannot be deleted: Meta permits one private reply to a comment and the lead
-   must TAP it before anything else may send. So the copy assumes the yes and promises speed:
-   "30 seconds, two questions, and you'll see what's sitting in your vault." [Show me my number].
+   must TAP it before anything else may send. So the copy assumes the yes and promises speed,
+   but NEVER a question count (see the box in §10; this line used to name a count of two, and the
+   Vault has asked three since 2026-08-26):
+   "30 seconds, and you'll see what's sitting in your vault." [Show me my number].
    And never hand-type a CRWN question here; the real questions arrive via `crwn_message` one
    node later, so a typed one shows doubled.
 7. **Actions #3 body:** change BOTH `lead_magnet_id` (the registry slug) and `keyword`. The
@@ -486,12 +488,20 @@ them in order; do not publish until the smoke test passes.
 ### Ask-in-opener (optional): one less tap
 
 The opener can ASK the first question directly instead of showing a button, so the lead's very
-first reply is already data. A one-question tool then goes comment -> reply -> result. The typed
-reply satisfies Meta's interaction requirement the same way a tap does.
+first reply is already data. The typed reply satisfies Meta's interaction requirement the same way
+a tap does.
+
+> **THE OPENER NEVER STATES A QUESTION COUNT.** Not `one question`, not `two quick questions`,
+> not `answer this and you're done`. The count is CRWN's to change and ManyChat's to render, and
+> the opener is the one piece of copy the server cannot reach. Every flow's opener claimed a
+> single question until 2026-08-26, when the proof question made all of them two, and every one
+> of those flows started contradicting itself a message later. Promise the OUTCOME, never the tap
+> count. (Backticks above, not quotes: a test scans this guide's quoted example copy for counts,
+> and the rule stating the rule must not trip it.)
 
 - **Node 1** (still `As private reply`): a **Data Collection** block whose question is the bridge
-  plus the first question, e.g. "One question and you'll see how much demand you're sitting on:
-  roughly how many followers do you have across your socials?" Reply type **Text**, never Number
+  plus the first question, e.g. "Let's see how much demand you're sitting on. Roughly how many
+  followers do you have across your socials?" Reply type **Text**, never Number
   (Trap: "50k" and "about 50,000" fail a Number field; CRWN's parser handles them). NOTE: this
   duplicates the question text in ManyChat; if the question changes in `fieldRegistry.ts`,
   update the opener by hand.
@@ -519,8 +529,9 @@ them into a single row forever.
 
 **The backend needs no change.** Verified 2026-08-25:
 
-- `opportunity-calculator` is a live adapter (`toolAdapters.ts`), one required field
-  (`social_followers`), so it is a ONE question DM.
+- `opportunity-calculator` is a live adapter (`toolAdapters.ts`). It had one required field
+  (`social_followers`) when this section was written; since 2026-08-26 it has two
+  (`social_followers`, then `monetization_status`), like every other tool. See §12.
 - `free` and `plan` are already in that tool's `dmKeywords` (`registry.ts`), so the orchestrator's
   keyword pivot already knows them and no other tool claims either word.
 - `acquisition_engine` is **enabled** in production. A correct Test Request returns `200`, not the
@@ -559,9 +570,10 @@ them into a single row forever.
    Confirm the exact normalized `utm_campaign` / `utm_content` values in the Campaign link builder
    (`/admin` → Lead Magnets) rather than inventing them; that builder is the normalizer.
 4. **Node 4 (`answer`) needs no edit.** Session routing owns the tool.
-5. **Node 1 copy** is a bridge, never a re-ask. The lead already said yes by commenting. Something
-   like: "One question and you'll see the whole picture: what you're leaving on the table every
-   month." Do not hand-type a CRWN question here; the real question arrives as `crwn_message`.
+5. **Node 1 copy** is a bridge, never a re-ask, and it never states a question count (see the
+   box in §10). The lead already said yes by commenting. Something like: "Here comes the whole
+   picture: what you're leaving on the table every month." Do not hand-type a CRWN question here;
+   the real question arrives as `crwn_message`.
 6. **Verify the five response-mapping rows survived** the duplicate (action / message /
    question_key / result_url / session_id).
 
@@ -584,9 +596,15 @@ Then DM the keyword and run it end to end. The result topline is the unified mod
 ## 12. EVERY tool is now a two-question DM (2026-08-26)
 
 Every flow asks its own question, then one more: **"have your fans ever paid you directly?"**
-(`monetization_status`, always LAST in `requiredFields`). Nothing in ManyChat changes. The
+(`monetization_status`, always LAST in `requiredFields`). No ManyChat WIRING changes. The
 Condition's if-not branch already loops back to the question node, which is the same path a
 two-question tool has always taken (§10).
+
+> **The OPENER COPY does change, and it is the one thing the server cannot fix.** Every live
+> flow's node 1 promised a single question before the payoff. They now ask two, so each one
+> contradicts itself one message later. Josh found this on the OWN flow the day after the change
+> shipped. Rewrite every opener to promise the OUTCOME and never a tap count, so this can never
+> break again when the count moves. The per-flow list and replacement copy are in `TODO.md`.
 
 **Why it was added.** `leadScoring` weights direct monetization history at 40 of 100 and caps the
 whole fit at 60 while it is unknown, so a DM lead who only ever gave a follower count could not
