@@ -361,6 +361,16 @@ primitive, never 19 copies. `src/lib/leadMagnets/conversionContract.test.ts` pin
   `builderRef`, so an artist who wants to build skips the card entirely. Asserted by
   `pageComposition.test.ts` and `prospectNurture/capture.test.ts`; the signup/booking half of the
   rule above is unchanged and still asserted.
+- **Tier-modeling calculators show the ladder under the result, and the call hand-raiser is
+  ONE allowlist** (founder decision 2026-08-25). Page order on those tools: result, the shared
+  `LadderSection` (rungs from `RECOMMENDED_LADDER`, overlaid with the calculator's own modeled
+  `conversionPayload.ladder` prices and projected fans), the email ask, the builder, then the
+  `CallRequestCard` last. The ladder's trigger is the modeled payload, never a slug list; the
+  call card renders only for `CALL_HAND_RAISER_TOOLS` (`src/lib/acquisition/callRequest.ts`),
+  the SAME set the call-request route enforces, so a surface cannot offer a call the server
+  refuses. The tokenized ManyChat result page renders the same ladder and call sections from the
+  STORED result, so a DM arrival reads the same page a direct visitor reads. Ordering is pinned
+  and mutation-tested in `pageComposition.test.ts`.
 - **A re-run after a correction is NOT a new completion.** It emits only
   `opportunity_estimate_recalculated`; the wizard remounts with `trackStart={false}`. Never let a
   correction add a second `calculator_started` / `calculator_completed`, or every ratio measured
