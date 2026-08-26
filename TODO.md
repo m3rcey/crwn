@@ -67,31 +67,27 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
-- [ ] **Scheduled Instagram posting: two steps, then it runs itself. Nothing schedules until you
-      do both.** The code is written, tested and pushed. It is inert until these land, and it fails
-      quietly rather than loudly, which is why this item exists.
-      **Step 1, run the migration:**
-      [`supabase/schema-phase3-social-publish-queue.sql`](supabase/schema-phase3-social-publish-queue.sql)
-      One table, `social_posts`. Service-role only (RLS on, zero policies), no money column, no
-      credential column. It prints a grid at the end; if you see no grid it did not commit.
-      Verify with: npm run verify:migrations (look for "social publish queue")
-      **Step 2, add three environment variables in Vercel** (Project → Settings → Environment
-      Variables, Production). These are the SAME values already in your `.env.local`, but
-      `.env.local` does nothing in production and I cannot read or set Vercel variables:
-        IG_USER_ID
-        IG_ACCESS_TOKEN
-        GRAPH_HOST         (value: graph.instagram.com)
-      Mark `IG_ACCESS_TOKEN` as Sensitive. Then redeploy, because new variables need one.
-      **Why this is a real trap:** if the migration is missing, the queue command has nowhere to
-      write. If the Vercel variables are missing, the cron ticks run, find the credentials absent,
-      and deliberately leave your queue untouched rather than discarding it. In both cases the
-      symptom is "my posts did not go out", with nothing in the app saying why.
-      **Then, to schedule a batch (this part is yours to run, from this machine, because the
-      slides live in Dropbox):**
+- [ ] **Prove the cron tick can see your Instagram credentials in Vercel. One curl.** The migration
+      is applied and live-probed, the two IG variables are set, and the route is deployed (it
+      answers 401 to a wrong secret, which is the auth guard working). The one thing nobody has
+      confirmed is whether the deployment can actually READ those variables, and the symptom of
+      getting that wrong is posts silently not going out.
+      Copy `CRON_SECRET` from Vercel (Settings → Environment Variables), then run:
+        curl -H "Authorization: Bearer PASTE_CRON_SECRET" https://thecrwn.app/api/cron/publish-tick
+      Reading the answer:
+        {"ok":true,"due":0,...}                      credentials are readable. Done, delete this item.
+        {"ok":false,"reason":"instagram_credentials_missing"}   the variables did not land, or the
+                                                     deployment predates them. Redeploy and re-run.
+      This is safe to run any time the queue is empty: with nothing due it cannot publish anything.
+      **You do NOT need to set GRAPH_HOST.** It is not a value from Meta, just a literal string
+      naming which host to call, and the server already defaults to `graph.instagram.com`. Set it
+      only if the account ever moves to the Facebook Login path.
+      **Then, to schedule a batch (yours to run, from this machine, because the slides live in
+      Dropbox):**
         node scripts/queue-carousels.mjs --range 31-40 --date 2026-08-27 --start 09:00 --end 12:00
       That is a DRY RUN and writes nothing. Add `--queue` when the schedule looks right. After
       that the laptop can be closed; 54 cron ticks cover 7am to 11pm your time and publish
-      whatever is due.
+      whatever is due. Start with two posts, not ten, and watch them land.
 
 
 
