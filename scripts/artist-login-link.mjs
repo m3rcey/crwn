@@ -100,29 +100,38 @@ if (!minted.ok) {
   console.error('Send that message to Claude; it names the reason.');
   process.exit(1);
 }
-// Prefer the DIRECT exchange. Supabase's own action_link relies on a redirect whose
-// session arrives in the URL fragment, which depends on the redirect allowlist, the
-// browser preserving the fragment, and a PKCE verifier this browser never had. The
-// token_hash form skips all of that: /verify posts it straight to Supabase and gets a
-// session back. The action_link is printed underneath only as a fallback.
-const directLink = minted.hash
-  ? `https://thecrwn.app/verify?token_hash=${encodeURIComponent(minted.hash)}&type=magiclink`
-  : null;
+// ONE LINK, never two.
+//
+// Supabase's own action_link relies on a redirect whose session arrives in the URL
+// fragment, which depends on the redirect allowlist, the browser preserving the fragment,
+// and a PKCE verifier a browser that did not request the link never had. It spent four
+// rounds dumping the founder on the logged-out marketing homepage. The token_hash form
+// skips all of it: /verify posts the token straight to Supabase and gets a session back.
+//
+// This script used to print the working link AND that one underneath as a "fallback".
+// The fallback was the last thing on screen, so it was the easy one to copy, and it sent
+// the founder back to the homepage again. A second link whose whole job is to fail
+// differently is not a fallback, it is a trap. If the token is missing we say so and exit
+// non-zero rather than quietly handing over the link that does not work.
+if (!minted.hash) {
+  console.error('Supabase returned no hashed_token, so no working login link can be built.');
+  console.error('Raw response follows; send it to Claude.');
+  console.error(JSON.stringify(minted.json, null, 2));
+  process.exit(1);
+}
 
+const link = `https://thecrwn.app/verify?token_hash=${encodeURIComponent(minted.hash)}&type=magiclink`;
+
+console.log('');
 console.log(`One-time login link for ${slug} (${user.email}):`);
 console.log('');
-console.log(directLink || minted.action);
+console.log(link);
 console.log('');
-console.log('Open it in a NEW INCOGNITO window (a normal window replaces YOUR session).');
-console.log('You should land on a page saying "Email verified". Press Continue, then go');
-console.log('to thecrwn.app/studio/lab.');
+console.log('Copy the line above. Open it in a NEW INCOGNITO window: a normal window');
+console.log('replaces YOUR OWN session.');
 console.log('');
-console.log('If it fails, the page now prints the REASON on screen. Send that line.');
-console.log('Each link works once, so re-run this command for a fresh one.');
-
-if (directLink) {
-  console.log('');
-  console.log('Fallback link (only if the one above does not work):');
-  console.log(minted.action);
-}
-console.log('The artist keeps their password and their own sessions; nothing was changed.');
+console.log('You should land on a page saying "Email verified". Press Continue, then go to');
+console.log('thecrwn.app/studio/lab. If it fails, that page prints the REASON on screen.');
+console.log('');
+console.log('Works once, expires in about an hour, re-run for a fresh one. The artist keeps');
+console.log('their password and their own sessions; nothing about their account changed.');
