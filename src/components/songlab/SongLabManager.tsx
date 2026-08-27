@@ -472,7 +472,7 @@ function ProjectsPanel({ projects, decisions, tiers, busy, call, remove, display
 
       {projects.map((project) => (
         <div key={project.id} className="rounded-2xl bg-crwn-surface p-4">
-          <div className="flex items-center justify-between gap-3 mb-2">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-2">
             <input
               defaultValue={project.title}
               aria-label="Project title"
@@ -482,7 +482,7 @@ function ProjectsPanel({ projects, decisions, tiers, busy, call, remove, display
               }}
               className="flex-1 min-w-0 bg-transparent text-lg font-bold text-crwn-text outline-none focus:bg-crwn-surface-solid rounded px-1"
             />
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex items-center gap-2 sm:shrink-0">
               <OptionSelect
                 className="w-36"
                 options={[
@@ -595,7 +595,10 @@ function DecisionRow({ decision: d, busy, call, remove, timeZone }: {
 
   return (
     <div className="border-t border-white/5 py-3">
-      <div className="flex items-center justify-between gap-2">
+      {/* Stacks on a phone. Side by side, the control cluster is shrink-0 and wraps to
+          several rows, so the question and option list get squeezed into a two-character
+          column and the row becomes unreadable. GB runs every decision from his phone. */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <div className="min-w-0">
           <p className="text-sm font-semibold text-crwn-text">
             {d.stage_label}
@@ -610,7 +613,7 @@ function DecisionRow({ decision: d, busy, call, remove, timeZone }: {
           </p>
           <p className="text-xs text-crwn-gold/80 mt-1">{scheduleSentence(d, timeZone)}</p>
         </div>
-        <div className="flex gap-2 shrink-0 flex-wrap justify-end">
+        <div className="flex gap-2 flex-wrap sm:shrink-0 sm:justify-end">
           {d.status === 'draft' ? (
             <button disabled={busy} onClick={() => call('/api/song-lab/decisions', { decisionId: d.id, action: 'open' }, 'PATCH')}
               className="text-xs px-3 py-1.5 rounded-full bg-crwn-gold text-crwn-bg font-semibold disabled:opacity-50">Open vote</button>
@@ -882,15 +885,15 @@ function OffersPanel({ offers, projects, decisions, busy, call, remove, copyLink
 
       {offers.map((o) => (
         <div key={o.id} className="rounded-2xl bg-crwn-surface p-4">
-          <div className="flex items-center justify-between gap-2">
-            <div>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div className="min-w-0">
               <p className="font-semibold text-crwn-text">{o.name}
                 {!o.is_active ? <span className="ml-2 text-xs text-crwn-text-secondary">(off)</span> : null}
               </p>
               <p className="text-xs text-crwn-text-secondary mt-0.5">{o.headline}</p>
               <p className="text-xs text-crwn-text-secondary/70 mt-0.5">/{slug}/join/{o.slug} · {o.view_count} views</p>
             </div>
-            <div className="flex gap-2 shrink-0">
+            <div className="flex gap-2 flex-wrap sm:shrink-0">
               <button onClick={() => copyLink(o.slug, o.id)}
                 className="p-2 rounded-full bg-crwn-surface-solid ring-1 ring-white/10 text-crwn-text"
                 aria-label="Copy link">
