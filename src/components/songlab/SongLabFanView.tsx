@@ -42,7 +42,7 @@ interface LabPayload {
   decisions: LabDecision[];
   participantCount: number;
   freeTierId: string | null;
-  viewer: { signedIn: boolean; isMember: boolean; participatedCount: number };
+  viewer: { signedIn: boolean; isMember: boolean; isOwner: boolean; participatedCount: number };
 }
 
 export function SongLabFanView({ artistSlug, artistName }: { artistSlug: string; artistName: string }) {
@@ -269,7 +269,20 @@ export function SongLabFanView({ artistSlug, artistName }: { artistSlug: string;
                     </div>
                   ) : null}
 
-                  {d.eligible || !viewer.signedIn ? (
+                  {viewer.isOwner ? (
+                    /* The artist's own poll. The server refuses their vote either way
+                       (checkVote), so offering the buttons would only mean a rejection
+                       after the tap. Their say is bigger than a vote and comes later:
+                       they pick the winner outright when it closes. */
+                    <div className="rounded-xl bg-crwn-surface-solid p-4 text-center">
+                      <p className="text-sm text-crwn-text mb-1">
+                        This one is your fans&apos; call.
+                      </p>
+                      <p className="text-xs text-crwn-text-secondary">
+                        You pick the winner when it closes, whatever the count says.
+                      </p>
+                    </div>
+                  ) : d.eligible || !viewer.signedIn ? (
                     <div className="space-y-2">
                       {d.options.map((o) => {
                         const selected = d.myVote === o.id;

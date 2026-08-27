@@ -192,11 +192,21 @@ export async function POST(req: NextRequest) {
           .eq('artist_id', artist.artistId)
           .eq('status', 'active')
           .maybeSingle();
+        // Same owner bar as the vote route: an artist claiming their own magnet still
+        // joins and still sees the page, they simply do not add a vote to their own tally.
+        const { data: ownerRow } = await supabaseAdmin
+          .from('artist_profiles')
+          .select('id')
+          .eq('id', artist.artistId)
+          .eq('user_id', user.id)
+          .maybeSingle();
+
         const verdict = checkVote({
           decision: decision as unknown as SongLabDecisionCore,
           now: new Date(),
           optionId: carriedOptionId,
           fanTierId: sub?.tier_id ?? null,
+          isOwner: !!ownerRow,
         });
         if (verdict.ok) {
           voted = await recordLabVote(

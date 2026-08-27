@@ -22,6 +22,7 @@ const DENIAL_MESSAGES: Record<string, { message: string; status: number }> = {
   not_open: { message: 'This vote is not open right now', status: 409 },
   invalid_option: { message: 'That option does not exist', status: 400 },
   not_eligible: { message: 'This vote is for members. Join free to take part.', status: 403 },
+  owner: { message: 'This is your own poll. Your fans decide this one, and you pick the winner when it closes.', status: 403 },
 };
 
 export async function POST(req: NextRequest) {
@@ -60,11 +61,22 @@ export async function POST(req: NextRequest) {
       .eq('status', 'active')
       .maybeSingle();
 
+    // Does this caller OWN the artist whose poll this is? Session-derived, never from the
+    // body. An artist voting in their own poll would inflate the very tally they weigh
+    // when picking a winner.
+    const { data: ownerRow } = await supabaseAdmin
+      .from('artist_profiles')
+      .select('id')
+      .eq('id', decision.artist_id)
+      .eq('user_id', user.id)
+      .maybeSingle();
+
     const verdict = checkVote({
       decision: decision as unknown as SongLabDecisionCore,
       now: new Date(),
       optionId,
       fanTierId: sub?.tier_id ?? null,
+      isOwner: !!ownerRow,
     });
     if (!verdict.ok) {
       const d = DENIAL_MESSAGES[verdict.reason];

@@ -105,6 +105,30 @@ describe('checkVote', () => {
   });
 });
 
+describe('checkVote — the artist never votes in their own poll', () => {
+  it('refuses the owner even when everything else is perfect', () => {
+    expect(checkVote({ decision: decision({ is_free: true }), now: NOW, optionId: 'a', fanTierId: null, isOwner: true }))
+      .toEqual({ ok: false, reason: 'owner' });
+  });
+
+  it('refuses the owner even when they hold an eligible tier', () => {
+    expect(checkVote({ decision: decision(), now: NOW, optionId: 'a', fanTierId: 'tier-free', isOwner: true }))
+      .toEqual({ ok: false, reason: 'owner' });
+  });
+
+  it('checks ownership FIRST, so the reason is never a misleading not_open or invalid_option', () => {
+    expect(checkVote({ decision: decision({ status: 'closed' }), now: NOW, optionId: 'a', fanTierId: null, isOwner: true }))
+      .toEqual({ ok: false, reason: 'owner' });
+    expect(checkVote({ decision: decision(), now: NOW, optionId: 'nope', fanTierId: 'tier-free', isOwner: true }))
+      .toEqual({ ok: false, reason: 'owner' });
+  });
+
+  it('leaves everyone else untouched, including when the flag is absent or false', () => {
+    expect(checkVote({ decision: decision(), now: NOW, optionId: 'a', fanTierId: 'tier-free', isOwner: false })).toEqual({ ok: true });
+    expect(checkVote({ decision: decision(), now: NOW, optionId: 'a', fanTierId: 'tier-free' })).toEqual({ ok: true });
+  });
+});
+
 describe('tally', () => {
   it('counts votes per option and names the leader', () => {
     const t = tally(decision().options, [

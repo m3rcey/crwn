@@ -53,6 +53,7 @@ export async function GET(req: NextRequest) {
   let myVotes: Record<string, string> = {};
   let myTierId: string | null = null;
   let signedIn = false;
+  let isOwner = false;
   try {
     const supabase = await createServerSupabaseClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -69,6 +70,9 @@ export async function GET(req: NextRequest) {
         .eq('status', 'active')
         .maybeSingle();
       myTierId = sub?.tier_id ?? null;
+      // Is this the artist looking at their own Lab? Used only to stop offering them a
+      // vote button the server would refuse; the bar itself lives in checkVote.
+      isOwner = user.id === artist.userId;
     }
   } catch {
     // anonymous view is fine
@@ -121,6 +125,6 @@ export async function GET(req: NextRequest) {
     decisions: shaped,
     participantCount: participantIds.size,
     freeTierId: freeTier?.id ?? null,
-    viewer: { signedIn, isMember: !!myTierId, participatedCount: Object.keys(myVotes).length },
+    viewer: { signedIn, isMember: !!myTierId, isOwner, participatedCount: Object.keys(myVotes).length },
   });
 }

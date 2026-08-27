@@ -64,7 +64,8 @@ export function effectiveStatus(d: SongLabDecisionCore, now: Date): EffectiveSta
 export type VoteDenial =
   | 'not_open'
   | 'invalid_option'
-  | 'not_eligible';
+  | 'not_eligible'
+  | 'owner';
 
 export interface VoteCheckInput {
   decision: SongLabDecisionCore;
@@ -72,6 +73,11 @@ export interface VoteCheckInput {
   optionId: string;
   /** The fan's active tier for THIS artist, resolved server-side. Null = no membership. */
   fanTierId: string | null;
+  /**
+   * Does the caller own the artist this decision belongs to? Resolved server-side from
+   * the session, never from the request body.
+   */
+  isOwner?: boolean;
 }
 
 /**
@@ -79,7 +85,15 @@ export interface VoteCheckInput {
  * the subscriptions table server-side; this function never sees a client claim.
  */
 export function checkVote(input: VoteCheckInput): { ok: true } | { ok: false; reason: VoteDenial } {
-  const { decision, now, optionId, fanTierId } = input;
+  const { decision, now, optionId, fanTierId, isOwner } = input;
+  // The artist never votes in their own poll. The tally is the evidence they weigh when
+  // they pick a winner, so a vote of their own is the author marking their own paper: it
+  // inflates the count, moves the percentages, and does it invisibly once the result is
+  // read back weeks later. This is checked FIRST because it holds whatever the window,
+  // the option or the tier says, and it is enforced on the server rather than by hiding
+  // a button (the Executive Producer polls only ever hid the button, which is not a
+  // control). Their say is total and comes later: they choose the winning option outright.
+  if (isOwner) return { ok: false, reason: 'owner' };
   if (effectiveStatus(decision, now) !== 'open') return { ok: false, reason: 'not_open' };
   if (!decision.options.some((o) => o.id === optionId)) return { ok: false, reason: 'invalid_option' };
   if (decision.is_free) return { ok: true };

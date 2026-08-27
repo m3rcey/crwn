@@ -140,6 +140,19 @@ export async function POST(req: NextRequest) {
     const artist = await songLabArtistBySlug(supabaseAdmin, artistSlug);
     if (!artist) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
+    // The artist does not vote in their own poll, including through the logged-out door.
+    // This closes the case CRWN can actually recognise: their OWN address. It cannot stop
+    // an artist typing a different email, and it does not pretend to. What it does stop is
+    // the realistic one, an artist testing their own link and quietly adding a vote to the
+    // tally they will later read as their fans' answer.
+    const { data: ownerAuth } = await supabaseAdmin.auth.admin.getUserById(artist.userId);
+    if (ownerAuth?.user?.email && normalizeEmail(ownerAuth.user.email) === email) {
+      return NextResponse.json({
+        error: 'This is your own poll. Your fans decide this one, and you pick the winner when it closes.',
+        reason: 'owner',
+      }, { status: 403 });
+    }
+
     const { data: offer } = await supabaseAdmin
       .from('song_lab_offers')
       .select('*')
