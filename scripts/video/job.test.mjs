@@ -7,7 +7,7 @@ import { fixtureStoryboard } from "./lib/fixtures.mjs";
 import { generateSceneImage } from "./lib/imageGen.mjs";
 import { forbiddenForScene, buildScenePrompt } from "./lib/imageGen.mjs";
 import { newLedger } from "./lib/ledger.mjs";
-import { generateStoryboard } from "./lib/storyboardGen.mjs";
+import { generateStoryboard, normalizeStoryboard } from "./lib/storyboardGen.mjs";
 import { fixtureSourceNumbers } from "./lib/fixtures.mjs";
 
 describe("safeSlug", () => {
@@ -89,6 +89,24 @@ describe("withheld protection at generation time", () => {
     expect(p).toContain(sb.scenes[0].screenText[0]);
     expect(p).toContain("9:16 vertical frame edge to edge");
     expect(p).toContain("Never draw the word CRWN");
+  });
+});
+
+describe("normalizeStoryboard", () => {
+  it("coerces 0-100 and 0-1000 scale regions and array regions to normalized rects", () => {
+    const sb = fixtureStoryboard();
+    sb.scenes[0].elements[0].region = { x: 5, y: 4, w: 90, h: 18 };
+    sb.scenes[0].elements[1].region = [150, 300, 600, 500];
+    normalizeStoryboard(sb);
+    expect(sb.scenes[0].elements[0].region.w).toBeCloseTo(0.9);
+    expect(sb.scenes[0].elements[1].region.x).toBeCloseTo(0.15);
+  });
+
+  it("appends screen text the imagePrompt forgot, so the page actually letters it", () => {
+    const sb = fixtureStoryboard();
+    sb.scenes[3].screenText = ["A LINE THE PROMPT FORGOT"];
+    normalizeStoryboard(sb);
+    expect(sb.scenes[3].imagePrompt).toContain('"A LINE THE PROMPT FORGOT"');
   });
 });
 

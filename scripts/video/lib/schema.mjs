@@ -179,9 +179,13 @@ export function validateStoryboard(sb, opts = {}) {
     }
 
     // No number fabrication: every number on screen must exist in the source.
+    // Values <= 12 are exempt: prose spells them out ("eight months", "three
+    // tiers"), so the digit token legitimately has no digit twin in the source.
     if (sourceNumbers) {
       for (const t of scene.screenText || []) {
         for (const n of screenNumberTokens(t)) {
+          const value = parseFloat(n);
+          if (Number.isFinite(value) && value <= 12) continue;
           if (!sourceNumbers.has(n))
             errors.push(`scene ${i}: number "${n}" in screenText not found in source script/META`);
         }

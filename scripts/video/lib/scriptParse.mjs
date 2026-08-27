@@ -114,11 +114,27 @@ export function parseScriptMarkdown(content) {
 export function sourceNumberTokens(parsed) {
   const source = `${parsed.title}\n${parsed.scriptText}\n${Object.values(parsed.meta).join("\n")}`;
   const tokens = new Set();
-  for (const m of source.matchAll(/\$?[\d][\d,.]*[KMB]?\b/gi)) {
-    const raw = m[0].replace(/[.,]$/, "");
-    tokens.add(normalizeNumberToken(raw));
+  for (const m of source.matchAll(NUMBER_PHRASE_RE)) {
+    tokens.add(normalizePhrase(m));
+  }
+  // "a penny (a month)" is a number the script states in words.
+  if (/\bpenn(y|ies)\b/i.test(source)) {
+    tokens.add("0.01");
+    tokens.add("1"); // "1 CENT" phrasings
   }
   return tokens;
+}
+
+// A digits token optionally followed by a magnitude word: "$2 million", "15,000",
+// "2M", "400". Both source and screen text run through the same normalization so
+// "over $2 million" in prose matches "OVER $2,000,000" on the page.
+const NUMBER_PHRASE_RE = /\$?([\d][\d,.]*)\s*(million|billion|thousand|[KMB])?\b/gi;
+
+function normalizePhrase(match) {
+  const digits = match[1].replace(/[.,]$/, "");
+  const word = (match[2] || "").toUpperCase();
+  const suffix = { MILLION: "M", BILLION: "B", THOUSAND: "K", K: "K", M: "M", B: "B" }[word] || "";
+  return normalizeNumberToken(digits + suffix);
 }
 
 /** "$2,000,000" / "2000000" / "2,000,000" / "$2M" all normalize to comparable forms. */
@@ -138,8 +154,8 @@ export function normalizeNumberToken(raw) {
 /** Numbers used inside screen text strings, normalized the same way. */
 export function screenNumberTokens(text) {
   const tokens = [];
-  for (const m of text.matchAll(/\$?[\d][\d,.]*[KMB]?\b/gi)) {
-    tokens.push(normalizeNumberToken(m[0].replace(/[.,]$/, "")));
+  for (const m of text.matchAll(NUMBER_PHRASE_RE)) {
+    tokens.push(normalizePhrase(m));
   }
   return tokens;
 }

@@ -135,6 +135,36 @@ export function buildStoryboardPrompt(parsed, opts = {}) {
   return parts.join("\n");
 }
 
+/** Deterministic repairs for common model formatting drift, applied before
+ * validation so the repair loop only argues about real editorial problems:
+ *  - regions emitted as [x,y,w,h] arrays or on a 0-100 / 0-1000 scale;
+ *  - screenText strings the imagePrompt forgot to quote (appended verbatim so the
+ *    page actually letters them). */
+export function normalizeStoryboard(sb) {
+  for (const scene of sb.scenes || []) {
+    for (const el of scene.elements || []) {
+      let r = el.region;
+      if (Array.isArray(r) && r.length === 4) r = { x: r[0], y: r[1], w: r[2], h: r[3] };
+      if (r && typeof r === "object") {
+        const vals = [r.x, r.y, r.w, r.h];
+        if (vals.every((v) => typeof v === "number" && v >= 0)) {
+          const max = Math.max(...vals);
+          const scale = max > 100 ? 1000 : max > 1 ? 100 : 1;
+          el.region = { x: r.x / scale, y: r.y / scale, w: r.w / scale, h: r.h / scale };
+        }
+      }
+    }
+    if (typeof scene.imagePrompt === "string") {
+      for (const t of scene.screenText || []) {
+        if (t && !scene.imagePrompt.includes(t)) {
+          scene.imagePrompt += ` Hand-letter exactly once: "${t}".`;
+        }
+      }
+    }
+  }
+  return sb;
+}
+
 function extractJson(text) {
   const start = text.indexOf("{");
   const end = text.lastIndexOf("}");
@@ -180,6 +210,7 @@ export async function generateStoryboard(parsed, client, opts) {
     // Scenes must be ordered and 0-indexed regardless of what the model returned.
     sb.scenes = (sb.scenes || []).sort((a, b) => a.index - b.index);
     sb.scenes.forEach((s, i) => (s.index = i));
+    normalizeStoryboard(sb);
 
     const result = validateStoryboard(sb, { sourceNumbers, expectReveal });
     lastResult = { storyboard: sb, validation: result };

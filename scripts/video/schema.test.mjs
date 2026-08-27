@@ -44,6 +44,14 @@ describe("validateStoryboard", () => {
     expect(r.errors.join()).toContain("17500");
   });
 
+  it("small counts (<= 12) are exempt from the fabrication check (prose spells them out)", () => {
+    const sb = fixtureStoryboard();
+    sb.scenes[2].screenText = ["8 MONTHS", "15,000 BOUGHT"];
+    sb.scenes[2].imagePrompt += ' "8 MONTHS" "15,000 BOUGHT"';
+    const r = validateStoryboard(sb, opts());
+    expect(r.errors.filter((e) => e.includes('"8"'))).toEqual([]);
+  });
+
   it("fails when the CTA scene drops the keyword", () => {
     const sb = fixtureStoryboard();
     sb.scenes[7].screenText = ["GO GET THE TOOL"];

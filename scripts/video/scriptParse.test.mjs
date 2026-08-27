@@ -86,6 +86,17 @@ describe("number tokens", () => {
   it("reads screen text numbers with the same normalization", () => {
     expect(screenNumberTokens("OVER $2,000,000")).toContain("2000000");
   });
+
+  it("magnitude words normalize the same on both sides ('$2 million' == '$2,000,000')", () => {
+    expect(screenNumberTokens("OVER $2 MILLION")).toContain("2000000");
+    const p = parseScriptMarkdown(MINI.replace("$120,000", "over $2 million total"));
+    expect(sourceNumberTokens(p).has("2000000")).toBe(true);
+  });
+
+  it("'a penny a month' in prose licenses 0.01 on screen", () => {
+    const p = parseScriptMarkdown(MINI.replace("400 copies", "a penny a month per listener and 400 copies"));
+    expect(sourceNumberTokens(p).has("0.01")).toBe(true);
+  });
 });
 
 describe("real script corpus", () => {
