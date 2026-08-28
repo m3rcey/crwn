@@ -127,8 +127,8 @@ body{
 }
 
 /* ---------- footer ---------- */
-.foot{flex:0 0 auto;display:flex;align-items:flex-end;justify-content:center;gap:14px;min-height:52px;padding-top:10px}
-.foot .hand{font-size:44px}
+.foot{flex:0 0 auto;display:flex;align-items:flex-end;justify-content:center;gap:14px;min-height:52px;padding:10px 0 6px}
+.foot .hand{font-size:44px;line-height:1.24;padding-bottom:2px}
 .foot .disclaim{font-size:20px;color:${PALETTE.grayMute};font-weight:500;font-style:italic}
 .stack{display:flex;flex-direction:column;align-items:center;gap:8px}
 

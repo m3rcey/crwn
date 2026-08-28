@@ -117,6 +117,7 @@ export function iconTiles(items, { size = 46 } = {}) {
       (it) => `<div class="tile">
       <div class="tile-ic">${icon(it.icon, size)}</div>
       <div class="tile-lb">${esc(it.label)}</div>
+      ${it.example ? `<div class="tile-ex">${esc(it.example)}</div>` : ""}
     </div>`,
     )
     .join("")}</div>`;
@@ -211,7 +212,7 @@ export function mathRows(rows) {
 }
 
 /** Slide 9: the tier ladder, with the audience thinning as the rungs rise. */
-export function ladder(rungs) {
+export function ladder(rungs, { labelWidth = 150 } = {}) {
   return `<div class="ladder">${rungs
     .map((r, i) => {
       const count = r.people;
@@ -220,7 +221,7 @@ export function ladder(rungs) {
       );
       return `<div class="rung" style="--i:${i}">
       <div class="rung-name">${esc(r.name)}</div>
-      <div class="rung-price">${esc(r.price)}</div>
+      <div class="rung-price" style="width:${labelWidth}px">${esc(r.price)}</div>
       <div class="rung-people">${dots}</div>
     </div>`;
     })
@@ -314,6 +315,157 @@ export function figurePanel({ src, height = 420, radius = 26 }) {
   </div>`;
 }
 
+/** A row or grid of labelled chips. The workhorse for "here are the things" slides. */
+export function chipRow(items, { gold = false, cols = 0 } = {}) {
+  const style = cols ? `style="display:grid;grid-template-columns:repeat(${cols},1fr)"` : "";
+  return `<div class="chips ${gold ? "gold" : ""}" ${style}>${items
+    .map((it) => {
+      const o = typeof it === "string" ? { label: it } : it;
+      return `<div class="chip">${o.icon ? icon(o.icon, 28) : ""}<span>${esc(o.label)}</span></div>`;
+    })
+    .join("")}</div>`;
+}
+
+/** A quoted opinion. Only ever used to contrast an opinion against behaviour. */
+export function speechBubble(text) {
+  return `<div class="bubble">${esc(text)}</div>`;
+}
+
+/**
+ * Slide 2: a list of guessed perks, with arrows running to the two ways guessing fails.
+ * Both outcomes hang off the SAME list on purpose: that is the whole argument.
+ */
+export function trapDiagram({ items, outcomes }) {
+  return `<div class="trap">
+    <div class="trap-card">
+      <div class="trap-card-lb">${esc("Ideas from nowhere")}</div>
+      ${items.map((i) => `<div class="trap-item">${esc(i)}</div>`).join("")}
+    </div>
+    <div class="trap-arrows">
+      <div style="transform:rotate(-32deg)">${arrow({ dir: "down", len: 92, color: C.goldInk, weight: 4 })}</div>
+      <div style="transform:rotate(32deg)">${arrow({ dir: "down", len: 92, color: C.goldInk, weight: 4 })}</div>
+    </div>
+    <div class="trap-out">${outcomes
+      .map(
+        (o) => `<div class="trap-panel">
+        <div class="trap-out-t">${esc(o.title)}</div>
+        <div class="trap-out-s">${esc(o.sub)}</div>
+      </div>`,
+      )
+      .join("")}</div>
+  </div>`;
+}
+
+/** Slide 5: willingness levels along a rising line, with what deepens underneath. */
+export function demandSpectrum({ levels, attributes }) {
+  return `<div class="dspec">
+    <svg class="dspec-line" viewBox="0 0 100 30" preserveAspectRatio="none">
+      <polyline points="2,26 50,15 98,4" fill="none" stroke="${C.goldInk}" stroke-width="3"
+        stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+    </svg>
+    <div class="dspec-levels">${levels
+      .map((l) => `<div class="dspec-lv">${esc(l)}</div>`)
+      .join("")}</div>
+    ${chipRow(attributes, { cols: attributes.length })}
+  </div>`;
+}
+
+/** Slide 9: one source opening into the assets already inside it. */
+export function sourceToAssets({ source, assets }) {
+  return `<div class="s2a">
+    <div class="s2a-src">${icon(source.icon, 108)}<div class="s2a-src-lb">${esc(source.label)}</div></div>
+    <div class="s2a-arrow">${arrow({ len: 96, color: C.goldInk })}</div>
+    <div class="s2a-grid">${assets
+      .map(
+        (a) => `<div class="chip">${icon(a.icon, 28)}<span>${esc(a.label)}</span></div>`,
+      )
+      .join("")}</div>
+  </div>`;
+}
+
+/**
+ * Overlapping circles. Two circles read as a condition ("both must be true"); three read as
+ * corroboration ("all three point the same way"). Same primitive, because the idea is the same.
+ */
+export function venn({ circles, center, size = 340, subsBelow = false }) {
+  const three = circles.length === 3;
+  const cls = three ? "venn3" : "venn2";
+  return `<div class="venn ${cls}" style="--d:${size}px">
+    ${circles
+      .map(
+        (c, i) => `<div class="venn-c v${i}">
+        <div class="venn-t">${esc(c.title)}</div>
+        ${c.sub && !subsBelow ? `<div class="venn-s">${esc(c.sub)}</div>` : ""}
+      </div>`,
+      )
+      .join("")}
+    <div class="venn-mid">${esc(center)}</div>
+  </div>
+  ${
+    subsBelow
+      ? `<div class="venn-caps">${circles
+          .map((c) => `<div class="venn-cap"><b>${esc(c.title)}</b>${esc(c.sub || "")}</div>`)
+          .join("")}</div>`
+      : ""
+  }`;
+}
+
+/** Slide 13: separate signals arriving at one conclusion. */
+export function converge({ center, sources }) {
+  return `<div class="conv">
+    <div class="conv-row">${sources
+      .map(
+        (s) => `<div class="conv-card">
+        <div class="conv-k">${esc(s.kind)}</div>
+        <div class="conv-v">${esc(s.text)}</div>
+      </div>`,
+      )
+      .join("")}</div>
+    <div class="conv-arrows">${sources
+      .map((_, i) => {
+        const rot = (i - (sources.length - 1) / 2) * 26;
+        return `<div style="transform:rotate(${rot}deg)">${arrow({
+          dir: "down",
+          len: 84,
+          color: C.goldInk,
+          weight: 4,
+        })}</div>`;
+      })
+      .join("")}</div>
+    <div class="conv-mid">${esc(center)}</div>
+  </div>`;
+}
+
+/** Slide 14: questions crossed out by hand, stacked. */
+export function struckStack(lines, { size = 62 } = {}) {
+  return `<div class="sstack" style="--ss:${size}px">${lines
+    .map((l) => `<div class="sline"><span class="struck">${esc(l)}</span></div>`)
+    .join("")}</div>`;
+}
+
+/** Slide 16: the numbered tests a benefit has to pass. */
+export function filterCards(items) {
+  return `<div class="filters">${items
+    .map(
+      (t, i) => `<div class="filter">
+      <span class="filter-n">${i + 1}</span>
+      <div class="filter-t">${esc(t)}</div>
+    </div>`,
+    )
+    .join("")}</div>`;
+}
+
+/** A compact horizontal restatement of the ladder, for a slide the ladder is not the subject of. */
+export function miniLadder(rungs) {
+  return `<div class="mladder">${rungs
+    .map(
+      (r) => `<div class="mrung"><span class="mrung-n">${esc(r.name)}</span><span class="mrung-s">${esc(
+        r.sub,
+      )}</span></div>`,
+    )
+    .join("")}</div>`;
+}
+
 /* ------------------------------------------------------------------ css */
 
 export const LAYOUT_CSS = `
@@ -396,7 +548,7 @@ export const LAYOUT_CSS = `
 .ladder{display:flex;flex-direction:column-reverse;gap:14px;align-items:stretch;padding:0 40px}
 .rung{display:flex;align-items:center;gap:30px;border:2px solid ${C.rule};border-radius:16px;background:#fff;padding:22px 30px}
 .rung-name{font-size:34px;font-weight:800;letter-spacing:.08em;width:190px}
-.rung-price{font-size:30px;font-weight:600;color:${C.gray};width:150px}
+.rung-price{font-size:30px;font-weight:600;color:${C.gray}}
 .rung-people{display:flex;gap:4px;flex-wrap:wrap;flex:1 1 auto}
 
 /* slide 10 */
@@ -449,6 +601,106 @@ export const LAYOUT_CSS = `
 /* brand poster art */
 .figpanel{overflow:hidden;background:${C.dark};width:100%}
 .figpanel img{width:100%;height:100%;object-fit:cover;display:block}
+
+/* chips */
+.chips{display:flex;flex-wrap:wrap;justify-content:center;gap:16px}
+.chip{display:flex;align-items:center;justify-content:center;gap:12px;font-size:25px;font-weight:600;
+  border:2px solid ${C.rule};border-radius:14px;padding:16px 24px;background:#fff;text-align:center}
+.chip svg{stroke:${C.goldInk};flex:0 0 auto}
+.chips.gold .chip{border-color:${C.gold};background:${C.goldSoft}}
+
+/* slide 2, the perks trap */
+.trap{display:flex;flex-direction:column;align-items:center;gap:4px}
+.trap-card{background:#fff;border:2px solid ${C.rule};border-radius:20px;padding:20px 44px;display:flex;
+  flex-direction:column;align-items:center;gap:9px;min-width:600px}
+.trap-card-lb{font-family:'Patrick Hand',cursive;font-size:23px;color:${C.grayMute};margin-bottom:2px}
+.trap-item{font-size:26px;font-weight:600;color:${C.gray}}
+.trap-arrows{display:flex;gap:300px}
+.trap-out{display:flex;gap:56px;margin-top:-6px}
+.trap-panel{border:2.5px solid ${C.goldInk};border-radius:18px;padding:18px 34px;text-align:center;width:470px}
+.trap-out-t{font-size:29px;font-weight:800;letter-spacing:.07em}
+.trap-out-s{font-size:23px;color:${C.gray};margin-top:7px}
+
+/* slide 3, evidence tiles carry an example */
+.tile-ex{font-size:16px;font-weight:600;color:${C.goldInk};font-family:'Patrick Hand',cursive;text-align:center}
+
+/* slide 4, opinion */
+.bubble{position:relative;background:#fff;border:2px solid ${C.rule};border-radius:22px;padding:22px 30px;
+  font-size:31px;font-weight:600;font-style:italic;max-width:520px;text-align:center}
+.bubble::after{content:'';position:absolute;left:50%;margin-left:-11px;bottom:-12px;width:22px;height:22px;
+  background:#fff;border-right:2px solid ${C.rule};border-bottom:2px solid ${C.rule};transform:rotate(45deg)}
+.trail{display:flex;flex-direction:column;gap:13px;width:100%}
+.tag{font-size:19px;font-weight:800;letter-spacing:.2em;color:${C.gray};margin-top:10px}
+
+/* slide 5, demand spectrum */
+.dspec{position:relative;padding-top:14px;display:flex;flex-direction:column;gap:26px}
+.dspec-line{position:absolute;left:4%;top:0;width:92%;height:96px}
+.dspec-levels{display:flex;justify-content:space-between;padding:74px 3% 0;position:relative}
+.dspec-lv{font-size:44px;font-weight:800;letter-spacing:-.02em;color:${C.goldInk}}
+
+/* slide 9, vault to assets */
+.s2a{display:flex;align-items:center;justify-content:center;gap:34px}
+.s2a-src{display:flex;flex-direction:column;align-items:center;gap:12px}
+.s2a-src svg{stroke:${C.ink};stroke-width:1.5}
+.s2a-src-lb{font-size:26px;font-weight:800;letter-spacing:.08em}
+.s2a-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;width:940px}
+
+/* venn */
+.venn{position:relative;margin:0 auto;height:calc(var(--d) * 1.05);display:flex;justify-content:center}
+.venn.venn3{height:calc(var(--d) * 1.46)}
+.venn-caps{display:flex;justify-content:center;gap:30px;margin-top:26px}
+.venn-cap{width:400px;text-align:center;font-size:22px;color:${C.gray};line-height:1.3}
+.venn-cap b{display:block;font-size:20px;letter-spacing:.16em;color:${C.goldInk};margin-bottom:6px}
+.venn-c{position:absolute;width:var(--d);height:var(--d);border-radius:50%;border:3px solid ${C.gold};
+  background:rgba(212,175,55,.16);display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:0 42px}
+.venn-t{font-size:27px;font-weight:800;letter-spacing:.07em;line-height:1.2}
+.venn-s{font-size:20px;color:${C.gray};margin-top:8px;line-height:1.25}
+.venn-mid{position:absolute;font-size:26px;font-weight:800;letter-spacing:.07em;color:#fff;background:${C.goldInk};
+  border-radius:999px;padding:12px 28px;z-index:3;white-space:nowrap}
+.venn2 .venn-c{padding:0}
+.venn2 .v0{left:calc(50% - var(--d) + 95px)}
+.venn2 .v1{left:calc(50% - 95px)}
+.venn2 .venn-t{position:absolute;top:50%;transform:translateY(-50%);width:calc(var(--d) - 190px);text-align:center}
+.venn2 .v0 .venn-t{left:0}
+.venn2 .v1 .venn-t{right:0}
+.venn2 .venn-mid{top:calc(50% - 27px);font-size:23px;padding:12px 22px}
+.venn2 .venn-t{font-size:25px}
+.venn3 .v0{left:calc(50% - var(--d) * 0.78);top:0}
+.venn3 .v1{left:calc(50% - var(--d) * 0.22);top:0}
+.venn3 .v2{left:calc(50% - var(--d) * 0.5);top:calc(var(--d) * 0.42)}
+.venn3 .venn-c{justify-content:flex-start;padding-top:40px}
+.venn3 .v2{justify-content:flex-end;padding-bottom:30px}
+.venn3 .venn-mid{top:calc(var(--d) * 0.58)}
+.venn3 .venn-t{max-width:74%}
+
+/* slide 13, converging signals */
+.conv{display:flex;flex-direction:column;align-items:center;gap:2px}
+.conv-row{display:flex;gap:34px}
+.conv-card{border:2px solid ${C.rule};background:#fff;border-radius:18px;padding:20px 26px;width:420px;text-align:center}
+.conv-k{font-size:20px;font-weight:800;letter-spacing:.18em;color:${C.goldInk}}
+.conv-v{font-size:24px;font-weight:600;color:${C.gray};margin-top:9px;line-height:1.3}
+.conv-arrows{display:flex;gap:270px}
+.conv-mid{background:${C.goldInk};color:#fff;font-size:40px;font-weight:800;letter-spacing:.06em;
+  border-radius:16px;padding:18px 54px;margin-top:-4px}
+
+/* slide 14, struck questions */
+.sstack{display:flex;flex-direction:column;align-items:center;gap:40px}
+.sline{font-size:var(--ss);font-weight:800;letter-spacing:-.03em;color:${C.gray}}
+.sstack .struck::after{left:0;right:0;top:46%}
+
+/* slide 16 */
+.filters{display:flex;justify-content:center;gap:22px}
+.filter{flex:1 1 0;max-width:480px;border:2px solid ${C.gold};background:${C.goldSoft};border-radius:20px;
+  padding:26px 26px;display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center}
+.filter-n{width:52px;height:52px;border-radius:50%;background:${C.goldInk};color:#fff;font-size:26px;
+  font-weight:800;display:flex;align-items:center;justify-content:center}
+.filter-t{font-size:27px;font-weight:800;letter-spacing:.02em;line-height:1.25}
+.mladder{display:flex;justify-content:center;gap:14px;margin-top:26px}
+.mrung{display:flex;flex-direction:column;align-items:center;gap:5px;border:2px solid ${C.rule};background:#fff;
+  border-radius:14px;padding:14px 30px}
+.mrung-n{font-size:23px;font-weight:800;letter-spacing:.1em}
+.mrung-s{font-size:20px;color:${C.gray}}
 `;
 
 export { icon, person, arrow, brush };

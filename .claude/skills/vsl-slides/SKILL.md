@@ -43,6 +43,13 @@ Reference deck: [scripts/vsl/decks/vsl-1-fan-worth.mjs](scripts/vsl/decks/vsl-1-
 A new deck is a new file in `decks/`. Reach for a new primitive in `layouts.mjs` only when no
 existing one carries the idea; a deck file should be copy and composition, nothing else.
 
+Primitives already built, so check here before inventing one: `optionRow`, `panelCompare`,
+`iconTiles` (labels, optionally an example line), `miniCards`, `chipRow`, `audienceField`,
+`spectrum`, `demandSpectrum`, `additivePath`, `mathRows`, `ladder`, `miniLadder`, `funnel`,
+`progression`, `struckNumbers`, `struckStack`, `nestedMap`, `venn` (two circles read as a
+condition, three as corroboration), `converge`, `trapDiagram`, `sourceToAssets`, `speechBubble`,
+`filterCards`, `stepList`, `recordingSlot`, `ctaButton`, `figurePanel`.
+
 ## The locked visual system
 
 Do not restyle per deck. One deck reads as one deck because the shell never moves.

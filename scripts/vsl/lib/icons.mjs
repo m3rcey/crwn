@@ -39,6 +39,17 @@ const P = {
   clock: '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
   crown: '<path d="M3 18l-2-11 6.5 5L12 4l4.5 8L23 7l-2 11z"/><path d="M3 21h18"/>',
   shield: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
+  archive: '<rect x="2" y="4" width="20" height="6" rx="1.5"/><path d="M4 10v9a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-9"/><path d="M10 14h4"/>',
+  drive: '<rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 12h.01M6 15h.01"/><path d="M10 10h8M10 14h8"/>',
+  sliders: '<path d="M6 21V14M6 10V3M12 21v-9M12 8V3M18 21v-5M18 12V3"/><path d="M3 14h6M9 8h6M15 16h6"/>',
+  alert: '<path d="M12 3L1.5 20.5h21z"/><path d="M12 9v5M12 18h.01"/>',
+  x: '<path d="M18 6L6 18M6 6l12 12"/>',
+  pen: '<path d="M17 3l4 4L8 20l-5 1 1-5z"/><path d="M14.5 5.5l4 4"/>',
+  phone: '<path d="M21 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 1 4.2 2 2 0 0 1 3 2h3a2 2 0 0 1 2 1.7c.1 1 .3 1.9.7 2.8a2 2 0 0 1-.5 2.1L7.1 9.9a16 16 0 0 0 6 6l1.3-1.1a2 2 0 0 1 2.1-.5c.9.4 1.8.6 2.8.7A2 2 0 0 1 21 16.9z"/>',
+  bubble: '<path d="M21 12a8 8 0 0 1-8.5 8L7 22l1.2-3.2A8 8 0 1 1 21 12z"/>',
+  folder: '<path d="M3 7a2 2 0 0 1 2-2h4l2 2.5h8a2 2 0 0 1 2 2V18a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+  door: '<path d="M4 21V4a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v17"/><path d="M2 21h20M13.5 12h.01"/>',
+  key: '<circle cx="7.5" cy="15.5" r="4.5"/><path d="M10.7 12.3L21 2M17 6l3 3M14 9l3 3"/>',
 };
 
 /** An icon at a given pixel size. cls picks the stroke colour via CSS. */
