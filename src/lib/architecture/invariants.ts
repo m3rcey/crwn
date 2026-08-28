@@ -1334,6 +1334,12 @@ export const EXPECTED_MIGRATION_STATE: ReadonlyArray<{
   // metric routes through founderTestExclusion.ts, which fails SOFT (counts everyone) until this
   // runs. sql-check because the column carries no anon grant, so an anon probe answers 42501
   // whether or not the migration ran and can certify nothing.
+  // Founder Window (the ONE real membership cap). Probe-verified applied 2026-08-28: the anon key
+  // reads subscription_tiers.founder_window_enabled 200. It had gone unprobed since it shipped,
+  // which mattered because /api/stripe/checkout skips its entire cap block when the column reads
+  // undefined, so an unapplied migration would have sold unlimited spots on a tier advertising a
+  // limited number, with no error anywhere. It is applied, so the cap is real when an artist sets it.
+  { file: 'schema-phase2-founder-window.sql', state: 'applied', note: 'Probe-verified 2026-08-28: subscription_tiers.founder_window_enabled reads 200 with the anon key. Cap and deadline are enforced in /api/stripe/checkout; free-subscribe deliberately does not check a cap because a free rung has no founding spots.' },
   { file: 'schema-phase2-founder-test-exclusion.sql', state: 'pending', liveCheck: 'sql-check', note: 'Adds is_founder_test and flags admin-owned artists plus the literal placeholder account. Until it runs, the acquisition funnel and 90-day scorecard keep counting founder test accounts; nothing else depends on it.' },
 ];
 

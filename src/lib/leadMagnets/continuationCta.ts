@@ -15,6 +15,11 @@ import { getLeadMagnet } from './registry';
 // new calculator gets a feature-specific CTA for free.
 const CTA_OVERRIDES: Record<string, string> = {
   worth: 'Build My Membership',
+  // The flagship all-in-one calculator. Its featureName is a SENTENCE ('Your CRWN business
+  // system'), so the derived template produced 'Build My Your CRWN business system' on the
+  // highest-traffic result page CRWN has. It models the membership ladder and nothing else
+  // (see the 2026-08-28 feature-question rule), so it says what /worth says.
+  'opportunity-calculator': 'Build My Membership',
   'share-to-earn-planner': 'Turn On Share-to-Earn',
   'executive-producer-session': 'Build My Executive Producer Session',
   'live-experience-calculator': 'Create My First Ticketed Live Event',

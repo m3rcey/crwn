@@ -32,6 +32,12 @@ const PROBES = [
   // (RLS then returns zero rows, which is correct). A missing table 404s and fails the probe.
   ['tier events table', 'tier_events?select=id&limit=1', 'schema-phase2-tier-events.sql'],
   ['membership strategy columns', 'artist_profiles?select=membership_strategy&limit=1', 'schema-phase2-membership-strategy.sql'],
+  // Founder Window. subscription_tiers has a public SELECT policy (the storefront reads it), so
+  // naming the column resolves 200 once applied and 42703 while pending. This is the ONLY signal
+  // for the cap: /api/stripe/checkout skips its whole cap block when founder_window_enabled comes
+  // back undefined, so an unapplied migration means a tier that advertises limited spots sells
+  // unlimited ones, silently and without an error anywhere.
+  ['founder window columns', 'subscription_tiers?select=founder_window_enabled&limit=1', 'schema-phase2-founder-window.sql'],
   ['track waterfall column', 'tracks?select=waterfall&limit=1', 'schema-phase2-track-waterfall.sql'],
   ['support chat resolution columns', 'support_conversations?select=resolved_by&limit=1', 'schema-phase2-support-chat-resolution.sql'],
   // Z3. The anon key sees the table but no rows (owner-only RLS), which is the correct pass here:

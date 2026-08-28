@@ -11,6 +11,8 @@ import CohortRetentionChart from '@/components/shared/CohortRetentionChart';
 import CancelReasonChart from '@/components/shared/CancelReasonChart';
 import SurveySummary from '@/components/shared/SurveySummary';
 import UnitEconomics from '@/components/artist/UnitEconomics';
+import { analyticsLevelFor } from '@/lib/platformTier';
+import TierFunnel from '@/components/artist/TierFunnel';
 
 interface Analytics {
   revenue: {
@@ -27,6 +29,8 @@ interface Analytics {
   };
   subscribers: {
     active: number;
+    activePaid: number;
+    activeFree: number;
     newThisMonth: number;
     churnedThisMonth: number;
     churnRate: number;
@@ -135,7 +139,17 @@ function PeriodToggle({ value, onChange }: { value: string; onChange: (v: 'daily
 }
 
 export function AnalyticsDashboard({ platformTier = 'starter' }: { platformTier?: string }) {
-  const isAdvanced = platformTier !== 'starter';
+  // The plan gate reads the DECLARED limit, which is the thing pricing copy is written from.
+  // It used to be a hardcoded `platformTier !== 'starter'`, so TIER_LIMITS.analytics described a
+  // rule nothing enforced and the component enforced a rule nothing advertised.
+  //
+  // What is behind it changed on 2026-08-28: WHO joined and WHICH RUNG they chose are now on every
+  // plan (see the Members section below). Those are the questions the onboarding guides and the
+  // membership-launch videos both tell an artist to go answer, and a first launch happens on
+  // Launch, so gating them meant CRWN told artists to read a screen it would not show them.
+  // Diagnostics that interpret those facts (ARPU, churn, LTV, cohorts, geography, top fans) stay
+  // on Pro, which is what the upgrade card now says.
+  const isAdvanced = analyticsLevelFor(platformTier) === 'full';
   const supabase = createBrowserSupabaseClient();
   const [isLoading, setIsLoading] = useState(true);
   const [analytics, setAnalytics] = useState<Analytics | null>(null);
@@ -239,7 +253,7 @@ export function AnalyticsDashboard({ platformTier = 'starter' }: { platformTier?
   return (
     <div className="stagger-fade-in space-y-8">
       {/* ========== UNIT ECONOMICS (most critical — lead with the money) ========== */}
-      {artistId && platformTier !== 'starter' && analytics && (
+      {artistId && isAdvanced && analytics && (
         <UnitEconomics
           artistId={artistId}
           platformTier={platformTier}
@@ -329,6 +343,64 @@ export function AnalyticsDashboard({ platformTier = 'starter' }: { platformTier?
         </div>
       </section>
 
+      {/* ========== MEMBERS (every plan) ========== */}
+      {/* Who joined, and which rung they chose. Deliberately NOT gated: this is the evidence an
+          artist needs to run a membership launch, they run their first launch on the free plan,
+          and both the onboarding guides and the launch videos tell them to come here and read it.
+          The interpretation of these facts (ARPU, churn, LTV, cohorts, geography) is what Pro buys. */}
+      <section>
+        <h3 className="text-lg font-semibold text-crwn-text mb-4">
+          Members
+          <span className="text-xs text-crwn-text-secondary font-normal ml-2">who joined, and which rung</span>
+        </h3>
+
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
+            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">Paying<InfoTooltip text="Members on a paid rung right now. This is the number a launch is trying to move." /></p>
+            <p className="text-2xl font-bold text-crwn-gold mt-1">{analytics.subscribers.activePaid}</p>
+          </div>
+          <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
+            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">Free<InfoTooltip text="Members on your free rung. They are not customers yet, but they are a fan relationship you own, which a follower is not." /></p>
+            <p className="text-2xl font-bold text-crwn-text mt-1">{analytics.subscribers.activeFree}</p>
+          </div>
+          <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
+            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">New This Month<InfoTooltip text="Members who joined this month, free and paid together." /></p>
+            <p className="text-2xl font-bold text-crwn-text mt-1">{analytics.subscribers.newThisMonth}</p>
+          </div>
+          <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
+            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">Left This Month<InfoTooltip text="Members who canceled this month." /></p>
+            <p className="text-2xl font-bold text-crwn-text mt-1">{analytics.subscribers.churnedThisMonth}</p>
+          </div>
+        </div>
+
+        {/* By Tier Chart */}
+        {analytics.subscribers.byTier.length > 0 && (
+          <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated mb-6">
+            <p className="text-sm text-crwn-text-secondary mb-2">By Tier</p>
+            <div className="h-40">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={analytics.subscribers.byTier} layout="vertical">
+                  <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                  <XAxis type="number" stroke="#666" fontSize={12} />
+                  <YAxis dataKey="tierName" type="category" stroke="#666" fontSize={12} width={80} />
+                  <Tooltip />
+                  <Bar dataKey="count" fill="#D4AF37" radius={[0, 4, 4, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        )}
+
+        {artistId && <TierFunnel artistId={artistId} />}
+
+        {analytics.subscribers.byTier.length === 0 && (
+          <p className="text-sm text-crwn-text-secondary bg-crwn-surface border border-crwn-elevated rounded-xl p-4">
+            No members yet. Once the first few join, this shows which rung they picked, which is the
+            answer that tells you whether the ladder is priced right.
+          </p>
+        )}
+      </section>
+
       {/* ========== SUBSCRIBERS SECTION ========== */}
       <section style={!isAdvanced ? { display: "none" } : undefined}>
         <h3 className="text-lg font-semibold text-crwn-text mb-4" data-tour="analytics-subscribers">Subscribers</h3>
@@ -336,7 +408,7 @@ export function AnalyticsDashboard({ platformTier = 'starter' }: { platformTier?
         {/* Top Stats - Active, ARPU, Churn Rate, Avg Lifespan, LTV */}
         <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
           <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
-            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">Active<InfoTooltip text="Number of fans with active paid subscriptions right now." /></p>
+            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">Active<InfoTooltip text="Every member with an active subscription right now, free and paid together. The Members section above splits them." /></p>
             <p className="text-2xl font-bold text-crwn-text mt-1">{analytics.subscribers.active}</p>
           </div>
           <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
@@ -402,24 +474,6 @@ export function AnalyticsDashboard({ platformTier = 'starter' }: { platformTier?
                     : 'Focus on onboarding & content cadence'}
                 </p>
               </div>
-            </div>
-          </div>
-        )}
-
-        {/* By Tier Chart */}
-        {analytics.subscribers.byTier.length > 0 && (
-          <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated mb-6">
-            <p className="text-sm text-crwn-text-secondary mb-2">By Tier</p>
-            <div className="h-40">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={analytics.subscribers.byTier} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                  <XAxis type="number" stroke="#666" fontSize={12} />
-                  <YAxis dataKey="tierName" type="category" stroke="#666" fontSize={12} width={80} />
-                  <Tooltip />
-                  <Bar dataKey="count" fill="#D4AF37" radius={[0, 4, 4, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
             </div>
           </div>
         )}
@@ -568,7 +622,7 @@ export function AnalyticsDashboard({ platformTier = 'starter' }: { platformTier?
       {!isAdvanced && (
         <section className="bg-crwn-gold/10 border border-crwn-gold/20 rounded-xl p-6 text-center">
           <p className="text-lg font-bold text-crwn-text mb-1">Upgrade for Advanced Analytics</p>
-          <p className="text-sm text-crwn-text-secondary mb-4">Get ARPU, churn rate, LTV, top fans, geography, and subscriber trends with Pro.</p>
+          <p className="text-sm text-crwn-text-secondary mb-4">Member counts and your tier breakdown are always free. Pro adds ARPU, churn rate, LTV, cohort retention, top fans and geography.</p>
           <a href="/account/billing" className="inline-flex items-center gap-2 px-6 py-2.5 bg-crwn-gold text-black font-semibold rounded-full hover:brightness-110 transition-all press-scale">Upgrade to Pro</a>
         </section>
       )}

@@ -20,6 +20,13 @@ Free/entry → **Bronze**, first paid ("First Listen"/"Vault") → **Silver**, m
 whenever they like; that is their choice, not a default. `src/lib/tierTemplate.test.ts` pins the
 names and prices, so drift fails `npm test` instead of reaching an artist.
 
+- **The ladder never promises a limit it has not set** (2026-08-28). Platinum used to ship a
+  benefit reading "Limited number of memberships" plus a dead `capacityLimited` flag that nothing
+  consumed, so a fan was sold scarcity no code enforced. The ONE real cap is the Founder Window
+  (`subscription_tiers.founder_window_enabled` / `founder_cap` / `founder_deadline`, probe-verified
+  APPLIED 2026-08-28, enforced in `/api/stripe/checkout`), it is opt-in per tier in `TierManager`,
+  and the template's fulfillment note now points the artist at it instead of asserting the cap.
+  Never re-add a scarcity claim to a template rung without wiring it to that column.
 - The internal keys stay `wave | inner_circle | vault | throne`. They are referenced across the
   calculators, drafts and offer builder, and renaming them moves data for no artist-visible gain.
 - Each rung carries `legacyNames`. The ladder's "already added" check matches those too, so an
@@ -254,6 +261,16 @@ third state.
 - **Email blasts: enforced at CREATE and, authoritatively, at SEND** through
   `src/lib/emailQuota.ts`. A draft costs nothing; only a send spends the quota. Never write a
   second copy of that rule.
+- **Analytics: `analyticsLevelFor()` in `platformTier.ts` is the ONE gate** (2026-08-28). The
+  dashboard used to gate on a hardcoded `platformTier !== 'starter'` while `TIER_LIMITS_V2.analytics`
+  declared `basic | full` and had NO consumer, so the declared limit and the enforced one could
+  drift with nothing failing. **Member counts (free vs paying), the By Tier chart and the per-rung
+  funnel are on EVERY plan** and live in the always-visible `Members` section of
+  `AnalyticsDashboard`. Pro buys the INTERPRETATION layer: ARPU, churn, LTV, cohort retention,
+  top fans, geography, projections, unit economics. Do not re-gate the member or tier facts: a
+  first membership launch happens on Launch, the getting-started guides already tell every artist
+  to come read exactly those numbers, and gating them made CRWN point artists at a screen it
+  refused to show them.
 If you add a plan limit, it needs an enforcement point that a browser cannot route around, or it
 does not go in the marketing copy.
 

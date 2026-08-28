@@ -17,6 +17,18 @@ describe('continueCtaFor: the five named calculators are exact', () => {
     expect(continueCtaFor('live-experience-calculator')).toBe('Create My First Ticketed Live Event');
     expect(continueCtaFor('vault-revenue-planner')).toBe('Build My Vault');
   });
+
+  it('never renders a featureName that is a sentence into the template', () => {
+    // 'Your CRWN business system' produced 'Build My Your CRWN business system' on the flagship
+    // calculator until an override was added. Any tool whose featureName starts with a determiner
+    // has the same defect, so assert the SHAPE rather than only the one slug.
+    expect(continueCtaFor('opportunity-calculator')).toBe('Build My Membership');
+    for (const slug of LEAD_MAGNET_SLUGS) {
+      expect(continueCtaFor(slug), `${slug} reads as a broken sentence`).not.toMatch(
+        /^Build My (Your|A|An|The|My)/i,
+      );
+    }
+  });
 });
 
 describe('continueCtaFor: every calculator gets feature-specific copy', () => {

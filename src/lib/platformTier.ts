@@ -99,6 +99,23 @@ function resolveTierKey(tier: string | null | undefined): string {
   return LEGACY_TIER_ALIASES[key] || key;
 }
 
+/**
+ * The analytics depth a plan buys. This is the ONE reader of TIER_LIMITS_V2.analytics, which
+ * described a rule nothing enforced until 2026-08-28: the dashboard gated on a hardcoded
+ * `platformTier !== 'starter'` instead, so the declared limit and the enforced one could drift
+ * without anything failing.
+ *
+ * 'basic' still shows WHO joined and WHICH RUNG they chose. It withholds the interpretation
+ * layer (ARPU, churn, LTV, cohorts, geography, top fans), which is what Pro sells.
+ *
+ * Unknown or missing plan resolves to 'basic', never 'full': a read failure must not hand out
+ * a paid surface.
+ */
+export function analyticsLevelFor(tier: string | null | undefined): 'basic' | 'full' {
+  const limits = TIER_LIMITS_V2[resolveTierKey(tier) as keyof typeof TIER_LIMITS_V2];
+  return limits?.analytics ?? 'basic';
+}
+
 // New simplified structure for server-side gating
 export const TIER_LIMITS_V2 = {
   starter: {

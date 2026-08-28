@@ -66,8 +66,6 @@ export interface TierTemplateDef {
   priceCents: number;
   description: string;
   benefits: TemplateBenefit[];
-  /** Executive: membership is intentionally capacity-limited. */
-  capacityLimited?: boolean;
 }
 
 // Disclaimers surfaced next to the relevant benefits in the apply flow.
@@ -164,11 +162,9 @@ export const RECOMMENDED_LADDER: TierTemplateDef[] = [
     legacyNames: ['Throne'],
     priceCents: 10000,
     description: 'Your top supporters. Status, scarcity, and a seat at the table.',
-    capacityLimited: true,
     benefits: [
       { label: 'Everything in Gold', workload: 'low' },
       { label: 'Day-0 or private first listen', workload: 'moderate' },
-      { label: 'Limited number of memberships', workload: 'low' },
       {
         label: 'Name in supporter or executive producer credits',
         workload: 'low',
@@ -187,7 +183,7 @@ export const RECOMMENDED_LADDER: TierTemplateDef[] = [
         },
         fulfillment: {
           frequency: 'quarterly',
-          note: 'You host one private group listening event each quarter. You serve every Platinum member at once, so it replaces one-on-one calls. Cap membership so the room stays small.',
+          note: 'You host one private group listening event each quarter. You serve every Platinum member at once, so it replaces one-on-one calls. If you want the room to stay small, turn on the Founder Window for this tier in Tiers and set the number of spots. CRWN does not cap it for you, and this ladder no longer promises a limit it has not set.',
           capacityRecommended: true,
         },
       },

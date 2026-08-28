@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { useToast } from '@/components/shared/Toast';
 import { Upload, X, Loader2, FileSpreadsheet, ArrowRight, CheckCircle, Megaphone } from 'lucide-react';
 import { IMPORT_ATTESTATION_TEXT } from '@/lib/fanImportConsent';
+import { OptionSelect } from '@/components/ui/OptionSelect';
+import { IMPORT_SOURCE_OPTIONS } from '@/lib/fanImportSource';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import {
   detectPatreonCsv,
@@ -39,6 +41,10 @@ export function FanImportModal({ artistId, isOpen, onClose, onImported }: FanImp
   const [csvHeaders, setCsvHeaders] = useState<string[]>([]);
   const [csvRows, setCsvRows] = useState<string[][]>([]);
   const [columnMap, setColumnMap] = useState<Record<string, FieldName | ''>>({}); // csv header → field
+  // What this list IS. Stored as a contact tag so the artist can send to it later; the whole
+  // point of a membership launch is going to proven buyers FIRST, and an untagged import makes
+  // that audience unbuildable. Optional: an unlabeled list still imports.
+  const [sourceTag, setSourceTag] = useState<string>('');
   const [importResult, setImportResult] = useState<{ imported: number; skipped: number; invalid: number } | null>(null);
   const [attested, setAttested] = useState(false);
 
@@ -198,7 +204,11 @@ export function FanImportModal({ artistId, isOpen, onClose, onImported }: FanImp
       const res = await fetch('/api/fan-contacts/import', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ artistId, rows: mappedRows, attestedPermission: true }),
+        body: JSON.stringify({
+          artistId,
+          rows: sourceTag ? mappedRows.map(r => ({ ...r, tags: [sourceTag] })) : mappedRows,
+          attestedPermission: true,
+        }),
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || 'Import failed');
@@ -452,6 +462,24 @@ export function FanImportModal({ artistId, isOpen, onClose, onImported }: FanImp
                   </tbody>
                 </table>
               </div>
+            </div>
+
+            {/* Where this list came from. One tag, chosen once for the whole file, because the
+                launch order that works is proven buyers first and then outward: without a label
+                every import lands in one undifferentiated pile and that order cannot be run. */}
+            <div className="mt-4">
+              <p className="text-xs text-crwn-text-secondary mb-2">
+                Where did these contacts come from? <span className="opacity-70">(optional)</span>
+              </p>
+              <OptionSelect
+                options={IMPORT_SOURCE_OPTIONS}
+                value={sourceTag || null}
+                onChange={setSourceTag}
+                placeholder="No label"
+              />
+              <p className="text-[11px] text-crwn-text-secondary mt-2">
+                This becomes a tag on every contact in this file, so you can email just this group later.
+              </p>
             </div>
 
             {/* Permission attestation. Importing a file never creates consent by itself; what

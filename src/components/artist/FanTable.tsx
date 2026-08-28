@@ -53,6 +53,10 @@ export function FanTable({ artistId, tiers, openImportOnMount = false }: FanTabl
   const [locationFilter, setLocationFilter] = useState('');
   const [engagementFilter, setEngagementFilter] = useState('');
   const [lifecycleFilter, setLifecycleFilter] = useState('');
+  // Proven buyers. The API already filtered on spend (minSpend/maxSpend) and already sorted by
+  // total_spent; nothing surfaced it, so the one audience a membership launch should go to FIRST
+  // was the one audience this screen could not isolate. '1' is one cent: any money at all.
+  const [buyerFilter, setBuyerFilter] = useState('');
   const [sortBy, setSortBy] = useState<SortField>('engagement_score');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
   const [page, setPage] = useState(1);
@@ -68,7 +72,7 @@ export function FanTable({ artistId, tiers, openImportOnMount = false }: FanTabl
   const [isSavingSegment, setIsSavingSegment] = useState(false);
   const [showSegments, setShowSegments] = useState(false);
 
-  const hasActiveFilters = !!(tierFilter || locationFilter || engagementFilter || lifecycleFilter);
+  const hasActiveFilters = !!(tierFilter || locationFilter || engagementFilter || lifecycleFilter || buyerFilter);
 
   const loadSegments = useCallback(async () => {
     try {
@@ -89,6 +93,7 @@ export function FanTable({ artistId, tiers, openImportOnMount = false }: FanTabl
       if (locationFilter) filters.location = locationFilter;
       if (engagementFilter) filters.engagement = engagementFilter;
       if (lifecycleFilter) filters.lifecycle = lifecycleFilter;
+      if (buyerFilter) filters.minSpend = buyerFilter;
 
       const res = await fetch('/api/segments', {
         method: 'POST',
@@ -118,9 +123,10 @@ export function FanTable({ artistId, tiers, openImportOnMount = false }: FanTabl
     setLocationFilter(segment.filters.location || '');
     setEngagementFilter(segment.filters.engagement || '');
     setLifecycleFilter(segment.filters.lifecycle || '');
+    setBuyerFilter(segment.filters.minSpend || '');
     setActiveSegmentId(segment.id);
     setShowSegments(false);
-    if (segment.filters.tier || segment.filters.location || segment.filters.engagement || segment.filters.lifecycle) {
+    if (segment.filters.tier || segment.filters.location || segment.filters.engagement || segment.filters.lifecycle || segment.filters.minSpend) {
       setShowFilters(true);
     }
   };
@@ -145,6 +151,7 @@ export function FanTable({ artistId, tiers, openImportOnMount = false }: FanTabl
     setLocationFilter('');
     setEngagementFilter('');
     setLifecycleFilter('');
+    setBuyerFilter('');
     setActiveSegmentId(null);
   };
 
@@ -164,6 +171,7 @@ export function FanTable({ artistId, tiers, openImportOnMount = false }: FanTabl
     if (locationFilter) params.set('location', locationFilter);
     if (engagementFilter) params.set('engagement', engagementFilter);
     if (lifecycleFilter) params.set('lifecycle', lifecycleFilter);
+    if (buyerFilter) params.set('minSpend', buyerFilter);
 
     try {
       const res = await fetch(`/api/audience?${params}`);
@@ -174,11 +182,11 @@ export function FanTable({ artistId, tiers, openImportOnMount = false }: FanTabl
     } finally {
       setIsLoading(false);
     }
-  }, [artistId, page, sortBy, sortDir, debouncedSearch, tierFilter, locationFilter, engagementFilter, lifecycleFilter]);
+  }, [artistId, page, sortBy, sortDir, debouncedSearch, tierFilter, locationFilter, engagementFilter, lifecycleFilter, buyerFilter]);
 
   useEffect(() => { fetchAudience(); }, [fetchAudience]);
 
-  useEffect(() => { setPage(1); }, [debouncedSearch, tierFilter, locationFilter, engagementFilter, lifecycleFilter]);
+  useEffect(() => { setPage(1); }, [debouncedSearch, tierFilter, locationFilter, engagementFilter, lifecycleFilter, buyerFilter]);
 
   const handleSort = (field: SortField) => {
     if (sortBy === field) {
@@ -393,12 +401,12 @@ export function FanTable({ artistId, tiers, openImportOnMount = false }: FanTabl
           <button
             onClick={() => setShowFilters(!showFilters)}
             className={`px-4 py-2.5 rounded-full text-sm font-medium border transition-colors ${
-              showFilters || tierFilter || locationFilter || engagementFilter || lifecycleFilter
+              showFilters || tierFilter || locationFilter || engagementFilter || lifecycleFilter || buyerFilter
                 ? 'border-crwn-gold text-crwn-gold'
                 : 'border-crwn-elevated text-crwn-text-secondary hover:text-crwn-text'
             }`}
           >
-            Filters{(tierFilter || locationFilter || engagementFilter || lifecycleFilter) ? ' •' : ''}
+            Filters{(tierFilter || locationFilter || engagementFilter || lifecycleFilter || buyerFilter) ? ' •' : ''}
           </button>
         </div>
 
@@ -446,6 +454,15 @@ export function FanTable({ artistId, tiers, openImportOnMount = false }: FanTabl
               <option value="churned">Churned</option>
               <option value="cold">Cold</option>
               <option value="lead">Lead</option>
+            </select>
+
+            <select
+              value={buyerFilter}
+              onChange={e => setBuyerFilter(e.target.value)}
+              className="px-3 py-2 bg-crwn-elevated border border-crwn-elevated rounded-lg text-sm text-crwn-text focus:outline-none focus:border-crwn-gold/50"
+            >
+              <option value="">Everyone</option>
+              <option value="1">Has paid me before</option>
             </select>
 
             {hasActiveFilters && (
@@ -498,7 +515,7 @@ export function FanTable({ artistId, tiers, openImportOnMount = false }: FanTabl
               ) : !data?.fans.length ? (
                 <tr>
                   <td colSpan={7} className="px-4 py-12 text-center text-crwn-text-secondary text-sm">
-                    {search || tierFilter || locationFilter || engagementFilter || lifecycleFilter
+                    {search || tierFilter || locationFilter || engagementFilter || lifecycleFilter || buyerFilter
                       ? 'No fans match your filters.'
                       : 'No fans yet. Share your page to start building your audience.'}
                   </td>

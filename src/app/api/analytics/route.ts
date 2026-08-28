@@ -121,20 +121,31 @@ export async function GET(req: NextRequest) {
   const canceledThisMonth = subs.filter(s => s.status === 'canceled' && s.canceled_at && s.canceled_at >= thisMonthStart);
   const newThisMonth = subs.filter(s => s.created_at >= thisMonthStart);
 
-  // MRR: sum of tier prices for all active subscriptions
-  const tierIds = [...new Set(activeSubs.map(s => s.tier_id).filter(Boolean))];
+  // MRR: sum of tier prices for all active subscriptions.
+  // Every tier this artist has ever priced is loaded, not just the ones with a live subscriber.
+  // The free/paid split below reads price off this map, and a map built only from ACTIVE subs
+  // would resolve a canceled member's rung to "missing", which reads as price 0, which would
+  // file a churned paying member as a free one.
   const { data: tiers } = await supabaseAdmin
     .from('subscription_tiers')
     .select('id, name, price')
-    .in('id', tierIds.length > 0 ? tierIds : ['00000000-0000-0000-0000-000000000000']);
+    .eq('artist_id', artistId);
 
   const tierMap: Record<string, { name: string; price: number }> = {};
   (tiers || []).forEach(t => { tierMap[t.id] = { name: t.name, price: t.price }; });
 
   const mrr = activeSubs.reduce((sum, s) => sum + (tierMap[s.tier_id]?.price || 0), 0);
 
-  // ARPU
-  const arpu = activeSubs.length > 0 ? Math.round(mrr / activeSubs.length) : 0;
+  // FREE vs PAYING. A free Bronze member is a real member and belongs in the member count, but
+  // they are not a customer, and putting them in the ARPU denominator understates what a paying
+  // fan is worth by exactly the size of the free tier. The two numbers answer different
+  // questions ("how many joined my world" and "how many pay me"), so both are returned and the
+  // money metrics below are computed over PAYING members only.
+  const paidSubs = activeSubs.filter(s => (tierMap[s.tier_id]?.price || 0) > 0);
+  const freeSubs = activeSubs.filter(s => (tierMap[s.tier_id]?.price || 0) === 0);
+
+  // ARPU: average revenue per PAYING member.
+  const arpu = paidSubs.length > 0 ? Math.round(mrr / paidSubs.length) : 0;
 
   // Churn rate (canceled this month / total at start of month). The arithmetic lives in
   // src/lib/analytics/retention.ts so the Constraint Engine reads the SAME definition; a
@@ -220,7 +231,13 @@ export async function GET(req: NextRequest) {
   // ---- HYPOTHETICAL MAX ----
   // Sales velocity: new subscribers per month (trailing 3 months)
   const threeMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 3, 1).toISOString();
-  const recentNewSubs = subs.filter(s => s.created_at >= threeMonthsAgo).length;
+  // Velocity is counted over PAYING signups for the same reason ARPU is: multiplying a signup
+  // rate that includes free joins by a per-paying-member ARPU projects revenue from members who
+  // pay nothing. tier_id is resolved against the active-tier map, so a canceled sub on a deleted
+  // tier is excluded rather than silently counted as free.
+  const recentNewSubs = subs.filter(
+    s => s.created_at >= threeMonthsAgo && (tierMap[s.tier_id]?.price || 0) > 0,
+  ).length;
   const salesVelocity = Number((recentNewSubs / 3).toFixed(1));
   const hypotheticalMaxMRR = churnRate > 0
     ? Math.round((salesVelocity / (churnRate / 100)) * arpu)
@@ -545,6 +562,8 @@ export async function GET(req: NextRequest) {
     },
     subscribers: {
       active: activeSubs.length,
+      activePaid: paidSubs.length,
+      activeFree: freeSubs.length,
       newThisMonth: newThisMonth.length,
       churnedThisMonth: canceledThisMonth.length,
       churnRate: Number(churnRate.toFixed(1)),
