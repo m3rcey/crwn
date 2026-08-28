@@ -1,0 +1,984 @@
+<title>CRWN VSL Cue Sheet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Newsreader:opsz,wght@6..72,400;6..72,500&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --ground:#FBF8F4; --raised:#F3EEE6; --ink:#141414; --muted:#6C675E; --faint:#9C968B;
+  --rule:#E2DACD; --accent:#B8761A; --flag:#A8531A; --flag-bg:#F6E9DA; --focus:#B8761A;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#131316; --raised:#1B1B1F; --ink:#EDEAE4; --muted:#918D84; --faint:#6E6A62;
+    --rule:#2A2A30; --accent:#D4AF37; --flag:#E8A33D; --flag-bg:#241D12; --focus:#D4AF37;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#131316; --raised:#1B1B1F; --ink:#EDEAE4; --muted:#918D84; --faint:#6E6A62;
+  --rule:#2A2A30; --accent:#D4AF37; --flag:#E8A33D; --flag-bg:#241D12; --focus:#D4AF37;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font-family:Archivo,"Helvetica Neue",Arial,sans-serif;
+  font-size:16px; line-height:1.5; -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:60rem; margin:0 auto; padding:3.5rem 1.5rem 6rem}
+
+/* ---- masthead ---- */
+.mast{display:flex; flex-direction:column; gap:1rem; padding-bottom:2rem; border-bottom:1px solid var(--rule)}
+h1{margin:0; font-size:clamp(1.9rem,4.5vw,2.7rem); font-weight:700; letter-spacing:-.03em; text-wrap:balance}
+.lede{margin:0; max-width:44ch; color:var(--muted); font-size:1.05rem}
+.stats{display:flex; flex-wrap:wrap; gap:.5rem 2rem; margin:.25rem 0 0; padding:0; list-style:none}
+.stats div{display:flex; flex-direction:column; gap:.15rem}
+.stats b{font-family:"JetBrains Mono",ui-monospace,monospace; font-size:1.35rem; font-weight:600;
+  font-variant-numeric:tabular-nums; color:var(--accent); line-height:1}
+.stats span{font-size:.72rem; text-transform:uppercase; letter-spacing:.1em; color:var(--faint)}
+.note{margin:0; padding:.85rem 1rem; background:var(--raised); border-left:2px solid var(--accent);
+  color:var(--muted); font-size:.92rem; max-width:58ch}
+.note strong{color:var(--ink); font-weight:600}
+
+/* ---- sticky controls ---- */
+.bar{position:sticky; top:0; z-index:5; display:flex; flex-wrap:wrap; gap:.5rem; align-items:center;
+  margin:0 -1.5rem; padding:.75rem 1.5rem; background:var(--ground); border-bottom:1px solid var(--rule)}
+.find{flex:1 1 14rem; min-width:0; padding:.5rem .75rem; background:var(--raised); color:var(--ink);
+  border:1px solid var(--rule); border-radius:2px; font:inherit; font-size:.92rem}
+.find::placeholder{color:var(--faint)}
+.jump{padding:.4rem .6rem; color:var(--muted); font-size:.82rem; font-weight:600; text-decoration:none;
+  border:1px solid transparent; border-radius:2px; white-space:nowrap}
+.jump:hover{color:var(--ink); border-color:var(--rule)}
+:focus-visible{outline:2px solid var(--focus); outline-offset:2px}
+
+/* ---- decks ---- */
+.deck{margin-top:3.25rem; scroll-margin-top:4.5rem}
+.deck-head h2{margin:0 0 .3rem; font-size:1.3rem; font-weight:700; letter-spacing:-.02em; text-wrap:balance}
+.meta{display:flex; flex-wrap:wrap; align-items:center; gap:.6rem; margin:0 0 1rem;
+  font-size:.8rem; color:var(--faint)}
+.meta .sep{width:3px; height:3px; border-radius:50%; background:currentColor; opacity:.6}
+.mono{font-family:"JetBrains Mono",ui-monospace,monospace}
+.warn{margin:0 0 1.25rem; padding:.9rem 1.1rem; background:var(--flag-bg); border-left:2px solid var(--flag);
+  color:var(--muted); font-size:.92rem; max-width:62ch}
+.warn strong{display:block; color:var(--flag); font-weight:600}
+
+.rows{margin:0; padding:0; list-style:none; border-top:1px solid var(--rule)}
+.row{display:grid; grid-template-columns:13rem 1fr; gap:1.25rem; align-items:baseline;
+  padding:.85rem .5rem; border-bottom:1px solid var(--rule)}
+.row:hover{background:var(--raised)}
+.id{display:flex; align-items:baseline; gap:.65rem; min-width:0}
+.num{flex:none; width:1.9rem; font-family:"JetBrains Mono",ui-monospace,monospace; font-size:.95rem;
+  font-weight:600; font-variant-numeric:tabular-nums; color:var(--accent)}
+.file{min-width:0; padding:0; background:none; border:0; color:var(--faint); cursor:pointer;
+  font-family:"JetBrains Mono",ui-monospace,monospace; font-size:.74rem; text-align:left;
+  overflow-wrap:anywhere}
+.file:hover{color:var(--ink)}
+.file.copied{color:var(--accent)}
+.said{margin:0; font-family:Newsreader,Georgia,serif; font-size:1.12rem; line-height:1.45; text-wrap:pretty}
+.row-gap .said{font-family:Archivo,sans-serif; font-size:.95rem}
+.gap{color:var(--flag); font-weight:600}
+.beat{color:var(--faint)}
+.empty{display:none; padding:2rem .5rem; color:var(--muted)}
+body.filtering .deck:not(.has-hit){display:none}
+body.filtering .row:not(.hit){display:none}
+body.filtering .warn{display:none}
+body.filtering .empty.on{display:block}
+
+@media (max-width:34rem){
+  .row{grid-template-columns:1fr; gap:.35rem}
+  .said{font-size:1.05rem}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+<header class="mast">
+  <h1>Which words each slide sits under</h1>
+  <p class="lede">Every rendered VSL slide, matched to the first words actually spoken beneath it, so each PNG lands on the right frame.</p>
+  <div class="stats">
+    <div><b>5</b><span>Decks</span></div>
+    <div><b>112</b><span>Slides</span></div>
+    <div><b>111</b><span>Located in the audio</span></div>
+    <div><b>1</b><span>Never recorded</span></div>
+  </div>
+  <p class="note"><strong>There are no per-slide timecodes and there never were.</strong> The transcripts
+  are a single 00:00:00 block, so the cue is the words. Every line quoted here is real recorded
+  narration: a slide whose cue was never said says so rather than showing invented words.</p>
+</header>
+
+<div class="bar">
+  <input class="find" id="find" type="search" placeholder="Filter by words or filename" aria-label="Filter slides">
+  <a class="jump" href="#vsl-1-fan-worth">VSL 1</a><a class="jump" href="#vsl-2-what-fans-pay-for">VSL 2</a><a class="jump" href="#vsl-3-first-100-fans">VSL 3</a><a class="jump" href="#vsl-4-if-nobody-buys">VSL 4</a><a class="jump" href="#vsl-calculator">Calculator</a>
+</div>
+
+<section class="deck" id="vsl-1-fan-worth">
+  <header class="deck-head">
+    <h2>VSL #1: How Much Is One Real Fan Actually Worth?</h2>
+    <p class="meta"><span>16 slides</span><span class="sep"></span><span class="mono">vsl 1 - fan worth.wav</span><span class="sep"></span><span class="mono">videos/vsl/vsl-1-fan-worth/</span></p>
+  </header>
+  
+  <ol class="rows">
+<li class="row" data-find="How much is one fan actually worth to your business? vsl-1-fan-worth-01.png">
+  <div class="id">
+    <span class="num">1</span>
+    <button class="file" type="button" data-copy="vsl-1-fan-worth-01.png" title="Copy filename">vsl-1-fan-worth-01.png</button>
+  </div>
+  <p class="said">How much is one fan actually worth to your business?</p>
+</li>
+<li class="row" data-find="Because if you take your total revenue and divide it by... vsl-1-fan-worth-02.png">
+  <div class="id">
+    <span class="num">2</span>
+    <button class="file" type="button" data-copy="vsl-1-fan-worth-02.png" title="Copy filename">vsl-1-fan-worth-02.png</button>
+  </div>
+  <p class="said">Because if you take your total revenue and divide it by...</p>
+</li>
+<li class="row" data-find="Right now, the music business gives you incredible visibility into attention. vsl-1-fan-worth-03.png">
+  <div class="id">
+    <span class="num">3</span>
+    <button class="file" type="button" data-copy="vsl-1-fan-worth-03.png" title="Copy filename">vsl-1-fan-worth-03.png</button>
+  </div>
+  <p class="said">Right now, the music business gives you incredible visibility into attention.</p>
+</li>
+<li class="row" data-find="If you have five hundred thousand followers, that tells you five... vsl-1-fan-worth-04.png">
+  <div class="id">
+    <span class="num">4</span>
+    <button class="file" type="button" data-copy="vsl-1-fan-worth-04.png" title="Copy filename">vsl-1-fan-worth-04.png</button>
+  </div>
+  <p class="said">If you have five hundred thousand followers, that tells you five...</p>
+</li>
+<li class="row" data-find="This is where the idea of an ‘average fan’ starts to... vsl-1-fan-worth-05.png">
+  <div class="id">
+    <span class="num">5</span>
+    <button class="file" type="button" data-copy="vsl-1-fan-worth-05.png" title="Copy filename">vsl-1-fan-worth-05.png</button>
+  </div>
+  <p class="said">This is where the idea of an ‘average fan’ starts to...</p>
+</li>
+<li class="row" data-find="Because your fans do not all want the same relationship with... vsl-1-fan-worth-06.png">
+  <div class="id">
+    <span class="num">6</span>
+    <button class="file" type="button" data-copy="vsl-1-fan-worth-06.png" title="Copy filename">vsl-1-fan-worth-06.png</button>
+  </div>
+  <p class="said">Because your fans do not all want the same relationship with...</p>
+</li>
+<li class="row" data-find="Think about a fan who buys a forty-dollar hoodie. vsl-1-fan-worth-07.png">
+  <div class="id">
+    <span class="num">7</span>
+    <button class="file" type="button" data-copy="vsl-1-fan-worth-07.png" title="Copy filename">vsl-1-fan-worth-07.png</button>
+  </div>
+  <p class="said">Think about a fan who buys a forty-dollar hoodie.</p>
+</li>
+<li class="row" data-find="Now add time. vsl-1-fan-worth-08.png">
+  <div class="id">
+    <span class="num">8</span>
+    <button class="file" type="button" data-copy="vsl-1-fan-worth-08.png" title="Copy filename">vsl-1-fan-worth-08.png</button>
+  </div>
+  <p class="said">Now add time.</p>
+</li>
+<li class="row" data-find="This is why the CRWN app starts artists with multiple levels... vsl-1-fan-worth-09.png">
+  <div class="id">
+    <span class="num">9</span>
+    <button class="file" type="button" data-copy="vsl-1-fan-worth-09.png" title="Copy filename">vsl-1-fan-worth-09.png</button>
+  </div>
+  <p class="said">This is why the CRWN app starts artists with multiple levels...</p>
+</li>
+<li class="row" data-find="And this is why the calculator result you saw can look... vsl-1-fan-worth-10.png">
+  <div class="id">
+    <span class="num">10</span>
+    <button class="file" type="button" data-copy="vsl-1-fan-worth-10.png" title="Copy filename">vsl-1-fan-worth-10.png</button>
+  </div>
+  <p class="said">And this is why the calculator result you saw can look...</p>
+</li>
+<li class="row" data-find="But there is another piece. vsl-1-fan-worth-11.png">
+  <div class="id">
+    <span class="num">11</span>
+    <button class="file" type="button" data-copy="vsl-1-fan-worth-11.png" title="Copy filename">vsl-1-fan-worth-11.png</button>
+  </div>
+  <p class="said">But there is another piece.</p>
+</li>
+<li class="row" data-find="So let’s come back to the question we started with. vsl-1-fan-worth-12.png">
+  <div class="id">
+    <span class="num">12</span>
+    <button class="file" type="button" data-copy="vsl-1-fan-worth-12.png" title="Copy filename">vsl-1-fan-worth-12.png</button>
+  </div>
+  <p class="said">So let’s come back to the question we started with.</p>
+</li>
+<li class="row" data-find="A fan is worth whatever the depth of that individual relationship... vsl-1-fan-worth-13.png">
+  <div class="id">
+    <span class="num">13</span>
+    <button class="file" type="button" data-copy="vsl-1-fan-worth-13.png" title="Copy filename">vsl-1-fan-worth-13.png</button>
+  </div>
+  <p class="said">A fan is worth whatever the depth of that individual relationship...</p>
+</li>
+<li class="row" data-find="You don’t actually want one average. vsl-1-fan-worth-14.png">
+  <div class="id">
+    <span class="num">14</span>
+    <button class="file" type="button" data-copy="vsl-1-fan-worth-14.png" title="Copy filename">vsl-1-fan-worth-14.png</button>
+  </div>
+  <p class="said">You don’t actually want one average.</p>
+</li>
+<li class="row" data-find="Imagine knowing that instead of saying: vsl-1-fan-worth-15.png">
+  <div class="id">
+    <span class="num">15</span>
+    <button class="file" type="button" data-copy="vsl-1-fan-worth-15.png" title="Copy filename">vsl-1-fan-worth-15.png</button>
+  </div>
+  <p class="said">Imagine knowing that instead of saying:</p>
+</li>
+<li class="row" data-find="You already took the first step by running the calculator. vsl-1-fan-worth-16.png">
+  <div class="id">
+    <span class="num">16</span>
+    <button class="file" type="button" data-copy="vsl-1-fan-worth-16.png" title="Copy filename">vsl-1-fan-worth-16.png</button>
+  </div>
+  <p class="said">You already took the first step by running the calculator.</p>
+</li>
+  </ol>
+</section>
+<section class="deck" id="vsl-2-what-fans-pay-for">
+  <header class="deck-head">
+    <h2>VSL #2: What Would Your Fans Actually Pay For?</h2>
+    <p class="meta"><span>17 slides</span><span class="sep"></span><span class="mono">vsl 2 - what fans pay.wav</span><span class="sep"></span><span class="mono">videos/vsl/vsl-2-what-fans-pay-for/</span></p>
+  </header>
+  
+  <ol class="rows">
+<li class="row" data-find="If you decided today that you wanted to create a membership... vsl-2-what-fans-pay-for-01.png">
+  <div class="id">
+    <span class="num">1</span>
+    <button class="file" type="button" data-copy="vsl-2-what-fans-pay-for-01.png" title="Copy filename">vsl-2-what-fans-pay-for-01.png</button>
+  </div>
+  <p class="said">If you decided today that you wanted to create a membership...</p>
+</li>
+<li class="row" data-find="The problem starts with the word ‘perks. vsl-2-what-fans-pay-for-02.png">
+  <div class="id">
+    <span class="num">2</span>
+    <button class="file" type="button" data-copy="vsl-2-what-fans-pay-for-02.png" title="Copy filename">vsl-2-what-fans-pay-for-02.png</button>
+  </div>
+  <p class="said">The problem starts with the word ‘perks.</p>
+</li>
+<li class="row" data-find="The good news is you probably don’t have to invent the... vsl-2-what-fans-pay-for-03.png">
+  <div class="id">
+    <span class="num">3</span>
+    <button class="file" type="button" data-copy="vsl-2-what-fans-pay-for-03.png" title="Copy filename">vsl-2-what-fans-pay-for-03.png</button>
+  </div>
+  <p class="said">The good news is you probably don’t have to invent the...</p>
+</li>
+<li class="row" data-find="And this is why I said the best place to start... vsl-2-what-fans-pay-for-04.png">
+  <div class="id">
+    <span class="num">4</span>
+    <button class="file" type="button" data-copy="vsl-2-what-fans-pay-for-04.png" title="Copy filename">vsl-2-what-fans-pay-for-04.png</button>
+  </div>
+  <p class="said">And this is why I said the best place to start...</p>
+</li>
+<li class="row" data-find="The next mistake is assuming every paying fan should receive the... vsl-2-what-fans-pay-for-05.png">
+  <div class="id">
+    <span class="num">5</span>
+    <button class="file" type="button" data-copy="vsl-2-what-fans-pay-for-05.png" title="Copy filename">vsl-2-what-fans-pay-for-05.png</button>
+  </div>
+  <p class="said">The next mistake is assuming every paying fan should receive the...</p>
+</li>
+<li class="row" data-find="This is why the CRWN app starts with a ladder. vsl-2-what-fans-pay-for-06.png">
+  <div class="id">
+    <span class="num">6</span>
+    <button class="file" type="button" data-copy="vsl-2-what-fans-pay-for-06.png" title="Copy filename">vsl-2-what-fans-pay-for-06.png</button>
+  </div>
+  <p class="said">This is why the CRWN app starts with a ladder.</p>
+</li>
+<li class="row" data-find="Bronze is the free front door. vsl-2-what-fans-pay-for-07.png">
+  <div class="id">
+    <span class="num">7</span>
+    <button class="file" type="button" data-copy="vsl-2-what-fans-pay-for-07.png" title="Copy filename">vsl-2-what-fans-pay-for-07.png</button>
+  </div>
+  <p class="said">Bronze is the free front door.</p>
+</li>
+<li class="row" data-find="Then you have Silver. vsl-2-what-fans-pay-for-08.png">
+  <div class="id">
+    <span class="num">8</span>
+    <button class="file" type="button" data-copy="vsl-2-what-fans-pay-for-08.png" title="Copy filename">vsl-2-what-fans-pay-for-08.png</button>
+  </div>
+  <p class="said">Then you have Silver.</p>
+</li>
+<li class="row" data-find="Gold is where you can go deeper. vsl-2-what-fans-pay-for-09.png">
+  <div class="id">
+    <span class="num">9</span>
+    <button class="file" type="button" data-copy="vsl-2-what-fans-pay-for-09.png" title="Copy filename">vsl-2-what-fans-pay-for-09.png</button>
+  </div>
+  <p class="said">Gold is where you can go deeper.</p>
+</li>
+<li class="row" data-find="Then there’s Platinum. vsl-2-what-fans-pay-for-10.png">
+  <div class="id">
+    <span class="num">10</span>
+    <button class="file" type="button" data-copy="vsl-2-what-fans-pay-for-10.png" title="Copy filename">vsl-2-what-fans-pay-for-10.png</button>
+  </div>
+  <p class="said">Then there’s Platinum.</p>
+</li>
+<li class="row" data-find="And this is the piece that gets overlooked. vsl-2-what-fans-pay-for-11.png">
+  <div class="id">
+    <span class="num">11</span>
+    <button class="file" type="button" data-copy="vsl-2-what-fans-pay-for-11.png" title="Copy filename">vsl-2-what-fans-pay-for-11.png</button>
+  </div>
+  <p class="said">And this is the piece that gets overlooked.</p>
+</li>
+<li class="row" data-find="So before adding a benefit, look for evidence in three places. vsl-2-what-fans-pay-for-12.png">
+  <div class="id">
+    <span class="num">12</span>
+    <button class="file" type="button" data-copy="vsl-2-what-fans-pay-for-12.png" title="Copy filename">vsl-2-what-fans-pay-for-12.png</button>
+  </div>
+  <p class="said">So before adding a benefit, look for evidence in three places.</p>
+</li>
+<li class="row" data-find="When those overlap, pay attention. vsl-2-what-fans-pay-for-13.png">
+  <div class="id">
+    <span class="num">13</span>
+    <button class="file" type="button" data-copy="vsl-2-what-fans-pay-for-13.png" title="Copy filename">vsl-2-what-fans-pay-for-13.png</button>
+  </div>
+  <p class="said">When those overlap, pay attention.</p>
+</li>
+<li class="row" data-find="Now we can finally come back to the question from the... vsl-2-what-fans-pay-for-14.png">
+  <div class="id">
+    <span class="num">14</span>
+    <button class="file" type="button" data-copy="vsl-2-what-fans-pay-for-14.png" title="Copy filename">vsl-2-what-fans-pay-for-14.png</button>
+  </div>
+  <p class="said">Now we can finally come back to the question from the...</p>
+</li>
+<li class="row" data-find="Instead of asking: vsl-2-what-fans-pay-for-15.png">
+  <div class="id">
+    <span class="num">15</span>
+    <button class="file" type="button" data-copy="vsl-2-what-fans-pay-for-15.png" title="Copy filename">vsl-2-what-fans-pay-for-15.png</button>
+  </div>
+  <p class="said">Instead of asking:</p>
+</li>
+<li class="row" data-find="So when you build your membership, run every benefit through three... vsl-2-what-fans-pay-for-16.png">
+  <div class="id">
+    <span class="num">16</span>
+    <button class="file" type="button" data-copy="vsl-2-what-fans-pay-for-16.png" title="Copy filename">vsl-2-what-fans-pay-for-16.png</button>
+  </div>
+  <p class="said">So when you build your membership, run every benefit through three...</p>
+</li>
+<li class="row" data-find="And if you already ran your CRWN calculator, you don’t have... vsl-2-what-fans-pay-for-17.png">
+  <div class="id">
+    <span class="num">17</span>
+    <button class="file" type="button" data-copy="vsl-2-what-fans-pay-for-17.png" title="Copy filename">vsl-2-what-fans-pay-for-17.png</button>
+  </div>
+  <p class="said">And if you already ran your CRWN calculator, you don’t have...</p>
+</li>
+  </ol>
+</section>
+<section class="deck" id="vsl-3-first-100-fans">
+  <header class="deck-head">
+    <h2>VSL #3: How I'd Launch to Your First 100 Fans</h2>
+    <p class="meta"><span>19 slides</span><span class="sep"></span><span class="mono">3 - 100 fans.wav</span><span class="sep"></span><span class="mono">videos/vsl/vsl-3-first-100-fans/</span></p>
+  </header>
+  
+  <ol class="rows">
+<li class="row" data-find="If I had to launch your membership to your first one... vsl-3-first-100-fans-01.png">
+  <div class="id">
+    <span class="num">1</span>
+    <button class="file" type="button" data-copy="vsl-3-first-100-fans-01.png" title="Copy filename">vsl-3-first-100-fans-01.png</button>
+  </div>
+  <p class="said">If I had to launch your membership to your first one...</p>
+</li>
+<li class="row" data-find="I would not start by posting it everywhere. vsl-3-first-100-fans-02.png">
+  <div class="id">
+    <span class="num">2</span>
+    <button class="file" type="button" data-copy="vsl-3-first-100-fans-02.png" title="Copy filename">vsl-3-first-100-fans-02.png</button>
+  </div>
+  <p class="said">I would not start by posting it everywhere.</p>
+</li>
+<li class="row" data-find="Most artists launch like this: vsl-3-first-100-fans-03.png">
+  <div class="id">
+    <span class="num">3</span>
+    <button class="file" type="button" data-copy="vsl-3-first-100-fans-03.png" title="Copy filename">vsl-3-first-100-fans-03.png</button>
+  </div>
+  <p class="said">Most artists launch like this:</p>
+</li>
+<li class="row" data-find="And if the response isn’t huge, they assume the membership doesn’t... vsl-3-first-100-fans-04.png">
+  <div class="id">
+    <span class="num">4</span>
+    <button class="file" type="button" data-copy="vsl-3-first-100-fans-04.png" title="Copy filename">vsl-3-first-100-fans-04.png</button>
+  </div>
+  <p class="said">And if the response isn’t huge, they assume the membership doesn’t...</p>
+</li>
+<li class="row" data-find="So the first goal of a membership launch should not be... vsl-3-first-100-fans-05.png">
+  <div class="id">
+    <span class="num">5</span>
+    <button class="file" type="button" data-copy="vsl-3-first-100-fans-05.png" title="Copy filename">vsl-3-first-100-fans-05.png</button>
+  </div>
+  <p class="said">So the first goal of a membership launch should not be...</p>
+</li>
+<li class="row" data-find="But think about what one paid member proves. vsl-3-first-100-fans-06.png">
+  <div class="id">
+    <span class="num">6</span>
+    <button class="file" type="button" data-copy="vsl-3-first-100-fans-06.png" title="Copy filename">vsl-3-first-100-fans-06.png</button>
+  </div>
+  <p class="said">But think about what one paid member proves.</p>
+</li>
+<li class="row" data-find="Before I worry about promotion, I want the offer to make... vsl-3-first-100-fans-07.png">
+  <div class="id">
+    <span class="num">7</span>
+    <button class="file" type="button" data-copy="vsl-3-first-100-fans-07.png" title="Copy filename">vsl-3-first-100-fans-07.png</button>
+  </div>
+  <p class="said">Before I worry about promotion, I want the offer to make...</p>
+</li>
+<li class="row" data-find="Next, I would stop looking at your total follower count for... vsl-3-first-100-fans-08.png">
+  <div class="id">
+    <span class="num">8</span>
+    <button class="file" type="button" data-copy="vsl-3-first-100-fans-08.png" title="Copy filename">vsl-3-first-100-fans-08.png</button>
+  </div>
+  <p class="said">Next, I would stop looking at your total follower count for...</p>
+</li>
+<li class="row" data-find="And here’s where I would resist the temptation to launch publicly. vsl-3-first-100-fans-09.png">
+  <div class="id">
+    <span class="num">9</span>
+    <button class="file" type="button" data-copy="vsl-3-first-100-fans-09.png" title="Copy filename">vsl-3-first-100-fans-09.png</button>
+  </div>
+  <p class="said">And here’s where I would resist the temptation to launch publicly.</p>
+</li>
+<li class="row" data-find="So I’d run a private launch first. vsl-3-first-100-fans-10.png">
+  <div class="id">
+    <span class="num">10</span>
+    <button class="file" type="button" data-copy="vsl-3-first-100-fans-10.png" title="Copy filename">vsl-3-first-100-fans-10.png</button>
+  </div>
+  <p class="said">So I’d run a private launch first.</p>
+</li>
+<li class="row" data-find="At this stage, I’m not trying to make ten thousand dollars. vsl-3-first-100-fans-11.png">
+  <div class="id">
+    <span class="num">11</span>
+    <button class="file" type="button" data-copy="vsl-3-first-100-fans-11.png" title="Copy filename">vsl-3-first-100-fans-11.png</button>
+  </div>
+  <p class="said">At this stage, I’m not trying to make ten thousand dollars.</p>
+</li>
+<li class="row" data-find="And if something is obviously wrong, fix it now. vsl-3-first-100-fans-12.png">
+  <div class="id">
+    <span class="num">12</span>
+    <button class="file" type="button" data-copy="vsl-3-first-100-fans-12.png" title="Copy filename">vsl-3-first-100-fans-12.png</button>
+  </div>
+  <p class="said">And if something is obviously wrong, fix it now.</p>
+</li>
+<li class="row" data-find="Once the offer has real evidence behind it, then I expand. vsl-3-first-100-fans-13.png">
+  <div class="id">
+    <span class="num">13</span>
+    <button class="file" type="button" data-copy="vsl-3-first-100-fans-13.png" title="Copy filename">vsl-3-first-100-fans-13.png</button>
+  </div>
+  <p class="said">Once the offer has real evidence behind it, then I expand.</p>
+</li>
+<li class="row" data-find="And then comes the part most people forget. vsl-3-first-100-fans-14.png">
+  <div class="id">
+    <span class="num">14</span>
+    <button class="file" type="button" data-copy="vsl-3-first-100-fans-14.png" title="Copy filename">vsl-3-first-100-fans-14.png</button>
+  </div>
+  <p class="said">And then comes the part most people forget.</p>
+</li>
+<li class="row" data-find="Then we measure. vsl-3-first-100-fans-15.png">
+  <div class="id">
+    <span class="num">15</span>
+    <button class="file" type="button" data-copy="vsl-3-first-100-fans-15.png" title="Copy filename">vsl-3-first-100-fans-15.png</button>
+  </div>
+  <p class="said">Then we measure.</p>
+</li>
+<li class="row" data-find="So remember the question from the beginning. vsl-3-first-100-fans-16.png">
+  <div class="id">
+    <span class="num">16</span>
+    <button class="file" type="button" data-copy="vsl-3-first-100-fans-16.png" title="Copy filename">vsl-3-first-100-fans-16.png</button>
+  </div>
+  <p class="said">So remember the question from the beginning.</p>
+</li>
+<li class="row" data-find="They have already proven they will exchange value with you. vsl-3-first-100-fans-17.png">
+  <div class="id">
+    <span class="num">17</span>
+    <button class="file" type="button" data-copy="vsl-3-first-100-fans-17.png" title="Copy filename">vsl-3-first-100-fans-17.png</button>
+  </div>
+  <p class="said">They have already proven they will exchange value with you.</p>
+</li>
+<li class="row" data-find="And notice what this does. vsl-3-first-100-fans-18.png">
+  <div class="id">
+    <span class="num">18</span>
+    <button class="file" type="button" data-copy="vsl-3-first-100-fans-18.png" title="Copy filename">vsl-3-first-100-fans-18.png</button>
+  </div>
+  <p class="said">And notice what this does.</p>
+</li>
+<li class="row" data-find="If you already ran your CRWN calculator, the next step is... vsl-3-first-100-fans-19.png">
+  <div class="id">
+    <span class="num">19</span>
+    <button class="file" type="button" data-copy="vsl-3-first-100-fans-19.png" title="Copy filename">vsl-3-first-100-fans-19.png</button>
+  </div>
+  <p class="said">If you already ran your CRWN calculator, the next step is...</p>
+</li>
+  </ol>
+</section>
+<section class="deck" id="vsl-4-if-nobody-buys">
+  <header class="deck-head">
+    <h2>VSL #4: What Happens If Nobody Buys?</h2>
+    <p class="meta"><span>17 slides</span><span class="sep"></span><span class="mono">4 - if nobody buys.wav</span><span class="sep"></span><span class="mono">videos/vsl/vsl-4-if-nobody-buys/</span></p>
+  </header>
+  <p class="warn"><strong>Slide 14 and 16 play out of deck order.</strong>
+The recording says these words earlier than the slide number suggests. Place them by the words, not
+by the number: dropping them in numeric order runs them against narration about something else.</p>
+  <ol class="rows">
+<li class="row" data-find="What if I build all of this and nobody buys? vsl-4-if-nobody-buys-01.png">
+  <div class="id">
+    <span class="num">1</span>
+    <button class="file" type="button" data-copy="vsl-4-if-nobody-buys-01.png" title="Copy filename">vsl-4-if-nobody-buys-01.png</button>
+  </div>
+  <p class="said">What if I build all of this and nobody buys?</p>
+</li>
+<li class="row" data-find="What if you spend the time setting up the membership? vsl-4-if-nobody-buys-02.png">
+  <div class="id">
+    <span class="num">2</span>
+    <button class="file" type="button" data-copy="vsl-4-if-nobody-buys-02.png" title="Copy filename">vsl-4-if-nobody-buys-02.png</button>
+  </div>
+  <p class="said">What if you spend the time setting up the membership?</p>
+</li>
+<li class="row" data-find="If nobody buys, there are several possible reasons. vsl-4-if-nobody-buys-03.png">
+  <div class="id">
+    <span class="num">3</span>
+    <button class="file" type="button" data-copy="vsl-4-if-nobody-buys-03.png" title="Copy filename">vsl-4-if-nobody-buys-03.png</button>
+  </div>
+  <p class="said">If nobody buys, there are several possible reasons.</p>
+</li>
+<li class="row" data-find="Zero paid members tells you there is a problem. vsl-4-if-nobody-buys-04.png">
+  <div class="id">
+    <span class="num">4</span>
+    <button class="file" type="button" data-copy="vsl-4-if-nobody-buys-04.png" title="Copy filename">vsl-4-if-nobody-buys-04.png</button>
+  </div>
+  <p class="said">Zero paid members tells you there is a problem.</p>
+</li>
+<li class="row" data-find="This is why I don’t think the first launch should be... vsl-4-if-nobody-buys-05.png">
+  <div class="id">
+    <span class="num">5</span>
+    <button class="file" type="button" data-copy="vsl-4-if-nobody-buys-05.png" title="Copy filename">vsl-4-if-nobody-buys-05.png</button>
+  </div>
+  <p class="said">This is why I don’t think the first launch should be...</p>
+</li>
+<li class="row" data-find="If people click but don’t buy, that tells you something. vsl-4-if-nobody-buys-06.png">
+  <div class="id">
+    <span class="num">6</span>
+    <button class="file" type="button" data-copy="vsl-4-if-nobody-buys-06.png" title="Copy filename">vsl-4-if-nobody-buys-06.png</button>
+  </div>
+  <p class="said">If people click but don’t buy, that tells you something.</p>
+</li>
+<li class="row" data-find="CRWN cannot control whether every fan buys. vsl-4-if-nobody-buys-07.png">
+  <div class="id">
+    <span class="num">7</span>
+    <button class="file" type="button" data-copy="vsl-4-if-nobody-buys-07.png" title="Copy filename">vsl-4-if-nobody-buys-07.png</button>
+  </div>
+  <p class="said">CRWN cannot control whether every fan buys.</p>
+</li>
+<li class="row" data-find="This is also why a meaningful guarantee needs conditions. vsl-4-if-nobody-buys-08.png">
+  <div class="id">
+    <span class="num">8</span>
+    <button class="file" type="button" data-copy="vsl-4-if-nobody-buys-08.png" title="Copy filename">vsl-4-if-nobody-buys-08.png</button>
+  </div>
+  <p class="said">This is also why a meaningful guarantee needs conditions.</p>
+</li>
+<li class="row row-gap" data-find="The goal of the first 30 days is not a giant income number. vsl-4-if-nobody-buys-09.png">
+  <div class="id">
+    <span class="num">9</span>
+    <button class="file" type="button" data-copy="vsl-4-if-nobody-buys-09.png" title="Copy filename">vsl-4-if-nobody-buys-09.png</button>
+  </div>
+  <p class="said"><span class="gap">Never recorded.</span> <span class="beat">The sheet asks for: The goal of the first 30 days is not a giant income number.</span></p>
+</li>
+<li class="row" data-find="So now let’s go back to the question from the beginning. vsl-4-if-nobody-buys-10.png">
+  <div class="id">
+    <span class="num">10</span>
+    <button class="file" type="button" data-copy="vsl-4-if-nobody-buys-10.png" title="Copy filename">vsl-4-if-nobody-buys-10.png</button>
+  </div>
+  <p class="said">So now let’s go back to the question from the beginning.</p>
+</li>
+<li class="row" data-find="For qualified First Revenue Launch artists, CRWN gives you the First... vsl-4-if-nobody-buys-11.png">
+  <div class="id">
+    <span class="num">11</span>
+    <button class="file" type="button" data-copy="vsl-4-if-nobody-buys-11.png" title="Copy filename">vsl-4-if-nobody-buys-11.png</button>
+  </div>
+  <p class="said">For qualified First Revenue Launch artists, CRWN gives you the First...</p>
+</li>
+<li class="row" data-find="if the first version fails, we do not simply point at... vsl-4-if-nobody-buys-12.png">
+  <div class="id">
+    <span class="num">12</span>
+    <button class="file" type="button" data-copy="vsl-4-if-nobody-buys-12.png" title="Copy filename">vsl-4-if-nobody-buys-12.png</button>
+  </div>
+  <p class="said">if the first version fails, we do not simply point at...</p>
+</li>
+<li class="row" data-find="It is not an income guarantee. vsl-4-if-nobody-buys-13.png">
+  <div class="id">
+    <span class="num">13</span>
+    <button class="file" type="button" data-copy="vsl-4-if-nobody-buys-13.png" title="Copy filename">vsl-4-if-nobody-buys-13.png</button>
+  </div>
+  <p class="said">It is not an income guarantee.</p>
+</li>
+<li class="row" data-find="So for CRWN’s assisted launch, the basics have to be in... vsl-4-if-nobody-buys-14.png">
+  <div class="id">
+    <span class="num">14</span>
+    <button class="file" type="button" data-copy="vsl-4-if-nobody-buys-14.png" title="Copy filename">vsl-4-if-nobody-buys-14.png</button>
+  </div>
+  <p class="said">So for CRWN’s assisted launch, the basics have to be in...</p>
+</li>
+<li class="row" data-find="And that is why the First Revenue Launch is not for... vsl-4-if-nobody-buys-15.png">
+  <div class="id">
+    <span class="num">15</span>
+    <button class="file" type="button" data-copy="vsl-4-if-nobody-buys-15.png" title="Copy filename">vsl-4-if-nobody-buys-15.png</button>
+  </div>
+  <p class="said">And that is why the First Revenue Launch is not for...</p>
+</li>
+<li class="row" data-find="And this matters because the real risk is not simply: vsl-4-if-nobody-buys-16.png">
+  <div class="id">
+    <span class="num">16</span>
+    <button class="file" type="button" data-copy="vsl-4-if-nobody-buys-16.png" title="Copy filename">vsl-4-if-nobody-buys-16.png</button>
+  </div>
+  <p class="said">And this matters because the real risk is not simply:</p>
+</li>
+<li class="row" data-find="So if your concern is: vsl-4-if-nobody-buys-17.png">
+  <div class="id">
+    <span class="num">17</span>
+    <button class="file" type="button" data-copy="vsl-4-if-nobody-buys-17.png" title="Copy filename">vsl-4-if-nobody-buys-17.png</button>
+  </div>
+  <p class="said">So if your concern is:</p>
+</li>
+  </ol>
+</section>
+<section class="deck" id="vsl-calculator">
+  <header class="deck-head">
+    <h2>Calculator VSL</h2>
+    <p class="meta"><span>43 slides</span><span class="sep"></span><span class="mono">VSL pt I.wav</span><span class="sep"></span><span class="mono">videos/vsl/vsl-calculator/</span></p>
+  </header>
+  
+  <ol class="rows">
+<li class="row" data-find="If the number you just saw looks too high to be... vsl-calculator-01.png">
+  <div class="id">
+    <span class="num">1</span>
+    <button class="file" type="button" data-copy="vsl-calculator-01.png" title="Copy filename">vsl-calculator-01.png</button>
+  </div>
+  <p class="said">If the number you just saw looks too high to be...</p>
+</li>
+<li class="row" data-find="Because the last thing you need is another calculator telling you... vsl-calculator-02.png">
+  <div class="id">
+    <span class="num">2</span>
+    <button class="file" type="button" data-copy="vsl-calculator-02.png" title="Copy filename">vsl-calculator-02.png</button>
+  </div>
+  <p class="said">Because the last thing you need is another calculator telling you...</p>
+</li>
+<li class="row" data-find="The calculator does not assume all of your followers are going... vsl-calculator-03.png">
+  <div class="id">
+    <span class="num">3</span>
+    <button class="file" type="button" data-copy="vsl-calculator-03.png" title="Copy filename">vsl-calculator-03.png</button>
+  </div>
+  <p class="said">The calculator does not assume all of your followers are going...</p>
+</li>
+<li class="row" data-find="It comes from a relatively small number of people inside your... vsl-calculator-04.png">
+  <div class="id">
+    <span class="num">4</span>
+    <button class="file" type="button" data-copy="vsl-calculator-04.png" title="Copy filename">vsl-calculator-04.png</button>
+  </div>
+  <p class="said">It comes from a relatively small number of people inside your...</p>
+</li>
+<li class="row" data-find="Think about your own fan base. vsl-calculator-05.png">
+  <div class="id">
+    <span class="num">5</span>
+    <button class="file" type="button" data-copy="vsl-calculator-05.png" title="Copy filename">vsl-calculator-05.png</button>
+  </div>
+  <p class="said">Think about your own fan base.</p>
+</li>
+<li class="row" data-find="But most artists give all three of those people almost the... vsl-calculator-06.png">
+  <div class="id">
+    <span class="num">6</span>
+    <button class="file" type="button" data-copy="vsl-calculator-06.png" title="Copy filename">vsl-calculator-06.png</button>
+  </div>
+  <p class="said">But most artists give all three of those people almost the...</p>
+</li>
+<li class="row" data-find="And then the transaction ends. vsl-calculator-07.png">
+  <div class="id">
+    <span class="num">7</span>
+    <button class="file" type="button" data-copy="vsl-calculator-07.png" title="Copy filename">vsl-calculator-07.png</button>
+  </div>
+  <p class="said">And then the transaction ends.</p>
+</li>
+<li class="row" data-find="That’s why the CRWN app starts with a ladder instead of... vsl-calculator-08.png">
+  <div class="id">
+    <span class="num">8</span>
+    <button class="file" type="button" data-copy="vsl-calculator-08.png" title="Copy filename">vsl-calculator-08.png</button>
+  </div>
+  <p class="said">That’s why the CRWN app starts with a ladder instead of...</p>
+</li>
+<li class="row" data-find="You don’t need thousands of people at the highest tier. vsl-calculator-09.png">
+  <div class="id">
+    <span class="num">9</span>
+    <button class="file" type="button" data-copy="vsl-calculator-09.png" title="Copy filename">vsl-calculator-09.png</button>
+  </div>
+  <p class="said">You don’t need thousands of people at the highest tier.</p>
+</li>
+<li class="row" data-find="My fans aren’t going to pay me every month. vsl-calculator-10.png">
+  <div class="id">
+    <span class="num">10</span>
+    <button class="file" type="button" data-copy="vsl-calculator-10.png" title="Copy filename">vsl-calculator-10.png</button>
+  </div>
+  <p class="said">My fans aren’t going to pay me every month.</p>
+</li>
+<li class="row" data-find="If you’ve already sold merch, tickets, VIP access, exclusive content, meet-and-greets,... vsl-calculator-11.png">
+  <div class="id">
+    <span class="num">11</span>
+    <button class="file" type="button" data-copy="vsl-calculator-11.png" title="Copy filename">vsl-calculator-11.png</button>
+  </div>
+  <p class="said">If you’ve already sold merch, tickets, VIP access, exclusive content, meet-and-greets,...</p>
+</li>
+<li class="row" data-find="Most artist revenue opportunities are built around individual moments. vsl-calculator-12.png">
+  <div class="id">
+    <span class="num">12</span>
+    <button class="file" type="button" data-copy="vsl-calculator-12.png" title="Copy filename">vsl-calculator-12.png</button>
+  </div>
+  <p class="said">Most artist revenue opportunities are built around individual moments.</p>
+</li>
+<li class="row" data-find="A membership gives you another option. vsl-calculator-13.png">
+  <div class="id">
+    <span class="num">13</span>
+    <button class="file" type="button" data-copy="vsl-calculator-13.png" title="Copy filename">vsl-calculator-13.png</button>
+  </div>
+  <p class="said">A membership gives you another option.</p>
+</li>
+<li class="row" data-find="And this is where having multiple levels matters. vsl-calculator-14.png">
+  <div class="id">
+    <span class="num">14</span>
+    <button class="file" type="button" data-copy="vsl-calculator-14.png" title="Copy filename">vsl-calculator-14.png</button>
+  </div>
+  <p class="said">And this is where having multiple levels matters.</p>
+</li>
+<li class="row" data-find="Most paying fans can enter at the lower level. vsl-calculator-15.png">
+  <div class="id">
+    <span class="num">15</span>
+    <button class="file" type="button" data-copy="vsl-calculator-15.png" title="Copy filename">vsl-calculator-15.png</button>
+  </div>
+  <p class="said">Most paying fans can enter at the lower level.</p>
+</li>
+<li class="row" data-find="What am I supposed to give people every month? vsl-calculator-16.png">
+  <div class="id">
+    <span class="num">16</span>
+    <button class="file" type="button" data-copy="vsl-calculator-16.png" title="Copy filename">vsl-calculator-16.png</button>
+  </div>
+  <p class="said">What am I supposed to give people every month?</p>
+</li>
+<li class="row" data-find="They open a blank page and start inventing perks. vsl-calculator-17.png">
+  <div class="id">
+    <span class="num">17</span>
+    <button class="file" type="button" data-copy="vsl-calculator-17.png" title="Copy filename">vsl-calculator-17.png</button>
+  </div>
+  <p class="said">They open a blank page and start inventing perks.</p>
+</li>
+<li class="row" data-find="The CRWN app starts you with a structure. vsl-calculator-18.png">
+  <div class="id">
+    <span class="num">18</span>
+    <button class="file" type="button" data-copy="vsl-calculator-18.png" title="Copy filename">vsl-calculator-18.png</button>
+  </div>
+  <p class="said">The CRWN app starts you with a structure.</p>
+</li>
+<li class="row" data-find="You can just build it. vsl-calculator-19.png">
+  <div class="id">
+    <span class="num">19</span>
+    <button class="file" type="button" data-copy="vsl-calculator-19.png" title="Copy filename">vsl-calculator-19.png</button>
+  </div>
+  <p class="said">You can just build it.</p>
+</li>
+<li class="row" data-find="Okay. I understand the membership idea. Why wouldn’t I just do... vsl-calculator-20.png">
+  <div class="id">
+    <span class="num">20</span>
+    <button class="file" type="button" data-copy="vsl-calculator-20.png" title="Copy filename">vsl-calculator-20.png</button>
+  </div>
+  <p class="said">Okay. I understand the membership idea. Why wouldn’t I just do...</p>
+</li>
+<li class="row" data-find="Your membership might live in one tool. vsl-calculator-21.png">
+  <div class="id">
+    <span class="num">21</span>
+    <button class="file" type="button" data-copy="vsl-calculator-21.png" title="Copy filename">vsl-calculator-21.png</button>
+  </div>
+  <p class="said">Your membership might live in one tool.</p>
+</li>
+<li class="row" data-find="Most artist tools are good at doing one job. vsl-calculator-22.png">
+  <div class="id">
+    <span class="num">22</span>
+    <button class="file" type="button" data-copy="vsl-calculator-22.png" title="Copy filename">vsl-calculator-22.png</button>
+  </div>
+  <p class="said">Most artist tools are good at doing one job.</p>
+</li>
+<li class="row" data-find="Who are the fans actually spending money with me? vsl-calculator-23.png">
+  <div class="id">
+    <span class="num">23</span>
+    <button class="file" type="button" data-copy="vsl-calculator-23.png" title="Copy filename">vsl-calculator-23.png</button>
+  </div>
+  <p class="said">Who are the fans actually spending money with me?</p>
+</li>
+<li class="row" data-find="It’s built as an operating system for your fan economy. vsl-calculator-24.png">
+  <div class="id">
+    <span class="num">24</span>
+    <button class="file" type="button" data-copy="vsl-calculator-24.png" title="Copy filename">vsl-calculator-24.png</button>
+  </div>
+  <p class="said">It’s built as an operating system for your fan economy.</p>
+</li>
+<li class="row" data-find="Your audience is everyone paying attention. vsl-calculator-25.png">
+  <div class="id">
+    <span class="num">25</span>
+    <button class="file" type="button" data-copy="vsl-calculator-25.png" title="Copy filename">vsl-calculator-25.png</button>
+  </div>
+  <p class="said">Your audience is everyone paying attention.</p>
+</li>
+<li class="row" data-find="They buy. vsl-calculator-26.png">
+  <div class="id">
+    <span class="num">26</span>
+    <button class="file" type="button" data-copy="vsl-calculator-26.png" title="Copy filename">vsl-calculator-26.png</button>
+  </div>
+  <p class="said">They buy.</p>
+</li>
+<li class="row" data-find="The CRWN app is designed to bring that picture together. vsl-calculator-27.png">
+  <div class="id">
+    <span class="num">27</span>
+    <button class="file" type="button" data-copy="vsl-calculator-27.png" title="Copy filename">vsl-calculator-27.png</button>
+  </div>
+  <p class="said">The CRWN app is designed to bring that picture together.</p>
+</li>
+<li class="row" data-find="See the business. vsl-calculator-28.png">
+  <div class="id">
+    <span class="num">28</span>
+    <button class="file" type="button" data-copy="vsl-calculator-28.png" title="Copy filename">vsl-calculator-28.png</button>
+  </div>
+  <p class="said">See the business.</p>
+</li>
+<li class="row" data-find="And the membership you just saw is simply the easiest place... vsl-calculator-29.png">
+  <div class="id">
+    <span class="num">29</span>
+    <button class="file" type="button" data-copy="vsl-calculator-29.png" title="Copy filename">vsl-calculator-29.png</button>
+  </div>
+  <p class="said">And the membership you just saw is simply the easiest place...</p>
+</li>
+<li class="row" data-find="You start learning who your actual customers are. vsl-calculator-30.png">
+  <div class="id">
+    <span class="num">30</span>
+    <button class="file" type="button" data-copy="vsl-calculator-30.png" title="Copy filename">vsl-calculator-30.png</button>
+  </div>
+  <p class="said">You start learning who your actual customers are.</p>
+</li>
+<li class="row" data-find="You don’t have to move your entire business today. vsl-calculator-31.png">
+  <div class="id">
+    <span class="num">31</span>
+    <button class="file" type="button" data-copy="vsl-calculator-31.png" title="Copy filename">vsl-calculator-31.png</button>
+  </div>
+  <p class="said">You don’t have to move your entire business today.</p>
+</li>
+<li class="row" data-find="This sounds like a lot more stuff I have to manage. vsl-calculator-32.png">
+  <div class="id">
+    <span class="num">32</span>
+    <button class="file" type="button" data-copy="vsl-calculator-32.png" title="Copy filename">vsl-calculator-32.png</button>
+  </div>
+  <p class="said">This sounds like a lot more stuff I have to manage.</p>
+</li>
+<li class="row" data-find="The goal isn’t to create twenty benefits, post every day, or... vsl-calculator-33.png">
+  <div class="id">
+    <span class="num">33</span>
+    <button class="file" type="button" data-copy="vsl-calculator-33.png" title="Copy filename">vsl-calculator-33.png</button>
+  </div>
+  <p class="said">The goal isn’t to create twenty benefits, post every day, or...</p>
+</li>
+<li class="row" data-find="I really don’t need another platform. vsl-calculator-34.png">
+  <div class="id">
+    <span class="num">34</span>
+    <button class="file" type="button" data-copy="vsl-calculator-34.png" title="Copy filename">vsl-calculator-34.png</button>
+  </div>
+  <p class="said">I really don’t need another platform.</p>
+</li>
+<li class="row" data-find="CRWN’s job is to help you operate the whole picture. vsl-calculator-35.png">
+  <div class="id">
+    <span class="num">35</span>
+    <button class="file" type="button" data-copy="vsl-calculator-35.png" title="Copy filename">vsl-calculator-35.png</button>
+  </div>
+  <p class="said">CRWN’s job is to help you operate the whole picture.</p>
+</li>
+<li class="row" data-find="And one last thing about the number you just saw. vsl-calculator-36.png">
+  <div class="id">
+    <span class="num">36</span>
+    <button class="file" type="button" data-copy="vsl-calculator-36.png" title="Copy filename">vsl-calculator-36.png</button>
+  </div>
+  <p class="said">And one last thing about the number you just saw.</p>
+</li>
+<li class="row" data-find="It’s an estimate of what the economics could look like once... vsl-calculator-37.png">
+  <div class="id">
+    <span class="num">37</span>
+    <button class="file" type="button" data-copy="vsl-calculator-37.png" title="Copy filename">vsl-calculator-37.png</button>
+  </div>
+  <p class="said">It’s an estimate of what the economics could look like once...</p>
+</li>
+<li class="row" data-find="Some artists will convert more people. vsl-calculator-38.png">
+  <div class="id">
+    <span class="num">38</span>
+    <button class="file" type="button" data-copy="vsl-calculator-38.png" title="Copy filename">vsl-calculator-38.png</button>
+  </div>
+  <p class="said">Some artists will convert more people.</p>
+</li>
+<li class="row" data-find="Right now, you can know exactly how many people follow you. vsl-calculator-39.png">
+  <div class="id">
+    <span class="num">39</span>
+    <button class="file" type="button" data-copy="vsl-calculator-39.png" title="Copy filename">vsl-calculator-39.png</button>
+  </div>
+  <p class="said">Right now, you can know exactly how many people follow you.</p>
+</li>
+<li class="row" data-find="Who actually pays you? vsl-calculator-40.png">
+  <div class="id">
+    <span class="num">40</span>
+    <button class="file" type="button" data-copy="vsl-calculator-40.png" title="Copy filename">vsl-calculator-40.png</button>
+  </div>
+  <p class="said">Who actually pays you?</p>
+</li>
+<li class="row" data-find="Reach creates the opportunity. vsl-calculator-41.png">
+  <div class="id">
+    <span class="num">41</span>
+    <button class="file" type="button" data-copy="vsl-calculator-41.png" title="Copy filename">vsl-calculator-41.png</button>
+  </div>
+  <p class="said">Reach creates the opportunity.</p>
+</li>
+<li class="row" data-find="You already did the first step. vsl-calculator-42.png">
+  <div class="id">
+    <span class="num">42</span>
+    <button class="file" type="button" data-copy="vsl-calculator-42.png" title="Copy filename">vsl-calculator-42.png</button>
+  </div>
+  <p class="said">You already did the first step.</p>
+</li>
+<li class="row" data-find="The audience is already there. vsl-calculator-43.png">
+  <div class="id">
+    <span class="num">43</span>
+    <button class="file" type="button" data-copy="vsl-calculator-43.png" title="Copy filename">vsl-calculator-43.png</button>
+  </div>
+  <p class="said">The audience is already there.</p>
+</li>
+  </ol>
+</section>
+<p class="empty" id="empty">Nothing matches that.</p>
+</div>
+
+<script>
+(function () {
+  var find = document.getElementById("find");
+  var empty = document.getElementById("empty");
+  var rows = Array.prototype.slice.call(document.querySelectorAll(".row"));
+  var decks = Array.prototype.slice.call(document.querySelectorAll(".deck"));
+
+  find.addEventListener("input", function () {
+    var q = find.value.trim().toLowerCase();
+    document.body.classList.toggle("filtering", q.length > 0);
+    if (!q) { empty.classList.remove("on"); return; }
+    var any = false;
+    rows.forEach(function (row) {
+      var hit = row.getAttribute("data-find").toLowerCase().indexOf(q) !== -1;
+      row.classList.toggle("hit", hit);
+      if (hit) any = true;
+    });
+    decks.forEach(function (deck) {
+      deck.classList.toggle("has-hit", !!deck.querySelector(".row.hit"));
+    });
+    empty.classList.toggle("on", !any);
+  });
+
+  document.addEventListener("click", function (e) {
+    var btn = e.target.closest(".file");
+    if (!btn) return;
+    var name = btn.getAttribute("data-copy");
+    var done = function () {
+      var was = btn.textContent;
+      btn.textContent = "copied";
+      btn.classList.add("copied");
+      setTimeout(function () { btn.textContent = was; btn.classList.remove("copied"); }, 900);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(name).then(done, function () {});
+    }
+  });
+})();
+</script>

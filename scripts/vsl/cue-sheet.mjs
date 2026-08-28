@@ -17,6 +17,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { rtfToText, firstWords } from "./lib/rtf.mjs";
+import { renderHtml } from "./lib/cueHtml.mjs";
 
 const SHEETS = "C:/Users/Josh/Downloads";
 const SCRIPTS = "C:/Users/Josh/Documents";
@@ -235,6 +236,7 @@ function locate(rows, query, from = 0) {
 /* ------------------------------------------------------------------ build */
 
 const lines = [];
+const report = [];
 lines.push("# CRWN VSL cue sheet");
 lines.push("");
 lines.push("For each rendered slide, the words actually spoken under it, so a slide can be dropped on the right frame.");
@@ -251,6 +253,7 @@ let viaHead = 0;
 let unmatched = 0;
 
 for (const deck of DECKS) {
+  const rowsOut = [];
   const mod = await import(`./decks/${deck.id}.mjs`);
   const slides = mod.deck.slides;
   const cues = parseSheet(path.join(SHEETS, deck.sheet));
@@ -287,6 +290,7 @@ for (const deck of DECKS) {
     if (!hit) {
       const note = entry && entry.cue ? " _(sheet: " + firstWords(entry.cue, 9) + ")_" : "";
       lines.push("| " + slide.n + " | `" + file + "` | **Not in the recording**" + note + " |");
+      rowsOut.push({ n: slide.n, file, spoken: null, sheet: entry && entry.cue ? entry.cue : "" });
       unmatched++;
       continue;
     }
@@ -300,8 +304,11 @@ for (const deck of DECKS) {
     const spoken = firstWords(bare, 11);
     const mark = !override && !fromSheet ? "~ " : "";
     lines.push("| " + slide.n + " | `" + file + "` | " + mark + spoken + " |");
+    rowsOut.push({ n: slide.n, file, spoken, sheet: "" });
   }
   lines.push("");
+
+  report.push({ id: deck.id, title: deck.title, audio: deck.audio, rows: rowsOut, outOfOrder });
 
   if (outOfOrder.length) {
     lines.push(
@@ -326,4 +333,11 @@ lines.push("");
 const out = path.join("videos", "vsl", "CUE-SHEET.md");
 fs.mkdirSync(path.dirname(out), { recursive: true });
 fs.writeFileSync(out, lines.join("\n"), "utf8");
+// The page is what actually sits open beside Premiere, so it is built from the same pass rather
+// than by parsing the markdown back out: re-render a deck, run this once, and both stay true.
+fs.writeFileSync(
+  path.join("videos", "vsl", "cue-sheet.html"),
+  renderHtml(report, { decks: report.length, slides: totalSlides, matched, unmatched }),
+  "utf8",
+);
 console.log(out + ": " + totalSlides + " slides, " + matched + " located (" + viaHead + " via headline), " + unmatched + " not located");
