@@ -113,7 +113,7 @@ body{
 .head.left{text-align:left}
 .head .sub{margin-top:18px;font-size:38px;font-weight:500;color:${PALETTE.gray};line-height:1.3}
 .g{color:${PALETTE.goldInk}}
-.struck{position:relative;white-space:nowrap}
+.struck{position:relative;white-space:nowrap;display:inline-block}
 /* The tilt is deliberately tiny: over a headline-width span even 1.5deg lifts the ends clear
    of the words, and the stroke stops reading as a strike-through. */
 .struck::after{

@@ -111,8 +111,8 @@ export function panelCompare({ left, right, middle = "" }) {
 }
 
 /** A row of uniform icon tiles with uppercase labels (slide 3). */
-export function iconTiles(items, { size = 46 } = {}) {
-  return `<div class="tiles">${items
+export function iconTiles(items, { size = 46, rail = false } = {}) {
+  return `<div class="tiles${rail ? " rail" : ""}">${items
     .map(
       (it) => `<div class="tile">
       <div class="tile-ic">${icon(it.icon, size)}</div>
@@ -437,8 +437,8 @@ export function converge({ center, sources }) {
 }
 
 /** Slide 14: questions crossed out by hand, stacked. */
-export function struckStack(lines, { size = 62 } = {}) {
-  return `<div class="sstack" style="--ss:${size}px">${lines
+export function struckStack(lines, { size = 62, cols = 1 } = {}) {
+  return `<div class="sstack" style="--ss:${size}px;${cols > 1 ? `display:grid;grid-template-columns:repeat(${cols},1fr);column-gap:70px;justify-items:center;width:100%` : ""}">${lines
     .map((l) => `<div class="sline"><span class="struck">${esc(l)}</span></div>`)
     .join("")}</div>`;
 }
@@ -490,7 +490,7 @@ export function crowdCompare({ left, right, middle = "" }) {
  * A left-to-right process. Used by four slides, so it takes text-only nodes, optional icons, an
  * optional terminal mark, and wraps rather than crushing a nine-step chain into one row.
  */
-export function flowChain(steps, { end = "", compact = false } = {}) {
+export function flowChain(steps, { end = "", endMuted = "", compact = false } = {}) {
   const nodes = steps
     .map((s, i) => {
       const o = typeof s === "string" ? { label: s } : s;
@@ -503,13 +503,13 @@ export function flowChain(steps, { end = "", compact = false } = {}) {
     .join("");
   return `<div class="flowchain ${compact ? "compact" : ""}">${nodes}${
     end ? `<div class="fc-end">${esc(end)}${brush({ width: 120, weight: 9 })}</div>` : ""
-  }</div>`;
+  }${endMuted ? `<div class="fc-muted">${esc(endMuted)}</div>` : ""}</div>`;
 }
 
 /** One dominant claim, with the things it proves arranged beneath it. */
-export function centerpiece({ big, sub = "", around = [] }) {
+export function centerpiece({ big, sub = "", around = [], plain = false, size = 0 }) {
   return `<div class="cpiece">
-    <div class="cp-big">${rich(big)}</div>
+    <div class="cp-big${plain ? " plain" : ""}"${size ? ` style="font-size:${size}px"` : ""}>${rich(big)}</div>
     ${sub ? `<div class="cp-sub">${esc(sub)}</div>` : ""}
     <div class="cp-around">${around
       .map((a) => `<div class="cp-card">${esc(a)}</div>`)
@@ -587,6 +587,69 @@ export function priorityStack(items) {
     .join("")}</div>`;
 }
 
+/** Gold-ticked conditions. Deliberately large: these are terms, and terms have to be readable. */
+export function checklist(items, { cols = 1 } = {}) {
+  return `<div class="cklist" style="grid-template-columns:repeat(${cols},1fr)">${items
+    .map(
+      (t) => `<div class="ckrow">
+      <span class="cktick">${icon("check", 26)}</span><span class="cktext">${esc(t)}</span>
+    </div>`,
+    )
+    .join("")}</div>`;
+}
+
+/** Slide 3: one result, many possible causes, drawn as real branch lines. */
+export function branchOut({ center, items }) {
+  const n = items.length;
+  const pts = items
+    .map((_, i) => {
+      const x = ((i + 0.5) / n) * 100;
+      return `<line x1="50" y1="0" x2="${x.toFixed(1)}" y2="26" stroke="${C.goldInk}"
+        stroke-width="1" vector-effect="non-scaling-stroke"/>`;
+    })
+    .join("");
+  return `<div class="branch">
+    <div class="br-mid">${esc(center)}</div>
+    <svg class="br-fan" viewBox="0 0 100 26" preserveAspectRatio="none" aria-hidden="true">${pts}</svg>
+    <div class="br-row">${items.map((t) => `<div class="br-card">${esc(t)}</div>`).join("")}</div>
+  </div>`;
+}
+
+/** Slide 4: an observation, and the conclusion it does NOT support, with the leap struck out. */
+export function blockedLeap({ from, to }) {
+  return `<div class="leap">
+    <div class="leap-box">${esc(from)}</div>
+    <div class="leap-x">${icon("x", 92, "icon leapmark")}</div>
+    <div class="leap-box weak">${esc(to)}</div>
+  </div>`;
+}
+
+/**
+ * Slide 11: the guarantee, stated once.
+ * The qualifier is not decoration. This is a commercial term, so the promise and the limit are
+ * rendered by the SAME primitive and cannot drift apart in a later edit.
+ */
+export function guaranteePanel({ lead, condition, promise }) {
+  return `<div class="guar">
+    <div class="guar-lead">${esc(lead)}</div>
+    <div class="guar-band">${esc(condition)}</div>
+    <div class="guar-promise">${esc(promise)}</div>
+  </div>`;
+}
+
+/** Slide 17: two equal routes, each with its own action. */
+export function pathCards(paths) {
+  return `<div class="paths">${paths
+    .map(
+      (p) => `<div class="path ${p.accent ? "accent" : ""}">
+      <div class="path-t">${esc(p.title)}</div>
+      <div class="path-s">${esc(p.sub)}</div>
+      <div class="path-cta">${esc(p.cta)}</div>
+    </div>`,
+    )
+    .join("")}</div>`;
+}
+
 /* ------------------------------------------------------------------ css */
 
 export const LAYOUT_CSS = `
@@ -594,7 +657,7 @@ export const LAYOUT_CSS = `
 .faint{position:absolute;opacity:.055}
 .faint svg{stroke:${C.ink};stroke-width:1.2}
 
-.foot-bold{font-size:40px;font-weight:800;letter-spacing:-.02em}
+.foot-bold{font-size:40px;font-weight:800;letter-spacing:-.02em;text-align:center;max-width:1500px;margin:0 auto;line-height:1.2}
 .foot-small{font-size:28px;font-weight:500;color:${C.ink};text-align:center;max-width:1180px}
 .sub.hand{font-family:'Caveat',cursive;font-weight:700;color:${C.goldInk};font-size:46px}
 
@@ -886,6 +949,76 @@ export const LAYOUT_CSS = `
   font-weight:800;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
 .prow.hot .prow-n{background:${C.goldInk}}
 .prow-t{font-size:31px;font-weight:800;letter-spacing:.06em}
+
+/* checklist: these are TERMS, so they are set large and never abbreviated */
+.cklist{display:grid;gap:16px 34px;width:100%;max-width:1500px;margin:0 auto}
+.ckrow{display:flex;align-items:center;gap:20px;border:2px solid ${C.rule};background:#fff;
+  border-radius:16px;padding:18px 26px}
+.cktick{width:48px;height:48px;border-radius:50%;background:${C.goldSoft};border:2px solid ${C.gold};
+  display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.cktick svg{stroke:${C.goldInk};stroke-width:3}
+.cktext{font-size:29px;font-weight:700;letter-spacing:.03em;line-height:1.2}
+
+/* branch out: one result, many candidate causes */
+.branch{display:flex;flex-direction:column;align-items:center;gap:0;width:100%}
+.br-mid{background:${C.goldInk};color:#fff;font-size:56px;font-weight:800;letter-spacing:.02em;
+  border-radius:18px;padding:20px 52px}
+.br-fan{width:100%;height:74px;display:block}
+.br-row{display:flex;justify-content:space-between;gap:12px;width:100%}
+.br-card{flex:1 1 0;border:2px solid ${C.rule};background:#fff;border-radius:14px;padding:18px 10px;
+  text-align:center;font-size:23px;font-weight:800;letter-spacing:.07em}
+
+/* the leap the evidence does not support */
+.leap{display:flex;flex-direction:column;align-items:center;gap:14px}
+.leap-box{font-size:46px;font-weight:800;letter-spacing:-.01em;border:2px solid ${C.rule};
+  background:#fff;border-radius:18px;padding:24px 52px;text-align:center}
+.leap-box.weak{color:${C.grayMute};border-style:dashed}
+.leapmark{stroke:${C.goldInk};stroke-width:3.4}
+.leap-x{display:flex;align-items:center;justify-content:center}
+
+/* slide 7's conceptual result card: deliberately not CRWN UI */
+.resultcard{border:2px solid ${C.rule};background:#fff;border-radius:22px;padding:26px 60px;
+  display:flex;flex-direction:column;align-items:center;gap:6px;margin:0 auto}
+.resultcard .rc-n{font-size:96px;font-weight:800;line-height:1}
+.resultcard .rc-l{font-size:22px;font-weight:800;letter-spacing:.18em;color:${C.gray}}
+.midhead{font-size:44px;font-weight:800;letter-spacing:-.02em;color:${C.goldInk};text-align:center}
+
+/* the guarantee, promise and limit rendered together */
+.guar{display:flex;flex-direction:column;align-items:center;gap:20px;width:100%}
+.guar-lead{font-size:40px;font-weight:600;color:${C.gray};text-align:center;max-width:1300px}
+.guar-band{background:${C.goldInk};color:#fff;font-size:34px;font-weight:800;letter-spacing:.16em;
+  border-radius:999px;padding:12px 44px}
+.guar-promise{font-size:54px;font-weight:800;letter-spacing:-.02em;text-align:center;max-width:1500px;
+  line-height:1.12}
+
+/* two routes */
+.paths{display:flex;justify-content:center;gap:40px;width:100%}
+.path{flex:1 1 0;max-width:700px;border:2px solid ${C.rule};background:#fff;border-radius:24px;
+  padding:36px 34px;display:flex;flex-direction:column;align-items:center;gap:18px;text-align:center}
+.path.accent{border-color:${C.goldInk};background:${C.goldSoft}}
+.path-t{font-size:36px;font-weight:800;letter-spacing:.06em}
+.path-s{font-size:25px;color:${C.gray};line-height:1.35;flex:1 1 auto}
+.path-cta{background:${C.goldInk};color:#fff;font-size:27px;font-weight:800;letter-spacing:.05em;
+  border-radius:999px;padding:16px 40px}
+
+/* slide 6's diagnostic rail */
+.tiles.rail{position:relative}
+.tiles.rail::before{content:'';position:absolute;left:3%;right:3%;top:50%;height:2px;
+  background:${C.gold};opacity:.5;z-index:0}
+.tiles.rail .tile{position:relative;z-index:1}
+
+/* muted non-result at the end of a chain */
+.fc-muted{align-self:center;font-size:30px;font-weight:700;color:${C.grayMute};padding-left:18px}
+
+/* plain display centrepiece, on cream rather than a slab */
+.cp-big.plain{background:transparent;color:${C.ink};padding:0;font-size:118px;letter-spacing:-.04em}
+.cp-big.plain .g{color:${C.goldInk}}
+
+/* slide 15's strongest-fit note */
+.fitbox{margin-top:30px;border:2px solid ${C.gold};background:${C.goldSoft};border-radius:18px;
+  padding:22px 40px;text-align:center;max-width:1200px;margin-left:auto;margin-right:auto}
+.fit-lb{font-size:21px;font-weight:800;letter-spacing:.19em;color:${C.goldInk}}
+.fit-tx{font-size:27px;font-weight:600;margin-top:8px;line-height:1.3}
 
 /* slide 10, the private invitation */
 .invite{display:flex;align-items:center;justify-content:center;gap:24px;margin-top:40px}

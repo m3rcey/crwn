@@ -60,6 +60,17 @@ rule. Two things make it worth having: mutation-test it (introduce the leak, wat
 revert) or it is decoration; and keep the term list to the ACTUAL reveal, because a guard that
 flags faithful copy pressures you to edit the slide instead of the check.
 
+**A deck that makes a COMMERCIAL promise gets verified against the repo, not transcribed.** VSL #4
+states the First Paid Member Guarantee, so its terms were checked before a word was set: the six
+conditions on its slide 14 are the `role: 'required'` entries in
+[src/lib/launchPartner.ts](src/lib/launchPartner.ts), and the 30-day window is measured from
+`guarantee_eligible_on` per
+[21-MONEY-MODEL-MEASUREMENT.md](docs/crwn-brain/21-MONEY-MODEL-MEASUREMENT.md). A slide that
+overstates a guarantee creates an obligation CRWN has to honour, and marketing has shipped ahead of
+this product before. `vsl-4-if-nobody-buys.mjs` then asserts three things at render time: the
+reveal is withheld, the qualifier ships on the same slide as the promise, and **no money figure
+appears anywhere except the slide whose job is to cross those figures out.**
+
 ## The locked visual system
 
 Do not restyle per deck. One deck reads as one deck because the shell never moves.
