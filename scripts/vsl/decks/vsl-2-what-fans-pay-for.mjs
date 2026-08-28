@@ -353,7 +353,7 @@ S(15, (n) =>
     head: "",
     body: `<div class="reveal">
       <div class="lead">ASK THIS INSTEAD:</div>
-      <div class="big">WHAT DO MY BEST FANS ALREADY<br><span class="g">PROVE THEY VALUE</span> THAT I CAN<br><span class="g">DELIVER REPEATEDLY</span> WITHOUT CREATING<br>ANOTHER FULL-TIME JOB?</div>
+      <div class="big">WHAT DO MY BEST FANS ALREADY <span class="g">PROVE THEY VALUE</span> THAT I CAN <span class="g">DELIVER REPEATEDLY</span> WITHOUT CREATING ANOTHER FULL-TIME JOB?</div>
       <div style="margin-top:6px">${brush({ width: 620, weight: 9 })}</div>
     </div>`,
     foot: { hand: "Demand. Evidence. Fulfillment." },

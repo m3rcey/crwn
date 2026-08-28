@@ -32,6 +32,15 @@ export const PALETTE = {
 
 export const SLIDE = { w: 1920, h: 1080 };
 
+/** The only knobs on the fit pass. Raise `maxBodyScale` and sparse slides fill harder. */
+export const FIT_LIMITS = {
+  minHead: 54, // px; below this a headline has stopped being a headline
+  headGrow: 1.42, // how far past a slide's `headSize` the fitter may grow it
+  headBudget: 330, // px the headline block may occupy before the body starts starving
+  maxBodyScale: 1.5,
+  headGap: 30, // px of air the headline must always leave above the body
+};
+
 /** Inline gold emphasis and strike-through inside otherwise plain copy.
  *  [[word]] renders gold, ~~word~~ renders struck through in a hand-drawn gold stroke. */
 export function rich(text = "") {
@@ -83,7 +92,7 @@ body{
   font-feature-settings:'ss01','cv05';
   -webkit-font-smoothing:antialiased;
 }
-.slide{width:${SLIDE.w}px;height:${SLIDE.h}px;display:flex;flex-direction:column;padding:56px 88px 48px;position:relative}
+.slide{width:${SLIDE.w}px;height:${SLIDE.h}px;display:flex;flex-direction:column;padding:44px 84px 38px;position:relative}
 
 /* ---------- header rail ---------- */
 .rail{display:flex;align-items:center;justify-content:space-between;flex:0 0 auto;height:60px}
@@ -96,13 +105,13 @@ body{
 .rail .num{font-size:30px;font-weight:800;color:${PALETTE.goldInk};letter-spacing:.02em}
 
 /* ---------- headline block ---------- */
-.head{flex:0 0 auto;text-align:center;margin-top:26px}
+.head{flex:0 0 auto;text-align:center;margin-top:16px;margin-bottom:26px}
 .head h1{
   font-weight:800;letter-spacing:-.035em;line-height:.98;
   font-size:var(--hs,92px);text-wrap:balance;
 }
 .head.left{text-align:left}
-.head .sub{margin-top:20px;font-size:34px;font-weight:500;color:${PALETTE.gray};line-height:1.3}
+.head .sub{margin-top:18px;font-size:38px;font-weight:500;color:${PALETTE.gray};line-height:1.3}
 .g{color:${PALETTE.goldInk}}
 .struck{position:relative;white-space:nowrap}
 /* The tilt is deliberately tiny: over a headline-width span even 1.5deg lifts the ends clear
@@ -116,6 +125,7 @@ body{
 
 /* ---------- body ---------- */
 .body{flex:1 1 auto;display:flex;flex-direction:column;justify-content:center;min-height:0}
+.bodyfit{width:100%;margin:0 auto}
 
 /* ---------- handwriting ---------- */
 .hand{font-family:'Caveat',cursive;font-weight:700;color:${PALETTE.goldInk};line-height:1.1}
@@ -128,8 +138,8 @@ body{
 
 /* ---------- footer ---------- */
 .foot{flex:0 0 auto;display:flex;align-items:flex-end;justify-content:center;gap:14px;min-height:52px;padding:10px 0 6px}
-.foot .hand{font-size:44px;line-height:1.24;padding-bottom:2px}
-.foot .disclaim{font-size:20px;color:${PALETTE.grayMute};font-weight:500;font-style:italic}
+.foot .hand{font-size:50px;line-height:1.24;padding-bottom:2px}
+.foot .disclaim{font-size:22px;color:${PALETTE.grayMute};font-weight:500;font-style:italic}
 .stack{display:flex;flex-direction:column;align-items:center;gap:8px}
 
 /* ---------- shared pieces ---------- */
@@ -147,6 +157,68 @@ body{
 `;
 }
 
+/**
+ * Fills the frame.
+ *
+ * A slide's body is centred in whatever height the headline leaves it, so a short diagram used to
+ * sit marooned in ~700px of box with 200px of dead air above and below. Hand-picking a size per
+ * slide is guesswork that goes stale the moment copy changes, so the page measures instead:
+ *
+ *  1. The headline grows to the largest size that still fits its height budget. `headSize` stops
+ *     being a chosen value and becomes the CAP, which is the only part a human should judge.
+ *  2. The body is then scaled to fill the height the headline actually left, capped, so a sparse
+ *     slide reads as deliberate rather than unfinished.
+ *
+ * It runs synchronously before first paint, so the screenshot never catches an unfitted layout.
+ */
+const FIT = `
+(function () {
+  var MAXK = ${FIT_LIMITS.maxBodyScale}, MINH = ${FIT_LIMITS.minHead}, HEADROOM = ${FIT_LIMITS.headBudget};
+  var body = document.querySelector('.body');
+  var fit = document.querySelector('.bodyfit');
+  var head = document.querySelector('.head h1');
+
+  if (head) {
+    var cap = parseFloat(getComputedStyle(head).fontSize) || 92;
+    // The headline may only claim space the body does not need. Sizing it against a fixed budget
+    // let a three-line headline starve a tall diagram, which then overran the footer: the body
+    // was already past its box at zoom 1, so the fitter below had nothing left to give back.
+    var budget = HEADROOM;
+    if (body && fit) {
+      var shared = head.getBoundingClientRect().height + body.clientHeight;
+      budget = Math.min(HEADROOM, shared - fit.getBoundingClientRect().height - ${FIT_LIMITS.headGap});
+    }
+    // Grow first: the cap is a ceiling, not a target, and most headlines have room above it.
+    var best = MINH;
+    for (var s = MINH; s <= cap * ${FIT_LIMITS.headGrow}; s += 2) {
+      head.style.fontSize = s + 'px';
+      if (head.getBoundingClientRect().height <= budget) best = s; else break;
+    }
+    head.style.fontSize = best + 'px';
+  }
+
+  if (fit && body) {
+    // Read the body box only AFTER the headline settled, or the budget is the pre-fit one.
+    var availH = body.clientHeight;
+    // zoom, not transform: a transform squeezes a full-width diagram, while zoom RE-LAYS-OUT, so
+    // a ladder rung keeps its width and gains the taller row and bigger type that actually fill
+    // the frame. Chrome resolves a percentage width under zoom against the parent DIVIDED by the
+    // zoom, so plain width:100% already lands at the right visual width. Dividing it again here
+    // (the obvious move) shrank every zoomed body to 1/k of the frame.
+    var k = MAXK;
+    for (; k > 1.02; k -= 0.02) {
+      fit.style.zoom = k.toFixed(3);
+      // Both axes, measured after applying. Height alone is not enough: a nowrap line (the reveal
+      // slides) cannot reflow, so it silently overflowed the frame and was clipped at both edges.
+      var fitsH = fit.getBoundingClientRect().height <= availH;
+      var fitsW = fit.scrollWidth <= fit.clientWidth + 1;
+      if (fitsH && fitsW) break;
+    }
+    if (k <= 1.02) fit.style.zoom = '';
+  }
+})();
+`;
+
 export function page({ css: extra = "", html }) {
-  return `<!doctype html><html><head><meta charset="utf-8"><style>${css()}${extra}</style></head><body>${html}</body></html>`;
+  return `<!doctype html><html><head><meta charset="utf-8"><style>${css()}${extra}</style></head><body>${html}<script>${FIT}</script></body></html>`;
 }

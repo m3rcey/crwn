@@ -74,8 +74,23 @@ Do not restyle per deck. One deck reads as one deck because the shell never move
 
 In any copy string, `[[text]]` renders gold and `~~text~~` renders struck through.
 
-**Set `headSize` per slide.** Long copy silently shrinking is how a deck loses its rhythm; a
-one-line headline wants ~100px and a two-line one ~64 to 84px.
+**`headSize` is a CAP, not a size.** Every page runs a fit pass before first paint
+(`FIT` in theme.mjs): the headline grows to the largest size that still leaves the body the height
+it needs, then the body is zoomed to fill whatever height the headline left. Set `headSize` to the
+largest you would ever want that headline; the fitter goes no further and usually lands under it.
+
+The fit is what stops a slide reading as mostly empty cream. Three things it taught, all of which
+cost a render to learn:
+
+- **`zoom`, never `transform: scale()`.** A transform squeezes a full-width diagram; zoom
+  RE-LAYS-OUT, so a ladder rung keeps its width and gains a taller row and bigger type. Chrome
+  resolves a percentage width under zoom against the parent DIVIDED by the zoom, so plain
+  `width:100%` already lands at the right visual width. Dividing it again shrinks the body to 1/k.
+- **Fit both axes.** Height alone let a `nowrap` line (the reveal slides) grow straight past the
+  frame and get clipped at both edges, because it cannot reflow to relieve the pressure.
+- **The headline may only claim space the body does not need.** Sizing it against a fixed budget
+  let a three-line headline starve a tall diagram, which then overran the footer. `FIT_LIMITS` in
+  theme.mjs holds the four knobs.
 
 ## Rules that are not style preferences
 

@@ -65,7 +65,7 @@ export function shell({
   </div>`
       : ""
   }
-  <div class="body">${body}</div>
+  <div class="body"><div class="bodyfit">${body}</div></div>
   <div class="foot">${footer(foot)}</div>
 </div>`;
 }
@@ -473,8 +473,8 @@ export const LAYOUT_CSS = `
 .faint{position:absolute;opacity:.055}
 .faint svg{stroke:${C.ink};stroke-width:1.2}
 
-.foot-bold{font-size:34px;font-weight:800;letter-spacing:-.02em}
-.foot-small{font-size:25px;font-weight:500;color:${C.ink};text-align:center;max-width:1180px}
+.foot-bold{font-size:40px;font-weight:800;letter-spacing:-.02em}
+.foot-small{font-size:28px;font-weight:500;color:${C.ink};text-align:center;max-width:1180px}
 .sub.hand{font-family:'Caveat',cursive;font-weight:700;color:${C.goldInk};font-size:46px}
 
 /* slide 13, the reveal */
