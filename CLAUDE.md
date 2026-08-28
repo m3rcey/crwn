@@ -393,6 +393,16 @@ primitive, never 19 copies. `src/lib/leadMagnets/conversionContract.test.ts` pin
   question). That is what lets a tool end on a required question instead of a `review` screen.
 - **The launch call layers on top, it never gates.** No page may present booking a call as step one
   of the self-serve path.
+- **Only the feature calculators ask about their feature** (founder decision, 2026-08-28). Live
+  nights, producer sessions, Share-to-Earn and Clip-to-Earn are asked about ONLY by
+  `live-experience-calculator`, `executive-producer-session`, `share-to-earn-planner` and
+  `clip-to-earn-campaign-planner`. Every other calculator, the unified Opportunity Calculator
+  included, models the MEMBERSHIP: it asks nothing about those systems and its builder offers
+  nothing to build for them. `toUnifiedInputs` pins them OFF and deliberately does not read a
+  stored answer, so a pre-2026-08-28 result renders the same membership-only page.
+  `conversionContract.test.ts` scans every non-feature calculator's questions for that vocabulary
+  (mutation-tested), so re-adding one fails `npm test`. Do not re-add the `fans`/`live` screens or
+  the builder's share/clip/session/live steps without a new founder decision.
 
 ## Interruptions are governed — one engine, one cap
 

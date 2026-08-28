@@ -153,23 +153,10 @@ const CADENCE = [
   { value: 'quarterly', label: 'Quarterly' },
 ];
 
-// Options used by the unified system builder, where every recommendation must be removable.
-const ON_OFF = [
-  { value: 'on', label: 'Yes, run it' },
-  { value: 'off', label: 'No, leave it out' },
-];
-
 const VAULT_PLACEMENT = [
   { value: 'tier', label: 'A tier inside my membership' },
   { value: 'standalone', label: 'Sold on its own' },
   { value: 'none', label: 'Skip the Vault for now' },
-];
-
-const SESSION_STRUCTURE = [
-  { value: 'included', label: 'Free for my top tier' },
-  { value: 'ticketed', label: 'Ticketed, anyone can buy a seat' },
-  { value: 'hybrid', label: 'Top tier free, extra seats sold' },
-  { value: 'none', label: 'No session for now' },
 ];
 
 // ---- the specs -----------------------------------------------------------
@@ -909,27 +896,29 @@ const SPECS: DeliverableSpec[] = [
   // 18. The unified Opportunity Calculator -> the whole COORDINATED system, not one artifact.
   //
   // Every other spec here builds one thing. This one builds the business: the four-tier ladder
-  // (with the Vault as a tier inside it), the two acquisition systems wired to those tiers, the
-  // premium experience placed where the artist said it belongs, and the order to launch it in.
-  // That coordination is the point: the calculator's number is only honest because the pieces are
-  // one system, so the builder must not hand back a pile of unrelated drafts.
+  // (with the Vault as a tier inside it) and the order to launch it in. That coordination is the
+  // point: the calculator's number is only honest because the pieces are one system, so the
+  // builder must not hand back a pile of unrelated drafts.
+  //
+  // Share-to-Earn, Clip-to-Earn, the premium session and the live night are NOT built here
+  // (founder decision, 2026-08-28). The calculator no longer asks about them, so offering to build
+  // them would be building a thing the artist never chose. Their own calculators own them.
   //
   // Nothing here is a new claim. Tier names, prices and benefits are RECOMMENDED_LADDER, the same
-  // canonical ladder Rise Mode Level 3 and the Tier Manager apply. Session and ticket prices come
-  // from the model's own payload. Where a number was not modeled, the field starts empty.
+  // canonical ladder Rise Mode Level 3 and the Tier Manager apply.
   {
     toolSlug: 'opportunity-calculator',
     deliverableType: 'crwn_business_system',
     title: 'Build your CRWN plan',
     subtitle:
-      'Your whole system is already written from your answers: the ladder, where the Vault sits, how fans bring fans, and what to launch first. Change anything.',
+      'Your whole system is already written from your answers: the ladder, where the Vault sits, and what to launch first. Change anything.',
     saveLabel: 'Save my CRWN plan',
     transition: 'Turn that number into the system that produces it.',
     buildCta: 'Build my CRWN plan',
     signupContext: 'Create your account to save the business system we already built for you, and launch it inside the CRWN app.',
-    claimLine: 'Claim it by signing up, publishing the ladder first, then switching on the growth systems in order.',
+    claimLine: 'Claim it by signing up and publishing the ladder first. Everything else feeds it.',
     overlapNote:
-      'Counted once: your Vault is a tier, sharing and clips bring supporters to that same ladder, and only non-members buy a ticket.',
+      'Counted once: your Vault is a tier inside the membership, not a second subscription on top of it.',
     continueRoute: '/offers/new',
     // The entry PAID tier is what the offer builder drafts. The rest of the coordinated system
     // rides along in the saved draft the artist already reviewed.
@@ -969,32 +958,6 @@ const SPECS: DeliverableSpec[] = [
         ],
       },
       {
-        id: 'share', group: 'Growth', label: 'Fans who bring fans', fields: [
-          { key: 'shareOn', type: 'option', label: 'Run Share-to-Earn', options: ON_OFF, help: 'This is how supporters arrive, not a second place they pay. Its revenue is already inside your membership number.' },
-          { key: 'shareCommission', type: 'number', label: 'Commission you pay, in percent', max: 50, help: 'What a fan earns on a subscription they bring in. You fund this, so keep it worth sharing but sustainable.' },
-          { key: 'shareMessage', type: 'textarea', label: 'The line you give your fans', max: 400 },
-        ],
-      },
-      {
-        id: 'clip', group: 'Growth', label: 'Fans who clip you', fields: [
-          { key: 'clipOn', type: 'option', label: 'Run Clip-to-Earn', options: ON_OFF, help: 'Clips convert the fans you already reach. They raise how many people pay, they do not create a separate income stream.' },
-          { key: 'clipBrief', type: 'lines', label: 'What you want clipped', max: 600, help: 'One per line. Give them the exact moments, or they will guess.' },
-        ],
-      },
-      {
-        id: 'sessions', group: 'Experiences', label: 'Your premium session', fields: [
-          { key: 'sessionStructure', type: 'option', label: 'How the session works', options: SESSION_STRUCTURE, help: 'Included makes your top tier worth its price. Ticketed earns on its own. Hybrid does both without charging a member twice.' },
-          { key: 'sessionPrice', type: 'currency', label: 'Seat price', max: 1000, help: 'Priced for your level. Leave it blank if the session is a tier benefit.' },
-          { key: 'sessionCadence', type: 'option', label: 'How often', options: CADENCE },
-        ],
-      },
-      {
-        id: 'live', group: 'Experiences', label: 'Your live night', fields: [
-          { key: 'liveTicketPrice', type: 'currency', label: 'Ticket price', max: 500, help: 'Only fans who are not members buy this. Members already have the live in their tier.' },
-          { key: 'liveRunOfShow', type: 'lines', label: 'Run of show', max: 600, help: 'One segment per line. A run of show is the difference between a hangout and a ticket people buy twice.' },
-        ],
-      },
-      {
         id: 'launch', group: 'Launch', label: 'What you launch first', fields: [
           { key: 'launchOrder', type: 'lines', label: 'Your launch order', max: 800, help: 'Built from your answers. Reorder it if you disagree, but the membership has to be first: everything else feeds it.' },
         ],
@@ -1008,7 +971,7 @@ const SPECS: DeliverableSpec[] = [
         { nameKey: 't2Name', priceKey: 't2Price', benefitsKey: 't2Benefits' },
         { nameKey: 't3Name', priceKey: 't3Price', benefitsKey: 't3Benefits' },
       ],
-      itemKeys: ['shareOn', 'clipOn', 'sessionStructure', 'liveTicketPrice', 'launchOrder'],
+      itemKeys: ['vaultPlacement', 'launchOrder'],
       note: 'Preview only. Nothing is live and no fan is charged until you publish. Recognition perks are recognition only: no ownership, royalties, publishing, or revenue participation.',
     },
     prefill: (cp) => {
@@ -1023,7 +986,6 @@ const SPECS: DeliverableSpec[] = [
         ? (cp.launchSequence as { phase?: number; title?: string }[])
         : [];
 
-      const sessionStructure = typeof cp.sessionStructure === 'string' ? cp.sessionStructure : 'none';
       const vaultPlacement =
         placementOf('vault') === 'sell_separately'
           ? 'standalone'
@@ -1044,35 +1006,14 @@ const SPECS: DeliverableSpec[] = [
         t3Name: throne.name,
         t3Price: dollars(byName(throne.name)?.priceCents ?? throne.priceCents),
         t3Benefits: benefitLabels(throne),
-        shareOn: placementOf('share_to_earn') === 'not_yet' ? 'off' : 'on',
-        // The artist funds this out of their own margin, so the default is the low end of the
-        // range the referral system already documents rather than a number we invented.
-        shareCommission: 10,
-        shareMessage:
-          'I finally get paid when you put people onto me. Use my link, and if they subscribe we both eat.',
-        clipOn: placementOf('clip_to_earn') === 'not_yet' ? 'off' : 'on',
-        clipBrief: ['The hook', 'The hardest line in the verse', 'The beat drop', 'The story behind the song'],
-        sessionStructure,
-        // Only prefilled when the model actually priced a seat. A session that is a tier benefit
-        // has no seat price, and we do not invent one.
-        sessionPrice: sessionStructure === 'included' || sessionStructure === 'none' ? '' : dollars(cp.sessionSeatPriceCents),
-        sessionCadence: 'monthly',
-        liveTicketPrice: dollars(cp.liveTicketPriceCents),
-        liveRunOfShow: [
-          'Open with two songs',
-          'The story behind one of them',
-          'Questions from the room',
-          'Something unreleased',
-          'Close on whatever the room unlocked',
-        ],
         launchOrder: sequence.length
           ? sequence.map((p) => `${p.phase}. ${p.title}`)
           : ['1. Launch the membership'],
       };
     },
-    // Turning off a growth system, pulling the Vault out of the ladder, or making a session a tier
-    // benefit all change the money. The model is re-run on the EDITED choices rather than the
-    // original wizard answers, so the artist never carries a headline their own edits invalidated.
+    // Pulling the Vault out of the ladder changes the money. The model is re-run on the EDITED
+    // choice rather than the original wizard answers, so the artist never carries a headline their
+    // own edits invalidated.
     recalc: (v, cp) => recalcUnified(v, cp),
   },
 

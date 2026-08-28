@@ -94,10 +94,13 @@ export const DEFAULT_INPUTS: UnifiedInputs = {
   currentPayingSupporters: 0,
   currentDirectRevenueCents: 0,
   unreleasedCount: 0,
-  fansPromote: 'would',
+  // Off by default (founder decision, 2026-08-28): the unified calculator no longer asks about
+  // sharing, clipping, live nights or sessions, so an unanswered input must mean "not modeled",
+  // never "assume they would". The three feature calculators pass explicit answers.
+  fansPromote: 'unlikely',
   videoOutput: 'none',
   promoterOverlap: 'unknown',
-  liveWilling: 'maybe',
+  liveWilling: 'no',
   sessionStructure: 'none',
   vaultPlacement: 'tier',
   timeCapacity: 'medium',
@@ -795,7 +798,7 @@ function buildLaunchSequence(eligible: Eligibility, inputs: UnifiedInputs): Laun
   return phases;
 }
 
-function buildNotInTheTotal(eligible: Eligibility, segments: FanSegments): StrategicItem[] {
+function buildNotInTheTotal(_eligible: Eligibility, segments: FanSegments): StrategicItem[] {
   const items: StrategicItem[] = [
     {
       key: 'proof_of_demand',
@@ -820,13 +823,6 @@ function buildNotInTheTotal(eligible: Eligibility, segments: FanSegments): Strat
     label: 'Royalties you may not be collecting',
     why: 'That is money already earned somewhere else, not money this build creates. It belongs to the Royalty Readiness Check, not to this total.',
   });
-  if (!eligible.live) {
-    items.push({
-      key: 'live',
-      label: 'Live events',
-      why: 'You said live is not for you right now, so nothing here assumes ticket income you have not agreed to earn.',
-    });
-  }
   items.push({
     key: 'sponsorship',
     label: 'Brand and sponsor money',

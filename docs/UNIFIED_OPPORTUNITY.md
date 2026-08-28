@@ -173,14 +173,19 @@ repository-backed overlap rule, so the model asks, and falls back to a documente
 
 ## 5. The wizard
 
-Eleven single-question screens plus review, with two real branches:
+Five screens plus review, nine questions, no branches (since 2026-08-28).
 
-- **`overlap`** renders only when `fans_promote != unlikely` AND `video_output != none`.
-- **`session`** renders only when `live_willing != no`.
+**The unified calculator never asks about Share-to-Earn, Clip-to-Earn, live nights or producer
+sessions** (founder decision, 2026-08-28). Those questions belong only to the calculators that sell
+those features (`share-to-earn-planner`, `clip-to-earn-campaign-planner`,
+`live-experience-calculator`, and `executive-producer-session` for its own subject). Every other
+calculator models the membership. The adapter (`toUnifiedInputs`) pins `fansPromote: 'unlikely'`,
+`videoOutput: 'none'`, `liveWilling: 'no'`, `sessionStructure: 'none'` and does NOT read a stored
+answer for them, so a result saved before that date renders the same membership-only page.
+`DEFAULT_INPUTS` in the model is off for the same keys. `conversionContract.test.ts` scans every
+non-feature calculator's questions for that vocabulary, so a re-added question fails `npm test`.
 
-A step whose every input is branched away is skipped outright (`isStepVisible`), so no artist ever
-sees an empty screen with a Continue button. Only the audience question is required; an artist can
-reach a real result from one number.
+Only the audience question is required; an artist can reach a real result from one number.
 
 The `proof` step also asks the 40% qualification question, `monetization_status` ("Have you sold
 directly to fans before?", one tap), added 2026-07-30. Every loss tool already asked it
@@ -204,22 +209,25 @@ unknown `?from=` degrades silently to the normal order.
 ## 6. The generated system
 
 The result CTA drops the artist into `DeliverableBuilder` with a `system` preview: the four-tier
-ladder plus the growth systems, the premium experience and the launch order, as one business.
-Everything is prefilled from `RECOMMENDED_LADDER` and the model's own payload. No required field
-starts blank, with one deliberate exception: a session that is a tier benefit has **no** seat price,
-and we do not invent one.
+ladder (with the Vault placed inside it) and the launch order, as one business. Everything is
+prefilled from `RECOMMENDED_LADDER` and the model's own payload. No required field starts blank.
 
-The artist can turn Share-to-Earn or Clip-to-Earn off, move the Vault out of the ladder, or change
-the session structure. When any of those changes the money, `recalcUnified` re-runs the model on the
-edited choices and the builder shows the new range with a line saying what moved. A builder that
-kept showing the original headline after the artist removed half the plan would be dishonest in the
-same way double-counting is, just pointed at a stale number instead of an inflated one.
+**The builder does not build Share-to-Earn, Clip-to-Earn, a premium session or a live night**
+(founder decision, 2026-08-28; the `share`, `clip`, `sessions` and `live` steps were deleted).
+The calculator never asked about them, so offering to build them would be building a thing the
+artist never chose. Those features are built from their own calculators.
+
+The artist can move the Vault out of the ladder or sell it on its own. When that changes the money,
+`recalcUnified` re-runs the model on the edited choice and the builder shows the new range with a
+line saying what moved. A builder that kept showing the original headline after the artist removed
+part of the plan would be dishonest in the same way double-counting is, just pointed at a stale
+number instead of an inflated one.
 
 ### Launch sequence
 
-Phase 1 is always the membership (nothing else can launch before fans have somewhere to pay).
-Then Share-to-Earn, then Clip-to-Earn, then the premium experience, then Proof of Demand. Phases the
-artist is not eligible for are omitted entirely, not greyed out.
+Phase 1 is always the membership (nothing else can launch before fans have somewhere to pay), then
+Proof of Demand. The share, clip and premium-experience phases still exist in the model but are
+never eligible from this calculator, so they are omitted entirely, not greyed out.
 
 ---
 

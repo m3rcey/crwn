@@ -224,10 +224,11 @@ describe('the primary acquisition front door: opportunity-calculator', () => {
     }
   });
 
-  it('still asks all fourteen questions after the screen consolidation', () => {
+  it('asks exactly the nine membership questions', () => {
     // Consolidating screens must never become removing fields: every one of these feeds the model,
-    // the sub-avatar assignment, the ICP scorer or the builder prefill, and dropping one would shrink
-    // the artist's estimate rather than speeding it up.
+    // the sub-avatar assignment, the ICP scorer or the builder prefill. The five share / clip /
+    // live / session questions were REMOVED on purpose (founder decision, 2026-08-28): this tool
+    // models the membership, and those features are asked about only by their own calculators.
     expect(unified.inputs.map((i) => i.key).sort()).toEqual(
       [
         'genre_family',
@@ -238,18 +239,13 @@ describe('the primary acquisition front door: opportunity-calculator', () => {
         'current_supporters',
         'direct_fan_revenue_cents',
         'unreleased_count',
-        'fans_promote',
-        'video_output',
-        'promoter_overlap',
-        'live_willing',
-        'session_structure',
         'time_capacity',
       ].sort(),
     );
   });
 
-  it('asks them across 8 screens, ending on review', () => {
-    expect(unified.wizardSteps).toHaveLength(8);
+  it('asks them across 6 screens, ending on review', () => {
+    expect(unified.wizardSteps).toHaveLength(6);
     expect(unified.wizardSteps[unified.wizardSteps.length - 1].id).toBe('review');
     expect(unified.wizardSteps[0].id).toBe('audience');
   });
@@ -258,11 +254,22 @@ describe('the primary acquisition front door: opportunity-calculator', () => {
     expect(unified.inputs.filter((i) => i.required).map((i) => i.key)).toEqual(['social_followers']);
   });
 
-  it('keeps the two dependent questions dependent, so neither is asked pointlessly', () => {
-    const overlap = unified.inputs.find((i) => i.key === 'promoter_overlap');
-    expect(overlap?.dependsOn?.all).toHaveLength(2);
-    const session = unified.inputs.find((i) => i.key === 'session_structure');
-    expect(session?.dependsOn?.key).toBe('live_willing');
+  it('never asks about live sessions, producer sessions, sharing or clipping outside the three feature calculators', () => {
+    // The three calculators that SELL those features keep their questions. Every other tool asks
+    // nothing about them and builds nothing for them.
+    // The producer-session calculator is its own subject, so it is exempt for the same reason.
+    const FEATURE_TOOLS = ['live-experience-calculator', 'share-to-earn-planner', 'clip-to-earn-campaign-planner', 'executive-producer-session'];
+    const banned = /\b(live ?stream|go live|live night|live session|producer session|share-to-earn|clip-to-earn|clipper|clipping|sharers)\b/i;
+    for (const m of LEAD_MAGNETS) {
+      if (FEATURE_TOOLS.includes(m.slug)) continue;
+      for (const input of m.inputs) {
+        const text = [input.label, input.help ?? '', ...(input.options ?? []).map((o) => `${o.label} ${o.hint ?? ''}`)].join(' ');
+        expect(text, `${m.slug}.${input.key}`).not.toMatch(banned);
+      }
+      for (const step of m.wizardSteps) {
+        expect(`${step.title} ${step.subtitle ?? ''}`, `${m.slug}.${step.id}`).not.toMatch(banned);
+      }
+    }
   });
 });
 

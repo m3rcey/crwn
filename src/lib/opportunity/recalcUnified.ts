@@ -1,14 +1,16 @@
 // Re-run the unified model on the artist's EDITED plan.
 //
 // The calculator's headline was produced from the wizard answers. The builder then lets the artist
-// turn Share-to-Earn off, pull the Vault out of the ladder, or make the premium session a tier
-// benefit instead of a ticket. Every one of those changes the money, so continuing to show the
-// original figure would be a stale claim: honest arithmetic, presented dishonestly.
+// pull the Vault out of the ladder, or sell it on its own. That changes the money, so continuing to
+// show the original figure would be a stale claim: honest arithmetic, presented dishonestly.
 //
 // This takes the ORIGINAL audience answers (carried on the result's conversionPayload, which is
 // where they were already persisted) and overlays the artist's edited structural choices, then
 // re-runs the same model. It never re-derives the audience from the draft, because the draft has no
 // audience fields; an artist who wants a different audience re-runs the calculator.
+//
+// Share-to-Earn, Clip-to-Earn and the premium session are no longer in this builder (founder
+// decision, 2026-08-28): those systems are asked about and built only by their own calculators.
 //
 // Structurally typed on purpose: it takes plain draft values so it does not import the deliverable
 // spec types that import it back.
@@ -38,25 +40,12 @@ export function recalcUnified(v: DraftLike, cp: Record<string, unknown>): Recalc
   const stored = cp.modelInputs as Partial<UnifiedInputs> | undefined;
   if (!stored || typeof stored !== 'object') return null;
 
-  const shareOn = readString(v.shareOn) !== 'off';
-  const clipOn = readString(v.clipOn) !== 'off';
   const vaultPlacement = readString(v.vaultPlacement);
-  const sessionStructure = readString(v.sessionStructure);
 
   const edited: Partial<UnifiedInputs> = {
     ...stored,
-    // "Do not run it" is modeled as the artist's fans not promoting, which is exactly what turning
-    // the system off means: no sharers, no clippers, no lift, no referred heads.
-    fansPromote: shareOn ? (stored.fansPromote ?? 'would') : 'unlikely',
-    videoOutput: clipOn ? (stored.videoOutput ?? 'none') : 'none',
     ...(vaultPlacement === 'tier' || vaultPlacement === 'standalone' || vaultPlacement === 'none'
       ? { vaultPlacement }
-      : {}),
-    ...(sessionStructure === 'none' ||
-    sessionStructure === 'included' ||
-    sessionStructure === 'ticketed' ||
-    sessionStructure === 'hybrid'
-      ? { sessionStructure }
       : {}),
   };
 

@@ -967,6 +967,9 @@ None of it was churned.
 2. **The primary front door asked fourteen questions across THIRTEEN screens.** Now **eight**, with
    all fourteen questions intact. Z2B-1 audited whether each FIELD had a consumer; nobody had
    audited how many DECISIONS TO CONTINUE stood between a cold visitor and the promised number.
+   (Superseded 2026-08-28: the five share / clip / live / session questions were removed by
+   founder decision, so it is now nine questions across six screens. See
+   `docs/UNIFIED_OPPORTUNITY.md` section 5.)
 3. **The ten two-question loss tools ended on a `review` screen** replaying two answers the artist
    typed seconds earlier: a tap at peak intent buying nothing. Deleted (2 screens, not 3).
 4. **"How it works" on `/worth` AND the homepage said step 1 was "Book a quick call"** while every

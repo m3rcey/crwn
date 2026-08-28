@@ -27,7 +27,7 @@ reorder precedence, and it is a **founder decision**.
 |---|---|---|---|
 | 0 | `highest_priority_empire_builder` | Highest Priority Empire Builder | The full four-tier ladder, launched to buyers who already pay |
 | 1 | `established_independent_operator` | Established Independent Minded Operator | A membership built from the catalog and audience already in hand |
-| 2 | `brand_led_hip_hop_artist` | Brand-Led Hip-Hop Artist | A membership fed by the content engine, with fans promoting it |
+| 2 | `brand_led_hip_hop_artist` | Brand-Led Hip-Hop Artist | A membership fed by the content engine |
 | 3 | `rnb_empire_builder` | R&B Empire Builder | A depth-first membership: the vault plus a members-only experience |
 
 **Every avatar's front door is the all-in-one calculator** (founder decision, 2026-08-03):

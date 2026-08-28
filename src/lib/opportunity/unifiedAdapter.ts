@@ -60,11 +60,15 @@ export function toUnifiedInputs(raw: Record<string, unknown>): Partial<UnifiedIn
     currentPayingSupporters: num('current_supporters'),
     currentDirectRevenueCents: num('direct_fan_revenue_cents'),
     unreleasedCount: num('unreleased_count'),
-    fansPromote: opt('fans_promote', ['already', 'would', 'unlikely'] as const, 'would'),
-    videoOutput: opt('video_output', ['lots', 'some', 'none'] as const, 'none'),
-    promoterOverlap: opt('promoter_overlap', ['mostly_same', 'some_overlap', 'mostly_different', 'unknown'] as const, 'unknown'),
-    liveWilling: opt('live_willing', ['yes', 'maybe', 'no'] as const, 'maybe'),
-    sessionStructure: opt('session_structure', ['none', 'included', 'ticketed', 'hybrid'] as const, 'none'),
+    // Share-to-Earn, Clip-to-Earn, live nights and producer sessions are pinned OFF (founder
+    // decision, 2026-08-28). The unified calculator no longer asks about them, and a stored answer
+    // from before that date is deliberately not read either: this tool models the membership, and
+    // the three feature calculators are where those systems are asked about and built.
+    fansPromote: 'unlikely',
+    videoOutput: 'none',
+    promoterOverlap: 'unknown',
+    liveWilling: 'no',
+    sessionStructure: 'none',
     vaultPlacement: opt('vault_placement', ['none', 'tier', 'standalone'] as const, 'tier'),
     timeCapacity: opt('time_capacity', ['low', 'medium', 'high'] as const, 'medium'),
   };

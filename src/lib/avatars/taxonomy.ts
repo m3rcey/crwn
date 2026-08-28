@@ -152,11 +152,12 @@ export const SUB_AVATARS: SubAvatarDef[] = [
     promise: 'Turn the attention the brand already earns into owned members and owned revenue.',
     entryContext: 'brand_led_hip_hop_artist',
     entryRoute: '/tools/opportunity-calculator?from=brand_led_hip_hop_artist',
-    // Lead with reach and the content engine: this artist's asset is attention and output.
-    priorityStepIds: ['audience', 'fans'],
+    // Lead with reach: this artist's asset is attention. (The fan-labor screen left the unified
+    // calculator on 2026-08-28; sharing and clipping are asked only by their own calculators.)
+    priorityStepIds: ['audience', 'proof'],
     entryNote:
-      'Your brand already moves people, so we start with the reach and the content you put out, then work out what owning that audience is worth.',
-    firstOffer: 'A membership fed by the content engine, with fans promoting it.',
+      'Your brand already moves people, so we start with the reach you already have, then work out what owning that audience is worth.',
+    firstOffer: 'A membership fed by the content engine.',
     continueRoute: '/offers/new',
     nurtureThemes: [
       'attention that converts to nothing you own',
@@ -180,11 +181,12 @@ export const SUB_AVATARS: SubAvatarDef[] = [
     promise: 'Turn devoted listeners into paying members with somewhere real to go deeper.',
     entryContext: 'rnb_empire_builder',
     entryRoute: '/tools/opportunity-calculator?from=rnb_empire_builder',
-    // Lead with depth: the catalog and the experiences that reward the closest fans.
-    priorityStepIds: ['vault', 'live', 'audience'],
+    // Lead with depth: the catalog that rewards the closest fans. (The live screen left the
+    // unified calculator on 2026-08-28; live is asked only by the Live Experience calculator.)
+    priorityStepIds: ['vault', 'audience'],
     entryNote:
-      'Your closest fans want more of you, so we start with the unreleased work and the experiences that give them somewhere to go.',
-    firstOffer: 'A depth-first membership: the vault plus a members-only experience.',
+      'Your closest fans want more of you, so we start with the unreleased work that gives them somewhere to go.',
+    firstOffer: 'A depth-first membership built around the vault.',
     continueRoute: '/offers/new',
     nurtureThemes: [
       'devotion with nowhere to spend it',

@@ -920,74 +920,11 @@ const UNIFIED_OPPORTUNITY: LeadMagnetConfig = {
       step: 'vault',
       placeholder: '30',
     },
-    {
-      key: 'fans_promote',
-      type: 'option',
-      label: 'Would your fans put people onto you?',
-      step: 'fans',
-      options: [
-        { value: 'already', label: 'They already do it for free', hint: 'Untracked and unpaid today', icon: '🔥' },
-        { value: 'would', label: 'They would, for a cut', icon: '🤝' },
-        { value: 'unlikely', label: 'Not yet, honestly', icon: '🌱' },
-      ],
-    },
-    {
-      key: 'video_output',
-      type: 'option',
-      label: 'How much video or livestream do you put out?',
-      help: 'Clips need something to cut from. No footage, no clip program.',
-      step: 'fans',
-      options: [
-        { value: 'lots', label: 'Plenty. I am on camera often', icon: '🎥' },
-        { value: 'some', label: 'Some, here and there', icon: '📹' },
-        { value: 'none', label: 'Almost none', icon: '🚫' },
-      ],
-    },
-    {
-      key: 'promoter_overlap',
-      type: 'option',
-      label: 'Are your sharers and your clippers the same people?',
-      help: 'This is the one thing that decides whether we count a helper once or twice.',
-      step: 'fans',
-      // Only asked when BOTH systems are live for this artist. Otherwise the answer changes nothing.
-      dependsOn: {
-        all: [
-          { key: 'fans_promote', notOneOf: ['unlikely'] },
-          { key: 'video_output', notOneOf: ['none'] },
-        ],
-      },
-      options: [
-        { value: 'mostly_same', label: 'Mostly the same handful of superfans', icon: '🎯' },
-        { value: 'some_overlap', label: 'Some overlap', icon: '🔗' },
-        { value: 'mostly_different', label: 'Mostly different people', icon: '🫂' },
-        { value: 'unknown', label: 'I have no idea', icon: '🤷' },
-      ],
-    },
-    {
-      key: 'live_willing',
-      type: 'option',
-      label: 'Would you host a live night for your fans?',
-      step: 'live',
-      options: [
-        { value: 'yes', label: 'Yes, I would run one a month', icon: '🎤' },
-        { value: 'maybe', label: 'Maybe, occasionally', icon: '🤔' },
-        { value: 'no', label: 'No, that is not for me', icon: '🚪' },
-      ],
-    },
-    {
-      key: 'session_structure',
-      type: 'option',
-      label: 'How should a paid session work?',
-      help: 'This decides whether it earns on its own or makes your top tier worth its price.',
-      step: 'live',
-      dependsOn: { key: 'live_willing', notOneOf: ['no'] },
-      options: [
-        { value: 'included', label: 'Free for my top tier', hint: 'Sells the tier, not a ticket', icon: '👑' },
-        { value: 'ticketed', label: 'Ticketed, anyone can buy a seat', icon: '🎟️' },
-        { value: 'hybrid', label: 'Top tier gets in free, extra seats sold', icon: '⚖️' },
-        { value: 'none', label: 'Skip sessions for now', icon: '⏭️' },
-      ],
-    },
+    // Share-to-Earn, Clip-to-Earn, live nights and producer sessions are NOT asked here (founder
+    // decision, 2026-08-28). Those questions belong to the three calculators that sell those
+    // features (share-to-earn-planner, clip-to-earn-campaign-planner, live-experience-calculator).
+    // Every other calculator models the membership only, so the adapter pins those systems OFF
+    // rather than defaulting them on, and the builder no longer offers to build them.
     {
       key: 'time_capacity',
       type: 'option',
@@ -1001,27 +938,22 @@ const UNIFIED_OPPORTUNITY: LeadMagnetConfig = {
       ],
     },
   ],
-  // EIGHT screens for fourteen questions, down from thirteen. This is the front door: all four
-  // sub-avatars enter here (docs/SUB_AVATARS.md), the homepage mounts it, and the `free`/`plan`
-  // keywords land on it. Every question that used to own a screen still exists and is still asked;
-  // the ones that answer the SAME question for the model now share a screen, because a screen is a
-  // decision to continue and thirteen of them stand between a cold visitor and the number the hero
-  // promised. Nothing was deleted, so no artist's estimate got smaller.
+  // SIX screens for nine questions. This is the front door: all four sub-avatars enter here
+  // (docs/SUB_AVATARS.md), the homepage mounts it, and the `free`/`plan` keywords land on it.
+  // The screens used to be eight for fourteen questions; the `fans` (share/clip) and `live`
+  // (live night / producer session) screens were removed on 2026-08-28 because this calculator
+  // models the MEMBERSHIP, and the three feature calculators own those questions.
   //
   // The groupings are cognitive, not arbitrary: the two audience numbers belong together (the
-  // subtitle is what stops anyone adding them), the three fan-labor questions are one topic and the
-  // overlap question only appears once both of its parents are answered, and a session's structure is
-  // meaningless until the artist has said they would go live at all.
+  // subtitle is what stops anyone adding them), and proof is one topic across three answers.
   //
-  // `review` STAYS here, unlike the two-question loss tools: fourteen answers drive money figures,
+  // `review` STAYS here, unlike the two-question loss tools: nine answers drive money figures,
   // and a typo caught before the reveal is worth its screen.
   wizardSteps: [
     { id: 'audience', group: 'Audience', title: 'How big is your audience?', subtitle: 'What you make, then your numbers. We use the larger of the two, never the sum.' },
     { id: 'owned', group: 'Audience', title: 'How many fans do you own?', subtitle: 'Contacts no platform can take away from you.' },
     { id: 'proof', group: 'Proof', title: 'What are your fans already paying you?', subtitle: 'Whatever exists today gets subtracted, not added.' },
     { id: 'vault', group: 'Catalog', title: 'What is sitting unreleased?', subtitle: 'A vault with nothing in it is a promise you cannot keep.' },
-    { id: 'fans', group: 'Fans', title: 'Would your fans work for you?', subtitle: 'Sharing and clipping bring supporters in. A fan can do both jobs and still be one person.' },
-    { id: 'live', group: 'Experiences', title: 'Would you go live?', subtitle: 'Nothing here assumes an event you will not run.' },
     { id: 'capacity', group: 'You', title: 'What can you keep up with?', subtitle: 'The last question, and it shapes the whole plan.' },
     { id: 'review', group: 'Review', title: 'Review', subtitle: 'Check your answers, then see the whole picture.' },
   ],
@@ -1044,13 +976,13 @@ const UNIFIED_OPPORTUNITY: LeadMagnetConfig = {
     },
     brand_led_hip_hop_artist: {
       label: 'Brand-Led Artist',
-      note: 'Your brand already moves people, so we start with the reach and the content you put out, then work out what owning that audience is worth.',
-      priorityStepIds: ['audience', 'fans'],
+      note: 'Your brand already moves people, so we start with the reach you already have, then work out what owning that audience is worth.',
+      priorityStepIds: ['audience', 'proof'],
     },
     rnb_empire_builder: {
       label: 'R&B Empire',
-      note: 'Your closest fans want more of you, so we start with the unreleased work and the experiences that give them somewhere to go.',
-      priorityStepIds: ['vault', 'live', 'audience'],
+      note: 'Your closest fans want more of you, so we start with the unreleased work that gives them somewhere to go.',
+      priorityStepIds: ['vault', 'audience'],
     },
     // ---- Single-opportunity tool contexts (a topic, not an identity claim) ----
     'fan-stack-calculator': {
@@ -1060,23 +992,25 @@ const UNIFIED_OPPORTUNITY: LeadMagnetConfig = {
     },
     'between-tour-calculator': {
       label: 'Between Tours',
-      note: 'You came here about the months between shows, so we start with your audience and the experiences that fill the gap.',
-      priorityStepIds: ['audience', 'live'],
+      note: 'You came here about the months between shows, so we start with your audience and the membership that fills the gap.',
+      priorityStepIds: ['audience', 'proof'],
     },
     'vault-revenue-planner': {
       label: 'Vault',
       note: 'You came here about your vault, so we will start there. The rest of the questions decide where it sits in your business.',
       priorityStepIds: ['vault', 'audience'],
     },
+    // Share/clip/live/session arrivals: those calculators own their own questions, so this one
+    // starts with what the sharers, clippers or ticket buyers would arrive TO: the membership.
     'share-to-earn-planner': {
       label: 'Share-to-Earn',
-      note: 'You came here about fan sharing, so we will start there. Sharing brings supporters in, so we need to know what they arrive to.',
-      priorityStepIds: ['fans', 'audience'],
+      note: 'You came here about fan sharing. Sharing brings supporters in, so we start with what they arrive to: your audience and what fans already pay you.',
+      priorityStepIds: ['audience', 'proof'],
     },
     'clip-to-earn-campaign-planner': {
       label: 'Clip-to-Earn',
-      note: 'You came here about clips, so we will start there. Clips convert the fans you already reach, so your audience is next.',
-      priorityStepIds: ['fans', 'audience'],
+      note: 'You came here about clips. Clips convert the fans you already reach, so we start with that audience and what they already pay you.',
+      priorityStepIds: ['audience', 'proof'],
     },
     // Added 2026-08-24 for the narrow-result -> flagship bridge: DEMAND is a promoted carousel
     // angle and its calculator had no declared context, so its bridge arrival would have landed
@@ -1102,13 +1036,13 @@ const UNIFIED_OPPORTUNITY: LeadMagnetConfig = {
     },
     'executive-producer-session': {
       label: 'Producer Sessions',
-      note: 'You came here about selling a seat in the room, so we start with how you want that session to work.',
-      priorityStepIds: ['live', 'audience'],
+      note: 'You came here about selling a seat in the room. A seat sells to fans who are not already members, so we start with your audience and what they already pay you.',
+      priorityStepIds: ['audience', 'proof'],
     },
     'live-experience-calculator': {
       label: 'Live Experience',
-      note: 'You came here about live, so we start there. A ticket only counts for fans who are not already members.',
-      priorityStepIds: ['live', 'audience'],
+      note: 'You came here about live. A ticket only counts for fans who are not already members, so we start with your audience and what they already pay you.',
+      priorityStepIds: ['audience', 'proof'],
     },
   },
   resultGeneratorKey: 'unifiedOpportunity',

@@ -292,7 +292,9 @@ describe('optional opportunities do not appear for ineligible artists', () => {
     expect(r.incremental).toHaveLength(0);
     expect(r.oneTimeGrossCents).toBe(0);
     expect(r.recommendations.find((x) => x.key === 'live')?.placement).toBe('not_yet');
-    expect(r.notInTheTotal.some((x) => x.key === 'live')).toBe(true);
+    // No "you said live is not for you" line: the unified calculator no longer asks, so the model
+    // may not quote an answer the artist never gave (2026-08-28).
+    expect(r.notInTheTotal.some((x) => x.key === 'live')).toBe(false);
   });
 
   it('gives an artist with no video no clip lift', () => {

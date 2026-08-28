@@ -73,7 +73,9 @@ describe('sanitizeCalculatorInputs', () => {
     });
     expect(out.social_followers).toBe(400_000);
     expect(out.monetization_status).toBe('direct_some');
-    expect(out.fans_promote).toBe('already');
+    // `fans_promote` left the unified calculator on 2026-08-28, so the sanitizer, which only
+    // admits keys the registry defines, must drop it like any other unknown key.
+    expect(out).not.toHaveProperty('fans_promote');
   });
 });
 

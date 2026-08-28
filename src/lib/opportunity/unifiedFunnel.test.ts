@@ -29,12 +29,17 @@ const ANSWERS: LeadMagnetInputValues = {
   current_supporters: 0,
   direct_fan_revenue_cents: 0,
   unreleased_count: 30,
-  fans_promote: 'would',
+  time_capacity: 'medium',
+};
+
+// Answers a result saved BEFORE 2026-08-28 could still carry. The adapter must ignore them: the
+// unified tool models the membership only, and those systems belong to their own calculators.
+const LEGACY_FEATURE_ANSWERS = {
+  fans_promote: 'already',
   video_output: 'lots',
   promoter_overlap: 'some_overlap',
   live_willing: 'yes',
   session_structure: 'hybrid',
-  time_capacity: 'medium',
 };
 
 /** Sum the dollars out of a "$1,234 to $5,678" range, for comparing two recalculated bands. */
@@ -87,39 +92,29 @@ describe('the tool is registered everywhere it needs to be', () => {
 });
 
 // The questions the wizard actually renders on a screen, which is what the artist experiences.
-// Branching used to be observable at STEP level because each of these questions owned a screen of
-// its own; the fourteen questions now share eight screens, so a branched-away question disappears
-// from its screen instead of removing one. Same rule (`isInputVisible`), same guarantee, asserted
-// where it now applies.
 const visibleInputs = (values: LeadMagnetInputValues, entry: string | null = null) =>
   orderStepsForEntry(config, entry)
     .filter((s) => isStepVisible(config, s.id, values))
     .flatMap((s) => config.inputs.filter((d) => d.step === s.id && isInputVisible(d, values)))
     .map((d) => d.key);
 
-describe('the wizard branches instead of asking everything', () => {
-  it('asks the overlap question only when the artist has BOTH sharers and clippers', () => {
-    expect(visibleInputs(ANSWERS)).toContain('promoter_overlap');
-    expect(visibleInputs({ ...ANSWERS, video_output: 'none' })).not.toContain('promoter_overlap');
-    expect(visibleInputs({ ...ANSWERS, fans_promote: 'unlikely' })).not.toContain('promoter_overlap');
+describe('the wizard asks the membership questions and nothing about the feature calculators', () => {
+  it('asks nine questions across six screens', () => {
+    expect(visibleInputs(ANSWERS)).toHaveLength(9);
+    expect(visibleSteps(ANSWERS)).toHaveLength(6);
   });
 
-  it('asks how a session is structured only when the artist will go live', () => {
-    expect(visibleInputs(ANSWERS)).toContain('session_structure');
-    expect(visibleInputs({ ...ANSWERS, live_willing: 'no' })).not.toContain('session_structure');
+  it('never asks about sharing, clipping, live nights or sessions (founder decision, 2026-08-28)', () => {
+    const keys = config.inputs.map((i) => i.key);
+    for (const k of Object.keys(LEGACY_FEATURE_ANSWERS)) expect(keys).not.toContain(k);
+    expect(config.wizardSteps.map((s) => s.id)).not.toContain('fans');
+    expect(config.wizardSteps.map((s) => s.id)).not.toContain('live');
   });
 
-  it('asks all fourteen questions across eight screens, so no question was traded for the shorter path', () => {
-    expect(visibleInputs(ANSWERS)).toHaveLength(14);
-    expect(visibleSteps(ANSWERS)).toHaveLength(8);
-  });
-
-  it('never renders a step whose every question was branched away', () => {
-    const values = { ...ANSWERS, live_willing: 'no', video_output: 'none' };
-    for (const id of visibleSteps(values)) {
-      const onStep = config.inputs.filter((d) => d.step === id);
+  it('never renders a step with no question on it', () => {
+    for (const id of visibleSteps(ANSWERS)) {
       if (id === 'review') continue;
-      expect(onStep.some((d) => isInputVisible(d, values)), id).toBe(true);
+      expect(config.inputs.some((d) => d.step === id && isInputVisible(d, ANSWERS)), id).toBe(true);
     }
   });
 
@@ -150,13 +145,14 @@ describe('entry context personalizes without changing the model', () => {
     expect(entryNote(config, key)).toMatch(/vault/i);
   });
 
-  it('leads with fan labor for a Share-to-Earn or Clip-to-Earn video', () => {
-    // Sharing and clipping are one screen now, so both videos land on it first and the artist sees
-    // the question their video was about as question one.
-    for (const from of ['share-to-earn-planner', 'clip-to-earn-campaign-planner']) {
-      expect(visibleSteps(ANSWERS, resolveEntryContext(config, from))[0], from).toBe('fans');
+  it('leads with the membership for a Share-to-Earn, Clip-to-Earn, live or session video', () => {
+    // Those calculators own their own questions. An arrival from one of them is here for the
+    // membership the sharers, clippers or ticket buyers arrive TO, so it starts with the audience.
+    for (const from of ['share-to-earn-planner', 'clip-to-earn-campaign-planner', 'live-experience-calculator', 'executive-producer-session']) {
+      const key = resolveEntryContext(config, from);
+      expect(key, from).toBe(from);
+      expect(visibleSteps(ANSWERS, key)[0], from).toBe('audience');
     }
-    expect(visibleInputs(ANSWERS, resolveEntryContext(config, 'share-to-earn-planner'))[0]).toBe('fans_promote');
   });
 
   it('leads with audience and current earnings for a Streaming Loss video', () => {
@@ -213,7 +209,7 @@ describe('the presented result', () => {
   it('shows the overlap explanation and the not-in-the-total list', () => {
     const overlap = result.sections.find((s) => s.key === 'overlap');
     const notIn = result.sections.find((s) => s.key === 'notInTotal');
-    expect(overlap?.items?.length).toBeGreaterThanOrEqual(4);
+    expect(overlap?.items?.length).toBeGreaterThanOrEqual(2);
     expect(notIn?.items?.length).toBeGreaterThanOrEqual(3);
     expect(notIn?.items?.join(' ')).toMatch(/Proof of Demand/);
   });
@@ -266,35 +262,32 @@ describe('the presented result', () => {
     expect(result.headline).toMatch(/after CRWN's fee and any commissions you pay/);
   });
 
-  it('tells the artist how much of a "/mo" figure is actually recurring', () => {
-    // The hero says "/mo". Between a quarter and a half of it can be one-off event and seat money
-    // depending on the answers, and a reader will hear "/mo" as MRR unless the split is stated
-    // next to the number rather than in a tile further down.
-    expect(result.summary).toMatch(/\d+% of that is recurring membership/);
-  });
-
-  it('does not read an artist a split of event money they have none of', () => {
+  it('is all recurring membership, and says so instead of reading a split of event money', () => {
     // "About 100% of that is recurring, and the rest is events" is the sentence that tells a
     // careful reader the page is generated and nobody read it.
-    const allRecurring = buildUnifiedResult({ ...ANSWERS, live_willing: 'no' } as Record<string, unknown>);
-    expect(allRecurring.summary).toMatch(/All of it is recurring membership/);
-    expect(allRecurring.summary).not.toMatch(/the rest is/);
-    expect(allRecurring.sections.find((s) => s.key === 'assumptions')?.items?.join(' ')).not.toMatch(/Tickets and seats are sold/);
+    expect(result.summary).toMatch(/All of it is recurring membership/);
+    expect(result.summary).not.toMatch(/the rest is/);
+    expect(result.sections.find((s) => s.key === 'assumptions')?.items?.join(' ')).not.toMatch(/Tickets and seats are sold/);
   });
 
-  it('discloses the rates behind every layer that is actually in this artist total', () => {
+  it('discloses the rates behind the membership and asserts none for systems it never asked about', () => {
     const shown = result.sections.find((s) => s.key === 'assumptions')?.items?.join(' ') ?? '';
-    // Member extras, live and seats were carrying real money with no stated rate at all: on a
-    // ticketed session at 1M followers the seat line alone is about 40% of gross.
     expect(shown).toMatch(/\$3 a month/);
-    expect(shown).toMatch(/One live event a month/);
-    expect(shown).toMatch(/1% of the fans you can reach who are not members buy a \$15 ticket/);
-    // A sub-1% rate must not round to "0%", which would read as an assumption doing nothing.
-    expect(shown).toMatch(/0\.3% of the fans you can reach who are not members buy a session seat/);
-    expect(shown).toMatch(/we do not model a capacity limit/);
-    // And an assumption that is not in this artist's total may not be asserted at them.
-    const noLive = buildUnifiedResult({ ...ANSWERS, live_willing: 'no' } as Record<string, unknown>);
-    expect(noLive.sections.find((s) => s.key === 'assumptions')?.items?.join(' ')).not.toMatch(/live event a month/i);
+    // Live, seats, sharing and clipping are not in this total, so no rate for them is asserted.
+    expect(shown).not.toMatch(/live event a month/i);
+    expect(shown).not.toMatch(/session seat/i);
+    expect(shown).not.toMatch(/fans share for a reward/i);
+    expect(shown).not.toMatch(/Clips raise/i);
+  });
+
+  it('ignores share, clip, live and session answers stored on a result from before 2026-08-28', () => {
+    const legacy = buildUnifiedResult({ ...ANSWERS, ...LEGACY_FEATURE_ANSWERS } as Record<string, unknown>);
+    expect(legacy.heroValue).toBe(result.heroValue);
+    expect(legacy.sections.find((s) => s.key === 'growth')).toBeUndefined();
+    expect(legacy.sections.find((s) => s.key === 'participation')).toBeUndefined();
+    expect(legacy.sections.find((s) => s.key === 'incremental')).toBeUndefined();
+    const system = legacy.sections.find((s) => s.key === 'system')?.items?.join(' ') ?? '';
+    expect(system).not.toMatch(/Share-to-Earn|Clip-to-Earn|Producer Sessions|Ticketed live/i);
   });
 });
 
@@ -367,13 +360,20 @@ describe('the coordinated system builder', () => {
   it('builds ONE system, not a pile of unrelated drafts', () => {
     expect(spec.preview.kind).toBe('system');
     expect(spec.preview.tiers?.length).toBe(4);
-    expect(spec.preview.itemKeys?.length).toBeGreaterThan(2);
+    expect(spec.preview.itemKeys?.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it('builds the membership only: no share, clip, session or live fields (founder decision, 2026-08-28)', () => {
+    const keys = specFields(spec).map((f) => f.key);
+    for (const k of ['shareOn', 'shareCommission', 'shareMessage', 'clipOn', 'clipBrief', 'sessionStructure', 'sessionPrice', 'sessionCadence', 'liveTicketPrice', 'liveRunOfShow']) {
+      expect(keys).not.toContain(k);
+    }
+    expect(spec.steps.map((s) => s.id)).toEqual(['wave', 'inner', 'vault', 'throne', 'launch']);
+    expect(`${spec.subtitle} ${spec.claimLine} ${spec.overlapNote}`).not.toMatch(/share|clip|ticket|session/i);
   });
 
   it('starts with no blank required field: the artist edits, never writes from scratch', () => {
     for (const field of specFields(spec)) {
-      // sessionPrice is deliberately blank when the session is a tier benefit; we do not invent it.
-      if (field.key === 'sessionPrice') continue;
       const v = draft[field.key];
       const filled = Array.isArray(v) ? v.length > 0 : String(v ?? '').length > 0;
       expect(filled, field.key).toBe(true);
@@ -388,31 +388,15 @@ describe('the coordinated system builder', () => {
     expect([draft.t0Name, draft.t1Name, draft.t2Name, draft.t3Name].filter(Boolean)).toHaveLength(4);
   });
 
-  it('generates share and clip programs only when the model recommended them', () => {
-    expect(draft.shareOn).toBe('on');
-    expect(draft.clipOn).toBe('on');
-    const noPromoters = buildUnifiedResult({ ...ANSWERS, fans_promote: 'unlikely', video_output: 'none' } as Record<string, unknown>);
-    const off = spec.prefill(noPromoters.conversionPayload);
-    expect(off.shareOn).toBe('off');
-    expect(off.clipOn).toBe('off');
+  it('carries the artist launch order, membership first, with no share, clip or live phase', () => {
+    const order = (draft.launchOrder as string[]).map(String);
+    expect(order[0]).toMatch(/^1\. Launch the membership/);
+    expect(order.join(' ')).not.toMatch(/promoters|content to work|premium experience/i);
   });
 
-  it('does not invent a seat price for a session that is a membership benefit', () => {
-    const included = buildUnifiedResult({ ...ANSWERS, session_structure: 'included' } as Record<string, unknown>);
-    const v = spec.prefill(included.conversionPayload);
-    expect(v.sessionStructure).toBe('included');
-    expect(v.sessionPrice).toBe('');
-  });
-
-  it('carries the artist launch order, membership first', () => {
-    expect(String((draft.launchOrder as string[])[0])).toMatch(/^1\. Launch the membership/);
-  });
-
-  it('lets the artist remove any recommendation, and survives the sanitizer', () => {
-    const edited = { ...draft, shareOn: 'off', clipOn: 'off', vaultPlacement: 'none', t1Price: 15 };
+  it('lets the artist remove the Vault, and survives the sanitizer', () => {
+    const edited = { ...draft, vaultPlacement: 'none', t1Price: 15 };
     const safe = sanitizeDeliverableValues(spec, edited);
-    expect(safe.shareOn).toBe('off');
-    expect(safe.clipOn).toBe('off');
     expect(safe.vaultPlacement).toBe('none');
     expect(safe.t1Price).toBe(15);
     // Unknown keys never survive the trust boundary.
@@ -448,29 +432,16 @@ describe('the estimate is re-derived when the artist edits the plan', () => {
     expect(r!.value).toMatch(/^\$[\d,]+ to \$[\d,]+$/);
   });
 
-  it('lowers the number, visibly, when the artist removes a growth system', () => {
+  it('lowers the number, visibly, when the artist removes the Vault', () => {
     const before = spec.recalc!(draft, cp)!;
-    const after = spec.recalc!({ ...draft, shareOn: 'off', clipOn: 'off' }, cp)!;
+    const after = spec.recalc!({ ...draft, vaultPlacement: 'none' }, cp)!;
     expect(after.changed).toBe(true);
     expect(after.note).toMatch(/lowered/i);
     expect(cents(after.value)).toBeLessThan(cents(before.value));
   });
 
-  it('lowers it again when a ticketed session becomes a membership benefit', () => {
-    const ticketed = spec.recalc!({ ...draft, sessionStructure: 'ticketed' }, cp)!;
-    const included = spec.recalc!({ ...draft, sessionStructure: 'included' }, cp)!;
-    expect(cents(included.value)).toBeLessThan(cents(ticketed.value));
-  });
-
   it('never silently keeps the old headline after a material change', () => {
-    // Typed as DraftValues so each literal is contextually typed. Left bare, TypeScript infers a
-    // union and synthesizes `clipOn?: undefined` on the shareOn member, which no real draft has.
-    const edits: DraftValues[] = [
-      { shareOn: 'off' },
-      { clipOn: 'off' },
-      { vaultPlacement: 'none' },
-      { sessionStructure: 'none' },
-    ];
+    const edits: DraftValues[] = [{ vaultPlacement: 'none' }, { vaultPlacement: 'standalone' }];
     for (const edit of edits) {
       const r = spec.recalc!({ ...draft, ...edit }, cp)!;
       expect(r.changed, JSON.stringify(edit)).toBe(true);
@@ -478,8 +449,14 @@ describe('the estimate is re-derived when the artist edits the plan', () => {
     }
   });
 
+  it('ignores share, clip and session keys a stale draft might still carry', () => {
+    // A draft saved before 2026-08-28 can hold these. They no longer move the money.
+    const r = spec.recalc!({ ...draft, shareOn: 'off', clipOn: 'off', sessionStructure: 'ticketed' }, cp)!;
+    expect(r.changed).toBe(false);
+  });
+
   it('ignores cosmetic edits that do not change the structure', () => {
-    const r = spec.recalc!({ ...draft, shareMessage: 'a different line', t1Name: 'The Family' }, cp)!;
+    const r = spec.recalc!({ ...draft, t1Name: 'The Family' }, cp)!;
     expect(r.changed).toBe(false);
   });
 
@@ -488,7 +465,7 @@ describe('the estimate is re-derived when the artist edits the plan', () => {
   });
 
   it('writes no em dashes in the recalculated copy', () => {
-    const r = spec.recalc!({ ...draft, shareOn: 'off' }, cp)!;
+    const r = spec.recalc!({ ...draft, vaultPlacement: 'none' }, cp)!;
     expect(`${r.value} ${r.label} ${r.note}`).not.toMatch(/[—–]/);
   });
 });
