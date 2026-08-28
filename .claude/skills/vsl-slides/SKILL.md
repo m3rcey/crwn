@@ -149,6 +149,43 @@ cost a render to learn:
   `/crwn-image-gen`. The abstract `person()` silhouettes in the count diagrams are not this: they
   are tally marks, and they stay gray.
 
+## Handing the deck to an editor
+
+    node scripts/vsl/cue-sheet.mjs      # writes videos/vsl/CUE-SHEET.md
+
+Rendered slides are useless in Premiere without knowing which words each one sits under, so this
+builds one table per deck: slide number, filename, and the **first words actually spoken** there.
+
+Three sources, and the hierarchy is the whole design. The **script** (`.rtf` in Documents) is what
+was recorded, so it is the ANSWER: every printed row is a real line from it. The **prompt sheet** is
+only a QUERY: its `Audio starts:` line paraphrases the script, so it locates a position and is never
+printed. **Never print a cue the recording does not contain** - a fabricated line sends the editor
+hunting for words that were never said, which is worse than an honest gap.
+
+- **There are no per-slide timecodes and there never were.** The `.txt` transcripts are a single
+  `00:00:00` block. The scripts carry section ranges, which is coarse; Josh asked for the words, not
+  the times, and the words are the better instrument anyway.
+- **Match on token overlap, not a prefix.** The sheets paraphrase, so "the first N words match
+  exactly" finds the wrong line or none. Weight content words double: `what happens if you` is four
+  function words and it put VSL #4 slide 1 five minutes late.
+- **Search a WINDOW of consecutive lines, but report the line the cue STARTS on.** These scripts run
+  one sentence per paragraph, so a cue like "They buy. They subscribe. They show up." spans three
+  rows. Two traps: recall rises with window size by construction, so charge each extra line
+  (a wide loose window otherwise beats an exact single line); and a window that merely CONTAINS the
+  cue may not begin on it.
+- **Drop everything above the first time range.** That block is the brief, not the recording, and
+  its "Curiosity gap:" paragraph summarises the entire video, so it outscores real narration. It
+  captured six VSL #4 slides and dragged the match cursor backwards past the rest.
+- **A deck whose sheet describes beats instead of quoting gets a hand-read `overrides` map**, whose
+  values are QUERIES drawn from the script, so the printed words still come from the script. An
+  explicit `null` means "deliberately unmapped" and must stay reachable: VSL #4 slide 9 argues the
+  first 30 days is not a giant income number, and the recording never says it. Without the null the
+  headline fallback handed that slide a duplicate of slide 5's line, which reads as an answer.
+- **Flag slides that play out of deck order.** VSL #4's sheet puts the guarantee CONDITIONS after
+  the reveal; the recording says them before it. Placing slides 14 and 16 by number would run them
+  against narration about something else. The check is free: a matched row earlier than the previous
+  slide's.
+
 ## Finishing
 
 **Open and look at every slide before shipping it.** The renderer reports bytes, which proves a
