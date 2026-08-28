@@ -650,6 +650,132 @@ export function pathCards(paths) {
     .join("")}</div>`;
 }
 
+/**
+ * The calculator's own number, which this deck never invents.
+ * The result is per-viewer, so the slide ships a labelled slot the editor fills, exactly like
+ * `recordingSlot`. A plausible-looking figure baked in here would read as a claim.
+ */
+export function resultSlot({ label = "YOUR ESTIMATED MONTHLY OPPORTUNITY", token = "$[CALCULATOR RESULT]" } = {}) {
+  return `<div class="rslot">
+    <div class="rslot-lb">${esc(label)}</div>
+    <div class="rslot-token">${esc(token)}</div>
+  </div>`;
+}
+
+/** Slides 7 and 13: a relationship that keeps going, against moments that stop. */
+export function continuousLine({ markers = 5, label = "" } = {}) {
+  const dots = Array.from({ length: markers }, () => `<span class="cl-dot"></span>`).join("");
+  return `<div class="contline">
+    <div class="cl-rail">${dots}</div>
+    ${label ? `<div class="cl-lb">${esc(label)}</div>` : ""}
+  </div>`;
+}
+
+/** Slides 7 and 12: purchases as separate moments with gaps, each ending. */
+export function momentsTimeline(moments) {
+  return `<div class="moments">${moments
+    .map(
+      (m) => `<div class="moment">
+      <div class="mo-card">${esc(m)}</div>
+      <div class="mo-end">ENDS</div>
+    </div>`,
+    )
+    .join('<div class="mo-gap"></div>')}</div>`;
+}
+
+/** Slide 9: the tiers as a narrowing pyramid, widest at the free front door. */
+export function pyramid(levels) {
+  const n = levels.length;
+  return `<div class="pyr">${levels
+    .map((l, i) => {
+      const w = 100 - i * (58 / (n - 1));
+      const op = 0.2 + (i / (n - 1)) * 0.55;
+      return `<div class="pyr-row" style="width:${w}%;background:rgba(212,175,55,${op.toFixed(2)})">
+        <span class="pyr-n">${esc(l.name)}</span>
+        <span class="pyr-p">${Array.from({ length: l.people }, () => person(19, C.ink)).join("")}</span>
+      </div>`;
+    })
+    .join("")}</div>`;
+}
+
+/** Slide 18: a starting structure that is visibly editable, never a mock of CRWN. */
+export function editableTiers(names) {
+  return `<div class="etiers">${names
+    .map(
+      (n) => `<div class="etier">
+      <div class="et-head"><span>${esc(n)}</span>${icon("pen", 22)}</div>
+      <div class="et-lines"><i></i><i></i><i></i></div>
+    </div>`,
+    )
+    .join("")}</div>`;
+}
+
+/** Slide 21: the artist as the integration layer nobody asked them to be. */
+export function fragmentation({ center, nodes }) {
+  const n = nodes.length;
+  return `<div class="frag">
+    <svg class="frag-links" viewBox="0 0 100 100" aria-hidden="true">${nodes
+      .map((_, i) => {
+        const a = (i / n) * Math.PI * 2 - Math.PI / 2;
+        const x = 50 + Math.cos(a) * 38;
+        const y = 50 + Math.sin(a) * 38;
+        return `<line x1="50" y1="50" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="${C.grayMute}"
+          stroke-width="0.5" stroke-dasharray="2 3" vector-effect="non-scaling-stroke"/>`;
+      })
+      .join("")}</svg>
+    <div class="frag-mid">${icon("mic", 62)}<span>${esc(center)}</span></div>
+    ${nodes
+      .map((t, i) => {
+        const a = (i / n) * Math.PI * 2 - Math.PI / 2;
+        const x = 50 + Math.cos(a) * 42;
+        const y = 50 + Math.sin(a) * 42;
+        return `<div class="frag-node" style="left:${x.toFixed(1)}%;top:${y.toFixed(1)}%">${esc(t)}</div>`;
+      })
+      .join("")}
+  </div>`;
+}
+
+/** Slides 23 and 40: the questions a stack either answers or does not. */
+export function questionList(items, { size = 40, cols = 1 } = {}) {
+  return `<div class="qlist" style="--qs:${size}px;grid-template-columns:repeat(${cols},1fr)">${items
+    .map((q) => `<div class="qitem">${rich(q)}</div>`)
+    .join("")}</div>`;
+}
+
+/**
+ * Slides 24, 34 and 35: separate concerns joined by one operating line.
+ * `layerLabel` turns it into the operating-layer picture (34) without a second primitive.
+ */
+export function pillars(items, { layerLabel = "", note = "" } = {}) {
+  return `<div class="pillars">
+    <div class="pl-row">${items
+      .map((p) => {
+        const o = typeof p === "string" ? { label: p } : p;
+        return `<div class="pl-card">${o.icon ? icon(o.icon, 36) : ""}<span>${esc(o.label)}</span></div>`;
+      })
+      .join("")}</div>
+    <div class="pl-line"></div>
+    ${layerLabel ? `<div class="pl-layer">${esc(layerLabel)}</div>` : ""}
+    ${note ? `<div class="pl-note">${esc(note)}</div>` : ""}
+  </div>`;
+}
+
+/** Slide 26: what an active fan economy actually does, around the people doing it. */
+export function orbit({ center, verbs }) {
+  const n = verbs.length;
+  return `<div class="orbit">
+    <div class="orb-mid">${center}</div>
+    ${verbs
+      .map((v, i) => {
+        const a = (i / n) * Math.PI * 2 - Math.PI / 2;
+        const x = 50 + Math.cos(a) * 46;
+        const y = 50 + Math.sin(a) * 43;
+        return `<div class="orb-v" style="left:${x.toFixed(1)}%;top:${y.toFixed(1)}%">${esc(v)}</div>`;
+      })
+      .join("")}
+  </div>`;
+}
+
 /* ------------------------------------------------------------------ css */
 
 export const LAYOUT_CSS = `
@@ -1020,6 +1146,90 @@ export const LAYOUT_CSS = `
 .fit-lb{font-size:21px;font-weight:800;letter-spacing:.19em;color:${C.goldInk}}
 .fit-tx{font-size:27px;font-weight:600;margin-top:8px;line-height:1.3}
 
+/* the calculator's own number: a slot the editor fills, never a figure we invent */
+.rslot{border:3px dashed ${C.gold};background:${C.goldSoft};border-radius:26px;padding:34px 70px;
+  display:flex;flex-direction:column;align-items:center;gap:16px;margin:0 auto}
+.rslot-lb{font-size:24px;font-weight:800;letter-spacing:.18em;color:${C.gray};text-align:center}
+.rslot-token{font-size:86px;font-weight:800;letter-spacing:-.02em;color:${C.goldInk};text-align:center}
+
+/* a relationship that keeps going */
+.contline{width:100%;display:flex;flex-direction:column;align-items:center;gap:14px}
+.cl-rail{position:relative;width:92%;height:10px;border-radius:6px;background:${C.goldInk};
+  display:flex;align-items:center;justify-content:space-around}
+.cl-dot{width:26px;height:26px;border-radius:50%;background:${C.goldInk};border:5px solid ${C.bg}}
+.cl-lb{font-size:26px;font-weight:800;letter-spacing:.09em;color:${C.goldInk}}
+
+/* moments that end, with the gaps between them visible */
+.moments{display:flex;align-items:center;justify-content:center;width:100%}
+.moment{display:flex;flex-direction:column;align-items:center;gap:10px}
+.mo-card{border:2px solid ${C.rule};background:#fff;border-radius:14px;padding:18px 30px;
+  font-size:26px;font-weight:800;letter-spacing:.06em;white-space:nowrap}
+.mo-end{font-size:19px;font-weight:800;letter-spacing:.2em;color:${C.grayMute}}
+.mo-gap{flex:1 1 auto;height:2px;border-top:3px dotted ${C.rule};margin:0 10px;align-self:flex-start;
+  margin-top:38px}
+
+/* the tiers, narrowing */
+.pyr{display:flex;flex-direction:column;align-items:center;gap:10px;width:100%}
+.pyr-row{border:2px solid ${C.gold};border-radius:14px;padding:16px 26px;display:flex;
+  align-items:center;justify-content:space-between;gap:26px}
+.pyr-n{font-size:29px;font-weight:800;letter-spacing:.1em}
+.pyr-p{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}
+
+/* a starting structure that reads as editable */
+.etiers{display:flex;justify-content:center;gap:20px;width:100%}
+.etier{flex:1 1 0;max-width:400px;border:2px solid ${C.rule};background:#fff;border-radius:20px;padding:24px 26px}
+.et-head{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:27px;
+  font-weight:800;letter-spacing:.1em;padding-bottom:14px;border-bottom:2px solid ${C.rule}}
+.et-head svg{stroke:${C.goldInk};flex:0 0 auto}
+.et-lines{display:flex;flex-direction:column;gap:13px;margin-top:18px}
+.et-lines i{display:block;height:10px;border-radius:6px;background:${C.goldSoft}}
+.et-lines i:nth-child(2){width:78%}
+.et-lines i:nth-child(3){width:56%}
+
+/* the artist as the integration layer */
+.frag{position:relative;width:760px;height:560px;margin:0 auto}
+.frag-links{position:absolute;inset:0;width:100%;height:100%}
+.frag-mid{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;
+  flex-direction:column;align-items:center;gap:8px;background:${C.bg};padding:14px 24px;z-index:2}
+.frag-mid svg{stroke:${C.ink};stroke-width:1.6}
+.frag-mid span{font-size:23px;font-weight:800;letter-spacing:.11em}
+.frag-node{position:absolute;transform:translate(-50%,-50%);border:2px dashed ${C.rule};background:#fff;
+  border-radius:999px;padding:12px 24px;font-size:23px;font-weight:700;white-space:nowrap}
+
+/* the questions */
+.qlist{display:grid;gap:20px 44px;width:100%;max-width:1600px;margin:0 auto}
+.qitem{font-size:var(--qs,40px);font-weight:800;letter-spacing:-.01em;line-height:1.15;
+  border-left:6px solid ${C.gold};padding-left:26px}
+
+/* separate concerns, one operating line */
+.pillars{display:flex;flex-direction:column;align-items:center;width:100%;gap:0}
+.pl-row{display:flex;justify-content:center;gap:18px;width:100%}
+.pl-card{flex:1 1 0;max-width:330px;border:2px solid ${C.rule};background:#fff;border-radius:18px;
+  padding:24px 16px;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center}
+.pl-card svg{stroke:${C.goldInk}}
+.pl-card span{font-size:24px;font-weight:800;letter-spacing:.09em;line-height:1.2}
+.pl-line{width:94%;height:8px;border-radius:6px;background:${C.goldInk};margin-top:26px}
+.pl-layer{background:${C.goldInk};color:#fff;font-size:28px;font-weight:800;letter-spacing:.16em;
+  border-radius:0 0 16px 16px;padding:12px 44px}
+.pl-note{font-size:21px;color:${C.grayMute};font-style:italic;margin-top:16px}
+
+/* what the fan economy does */
+.orbit{position:relative;width:1120px;height:560px;margin:0 auto}
+.orb-mid{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;gap:8px;
+  background:${C.goldSoft};border:2px solid ${C.gold};border-radius:999px;padding:22px 34px;z-index:2}
+.orb-v{position:absolute;transform:translate(-50%,-50%);background:${C.goldInk};color:#fff;
+  border-radius:999px;padding:13px 30px;font-size:25px;font-weight:800;letter-spacing:.1em;white-space:nowrap}
+
+/* slide 43's closing mark */
+.closemark{display:flex;justify-content:center;margin-top:44px}
+.closemark img{height:96px;width:auto;display:block}
+
+/* slide 2's struck equation, slide 16's blank offer */
+.equation{font-size:62px;font-weight:800;letter-spacing:-.02em;color:${C.gray}}
+.blankcard{border:3px dashed ${C.rule};background:#fff;border-radius:24px;width:620px;height:330px;
+  margin:0 auto;display:flex;align-items:center;justify-content:center;position:relative}
+.blankcard span{font-size:110px;font-weight:800;color:${C.rule}}
+
 /* slide 10, the private invitation */
 .invite{display:flex;align-items:center;justify-content:center;gap:24px;margin-top:40px}
 .invite .icon{stroke:${C.ink}}
@@ -1030,3 +1240,4 @@ export const LAYOUT_CSS = `
 `;
 
 export { icon, person, arrow, brush };
+export { CROWN } from "./theme.mjs";

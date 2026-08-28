@@ -60,6 +60,20 @@ rule. Two things make it worth having: mutation-test it (introduce the leak, wat
 revert) or it is decoration; and keep the term list to the ACTUAL reveal, because a guard that
 flags faithful copy pressures you to edit the slide instead of the check.
 
+**A guard scans what a VIEWER reads, never the markup.** The calculator deck's first guard failed
+the render on a slide that was correct, because `funnel()` sizes its bars with `style="--w:83%"`
+and the percentage rule matched CSS. Strip tags before testing (`visible()` in
+`vsl-calculator.mjs`). A guard that trips on markup is worse than no guard: it pressures you to
+change a good slide. This is the same failure as VSL #3's over-broad term list, in a new costume.
+
+**A per-viewer value ships as a labelled SLOT, never a plausible number.** Slides 1 and 36 of the
+calculator deck show `$[CALCULATOR RESULT]` in a dashed gold frame, the same discipline as
+`recordingSlot`. A realistic figure baked into a rendered slide becomes a claim the moment anyone
+treats the deck as final, and the assertion at the bottom of that deck refuses a render without
+the placeholder. Note the guard shape differs per deck: VSL #4 forbids money everywhere but one
+slide; the calculator deck ALLOWS illustrative pricing and instead requires the qualifier
+("Illustrative examples." or the estimate note) on the same slide as any amount.
+
 **A deck that makes a COMMERCIAL promise gets verified against the repo, not transcribed.** VSL #4
 states the First Paid Member Guarantee, so its terms were checked before a word was set: the six
 conditions on its slide 14 are the `role: 'required'` entries in
