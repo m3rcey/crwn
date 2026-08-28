@@ -91,8 +91,8 @@ function footer(f) {
 /* ------------------------------------------------- body primitives */
 
 /** Slide 1: evenly spaced possibilities split by thin gold dividers. */
-export function optionRow(items) {
-  return `<div class="optrow">${items
+export function optionRow(items, { size = 0 } = {}) {
+  return `<div class="optrow"${size ? ` style="--os:${size}px"` : ""}>${items
     .map((t) => `<div class="opt">${esc(t)}</div>`)
     .join('<div class="optdiv"></div>')}</div>`;
 }
@@ -459,10 +459,131 @@ export function filterCards(items) {
 export function miniLadder(rungs) {
   return `<div class="mladder">${rungs
     .map(
-      (r) => `<div class="mrung"><span class="mrung-n">${esc(r.name)}</span><span class="mrung-s">${esc(
-        r.sub,
-      )}</span></div>`,
+      (r) => `<div class="mrung"><span class="mrung-n">${esc(r.name)}</span>${
+        r.sub ? `<span class="mrung-s">${esc(r.sub)}</span>` : ""
+      }</div>`,
     )
+    .join("")}</div>`;
+}
+
+/** A big muted crowd against a small bright one. The whole point is the size difference. */
+export function crowdCompare({ left, right, middle = "" }) {
+  const side = (s, gold) => `<div class="cw-side">
+    <div class="cw-dots ${gold ? "gold" : ""}">${Array.from({ length: s.count }, () =>
+      person(gold ? 26 : 15, gold ? C.goldInk : "#CFC9BE"),
+    ).join("")}</div>
+    <div class="cw-lb ${gold ? "gold" : ""}">${esc(s.label)}</div>
+    ${
+      s.items
+        ? `<div class="cw-items">${s.items
+            .map((i) => `<div class="cw-item">${esc(i)}</div>`)
+            .join("")}</div>`
+        : ""
+    }
+  </div>`;
+  return `<div class="crowd">${side(left, false)}${
+    middle ? `<div class="cw-mid hand">${rich(middle)}</div>` : ""
+  }${side(right, true)}</div>`;
+}
+
+/**
+ * A left-to-right process. Used by four slides, so it takes text-only nodes, optional icons, an
+ * optional terminal mark, and wraps rather than crushing a nine-step chain into one row.
+ */
+export function flowChain(steps, { end = "", compact = false } = {}) {
+  const nodes = steps
+    .map((s, i) => {
+      const o = typeof s === "string" ? { label: s } : s;
+      const arrow_ =
+        i > 0 ? `<div class="fc-arrow">${arrow({ len: compact ? 58 : 82, color: C.goldInk })}</div>` : "";
+      return `${arrow_}<div class="fc-node">${
+        o.icon ? `<div class="fc-ic">${icon(o.icon, compact ? 32 : 44)}</div>` : ""
+      }<div class="fc-lb">${esc(o.label)}</div></div>`;
+    })
+    .join("");
+  return `<div class="flowchain ${compact ? "compact" : ""}">${nodes}${
+    end ? `<div class="fc-end">${esc(end)}${brush({ width: 120, weight: 9 })}</div>` : ""
+  }</div>`;
+}
+
+/** One dominant claim, with the things it proves arranged beneath it. */
+export function centerpiece({ big, sub = "", around = [] }) {
+  return `<div class="cpiece">
+    <div class="cp-big">${rich(big)}</div>
+    ${sub ? `<div class="cp-sub">${esc(sub)}</div>` : ""}
+    <div class="cp-around">${around
+      .map((a) => `<div class="cp-card">${esc(a)}</div>`)
+      .join("")}</div>
+  </div>`;
+}
+
+/** Slide 12: a closed improvement loop. Nodes sit on a circle so the return is visible. */
+export function loopCycle(steps, { center = "", size = 430 } = {}) {
+  const n = steps.length;
+  const r = size / 2;
+  const nodes = steps
+    .map((s, i) => {
+      const a = (i / n) * Math.PI * 2 - Math.PI / 2;
+      const x = 50 + Math.cos(a) * 50;
+      const y = 50 + Math.sin(a) * 50;
+      return `<div class="lc-node" style="left:${x}%;top:${y}%">${esc(s)}</div>`;
+    })
+    .join("");
+  // The ring is drawn as a dashed circle with one gold arrowhead, rather than an arrow per gap:
+  // at six nodes the per-gap arrows collided with the labels they were meant to connect.
+  return `<div class="loop" style="width:${size}px;height:${size}px">
+    <svg class="lc-ring" viewBox="0 0 100 100" aria-hidden="true">
+      <circle cx="50" cy="50" r="49" fill="none" stroke="${C.gold}" stroke-width="0.7"
+        stroke-dasharray="2.4 2.4"/>
+      <polygon points="46.6,-1.2 53.4,1.6 46.6,4.4" fill="${C.goldInk}"/>
+    </svg>
+    ${nodes}
+    ${center ? `<div class="lc-mid hand">${esc(center)}</div>` : ""}
+  </div>`;
+}
+
+/** Slide 13: rings widening outward, gold strongest at the centre. */
+export function concentricRings(rings) {
+  const n = rings.length;
+  return `<div class="rings">${rings
+    .map((label, i) => {
+      // i === 0 is the innermost ring: smallest, strongest, and drawn on top.
+      const d = 100 - (n - 1 - i) * (66 / (n - 1));
+      const op = 0.62 - i * (0.44 / (n - 1));
+      return `<div class="ring" style="width:${d}%;height:${d}%;background:rgba(212,175,55,${op.toFixed(
+        2,
+      )});z-index:${n - i}"><span>${esc(label)}</span></div>`;
+    })
+    .join("")}</div>`;
+}
+
+/**
+ * Slide 15: a conceptual dashboard. Each card names a metric and shows a RULE where a number
+ * would go, never a number: the sheet forbids fabricated values, and an invented figure in a
+ * teaching deck is a claim CRWN would have to stand behind.
+ */
+export function metricGrid(items) {
+  return `<div class="mgrid">${items
+    .map(
+      (m) => `<div class="mcard">
+      <div class="mc-lb">${esc(m)}</div>
+      <div class="mc-val"></div>
+    </div>`,
+    )
+    .join("")}</div>`;
+}
+
+/** Slide 17: the reveal. Emphasis fades down the list, so rank reads without a legend. */
+export function priorityStack(items) {
+  const n = items.length;
+  return `<div class="pstack">${items
+    .map((t, i) => {
+      const strong = i < 2;
+      const op = 1 - i * 0.14;
+      return `<div class="prow ${strong ? "hot" : ""}" style="opacity:${op.toFixed(2)}">
+      <span class="prow-n">${i + 1}</span><span class="prow-t">${esc(t)}</span>
+    </div>`;
+    })
     .join("")}</div>`;
 }
 
@@ -486,7 +607,7 @@ export const LAYOUT_CSS = `
 
 /* slide 1 */
 .optrow{display:flex;align-items:center;justify-content:center;gap:0}
-.opt{font-size:96px;font-weight:800;letter-spacing:-.03em;padding:0 58px}
+.opt{font-size:var(--os,96px);font-weight:800;letter-spacing:-.03em;padding:0 calc(var(--os,96px) * .5)}
 .optdiv{width:2px;height:84px;background:${C.gold};opacity:.55}
 
 /* slides 2,5,15 */
@@ -701,6 +822,78 @@ export const LAYOUT_CSS = `
   border-radius:14px;padding:14px 30px}
 .mrung-n{font-size:23px;font-weight:800;letter-spacing:.1em}
 .mrung-s{font-size:20px;color:${C.gray}}
+
+/* crowd comparison */
+.crowd{display:flex;align-items:center;justify-content:center;gap:44px}
+.cw-side{flex:1 1 0;display:flex;flex-direction:column;align-items:center;gap:16px;max-width:660px}
+.cw-dots{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 5px}
+.cw-dots.gold{gap:8px 10px}
+.cw-lb{font-size:27px;font-weight:800;letter-spacing:.12em;color:${C.grayMute}}
+.cw-lb.gold{color:${C.goldInk}}
+.cw-mid{font-size:36px;text-align:center;max-width:330px;flex:0 0 auto}
+.cw-items{display:flex;flex-wrap:wrap;justify-content:center;gap:10px}
+.cw-item{font-size:22px;font-weight:700;border:2px solid ${C.gold};background:${C.goldSoft};
+  border-radius:999px;padding:8px 20px}
+
+/* process chain */
+.flowchain{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:center;gap:6px 4px}
+.fc-node{display:flex;flex-direction:column;align-items:center;gap:10px;min-width:120px;padding:0 6px}
+.fc-ic{height:52px;display:flex;align-items:center}
+.fc-ic svg{stroke:${C.ink}}
+.fc-lb{font-size:24px;font-weight:800;letter-spacing:.05em;text-align:center;line-height:1.2;max-width:210px}
+.flowchain.compact .fc-lb{font-size:20px;max-width:160px}
+.fc-arrow{padding-top:14px;flex:0 0 auto}
+.flowchain.compact .fc-node{min-width:96px}
+.fc-end{font-size:96px;font-weight:800;padding-left:18px;display:flex;flex-direction:column;align-items:center}
+
+/* centrepiece */
+.cpiece{display:flex;flex-direction:column;align-items:center;gap:26px}
+.cp-big{background:${C.goldInk};color:#fff;font-size:76px;font-weight:800;letter-spacing:-.02em;
+  border-radius:22px;padding:26px 62px;text-align:center}
+.cp-big .g{color:#fff}
+.cp-sub{font-size:28px;color:${C.gray}}
+.cp-around{display:flex;flex-wrap:wrap;justify-content:center;gap:14px}
+.cp-card{font-size:25px;font-weight:600;border:2px solid ${C.rule};background:#fff;border-radius:14px;
+  padding:16px 26px;text-align:center}
+
+/* improvement loop */
+.loop{position:relative;margin:0 auto}
+.lc-ring{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.lc-node{position:absolute;transform:translate(-50%,-50%);background:${C.bg};padding:10px 20px;
+  font-size:25px;font-weight:800;letter-spacing:.06em;white-space:nowrap;text-align:center}
+.lc-mid{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:34px;
+  text-align:center;max-width:240px;line-height:1.15}
+
+/* concentric rings */
+.rings{position:relative;width:560px;height:560px;margin:0 auto}
+.ring{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);border-radius:50%;
+  border:2px solid ${C.gold};display:flex;align-items:flex-start;justify-content:center;padding-top:2.4%}
+.ring span{font-size:22px;font-weight:800;letter-spacing:.09em;text-align:center;white-space:nowrap}
+
+/* metric grid: labels only, never invented values */
+.mgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.mcard{border:2px solid ${C.rule};background:#fff;border-radius:16px;padding:20px 22px;
+  display:flex;flex-direction:column;gap:14px;min-height:118px;justify-content:space-between}
+.mc-lb{font-size:20px;font-weight:800;letter-spacing:.11em;line-height:1.2}
+.mc-val{height:10px;width:62%;border-radius:6px;background:${C.goldSoft};border:1px solid ${C.gold}}
+
+/* priority stack */
+.pstack{display:flex;flex-direction:column;gap:13px;width:1080px;margin:0 auto}
+.prow{display:flex;align-items:center;gap:24px;border:2px solid ${C.rule};background:#fff;
+  border-radius:16px;padding:18px 28px}
+.prow.hot{border-color:${C.goldInk};background:${C.goldSoft}}
+.prow-n{width:52px;height:52px;border-radius:50%;background:${C.grayMute};color:#fff;font-size:25px;
+  font-weight:800;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.prow.hot .prow-n{background:${C.goldInk}}
+.prow-t{font-size:31px;font-weight:800;letter-spacing:.06em}
+
+/* slide 10, the private invitation */
+.invite{display:flex;align-items:center;justify-content:center;gap:24px;margin-top:40px}
+.invite .icon{stroke:${C.ink}}
+.invite .send{stroke:${C.goldInk}}
+.invite-group{display:flex;gap:7px}
+.invite-group::before{content:'';display:block}
+.invite .bubble{font-size:27px;max-width:600px}
 `;
 
 export { icon, person, arrow, brush };

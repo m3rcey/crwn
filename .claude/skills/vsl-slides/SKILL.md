@@ -48,7 +48,17 @@ Primitives already built, so check here before inventing one: `optionRow`, `pane
 `spectrum`, `demandSpectrum`, `additivePath`, `mathRows`, `ladder`, `miniLadder`, `funnel`,
 `progression`, `struckNumbers`, `struckStack`, `nestedMap`, `venn` (two circles read as a
 condition, three as corroboration), `converge`, `trapDiagram`, `sourceToAssets`, `speechBubble`,
-`filterCards`, `stepList`, `recordingSlot`, `ctaButton`, `figurePanel`.
+`filterCards`, `crowdCompare`, `flowChain` (wraps rather than crushing a long chain),
+`centerpiece`, `loopCycle`, `concentricRings`, `metricGrid`, `priorityStack`, `stepList`,
+`recordingSlot`, `ctaButton`, `figurePanel`.
+
+**A prompt sheet's rules about MEANING get asserted, not remembered.** VSL #3 withholds one answer
+until slide 17, and a leak into an earlier slide still renders as a handsome slide, so the deck
+file ends in a loop that throws at render time if a reveal phrase appears too early (see
+`vsl-3-first-100-fans.mjs`). The same shape suits any "do not state X before Y" or "never claim Z"
+rule. Two things make it worth having: mutation-test it (introduce the leak, watch the render fail,
+revert) or it is decoration; and keep the term list to the ACTUAL reveal, because a guard that
+flags faithful copy pressures you to edit the slide instead of the check.
 
 ## The locked visual system
 
