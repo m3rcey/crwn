@@ -233,18 +233,27 @@ function locate(rows, query, from = 0) {
   return null;
 }
 
+/** Script text as plain ASCII: curly quotes and ellipses out, block quote marks off the ends. */
+function plain(text) {
+  return text
+    .replace(/[‘’]/g, "'")
+    .replace(/[“”]/g, "\"")
+    .replace(/…/g, "")
+    .replace(/^["']+/, "")
+    .replace(/["']+$/, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 /* ------------------------------------------------------------------ build */
 
 const lines = [];
 const report = [];
-lines.push("# CRWN VSL cue sheet");
+lines.push("CRWN VSL CUE SHEET");
 lines.push("");
-lines.push("For each rendered slide, the words actually spoken under it, so a slide can be dropped on the right frame.");
-lines.push("");
-lines.push(
-  "Every quoted line is real recorded narration. A slide whose cue was never actually recorded " +
-    "says so rather than showing invented words.",
-);
+lines.push("For each rendered slide, the words actually spoken under it.");
+lines.push("Every line is real recorded narration. A slide whose cue was never recorded says so.");
+lines.push("There are no per slide timecodes: the transcripts are one 00:00:00 block, so the cue is the words.");
 lines.push("");
 
 let totalSlides = 0;
@@ -260,12 +269,11 @@ for (const deck of DECKS) {
   const rows = parseScript(path.join(SCRIPTS, deck.script));
   let cursor = 0;
 
-  lines.push("## " + deck.title);
   lines.push("");
-  lines.push("Audio: `" + deck.audio + "`  ·  Slides: " + slides.length + "  ·  `videos/vsl/" + deck.id + "/`");
+  lines.push(deck.title.replace(/#/g, "").replace(/\s+/g, " ").trim().toUpperCase());
+  lines.push("Audio file: " + deck.audio);
+  lines.push("Slides: " + slides.length + " in videos/vsl/" + deck.id + ", named " + deck.id + "-01.png upward");
   lines.push("");
-  lines.push("| # | File | First words spoken |");
-  lines.push("|---|------|--------------------|");
 
   const outOfOrder = [];
   let lastRow = -1;
@@ -288,8 +296,8 @@ for (const deck of DECKS) {
     const hit = query ? locate(rows, query, override ? 0 : cursor) : null;
 
     if (!hit) {
-      const note = entry && entry.cue ? " _(sheet: " + firstWords(entry.cue, 9) + ")_" : "";
-      lines.push("| " + slide.n + " | `" + file + "` | **Not in the recording**" + note + " |");
+      const note = entry && entry.cue ? " The sheet asks for: " + plain(entry.cue) : "";
+      lines.push("Slide " + slide.n + ": NOT IN THE RECORDING." + note);
       rowsOut.push({ n: slide.n, file, spoken: null, sheet: entry && entry.cue ? entry.cue : "" });
       unmatched++;
       continue;
@@ -299,11 +307,10 @@ for (const deck of DECKS) {
     if (hit.row < lastRow) outOfOrder.push(slide.n);
     lastRow = hit.row;
     if (!override) cursor = hit.row;
-    const bare = rows[hit.row].line.replace(/^[“”‘’"']+/, "")
-      .replace(/[“”‘’]+$/, "");
-    const spoken = firstWords(bare, 11);
-    const mark = !override && !fromSheet ? "~ " : "";
-    lines.push("| " + slide.n + " | `" + file + "` | " + mark + spoken + " |");
+    // The whole spoken line, not a truncation. The 11 word cap only ever existed to fit a table
+    // column, and without the table the full sentence gives more to match by ear.
+    const spoken = plain(rows[hit.row].line);
+    lines.push("Slide " + slide.n + ": " + spoken);
     rowsOut.push({ n: slide.n, file, spoken, sheet: "" });
   }
   lines.push("");
@@ -311,10 +318,11 @@ for (const deck of DECKS) {
   report.push({ id: deck.id, title: deck.title, audio: deck.audio, rows: rowsOut, outOfOrder });
 
   if (outOfOrder.length) {
+    lines.push("");
     lines.push(
-      "**Plays out of deck order: slide " + outOfOrder.join(", ") + ".** The recording says these " +
-        "words earlier than the slide's number suggests, so place them by the words, not by the " +
-        "number. Dropping them in numeric order would put them against narration about something else.",
+      "NOTE: slides " + outOfOrder.join(" and ") + " play out of deck order. The recording says these " +
+        "words earlier than the slide number suggests, so place them by the words and not by the " +
+        "number. In numeric order they would run against narration about something else.",
     );
     lines.push("");
   }
@@ -322,17 +330,18 @@ for (const deck of DECKS) {
   lines.push("");
 }
 
-lines.push("---");
 lines.push("");
 lines.push(
   matched + " of " + totalSlides + " slides located in the recorded narration. " +
-    (unmatched ? unmatched + " could not be located, and says so." : "None are guesses."),
+    (unmatched ? unmatched + " was never recorded, and says so." : "None are guesses."),
 );
 lines.push("");
 
 const out = path.join("videos", "vsl", "CUE-SHEET.md");
 fs.mkdirSync(path.dirname(out), { recursive: true });
-fs.writeFileSync(out, lines.join("\n"), "utf8");
+// Never more than one blank line between blocks. The sections each push their own spacing and it
+// stacks up, which reads as a gap rather than a separation.
+fs.writeFileSync(out, lines.join("\n").replace(/\n{3,}/g, "\n\n"), "utf8");
 // The page is what actually sits open beside Premiere, so it is built from the same pass rather
 // than by parsing the markdown back out: re-render a deck, run this once, and both stay true.
 fs.writeFileSync(
