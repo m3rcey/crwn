@@ -272,7 +272,7 @@ for (const deck of DECKS) {
   lines.push("");
   lines.push(deck.title.replace(/#/g, "").replace(/\s+/g, " ").trim().toUpperCase());
   lines.push("Audio file: " + deck.audio);
-  lines.push("Slides: " + slides.length + " in videos/vsl/" + deck.id + ", named " + deck.id + "-01.png upward");
+  lines.push("Slide folder: videos/vsl/" + deck.id);
   lines.push("");
 
   const outOfOrder = [];
@@ -297,7 +297,7 @@ for (const deck of DECKS) {
 
     if (!hit) {
       const note = entry && entry.cue ? " The sheet asks for: " + plain(entry.cue) : "";
-      lines.push("Slide " + slide.n + ": NOT IN THE RECORDING." + note);
+      lines.push(file + ": NOT IN THE RECORDING." + note);
       rowsOut.push({ n: slide.n, file, spoken: null, sheet: entry && entry.cue ? entry.cue : "" });
       unmatched++;
       continue;
@@ -307,10 +307,11 @@ for (const deck of DECKS) {
     if (hit.row < lastRow) outOfOrder.push(slide.n);
     lastRow = hit.row;
     if (!override) cursor = hit.row;
-    // The whole spoken line, not a truncation. The 11 word cap only ever existed to fit a table
-    // column, and without the table the full sentence gives more to match by ear.
-    const spoken = plain(rows[hit.row].line);
-    lines.push("Slide " + slide.n + ": " + spoken);
+    // The FILENAME is the key, because a file is what gets dragged onto the timeline, and the first
+    // few words are a handle to scan for, not the whole sentence. A full sentence is more to read
+    // per row without helping anyone find the frame any faster.
+    const spoken = firstWords(plain(rows[hit.row].line), 9).replace(/\.\.\.$/, "");
+    lines.push(file + ": " + spoken);
     rowsOut.push({ n: slide.n, file, spoken, sheet: "" });
   }
   lines.push("");
