@@ -8,6 +8,9 @@
 //   Dry run (default, writes nothing anywhere):
 //     node scripts/queue-carousels.mjs --range 31-40 --date 2026-08-27 --start 09:00 --end 12:00
 //
+//   Several platforms at once (default is instagram only):
+//     ... --platforms instagram,facebook,threads
+//
 //   Actually queue it:
 //     node scripts/queue-carousels.mjs --range 31-40 --date 2026-08-27 --start 09:00 --end 12:00 --queue
 //
@@ -32,6 +35,19 @@ import { createClient } from '@supabase/supabase-js';
 import { discoverSlides, parseCaption, IG_LIMITS, TARGET_FRAME } from './lib/instagramCarousel.mjs';
 import { buildSlots, formatInZone, DEFAULT_TIME_ZONE } from './lib/schedule.mjs';
 
+// Which platforms this batch goes to. Mirrors src/lib/social/capabilities.ts for the two
+// facts the ingest needs before it can talk to the server: the caption ceiling (so a caption
+// written for Instagram is never sent somewhere that will refuse it) and the image ceiling.
+// The tick re-checks the full matrix, including audits, before publishing anything.
+const PLATFORM_LIMITS = {
+  instagram: { maxCaptionChars: 2200, maxImages: 10 },
+  facebook:  { maxCaptionChars: 63206, maxImages: 10 },
+  threads:   { maxCaptionChars: 500, maxImages: 20 },
+  x:         { maxCaptionChars: 280, maxImages: 4 },
+  tiktok:    { maxCaptionChars: 2200, maxImages: 35 },
+};
+const DEFAULT_PLATFORMS = ['instagram'];
+
 const CAROUSEL_OUTPUT_BASE =
   process.env.CRWN_CAROUSEL_OUTPUT ||
   '/mnt/c/Users/Josh/Dropbox/nano banana output/Carousel Posts/Fan Economy';
@@ -55,6 +71,14 @@ const START = flag('start');
 const END = flag('end');
 const RANGE = flag('range');
 const SLUGS = flag('slugs');
+const PLATFORMS = (flag('platforms') || DEFAULT_PLATFORMS.join(','))
+  .split(',')
+  .map((p) => p.trim().toLowerCase())
+  .filter(Boolean);
+{
+  const unknown = PLATFORMS.filter((p) => !PLATFORM_LIMITS[p]);
+  if (unknown.length) die(`Unknown platform(s): ${unknown.join(', ')}. Known: ${Object.keys(PLATFORM_LIMITS).join(', ')}`);
+}
 
 function loadEnvLocal() {
   const out = {};
@@ -147,6 +171,7 @@ console.log('  CRWN carousel queue');
 console.log('  ' + '='.repeat(70));
 console.log(`  mode        ${DO_QUEUE ? 'QUEUE (writes to R2 and the database)' : 'DRY RUN (writes nothing)'}`);
 console.log(`  posts       ${slugs.length}`);
+console.log(`  platforms   ${PLATFORMS.join(', ')}`);
 console.log(`  window      ${START}${END ? ` to ${END}` : ''} on ${DATE} (${TZ})`);
 console.log(`  spacing     ${slotResult.spacingMinutes === null ? 'n/a' : slotResult.spacingMinutes + ' minutes'}`);
 console.log('');
@@ -222,7 +247,28 @@ for (let i = 0; i < slugs.length; i++) {
     );
   }
 
-  plan.push({ slug, dir, slides: slides.slides, caption: cap.caption, slot: slotResult.slots[i] });
+  // ONE CAPTION PER PLATFORM. Threads caps a post at 500 characters and X at 280, so the
+  // Instagram caption cannot simply be reposted there. Convention: an optional
+  // caption.<platform>.md beside caption.md wins for that platform; otherwise caption.md is used
+  // IF it fits, and the platform is refused here (before any upload) if it does not.
+  const captions = {};
+  for (const platform of PLATFORMS) {
+    const override = path.join(dir, `caption.${platform}.md`);
+    const text = fs.existsSync(override) ? parseCaption(fs.readFileSync(override, 'utf8')).caption : cap.caption;
+    const limit = PLATFORM_LIMITS[platform];
+    if (text.length > limit.maxCaptionChars) {
+      problems.push(
+        `${slug}: caption is ${text.length} chars but ${platform} allows ${limit.maxCaptionChars}. ` +
+          `Write a shorter one as caption.${platform}.md in the folder.`
+      );
+    }
+    if (slides.slides.length > limit.maxImages) {
+      problems.push(`${slug}: ${slides.slides.length} slides but ${platform} allows at most ${limit.maxImages}.`);
+    }
+    captions[platform] = text;
+  }
+
+  plan.push({ slug, dir, slides: slides.slides, caption: cap.caption, captions, slot: slotResult.slots[i] });
 }
 
 console.log('  SCHEDULE');
@@ -306,14 +352,23 @@ for (const p of plan) {
       keys.push(key);
     }
 
-    const { error } = await supabase.from('social_posts').insert({
-      slug: p.slug,
-      platform: 'instagram',
-      caption: p.caption,
-      media_keys: keys,
-      scheduled_for: p.slot.toISOString(),
-      status: 'queued',
-    });
+    // The post is the content; each platform gets its own target row with its own caption.
+    // The post's legacy `platform` and `caption` columns carry the first platform so a reader of
+    // social_posts alone still sees something true.
+    const { data: post, error } = await supabase
+      .from('social_posts')
+      .insert({
+        slug: p.slug,
+        platform: PLATFORMS[0],
+        kind: 'carousel',
+        caption: p.captions[PLATFORMS[0]],
+        media_keys: keys,
+        payload: {},
+        scheduled_for: p.slot.toISOString(),
+        status: 'queued',
+      })
+      .select('id')
+      .single();
 
     if (error) {
       // 23505 is the one-pending-per-slug index doing its job.
@@ -325,8 +380,22 @@ for (const p of plan) {
       throw new Error(error.message);
     }
 
+    const targets = PLATFORMS.map((platform) => ({
+      post_id: post.id,
+      platform,
+      caption: p.captions[platform],
+      payload: {},
+      status: 'queued',
+    }));
+    const { error: tErr } = await supabase.from('social_post_targets').insert(targets);
+    if (tErr) {
+      // Leave no orphan: a post with no targets would sit in the queue forever.
+      await supabase.from('social_posts').delete().eq('id', post.id);
+      throw new Error(`targets: ${tErr.message}`);
+    }
+
     queued++;
-    console.log(`    ${keys.length} slides uploaded, queued for ${formatInZone(p.slot, TZ)}`);
+    console.log(`    ${keys.length} slides uploaded, ${targets.length} target(s) queued for ${formatInZone(p.slot, TZ)}`);
   } catch (err) {
     failures.push(`${p.slug}: ${safe(err.message)}`);
     console.error(`    FAILED: ${safe(err.message)}`);

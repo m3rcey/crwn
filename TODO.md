@@ -154,6 +154,62 @@ responsible for. Do not work those.
          you genuinely send the carousel to the top rows because they have BOTH meaningful reach
          AND recent posts about that artist?
 
+- [ ] **Run the multi-platform migration FIRST. Until it lands, nothing publishes anywhere,
+      Instagram included.** The publishing tick now reads one row per (post, platform) so a post
+      can succeed on Instagram while failing on X. That table does not exist yet, and the tick
+      joins on it, so the next tick after deploy finds nothing due. Not a degraded state, a dead
+      one. The migration backfills every existing post with its Instagram target, so nothing
+      already queued is lost.
+      [`supabase/schema-phase3-social-publish-multiplatform.sql`](supabase/schema-phase3-social-publish-multiplatform.sql)
+      Verify with: npm run verify:migrations (look for "social publish targets")
+
+- [ ] **Start the TikTok and YouTube audits NOW. They are the long pole: 2 to 4 weeks of
+      calendar time, and no code can shorten them.** Both adapters are built, tested and refuse
+      to run until you record the audit as passed, because BOTH platforms force an unaudited
+      client's posts to PRIVATE while reporting success. Publishing early would fill the queue
+      with "published" rows nobody can see.
+      TikTok: developers.tiktok.com, add the Content Posting API to your app, then request the
+      audit under App review. Also add the R2 public domain under URL properties, or every pull
+      fails with url_ownership_unverified. Note TikTok caps roughly 15 to 25 posts per account
+      per day even once audited, shared across every API client.
+      YouTube: console.cloud.google.com, enable YouTube Data API v3, create an OAuth client,
+      then submit the API Services Audit and Quota Extension form.
+      When each is APPROVED (not submitted), set in Vercel and redeploy:
+        TIKTOK_AUDIT_PASSED=true
+        YOUTUBE_AUDIT_PASSED=true
+      Anything other than exactly true keeps the gate closed on purpose.
+
+- [ ] **Add the credentials for each platform you want live, in Vercel, then redeploy.** Every
+      value gets trimmed now, so a stray space cannot repeat the IG_USER_ID failure. Each adapter
+      refuses cleanly and names the variable when one is missing, so add them as you go.
+      Facebook (free, no review, shares your Meta app; needs a PAGE token, not a user token):
+        FB_PAGE_ID
+        FB_PAGE_ACCESS_TOKEN
+      Threads (free, no review in dev mode, same as Instagram; note the 500-character cap means
+      each carousel needs a short caption.threads.md beside caption.md, or the ingest refuses it):
+        THREADS_USER_ID
+        THREADS_ACCESS_TOKEN
+      X (pay-per-use, about $0.015 a post and $0.20 if the caption has a link, so keep them
+      link-free; needs billing enabled on the X developer account; Articles also need X Premium):
+        X_API_KEY
+        X_API_SECRET
+        X_ACCESS_TOKEN
+        X_ACCESS_SECRET
+        X_USERNAME          (only used to build the permalink)
+      TikTok (after audit):
+        TIKTOK_ACCESS_TOKEN
+      YouTube (after audit):
+        YOUTUBE_CLIENT_ID
+        YOUTUBE_CLIENT_SECRET
+        YOUTUBE_REFRESH_TOKEN
+
+- [ ] **Decide what to do about YouTube community posts, because I cannot build them.** You asked
+      for community post slideshows. The YouTube Data API has NEVER exposed a create endpoint for
+      community posts; third-party tools can only read them by scraping. There is no supported
+      path at all, so it is recorded as permanently unsupported in the capability matrix rather
+      than left as a gap. Options: post them by hand, or drop them. Tell me which so the item
+      leaves this list.
+
 - [ ] **Refresh IG_ACCESS_TOKEN before it expires around 2026-10-25.** Instagram long-lived
       tokens last about 60 days, and yours was issued 2026-08-26. When it dies, publishing stops
       and the only symptom is an auth error, so this is a diary item rather than something you

@@ -1328,6 +1328,12 @@ export const EXPECTED_MIGRATION_STATE: ReadonlyArray<{
   // state to report. The tick also refuses to drain the queue when IG credentials are absent,
   // so a missing Vercel env var leaves the backlog intact rather than silently discarding it.
   { file: 'schema-phase3-social-publish-queue.sql', state: 'applied', note: 'Founder-applied and live-probed 2026-08-26: the anon key answers social_posts with 42501 (reads revoked, expected), and the migration grid confirmed the table, all four indexes, RLS on, ZERO policies and ZERO money or credential columns. Phase 0 had already proved direct publishing end to end: media 18415895044156240 on @thecrwnapp. What the migration does NOT prove is that the deployment can read IG_USER_ID and IG_ACCESS_TOKEN from Vercel; the tick reports instagram_credentials_missing and leaves the queue intact rather than draining it, so that failure is visible and non-destructive.' },
+
+  // Multi-platform publishing. PENDING until the founder runs it, and this one is LOAD-BEARING
+  // for the platform that already works: the tick now reads social_post_targets with an inner
+  // join, so until the migration lands NO post publishes anywhere, Instagram included. The
+  // backfill inside it gives every existing post its Instagram target so nothing queued is lost.
+  { file: 'schema-phase3-social-publish-multiplatform.sql', state: 'pending', note: 'Authored 2026-08-26. Adds social_posts.kind + payload, creates social_post_targets (one row per post per platform, own caption, own status), backfills one Instagram target per existing post, widens platform to instagram/facebook/x/tiktok/youtube/threads. Same lockdown as the queue: RLS on, zero policies, ALL revoked from anon/authenticated, no money or credential columns, all asserted by the self-verify block.' },
   { file: 'schema-phase2-song-lab.sql', state: 'applied', note: 'Founder-applied 2026-08-20 and probe-verified the same day: anon reads song_lab_projects 200 [], the gate column answers 42501, song_lab_votes answers 42501, day_one_anr badge seeded, and the live /api/song-lab/public?artist=gb answers 200 with the real free tier id. The gate was gb-only at apply time; julius-williams was enabled later the same day by a service-role data write (probe: public?artist=julius-williams answers 200), so the file self-verify now asserts gb-is-enabled, not exactly-one.' },
 
   // Founder metric hygiene (2026-08-25): artist_profiles.is_founder_test, read only by admin

@@ -155,6 +155,50 @@ removal and the exceptions together: the exceptions do not restore anything on t
 - **Cost controls:** bounded query set (max 4 keyword + 4 hashtag terms, 40 results each), max 30 profile enrichments per search, 24h observation cache, 7-day recent-post freshness with max 24 posts per page per refresh and a 90-day date floor. Full-refresh ceilings at pay-per-result pricing: 100 pages ≈ $6, 500 ≈ $28-32, 1,000 ≈ $55-65; only STALE pages are touched, so routine refreshes cost less.
 - This is a data provider, not an AI model provider: the provider count in the AI section is unchanged, and no LLM is involved anywhere in the finder (queries, matching and ranking are all deterministic; the two-score model is Affinity + Distribution Value + a geometric Priority, weights in `src/lib/distribution/score.ts`).
 
+## Social publishing: founder content to six platforms (2026-08-26)
+
+Founder-operated, not artist-facing. Publishes the generated Fan Economy content
+(`videos/carousels/fan-economy/` plus its Dropbox render folders) on a schedule the founder sets.
+Instagram is LIVE and proven (media 18415895044156240 on @thecrwnapp, published unattended by the
+cron on 2026-08-26 after one env-var whitespace failure). The other five are built and gated.
+
+- **Env (all server-only, all trimmed on read):** `IG_USER_ID`, `IG_ACCESS_TOKEN`, `GRAPH_HOST`
+  (graph.instagram.com for IGAA tokens, graph.facebook.com for EAA tokens), `FB_PAGE_ID`,
+  `FB_PAGE_ACCESS_TOKEN`, `THREADS_USER_ID`, `THREADS_ACCESS_TOKEN`, `X_API_KEY`, `X_API_SECRET`,
+  `X_ACCESS_TOKEN`, `X_ACCESS_SECRET`, `X_USERNAME`, `TIKTOK_ACCESS_TOKEN`, `YOUTUBE_CLIENT_ID`,
+  `YOUTUBE_CLIENT_SECRET`, `YOUTUBE_REFRESH_TOKEN`, and the two audit gates `TIKTOK_AUDIT_PASSED`
+  / `YOUTUBE_AUDIT_PASSED` (exactly `true` opens them; anything else fails closed).
+- **Files:** `src/lib/social/capabilities.ts` is the ONE table of what each platform accepts
+  (kinds, image count, caption ceiling, video length, daily limit, audit requirement); every
+  surface reads it and nothing may offer a platform something it will refuse.
+  `src/lib/social/adapter.ts` is the contract; `src/lib/social/adapters/*.ts` one file per
+  platform, `adapters/index.ts` the registry. `src/app/api/cron/publish-tick/route.ts` is the
+  worker (54 once-daily cron entries in `vercel.json` give 20-minute slots 7am to 11pm Eastern on
+  the Hobby plan, since the cap is per expression not per project). `scripts/queue-carousels.mjs`
+  is the local ingest: it transforms slides, uploads to R2, and writes one `social_posts` row plus
+  one `social_post_targets` row per platform.
+- **Tables:** `social_posts` (the content: kind, ordered media keys, absolute UTC slot) and
+  `social_post_targets` (one per post per platform, with its OWN caption and status). Both RLS on
+  with ZERO policies and ALL revoked from anon/authenticated: only the service role reads them.
+  No money column, no credential column, asserted by the migrations' self-verify blocks.
+- **The three rules that keep it safe.** (1) Publishing twice is the failure that matters, so a
+  conditional UPDATE claims each target, a target with `provider_post_id` is never eligible again,
+  and a partial unique index refuses a second pending target per (post, platform). (2) TikTok and
+  YouTube force an unaudited client's posts to PRIVATE while reporting success, so both are refused
+  until their audit is recorded, in the matrix AND inside the adapter. (3) The cron is a dumb tick;
+  the schedule is `scheduled_for`, converted ONCE at queue time from the founder's wall clock, so
+  daylight saving cannot move a post. Facebook and YouTube publish on their own clock
+  (`handed_off`) when the slot is still ahead.
+- **Constraints worth knowing before promising anything:** Threads caps a post at 500 characters
+  and X at 280, so an Instagram caption cannot be reposted unchanged (`caption.<platform>.md`
+  beside `caption.md` is the override). X is pay-per-use (~$0.015 a post, $0.20 with a link).
+  TikTok caps roughly 15 to 25 posts per account per day even audited. YouTube takes video only.
+  **YouTube community posts cannot be published by any API** and are recorded as permanently
+  unsupported in `capabilities.ts`.
+- **Security note:** every adapter strips its credentials from error text before it can reach a
+  log or `last_error`; a trailing space in a pasted env var produced a Meta `code 100/33` with an
+  empty message that read exactly like a permissions failure, which is why every read is trimmed.
+
 ## Calendly — booking embed (orphaned)
 - **Env:** `CALCOM_API_KEY` exists in `.env.local` but **no cal.com server integration found**. `react-calendly` is installed.
 - **Files:** `src/components/booking/{CalendlyBooking,SessionManager,BookingSettings}.tsx` — **none imported anywhere in `src/`**. No `[slug]/book/` page renders them. The live booking flow is **booking tokens** (`/api/booking-tokens`, `BookingTokenButton`). Backend (`booking-checkout`, `booking_sessions`) still functions but has no reachable UI entry point. **Legacy/unused.**

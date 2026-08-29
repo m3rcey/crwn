@@ -1,13 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { getSignedDownloadUrl } from '@/lib/r2/client';
-import {
-  publishCarousel,
-  redactSecrets,
-  GraphError,
-  type InstagramConfig,
-} from '@/lib/social/instagramPublish';
 import { isDue, MISSED_SLOT_GRACE_MINUTES } from '@/lib/social/schedule';
+import { canPublish, type Platform, type PostKind } from '@/lib/social/capabilities';
+import { adapterFor } from '@/lib/social/adapters';
+import { PublishError, redactSecrets } from '@/lib/social/adapter';
 
 /**
  * The publishing tick.
@@ -17,10 +14,23 @@ import { isDue, MISSED_SLOT_GRACE_MINUTES } from '@/lib/social/schedule';
  * local wall clock. That separation is what makes daylight saving a non-event, and it is why
  * there are many cron entries pointing here rather than one clever one.
  *
+ * ONE POST, MANY TARGETS. A post is content; a target is that content on one platform. The tick
+ * fans out per target so Instagram can succeed while X fails and each carries its own state.
+ *
  * PUBLISHING TWICE IS THE FAILURE THAT MATTERS. It produces a real, public, duplicate post that
- * only a human can delete. Guarded three ways: a conditional UPDATE claims each row so a second
- * concurrent tick matches nothing, a row carrying ig_media_id is never eligible again, and the
- * database has a partial unique index preventing two pending rows for one carousel.
+ * only a human can delete. Guarded three ways: a conditional UPDATE claims each target so a
+ * second concurrent tick matches nothing, a target carrying provider_post_id is never eligible
+ * again, and the database has a partial unique index preventing two pending targets per
+ * (post, platform).
+ *
+ * PUBLISHING PRIVATELY IS THE FAILURE THAT LOOKS LIKE SUCCESS. TikTok and YouTube force posts
+ * from an unaudited client to private and still report success. The capability matrix refuses
+ * those until their audit is recorded, and the refusal is written to the row as 'refused' so it
+ * is visible rather than a silent skip.
+ *
+ * NATIVE SCHEDULING. Facebook and YouTube can publish on their own clock. When a target's slot is
+ * still in the future the tick hands it over immediately and records 'handed_off'; CRWN's own
+ * downtime can then no longer miss that post.
  */
 
 const supabaseAdmin = createClient(
@@ -28,25 +38,29 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy-service-key-for-build'
 );
 
-/**
- * At most two posts per tick. One carousel is five container creations plus polling, so a bigger
- * batch risks the function timeout, and a timeout mid-publish is the exact condition the claim
- * guard exists to survive. Ticks are frequent enough that a backlog drains quickly.
- */
-const MAX_POSTS_PER_TICK = 2;
-
-/** After this many failed attempts a row stops retrying and waits for a human. */
+/** Targets per tick. A video upload can take most of a minute, so the batch stays small. */
+const MAX_TARGETS_PER_TICK = 3;
+/** After this many failed attempts a target stops retrying and waits for a human. */
 const MAX_ATTEMPTS = 3;
+/** How far ahead a natively-scheduling platform is handed its post. */
+const HANDOFF_HORIZON_MS = 24 * 60 * 60 * 1000;
 
 export const maxDuration = 60;
 
-interface SocialPostRow {
+interface TargetRow {
   id: string;
-  slug: string;
+  post_id: string;
+  platform: Platform;
   caption: string;
-  media_keys: string[];
-  scheduled_for: string;
+  payload: Record<string, unknown>;
   attempt_count: number;
+  social_posts: {
+    slug: string;
+    kind: PostKind;
+    media_keys: string[];
+    payload: Record<string, unknown>;
+    scheduled_for: string;
+  };
 }
 
 export async function GET(req: NextRequest) {
@@ -54,139 +68,168 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  // TRIM EVERY ONE OF THESE. A value pasted into the Vercel dashboard keeps whatever whitespace
-  // came with it, and process.env hands it back verbatim; only the local .env.local parser
-  // trimmed. A single trailing space on IG_USER_ID sends Meta "<id> /media", which it cannot
-  // resolve, and it answers code 100/33 with an EMPTY message. That reads like a permissions
-  // problem or a wrong account and is neither, so it costs an hour to diagnose. It cost one here.
-  const igUserId = (process.env.IG_USER_ID || '').trim();
-  const accessToken = (process.env.IG_ACCESS_TOKEN || '').trim();
-  const host = (process.env.GRAPH_HOST || 'graph.instagram.com').trim().replace(/^https?:\/\//, '');
-  const version = (process.env.GRAPH_API_VERSION || 'v26.0').trim();
-
+  const env = process.env as Record<string, string | undefined>;
   const now = new Date();
 
   // Retire anything too stale to publish honestly. A post whose slot passed hours ago is no
-  // longer the post the founder scheduled, and quietly publishing yesterday's queue at 3am is
-  // worse than skipping it. Done before the due query so an expired row cannot be claimed.
+  // longer the post the founder scheduled. Done before the due query so a stale row is never
+  // claimed. Only targets still waiting on US expire; a handed-off one belongs to its platform.
   const staleBefore = new Date(now.getTime() - MISSED_SLOT_GRACE_MINUTES * 60000).toISOString();
-  const { data: expired } = await supabaseAdmin
+  const { data: stalePosts } = await supabaseAdmin
     .from('social_posts')
-    .update({ status: 'expired', last_error: 'slot passed before any tick could publish it' })
-    .eq('status', 'queued')
-    .lt('scheduled_for', staleBefore)
-    .select('id');
-
-  // If credentials are absent the queue must NOT be drained. Leaving rows queued means the
-  // founder can fix the environment and the backlog still goes out; marking them failed would
-  // silently throw away a scheduled batch because of a missing variable.
-  //
-  // But it must not be SILENT either. A row sitting at 'queued' past its slot is ambiguous: it
-  // looks identical whether the tick ran and bailed or the tick never ran at all. Stamping
-  // last_error (without touching status, so nothing is consumed) turns that silence into a
-  // readable answer, which is the only way to tell those two apart without the CRON_SECRET.
-  if (!igUserId || !accessToken) {
-    const missing = [!igUserId && 'IG_USER_ID', !accessToken && 'IG_ACCESS_TOKEN']
-      .filter(Boolean)
-      .join(' and ');
-    await supabaseAdmin
-      .from('social_posts')
-      .update({
-        last_error: `tick ran at ${now.toISOString()} but ${missing} is not readable on this deployment; left queued on purpose`,
-      })
+    .select('id')
+    .lt('scheduled_for', staleBefore);
+  const staleIds = (stalePosts ?? []).map((p) => p.id);
+  let expired = 0;
+  if (staleIds.length) {
+    const { data } = await supabaseAdmin
+      .from('social_post_targets')
+      .update({ status: 'expired', last_error: 'slot passed before any tick could publish it' })
+      .in('post_id', staleIds)
       .eq('status', 'queued')
-      .lte('scheduled_for', now.toISOString());
-
-    return NextResponse.json({
-      ok: false,
-      reason: 'instagram_credentials_missing',
-      missing,
-      expired: expired?.length ?? 0,
-      published: 0,
-      note: 'Queue left intact. Due rows were stamped with the reason.',
-    });
+      .select('id');
+    expired = data?.length ?? 0;
   }
 
-  const { data: due, error: dueError } = await supabaseAdmin
-    .from('social_posts')
-    .select('id, slug, caption, media_keys, scheduled_for, attempt_count')
+  // Due now, OR due within the handoff horizon on a platform that can schedule itself.
+  const horizon = new Date(now.getTime() + HANDOFF_HORIZON_MS).toISOString();
+  const { data: candidates, error: dueError } = await supabaseAdmin
+    .from('social_post_targets')
+    .select('id, post_id, platform, caption, payload, attempt_count, social_posts!inner(slug, kind, media_keys, payload, scheduled_for)')
     .eq('status', 'queued')
-    .lte('scheduled_for', now.toISOString())
-    .order('scheduled_for', { ascending: true })
-    .limit(MAX_POSTS_PER_TICK);
+    .lte('social_posts.scheduled_for', horizon)
+    .order('created_at', { ascending: true })
+    .limit(MAX_TARGETS_PER_TICK * 4);
 
   if (dueError) {
-    return NextResponse.json({ ok: false, error: 'query_failed' }, { status: 500 });
-  }
-  if (!due || due.length === 0) {
-    return NextResponse.json({ ok: true, due: 0, published: 0, expired: expired?.length ?? 0 });
+    return NextResponse.json({ ok: false, error: 'query_failed', detail: dueError.message }, { status: 500 });
   }
 
-  const cfg: InstagramConfig = { igUserId, accessToken, host, version };
+  const rows = (candidates ?? []) as unknown as TargetRow[];
   const results: Array<Record<string, unknown>> = [];
+  let handled = 0;
 
-  for (const row of due as SocialPostRow[]) {
-    // Re-check the window. A row can sit in this loop while the previous post publishes.
-    if (!isDue(new Date(row.scheduled_for), new Date()).due) continue;
+  for (const row of rows) {
+    if (handled >= MAX_TARGETS_PER_TICK) break;
+    const post = row.social_posts;
+    const slot = new Date(post.scheduled_for);
+    const due = isDue(slot, new Date());
 
-    // CLAIM. A concurrent tick's identical update matches no row, so it does no work. This is
-    // the same shape as the insert-as-claim used elsewhere in the repo.
+    // Decide whether this target is actionable right now.
+    let native = false;
+    if (!due.due) {
+      if (due.reason !== 'future') continue;
+      // Not due yet. Only proceed if the platform can take it early and own the clock.
+      let adapterSupportsNative = false;
+      try {
+        adapterSupportsNative = adapterFor(row.platform, env).supportsNativeScheduling;
+      } catch {
+        adapterSupportsNative = false;
+      }
+      if (!adapterSupportsNative) continue;
+      native = true;
+    }
+
+    // THE GATE. Refuse before claiming so a refused target stays readable and never burns an
+    // attempt. Written as 'refused', never silently skipped.
+    const gate = canPublish(row.platform, post.kind, env);
+    if (!gate.ok) {
+      await supabaseAdmin
+        .from('social_post_targets')
+        .update({ status: 'refused', last_error: gate.message ?? gate.reason ?? 'refused by capability matrix' })
+        .eq('id', row.id)
+        .eq('status', 'queued');
+      results.push({ slug: post.slug, platform: row.platform, status: 'refused', reason: gate.reason });
+      continue;
+    }
+
+    // CLAIM. A concurrent tick's identical update matches no row, so it does no work.
     const { data: claimed } = await supabaseAdmin
-      .from('social_posts')
+      .from('social_post_targets')
       .update({ status: 'publishing', attempt_count: row.attempt_count + 1 })
       .eq('id', row.id)
       .eq('status', 'queued')
       .select('id')
       .maybeSingle();
-
     if (!claimed) continue;
+    handled++;
 
     try {
-      const keys = Array.isArray(row.media_keys) ? row.media_keys : [];
-      if (keys.length < 2) throw new Error(`row has ${keys.length} media keys; a carousel needs at least 2`);
-
+      const keys = Array.isArray(post.media_keys) ? post.media_keys : [];
       // Signed fresh at publish time, never stored: a URL minted at queue time would have
-      // expired long before its slot arrived.
-      const imageUrls: string[] = [];
-      for (const key of keys) imageUrls.push(await getSignedDownloadUrl(String(key), 3600));
+      // expired long before its slot. Long TTL because a video upload can take a while.
+      const mediaUrls: string[] = [];
+      for (const key of keys) mediaUrls.push(await getSignedDownloadUrl(String(key), 3 * 3600));
 
-      const out = await publishCarousel(cfg, imageUrls, row.caption);
+      const adapter = adapterFor(row.platform, env);
+      const out = await adapter.publish({
+        kind: post.kind,
+        caption: row.caption,
+        mediaUrls,
+        payload: { ...(post.payload ?? {}), ...(row.payload ?? {}) },
+        scheduledFor: native ? slot : undefined,
+      });
+
+      const providerResponse = out.providerResponse
+        ? JSON.parse(redactSecrets(JSON.stringify(out.providerResponse), [env.IG_ACCESS_TOKEN, env.FB_PAGE_ACCESS_TOKEN, env.THREADS_ACCESS_TOKEN, env.TIKTOK_ACCESS_TOKEN, env.X_ACCESS_SECRET]))
+        : null;
 
       await supabaseAdmin
-        .from('social_posts')
-        .update({
-          status: 'published',
-          ig_media_id: out.mediaId,
-          permalink: out.permalink,
-          carousel_container_id: out.carouselContainerId,
-          child_container_ids: out.childContainerIds,
-          published_at: new Date().toISOString(),
-          last_error: null,
-        })
+        .from('social_post_targets')
+        .update(
+          out.handedOff
+            ? {
+                status: 'handed_off',
+                provider_post_id: out.providerPostId,
+                permalink: out.permalink,
+                provider_response: providerResponse,
+                last_error: null,
+              }
+            : {
+                status: 'published',
+                provider_post_id: out.providerPostId,
+                permalink: out.permalink,
+                provider_response: providerResponse,
+                published_at: new Date().toISOString(),
+                last_error: null,
+              }
+        )
         .eq('id', row.id);
 
-      results.push({ slug: row.slug, status: 'published', mediaId: out.mediaId, permalink: out.permalink });
+      results.push({
+        slug: post.slug,
+        platform: row.platform,
+        status: out.handedOff ? 'handed_off' : 'published',
+        providerPostId: out.providerPostId,
+        permalink: out.permalink,
+      });
     } catch (err) {
-      const classification = err instanceof GraphError ? err.classification : null;
+      const classification = err instanceof PublishError ? err.classification : null;
       const retryable = classification?.retryable ?? false;
       const attempts = row.attempt_count + 1;
       const giveUp = !retryable || attempts >= MAX_ATTEMPTS;
-
-      const message = redactSecrets(err instanceof Error ? err.message : String(err), [accessToken]);
+      const message = redactSecrets(err instanceof Error ? err.message : String(err), [
+        env.IG_ACCESS_TOKEN,
+        env.FB_PAGE_ACCESS_TOKEN,
+        env.THREADS_ACCESS_TOKEN,
+        env.TIKTOK_ACCESS_TOKEN,
+        env.X_ACCESS_SECRET,
+        env.YOUTUBE_REFRESH_TOKEN,
+      ]);
 
       await supabaseAdmin
-        .from('social_posts')
+        .from('social_post_targets')
         .update({
-          // Retryable and under the cap goes back into the queue for the next tick. Anything
-          // else stops and waits for a person, rather than burning the daily publish budget.
-          status: giveUp ? 'failed' : 'queued',
+          // An audit refusal from inside an adapter is a refusal, not a failure to retry.
+          status: classification?.kind === 'audit_required' ? 'refused' : giveUp ? 'failed' : 'queued',
           last_error: message.slice(0, 2000),
         })
         .eq('id', row.id);
 
       results.push({
-        slug: row.slug,
-        status: giveUp ? 'failed' : 'retrying',
+        slug: post.slug,
+        platform: row.platform,
+        status: classification?.kind === 'audit_required' ? 'refused' : giveUp ? 'failed' : 'retrying',
         kind: classification?.kind ?? 'unknown',
         attempts,
         error: message.slice(0, 300),
@@ -194,11 +237,45 @@ export async function GET(req: NextRequest) {
     }
   }
 
+  // Roll the post-level status up from its targets, so a reader of social_posts alone gets an
+  // honest summary: published only when EVERY target is published or handed off.
+  const touchedPosts = [...new Set(rows.map((r) => r.post_id))];
+  for (const postId of touchedPosts) {
+    const { data: ts } = await supabaseAdmin.from('social_post_targets').select('status').eq('post_id', postId);
+    const statuses = (ts ?? []).map((t) => t.status as string);
+    if (!statuses.length) continue;
+    const rollup = statuses.every((s) => s === 'published' || s === 'handed_off')
+      ? 'published'
+      : statuses.some((s) => s === 'queued' || s === 'publishing')
+        ? 'queued'
+        : statuses.every((s) => s === 'expired')
+          ? 'expired'
+          : 'failed';
+    // social_posts.published_has_id requires an id when published; carry the first one across.
+    const patch: Record<string, unknown> = { status: rollup };
+    if (rollup === 'published') {
+      const { data: first } = await supabaseAdmin
+        .from('social_post_targets')
+        .select('provider_post_id, permalink, published_at')
+        .eq('post_id', postId)
+        .not('provider_post_id', 'is', null)
+        .limit(1)
+        .maybeSingle();
+      if (first) {
+        patch.ig_media_id = first.provider_post_id;
+        patch.permalink = first.permalink;
+        patch.published_at = first.published_at ?? new Date().toISOString();
+      }
+    }
+    await supabaseAdmin.from('social_posts').update(patch).eq('id', postId);
+  }
+
   return NextResponse.json({
     ok: true,
-    due: due.length,
-    expired: expired?.length ?? 0,
-    published: results.filter((r) => r.status === 'published').length,
+    candidates: rows.length,
+    handled,
+    expired,
+    published: results.filter((r) => r.status === 'published' || r.status === 'handed_off').length,
     results,
   });
 }

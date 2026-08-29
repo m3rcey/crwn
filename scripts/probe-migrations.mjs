@@ -69,6 +69,10 @@ const PROBES = [
   // it and every scheduled post is silently going nowhere. The queue is the only durable record
   // of what is due, so a missing table is not a degraded feature, it is a dead one.
   ['social publish queue', 'social_posts?select=id&limit=1', 'schema-phase3-social-publish-queue.sql'],
+  // Multi-platform targets. Same lockdown (RLS on, zero policies, ALL revoked), so 42501 is the
+  // applied signal. Until this runs, the tick's inner join on social_posts!inner finds no rows
+  // and nothing publishes on ANY platform, Instagram included: the tick moved to targets.
+  ['social publish targets', 'social_post_targets?select=id&limit=1', 'schema-phase3-social-publish-multiplatform.sql'],
   // FRL tables are admin-only RLS: anon resolves the table (zero rows) = applied.
   ['frl engagements', 'frl_engagements?select=id&limit=1', 'schema-phase2-frl-engagements.sql'],
   ['frl work entries', 'frl_work_entries?select=id&limit=1', 'schema-phase2-frl-engagements.sql'],
