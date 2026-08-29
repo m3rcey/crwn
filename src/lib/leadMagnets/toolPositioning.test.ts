@@ -513,7 +513,14 @@ describe('page composition', () => {
     expect(ladderSection).toMatch(/The ladder that holds it/);
     expect(ladderSection).toMatch(/RECOMMENDED_LADDER/);
     const resultBranch = worth.slice(worth.indexOf('{resultCard}'));
-    expect(resultBranch.indexOf('<LadderSection')).toBeLessThan(resultBranch.indexOf('{emailCaptureCard}'));
+    // The ladder renders below the result and above the builder. It used to be asserted as
+    // "before the email ask", but on 2026-08-26 the ask moved INSIDE `resultCard` (directly under
+    // the primary CTA), so it is no longer a sibling in this branch at all. Its position is owned
+    // by pageComposition.test.ts now; what stays true here is that the ladder is depth BELOW the
+    // result and never below the builder.
+    expect(resultBranch.indexOf('<LadderSection')).toBeGreaterThan(-1);
+    expect(resultBranch.indexOf('<LadderSection')).toBeLessThan(resultBranch.indexOf('{builderSection}'));
+    expect(resultBranch.indexOf('{emailCaptureCard}'), 'the ask belongs inside resultCard, not beside it').toBe(-1);
     // The feature-led stack it used to carry is gone.
     for (const gone of ['CompareTable', 'RevenueStack', 'MONETIZE_WAYS', 'ShopMock', 'TiersMock']) {
       expect(worth, gone).not.toContain(gone);

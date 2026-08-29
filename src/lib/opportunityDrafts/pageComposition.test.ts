@@ -171,6 +171,26 @@ describe('PublicToolClient page order (shared template for 16 tools + OYF)', () 
     expect(result.indexOf('{afterHero}')).toBeLessThan(result.indexOf('heroTiles?.metrics'));
   });
 
+  // /worth is the ONE calculator that does not go through PublicToolClient, so every assertion
+  // above missed it entirely. That is exactly why it drifted: its capture card sat after the
+  // derivation, after the ladder AND after the builder, which its own code comment had measured
+  // landing at y=1385 on a 375x667 phone. An uncovered surface is where a ratified rule goes to
+  // rot, so it gets the same assertion as the shared path.
+  it('the standalone /worth calculator puts the email ask under its primary CTA too', () => {
+    const worth = readFileSync(join(root, 'src/app/(public)/worth/WorthExperience.tsx'), 'utf-8');
+    const cta = worth.indexOf('{resultCta}');
+    const capture = worth.indexOf('{emailCaptureCard}');
+    const stats = worth.indexOf('{statsGrid}');
+    const builder = worth.indexOf('{builderSection}');
+    const call = worth.indexOf('<CallRequestCard');
+    expect(cta, 'the primary CTA is missing from /worth').toBeGreaterThan(-1);
+    expect(capture, 'the email ask is missing from /worth').toBeGreaterThan(-1);
+    expect(cta, 'the ask must follow the primary CTA').toBeLessThan(capture);
+    expect(capture, 'the ask must sit above the supporting stats grid, not below it').toBeLessThan(stats);
+    expect(capture, 'the ask must precede the builder and its sticky signup footer').toBeLessThan(builder);
+    expect(builder).toBeLessThan(call);
+  });
+
   it('the tokenized ManyChat result page renders the same ladder and call sections', () => {
     // A lead arriving from a DM link must read the same page a direct visitor reads: result,
     // email ask, ladder, then the call hand-raiser, from the STORED result and inputs.
@@ -216,19 +236,22 @@ describe('PublicToolClient page order (shared template for 16 tools + OYF)', () 
 });
 
 describe('Worth page order', () => {
-  it('delivers the result and derivation, then the optional email ask, then the builder', () => {
+  it('delivers the result, then the derivation and the builder, with the ask already inside the result', () => {
     const flow = worth.slice(worth.indexOf('{useEntryWizard ? ('));
-    // resultCta now lives INSIDE resultCard (directly under the number, above the stats grid),
-    // which is what puts it in the first viewport. `emailCaptureCard` moved ABOVE `builderSection`
-    // on 2026-08-15: /worth mounts the same sticky-footer DeliverableBuilder, so an email ask
-    // placed after it is behind a permanently visible exit, exactly as on the registry tools.
-    const order = ['{resultCard}', '{derivationCard}', '{emailCaptureCard}', '{builderSection}', '{inputsCard}', '{claimCtaCard}'];
+    // `emailCaptureCard` is no longer in this flow list at all: on 2026-08-26 it moved INSIDE
+    // `resultCard`, directly under the primary CTA and above the stats grid, so it is in the first
+    // viewport rather than after the derivation. Its position is asserted separately, against
+    // resultCard, by 'the standalone /worth calculator puts the email ask under its primary CTA'.
+    // What this test still guards is the SEQUENCE of the sections below the result.
+    const order = ['{resultCard}', '{derivationCard}', '{builderSection}', '{inputsCard}', '{claimCtaCard}'];
     let last = -1;
     for (const marker of order) {
       const i = flow.indexOf(marker);
       expect(i, marker).toBeGreaterThan(last);
       last = i;
     }
+    // And it must NOT have been left behind as a sibling down here as well.
+    expect(flow.indexOf('{emailCaptureCard}'), 'the ask is duplicated below the result').toBe(-1);
   });
 
   it('keeps the account CTA below the builder even though the email ask moved above it', () => {

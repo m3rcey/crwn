@@ -655,6 +655,17 @@ export function WorthExperience({
       {/* PRIMARY CTA sits directly under the number, above the supporting stats, so it is in the
           first viewport on a phone. The derivation and everything else stay below. */}
       {resultCta}
+      {/* THE EMAIL ASK, directly under that CTA and ABOVE the stats grid (founder decision
+          2026-08-26, matching the registry calculators). It used to render far below, after the
+          derivation card, the ladder AND the builder. The comment on `builderSection` had already
+          measured the damage: on a 375x667 phone the result, stats and derivation pushed this card
+          to y=1385, and it was below the fold on desktop too. Scrolling to the builder then landed
+          with the card 0% visible, so a visitor who tapped the gold CTA never saw the ask at all.
+          Moving it here is the fix that scroll margin was compensating for.
+
+          Nothing about gating changes: the number and its sentence are both above this, the card
+          is skippable, and `resultCta` still scrolls straight past it to the builder. */}
+      {emailCaptureCard}
       {statsGrid}
     </div>
   );
@@ -743,13 +754,15 @@ export function WorthExperience({
                 }
               />
             </div>
-            {/* Optional email continuation sits ABOVE the builder for the same reason it does on
-                the registry calculators: `builderSection` mounts the shared DeliverableBuilder,
-                whose Wizard footer is `sticky bottom-0` and whose final press navigates to signup.
-                Anything after it is behind a permanently visible exit. The result and the
-                derivation are both above this, so value is still delivered first, and nothing here
-                gates the builder or the inputs. */}
-            {emailCaptureCard}
+            {/* The email ask used to render HERE. It now sits inside `resultCard`, directly under
+                the primary CTA and above the stats grid, for the same reason it moved into the
+                hero on the registry calculators: everything between the number and the ask was
+                pushing the only ask on the page off the first screen.
+
+                The rule it still satisfies is unchanged. `builderSection` mounts the shared
+                DeliverableBuilder, whose Wizard footer is `sticky bottom-0` and whose final press
+                navigates to signup, so anything AFTER the builder is behind a permanently visible
+                exit. Moving the ask further up cannot violate that; it only widens the gap. */}
             {builderSection}
             {flagshipBridgeCard}
             {inputsCard}
