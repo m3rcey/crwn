@@ -154,15 +154,6 @@ responsible for. Do not work those.
          you genuinely send the carousel to the top rows because they have BOTH meaningful reach
          AND recent posts about that artist?
 
-- [ ] **Run the multi-platform migration FIRST. Until it lands, nothing publishes anywhere,
-      Instagram included.** The publishing tick now reads one row per (post, platform) so a post
-      can succeed on Instagram while failing on X. That table does not exist yet, and the tick
-      joins on it, so the next tick after deploy finds nothing due. Not a degraded state, a dead
-      one. The migration backfills every existing post with its Instagram target, so nothing
-      already queued is lost.
-      [`supabase/schema-phase3-social-publish-multiplatform.sql`](supabase/schema-phase3-social-publish-multiplatform.sql)
-      Verify with: npm run verify:migrations (look for "social publish targets")
-
 - [ ] **Start the TikTok and YouTube audits NOW. They are the long pole: 2 to 4 weeks of
       calendar time, and no code can shorten them.** Both adapters are built, tested and refuse
       to run until you record the audit as passed, because BOTH platforms force an unaudited
@@ -202,13 +193,6 @@ responsible for. Do not work those.
         YOUTUBE_CLIENT_ID
         YOUTUBE_CLIENT_SECRET
         YOUTUBE_REFRESH_TOKEN
-
-- [ ] **Decide what to do about YouTube community posts, because I cannot build them.** You asked
-      for community post slideshows. The YouTube Data API has NEVER exposed a create endpoint for
-      community posts; third-party tools can only read them by scraping. There is no supported
-      path at all, so it is recorded as permanently unsupported in the capability matrix rather
-      than left as a gap. Options: post them by hand, or drop them. Tell me which so the item
-      leaves this list.
 
 - [ ] **Refresh IG_ACCESS_TOKEN before it expires around 2026-10-25.** Instagram long-lived
       tokens last about 60 days, and yours was issued 2026-08-26. When it dies, publishing stops
