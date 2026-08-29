@@ -130,17 +130,30 @@ vsl-calculator-28.png: See the business.
 vsl-calculator-29.png: And the membership you just saw is simply the
 vsl-calculator-30.png: You start learning who your actual customers are.
 vsl-calculator-31.png: You don't have to move your entire business today.
-vsl-calculator-32.png: This sounds like a lot more stuff I have
-vsl-calculator-33.png: The goal isn't to create twenty benefits, post every
-vsl-calculator-34.png: I really don't need another platform.
-vsl-calculator-35.png: CRWN's job is to help you operate the whole
-vsl-calculator-36.png: And one last thing about the number you just
-vsl-calculator-37.png: It's an estimate of what the economics could look
-vsl-calculator-38.png: Some artists will convert more people.
-vsl-calculator-39.png: Right now, you can know exactly how many people
-vsl-calculator-40.png: Who actually pays you?
-vsl-calculator-41.png: Reach creates the opportunity.
-vsl-calculator-42.png: You already did the first step.
-vsl-calculator-43.png: The audience is already there.
+vsl-calculator-32.png: Now there are two ways you can use the
+vsl-calculator-33.png: The first is completely self-serve.
+vsl-calculator-34.png: CRWN has three main plans.
+vsl-calculator-35.png: You don't have to guess which one makes sense.
+vsl-calculator-36.png: But for some artists, we offer something different.
+vsl-calculator-37.png: That means instead of handing you the software and
+vsl-calculator-38.png: We help you consolidate the fans and buyers you
+vsl-calculator-39.png: That assisted launch has a separate implementation fee because
+vsl-calculator-40.png: And qualified First Revenue Launch artists get something self-serve
+vsl-calculator-41.png: If you complete the required launch actions and you
+vsl-calculator-42.png: It is not a guarantee that you'll make a
+vsl-calculator-43.png: To qualify for that guarantee, the basics have to
+vsl-calculator-44.png: If you think you may qualify and you want
+vsl-calculator-45.png: This sounds like a lot more stuff I have
+vsl-calculator-46.png: The goal isn't to create twenty benefits, post every
+vsl-calculator-47.png: I really don't need another platform.
+vsl-calculator-48.png: CRWN's job is to help you operate the whole
+vsl-calculator-49.png: And one last thing about the number you just
+vsl-calculator-50.png: It's an estimate of what the economics could look
+vsl-calculator-51.png: Some artists will convert more people.
+vsl-calculator-52.png: Right now, you can know exactly how many people
+vsl-calculator-53.png: Who actually pays you?
+vsl-calculator-54.png: Reach creates the opportunity.
+vsl-calculator-55.png: You already did the first step.
+vsl-calculator-56.png: The audience is already there.
 
-111 of 112 slides located in the recorded narration. 1 was never recorded, and says so.
+124 of 125 slides located in the recorded narration. 1 was never recorded, and says so.

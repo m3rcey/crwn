@@ -62,9 +62,39 @@ const DECKS = [
       16: "And this matters because the real risk is not simply",
       17: "So if your concern is",
     } },
+  // Slides 1 to 31 still match through the prompt sheet. From 32 the deck was rebuilt for the
+  // assisted-launch block added to the script on 2026-08-29, so the sheet no longer describes it
+  // and the old numbering shifted by 13. These queries come from the script itself.
   { id: "vsl-calculator", title: "Calculator VSL",
     sheet: "CRWN_Calculator_VSL_Nano_Banana_Prompts.md", script: "Calculator VSL.rtf",
-    audio: "VSL pt I.wav" },
+    audio: "VSL pt I.wav",
+    overrides: {
+      32: "Now there are two ways you can use the CRWN app.",
+      33: "The first is completely self-serve.",
+      34: "CRWN has three main plans.",
+      35: "You don't have to guess which one makes sense.",
+      36: "But for some artists, we offer something different.",
+      37: "That means instead of handing you the software and telling you good luck",
+      38: "We help you consolidate the fans and buyers you already have.",
+      39: "That assisted launch has a separate implementation fee",
+      40: "And qualified First Revenue Launch artists get something self-serve users do not",
+      41: "If you complete the required launch actions and you do not acquire at least one paid member",
+      42: "It is not a guarantee that you'll make a certain amount of money.",
+      43: "To qualify for that guarantee, the basics have to actually be in place.",
+      44: "If you think you may qualify and you want us to build this with you",
+      45: "This sounds like a lot more stuff I have to manage.",
+      46: "The goal isn't to create twenty benefits, post every day",
+      47: "I really don't need another platform.",
+      48: "CRWN's job is to help you operate the whole picture.",
+      49: "And one last thing about the number you just saw.",
+      50: "It's an estimate of what the economics could look like",
+      51: "Some artists will convert more people.",
+      52: "Right now, you can know exactly how many people follow you.",
+      53: "Who actually pays you?",
+      54: "Reach creates the opportunity.",
+      55: "You already did the first step.",
+      56: "The audience is already there.",
+    } },
 ];
 
 /* ------------------------------------------------------------------ parsing */

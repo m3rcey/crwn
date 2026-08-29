@@ -637,6 +637,27 @@ export function guaranteePanel({ lead, condition, promise }) {
   </div>`;
 }
 
+/**
+ * Three priced plans side by side: name, price, fee, who it is for.
+ * Not `pathCards`: a plan is not a route the viewer takes right now, so it carries no action
+ * label, and the PRICE is the subject rather than a subtitle. Every figure passed in here is a
+ * real CRWN price read from `TIER_PRICING` / `TIER_LIMITS`, never an illustration, which is why
+ * the calculator deck's guard treats a slide using this as pricing rather than example money.
+ */
+export function planCards(plans) {
+  return `<div class="plans">${plans
+    .map(
+      (p) => `<div class="plan ${p.accent ? "accent" : ""}">
+      <div class="plan-n">${esc(p.name)}</div>
+      <div class="plan-p">${esc(p.price)}</div>
+      ${p.per ? `<div class="plan-per">${esc(p.per)}</div>` : ""}
+      <div class="plan-fee">${esc(p.fee)}</div>
+      ${p.forWhom ? `<div class="plan-for">${esc(p.forWhom)}</div>` : ""}
+    </div>`,
+    )
+    .join("")}</div>`;
+}
+
 /** Slide 17: two equal routes, each with its own action. */
 export function pathCards(paths) {
   return `<div class="paths">${paths
@@ -1126,6 +1147,18 @@ export const LAYOUT_CSS = `
 .path-s{font-size:25px;color:${C.gray};line-height:1.35;flex:1 1 auto}
 .path-cta{background:${C.goldInk};color:#fff;font-size:27px;font-weight:800;letter-spacing:.05em;
   border-radius:999px;padding:16px 40px}
+
+/* Priced plan comparison. Distinct from .path because a plan is not a route the viewer takes now:
+   the price is the subject, so it is the largest thing in the card, and there is no action label. */
+.plans{display:flex;justify-content:center;gap:34px;width:100%}
+.plan{flex:1 1 0;max-width:620px;border:2px solid ${C.rule};background:#fff;border-radius:24px;
+  padding:34px 28px;display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center}
+.plan.accent{border-color:${C.goldInk};background:${C.goldSoft}}
+.plan-n{font-size:34px;font-weight:800;letter-spacing:.08em}
+.plan-p{font-size:78px;font-weight:800;letter-spacing:-.03em;line-height:1;color:${C.goldInk}}
+.plan-per{font-size:24px;color:${C.gray};margin-top:-6px}
+.plan-fee{font-size:30px;font-weight:700;border-top:2px solid ${C.rule};padding-top:16px;width:100%}
+.plan-for{font-size:23px;color:${C.gray};line-height:1.35}
 
 /* slide 6's diagnostic rail */
 .tiles.rail{position:relative}
