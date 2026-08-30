@@ -62,38 +62,50 @@ const DECKS = [
       16: "And this matters because the real risk is not simply",
       17: "So if your concern is",
     } },
-  // Slides 1 to 31 still match through the prompt sheet. From 32 the deck was rebuilt for the
-  // assisted-launch block added to the script on 2026-08-29, so the sheet no longer describes it
-  // and the old numbering shifted by 13. These queries come from the script itself.
+  // Slides 1 to 33 still match through the prompt sheet. From 34 the deck follows the RECORDED
+  // script (a flat transcript with no time headers), which reorders the assisted-launch block and
+  // adds the break-evens, the fee split and the first-30-days beat. These queries are its own
+  // sentences, so the printed words still come from the recording.
   { id: "vsl-calculator", title: "Calculator VSL",
     sheet: "CRWN_Calculator_VSL_Nano_Banana_Prompts.md", script: "Calculator VSL.rtf",
     audio: "VSL pt I.wav",
     overrides: {
-      32: "Now there are two ways you can use the CRWN app.",
-      33: "The first is completely self-serve.",
-      34: "CRWN has three main plans.",
-      35: "You don't have to guess which one makes sense.",
-      36: "But for some artists, we offer something different.",
-      37: "That means instead of handing you the software and telling you good luck",
-      38: "We help you consolidate the fans and buyers you already have.",
-      39: "That assisted launch has a separate implementation fee",
-      40: "And qualified First Revenue Launch artists get something self-serve users do not",
-      41: "If you complete the required launch actions and you do not acquire at least one paid member",
-      42: "It is not a guarantee that you'll make a certain amount of money.",
-      43: "To qualify for that guarantee, the basics have to actually be in place.",
-      44: "If you think you may qualify and you want us to build this with you",
-      45: "This sounds like a lot more stuff I have to manage.",
-      46: "The goal isn't to create twenty benefits, post every day",
-      47: "I really don't need another platform.",
-      48: "CRWN's job is to help you operate the whole picture.",
-      49: "And one last thing about the number you just saw.",
-      50: "It's an estimate of what the economics could look like",
-      51: "Some artists will convert more people.",
-      52: "Right now, you can know exactly how many people follow you.",
-      53: "Who actually pays you?",
-      54: "Reach creates the opportunity.",
-      55: "You already did the first step.",
-      56: "The audience is already there.",
+      // The recording says "could", and "just" is a stopword, which leaves the sheet's cue with a
+      // single content word. Below the floor by one, so it gets a query of its own.
+      19: "You could just build it, see the tiers",
+      // The sheet's slides 32 and 33 were the OBJECTION slides back when the deck ended at 43. The
+      // deck moved on; without these they matched the objection block minutes later.
+      32: "So, there are actually two ways to use the Crown app.",
+      33: "The first is self-serve.",
+      34: "But, if you already have evidence that fans buy from you",
+      35: "whether you choose to build it yourself or work with us, the Crown app has three plans",
+      36: "Once you cross roughly $1,225 a month, Pro becomes cheaper for you.",
+      37: "So, you're not being asked to pay for a bigger plan just because it exists.",
+      38: "Now, if you qualify for the first revenue launch, this is where the offer changes.",
+      39: "We help consolidate the fans and buyers you already have.",
+      40: "Then we work through the private launch, the wider audience launch, delivery, measurement",
+      41: "And because this includes real hands-on work, the assistant launch has a separate implementation fee.",
+      42: "Right now, for the founding launch partners, that implementation fee is between zero and $500",
+      43: "Qualified first revenue launch artists also receive the first paid member guarantee.",
+      44: "If you complete the required launch actions and you do not acquire at least one paid member within 30 days",
+      45: "We're not guaranteeing that you'll make $10,000, $20,000, or the number that you saw in the calculator.",
+      46: "There are conditions because the guarantee only makes sense if the launch actually happens.",
+      47: "And the assisted launch is not for everybody.",
+      48: "We care more about evidence of demand rather than just a follower number.",
+      49: "If that sounds like you and you want us to build this with you, go ahead and request a call.",
+      50: "So, whichever path makes sense for you, the next step is the same.",
+      51: "Now, you might be thinking, this sounds like a lot more stuff that I got to manage.",
+      52: "The goal is not to create 20 benefits, post every day",
+      53: "And if your reaction is, Oh, well, I really don't need another platform.",
+      54: "The Crowd App's job is to help you operate the whole picture.",
+      55: "And one last thing about the number you just saw.",
+      56: "It's an estimate of what the economics could look like once the offer exists",
+      57: "Some artists will convert more people.",
+      58: "Right now, you can know exactly how many people follow you.",
+      59: "Who actually pays you?",
+      60: "Reach creates the opportunity.",
+      61: "You already did the first step.",
+      62: "Your audience is already there.",
     } },
 ];
 
@@ -127,28 +139,56 @@ function slideText(html) {
   return clean(strip(head) + " " + strip(sub));
 }
 
-/** Narration lines plus the time-range section each one sits in. */
+/**
+ * Narration lines plus the time-range section each one sits in.
+ *
+ * Two script shapes exist. The SECTIONED shape (VSL #1 to #4) is a planning document: time-range
+ * headers, bracketed stage directions, one sentence per paragraph. The FLAT shape (the calculator
+ * script from 2026-08-29) is a transcript of what was actually said: no headers, no markers, one
+ * continuous paragraph. Sentence-splitting is applied ONLY to the flat shape, so the four sectioned
+ * decks keep the exact cues they already have; splitting their multi-sentence paragraphs would
+ * silently move rows the editor has already placed.
+ */
 function parseScript(file) {
   const text = rtfToText(file);
+  const TIME = /(\d{1,2}:\d{2}\s*[-\u2013]\s*\d{1,2}:\d{2})/;
+  const sectioned = TIME.test(text);
   const rows = [];
   let section = "";
   for (const raw of text.split("\n")) {
     const line = raw.trim();
     if (!line) continue;
-    const time = line.match(/(\d{1,2}:\d{2}\s*[-\u2013]\s*\d{1,2}:\d{2})/);
+    const time = line.match(TIME);
     if (time && line.length < 80) {
       section = time[1].replace(/\s*[-\u2013]\s*/, "-");
       continue;
     }
     if (/^\[/.test(line) || /^#/.test(line)) continue; // stage directions, headers
-    // Everything before the first time range is the brief, not the recording: title, target
-    // length, primary job, CTA, and the "Curiosity gap:" paragraph. That paragraph summarises the
-    // whole video, so it is topical enough to outscore real narration, and it has no section to
-    // print. It matched six VSL #4 slides and dragged the cursor backwards past the rest.
-    if (!section) continue;
-    rows.push({ line, section });
+    if (sectioned) {
+      // Everything before the first time range is the brief, not the recording: title, target
+      // length, primary job, CTA, and the "Curiosity gap:" paragraph. That paragraph summarises
+      // the whole video, so it is topical enough to outscore real narration, and it has no
+      // section to print. It matched six VSL #4 slides and dragged the cursor backwards past the
+      // rest.
+      if (!section) continue;
+      rows.push({ line, section });
+      continue;
+    }
+    for (const s of sentences(line)) rows.push({ line: s, section: "" });
   }
   return rows;
+}
+
+/**
+ * Split a paragraph into sentences. A flat transcript is one enormous paragraph, and without this
+ * every cue would resolve to the same nine opening words. Splits after . ? or ! when the next
+ * character starts a new sentence, and keeps a decimal or an abbreviation intact.
+ */
+function sentences(text) {
+  return text
+    .split(/(?<=[.?!])["\u201d\u2019']?\s+(?=["\u201c\u2018']?[A-Z])/)
+    .map((s) => s.trim())
+    .filter(Boolean);
 }
 
 /* ------------------------------------------------------------------ matching */

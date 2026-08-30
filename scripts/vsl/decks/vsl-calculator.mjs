@@ -1,13 +1,14 @@
-// The main Calculator VSL, 43 slides.
-// Headlines are the exact copy from CRWN_Calculator_VSL_Nano_Banana_Prompts.md. Em dashes in that
-// source are rewritten (house rule: never an em dash in copy).
+// The main Calculator VSL, 62 slides.
+// Slides 1 to 33 follow CRWN_Calculator_VSL_Nano_Banana_Prompts.md. From 34 the deck follows the
+// RECORDED script instead, which reordered the assisted-launch block and added three beats the
+// prompt sheet never had. Em dashes in either source are rewritten (house rule: never an em dash).
 //
 // THIS DECK SHOWS THE CALCULATOR RESULT, which is the one thing it must never overstate. The sheet
 // says so five times: estimated opportunity, never guaranteed income; never imply every follower
 // pays; never imply follower count is worthless; no invented percentages or benchmarks.
 //
 // Two consequences run through the whole file:
-//   1. Slides 1 and 36 do NOT contain a number. The result is per-viewer, so they ship a labelled
+//   1. Slides 1 and 55 do NOT contain a number. The result is per-viewer, so they ship a labelled
 //      slot the editor fills, the same discipline as slide 27's screen recording. A plausible
 //      figure baked in here would read as a claim CRWN never made.
 //   2. Money IS allowed as illustrative tier pricing, unlike VSL #4. So the guard below is shaped
@@ -40,6 +41,8 @@ import {
   stepList,
   recordingSlot,
   ctaButton,
+  optionRow,
+  crowdCompare,
   checklist,
   guaranteePanel,
   planCards,
@@ -62,9 +65,9 @@ const S = (n, fn) => deck.slides.push({ n, html: fn(n) });
 const base = (n) => ({ n, num: n, deck: deck.label });
 const ILLUSTRATIVE = "Illustrative examples.";
 const ESTIMATE_NOTE = "Estimated opportunity, not guaranteed income.";
-// The two pricing slides carry their own honesty note, and the guard below asserts each one.
-// They are separate because they are different kinds of claim: 34 states prices CRWN charges
-// today, 39 states a founding rate plus a standard fee the repo has not set.
+// The pricing slides carry their own honesty note, and the guard below asserts each one. They are
+// separate because they are different kinds of claim: 35 and 36 state prices and break-evens CRWN
+// charges and computes today, 42 states a founding rate plus a standard price it has not set.
 const PRICING_NOTE = "Current CRWN pricing.";
 const FOUNDING_NOTE = "Founding rate. The standard fee is expected, not set.";
 
@@ -595,19 +598,6 @@ S(31, (n) =>
   }),
 );
 
-/* ---------------------------------------------------------------------
- * 32 to 44: the assisted-launch block added to the script on 2026-08-29.
- *
- * Every commercial figure on these slides was checked against the repository before it was set,
- * not transcribed from the script. Plan prices come from `TIER_PRICING` and the fees from
- * `TIER_LIMITS.platformFeePercent` (src/lib/platformTier.ts); the six guarantee conditions are the
- * six `role: 'required'` defs in src/lib/launchPartner.ts, in that order, and the 100 / 40 figures
- * are `GUARANTEE_MIN_CONTACTS` and `GUARANTEE_MIN_PROVEN_BUYERS`. The implementation fee is the
- * exception and is treated as one: the repo holds no constant for it (it is a manual Stripe
- * invoice by founder decision), and the script itself calls the standard range EXPECTED rather
- * than set, so slide 39 carries that hedge on its face.
- * ------------------------------------------------------------------- */
-
 /* 32 ----------------------------------------------------------------- */
 S(32, (n) =>
   shell({
@@ -644,24 +634,75 @@ S(33, (n) =>
   }),
 );
 
+/* ---------------------------------------------------------------------
+ * 34 to 50: the assisted-launch block, rebuilt 2026-08-29 against the RECORDED script.
+ *
+ * The first pass followed the planning document, which put the three plans immediately after the
+ * self-serve path. The recording qualifies the artist for the First Revenue Launch FIRST, then
+ * presents the plans to both paths at once, and adds three beats the plan never had: the two
+ * break-even thresholds, the subscription-versus-implementation-fee distinction, and the shape of
+ * the first 30 days.
+ *
+ * Every figure is checked against the repository, not transcribed. Plan prices are TIER_PRICING
+ * and the fees are TIER_LIMITS.platformFeePercent. The two break-evens are DERIVED, not constants:
+ * $49 / 4% = $1,225 and ($199 - $49) / 3% = $5,000, computed by proBreakEvenGmvCents() and
+ * scaleBreakEvenGmvCents() in src/lib/platformTier.ts, and the script's numbers match exactly. The
+ * six guarantee conditions are the six role:'required' defs in src/lib/launchPartner.ts, with 100
+ * and 40 coming from GUARANTEE_MIN_CONTACTS and GUARANTEE_MIN_PROVEN_BUYERS. The implementation
+ * fee remains the one figure with no constant behind it, so slide 42 keeps its hedge.
+ * ------------------------------------------------------------------- */
+
 /* 34 ----------------------------------------------------------------- */
 S(34, (n) =>
   shell({
     ...base(n),
-    head: "THREE PLANS.",
-    headSize: 104,
-    // Figures verified against TIER_PRICING and TIER_LIMITS.platformFeePercent. See the guard.
-    body: planCards([
-      { name: "LAUNCH", price: "FREE", per: "forever", fee: "12% of revenue", forWhom: "Prove the first offer." },
-      { name: "PRO", price: "$49", per: "per month", fee: "8% of revenue", forWhom: "Lower fee, more room.", accent: true },
-      { name: "SCALE", price: "$199", per: "per month", fee: "5% of revenue", forWhom: "More volume, more complexity." },
+    head: "OR YOU MAY QUALIFY FOR [[SOMETHING ELSE.]]",
+    headSize: 80,
+    body: checklist([
+      "Evidence that fans already buy from you",
+      "Fan or buyer data we can actually work with",
+      "Serious about executing a launch",
     ]),
-    foot: { hand: "The fee falls as the plan rises.", disclaim: PRICING_NOTE },
+    foot: { hand: "That is where we build and launch it with you." },
   }),
 );
 
 /* 35 ----------------------------------------------------------------- */
 S(35, (n) =>
+  shell({
+    ...base(n),
+    head: "THREE PLANS, EITHER WAY.",
+    headSize: 96,
+    // Figures verified against TIER_PRICING and TIER_LIMITS.platformFeePercent. See the guard.
+    body: planCards([
+      { name: "LAUNCH", price: "FREE", per: "forever", fee: "12% of sales", forWhom: "Prove the first offer." },
+      { name: "PRO", price: "$49", per: "per month", fee: "8% of sales", forWhom: "Lower fee, more room.", accent: true },
+      { name: "SCALE", price: "$199", per: "per month", fee: "5% of sales", forWhom: "More volume, more complexity." },
+    ]),
+    foot: { hand: "Build it yourself or build it with us.", disclaim: PRICING_NOTE },
+  }),
+);
+
+/* 36 ----------------------------------------------------------------- */
+S(36, (n) =>
+  shell({
+    ...base(n),
+    head: "THE PLAN CHANGES WHEN [[THE MATH DOES.]]",
+    headSize: 80,
+    // Derived, never typed: $49 / 4% and ($199 - $49) / 3%. proBreakEvenGmvCents() and
+    // scaleBreakEvenGmvCents() compute exactly these, which is why the slide may state them.
+    body: `${optionRow(
+      ["UNDER $1,225 A MONTH: LAUNCH", "OVER $1,225: PRO IS CHEAPER", "OVER $5,000: SCALE IS CHEAPER"],
+      { size: 40 },
+    )}
+      <div class="midhead" style="margin-top:48px;font-size:52px">THE LOWER PERCENTAGE
+        <span class="hand-u">PAYS FOR THE SUBSCRIPTION.</span></div>`,
+    foot: { hand: "Monthly sales processed through CRWN.", disclaim: PRICING_NOTE },
+  }),
+);
+
+/* 37 ----------------------------------------------------------------- */
+S(37, (n) =>
   shell({
     ...base(n),
     head: "START WHERE THE BUSINESS [[IS TODAY.]]",
@@ -671,38 +712,9 @@ S(35, (n) =>
       { icon: "trending", label: "PRO" },
       { icon: "layers", label: "SCALE" },
     ])}
-      <div class="midhead" style="margin-top:44px;font-size:56px">MOVE UP WHEN THE
-        <span class="hand-u">ECONOMICS JUSTIFY IT.</span></div>`,
-    foot: { hand: "No need to guess the right plan on day one." },
-  }),
-);
-
-/* 36 ----------------------------------------------------------------- */
-S(36, (n) =>
-  shell({
-    ...base(n),
-    head: "SOME ARTISTS QUALIFY FOR [[SOMETHING ELSE.]]",
-    headSize: 80,
-    body: checklist([
-      "Evidence that fans already buy from you",
-      "A list of buyers or fans we can actually reach",
-      "Serious about executing the launch",
-    ]),
-    foot: { hand: "Three things, all of them evidence." },
-  }),
-);
-
-/* 37 ----------------------------------------------------------------- */
-S(37, (n) =>
-  shell({
-    ...base(n),
-    head: "",
-    body: `<div class="reveal">
-      <div class="big"><span class="struck">HERE IS THE SOFTWARE. GOOD LUCK.</span></div>
-      <div class="down">${arrow({ dir: "down", len: 104, color: C.goldInk, weight: 5 })}</div>
-      <div class="big">WE BUILD AND LAUNCH IT <span class="g">WITH YOU.</span></div>
-    </div>`,
-    foot: { hand: "The First Revenue Launch." },
+      <div class="midhead" style="margin-top:52px;font-size:56px">UPGRADE WHEN THE
+        <span class="hand-u">MATH MAKES SENSE.</span></div>`,
+    foot: { hand: "Not because a bigger plan exists." },
   }),
 );
 
@@ -710,22 +722,13 @@ S(37, (n) =>
 S(38, (n) =>
   shell({
     ...base(n),
-    head: "WHAT WE DO WITH YOU.",
-    headSize: 96,
-    body: checklist(
-      [
-        "Consolidate the fans and buyers you have",
-        "Decide which offer runs first",
-        "Build the Bronze, Silver, Gold and Platinum ladder",
-        "Organize the benefits and pricing",
-        "Move over your fan and buyer data",
-        "Identify who hears about it first",
-        "Create the launch campaign",
-        "Work the launch through with you",
-      ],
-      { cols: 2 },
-    ),
-    foot: { hand: "Hands-on work, not a login." },
+    head: "",
+    body: `<div class="reveal">
+      <div class="big"><span class="struck">HERE IS THE SOFTWARE. GOOD LUCK.</span></div>
+      <div class="down">${arrow({ dir: "down", len: 104, color: C.goldInk, weight: 5 })}</div>
+      <div class="big">WE GO THROUGH THE LAUNCH <span class="g">WITH YOU.</span></div>
+    </div>`,
+    foot: { hand: "The First Revenue Launch." },
   }),
 );
 
@@ -733,24 +736,22 @@ S(38, (n) =>
 S(39, (n) =>
   shell({
     ...base(n),
-    head: "THE ASSISTED LAUNCH HAS [[A SEPARATE FEE.]]",
-    headSize: 76,
-    body: `${panelCompare({
-      left: {
-        badge: "FOUNDING PARTNERS",
-        title: "$0 TO $500",
-        body: miniCards([{ icon: "check", label: "Plus the Pro plan" }], { gold: true }),
-        note: "Depending on the partnership.",
-      },
-      right: {
-        badge: "EXPECTED LATER",
-        title: "$1,500 TO $3,000",
-        body: miniCards([{ icon: "clock", label: "Once the process is standardized" }]),
-        note: "Expected, not set.",
-      },
-    })}
-      <div class="note" style="margin-top:28px;text-align:center">The implementation fee covers the setup and launch work. Your subscription is separate, because that is what you keep using afterward.</div>`,
-    foot: { hand: "It pays for real work, not access.", disclaim: FOUNDING_NOTE },
+    head: "WHAT WE DO WITH YOU.",
+    headSize: 96,
+    body: checklist(
+      [
+        "Consolidate the fans and buyers you have",
+        "Decide which revenue model runs first",
+        "Build the Bronze, Silver, Gold and Platinum tiers",
+        "Organize benefits, pricing and fulfillment",
+        "Import and organize your fan and buyer data",
+        "Identify who should see the offer first",
+        "Create the launch campaign with you",
+        "Work the launch through with you",
+      ],
+      { cols: 2 },
+    ),
+    foot: { hand: "So the offer does not become impossible to deliver." },
   }),
 );
 
@@ -758,12 +759,19 @@ S(39, (n) =>
 S(40, (n) =>
   shell({
     ...base(n),
-    head: "THE FIRST PAID MEMBER GUARANTEE.",
-    headSize: 88,
-    brushUnder: true,
-    body: `<div class="midhead" style="font-size:56px">QUALIFIED FIRST REVENUE LAUNCH ARTISTS GET SOMETHING
-      <span class="hand-u">SELF-SERVE DOES NOT.</span></div>`,
-    foot: { hand: "This is the part that changes the risk." },
+    head: "THE FIRST 30 DAYS.",
+    headSize: 100,
+    // A four-node chain alone leaves the frame half empty, the same shape slide 33 had. The fifth
+    // beat closes it rather than becoming a node, because a fifth node wraps at these label widths.
+    body: `${flowChain([
+      { icon: "users", label: "PRIVATE LAUNCH" },
+      { icon: "send", label: "WIDER AUDIENCE" },
+      { icon: "gift", label: "DELIVERY" },
+      { icon: "eye", label: "MEASUREMENT" },
+    ])}
+      <div class="midhead" style="margin-top:52px;font-size:56px">THEN THE
+        <span class="hand-u">NEXT CONVERSION OPPORTUNITY.</span></div>`,
+    foot: { hand: "All inside the first thirty days." },
   }),
 );
 
@@ -771,13 +779,22 @@ S(40, (n) =>
 S(41, (n) =>
   shell({
     ...base(n),
-    head: "",
-    body: guaranteePanel({
-      lead: "DO THE REQUIRED LAUNCH ACTIONS AND STILL GET",
-      condition: "ZERO PAID MEMBERS IN 30 DAYS",
-      promise: "CRWN REBUILDS AND RELAUNCHES THE OFFER WITH YOU AT NO ADDITIONAL SERVICE CHARGE.",
+    head: "TWO DIFFERENT THINGS.",
+    headSize: 100,
+    body: panelCompare({
+      left: {
+        badge: "SUBSCRIPTION",
+        title: "THE SOFTWARE",
+        body: miniCards([{ icon: "layers", label: "What you keep operating on" }]),
+      },
+      right: {
+        badge: "IMPLEMENTATION FEE",
+        title: "THE HANDS-ON WORK",
+        body: miniCards([{ icon: "check", label: "Consolidate, build, organize, migrate, launch" }], { gold: true }),
+      },
+      middle: "+",
     }),
-    foot: { hand: "Another audit, revised benefits and pricing, a rewritten campaign, the relaunch." },
+    foot: { hand: "The fee is separate from the subscription." },
   }),
 );
 
@@ -785,17 +802,69 @@ S(41, (n) =>
 S(42, (n) =>
   shell({
     ...base(n),
-    head: "WHAT IT DOES [[NOT]] GUARANTEE.",
-    headSize: 92,
-    body: `${struckStack(["A CERTAIN AMOUNT OF MONEY"], { size: 60 })}
-      <div class="midhead" style="margin-top:44px;font-size:52px">WE KEEP WORKING ON THE LAUNCH,
-        <span class="hand-u">WITH NO SECOND IMPLEMENTATION FEE.</span></div>`,
-    foot: { hand: "A narrow promise, kept." },
+    head: "THE FOUNDING RATE.",
+    headSize: 104,
+    body: `${panelCompare({
+      left: {
+        badge: "FOUNDING PARTNERS",
+        title: "$0 TO $500",
+        body: miniCards([{ icon: "check", label: "Plus Pro at $49 a month and 8%" }], { gold: true }),
+        note: "Depending on the partnership.",
+      },
+      right: {
+        badge: "ONCE STANDARDIZED",
+        title: "$1,500 TO $3,000",
+        body: miniCards([{ icon: "clock", label: "The planned standard price" }]),
+        note: "Planned, not set.",
+      },
+    })}
+      <div class="note" style="margin-top:26px;text-align:center">The founding rate is discounted because these artists help document the process, give feedback, and where it fits, become case studies.</div>`,
+    foot: { hand: "Discounted on purpose.", disclaim: FOUNDING_NOTE },
   }),
 );
 
 /* 43 ----------------------------------------------------------------- */
 S(43, (n) =>
+  shell({
+    ...base(n),
+    head: "THE FIRST PAID MEMBER GUARANTEE.",
+    headSize: 88,
+    brushUnder: true,
+    body: `<div class="midhead" style="font-size:56px">QUALIFIED FIRST REVENUE LAUNCH ARTISTS
+      <span class="hand-u">RECEIVE IT TOO.</span></div>`,
+    foot: { hand: "Here is exactly what it means." },
+  }),
+);
+
+/* 44 ----------------------------------------------------------------- */
+S(44, (n) =>
+  shell({
+    ...base(n),
+    head: "",
+    body: guaranteePanel({
+      lead: "DO THE REQUIRED LAUNCH ACTIONS AND STILL GET",
+      condition: "ZERO PAID MEMBERS IN 30 DAYS",
+      promise: "WE REBUILD AND RELAUNCH THE OFFER WITH YOU AT NO ADDITIONAL SERVICE CHARGE.",
+    }),
+    foot: { hand: "Back through the offer, the benefits, the pricing, the campaign, the relaunch." },
+  }),
+);
+
+/* 45 ----------------------------------------------------------------- */
+S(45, (n) =>
+  shell({
+    ...base(n),
+    head: "THAT IS [[NOT]] AN INCOME GUARANTEE.",
+    headSize: 84,
+    body: `${struckStack(["$10,000", "$20,000", "YOUR CALCULATOR NUMBER"], { size: 54, cols: 3 })}
+      <div class="midhead" style="margin-top:44px;font-size:50px">WE GUARANTEE WE KEEP WORKING ON IT,
+        <span class="hand-u">WITH NO SECOND IMPLEMENTATION FEE.</span></div>`,
+    foot: { hand: "Another shot at getting the offer right.", disclaim: ESTIMATE_NOTE },
+  }),
+);
+
+/* 46 ----------------------------------------------------------------- */
+S(46, (n) =>
   shell({
     ...base(n),
     head: "IT COVERS AN [[EXECUTED LAUNCH.]]",
@@ -805,33 +874,81 @@ S(43, (n) =>
       [
         "Stripe connected",
         "Free front door live",
-        "A paid tier purchasable",
+        "At least one paid tier purchasable",
         "100 imported contacts, or 40 proven buyers",
-        "Welcome post live",
-        "Launch campaign sent",
+        "Welcome post published",
+        "Launch campaign actually sent",
       ],
       { cols: 2 },
     ),
-    foot: { hand: "Not an account that was created and never used." },
+    foot: { hand: "Not an account that was created and never launched." },
   }),
 );
 
-/* 44 ----------------------------------------------------------------- */
-S(44, (n) =>
+/* 47 ----------------------------------------------------------------- */
+S(47, (n) =>
   shell({
     ...base(n),
-    head: "THINK YOU MIGHT QUALIFY?",
-    headSize: 100,
-    body: pathCards([
-      { title: "REQUEST A CALL", sub: "We look at the business, the buyers and the data you already have.", cta: "BUILD IT WITH US", accent: true },
-      { title: "OR BUILD IT YOURSELF", sub: "The self-serve app builds the same underlying system.", cta: "SELF-SERVE" },
-    ]),
-    foot: { hand: "If it is not a fit, the app is still there." },
+    head: "THE ASSISTED LAUNCH IS [[NOT FOR EVERYBODY.]]",
+    headSize: 74,
+    body: checklist(
+      [
+        "Fans have already bought directly from you",
+        "An audience or buyer list we can work with",
+        "You can fulfill the offer",
+        "You control your brand and your fan offers",
+        "You are willing to execute the launch",
+      ],
+      { cols: 1 },
+    ),
+    foot: { hand: "Five things, all of them evidence." },
   }),
 );
 
-/* 45 ----------------------------------------------------------------- */
-S(45, (n) =>
+/* 48 ----------------------------------------------------------------- */
+S(48, (n) =>
+  shell({
+    ...base(n),
+    head: "EVIDENCE BEATS [[FOLLOWER COUNT.]]",
+    headSize: 88,
+    body: crowdCompare({
+      left: { count: 60, label: "A MILLION PASSIVE FOLLOWERS", items: ["Never sold to directly"] },
+      right: { count: 7, label: "A SMALLER AUDIENCE WITH REAL BUYERS", items: ["A much stronger fit"] },
+      middle: "can lose to",
+    }),
+    foot: { hand: "We care about demand, not the number." },
+  }),
+);
+
+/* 49 ----------------------------------------------------------------- */
+S(49, (n) =>
+  shell({
+    ...base(n),
+    head: "SOUNDS LIKE YOU?",
+    headSize: 108,
+    body: pathCards([
+      { title: "REQUEST A CALL", sub: "We look at what you already have and see whether it makes sense.", cta: "BUILD IT WITH US", accent: true },
+      { title: "OR DO IT YOURSELF", sub: "Nothing is locked away. Build it and launch it on your own.", cta: "SELF-SERVE" },
+    ]),
+    foot: { hand: "If you do not qualify, the app is still yours." },
+  }),
+);
+
+/* 50 ----------------------------------------------------------------- */
+S(50, (n) =>
+  shell({
+    ...base(n),
+    head: "EITHER PATH, [[THE SAME NEXT STEP.]]",
+    headSize: 84,
+    body: `<div class="midhead" style="font-size:56px">DON'T LEAVE THIS AS A
+        <span class="hand-u">CALCULATOR RESULT.</span></div>
+      <div style="display:flex;justify-content:center;margin-top:48px">${ctaButton("BUILD MY MEMBERSHIP")}</div>`,
+    foot: { hand: "Turn the opportunity into an actual offer." },
+  }),
+);
+
+/* 51 ----------------------------------------------------------------- */
+S(51, (n) =>
   shell({
     ...base(n),
     head: "“I DON'T HAVE TIME TO BUILD ANOTHER BUSINESS.”",
@@ -841,8 +958,8 @@ S(45, (n) =>
   }),
 );
 
-/* 46 ----------------------------------------------------------------- */
-S(46, (n) =>
+/* 52 ----------------------------------------------------------------- */
+S(52, (n) =>
   shell({
     ...base(n),
     head: "BUILD THE SMALLEST OFFER THAT [[CREATES DEPTH.]]",
@@ -853,8 +970,8 @@ S(46, (n) =>
   }),
 );
 
-/* 47 ----------------------------------------------------------------- */
-S(47, (n) =>
+/* 53 ----------------------------------------------------------------- */
+S(53, (n) =>
   shell({
     ...base(n),
     head: "YOU DON'T NEED ANOTHER [[DISCONNECTED PLATFORM.]]",
@@ -873,8 +990,8 @@ S(47, (n) =>
   }),
 );
 
-/* 48 ----------------------------------------------------------------- */
-S(48, (n) =>
+/* 54 ----------------------------------------------------------------- */
+S(54, (n) =>
   shell({
     ...base(n),
     head: "ONE OPERATING LAYER.",
@@ -892,8 +1009,8 @@ S(48, (n) =>
   }),
 );
 
-/* 49 ----------------------------------------------------------------- */
-S(49, (n) =>
+/* 55 ----------------------------------------------------------------- */
+S(55, (n) =>
   shell({
     ...base(n),
     head: "",
@@ -906,8 +1023,8 @@ S(49, (n) =>
   }),
 );
 
-/* 50 ----------------------------------------------------------------- */
-S(50, (n) =>
+/* 56 ----------------------------------------------------------------- */
+S(56, (n) =>
   shell({
     ...base(n),
     head: "THE OPPORTUNITY TAKES A PROCESS.",
@@ -923,8 +1040,8 @@ S(50, (n) =>
   }),
 );
 
-/* 51 ----------------------------------------------------------------- */
-S(51, (n) =>
+/* 57 ----------------------------------------------------------------- */
+S(57, (n) =>
   shell({
     ...base(n),
     head: "THE RESULT DEPENDS ON [[EXECUTION.]]",
@@ -943,8 +1060,8 @@ S(51, (n) =>
   }),
 );
 
-/* 52 ----------------------------------------------------------------- */
-S(52, (n) =>
+/* 58 ----------------------------------------------------------------- */
+S(58, (n) =>
   shell({
     ...base(n),
     head: "YOU CAN MEASURE ATTENTION.",
@@ -957,8 +1074,8 @@ S(52, (n) =>
   }),
 );
 
-/* 53 ----------------------------------------------------------------- */
-S(53, (n) =>
+/* 59 ----------------------------------------------------------------- */
+S(59, (n) =>
   shell({
     ...base(n),
     head: "THE QUESTIONS THAT BUILD THE BUSINESS.",
@@ -976,8 +1093,8 @@ S(53, (n) =>
   }),
 );
 
-/* 54 ----------------------------------------------------------------- */
-S(54, (n) =>
+/* 60 ----------------------------------------------------------------- */
+S(60, (n) =>
   shell({
     ...base(n),
     head: "",
@@ -990,8 +1107,8 @@ S(54, (n) =>
   }),
 );
 
-/* 55 ----------------------------------------------------------------- */
-S(55, (n) =>
+/* 61 ----------------------------------------------------------------- */
+S(61, (n) =>
   shell({
     ...base(n),
     head: "YOU SAW THE OPPORTUNITY. [[NOW BUILD THE OFFER.]]",
@@ -1006,8 +1123,8 @@ S(55, (n) =>
   }),
 );
 
-/* 56 ----------------------------------------------------------------- */
-S(56, (n) =>
+/* 62 ----------------------------------------------------------------- */
+S(62, (n) =>
   shell({
     ...base(n),
     head: "THE AUDIENCE IS ALREADY THERE.",
@@ -1027,7 +1144,7 @@ S(56, (n) =>
  * illustrative tier pricing, so the rule is not "no amounts" but "an amount never travels without
  * its qualifier". Checked at render because a missing footnote is invisible in a beautiful slide.
  * ------------------------------------------------------------------- */
-const RESULT_SLIDES = [1, 49];
+const RESULT_SLIDES = [1, 55];
 const MONEY = /\$\s?[\d[]/;
 
 /**
@@ -1038,8 +1155,9 @@ const MONEY = /\$\s?[\d[]/;
  * illustrative would be the more misleading of the two.
  */
 const PRICING_NOTES = {
-  34: PRICING_NOTE,
-  39: FOUNDING_NOTE,
+  35: PRICING_NOTE,
+  36: PRICING_NOTE,
+  42: FOUNDING_NOTE,
 };
 
 /**
@@ -1049,7 +1167,7 @@ const PRICING_NOTES = {
  * original reason for that rule was a fabricated conversion rate, and that reason is unchanged.
  */
 const PLAN_FEES = ["12", "8", "5"];
-const FEE_SLIDES = [34];
+const FEE_SLIDES = [35, 42];
 
 /**
  * What a VIEWER reads, not the markup.

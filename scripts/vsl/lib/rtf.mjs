@@ -7,7 +7,11 @@ export function rtfToText(file) {
   let s = fs.readFileSync(file, "latin1");
 
   // Drop font/colour/stylesheet groups wholesale; they carry no narration.
-  s = s.replace(/\{\\\*?\\(?:fonttbl|colortbl|stylesheet|generator|mmathPr)[^{}]*(?:\{[^{}]*\}[^{}]*)*\}/g, " ");
+  // The second backslash is OPTIONAL: RTF writes the destination as `{\fonttbl` with one, and only
+  // the ignorable form `{\*\generator` has two. Requiring two left every font name in the output,
+  // which stayed invisible for months because the sectioned scripts discard everything above their
+  // first time header. A flat transcript has no such header, so "Calibri;" landed in sentence one.
+  s = s.replace(/\{\\\*?\\?(?:fonttbl|colortbl|stylesheet|generator|mmathPr)[^{}]*(?:\{[^{}]*\}[^{}]*)*\}/g, " ");
 
   // Escaped literals first, before the generic control-word sweep eats them.
   s = s.replace(/\\'([0-9a-fA-F]{2})/g, (_, h) =>

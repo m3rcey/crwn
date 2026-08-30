@@ -99,61 +99,67 @@ CALCULATOR VSL
 Audio file: VSL pt I.wav
 Slide folder: videos/vsl/vsl-calculator
 
-vsl-calculator-01.png: If the number you just saw looks too high
+vsl-calculator-01.png: If the number you saw looks too high to
 vsl-calculator-02.png: Because the last thing you need is another calculator
 vsl-calculator-03.png: The calculator does not assume all of your followers
 vsl-calculator-04.png: It comes from a relatively small number of people
 vsl-calculator-05.png: Think about your own fan base.
 vsl-calculator-06.png: But most artists give all three of those people
 vsl-calculator-07.png: And then the transaction ends.
-vsl-calculator-08.png: That's why the CRWN app starts with a ladder
-vsl-calculator-09.png: You don't need thousands of people at the highest
-vsl-calculator-10.png: My fans aren't going to pay me every month.
+vsl-calculator-08.png: That's why the Crown app starts with a ladder
+vsl-calculator-09.png: You don't need thousands of people with the highest
+vsl-calculator-10.png: Now, you might be thinking, my fans are not
 vsl-calculator-11.png: If you've already sold merch, tickets, VIP access, exclusive
-vsl-calculator-12.png: Most artist revenue opportunities are built around individual moments.
+vsl-calculator-12.png: Most artists' revenue opportunities are built around individual moments.
 vsl-calculator-13.png: A membership gives you another option.
 vsl-calculator-14.png: And this is where having multiple levels matters.
 vsl-calculator-15.png: Most paying fans can enter at the lower level.
 vsl-calculator-16.png: What am I supposed to give people every month?
-vsl-calculator-17.png: They open a blank page and start inventing perks.
-vsl-calculator-18.png: The CRWN app starts you with a structure.
-vsl-calculator-19.png: You can just build it.
-vsl-calculator-20.png: Okay. I understand the membership idea. Why wouldn't I
+vsl-calculator-17.png: They open a blank page and they just start
+vsl-calculator-18.png: The Crowd App starts you with a structure, a
+vsl-calculator-19.png: You could just build it, see the tiers, see
+vsl-calculator-20.png: Why wouldn't I just do this somewhere else?
 vsl-calculator-21.png: Your membership might live in one tool.
 vsl-calculator-22.png: Most artist tools are good at doing one job.
-vsl-calculator-23.png: Who are the fans actually spending money with me?
+vsl-calculator-23.png: So they can give you more data, but they
 vsl-calculator-24.png: It's built as an operating system for your fan
-vsl-calculator-25.png: Your audience is everyone paying attention.
-vsl-calculator-26.png: They buy.
-vsl-calculator-27.png: The CRWN app is designed to bring that picture
-vsl-calculator-28.png: See the business.
+vsl-calculator-25.png: Your audience is everybody paying attention.
+vsl-calculator-26.png: They buy, they subscribe, they show up, they participate,
+vsl-calculator-27.png: The Crown app is designed to bring that picture
+vsl-calculator-28.png: See the business, find the block, make one move,
 vsl-calculator-29.png: And the membership you just saw is simply the
-vsl-calculator-30.png: You start learning who your actual customers are.
+vsl-calculator-30.png: You start learning who your actual customers are, and
 vsl-calculator-31.png: You don't have to move your entire business today.
-vsl-calculator-32.png: Now there are two ways you can use the
-vsl-calculator-33.png: The first is completely self-serve.
-vsl-calculator-34.png: CRWN has three main plans.
-vsl-calculator-35.png: You don't have to guess which one makes sense.
-vsl-calculator-36.png: But for some artists, we offer something different.
-vsl-calculator-37.png: That means instead of handing you the software and
-vsl-calculator-38.png: We help you consolidate the fans and buyers you
-vsl-calculator-39.png: That assisted launch has a separate implementation fee because
-vsl-calculator-40.png: And qualified First Revenue Launch artists get something self-serve
-vsl-calculator-41.png: If you complete the required launch actions and you
-vsl-calculator-42.png: It is not a guarantee that you'll make a
-vsl-calculator-43.png: To qualify for that guarantee, the basics have to
-vsl-calculator-44.png: If you think you may qualify and you want
-vsl-calculator-45.png: This sounds like a lot more stuff I have
-vsl-calculator-46.png: The goal isn't to create twenty benefits, post every
-vsl-calculator-47.png: I really don't need another platform.
-vsl-calculator-48.png: CRWN's job is to help you operate the whole
-vsl-calculator-49.png: And one last thing about the number you just
-vsl-calculator-50.png: It's an estimate of what the economics could look
-vsl-calculator-51.png: Some artists will convert more people.
-vsl-calculator-52.png: Right now, you can know exactly how many people
-vsl-calculator-53.png: Who actually pays you?
-vsl-calculator-54.png: Reach creates the opportunity.
-vsl-calculator-55.png: You already did the first step.
-vsl-calculator-56.png: The audience is already there.
+vsl-calculator-32.png: So, there are actually two ways to use the
+vsl-calculator-33.png: The first is self-serve.
+vsl-calculator-34.png: But, if you already have evidence that fans buy
+vsl-calculator-35.png: Now, whether you choose to build it yourself or
+vsl-calculator-36.png: Once you cross roughly $1,225 a month, Pro becomes
+vsl-calculator-37.png: So, you're not being asked to pay for a
+vsl-calculator-38.png: Now, if you qualify for the first revenue launch,
+vsl-calculator-39.png: We help consolidate the fans and buyers you already
+vsl-calculator-40.png: Then we work through the private launch, the wider
+vsl-calculator-41.png: And because this includes real hands-on work, the assistant
+vsl-calculator-42.png: Right now, for the founding launch partners, that implementation
+vsl-calculator-43.png: Qualified first revenue launch artists also receive the first
+vsl-calculator-44.png: If you complete the required launch actions and you
+vsl-calculator-45.png: We're not guaranteeing that you'll make $10,000, $20,000, or
+vsl-calculator-46.png: There are conditions because the guarantee only makes sense
+vsl-calculator-47.png: And the assisted launch is not for everybody.
+vsl-calculator-48.png: We care more about evidence of demand rather than
+vsl-calculator-49.png: If that sounds like you and you want us
+vsl-calculator-50.png: So, whichever path makes sense for you, the next
+vsl-calculator-51.png: Now, you might be thinking, this sounds like a
+vsl-calculator-52.png: The goal is not to create 20 benefits, post
+vsl-calculator-53.png: And if your reaction is, "Oh, well, I really
+vsl-calculator-54.png: The Crowd App's job is to help you operate
+vsl-calculator-55.png: And one last thing about the number you just
+vsl-calculator-56.png: It's an estimate of what the economics could look
+vsl-calculator-57.png: Some artists will convert more people.
+vsl-calculator-58.png: Right now, you can know exactly how many people
+vsl-calculator-59.png: Who actually pays you?
+vsl-calculator-60.png: Reach creates the opportunity.
+vsl-calculator-61.png: You already did the first step.
+vsl-calculator-62.png: Your audience is already there.
 
-124 of 125 slides located in the recorded narration. 1 was never recorded, and says so.
+130 of 131 slides located in the recorded narration. 1 was never recorded, and says so.
