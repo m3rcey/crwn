@@ -66,13 +66,21 @@ and the percentage rule matched CSS. Strip tags before testing (`visible()` in
 `vsl-calculator.mjs`). A guard that trips on markup is worse than no guard: it pressures you to
 change a good slide. This is the same failure as VSL #3's over-broad term list, in a new costume.
 
-**A per-viewer value ships as a labelled SLOT, never a plausible number.** Slides 1 and 36 of the
-calculator deck show `$[CALCULATOR RESULT]` in a dashed gold frame, the same discipline as
-`recordingSlot`. A realistic figure baked into a rendered slide becomes a claim the moment anyone
-treats the deck as final, and the assertion at the bottom of that deck refuses a render without
-the placeholder. Note the guard shape differs per deck: VSL #4 forbids money everywhere but one
-slide; the calculator deck ALLOWS illustrative pricing and instead requires the qualifier
-("Illustrative examples." or the estimate note) on the same slide as any amount.
+**A per-viewer value is NAMED, never shown, and never left as a placeholder.** A realistic figure
+baked into a rendered slide becomes a claim the moment anyone treats the deck as final. The first
+fix for that was wrong in an instructive way: slides 1 and 55 of the calculator deck shipped
+`$[CALCULATOR RESULT]` in a dashed gold frame, on the theory that an editor substitutes it per
+viewer. **Nothing substitutes it.** One rendered video plays to every artist, so the token reached
+the viewer as literal brackets on frame one, and the deck's own guard REQUIRED it, which meant the
+assertion was enforcing the bug. Those slides now say "WHAT YOU JUST SAW / AN ESTIMATE, NOT A
+PROMISE": true for every viewer, needs no substitution. The guard is inverted to match and forbids
+an amount or a stray `[` on them. `recordingSlot()` is the one legitimate slot, because a screen
+recording IS composited in the edit; a per-viewer NUMBER is not.
+
+Note the guard shape differs per deck: VSL #4 forbids money everywhere but one slide; the calculator
+deck ALLOWS illustrative pricing and real CRWN pricing, and instead requires the right qualifier on
+the same slide as any amount ("Illustrative examples.", the estimate note, or, for a slide stating
+prices CRWN actually charges, its own named entry in `PRICING_NOTES`).
 
 **A deck that makes a COMMERCIAL promise gets verified against the repo, not transcribed.** VSL #4
 states the First Paid Member Guarantee, so its terms were checked before a word was set: the six

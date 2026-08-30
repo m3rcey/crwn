@@ -8,9 +8,9 @@
 // pays; never imply follower count is worthless; no invented percentages or benchmarks.
 //
 // Two consequences run through the whole file:
-//   1. Slides 1 and 55 do NOT contain a number. The result is per-viewer, so they ship a labelled
-//      slot the editor fills, the same discipline as slide 27's screen recording. A plausible
-//      figure baked in here would read as a claim CRWN never made.
+//   1. Slides 1 and 55 do NOT contain a number, and no placeholder for one either. The result is
+//      per-viewer and one rendered video cannot fill a token, so those slides NAME the number
+//      instead. A plausible figure baked in here would read as a claim CRWN never made.
 //   2. Money IS allowed as illustrative tier pricing, unlike VSL #4. So the guard below is shaped
 //      differently: a slide showing an amount must carry its qualifier on the same slide.
 import {
@@ -77,7 +77,7 @@ S(1, (n) =>
     ...base(n),
     head: "THAT NUMBER LOOKS TOO HIGH.",
     headSize: 96,
-    body: resultSlot(),
+    body: resultSlot({ label: "WHAT YOU JUST SAW", token: "AN ESTIMATE, NOT A PROMISE" }),
     foot: { hand: "Fair reaction.", disclaim: ESTIMATE_NOTE },
   }),
 );
@@ -1014,7 +1014,7 @@ S(55, (n) =>
   shell({
     ...base(n),
     head: "",
-    body: `${resultSlot({ label: "ESTIMATED OPPORTUNITY" })}
+    body: `${resultSlot({ label: "THE NUMBER YOU JUST SAW", token: "AN ESTIMATE" })}
       <div style="margin-top:40px">${struckStack(["“NEXT MONTH”", "“GUARANTEE”"], {
         size: 50,
         cols: 2,
@@ -1229,17 +1229,29 @@ for (const slide of deck.slides) {
   }
 }
 
-// The number itself is per-viewer. These slides ship a slot, never a figure we made up.
+/*
+ * The two slides that TALK ABOUT the calculator result.
+ *
+ * They used to be REQUIRED to carry a `$[CALCULATOR RESULT]` placeholder, on the theory that an
+ * editor substitutes it per viewer. Nothing substitutes it: this is one rendered video played to
+ * every artist, and the result is per-viewer, so the token reached the viewer as literal brackets
+ * on frame one. The discipline was right and the mechanism was backwards, so the assertion is now
+ * inverted. These slides name the number and never show one.
+ */
 for (const n of RESULT_SLIDES) {
   const slide = deck.slides.find((s) => s.n === n);
-  if (!slide || !text(slide).includes("[CALCULATOR RESULT]")) {
+  if (!slide) throw new Error(`vsl-calculator: slide ${n} is missing.`);
+  const t = text(slide);
+  if (MONEY.test(t) || t.includes("[")) {
     throw new Error(
-      `vsl-calculator: slide ${n} shows the result and must use the [CALCULATOR RESULT] placeholder, ` +
-        `never a baked-in number.`,
+      `vsl-calculator: slide ${n} discusses the calculator result and must show NO amount and no ` +
+        `placeholder token. The number is per-viewer and nothing fills it in a rendered video.`,
     );
   }
-  if (!text(slide).includes("ESTIMATED OPPORTUNITY")) {
-    throw new Error(`vsl-calculator: slide ${n} shows the result and must call it an estimate.`);
+  if (!t.includes("ESTIMATE")) {
+    throw new Error(
+      `vsl-calculator: slide ${n} discusses the result and must call it an estimate.`,
+    );
   }
 }
 

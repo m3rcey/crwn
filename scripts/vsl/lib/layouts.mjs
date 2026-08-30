@@ -672,11 +672,14 @@ export function pathCards(paths) {
 }
 
 /**
- * The calculator's own number, which this deck never invents.
- * The result is per-viewer, so the slide ships a labelled slot the editor fills, exactly like
- * `recordingSlot`. A plausible-looking figure baked in here would read as a claim.
+ * A framed callout for the calculator's own number, which this deck never invents.
+ *
+ * It does not SHOW the number and must not: the result is per-viewer and this is one rendered video
+ * played to every artist, so nothing can substitute a token. It shipped a `$[CALCULATOR RESULT]`
+ * placeholder on the opposite assumption and that reached viewers as literal brackets on frame one.
+ * The frame names the number instead, which is true for every viewer and needs no substitution.
  */
-export function resultSlot({ label = "YOUR ESTIMATED MONTHLY OPPORTUNITY", token = "$[CALCULATOR RESULT]" } = {}) {
+export function resultSlot({ label = "THE NUMBER YOU JUST SAW", token = "AN ESTIMATE" } = {}) {
   return `<div class="rslot">
     <div class="rslot-lb">${esc(label)}</div>
     <div class="rslot-token">${esc(token)}</div>
