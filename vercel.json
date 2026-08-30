@@ -5,6 +5,10 @@
       "schedule": "0 7 * * *"
     },
     {
+      "path": "/api/cron/social-token-refresh",
+      "schedule": "0 3 * * *"
+    },
+    {
       "path": "/api/cron/rls-canary",
       "schedule": "0 22 * * *"
     },

@@ -27,8 +27,9 @@
 |---|---|---|
 | `/api/stripe/webhook` | Stripe | ✅ signature |
 | `/api/live/egress-webhook` | LiveKit | ✅ signature |
-| `/api/webhooks/resend`, `/api/outreach/webhook`, `/api/outreach/inbound` | Resend | ❌ **unverified (HIGH)** |
+| `/api/webhooks/resend`, `/api/outreach/webhook`, `/api/outreach/inbound` | Resend | ✅ Svix signature (`verifySvixSignature`, fails closed; the old "unverified (HIGH)" note predated the 2026-08 hardening) |
 | ~~`/api/sms/status`, `/api/sms/webhook`~~ | Twilio | Routes deleted 2026-07-31 with the SMS removal |
+| `/api/webhooks/meta` | Meta (IG + FB comments, Fan Automations) | ✅ `hub.challenge` GET + `X-Hub-Signature-256` (`verifyMetaSignature`, fails closed); dedupe `UNIQUE(provider, comment_id)` |
 | `/api/notifications/new-artist-hook` | internal (`NEW_ARTIST_WEBHOOK_SECRET`) | secret |
 | `/api/cron/*` (25) | Vercel Scheduler | `CRON_SECRET` bearer |
 | PKCE auth callback | Supabase (via middleware `exchangeCodeForSession`) | code param |
@@ -46,6 +47,18 @@ Fan flow: the daily generator creates ONE ask, delivered by the `fan_share_exper
 question, picks a display identity, and ticks (or does not tick) publication consent. Artist flow:
 `/studio/testimonials`, hamburger-only, feature or hide. Public: one section on `/[slug]`, rendered
 only for rows the artist featured AND the fan consented to.
+
+## 3c. Fan Automations routes (2026-08-29, built + dark)
+
+| Route | Who | Authority |
+|---|---|---|
+| `POST /api/social-connect/start`, `GET .../callback/{instagram,facebook}`, `/pages`, `/status`, `/media`, `/disconnect` | artist | `requireArtistOwner`; callbacks additionally verify the signed OAuth `state` AND that the live session user equals the state's user |
+| `GET/POST /api/fan-automations`, `PATCH /api/fan-automations/[id]`, `POST .../magnet-upload` | artist | `requireArtistOwner`; tier/track/file pointers validated against owned rows (`automationInput.ts`) |
+| `GET /drop/[token]` + `POST /api/drop/[token]/claim` | fan (public) | unguessable token; claim follows the Song Lab captured-contact boundary (optional session, `identityDecision`, `joinFreeTier`, no session returned) |
+| `GET /api/cron/social-token-refresh` | cron | `Bearer $CRON_SECRET` |
+
+Artist surface: `/studio/automations` (HubPage, AccountHub Grow group, not a Studio tile).
+Canonical doc: `31-FAN-AUTOMATIONS.md`.
 
 ## 4. Key flows
 

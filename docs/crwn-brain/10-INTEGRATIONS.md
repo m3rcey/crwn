@@ -199,6 +199,30 @@ cron on 2026-08-26 after one env-var whitespace failure). The other five are bui
   log or `last_error`; a trailing space in a pasted env var produced a Meta `code 100/33` with an
   empty message that read exactly like a permissions failure, which is why every read is trimmed.
 
+## Meta multi-tenant OAuth: artist Fan Automations (2026-08-29, BUILT AND DARK)
+
+ARTIST-facing, and deliberately a different product with a different threat model from the
+founder publishing stack above and the founder ManyChat engine below: artists connect THEIR OWN
+Instagram professional accounts (Instagram API with Instagram Login, graph.instagram.com) and
+Facebook Pages (Facebook Login, graph.facebook.com), and CRWN answers comments on their posts
+with the one private reply Meta permits, carrying a link into their drop funnel. Canonical
+architecture, rules, and the exact Meta constraints encoded: `31-FAN-AUTOMATIONS.md`.
+
+- **Env (all server-only):** `IG_APP_ID`, `IG_APP_SECRET`, `FB_APP_ID`, `FB_APP_SECRET`,
+  `META_WEBHOOK_VERIFY_TOKEN`, `SOCIAL_TOKEN_ENC_KEY` (32-byte base64, the AES-256-GCM root for
+  tokens at rest). Everything fails closed while any of them is unset, which is the feature's
+  dark gate: there is no admin_settings flag.
+- **Tokens are per-artist rows, NOT env vars** (the one ratified exception to the env-only
+  rule): AES-256-GCM ciphertext in `artist_social_connections.access_token_enc`, table closed
+  to every client role, read only by `src/lib/fanAutomations/connections.ts`. IG tokens (60-day)
+  refresh via the daily `/api/cron/social-token-refresh`; Page tokens carry no expiry.
+- **Webhook:** `/api/webhooks/meta` (hub.challenge GET + `X-Hub-Signature-256` POST via
+  `verifyMetaSignature` in `src/lib/webhookSignatures.ts`), deduped by
+  `UNIQUE(provider, comment_id)`, which is also the one-private-reply-per-comment enforcement.
+- **App Review:** Standard Access runs the founder's own app-role accounts dark; real artists
+  need Advanced Access (App Review + Business Verification) on every scope. The founder
+  checklist lives in TODO.md.
+
 ## Calendly — booking embed (orphaned)
 - **Env:** `CALCOM_API_KEY` exists in `.env.local` but **no cal.com server integration found**. `react-calendly` is installed.
 - **Files:** `src/components/booking/{CalendlyBooking,SessionManager,BookingSettings}.tsx` — **none imported anywhere in `src/`**. No `[slug]/book/` page renders them. The live booking flow is **booking tokens** (`/api/booking-tokens`, `BookingTokenButton`). Backend (`booking-checkout`, `booking_sessions`) still functions but has no reachable UI entry point. **Legacy/unused.**

@@ -1182,6 +1182,27 @@ export const FEATURES: readonly FeatureContract[] = [
     migration: 'schema-phase2-song-lab.sql',
     notes: 'Artist-scoped by design; deliberately NO Studio tile and NO AccountHub entry (hidden route, opt-in artists only). Votes are advisory only, recognition is Special-Thanks-class only (RECOGNITION_DISCLAIMER in src/lib/songLab/core.ts). Remove by deleting src/lib/songLab, src/components/songlab, src/app/api/song-lab, the two [slug] pages and the studio page.',
   },
+  {
+    key: 'fan_automations',
+    title: 'Fan Automations (artist comment-to-DM funnels)',
+    // DARK until two founder actions land: the migration below, and the Meta app setup
+    // (env vars IG_APP_ID/IG_APP_SECRET, FB_APP_ID/FB_APP_SECRET, META_WEBHOOK_VERIFY_TOKEN,
+    // SOCIAL_TOKEN_ENC_KEY, plus App Review for non-app-role artists). There is no
+    // admin_settings flag on purpose: the gate is configuration presence
+    // (src/lib/fanAutomations/config.ts fails closed on every missing value), which cannot
+    // be flipped on with the plumbing absent. Entirely separate from the founder ManyChat
+    // acquisition engine (H-07): no shared table, route, keyword, or identifier.
+    expectedState: 'dark',
+    flag: null,
+    gateModule: 'src/lib/fanAutomations/config.ts',
+    surfaces: [
+      { file: 'src/app/api/webhooks/meta/route.ts', mustContain: 'verifyMetaSignature' },
+      { file: 'src/app/(public)/drop/[token]/page.tsx', mustContain: 'DropFunnelClient' },
+      { file: 'src/app/(main)/studio/automations/page.tsx', mustContain: 'FanAutomationsHome' },
+    ],
+    migration: 'schema-phase3-fan-automations.sql',
+    notes: 'Fan identity follows the Song Lab captured-contact boundary (identityDecision + joinFreeTier, no session ever returned). Checkout is the canonical /api/stripe/checkout; Gold/Silver derive from live tiers (src/lib/fanAutomations/offerTiers.ts), never stored names. Meta permits ONE private reply per comment (enforced by the receipts UNIQUE claim) and the reply does not open the 24h window, so the single DM carries the drop link.',
+  },
 ];
 
 /**
@@ -1347,6 +1368,15 @@ export const EXPECTED_MIGRATION_STATE: ReadonlyArray<{
   // limited number, with no error anywhere. It is applied, so the cap is real when an artist sets it.
   { file: 'schema-phase2-founder-window.sql', state: 'applied', note: 'Probe-verified 2026-08-28: subscription_tiers.founder_window_enabled reads 200 with the anon key. Cap and deadline are enforced in /api/stripe/checkout; free-subscribe deliberately does not check a cap because a free rung has no founding spots.' },
   { file: 'schema-phase2-founder-test-exclusion.sql', state: 'pending', liveCheck: 'sql-check', note: 'Adds is_founder_test and flags admin-owned artists plus the literal placeholder account. Until it runs, the acquisition funnel and 90-day scorecard keep counting founder test accounts; nothing else depends on it.' },
+
+  // Fan Automations (artist comment-to-DM funnels, founder decision 2026-08-29). PENDING until
+  // the founder runs it, and until then the whole feature is honestly dark: no artist can
+  // connect an account, /api/webhooks/meta claims no receipts, and the drop pages 404. All four
+  // tables are CLOSED (RLS on, zero policies, ALL revoked by name), which is also the
+  // compensating control for the ONE ratified credential column in this codebase:
+  // artist_social_connections.access_token_enc, AES-256-GCM ciphertext under the server-only
+  // SOCIAL_TOKEN_ENC_KEY, read exclusively by src/lib/fanAutomations/connections.ts.
+  { file: 'schema-phase3-fan-automations.sql', state: 'pending', note: 'Artist social connections (encrypted Meta tokens), fan_automations, social_webhook_receipts (UNIQUE(provider, comment_id) is both webhook dedupe and the one-private-reply-per-comment enforcement), fan_automation_leads. No money columns anywhere: conversions derive from subscriptions joins. Separate in every identifier from the founder ManyChat acquisition engine (H-07).' },
 ];
 
 /** Words that mean "this migration has not been applied" when they share a doc line with its filename. */

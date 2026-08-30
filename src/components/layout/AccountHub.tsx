@@ -212,6 +212,9 @@ export function AccountHub({ open, onClose }: { open: boolean; onClose: () => vo
         { label: 'Studio (all tools)', href: '/studio', icon: LayoutDashboard },
         { label: 'Analytics', href: '/studio/analytics', icon: BarChart3, hub: true },
         { label: 'Fan CRM', href: '/studio/fans', icon: Users, hub: true },
+        // Comment-to-DM funnels. Hub-only like Analytics and Fan CRM: NAV-001 asserts
+        // Studio -> Hub parity only, and the five-tile Studio grid is a founder decision.
+        { label: 'Fan Automations', href: '/studio/automations', icon: MessageCircle, hub: true },
         { label: 'Promise Calendar', href: '/studio/promise', icon: CalendarCheck, hub: true },
         // A proof library is a reference screen you review, not a destination you make things in,
         // so it is hub-only. NAV-001 asserts Studio -> Hub parity only, so this needs no exception.

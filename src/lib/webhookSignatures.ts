@@ -87,3 +87,31 @@ export function verifyTwilioSignature(
   const expected = createHmac('sha1', authToken).update(Buffer.from(payload, 'utf8')).digest('base64');
   return safeEqual(expected, signature);
 }
+
+/**
+ * Meta (Instagram + Facebook) signs webhook deliveries with the X-Hub-Signature-256 header:
+ * `sha256=` followed by hex HMAC-SHA256 of the RAW request body, keyed by the App Secret.
+ *
+ * One app-level callback receives both Instagram and Facebook Pages traffic, and an app
+ * configured with both products can legitimately sign with either app secret, so this takes
+ * a LIST of candidate secrets and accepts a match against any configured one. Unset entries
+ * are skipped; an empty list fails closed like a missing secret anywhere else in this module.
+ *
+ * The raw body text is required byte for byte, same as Svix above: re-serialising the parsed
+ * JSON changes key order and the digest will not match.
+ */
+export function verifyMetaSignature(
+  rawBody: string,
+  header: string | null,
+  secrets: Array<string | undefined>
+): boolean {
+  if (!header || !header.startsWith('sha256=')) return false;
+  const presented = header.slice('sha256='.length);
+  const configured = (secrets || []).filter((s): s is string => typeof s === 'string' && s.length > 0);
+  if (configured.length === 0) return false;
+
+  return configured.some((secret) => {
+    const expected = createHmac('sha256', secret).update(Buffer.from(rawBody, 'utf8')).digest('hex');
+    return safeEqual(expected, presented);
+  });
+}

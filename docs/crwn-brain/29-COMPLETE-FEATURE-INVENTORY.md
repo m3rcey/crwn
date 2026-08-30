@@ -503,6 +503,11 @@ They were built as parallel "movement mechanics". Usage is the reason this group
 - **Does:** multi-step guided runs of a growth play.
 - **Evidence:** the run engine is thin; no runs found.
 
+### E-13 Fan Automations (comment-to-DM funnels) · BUILT, DARK (2026-08-29)
+- **Does:** an artist connects their own Instagram professional account or Facebook Page; a fan's comment triggers a public reply plus the one private reply Meta permits, carrying a link to `/drop/<token>`; email capture there delivers the lead magnet (signed R2 file or a free track), admits the fan to the artist's free tier through `joinFreeTier`, then offers the Gold-equivalent tier with a Silver-equivalent downsell, both through the canonical Stripe checkout.
+- **How:** multi-tenant Meta OAuth with per-artist AES-256-GCM-encrypted tokens in a closed table; `/api/webhooks/meta` verified by `X-Hub-Signature-256`; `UNIQUE(provider, comment_id)` is both the dedupe claim and the one-reply-per-comment enforcement; conversions derived from `subscriptions` joins, no counters.
+- **Dark until:** the founder applies `schema-phase3-fan-automations.sql` and completes the Meta app setup (env vars; App Review for non-app-role artists). Shares NOTHING with H-07 (the founder ManyChat engine). Canonical doc: `31-FAN-AUTOMATIONS.md`.
+
 ---
 
 ## 7. Group F: Artist marketing, email and CRM

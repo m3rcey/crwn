@@ -80,6 +80,50 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **Fan Automations (artists' own comment-to-DM funnels) is BUILT and DARK. Two founder
+      steps turn it on; until then artists keep renting this exact outcome from ManyChat.**
+      Shipped 2026-08-29: an artist connects their own Instagram or Facebook Page, a fan's
+      comment gets the one private reply Meta permits with a link to the artist's drop page,
+      the email there delivers the lead magnet, joins the fan to the free tier, then offers
+      Gold with a Silver downsell through the normal checkout. Full architecture:
+      [docs/crwn-brain/31-FAN-AUTOMATIONS.md](docs/crwn-brain/31-FAN-AUTOMATIONS.md).
+      **Step 1, five minutes: run
+      [supabase/schema-phase3-fan-automations.sql](supabase/schema-phase3-fan-automations.sql)
+      in the SQL Editor** (four closed tables; the proof-of-commit grid prints at the end),
+      then run `npm run verify:migrations` or ask me to.
+      **Step 2, the Meta app setup (your accounts, so only you can):**
+      1. developers.facebook.com → your app (or a new Business-type app). Add the products
+         **Instagram** (API setup with Instagram Login) and **Facebook Login for Business**
+         plus **Webhooks**.
+      2. Instagram → API setup with Instagram Login → add redirect URI
+         `https://thecrwn.app/api/social-connect/callback/instagram`. Facebook Login →
+         Settings → Valid OAuth Redirect URIs → add
+         `https://thecrwn.app/api/social-connect/callback/facebook`.
+      3. Webhooks: callback URL `https://thecrwn.app/api/webhooks/meta`, verify token = the
+         value you set as `META_WEBHOOK_VERIFY_TOKEN` below, subscribe the **Instagram** object
+         to the `comments` field and the **Page** object to the `feed` field. The app must be
+         set **Live** for deliveries.
+      4. In Vercel (Production), set these six and redeploy (values only you have; generate
+         `SOCIAL_TOKEN_ENC_KEY` with:  openssl rand -base64 32 ):
+           IG_APP_ID
+           IG_APP_SECRET
+           FB_APP_ID
+           FB_APP_SECRET
+           META_WEBHOOK_VERIFY_TOKEN
+           SOCIAL_TOKEN_ENC_KEY
+      5. Test dark with YOUR account first: give your own Instagram professional account an
+         app role (App roles → add yourself), then connect it from /studio/automations and run
+         one automation end to end. **Standard Access covers app-role accounts with no review**,
+         so this whole test needs nothing from Meta.
+      6. For real artists you need **Advanced Access via App Review + Business Verification**
+         on: instagram_business_basic, instagram_business_manage_comments,
+         instagram_business_manage_messages (and for Facebook Pages: pages_show_list,
+         pages_read_engagement, pages_manage_engagement, pages_manage_metadata,
+         pages_messaging). The review wants a screencast of the flow; the dark test in step 5
+         is exactly that footage. Weeks, not days, so start it when you want artists on it.
+      Until both steps land the feature is honestly dark: the artist screen says connections
+      are not available, and nothing else in CRWN changes.
+
 - [ ] **Watch the first machine-made silent video and say keep or fix.** The video pipeline is
       live: script → storyboard → your sharpie-style images → automated motion cut to your own
       instrumentals → finished 9:16 MP4, roughly $2 of API per video, no editing app involved.

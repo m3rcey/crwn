@@ -73,6 +73,14 @@ const PROBES = [
   // applied signal. Until this runs, the tick's inner join on social_posts!inner finds no rows
   // and nothing publishes on ANY platform, Instagram included: the tick moved to targets.
   ['social publish targets', 'social_post_targets?select=id&limit=1', 'schema-phase3-social-publish-multiplatform.sql'],
+  // Fan Automations (artist comment-to-DM funnels). All four tables are CLOSED (RLS on, zero
+  // policies, ALL revoked from anon/authenticated), so 42501 (reads revoked, expected) is the
+  // applied signal on both probes; 42P01/PGRST205 means the founder has not run it and the
+  // whole feature is dark: no artist can connect an account and the Meta webhook drops every
+  // event unmatched. The connections table carries the encrypted token column, which is WHY
+  // "reads revoked" is the only acceptable live answer for it.
+  ['fan automations', 'fan_automations?select=id&limit=1', 'schema-phase3-fan-automations.sql'],
+  ['artist social connections', 'artist_social_connections?select=id&limit=1', 'schema-phase3-fan-automations.sql'],
   // FRL tables are admin-only RLS: anon resolves the table (zero rows) = applied.
   ['frl engagements', 'frl_engagements?select=id&limit=1', 'schema-phase2-frl-engagements.sql'],
   ['frl work entries', 'frl_work_entries?select=id&limit=1', 'schema-phase2-frl-engagements.sql'],

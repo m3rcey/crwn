@@ -133,6 +133,31 @@ read-back is the evidence. Same lesson as the SEC-003 identity freeze.
 the operative control (Postgres checks table privileges before RLS) and was proved; the RLS enable
 rests on the migration's self-verify block, which raises rather than warns.
 
+## Fan Automations — the ratified token-at-rest exception (2026-08-29)
+
+The house rule stays: a third-party token lives in the server environment, never a database row.
+Multi-tenant Meta OAuth (artist Fan Automations, `31-FAN-AUTOMATIONS.md`) is the ONE ratified
+exception, because every artist holds their own token and the environment belongs to the
+platform. The compensating controls, all three required:
+
+1. `artist_social_connections` is CLOSED: RLS on, ZERO policies, ALL revoked from `anon` and
+   `authenticated` by name (asserted by the migration self-verify and probed by
+   `verify:migrations`, where 42501 is the pass).
+2. `access_token_enc` stores AES-256-GCM ciphertext only
+   ([src/lib/social/connectionTokens.ts](../../src/lib/social/connectionTokens.ts)), keyed by
+   server-only `SOCIAL_TOKEN_ENC_KEY`. No key = every connect and send refuses; plaintext can
+   never be stored.
+3. ONE reader module: [src/lib/fanAutomations/connections.ts](../../src/lib/fanAutomations/connections.ts)
+   (the `connectAccount.ts` single-reader pattern). Its browser projection type has no token
+   field, so no route CAN serialize one.
+
+Related boundaries: OAuth `state` is HMAC-signed, 15-minute, and bound to the starting session
+user (`oauthState.ts`); the Meta webhook authenticates by `X-Hub-Signature-256` over the raw
+body (`verifyMetaSignature`, fails closed, registered in SEC-WEBHOOK/SEC-SERVICE); the webhook
+resolves artists ONLY by provider-owned account id; the public drop claim follows the Song Lab
+captured-contact rules verbatim (no session returned, confirmed accounts never acted for, paid
+members never downgraded); magnet files deliver by short-lived signed R2 URL, never a public URL.
+
 ## Privacy & data-handling notes
 
 - **PII stored:** fan/artist email, display name, phone, city/state/country, spend history, engagement scores, IP-derived visitor hashes. Emails/spend are exposed only to the owning artist (audience/CRM routes) or admin. `Confirmed`. **Since 2026-08-25 the privacy policy DISCLOSES this** (before that it claimed artists cannot see a fan's email while `buildAudience` returned auth emails to the owning artist, a live false statement). The disclosure is pinned by `src/lib/legal/legalPages.test.ts` (LEGAL-DATA-001); if fan-email visibility is ever removed from the CRM, change the policy and that test in the same commit, and vice versa.

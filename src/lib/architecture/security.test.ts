@@ -83,7 +83,11 @@ describe('SEC-WEBHOOK — provider webhooks verify a signature and fail closed',
     // ManyChat genuinely cannot HMAC-sign, so it presents a shared secret that the
     // route compares constant-time and fails closed on; that is its signature
     // equivalent and is documented in the acquisition architecture.
-    const VERIFIES = /constructEvent\s*\(|verifyWebhookSignature\s*\(|WebhookReceiver|svix|verifySignature\s*\(|createHmac\s*\(|verifyCalcomRequest\s*\(|presentedSecret/;
+    // Meta (Instagram + Facebook) verifies through verifyMetaSignature() in the same
+    // canonical module as Svix and Twilio: HMAC-SHA256 of the raw body under the app
+    // secret (X-Hub-Signature-256), timing-safe, fails closed with no configured secret,
+    // pinned by test vectors in src/lib/webhookSignatures.meta.test.ts.
+    const VERIFIES = /constructEvent\s*\(|verifyWebhookSignature\s*\(|WebhookReceiver|svix|verifySignature\s*\(|verifyMetaSignature\s*\(|createHmac\s*\(|verifyCalcomRequest\s*\(|presentedSecret/;
     const offenders = webhookRoutes.filter(f => !VERIFIES.test(readStripped(f)));
     expect(
       offenders,
@@ -844,6 +848,14 @@ describe('SEC-SERVICE — service-role routes are the only authorization boundar
     // It refuses outright when the email belongs to a VERIFIED account, so it can never
     // act in a real person's name. Rate limited per IP and per email.
     'src/app/api/song-lab/live-claim/route.ts',
+    // Fan Automation drop claim. A fan arriving from an Instagram/Facebook DM with no CRWN
+    // account IS the intended caller, exactly like live-claim above, and it follows the same
+    // captured-contact boundary: it uses the session when one exists (auth.getUser), otherwise
+    // identityDecision rules apply verbatim: it may create/reuse only an UNCONFIRMED auth user,
+    // writes nothing for a confirmed account's email, RETURNS NO SESSION, and can only touch
+    // the ONE artist whose automation the unguessable token names. joinFreeTier is the sole
+    // membership writer, so a paid member can never be downgraded. Rate limited per IP and email.
+    'src/app/api/drop/[token]/claim/route.ts',
     // Email-embedded endpoints: the recipient's mail client is the caller, keyed on
     // an unguessable send/enrollment id. Compliance requires unsubscribe to work
     // without a session.
@@ -897,7 +909,11 @@ describe('SEC-SERVICE — service-role routes are the only authorization boundar
     // signature in the same class as constructEvent (Stripe) and verifyCalcomRequest, and
     // the HMAC itself is pinned against Twilio's published test vector in
     // src/lib/sms/keywords.test.ts, so this name cannot come to mean nothing.
-    const ESTABLISHES = /auth\.getUser\s*\(|requireAdmin\s*\(|requireArtistOwner\s*\(|requireSongLabArtist\s*\(|getOwnedArtistIds\s*\(|CRON_SECRET|INTERNAL_[A-Z_]*SECRET|constructEvent\s*\(|verifyWebhookSignature\s*\(|verifyTwilioSignature\s*\(|WebhookReceiver|createHmac\s*\(|verifyUnsubscribe[A-Za-z]*\s*\(|verifyCalcomRequest\s*\(|presentedSecret/;
+    // verifyMetaSignature: the Meta (Instagram + Facebook) webhook's authority. A provider
+    // signature in the same class as constructEvent (Stripe) and verifyCalcomRequest:
+    // HMAC-SHA256 of the raw body under the app secret, timing-safe, fails closed with no
+    // configured secret, pinned by test vectors in src/lib/webhookSignatures.meta.test.ts.
+    const ESTABLISHES = /auth\.getUser\s*\(|requireAdmin\s*\(|requireArtistOwner\s*\(|requireSongLabArtist\s*\(|getOwnedArtistIds\s*\(|CRON_SECRET|INTERNAL_[A-Z_]*SECRET|constructEvent\s*\(|verifyWebhookSignature\s*\(|verifyTwilioSignature\s*\(|verifyMetaSignature\s*\(|WebhookReceiver|createHmac\s*\(|verifyUnsubscribe[A-Za-z]*\s*\(|verifyCalcomRequest\s*\(|presentedSecret/;
     const offenders = serviceRoleRoutes
       .filter(f => !DELIBERATELY_PUBLIC.has(f))
       .filter(f => !ESTABLISHES.test(readStripped(f)));
