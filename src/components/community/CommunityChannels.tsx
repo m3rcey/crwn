@@ -7,6 +7,7 @@ import { useSubscription } from '@/hooks/useSubscription';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { TierConfig } from '@/types';
 import { Hash, Lock, Loader2, Send, Plus, X, Megaphone, Trash2 } from 'lucide-react';
+import { TierAccessSelect } from '@/components/shared/TierAccessSelect';
 
 interface Channel {
   id: string;
@@ -443,21 +444,15 @@ function CreateChannelModal({ artistId, tiers, existingCount, onClose, onCreated
         {!isFree && tiers.length > 0 && (
           <div className="mb-4">
             <p className="text-xs text-crwn-text-secondary mb-2">Limit to tiers (optional):</p>
-            <div className="flex flex-wrap gap-2">
-              {tiers.map((t) => (
-                <button
-                  key={t.id}
-                  onClick={() => toggleTier(t.id)}
-                  className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
-                    selectedTiers.includes(t.id)
-                      ? 'bg-crwn-gold text-black border-crwn-gold font-medium'
-                      : 'border-crwn-elevated text-crwn-text-secondary hover:text-crwn-text'
-                  }`}
-                >
-                  {t.name}
-                </button>
-              ))}
-            </div>
+            {/* Cumulative: a Silver channel includes Gold and Platinum, so nobody who
+                pays more finds themselves locked out of a cheaper room. */}
+            <TierAccessSelect
+              tiers={tiers}
+              isFree={false}
+              allowedTierIds={selectedTiers}
+              allowEveryone={false}
+              onChange={({ allowedTierIds }) => setSelectedTiers(allowedTierIds)}
+            />
           </div>
         )}
 

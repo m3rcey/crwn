@@ -10,6 +10,7 @@ import { audioContentType, validateUpload } from '@/lib/uploadValidation';
 import { moveItem } from '@/lib/projectUpload';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { Loader2, X, Check, AlertCircle, ChevronDown, ChevronUp, Image } from 'lucide-react';
+import { TierAccessSelect } from '@/components/shared/TierAccessSelect';
 
 interface SubscriptionTier {
   id: string;
@@ -764,23 +765,20 @@ export function BulkUploadForm({ artistProfileId, onComplete, projectMode = fals
                           <span className="text-crwn-text text-sm">Free to all</span>
                         </label>
                         
-                        {!item.isFree && tiers.length > 0 && tiers.map(tier => (
-                          <label key={tier.id} className="flex items-center gap-2 cursor-pointer ml-6">
-                            <input
-                              type="checkbox"
-                              checked={item.allowedTierIds.includes(tier.id)}
-                              onChange={(e) => {
-                                const ids = e.target.checked
-                                  ? [...item.allowedTierIds, tier.id]
-                                  : item.allowedTierIds.filter(id => id !== tier.id);
-                                updateItem(item.id, { allowedTierIds: ids });
-                              }}
-                              disabled={item.status !== 'pending' || isUploading}
-                              className="w-4 h-4 rounded border-crwn-elevated bg-crwn-bg text-crwn-gold focus:ring-crwn-gold disabled:opacity-50"
+                        {/* Cumulative, per item: a vault drop set to Gold also unlocks for
+                            Platinum. Bulk is where this mattered most, because the mistake
+                            would otherwise repeat across every track in one upload. */}
+                        {!item.isFree && tiers.length > 0 && (
+                          <div className="ml-6">
+                            <TierAccessSelect
+                              tiers={tiers}
+                              isFree={false}
+                              allowedTierIds={item.allowedTierIds}
+                              allowEveryone={false}
+                              onChange={({ allowedTierIds }) => updateItem(item.id, { allowedTierIds })}
                             />
-                            <span className="text-crwn-text text-sm">{tier.name} (${(tier.price / 100).toFixed(0)}/mo)</span>
-                          </label>
-                        ))}
+                          </div>
+                        )}
                         
                         {!item.isFree && (
                           <div className="ml-6 mt-2">

@@ -8,6 +8,7 @@ import { Playlist, Track } from '@/types';
 import Image from 'next/image';
 import { SortableTrackList } from '@/components/shared/SortableTrackList';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
+import { TierAccessSelect } from '@/components/shared/TierAccessSelect';
 
 interface SubscriptionTier {
   id: string;
@@ -466,24 +467,15 @@ export function ArtistPlaylistManager() {
                       />
                       <span className="text-crwn-text text-sm">Free (anyone)</span>
                     </label>
-                    {tiers.map((tier) => (
-                      <label key={tier.id} className="flex items-center gap-2 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={formData.allowedTierIds.includes(tier.id)}
-                          onChange={(e) => {
-                            const ids = e.target.checked
-                              ? [...formData.allowedTierIds, tier.id]
-                              : formData.allowedTierIds.filter((id) => id !== tier.id);
-                            setFormData((p) => ({ ...p, allowedTierIds: ids }));
-                          }}
-                          className="w-4 h-4 rounded border-crwn-elevated bg-crwn-bg text-crwn-gold"
-                        />
-                        <span className="text-crwn-text text-sm">
-                          {tier.name} (${(tier.price / 100).toFixed(0)}/mo)
-                        </span>
-                      </label>
-                    ))}
+                    {/* Cumulative: picking a rung includes every rung above it, so the fan
+                        paying most is never locked out of what a cheaper rung gets. */}
+                    <TierAccessSelect
+                      tiers={tiers}
+                      isFree={false}
+                      allowedTierIds={formData.allowedTierIds}
+                      allowEveryone={false}
+                      onChange={({ allowedTierIds }) => setFormData((p) => ({ ...p, allowedTierIds }))}
+                    />
                   </div>
                 </div>
                 <div>

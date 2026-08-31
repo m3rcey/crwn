@@ -20,6 +20,7 @@ import { validateUpload } from '@/lib/uploadValidation';
 import { CalculatorPrefillBanner } from '@/components/lead-magnets/CalculatorPrefillBanner';
 import { CalculatorSuggestions } from '@/components/lead-magnets/CalculatorSuggestions';
 import { trackFunnel } from '@/lib/analytics/trackFunnelClient';
+import { TierAccessSelect } from '@/components/shared/TierAccessSelect';
 
 interface LivestreamManagerProps {
   artistId: string;
@@ -686,21 +687,16 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
                 </label>
                 {!isFree && tierList.length > 0 && (
                   <div className="space-y-2 ml-6">
-                    <p className="text-crwn-text-secondary text-sm mb-1">Only these tiers can {mode === 'live' ? 'join' : 'watch'}:</p>
-                    {tierList.map(tier => (
-                      <label key={tier.id} className="flex items-center gap-2 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={selectedTiers.includes(tier.id)}
-                          onChange={(e) => {
-                            if (e.target.checked) setSelectedTiers([...selectedTiers, tier.id]);
-                            else setSelectedTiers(selectedTiers.filter(id => id !== tier.id));
-                          }}
-                          className="w-4 h-4"
-                        />
-                        <span className="text-crwn-text">{tier.name}</span>
-                      </label>
-                    ))}
+                    <p className="text-crwn-text-secondary text-sm mb-1">Who can {mode === 'live' ? 'join' : 'watch'}:</p>
+                    {/* Cumulative: a Gold session must admit Platinum too, or the top rung
+                        is locked out of a room the rung below it can enter. */}
+                    <TierAccessSelect
+                      tiers={tierList}
+                      isFree={false}
+                      allowedTierIds={selectedTiers}
+                      allowEveryone={false}
+                      onChange={({ allowedTierIds }) => setSelectedTiers(allowedTierIds)}
+                    />
                   </div>
                 )}
                 {!isFree && tierList.length === 0 && (

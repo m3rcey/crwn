@@ -27,6 +27,7 @@ import { buildWaterfall, earlyAccessDaysByTier, type WaterfallEntry } from '@/li
 import { ReleaseCreditsModal } from './ReleaseCreditsModal';
 import { Edit2, X, Upload, Plus, Loader2, Music, Award } from 'lucide-react';
 import { hapticMedium } from '@/lib/haptics';
+import { TierAccessSelect } from '@/components/shared/TierAccessSelect';
 
 interface SubscriptionTier {
   id: string;
@@ -945,22 +946,17 @@ export function TrackUploadForm() {
               )}
 
               <label className="block text-sm font-medium text-crwn-text-secondary pt-1">Who hears it early</label>
-              {tiers.filter((t) => t.price > 0).map((tier) => (
-                <label key={tier.id} className="flex items-center gap-2 cursor-pointer ml-1">
-                  <input
-                    type="checkbox"
-                    checked={formData.allowedTierIds.includes(tier.id)}
-                    onChange={(e) => {
-                      const ids = e.target.checked
-                        ? [...formData.allowedTierIds, tier.id]
-                        : formData.allowedTierIds.filter((id) => id !== tier.id);
-                      setFormData((p) => ({ ...p, allowedTierIds: ids }));
-                    }}
-                    className="w-4 h-4 rounded border-crwn-elevated bg-crwn-bg text-crwn-gold focus:ring-crwn-gold"
-                  />
-                  <span className="text-crwn-text text-sm">{tier.name} (${(tier.price / 100).toFixed(0)}/mo)</span>
-                </label>
-              ))}
+              {/* Cumulative. Ticking one rung used to leave the tiers ABOVE it waiting with
+                  everybody else, so the fan paying most heard it last. Paid rungs only: a
+                  free rung with early access is just a public release. The tier list still
+                  goes THROUGH fieldsForClass, which owns the stored fields. */}
+              <TierAccessSelect
+                tiers={tiers.filter((t) => t.price > 0)}
+                isFree={false}
+                allowedTierIds={formData.allowedTierIds}
+                allowEveryone={false}
+                onChange={({ allowedTierIds }) => setFormData((p) => ({ ...p, allowedTierIds }))}
+              />
             </div>
           )}
 
@@ -969,22 +965,15 @@ export function TrackUploadForm() {
               {tiers.length > 0 && (
                 <label className="block text-sm font-medium text-crwn-text-secondary">Which tiers unlock it</label>
               )}
-              {tiers.map((tier) => (
-                <label key={tier.id} className="flex items-center gap-2 cursor-pointer ml-1">
-                  <input
-                    type="checkbox"
-                    checked={formData.allowedTierIds.includes(tier.id)}
-                    onChange={(e) => {
-                      const ids = e.target.checked
-                        ? [...formData.allowedTierIds, tier.id]
-                        : formData.allowedTierIds.filter((id) => id !== tier.id);
-                      setFormData((p) => ({ ...p, allowedTierIds: ids }));
-                    }}
-                    className="w-4 h-4 rounded border-crwn-elevated bg-crwn-bg text-crwn-gold focus:ring-crwn-gold"
-                  />
-                  <span className="text-crwn-text text-sm">{tier.name} (${(tier.price / 100).toFixed(0)}/mo)</span>
-                </label>
-              ))}
+              {/* Cumulative, same reason: a vault track set to Gold must also unlock for
+                  Platinum, or the top rung pays more for less. */}
+              <TierAccessSelect
+                tiers={tiers}
+                isFree={false}
+                allowedTierIds={formData.allowedTierIds}
+                allowEveryone={false}
+                onChange={({ allowedTierIds }) => setFormData((p) => ({ ...p, allowedTierIds }))}
+              />
               <div className="mt-2">
                 <label className="block text-sm font-medium text-crwn-text-secondary mb-1">
                   {tiers.length > 0 ? 'Or set a one-time price (USD)' : 'One-time price (USD)'}

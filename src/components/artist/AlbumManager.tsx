@@ -19,6 +19,7 @@ import {
   Eye, EyeOff, Disc3, Award
 } from 'lucide-react';
 import { ReleaseCreditsModal } from './ReleaseCreditsModal';
+import { TierAccessSelect } from '@/components/shared/TierAccessSelect';
 
 interface AlbumFormData {
   title: string;
@@ -604,22 +605,17 @@ export function AlbumManager() {
                       />
                       <span className="text-crwn-text text-sm">Free (anyone)</span>
                     </label>
-                    {tiers.map(tier => (
-                      <label key={tier.id} className="flex items-center gap-2 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={formData.allowedTierIds.includes(tier.id)}
-                          onChange={(e) => {
-                            const ids = e.target.checked
-                              ? [...formData.allowedTierIds, tier.id]
-                              : formData.allowedTierIds.filter(id => id !== tier.id);
-                            setFormData(p => ({ ...p, allowedTierIds: ids }));
-                          }}
-                          className="w-4 h-4 rounded border-crwn-elevated bg-crwn-bg text-crwn-gold focus:ring-crwn-gold"
-                        />
-                        <span className="text-crwn-text text-sm">{tier.name} (${(tier.price / 100).toFixed(0)}/mo)</span>
-                      </label>
-                    ))}
+                    {/* Cumulative: an album released to a rung also opens for every rung
+                        above it, so the top tier is never locked out of a cheaper one. */}
+                    {!formData.isFree && (
+                      <TierAccessSelect
+                        tiers={tiers}
+                        isFree={false}
+                        allowedTierIds={formData.allowedTierIds}
+                        allowEveryone={false}
+                        onChange={({ allowedTierIds }) => setFormData(p => ({ ...p, allowedTierIds }))}
+                      />
+                    )}
                   </div>
                 </div>
               </div>
