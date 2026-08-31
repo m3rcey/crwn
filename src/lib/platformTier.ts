@@ -240,6 +240,51 @@ export function getTierLimits(tier: string | null | undefined): TierLimits {
   return TIER_LIMITS[resolveTierKey(tier)] || TIER_LIMITS.starter;
 }
 
+/**
+ * Capability keys a founder may COMP to a single artist, without moving them onto a plan
+ * they are not paying for. Stored per artist in artist_profiles.plan_feature_overrides
+ * (migration schema-phase2-artist-plan-overrides.sql, server-only column).
+ */
+export type ComposableCapability = 'allowsBundles' | 'allowsScheduling' | 'allowsLive' | 'allowsDMs' | 'allowsClipper';
+
+const COMPABLE_CAPABILITIES: readonly ComposableCapability[] = [
+  'allowsBundles', 'allowsScheduling', 'allowsLive', 'allowsDMs', 'allowsClipper',
+];
+
+/**
+ * Merge a comped override onto the plan's limits.
+ *
+ * ADDITIVE ONLY, and this is the whole safety property. `true` grants a capability;
+ * `false` is IGNORED rather than revoking one. A field that could take a capability away
+ * would be a silent downgrade of an artist who is paying for the plan that includes it,
+ * invisible in the billing record and undiscoverable in a support conversation. If a
+ * capability ever needs removing, that is a plan change, which is visible and billed.
+ *
+ * Numeric limits (tracks, members, tiers, fee) are deliberately NOT overridable: a comped
+ * fee percent would silently change what CRWN earns on a real transaction, and that is a
+ * money decision, not a feature toggle.
+ */
+export function applyPlanOverrides(limits: TierLimits, overrides: unknown): TierLimits {
+  if (!overrides || typeof overrides !== 'object' || Array.isArray(overrides)) return limits;
+  const src = overrides as Record<string, unknown>;
+  let next = limits;
+  for (const key of COMPABLE_CAPABILITIES) {
+    if (src[key] === true && !limits[key]) {
+      if (next === limits) next = { ...limits };
+      next[key] = true;
+    }
+  }
+  return next;
+}
+
+/**
+ * The limits an artist ACTUALLY has: their plan, plus anything comped to them.
+ * Every plan-capability gate should read this rather than getTierLimits directly.
+ */
+export function getEffectiveLimits(tier: string | null | undefined, overrides?: unknown): TierLimits {
+  return applyPlanOverrides(getTierLimits(tier), overrides);
+}
+
 export function canUseFeature(tier: string | null | undefined, feature: keyof Omit<TierLimits, 'maxTracks' | 'maxMembers' | 'maxFanTiers' | 'platformFeePercent'>): boolean {
   const limits = getTierLimits(tier);
   return limits[feature] as boolean;

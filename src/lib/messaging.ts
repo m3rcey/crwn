@@ -4,7 +4,7 @@
 // has enabled the `direct_messaging` benefit for.
 // Tier rank (0 = free/none, 1..N by price ascending) drives inbox priority sorting.
 
-import { getTierLimits } from '@/lib/platformTier';
+import { getEffectiveLimits } from '@/lib/platformTier';
 
 // Does the artist's PLATFORM tier permit offering DMs at all? (Pro-only.)
 // A Pro->Free downgrade makes this false, which freezes their threads read-only:
@@ -12,10 +12,20 @@ import { getTierLimits } from '@/lib/platformTier';
 export async function artistAllowsDMs(supabaseAdmin: any, artistId: string): Promise<boolean> {
   const { data } = await supabaseAdmin
     .from('artist_profiles')
+    // plan_feature_overrides carries a founder-comped capability. Selecting a column that
+    // does not exist yet would 42703 the whole statement, so a missing column must read as
+    // "no override" rather than as "no artist": the catch below keeps the plan answer.
+    .select('platform_tier, plan_feature_overrides')
+    .eq('id', artistId)
+    .maybeSingle();
+  if (data) return getEffectiveLimits(data.platform_tier, data.plan_feature_overrides).allowsDMs;
+
+  const { data: planOnly } = await supabaseAdmin
+    .from('artist_profiles')
     .select('platform_tier')
     .eq('id', artistId)
     .maybeSingle();
-  return getTierLimits(data?.platform_tier).allowsDMs;
+  return getEffectiveLimits(planOnly?.platform_tier).allowsDMs;
 }
 
 export interface MessageGate {

@@ -3,7 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { liveProvider } from '@/lib/livekit';
 import { generateFileKey } from '@/lib/r2/client';
-import { getTierLimits } from '@/lib/platformTier';
+import { getEffectiveLimits } from '@/lib/platformTier';
 import { LIVE_AGREEMENT_VERSION } from '@/lib/liveAgreement';
 
 const supabaseAdmin = createClient(
@@ -51,7 +51,22 @@ export async function POST(req: NextRequest) {
   if (action === 'start') {
     // Live + VOD is a Pro-only capability. Free artists can't go live.
     // ('end' is always allowed so a downgraded artist can still close an open session.)
-    if (!getTierLimits(ownedArtist.platform_tier).allowsLive) {
+    // Effective limits: the plan, plus anything the founder has comped to this artist.
+    // Additive only, so this can grant live to a Launch artist and can never take it from
+    // a Pro one.
+    //
+    // Read with the SERVICE-ROLE client, never added to the ownedArtist select above.
+    // That select uses the caller's own session, and plan_feature_overrides has no grant
+    // to authenticated: naming it there would fail the WHOLE statement with 42501 and the
+    // route would read it as "not your session". A missing column (pre-migration) reads as
+    // no override, so the plan answer stands and nothing breaks before the founder runs it.
+    const { data: comped } = await supabaseAdmin
+      .from('artist_profiles')
+      .select('plan_feature_overrides')
+      .eq('id', ownedArtist.id)
+      .maybeSingle();
+
+    if (!getEffectiveLimits(ownedArtist.platform_tier, comped?.plan_feature_overrides).allowsLive) {
       return NextResponse.json(
         { error: 'Livestreaming is a Pro feature. Upgrade to go live.', reason: 'tier_locked' },
         { status: 403 }

@@ -95,6 +95,9 @@ const PROBES = [
   // correct applied signal here (42703 would mean the column is genuinely absent).
   ['sub-avatar override column', 'artist_profiles?select=sub_avatar_override&limit=1', 'schema-phase2-sub-avatar.sql'],
   ['sub-avatar audit table', 'sub_avatar_audit?select=id&limit=1', 'schema-phase2-sub-avatar.sql'],
+  // Comped plan capabilities. Server-only column (no client grant), so 42501 is the
+  // applied signal and 42703 means the founder has not run it, exactly like launch_partner.
+  ['artist plan overrides', 'artist_profiles?select=plan_feature_overrides&limit=1', 'schema-phase2-artist-plan-overrides.sql'],
   // Song Lab (GB experiment). The projects table has a public SELECT policy, so anon
   // resolves it and gets [] once applied; 42P01/PGRST205 means not run. The gate column is
   // server-only (no client grant) so 42501 is its applied signal, exactly like launch_partner.

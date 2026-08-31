@@ -80,6 +80,33 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **Run one SQL file to comp Executive Producer Sessions and DMs to GB while he stays on
+      Launch.** Open and run:
+      [`supabase/schema-phase2-artist-plan-overrides.sql`](supabase/schema-phase2-artist-plan-overrides.sql)
+      One nullable jsonb column on artist_profiles, plus the override for slug `gb` ONLY
+      (it fails loudly if that slug is missing). Nobody else is comped, and the column is
+      server-only so no browser can read or appear to set its own capabilities.
+      Why it is needed: GB's Gold rung promises Executive Producer Sessions and his Platinum
+      rung promises direct interaction / Q&A. Both are live/DM features that Launch refuses
+      server-side, so without this he would be selling a tier benefit CRWN declines to
+      deliver. The override is ADDITIVE ONLY by construction (`applyPlanOverrides` ignores
+      `false`), so it can grant a capability and can never quietly revoke one from an artist
+      who is paying for a plan that includes it.
+      Expected on success: one result row reading `plan overrides applied`, comped_artists = 1,
+      comped_slug = gb.
+      Verify after with: npm run verify:migrations (look for the "artist plan overrides" line)
+      Until it runs, nothing breaks: a missing column reads as "no override" and GB simply
+      stays on plain Launch limits.
+
+- [ ] **Create GB's Platinum tier at $50/month.** No SQL and no code: he adds it himself in
+      /account/tiers, or you do it from his account. His live ladder today is Economy (free),
+      Silver $10, Gold $25, so Platinum is the missing fourth rung. Three paid tiers is the
+      cap on EVERY plan, so this fits with nothing to spare and needs no upgrade.
+      Note the price is deliberately HIS: CRWN's recommended ladder uses $100 for Platinum
+      and `tierTemplate.test.ts` pins that default, so set $50 explicitly rather than
+      applying the template. Renaming Economy to Bronze is optional and costs nothing.
+
+
 - [ ] **Fan Automations (artists' own comment-to-DM funnels) is BUILT and DARK. Two founder
       steps turn it on; until then artists keep renting this exact outcome from ManyChat.**
       Shipped 2026-08-29: an artist connects their own Instagram or Facebook Page, a fan's

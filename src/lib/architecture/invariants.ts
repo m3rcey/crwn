@@ -1333,6 +1333,9 @@ export const EXPECTED_MIGRATION_STATE: ReadonlyArray<{
     liveCheck: 'sql-check',
     note: 'founder SQL check 2026-08-12 (pg_constraint introspection). Widens earnings_type_check only; a CHECK constraint is invisible to PostgREST, so it is deliberately NOT in probe-migrations.mjs.',
   },
+  // Per-artist comped plan capabilities. PENDING: every gate reads getEffectiveLimits,
+  // and a missing column reads as "no override", so the plan answer stands until it runs.
+  { file: 'schema-phase2-artist-plan-overrides.sql', state: 'pending', note: 'Adds artist_profiles.plan_feature_overrides (server-only jsonb) and comps live + DMs to gb only. Additive by construction: applyPlanOverrides ignores false, so an override can never revoke a paid plan capability.' },
   // Song Lab (GB experiment). The probe expects song_lab_projects to resolve for anon
   // (public SELECT policy on non-archived rows) and the gate column to answer 42501
   // (no client grant), exactly like launch_partner.
