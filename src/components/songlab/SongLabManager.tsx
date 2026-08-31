@@ -8,6 +8,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Copy, Check, Plus, Loader2, QrCode, Trash2, Pencil } from 'lucide-react';
 import { OptionSelect } from '@/components/ui/OptionSelect';
+import { TierAccessSelect } from '@/components/shared/TierAccessSelect';
 import { RECOGNITION_DISCLAIMER } from '@/lib/songLab/core';
 import { DEFAULT_SHOW_TIMEZONE, EXTEND_MINUTES, formatTimeInZone, scheduleLabel } from '@/lib/songLab/schedule';
 import { liveShowDefaults, validateShowWindows, DEFAULT_SHOW_TIMES } from '@/lib/songLab/liveShowTemplate';
@@ -766,21 +767,19 @@ function NewDecisionForm({ projectId, tiers, busy, call, onDone }: {
 
       <div className="pt-1">
         <p className="text-xs font-semibold text-crwn-text mb-1.5">Who can vote</p>
-        <label className="flex items-center gap-2 text-sm text-crwn-text-secondary mb-1">
-          <input type="checkbox" checked={isFree} onChange={(e) => setIsFree(e.target.checked)} className="accent-crwn-gold" />
-          Anyone signed in (no membership needed)
-        </label>
-        {!isFree ? tiers.map((t) => (
-          <label key={t.id} className="flex items-center gap-2 text-sm text-crwn-text-secondary mb-1">
-            <input
-              type="checkbox"
-              checked={tierIds.includes(t.id)}
-              onChange={(e) => setTierIds(e.target.checked ? [...tierIds, t.id] : tierIds.filter((x) => x !== t.id))}
-              className="accent-crwn-gold"
-            />
-            {t.name}{t.price === 0 ? ' (free)' : ` ($${(t.price / 100).toFixed(0)}/mo)`}
-          </label>
-        )) : null}
+        {/* Cumulative: picking Gold means Gold AND Platinum, so the fan paying most is
+            never shut out of a vote a cheaper rung gets. Three bands make the ladder
+            legible: open to everyone (the acquisition decisions), a rung and above (the
+            regular calls), and the top rung alone (the highest-stakes ones). */}
+        <TierAccessSelect
+          tiers={tiers}
+          isFree={isFree}
+          allowedTierIds={tierIds}
+          onChange={({ isFree: nextFree, allowedTierIds }) => {
+            setIsFree(nextFree);
+            setTierIds(allowedTierIds);
+          }}
+        />
       </div>
 
       <div className="flex items-center gap-3">

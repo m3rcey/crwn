@@ -8,6 +8,7 @@ import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { TierConfig } from '@/types';
 import Image from 'next/image';
 import { Loader2, X, Image as ImageIcon, Video, Lock } from 'lucide-react';
+import { TierAccessSelect } from '@/components/shared/TierAccessSelect';
 
 interface PostComposerProps {
   artistId: string;
@@ -450,37 +451,19 @@ export function PostComposer({ artistId, isArtist, tiers, onPostCreated }: PostC
                 <span className="text-sm text-crwn-text-secondary">Post visibility</span>
               </div>
               
-              <label className="flex items-center gap-2 cursor-pointer mb-2">
-                <input
-                  type="checkbox"
-                  checked={isFree}
-                  onChange={(e) => setIsFree(e.target.checked)}
-                  className="w-4 h-4"
-                />
-                <span className="text-crwn-text text-sm">All fans can see</span>
-              </label>
-
-              {!isFree && tiers.length > 0 && (
-                <div className="space-y-1 ml-6">
-                  {tiers.map(tier => (
-                    <label key={tier.id} className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={selectedTiers.includes(tier.id)}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setSelectedTiers([...selectedTiers, tier.id]);
-                          } else {
-                            setSelectedTiers(selectedTiers.filter(id => id !== tier.id));
-                          }
-                        }}
-                        className="w-4 h-4"
-                      />
-                      <span className="text-crwn-text text-sm">{tier.name}</span>
-                    </label>
-                  ))}
-                </div>
-              )}
+              {/* Cumulative by construction. The checkbox column this replaces let an
+                  artist tick Silver alone, which silently locked out the Gold and Platinum
+                  members who pay MORE. Picking a rung here saves that rung and everyone
+                  above it. */}
+              <TierAccessSelect
+                tiers={tiers}
+                isFree={isFree}
+                allowedTierIds={selectedTiers}
+                onChange={({ isFree: nextFree, allowedTierIds }) => {
+                  setIsFree(nextFree);
+                  setSelectedTiers(allowedTierIds);
+                }}
+              />
             </div>
           )}
 
