@@ -16,7 +16,7 @@
 //   * sessionStorage remembers the claim across the Stripe redirect; it is a per-viewer
 //     convenience, wrapped in try/catch, and the page works without it.
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Check, Crown, Download, Loader2, Lock, Mail, Play } from 'lucide-react';
 import { supabase } from '@/lib/supabase/client';
 import { freeJoinDisclosure } from '@/lib/subscriptions/freeJoinDisclosure';
@@ -129,6 +129,72 @@ export function DropFunnelClient({ token, artist, magnet, gold, goldItem, silver
     if (phase === 'delivered' && !claimed && hasSession) void claimWithSession();
   }, [phase, claimed, hasSession, claimWithSession]);
 
+  // startCheckout is declared below; a ref keeps the verify handler above it honest.
+  const startCheckoutRef = useRef<((tierId: string) => void) | null>(null);
+
+  // ── Inline sign-in code ────────────────────────────────────────────────────
+  //
+  // A captured contact holds a free membership but NEVER a session (see the claim
+  // route), and /api/stripe/checkout requires one. The old path told them to leave for
+  // their inbox and click a link, which on a phone means leaving Instagram, finding the
+  // mail app, and coming back with the intent gone.
+  //
+  // This asks for the SIX DIGIT CODE from the same email instead, on this page. It is
+  // not a weaker check: verifyOtp confirms the address exactly as the link does, so an
+  // unverified typed email still cannot buy anything. It only removes the app switch.
+  // The tier they pressed is remembered, so checkout opens on the thing they wanted
+  // rather than dropping them back on a page to press it again.
+  const [codeForTier, setCodeForTier] = useState<string | null>(null);
+  const [code, setCode] = useState('');
+  const [codeBusy, setCodeBusy] = useState(false);
+  const [codeSent, setCodeSent] = useState(false);
+  const [codeError, setCodeError] = useState('');
+
+  const sendCode = useCallback(async (tierId: string) => {
+    setCodeForTier(tierId);
+    setCodeError('');
+    setCode('');
+    if (!email) {
+      // Reached the offer in a session-less tab without the address on hand.
+      setCodeError('Enter your email again to get a code.');
+      return;
+    }
+    setCodeBusy(true);
+    try {
+      // shouldCreateUser false: this address already exists as a captured contact from
+      // the claim. Never mint an account here.
+      const { error: otpError } = await supabase.auth.signInWithOtp({
+        email,
+        options: { shouldCreateUser: false },
+      });
+      if (otpError) setCodeError(otpError.message);
+      else setCodeSent(true);
+    } catch {
+      setCodeError('Could not send the code. Try again.');
+    } finally {
+      setCodeBusy(false);
+    }
+  }, [email]);
+
+  const verifyCode = useCallback(async (tierId: string) => {
+    const token = code.trim();
+    if (token.length < 6) { setCodeError('Enter the 6 digit code.'); return; }
+    setCodeBusy(true);
+    setCodeError('');
+    try {
+      const { error: vErr } = await supabase.auth.verifyOtp({ email, token, type: 'email' });
+      if (vErr) { setCodeError(vErr.message); return; }
+      setHasSession(true);
+      setCodeForTier(null);
+      // Straight into checkout for the tier they pressed. The intent survives.
+      void startCheckoutRef.current?.(tierId);
+    } catch {
+      setCodeError('That code did not work. Try again.');
+    } finally {
+      setCodeBusy(false);
+    }
+  }, [code, email]);
+
   const startCheckout = useCallback(async (tierId: string) => {
     setCheckoutBusy(tierId);
     setError('');
@@ -162,6 +228,8 @@ export function DropFunnelClient({ token, artist, magnet, gold, goldItem, silver
       setCheckoutBusy(null);
     }
   }, [token]);
+
+  startCheckoutRef.current = startCheckout;
 
   const header = (
     <div className="flex items-center gap-3 mb-6">
@@ -232,14 +300,55 @@ export function DropFunnelClient({ token, artist, magnet, gold, goldItem, silver
           >
             {checkoutBusy === tier.id ? 'Opening checkout…' : `Join ${tier.name} for ${price(tier.priceCents)}`}
           </button>
-        ) : (
-          <div className="rounded-xl bg-crwn-elevated p-4 text-sm text-crwn-text-secondary flex items-start gap-2">
-            <Mail className="w-4 h-4 text-crwn-gold mt-0.5 shrink-0" />
-            <span>
-              We emailed you a one-tap sign-in link. Open it and this button unlocks. Already have CRWN?{' '}
-              <a href="/login" className="text-crwn-gold">Sign in</a>.
-            </span>
+        ) : codeForTier === tier.id ? (
+          <div className="rounded-xl bg-crwn-elevated p-4">
+            <p className="text-sm text-crwn-text flex items-start gap-2">
+              <Mail className="w-4 h-4 text-crwn-gold mt-0.5 shrink-0" />
+              <span>
+                {codeSent
+                  ? `We sent a 6 digit code to ${email}. Enter it here and checkout opens.`
+                  : 'Getting your code ready...'}
+              </span>
+            </p>
+            <div className="mt-3 flex gap-2">
+              <input
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                value={code}
+                onChange={(e) => setCode(e.target.value.replace(/[^0-9]/g, '').slice(0, 8))}
+                placeholder="000000"
+                aria-label="Sign-in code"
+                className="flex-1 rounded-xl bg-crwn-card px-4 py-3 text-lg tracking-[0.3em] text-crwn-text placeholder:text-crwn-text-secondary/50 outline-none"
+              />
+              <button
+                onClick={() => verifyCode(tier.id)}
+                disabled={codeBusy || code.trim().length < 6}
+                className="px-5 rounded-xl font-semibold bg-crwn-gold text-crwn-bg press-scale disabled:opacity-50"
+              >
+                {codeBusy ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Continue'}
+              </button>
+            </div>
+            {codeError && <p className="mt-2 text-sm text-red-400">{codeError}</p>}
+            <p className="mt-3 text-xs text-crwn-text-secondary">
+              No code yet? Check spam, or{' '}
+              <button onClick={() => sendCode(tier.id)} disabled={codeBusy} className="text-crwn-gold">send it again</button>.
+              The link in that email still works too.
+            </p>
           </div>
+        ) : (
+          <>
+            <button
+              onClick={() => sendCode(tier.id)}
+              disabled={codeBusy}
+              className="w-full py-3 rounded-full font-semibold bg-crwn-gold text-crwn-bg press-scale disabled:opacity-60"
+            >
+              {`Join ${tier.name} for ${price(tier.priceCents)}`}
+            </button>
+            <p className="mt-2 text-xs text-crwn-text-secondary text-center">
+              We will email you a code to confirm it is you. Already have CRWN?{' '}
+              <a href="/login" className="text-crwn-gold">Sign in</a>.
+            </p>
+          </>
         )}
       </div>
       {opts.onDecline && (
