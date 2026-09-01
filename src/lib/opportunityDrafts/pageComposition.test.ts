@@ -190,6 +190,17 @@ describe('PublicToolClient page order (shared template for 16 tools + OYF)', () 
     expect(result.indexOf('{afterHero}')).toBeLessThan(result.indexOf('heroTiles?.metrics'));
   });
 
+  it('routes every registry tool through the shared component, with no per-slug escape', () => {
+    // This is what makes "every tool shows the explainer" a universal rather than a spot check:
+    // the public tool route resolves a slug and mounts one component, with no branch that could
+    // give a single calculator its own result surface that quietly misses the shared sections.
+    const route = readFileSync(join(root, 'src/app/(public)/tools/[slug]/page.tsx'), 'utf-8');
+    expect(route).toContain('<PublicToolClient');
+    const mounts = route.match(/<PublicToolClient/g) ?? [];
+    expect(mounts, 'more than one mount means a per-slug branch exists').toHaveLength(1);
+    expect(route, 'the route branches on a specific slug').not.toMatch(/slug\s*===\s*['"]/);
+  });
+
   // The explainer video has to reach EVERY pre-signup result surface, not just the shared one.
   // There are three renderers, and covering only PublicToolClient is precisely how the email ask
   // drifted on /worth: an uncovered surface is where a ratified rule goes to rot.
