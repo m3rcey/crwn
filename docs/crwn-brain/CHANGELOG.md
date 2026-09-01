@@ -1,5 +1,35 @@
 # CRWN Brain — Changelog
 
+## 2026-09-01 (later) - Build 1 migrations APPLIED and verified in production; GB configured
+
+**Both migrations are live, proved independently of the founder's word.** `verify:migrations`
+reports 0 not applied; a service-role probe confirms `sequences.goal_tier_id`,
+`fan_automation_leads.attribution`, `song_lab_offer_claims.attribution` and
+`fan_automations.nurture_sequence_id` all exist. Behavioral canaries against GB's real rows:
+a valid own-artist paid goal is accepted, a cross-artist goal is refused, a FREE goal is
+refused, and a cross-artist nurture pointer is refused. The DB triggers enforce what the API
+enforces.
+
+**GB is configured, all through canonical writers, no schema hacks.** Platinum $50 exists
+(one row) and `backfillTierPrices` (the same function the connect-status route runs) minted
+its live Stripe price and annual price. A DRAFT test automation carries PRIMARY = Platinum
+and DOWNSELL = Gold through the historical gold/silver columns, read by `resolveFunnelOffers`,
+with a placeholder test magnet in the private bucket under GB's own prefix.
+
+**End-to-end proof against production (non-destructive, fully cleaned up).** A tagged claim
+to the live drop route returned membership `created`, delivered the magnet, sent the email,
+and wrote a lead row whose `attribution` held `{platform: instagram, campaign: b1_verification,
+keyword: test}` normalized by campaignAttribution.ts. The free membership landed as an active
+synthetic subscription; enrollments were 0, correct because GB has no sequence yet. Personas
+B through E were proved against GB's real four-tier ladder through the conversion-goal logic:
+free and Silver stay in a Gold-goal nurture, Gold and Platinum exit it, Gold stays in a
+Platinum-goal ascension, Platinum exits. Redirect safety re-proved live: every hostile
+returnUrl (external, protocol-relative, backslash, javascript/data, userinfo, encoded) falls
+back to the artist page while a valid internal path keeps its query string.
+
+**The one thing left is founder content: GB's nurture email copy.** CRWN never writes an
+artist's fan emails. Everything the engine owns is live and verified.
+
 ## 2026-09-01 - Build 1 of the fan sales engine: one reusable funnel, GB is a configuration
 
 **The product decision this implements: CRWN has ONE artist fan-sales engine; every artist
