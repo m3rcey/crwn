@@ -205,6 +205,10 @@ export async function GET(req: NextRequest) {
           hasNumber,
           appUrl: APP_URL,
           ctaOverride,
+          // The lead's own calculator and saved result, so a VSL link in the body carries their
+          // context to the watch page. Same two values the signup_url token already uses; nothing
+          // new is derived or stored.
+          continuation: { slug: String(e.tool_slug), resultToken: tokenLive ?? null },
         });
 
         const { data: sendResult, error: sendError } = await resend.emails.send({

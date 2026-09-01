@@ -9,7 +9,8 @@
 // self-entered artist name can never inject markup into an email.
 
 import { NURTURE_ART, artUrl } from './art';
-import { getVsl, isVslLive, watchPath } from '@/lib/vsl/catalog';
+import { getVsl, isVslLive } from '@/lib/vsl/catalog';
+import { watchUrlFor } from '@/lib/vsl/continuation';
 import type { CalculatorModule, NurtureBlock, NurtureEmail, NurtureTokens } from './types';
 
 export interface RenderInput {
@@ -23,6 +24,12 @@ export interface RenderInput {
   appUrl: string;
   // Resolved SERVER-SIDE. `auto` CTAs land here already decided, so the email layer never scores.
   ctaOverride?: { url: string; label: string };
+  // The lead's ORIGINATING calculator and their saved result's public token. Carried onto the watch
+  // link so the CTA on that page continues the calculator they actually finished instead of
+  // offering them a different one. Passed separately rather than added to NurtureTokens on purpose:
+  // tokens are interpolated into copy, and a result token is not something an email body should be
+  // able to print.
+  continuation?: { slug: string; resultToken: string | null };
 }
 
 export interface RenderedEmail {
@@ -66,6 +73,7 @@ function blockToText(
   module: CalculatorModule,
   hasNumber: boolean,
   appUrl: string,
+  continuation?: RenderInput['continuation'],
 ): string[] {
   switch (block.kind) {
     case 'p':
@@ -83,7 +91,7 @@ function blockToText(
       const v = getVsl(block.vsl);
       // Not hosted yet: the block contributes nothing at all, in text and in HTML alike.
       if (!isVslLive(v)) return [];
-      return [`Watch: ${v.title} - ${appUrl}${watchPath(v.slug)}`];
+      return [`Watch: ${v.title} - ${appUrl}${watchUrlFor(v.slug, { tool: continuation?.slug, resultToken: continuation?.resultToken })}`];
     }
     default:
       return [];
@@ -97,6 +105,7 @@ function blockToHtml(
   module: CalculatorModule,
   hasNumber: boolean,
   appUrl: string,
+  continuation?: RenderInput['continuation'],
 ): string {
   const p = (t: string) =>
     `<p style="margin:0 0 16px;color:#e8e8ea;font-size:15px;line-height:1.7;">${escapeHtml(resolveTokens(t, tokens))}</p>`;
@@ -127,7 +136,7 @@ function blockToHtml(
     case 'video': {
       const v = getVsl(block.vsl);
       if (!isVslLive(v)) return '';
-      const href = `${appUrl}${watchPath(v.slug)}`;
+      const href = `${appUrl}${watchUrlFor(v.slug, { tool: continuation?.slug, resultToken: continuation?.resultToken })}`;
       const mins = v.minutes > 0 ? `${v.minutes} min watch` : 'Watch';
       // A linked poster with a drawn play badge. No <video> and no GIF: Gmail and Outlook render
       // neither, and a broken embed costs the click a poster reliably earns.
@@ -163,9 +172,11 @@ export function renderNurtureEmail(input: RenderInput): RenderedEmail {
   const preview = resolveTokens(email.preview, tokens);
   const { url, label } = input.ctaOverride ?? ctaTarget(email, tokens);
 
-  const bodyHtml = email.body.map((b) => blockToHtml(b, tokens, module, hasNumber, appUrl)).join('');
+  const bodyHtml = email.body
+    .map((b) => blockToHtml(b, tokens, module, hasNumber, appUrl, input.continuation))
+    .join('');
   const bodyText = email.body
-    .flatMap((b) => blockToText(b, tokens, module, hasNumber, appUrl))
+    .flatMap((b) => blockToText(b, tokens, module, hasNumber, appUrl, input.continuation))
     .join('\n\n');
 
   const ctaHtml = url

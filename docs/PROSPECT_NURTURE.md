@@ -304,6 +304,38 @@ both the with-number and without-number branches.
 result's `result_data`. The `numberOrFallback` block renders a with-number line when a figure exists
 and a no-number line for score-only tools (Royalty, Quest Path).
 
+## The VSL series inside the sequence (2026-09-01)
+
+Four videos ride the existing sequence as a `video` block, one per email, in series order: fan worth
+at day 1, what fans pay for at day 4, first 100 fans at day 11, and "what if nobody buys" at day 16
+(`v3.b.if-nobody-buys`, the one email added for them). Three embed into emails that already argued
+the same thesis in prose, so only one touch was added and the front-load shape is intact.
+
+- **The block renders as a poster image linking out, never an embed.** No email client plays video.
+  `src/lib/vsl/catalog.ts` is the registry; a video whose `url` is null renders nothing at all in
+  both HTML and text, which is what let the emails ship before the cuts existed.
+- **The guarantee is named in the VIDEO, not in the email.** The first draft of the day-16 email
+  stated the First Paid Member Guarantee and `sequence.test.ts` refused it. The stated rule is
+  "promise no guaranteed income"; the stronger reason is that the guarantee exists only on the
+  assisted path while this sequence goes to every lead, most of whom never qualify.
+
+### The watch-page CTA continues the ORIGINATING calculator
+
+`/watch/<vsl-slug>` is deep-linked from the email and its CTA must carry the lead onward, not
+sideways. The rule, in `src/lib/vsl/continuation.ts`:
+
+- The email appends `?tool=<the lead's calculator>&result=<their public token>` to the watch link.
+  Those are the same two values `signup_url` already carries; nothing new is derived or stored, and
+  the page has no other channel because no cookie or session identifies a pre-signup lead.
+- The page rebuilds the destination with the canonical `buildContinueUrl` + `continueCtaFor`. It is
+  never handed a URL to redirect to, so no input can produce an off-site redirect, and the tool slug
+  is checked against the registry before it travels.
+- **Which VSL they watched is never a routing input.** The four are one shared series; a Vault
+  planner lead continues into the Vault whether they clicked from video 1 or video 4.
+- **The fallback for a viewer with no context is `/signup?ref=vsl`, not a calculator.** Sending an
+  unknown visitor to `/worth` was the original bug: it is a DIFFERENT calculator for anyone who did
+  not arrive through Streaming Loss, and it silently relabels their origin.
+
 ## Consent, suppression, enrollment + exit rules
 
 - **Consent:** nurture is marketing, so `enrollProspect` requires `emailConsent === true`. The box is

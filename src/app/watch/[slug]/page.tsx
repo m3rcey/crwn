@@ -11,13 +11,12 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import type { Metadata } from 'next';
-import { getVsl, isVslLive, liveVsls, watchPath, VSLS } from '@/lib/vsl/catalog';
+import { getVsl, isVslLive, liveVsls, VSLS } from '@/lib/vsl/catalog';
+import { vslContinuation, watchUrlFor } from '@/lib/vsl/continuation';
 
-export const dynamic = 'force-static';
-
-export function generateStaticParams() {
-  return liveVsls().map((v) => ({ slug: v.slug }));
-}
+// Dynamic, not static: the CTA depends on the viewer's own calculator context, which arrives on
+// the query string from their nurture email. A prerendered page would bake one lead's answer in.
+export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({
   params,
@@ -34,8 +33,20 @@ export async function generateMetadata({
   };
 }
 
-export default async function WatchPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function WatchPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const { slug } = await params;
+  const sp = await searchParams;
+  const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) ?? null;
+
+  // The lead's ORIGINATING calculator, carried from the nurture email. Never the video they are
+  // watching: the four VSLs are one series and which one they opened is not a routing input.
+  const cont = vslContinuation(one(sp.tool), one(sp.result));
   const current = getVsl(slug);
   if (!isVslLive(current)) notFound();
 
@@ -74,10 +85,10 @@ export default async function WatchPage({ params }: { params: Promise<{ slug: st
 
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
-                href="/worth"
+                href={cont.href}
                 className="rounded-full bg-[#D4AF37] px-6 py-3 text-sm font-bold text-black hover:opacity-90"
               >
-                Build my membership
+                {cont.label}
               </Link>
             </div>
           </div>
@@ -92,7 +103,7 @@ export default async function WatchPage({ params }: { params: Promise<{ slug: st
                 return (
                   <li key={v.slug}>
                     <Link
-                      href={watchPath(v.slug)}
+                      href={watchUrlFor(v.slug, { tool: one(sp.tool), resultToken: one(sp.result) })}
                       aria-current={active ? 'true' : undefined}
                       className={`flex gap-3 rounded-xl p-2 transition ${
                         active ? 'bg-white/10' : 'hover:bg-white/5'

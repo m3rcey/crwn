@@ -163,3 +163,44 @@ describe('calculator coverage', () => {
     expect(m.destinationRoute.startsWith('/')).toBe(true);
   });
 });
+
+describe('a VSL link in an email carries the lead forward, not sideways', () => {
+  // The end of the chain the watch page depends on. If the email does not put the lead's OWN
+  // calculator on the watch link, that page has no context and its CTA cannot be right for them,
+  // which is the bug that sent every viewer to the Streaming Loss calculator.
+  const email = PROSPECT_NURTURE_SEQUENCE.emails.find((e) =>
+    e.body.some((b) => b.kind === 'video'),
+  )!;
+  const videoSlug = (email.body.find((b) => b.kind === 'video') as { vsl: string }).vsl;
+
+  const render = (continuation?: { slug: string; resultToken: string | null }) =>
+    renderNurtureEmail({
+      email,
+      tokens: tokens(),
+      module: moduleFor('vault-revenue-planner', null),
+      hasNumber: true,
+      appUrl: 'https://thecrwn.app',
+      continuation,
+    });
+
+  it('puts the originating calculator and saved result on the watch link', () => {
+    const out = render({ slug: 'vault-revenue-planner', resultToken: 'abc' });
+    expect(out.html).toContain(`/watch/${videoSlug}`);
+    expect(out.html).toContain('tool=vault-revenue-planner');
+    expect(out.html).toContain('result=abc');
+    expect(out.text).toContain('tool=vault-revenue-planner');
+  });
+
+  it('never points a non-Streaming-Loss lead at the Streaming Loss calculator', () => {
+    const out = render({ slug: 'vault-revenue-planner', resultToken: 'abc' });
+    expect(out.html).not.toContain('/worth');
+    expect(out.html).not.toContain('tool=worth');
+  });
+
+  it('omits the context entirely rather than guessing when there is none', () => {
+    const out = render(undefined);
+    expect(out.html).toContain(`/watch/${videoSlug}`);
+    expect(out.html).not.toContain('tool=');
+    expect(out.text).not.toContain('tool=');
+  });
+});
