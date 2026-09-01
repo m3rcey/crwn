@@ -138,7 +138,19 @@ export function renderAllTouches(opts: PreviewOptions = {}): PreviewTouch[] {
         qualifiedLabel: email.primaryCta.qualifiedLabel,
       }) ?? undefined;
 
-    const rendered = renderNurtureEmail({ email, tokens, module: mod, hasNumber, appUrl, ctaOverride: override });
+    // The same continuation a real send passes, so a VSL link in the preview carries the lead's
+    // calculator exactly as it will in the inbox. Without this the preview would show a
+    // context-free watch link and quietly stop matching the email that actually goes out, which is
+    // the one thing this file exists to prevent.
+    const rendered = renderNurtureEmail({
+      email,
+      tokens,
+      module: mod,
+      hasNumber,
+      appUrl,
+      ctaOverride: override,
+      continuation: { slug: toolSlug, resultToken: 'previewtoken' },
+    });
     const fallbackLabel =
       email.primaryCta.kind === 'result'
         ? email.primaryCta.label || 'Reopen my result'
