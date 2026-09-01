@@ -733,6 +733,54 @@ export function TierManager() {
               )}
             </div>
 
+            <div>
+              <label className="block text-sm font-medium text-crwn-text-secondary mb-2">
+                In your own words
+              </label>
+              <p className="text-xs text-crwn-text-secondary/70 mb-2">
+                One line per thing this tier includes. Write them exactly as your fans should
+                read them. The checkboxes above cover what CRWN can enforce or schedule (early
+                access, discounts, call cadence); these lines cover everything else, and they
+                show on your page alongside them.
+              </p>
+              <div className="space-y-2">
+                {formData.benefits.map((benefit, idx) => (
+                  <div key={idx} className="flex gap-2">
+                    <input
+                      type="text"
+                      value={benefit}
+                      onChange={(e) => setFormData(prev => ({
+                        ...prev,
+                        benefits: prev.benefits.map((b, i) => (i === idx ? e.target.value : b)),
+                      }))}
+                      placeholder="Stems for every song we finish"
+                      className="flex-1 bg-crwn-bg border border-crwn-elevated rounded-lg px-4 py-2.5 text-crwn-text text-sm"
+                    />
+                    {formData.benefits.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => setFormData(prev => ({
+                          ...prev,
+                          benefits: prev.benefits.filter((_, i) => i !== idx),
+                        }))}
+                        aria-label={`Remove line ${idx + 1}`}
+                        className="px-3 rounded-lg bg-crwn-elevated text-crwn-text-secondary hover:text-crwn-text"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+              <button
+                type="button"
+                onClick={() => setFormData(prev => ({ ...prev, benefits: [...prev.benefits, ''] }))}
+                className="mt-2 text-sm text-crwn-gold hover:underline"
+              >
+                + Add a line
+              </button>
+            </div>
+
             <button
               type="submit"
               disabled={isCreating}
