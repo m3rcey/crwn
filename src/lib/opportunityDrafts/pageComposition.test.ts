@@ -190,6 +190,27 @@ describe('PublicToolClient page order (shared template for 16 tools + OYF)', () 
     expect(result.indexOf('{afterHero}')).toBeLessThan(result.indexOf('heroTiles?.metrics'));
   });
 
+  // The explainer video has to reach EVERY pre-signup result surface, not just the shared one.
+  // There are three renderers, and covering only PublicToolClient is precisely how the email ask
+  // drifted on /worth: an uncovered surface is where a ratified rule goes to rot.
+  it('shows the calculator explainer on every pre-signup result surface', () => {
+    const surfaces: Array<[string, string]> = [
+      ['the shared calculator page', 'src/components/lead-magnets/PublicToolClient.tsx'],
+      ['the standalone /worth page', 'src/app/(public)/worth/WorthExperience.tsx'],
+      ['the tokenized DM result page', 'src/app/(public)/tools/[slug]/result/[token]/page.tsx'],
+    ];
+    for (const [label, file] of surfaces) {
+      const src = readFileSync(join(root, file), 'utf-8');
+      expect(src.indexOf('<ExplainerVideoCard'), `explainer missing from ${label}`).toBeGreaterThan(-1);
+      // Never a hardcoded slug except on /worth, which IS the worth calculator.
+      if (!file.includes('worth')) {
+        expect(src, `${label} hardcodes a calculator for the explainer`).not.toMatch(
+          /<ExplainerVideoCard[\s\S]{0,80}toolSlug="(?!worth")/,
+        );
+      }
+    }
+  });
+
   // /worth is the ONE calculator that does not go through PublicToolClient, so every assertion
   // above missed it entirely. That is exactly why it drifted: its capture card sat after the
   // derivation, after the ladder AND after the builder, which its own code comment had measured

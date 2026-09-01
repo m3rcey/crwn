@@ -29,6 +29,7 @@ import {
 
 import { ToolMarketing } from '@/components/lead-magnets/ToolMarketing';
 import { LadderSection } from '@/components/lead-magnets/LadderSection';
+import { ExplainerVideoCard } from '@/components/lead-magnets/ExplainerVideoCard';
 import { CallRequestCard } from '@/components/lead-magnets/CallRequestCard';
 import { QUALIFY_ANCHOR_ID } from '@/components/lead-magnets/PublicToolClient';
 import { continueCtaFor } from '@/lib/leadMagnets/continuationCta';
@@ -768,6 +769,10 @@ export function WorthExperience({
                 }
               />
             </div>
+            {/* The calculator explainer, in the evidence zone with the ladder and above the
+                builder. /worth does not go through PublicToolClient, which is exactly how the
+                email capture drifted here once, so it is added deliberately, not inherited. */}
+            <ExplainerVideoCard toolSlug="worth" resultToken={resultToken ?? null} />
             {/* The email ask used to render HERE. It now sits inside `resultCard`, directly under
                 the primary CTA and above the stats grid, for the same reason it moved into the
                 hero on the registry calculators: everything between the number and the ask was

@@ -24,6 +24,7 @@ import { getResultByToken, recordView } from '@/lib/leadResults/resultAccess';
 import { CrwnShowcase } from '@/components/lead-magnets/CrwnShowcase';
 import { ToolMarketing } from '@/components/lead-magnets/ToolMarketing';
 import { LadderSection, type ModeledLadderRung } from '@/components/lead-magnets/LadderSection';
+import { ExplainerVideoCard } from '@/components/lead-magnets/ExplainerVideoCard';
 import { CallRequestCard } from '@/components/lead-magnets/CallRequestCard';
 import { CALL_HAND_RAISER_TOOLS } from '@/lib/acquisition/callRequest';
 import type { LeadMagnetInputValues } from '@/lib/leadMagnets/types';
@@ -210,6 +211,10 @@ export default async function ResultPage({
             <LadderSection modeled={modeledLadder} />
           </div>
         )}
+
+        {/* The calculator explainer. This page is where a DM arrival lands, so it shows the
+            same evidence a direct visitor gets, in the same position. */}
+        <ExplainerVideoCard toolSlug={result.toolSlug || slug} resultToken={token} />
 
         {/* The supporting tiles sit BELOW the ask, not inside the hero card above it. On a phone
             that 2x2 grid was roughly 230px of detail wedged between the number and the only
