@@ -218,7 +218,9 @@ export function DropFunnelClient({ token, artist, magnet, gold, goldItem, silver
 
   const verifyCode = useCallback(async (tierId: string) => {
     const token = code.trim();
-    if (token.length < 6) { setCodeError('Enter the 6 digit code.'); return; }
+    // Supabase issues an EIGHT digit OTP on this project (probe-verified), not the six
+    // most code boxes assume. Accepting 6 or more keeps it working if that ever changes.
+    if (token.length < 6) { setCodeError('Enter the code from the email.'); return; }
     setCodeBusy(true);
     setCodeError('');
     try {
@@ -356,7 +358,7 @@ export function DropFunnelClient({ token, artist, magnet, gold, goldItem, silver
               <Mail className="w-4 h-4 text-crwn-gold mt-0.5 shrink-0" />
               <span>
                 {codeSent
-                  ? `We sent a 6 digit code to ${email}. Enter it here and checkout opens.`
+                  ? `We sent a code to ${email}. Enter it here and checkout opens.`
                   : email
                     ? 'Getting your code ready...'
                     : 'Confirm the email you claimed the drop with and we will send a code.'}
@@ -391,7 +393,7 @@ export function DropFunnelClient({ token, artist, magnet, gold, goldItem, silver
                 autoComplete="one-time-code"
                 value={code}
                 onChange={(e) => setCode(e.target.value.replace(/[^0-9]/g, '').slice(0, 8))}
-                placeholder="000000"
+                placeholder="00000000"
                 aria-label="Sign-in code"
                 className="flex-1 rounded-xl bg-crwn-card px-4 py-3 text-lg tracking-[0.3em] text-crwn-text placeholder:text-crwn-text-secondary/50 outline-none"
               />
