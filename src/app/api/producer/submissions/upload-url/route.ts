@@ -3,7 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { getSignedUploadUrl } from '@/lib/r2/client';
 import { checkRateLimit } from '@/lib/rateLimit';
-import { canSubmitToSession, MAX_SUBMISSION_FILE_BYTES } from '@/lib/producer/access';
+import { canSubmitMaterial, MAX_SUBMISSION_FILE_BYTES } from '@/lib/producer/access';
 
 // Mints a signed PUT URL so a FAN's browser uploads a submission (a beat, a vocal)
 // straight to PRIVATE R2. Bytes never pass through our server. The key is scoped
@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
   const limited = !(await checkRateLimit(user.id, 'producer-submit', 3600, 20));
   if (limited) return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
 
-  const gate = await canSubmitToSession(supabaseAdmin, sessionId, user.id);
+  const gate = await canSubmitMaterial(supabaseAdmin, sessionId, user.id);
   if (!gate.ok) {
     const status = gate.reason === 'no_access' ? 403 : gate.reason === 'not_found' ? 404 : 409;
     return NextResponse.json({ error: gate.reason }, { status });

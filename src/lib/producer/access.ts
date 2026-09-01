@@ -61,7 +61,7 @@ export async function canSubmitToSession(
 
   const { data: session } = await admin
     .from('live_sessions')
-    .select('id, artist_id, is_active, is_free, allowed_tier_ids, accepts_submissions, submission_deadline, status')
+    .select('id, artist_id, is_active, is_free, allowed_tier_ids, accepts_submissions, submission_deadline, status, submission_tier_ids')
     .eq('id', sessionId)
     .maybeSingle();
 
@@ -108,4 +108,64 @@ export async function ownsSession(admin: any, sessionId: string, userId: string)
     .eq('user_id', userId)
     .maybeSingle();
   return owned ? { artistId: session.artist_id } : null;
+}
+
+/**
+ * May this fan SUBMIT material, as opposed to merely reach the session?
+ *
+ * `submission_tier_ids` NARROWS the session's watch access. It never widens it, which is
+ * why this is a separate pure step applied AFTER canSubmitToSession has already proved
+ * access: a fan who cannot enter the room can never submit to it, whatever this list says.
+ *
+ *   null / absent  every fan who can watch may submit (the original behaviour, so an
+ *                  existing session keeps its meaning when the column arrives)
+ *   []             nobody may submit; the artist has closed submissions to every rung
+ *                  while leaving the room open. Deliberately NOT read as "everyone":
+ *                  an empty allow list meaning "allow all" is how paid content leaks.
+ *   [ids]          only a fan holding one of these tiers may submit
+ *
+ * A paid ticket is not enough once a list is set. The ticket buys entry to the room and
+ * that promise is kept elsewhere; submitting is what the artist sells on a monthly rung.
+ */
+export function submissionTierAllows(
+  submissionTierIds: unknown,
+  fanTierId: string | null,
+): boolean {
+  if (submissionTierIds === null || submissionTierIds === undefined) return true;
+  if (!Array.isArray(submissionTierIds)) return true; // malformed: fall back to watch access
+  const allowed = submissionTierIds.filter((x): x is string => typeof x === 'string');
+  return !!fanTierId && allowed.includes(fanTierId);
+}
+
+/**
+ * The gate for actually UPLOADING something: session access, then the submission rung.
+ *
+ * Deliberately separate from canSubmitToSession, which the in-session POLL VOTE route also
+ * uses as its access check. Narrowing that shared helper would have stopped a Gold member
+ * voting in a room where only Platinum may submit, which is precisely the split this
+ * feature exists to make possible.
+ */
+export async function canSubmitMaterial(
+  admin: any,
+  sessionId: string,
+  userId: string,
+): Promise<SubmitGate> {
+  const gate = await canSubmitToSession(admin, sessionId, userId);
+  if (!gate.ok) return gate;
+
+  const submissionTiers = (gate.session as { submission_tier_ids?: unknown } | undefined)?.submission_tier_ids;
+  if (submissionTiers === undefined || submissionTiers === null) return gate;
+
+  const { data: sub } = await admin
+    .from('subscriptions')
+    .select('tier_id')
+    .eq('fan_id', userId)
+    .eq('artist_id', (gate.session as { artist_id?: string } | undefined)?.artist_id)
+    .eq('status', 'active')
+    .maybeSingle();
+
+  if (!submissionTierAllows(submissionTiers, sub?.tier_id ?? null)) {
+    return { ok: false, reason: 'no_access', session: gate.session };
+  }
+  return gate;
 }

@@ -1336,6 +1336,10 @@ export const EXPECTED_MIGRATION_STATE: ReadonlyArray<{
   // Per-artist comped plan capabilities. PENDING: every gate reads getEffectiveLimits,
   // and a missing column reads as "no override", so the plan answer stands until it runs.
   { file: 'schema-phase2-artist-plan-overrides.sql', state: 'pending', note: 'Adds artist_profiles.plan_feature_overrides (server-only jsonb) and comps live + DMs to gb only. Additive by construction: applyPlanOverrides ignores false, so an override can never revoke a paid plan capability.' },
+  // Who may SUBMIT to an Executive Producer Session, separately from who may watch.
+  // PENDING and fail-soft in both directions: canSubmitMaterial treats a missing column as
+  // "no restriction", and the create form retries without the field if the column is absent.
+  { file: 'schema-phase2-session-submission-tiers.sql', state: 'pending', note: 'Adds live_sessions.submission_tier_ids (nullable). NARROWING ONLY: checked after the access gate, so it can never admit a fan who cannot reach the session. NULL keeps the original behaviour, so no existing session changes meaning.' },
   // Song Lab (GB experiment). The probe expects song_lab_projects to resolve for anon
   // (public SELECT policy on non-archived rows) and the gate column to answer 42501
   // (no client grant), exactly like launch_partner.

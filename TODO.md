@@ -80,6 +80,21 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **Run one SQL file so GB can let Gold WATCH a session while only Platinum SUBMITS.**
+      Open and run:
+      [`supabase/schema-phase2-session-submission-tiers.sql`](supabase/schema-phase2-session-submission-tiers.sql)
+      One nullable column on live_sessions, nothing destructive, safe to re-run. Until it
+      runs nothing breaks: the gate treats a missing column as "no restriction" and the
+      create form retries without the field, so sessions keep working exactly as today.
+      Why it is needed: GB's Gold rung sells Executive Producer Session viewer access plus
+      in-session voting, and his Platinum rung sells submitting beats, vocals and ideas.
+      One session had ONE tier list answering both questions, so anyone admitted could also
+      upload. After this he sets "who can send something in" separately in /studio/live.
+      Expected on success: one result row reading `session submission tiers applied` with
+      with_submission_list = 0 (no existing session changes meaning).
+      Verify after with: npm run verify:migrations (look for "session submission tiers")
+
+
 - [ ] **Host the four VSL MP4s and paste four URLs. Nothing else turns the videos on.**
       The emails, the poster images, the watch page and the placements are all shipped and inert.
       Each video is dark until its `url` stops being null in

@@ -57,6 +57,9 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
   const [templateKey, setTemplateKey] = useState<string | null>(null);
   // Executive Producer Session fields (only offered while the flag is on + mode=live).
   const [acceptsSubmissions, setAcceptsSubmissions] = useState(false);
+  // null = whoever can watch may submit (the original behaviour). A list narrows it, so a
+  // room can admit Gold to watch and vote while only Platinum may upload.
+  const [submissionTierIds, setSubmissionTierIds] = useState<string[] | null>(null);
   const [submissionPrompt, setSubmissionPrompt] = useState('');
   const [submissionDeadline, setSubmissionDeadline] = useState('');
   const [visibility, setVisibility] = useState<'public' | 'private'>('public');
@@ -222,6 +225,11 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
     setScheduledAt('');
     setTicketPrice(session.price && session.price > 0 ? (session.price / 100).toFixed(2) : '');
     setAcceptsSubmissions(!!session.accepts_submissions);
+    setSubmissionTierIds(
+      Array.isArray((session as { submission_tier_ids?: unknown }).submission_tier_ids)
+        ? ((session as { submission_tier_ids?: string[] }).submission_tier_ids as string[])
+        : null,
+    );
     setSubmissionPrompt(session.submission_prompt || '');
     setSubmissionDeadline('');
     setShowForm(true);
@@ -346,7 +354,7 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
       }
 
       // mode === 'live'
-      const { error } = await supabase.from('live_sessions').insert({
+      const sessionRow: Record<string, unknown> = {
         artist_id: artistId,
         title: title.trim(),
         description: description.trim() || null,
@@ -365,11 +373,26 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
         // Executive Producer Session: fans submit beats/vocals/ideas beforehand.
         // Guarded by the dark-launch flag, so this is only ever true when enabled.
         accepts_submissions: producerEnabled && acceptsSubmissions,
+        // Only meaningful while submissions are on. Null restores "anyone who can watch".
+        submission_tier_ids:
+          producerEnabled && acceptsSubmissions ? submissionTierIds : null,
         submission_prompt: producerEnabled && acceptsSubmissions ? (submissionPrompt.trim() || null) : null,
         submission_deadline: producerEnabled && acceptsSubmissions && submissionDeadline
           ? new Date(submissionDeadline).toISOString()
           : null,
-      });
+      };
+
+      let { error } = await supabase.from('live_sessions').insert(sessionRow);
+      // submission_tier_ids arrives with schema-phase2-session-submission-tiers.sql. Before
+      // it is applied the column does not exist and PostgREST rejects the WHOLE insert, so
+      // shipping this without a retry would stop every artist creating a session until the
+      // founder ran the migration. Drop the field and try once more: the session is created,
+      // and it simply has no submission restriction, which is the pre-migration behaviour.
+      if (error && (error.code === 'PGRST204' || error.code === '42703')) {
+        const { submission_tier_ids: _dropped, ...withoutTiers } = sessionRow;
+        void _dropped;
+        ({ error } = await supabase.from('live_sessions').insert(withoutTiers));
+      }
       if (error) throw error;
       // Funnel: Builder Published. A per-publish key, so each created session is its own event.
       trackFunnel('builder_published', {
@@ -755,6 +778,36 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
                         className="neu-inset w-full px-3 py-2 text-crwn-text placeholder-crwn-text-secondary focus:outline-none resize-none"
                       />
                     </div>
+                    <div>
+                      <label className="block text-crwn-text-secondary text-sm mb-1">Who can send something in?</label>
+                      {/* Separate from who can WATCH. This only ever narrows: a fan who
+                          cannot reach the session can never submit to it, whatever is
+                          picked here. Leaving it on "anyone who can watch" is the
+                          original behaviour. */}
+                      <label className="flex items-center gap-2 cursor-pointer mb-2">
+                        <input
+                          type="checkbox"
+                          checked={submissionTierIds === null}
+                          onChange={(e) => setSubmissionTierIds(e.target.checked ? null : [])}
+                          className="w-4 h-4"
+                        />
+                        <span className="text-crwn-text text-sm">Anyone who can watch</span>
+                      </label>
+                      {submissionTierIds !== null && (
+                        <TierAccessSelect
+                          tiers={tierList}
+                          isFree={false}
+                          allowedTierIds={submissionTierIds}
+                          allowEveryone={false}
+                          onChange={({ allowedTierIds }) => setSubmissionTierIds(allowedTierIds)}
+                        />
+                      )}
+                      <p className="text-crwn-text-secondary text-xs mt-1">
+                        Everyone admitted to the session can still watch and vote. This only
+                        decides who may upload.
+                      </p>
+                    </div>
+
                     <div>
                       <label className="block text-crwn-text-secondary text-sm mb-1">Submissions close (optional)</label>
                       <input

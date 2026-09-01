@@ -98,6 +98,9 @@ const PROBES = [
   // Comped plan capabilities. Server-only column (no client grant), so 42501 is the
   // applied signal and 42703 means the founder has not run it, exactly like launch_partner.
   ['artist plan overrides', 'artist_profiles?select=plan_feature_overrides&limit=1', 'schema-phase2-artist-plan-overrides.sql'],
+  // Session submission tiers. live_sessions is publicly readable (the watch page reads it),
+  // so naming the new column resolves 200 once applied and 42703 while pending.
+  ['session submission tiers', 'live_sessions?select=submission_tier_ids&limit=1', 'schema-phase2-session-submission-tiers.sql'],
   // Song Lab (GB experiment). The projects table has a public SELECT policy, so anon
   // resolves it and gets [] once applied; 42P01/PGRST205 means not run. The gate column is
   // server-only (no client grant) so 42501 is its applied signal, exactly like launch_partner.

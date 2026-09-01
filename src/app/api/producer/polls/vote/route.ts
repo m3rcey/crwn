@@ -65,8 +65,14 @@ export async function POST(req: NextRequest) {
   if (!gate.ok) {
     const owner = await ownsSession(supabaseAdmin, poll.session_id, user.id);
     if (!owner) {
+      // live_sessions, not producer_sessions: that table has never existed (probe:
+      // PGRST205, "Perhaps you meant public.live_sessions"). The typo made this whole
+      // fallback return not_found, so a fan could NEVER vote in a session whose
+      // submission window was closed or whose deadline had passed, which is the normal
+      // state of a room that is taking votes but not uploads. It failed closed, so it was
+      // never a hole, just a benefit nobody could use.
       const { data: s } = await supabaseAdmin
-        .from('producer_sessions')
+        .from('live_sessions')
         .select('id, is_active, is_free, allowed_tier_ids, artist_id')
         .eq('id', poll.session_id)
         .maybeSingle();
