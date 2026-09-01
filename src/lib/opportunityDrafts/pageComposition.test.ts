@@ -158,6 +158,25 @@ describe('PublicToolClient page order (shared template for 16 tools + OYF)', () 
     expect(fullPhase).toMatch(/conversionPayload[\s\S]{0,120}ladder/);
   });
 
+  it('puts the calculator explainer with the ladder, above the builder', () => {
+    // The video answers "is this number real", which is the same job the ladder does, so it sits in
+    // the evidence zone. Above the builder because everything below the builder is behind its
+    // sticky-footer exit, which is the same reason the email ask cannot go there.
+    const explainer = fullPhase.indexOf('<ExplainerVideoCard');
+    const ladder = fullPhase.indexOf('<LadderSection');
+    const builder = fullPhase.indexOf('ref={builderRef}');
+    expect(explainer, 'calculator explainer missing from the result surface').toBeGreaterThan(-1);
+    expect(ladder).toBeLessThan(explainer);
+    expect(explainer).toBeLessThan(builder);
+  });
+
+  it('hands the explainer the artist own calculator, never a hardcoded one', () => {
+    // The watch page it links to continues the viewer into whichever calculator they actually ran.
+    // Passing a literal slug here would send every viewer of every tool into the same one.
+    expect(fullPhase).toMatch(/<ExplainerVideoCard[\s\S]{0,160}toolSlug=\{config\.slug\}/);
+    expect(fullPhase).toMatch(/<ExplainerVideoCard[\s\S]{0,160}resultToken=/);
+  });
+
   it('renders the email ask inside the hero card, above the supporting metric tiles', () => {
     // The reason the ask moved INTO the hero rather than merely up a few siblings: the hero's
     // metric grid renders after `afterHero`, so anything in that slot lands above roughly 230px

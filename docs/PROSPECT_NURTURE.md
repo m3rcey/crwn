@@ -332,6 +332,12 @@ sideways. The rule, in `src/lib/vsl/continuation.ts`:
   is checked against the registry before it travels.
 - **Which VSL they watched is never a routing input.** The four are one shared series; a Vault
   planner lead continues into the Vault whether they clicked from video 1 or video 4.
+- **The LABEL is fixed at "Build My Membership", and this is the one surface that does not use
+  `continueCtaFor`.** That helper names the feature the artist is about to build ("Build My Vault"),
+  which is right on a result page where nothing is speaking. On a video page the narrator has just
+  said "click Build My Membership" out loud, in all five scripts, so a button reading anything else
+  makes the viewer think they are on the wrong control. Label and destination are separate: the
+  destination stays calculator-aware.
 - **The fallback for a viewer with no context is `/signup?ref=vsl`, not a calculator.** Sending an
   unknown visitor to `/worth` was the original bug: it is a DIFFERENT calculator for anyone who did
   not arrive through Streaming Loss, and it silently relabels their origin.

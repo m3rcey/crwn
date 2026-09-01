@@ -13,6 +13,7 @@ const SLUGS = [
   "vsl-2-what-fans-pay-for",
   "vsl-3-first-100-fans",
   "vsl-4-if-nobody-buys",
+  "vsl-calculator",
 ];
 
 const out = path.join("public", "vsl");

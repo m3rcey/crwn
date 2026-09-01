@@ -34,6 +34,7 @@ import { hasDeliverable } from '@/lib/opportunityDrafts/deliverableSpecs';
 import { OYF_TOOL_KEY, type OwnYourFansDraft } from '@/lib/opportunityDrafts/ownYourFansDraft';
 import { recordExperimentEntry } from '@/lib/experiments/client';
 import { CallRequestCard } from './CallRequestCard';
+import { ExplainerVideoCard } from './ExplainerVideoCard';
 import type { GeneratedResult, LeadMagnetConfig, LeadMagnetInputValues } from '@/lib/leadMagnets/types';
 
 // One scrollable page, no view swapping. 'hero' renders the hero AND the wizard beneath it
@@ -511,6 +512,15 @@ export function PublicToolClient({
             if (!Array.isArray(ladder) || ladder.length === 0) return null;
             return <LadderSection modeled={ladder as ModeledLadderRung[]} />;
           })()}
+
+          {/* THE CALCULATOR EXPLAINER, after the result and its CTAs (founder decision 2026-09-01).
+              It sits with the LADDER, in the evidence zone: both answer "is this number real",
+              which is the question a skeptical artist has at exactly this point. It stays ABOVE the
+              builder because anything below the builder sits behind its sticky footer exit, and it
+              is a poster LINK rather than an embedded player so a sixteen minute video cannot push
+              the one action that matters off the screen. Order is pinned by pageComposition:
+              result, ask, ladder, THIS, builder, call. */}
+          <ExplainerVideoCard toolSlug={config.slug} resultToken={publicToken ?? null} />
 
           {/* The email ask used to sit HERE, below the ladder. It now renders inside the hero,
               directly under the primary CTA (see the `afterHero` block above). The rule it has to

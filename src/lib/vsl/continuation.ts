@@ -17,7 +17,7 @@
 // path, never the path itself, so no input here can produce an off-site redirect. The tool slug is
 // additionally checked against the registry, so an unknown slug falls back rather than travelling.
 
-import { buildContinueUrl, continueCtaFor } from '@/lib/leadMagnets/continuationCta';
+import { buildContinueUrl } from '@/lib/leadMagnets/continuationCta';
 import { getLeadMagnet, EXTERNAL_TOOLS } from '@/lib/leadMagnets/registry';
 import { watchPath } from './catalog';
 
@@ -35,7 +35,20 @@ export interface VslContinuation {
  * exists to fix, and it would also silently relabel a lead's origin as Streaming Loss.
  */
 export const VSL_FALLBACK_HREF = '/signup?ref=vsl';
-export const VSL_FALLBACK_LABEL = 'Build My Membership';
+
+/**
+ * The label on every VSL surface, regardless of which calculator the viewer came from.
+ *
+ * This is the one place a VSL surface deliberately does NOT use `continueCtaFor`. That helper names
+ * the exact feature the artist is about to build ("Build My Vault"), which is right on a result page
+ * where nothing is speaking. Here the narrator has just said the words "click Build My Membership"
+ * out loud, in all five scripts, so a button reading anything else makes the viewer wonder whether
+ * they are on the wrong control. The audio is the dominant instruction on a video page.
+ *
+ * The label is fixed. The DESTINATION is still calculator-aware: they land in their own
+ * continuation, not a generic one.
+ */
+export const VSL_CTA_LABEL = 'Build My Membership';
 
 /** A tool slug is only usable if it is a real calculator: registry tool or registered external. */
 export function isKnownTool(slug: string | null | undefined): slug is string {
@@ -57,10 +70,10 @@ export function vslContinuation(
   resultToken: string | null | undefined,
 ): VslContinuation {
   if (!isKnownTool(tool)) {
-    return { href: VSL_FALLBACK_HREF, label: VSL_FALLBACK_LABEL, resolved: false };
+    return { href: VSL_FALLBACK_HREF, label: VSL_CTA_LABEL, resolved: false };
   }
   const token = typeof resultToken === 'string' && resultToken.trim() ? resultToken.trim() : null;
-  return { href: buildContinueUrl(tool, token), label: continueCtaFor(tool), resolved: true };
+  return { href: buildContinueUrl(tool, token), label: VSL_CTA_LABEL, resolved: true };
 }
 
 /**

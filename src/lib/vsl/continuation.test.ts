@@ -4,10 +4,10 @@ import {
   watchUrlFor,
   isKnownTool,
   VSL_FALLBACK_HREF,
-  VSL_FALLBACK_LABEL,
+  VSL_CTA_LABEL,
 } from './continuation';
 import { VSLS } from './catalog';
-import { buildContinueUrl, continueCtaFor } from '@/lib/leadMagnets/continuationCta';
+import { buildContinueUrl } from '@/lib/leadMagnets/continuationCta';
 
 const TOKEN = 'pub_tok_abc123';
 
@@ -27,7 +27,8 @@ describe('a VSL viewer continues the calculator they already finished', () => {
     // The bug being fixed: this lead must never be handed the Streaming Loss calculator.
     expect(c.href).not.toContain('tool=worth');
     expect(c.href).not.toMatch(/^\/worth\b/);
-    expect(c.label).toBe(continueCtaFor('vault-revenue-planner'));
+    // The label matches what the narrator says out loud, even though the destination is theirs.
+    expect(c.label).toBe('Build My Membership');
   });
 
   it('carries the saved result token, which is what restores the plan after signup', () => {
@@ -83,7 +84,7 @@ describe('missing or hostile context', () => {
       const c = vslContinuation(bad as string | null, TOKEN);
       expect(c.resolved, String(bad)).toBe(false);
       expect(c.href).toBe(VSL_FALLBACK_HREF);
-      expect(c.label).toBe(VSL_FALLBACK_LABEL);
+      expect(c.label).toBe(VSL_CTA_LABEL);
       // The whole point: an unknown viewer is not silently relabelled as a Streaming Loss lead.
       expect(c.href).not.toMatch(/^\/worth\b/);
       expect(c.href).not.toContain('tool=');

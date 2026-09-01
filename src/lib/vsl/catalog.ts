@@ -65,9 +65,30 @@ export const VSLS: Vsl[] = [
   },
 ];
 
-/** One VSL by slug, whether or not it is live. */
+/**
+ * The Calculator VSL. Deliberately NOT in `VSLS`.
+ *
+ * It is a different job: the four in the series are the pre-signup nurture drip, this one plays on
+ * the calculator result page for someone who just saw their number and is deciding whether to
+ * believe it. Keeping it out of `VSLS` keeps it out of `liveVsls()`, so it never appears in the
+ * nurture rail and is never counted as one of the four.
+ */
+export const CALCULATOR_VSL: Vsl = {
+  slug: 'vsl-calculator',
+  n: 0,
+  title: 'Why your number is what it is',
+  question: 'The full walk through of how the estimate is built, and what it is not.',
+  minutes: 16,
+  poster: '/vsl/vsl-calculator.webp',
+  url: 'https://pub-490263a6ac304986851fbf65e6f3ff13.r2.dev/vsl/vsl-calculator.mp4',
+};
+
+/** Everything the watch route can resolve: the nurture series plus the calculator explainer. */
+export const ALL_VSLS: Vsl[] = [...VSLS, CALCULATOR_VSL];
+
+/** One VSL by slug, whether or not it is live. Searches the series AND the calculator explainer. */
 export function getVsl(slug: string): Vsl | null {
-  return VSLS.find((v) => v.slug === slug) ?? null;
+  return ALL_VSLS.find((v) => v.slug === slug) ?? null;
 }
 
 /**
@@ -78,7 +99,11 @@ export function isVslLive(v: Vsl | null): v is Vsl {
   return Boolean(v && v.url);
 }
 
-/** The live videos, in series order. Empty until the first one is hosted. */
+/**
+ * The live NURTURE SERIES, in order. This is what the watch page's rail lists, so it deliberately
+ * excludes the calculator explainer: that video is not one of the four and listing it would make
+ * the "N of 4" counter lie.
+ */
 export function liveVsls(): Vsl[] {
   return VSLS.filter(isVslLive);
 }
