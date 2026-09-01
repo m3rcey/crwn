@@ -182,8 +182,18 @@ export function DropFunnelClient({ token, artist, magnet, gold, goldItem, silver
     setCodeBusy(true);
     setCodeError('');
     try {
-      const { error: vErr } = await supabase.auth.verifyOtp({ email, token, type: 'email' });
-      if (vErr) { setCodeError(vErr.message); return; }
+      // TWO TOKEN TYPES, because a fan can be in either identity state and the page
+      // cannot know which. A captured contact is created by admin.createUser with no
+      // email_confirm, so they are UNCONFIRMED and Supabase issues their code through
+      // the signup confirmation flow ('signup'). A fan who already confirmed an address
+      // gets an ordinary email OTP ('email'). Trying both is not sloppiness: each is a
+      // real state this funnel produces, and neither verifies a token issued for the
+      // other, so a wrong guess fails closed rather than letting anyone in.
+      let vErr = (await supabase.auth.verifyOtp({ email, token, type: 'email' })).error;
+      if (vErr) {
+        vErr = (await supabase.auth.verifyOtp({ email, token, type: 'signup' })).error;
+      }
+      if (vErr) { setCodeError('That code did not work. Check it and try again.'); return; }
       setHasSession(true);
       setCodeForTier(null);
       // Straight into checkout for the tier they pressed. The intent survives.
