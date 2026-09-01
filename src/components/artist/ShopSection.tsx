@@ -177,17 +177,27 @@ export function ShopSection({ products, artistId, artistSlug, merchStoreUrl }: S
             const product = products.find(p => p.id === successProduct);
             if (!product) return null;
             
-            if (product.type === 'digital' && product.file_url) {
+            if (product.type === 'digital' && (product.file_key || product.file_url)) {
+              // The link is minted per click by /api/products/download, which re-checks
+              // the purchase server-side. It is never a durable URL sitting in the page:
+              // this used to render products.file_url, a permanent public link on a row
+              // every visitor can read.
               return (
-                <a
-                  href={product.file_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <button
+                  onClick={async () => {
+                    const res = await fetch(`/api/products/download?id=${encodeURIComponent(product.id)}`);
+                    const data = await res.json().catch(() => ({}));
+                    if (!res.ok || !data.url) {
+                      alert(data.error || 'That file is not available right now.');
+                      return;
+                    }
+                    window.open(data.url, '_blank', 'noopener,noreferrer');
+                  }}
                   className="flex items-center gap-2 text-crwn-text hover:text-crwn-gold"
                 >
                   <Download className="w-4 h-4" />
                   Download your file
-                </a>
+                </button>
               );
             } else if (product.type === 'experience') {
               return (

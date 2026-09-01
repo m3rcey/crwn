@@ -80,6 +80,31 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **Run three migrations, in this order, to finish GB's offer.** They are independent, but
+      run them in order anyway so a failure stops at a known point. Each one self-verifies and
+      will raise loudly rather than half-land.
+
+      1. [supabase/schema-phase2-product-file-privacy.sql](supabase/schema-phase2-product-file-privacy.sql)
+         Adds `products.file_key`. Until this runs, saving a digital product WITH a file fails
+         and the artist is told the upload failed. **This one is the security fix**, so it goes
+         first: the code that used to publish a paid file at a permanent public URL is already
+         gone, and this gives the replacement somewhere to store its private key.
+      2. [supabase/schema-phase2-member-files.sql](supabase/schema-phase2-member-files.sql)
+         One table, `member_files`, for stems and member-only downloads. Until this runs, the
+         Studio panel says member downloads are not switched on and nothing else changes.
+      3. [supabase/schema-phase2-free-join-sequence-trigger.sql](supabase/schema-phase2-free-join-sequence-trigger.sql)
+         Lets a sequence trigger on `free_join`. Until this runs, you cannot SAVE a free-join
+         sequence, so a free member gets no nurture email. Free joins themselves work either way.
+
+      Then, from the repo: `npm run verify:migrations` for 1 and 2, and run
+      [supabase/check-unverified-feature-state.sql](supabase/check-unverified-feature-state.sql)
+      for 3 (a CHECK constraint is invisible to the anon probe, so SQL is the only honest check).
+
+- [ ] **After migration 3, build GB's free-join welcome sequence, or Bronze members get nothing.**
+      Studio, Fans, Sequences, new sequence, trigger "Joined a free tier". One email is enough to
+      start. Nothing auto-creates it: a sequence CRWN wrote for an artist would be CRWN emailing
+      that artist's fans in their name.
+
 - [ ] **Make a PUBLIC R2 bucket for the VSLs, then run one command.** The five cuts are finished
       and sitting in `videos/output`. They are already web-ready (1080p H.264, 1.6 to 2.2 Mbps,
       moov atom at the front), so nothing needs re-encoding. What is missing is somewhere public

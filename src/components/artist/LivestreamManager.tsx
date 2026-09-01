@@ -202,6 +202,9 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
     setScheduledAt('');
     setTicketPrice('');
     setAcceptsSubmissions(false);
+    // Must reset with the rest, or the next session created in this mount silently
+    // inherits the previous one's submission rung.
+    setSubmissionTierIds(null);
     setSubmissionPrompt('');
     setSubmissionDeadline('');
     setShowForm(false);
@@ -835,7 +838,13 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
                 ((mode === 'live' || visibility === 'public') &&
                   !isFree &&
                   selectedTiers.length === 0 &&
-                  !(parseFloat(ticketPrice) > 0))
+                  !(parseFloat(ticketPrice) > 0)) ||
+                // Submissions on, but the rung list narrowed to nobody. Empty means NOBODY
+                // by design (an empty allow list must never read as "everyone"), so saving
+                // this would advertise submissions no one could ever make. Either pick a
+                // rung or leave it on "anyone who can watch".
+                (producerEnabled && acceptsSubmissions &&
+                  submissionTierIds !== null && submissionTierIds.length === 0)
               }
               className="neu-button-accent w-full py-2 rounded-xl font-semibold disabled:opacity-50"
             >

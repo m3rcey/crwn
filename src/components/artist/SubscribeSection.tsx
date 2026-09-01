@@ -12,6 +12,7 @@ import { getPersistedReferralCode, getPersistedAttributionSource } from '@/compo
 import { useTierViewTracker } from '@/hooks/useTierViewTracker';
 import { useArtistPreview } from '@/hooks/useArtistPreview';
 import { Check, Loader2, X } from 'lucide-react';
+import { safeInternalPath } from '@/lib/journey/resolveJourneyDestination';
 
 interface SubscribeButtonProps {
   tiers: TierConfig[];
@@ -189,6 +190,17 @@ interface TierCardsProps {
   artistId: string;
 }
 
+// Where to send a signed-out fan back to. It is the CURRENT url, search string included,
+// so a fan who arrived on a tagged DM link (utm_source, campaign, ref) returns to the same
+// tagged url and the attribution the checkout call reads is still on it. Sending them to a
+// bare /login dropped the artist AND the campaign: the deep link worked right up to the
+// moment the fan acted on it.
+function loginWithReturn(): string {
+  if (typeof window === 'undefined') return '/login';
+  const here = safeInternalPath(`${window.location.pathname}${window.location.search}`);
+  return here ? `/login?next=${encodeURIComponent(here)}` : '/login';
+}
+
 export function TierCards({ tiers, artistSlug, artistId }: TierCardsProps) {
   const { embedded } = useArtistPreview();
   const { user } = useAuth();
@@ -264,7 +276,7 @@ export function TierCards({ tiers, artistSlug, artistId }: TierCardsProps) {
       return;
     }
     if (!user) {
-      router.push('/login');
+      router.push(loginWithReturn());
       return;
     }
 
@@ -307,7 +319,7 @@ export function TierCards({ tiers, artistSlug, artistId }: TierCardsProps) {
   const handleUpgradeOrDowngrade = async (tier: TierConfig) => {
     hapticMedium();
     if (!user) {
-      router.push('/login');
+      router.push(loginWithReturn());
       return;
     }
 

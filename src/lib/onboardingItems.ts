@@ -135,10 +135,11 @@ export async function createOnboardingTier(
 export async function createOnboardingProduct(
   supabase: Supa,
   artistId: string,
-  // fileUrl: the delivered file for a digital product (uploaded by the caller to
-  // the same `album-art` bucket / `{artistId}/product-files/` path ShopManager
-  // uses). Optional so existing callers (the setup wizard) are unchanged.
-  { type, title, priceCents, fileUrl }: { type: ProductType; title: string; priceCents: number; fileUrl?: string | null }
+  // fileKey: the PRIVATE object key for a digital product's file. The caller uploads
+  // through /api/products/upload-url, which mints the key; the bytes are reachable
+  // only via /api/products/download after a purchase check. Optional, so existing
+  // callers (the setup wizard, which attaches no file) are unchanged.
+  { type, title, priceCents, fileKey }: { type: ProductType; title: string; priceCents: number; fileKey?: string | null }
 ): Promise<Result> {
   const { error } = await supabase.from('products').insert({
     artist_id: artistId,
@@ -151,7 +152,7 @@ export async function createOnboardingProduct(
     is_free: priceCents === 0,
     allowed_tier_ids: [],
     delivery_type: type === 'experience' ? 'scheduled' : type === 'physical' ? 'shipped' : 'instant',
-    file_url: fileUrl ?? null,
+    file_key: fileKey ?? null,
     is_active: true,
   });
   if (error) return { error: error.message };

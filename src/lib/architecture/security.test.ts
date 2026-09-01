@@ -832,6 +832,13 @@ describe('SEC-SERVICE — service-role routes are the only authorization boundar
     'src/app/api/surveys/route.ts',
     'src/app/api/producer/flag/route.ts',
     'src/app/api/notifications/new-artist-hook/route.ts',
+    // Fan recognition labels for a public artist page. A signed-out reader must see the
+    // same badges every other reader sees, so requiring a session would make the feature
+    // depend on who is looking. It reads no other tenant's rows in any meaningful sense:
+    // every requested fan id is first intersected with the authors of that artist's own
+    // public posts, and what comes back is a tier NAME the page already displays. No
+    // price, spend, status, tier id or date leaves this route.
+    'src/app/api/recognition/route.ts',
     // Internal SMS alert consent. Public because a Twilio campaign reviewer has no CRWN
     // account and must be able to walk the opt-in experience end to end; that is the whole
     // reason the page exists. It is the most capability-free public write in CRWN: it holds
@@ -909,11 +916,18 @@ describe('SEC-SERVICE — service-role routes are the only authorization boundar
     // signature in the same class as constructEvent (Stripe) and verifyCalcomRequest, and
     // the HMAC itself is pinned against Twilio's published test vector in
     // src/lib/sms/keywords.test.ts, so this name cannot come to mean nothing.
+    // requireMemberFilesArtist (src/lib/memberFiles/server.ts): same class as
+    // requireSongLabArtist. It calls auth.getUser() on the session client and resolves the
+    // caller's OWN artist_profiles row by user_id; it takes no artist id from the request
+    // and has no parameter that could carry one, so a caller can name a bundle but never
+    // name whose bundle it is. Named specifically rather than `requireArtist` so this
+    // pattern can never come to bless some other, weaker helper that happens to share a
+    // generic name.
     // verifyMetaSignature: the Meta (Instagram + Facebook) webhook's authority. A provider
     // signature in the same class as constructEvent (Stripe) and verifyCalcomRequest:
     // HMAC-SHA256 of the raw body under the app secret, timing-safe, fails closed with no
     // configured secret, pinned by test vectors in src/lib/webhookSignatures.meta.test.ts.
-    const ESTABLISHES = /auth\.getUser\s*\(|requireAdmin\s*\(|requireArtistOwner\s*\(|requireSongLabArtist\s*\(|getOwnedArtistIds\s*\(|CRON_SECRET|INTERNAL_[A-Z_]*SECRET|constructEvent\s*\(|verifyWebhookSignature\s*\(|verifyTwilioSignature\s*\(|verifyMetaSignature\s*\(|WebhookReceiver|createHmac\s*\(|verifyUnsubscribe[A-Za-z]*\s*\(|verifyCalcomRequest\s*\(|presentedSecret/;
+    const ESTABLISHES = /auth\.getUser\s*\(|requireAdmin\s*\(|requireArtistOwner\s*\(|requireSongLabArtist\s*\(|requireMemberFilesArtist\s*\(|getOwnedArtistIds\s*\(|CRON_SECRET|INTERNAL_[A-Z_]*SECRET|constructEvent\s*\(|verifyWebhookSignature\s*\(|verifyTwilioSignature\s*\(|verifyMetaSignature\s*\(|WebhookReceiver|createHmac\s*\(|verifyUnsubscribe[A-Za-z]*\s*\(|verifyCalcomRequest\s*\(|presentedSecret/;
     const offenders = serviceRoleRoutes
       .filter(f => !DELIBERATELY_PUBLIC.has(f))
       .filter(f => !ESTABLISHES.test(readStripped(f)));

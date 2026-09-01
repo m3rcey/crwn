@@ -154,7 +154,10 @@ export interface Product {
   is_free: boolean;
   allowed_tier_ids: string[];
   delivery_type: DeliveryType;
+  /** LEGACY public URL. No longer written; null on every production row. */
   file_url: string | null;
+  /** PRIVATE R2 object key. Served only via /api/products/download after a purchase check. */
+  file_key: string | null;
   duration_minutes: number | null;
   max_quantity: number | null;
   quantity_sold: number;

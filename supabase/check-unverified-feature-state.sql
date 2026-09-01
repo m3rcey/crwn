@@ -147,3 +147,15 @@ SELECT 'schema-phase2-founder-test-exclusion.sql' AS migration,
           WHERE table_name = 'artist_profiles'
             AND column_name = 'is_founder_test'
        ) AS applied;
+
+-- 9. Free-join sequence trigger (2026-08-31). 'sql-check' because a CHECK constraint is
+--    invisible to PostgREST: an anon SELECT on `sequences` answers the same whether or not
+--    the constraint admits 'free_join', and proving it by INSERT needs a write anon cannot
+--    make. So the constraint's own definition is the evidence.
+--    Expect applied = true after running supabase/schema-phase2-free-join-sequence-trigger.sql.
+SELECT 'schema-phase2-free-join-sequence-trigger.sql' AS migration,
+       EXISTS (
+         SELECT 1 FROM pg_constraint
+          WHERE conname = 'sequences_trigger_type_check'
+            AND pg_get_constraintdef(oid) LIKE '%free_join%'
+       ) AS applied;

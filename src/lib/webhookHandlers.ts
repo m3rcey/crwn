@@ -27,6 +27,7 @@ import { subscriptionEarningNet } from '@/lib/earningsNet';
 import { maybeCreateVipWelcomeTask } from '@/lib/promiseTasks';
 import { recordFirstPaidConversion } from '@/lib/analytics/paidConversion';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { enrollInSequence } from '@/lib/sequences/enroll';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AdminClient = SupabaseClient<any, any, any>;
@@ -2665,59 +2666,6 @@ export async function handleCheckoutExpired(supabaseAdmin: AdminClient, session:
 }
 
 // ─── Shared: enroll fan in a sequence by trigger type ─────────────────────────
-
-async function enrollInSequence(
-  supabaseAdmin: AdminClient,
-  artistId: string,
-  fanId: string,
-  triggerType: string,
-) {
-  try {
-    const { data: sequence } = await supabaseAdmin
-      .from('sequences')
-      .select('id')
-      .eq('artist_id', artistId)
-      .eq('trigger_type', triggerType)
-      .eq('is_active', true)
-      .limit(1)
-      .maybeSingle();
-
-    if (!sequence) return;
-
-    // Check not already enrolled (active or completed)
-    const { data: existing } = await supabaseAdmin
-      .from('sequence_enrollments')
-      .select('id')
-      .eq('sequence_id', sequence.id)
-      .eq('fan_id', fanId)
-      .in('status', ['active', 'completed'])
-      .maybeSingle();
-
-    if (existing) return;
-
-    const { data: firstStep } = await supabaseAdmin
-      .from('sequence_steps')
-      .select('delay_days')
-      .eq('sequence_id', sequence.id)
-      .eq('step_number', 1)
-      .single();
-
-    if (firstStep) {
-      const nextSendAt = new Date(Date.now() + firstStep.delay_days * 24 * 60 * 60 * 1000).toISOString();
-      await supabaseAdmin.from('sequence_enrollments').insert({
-        sequence_id: sequence.id,
-        fan_id: fanId,
-        artist_id: artistId,
-        current_step: 0,
-        status: 'active',
-        next_send_at: nextSendAt,
-      });
-      console.log(`Enrolled fan ${fanId} in ${triggerType} sequence ${sequence.id}`);
-    }
-  } catch (err) {
-    console.error(`Sequence enrollment (${triggerType}) failed:`, err);
-  }
-}
 
 // ─── Platform sequence enrollment (CRWN → artist) ────────────────────────────
 

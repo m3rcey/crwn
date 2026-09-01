@@ -43,7 +43,23 @@ export async function GET(req: NextRequest) {
 
   const { data, error } = await query;
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ enabled: true, isOwner: !!owner, submissions: data || [] });
+
+  // Whether this fan may actually SUBMIT, resolved by the same gate the write paths use.
+  // Without it the panel rendered a full upload form to a Gold viewer in a Platinum-only
+  // room and only failed at the end, reporting "You need a seat" to someone who has one.
+  // The owner is never a submitter to their own session.
+  const gate = owner ? null : await canSubmitMaterial(supabaseAdmin, sessionId, user.id);
+  const canSubmit = owner ? false : !!gate?.ok;
+
+  return NextResponse.json({
+    enabled: true,
+    isOwner: !!owner,
+    canSubmit,
+    // 'no_access' here means "in the room, but not on a submitting rung" — a different
+    // thing from being unable to reach the session, and the panel says so.
+    submitReason: owner ? 'owner' : (gate?.ok ? 'ok' : gate?.reason ?? 'no_access'),
+    submissions: data || [],
+  });
 }
 
 // POST /api/producer/submissions

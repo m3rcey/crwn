@@ -260,7 +260,7 @@ function OfferBuilder() {
   const [productTitle, setProductTitle] = useState('');
   const [productType, setProductType] = useState<Exclude<ProductType, 'experience' | 'bundle'>>('digital');
   // Digital deliverable file — uploaded on the 'upload' step, attached at publish.
-  const [productFileUrl, setProductFileUrl] = useState<string | null>(null);
+  const [productFileKey, setProductFileKey] = useState<string | null>(null);
   const [productFileName, setProductFileName] = useState('');
   const [uploadingFile, setUploadingFile] = useState(false);
   const [shareOn, setShareOn] = useState(false);
@@ -392,7 +392,7 @@ function OfferBuilder() {
       setProductType(g.productType);
     }
     // A file uploaded for a previous goal must not ride along to the new one.
-    setProductFileUrl(null);
+    setProductFileKey(null);
     setProductFileName('');
   };
 
@@ -400,30 +400,44 @@ function OfferBuilder() {
     setProductType(t);
     // Physical ships — never attach a previously uploaded digital file to it.
     if (t === 'physical') {
-      setProductFileUrl(null);
+      setProductFileKey(null);
       setProductFileName('');
     }
   };
 
-  // Same bucket + path convention + public-URL derivation as ShopManager's
-  // digital product file upload, so wizard files deliver identically to
-  // Shop-tab files (album-art bucket, {artistId}/product-files/).
+  // Same private path as ShopManager's digital product upload, so a file attached
+  // here delivers exactly like one attached in the Shop tab. Both sites used to put
+  // the file in the PUBLIC media bucket and save its permanent public URL onto a row
+  // every visitor can read; the key is now minted server-side and the bytes are only
+  // reachable through /api/products/download after a purchase check.
   const handleFileSelect = async (file: File | null) => {
     if (!file || !artistId || uploadingFile) return;
     setUploadingFile(true);
     try {
-      const ext = file.name.split('.').pop();
-      const fileName = `${Date.now()}-product.${ext}`;
-      const path = `${artistId}/product-files/${fileName}`;
-      const { error: uploadError } = await supabase.storage.from('album-art').upload(path, file);
-      if (uploadError) {
-        showToast(`Upload failed: ${uploadError.message}`, 'error');
+      const signRes = await fetch('/api/products/upload-url', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          filename: file.name,
+          contentType: file.type || 'application/octet-stream',
+          fileSize: file.size,
+        }),
+      });
+      const signed = await signRes.json().catch(() => ({}));
+      if (!signRes.ok || !signed.uploadUrl) {
+        showToast(signed.error || 'Upload failed. Please try again.', 'error');
         return;
       }
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from('album-art').getPublicUrl(path);
-      setProductFileUrl(publicUrl);
+      const put = await fetch(signed.uploadUrl, {
+        method: 'PUT',
+        headers: { 'Content-Type': file.type || 'application/octet-stream' },
+        body: file,
+      });
+      if (!put.ok) {
+        showToast('Upload failed. Please try again.', 'error');
+        return;
+      }
+      setProductFileKey(signed.key);
       setProductFileName(file.name);
     } catch (e) {
       showToast(e instanceof Error ? e.message : 'Upload failed. Please try again.', 'error');
@@ -444,7 +458,7 @@ function OfferBuilder() {
         return productTitle.trim() !== '';
       case 'upload':
         // The file IS the product for a digital deliverable — required.
-        return productFileUrl !== null;
+        return productFileKey !== null;
       case 'share':
         return !shareOn || (sharePercent.trim() !== '' && Number(sharePercent) >= 0 && Number(sharePercent) <= 50);
       case 'clip':
@@ -526,7 +540,7 @@ function OfferBuilder() {
               priceCents,
               // Digital deliverables ship complete: the file uploaded on the
               // upload step is attached now, not "added later in the Shop tab".
-              fileUrl: deliversFile ? productFileUrl : null,
+              fileKey: deliversFile ? productFileKey : null,
             })
           )
         ).error;
@@ -748,7 +762,7 @@ function OfferBuilder() {
             <div className="space-y-4">
               <label
                 className={`block cursor-pointer rounded-xl border px-4 py-8 text-center transition-colors ${
-                  productFileUrl ? 'border-crwn-gold bg-crwn-gold/10' : 'border-crwn-elevated hover:border-crwn-gold/40'
+                  productFileKey ? 'border-crwn-gold bg-crwn-gold/10' : 'border-crwn-elevated hover:border-crwn-gold/40'
                 } ${uploadingFile ? 'opacity-60 pointer-events-none' : ''}`}
               >
                 {uploadingFile ? (
@@ -756,7 +770,7 @@ function OfferBuilder() {
                     <span className="animate-spin rounded-full h-5 w-5 border-b-2 border-crwn-gold" />
                     Uploading…
                   </span>
-                ) : productFileUrl ? (
+                ) : productFileKey ? (
                   <span className="flex flex-col items-center gap-1">
                     <span className="inline-flex items-center gap-2 text-crwn-text font-medium">
                       <Check className="w-5 h-5 text-crwn-gold" />

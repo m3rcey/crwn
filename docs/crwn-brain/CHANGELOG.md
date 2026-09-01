@@ -1,5 +1,67 @@
 # CRWN Brain — Changelog
 
+## 2026-09-01 - A paid file that would have been public on first upload, and the four gaps under GB's offer
+
+**Code shipped. Three migrations written and NOT applied** (registered pending in
+`EXPECTED_MIGRATION_STATE`; founder actions are in TODO.md with the run order). Every path
+below is written to survive its own migration being absent, so nothing here is dark-launched
+in the sense of broken: the feature reports itself unavailable rather than failing.
+
+**The product-file leak was structurally real and NOT yet exploitable, and the difference is
+the whole story.** `ShopManager` uploaded a paid digital product's file into the PUBLIC
+`album-art` bucket and stored `getPublicUrl(...)` on `products.file_url`, a column the public
+artist page reads for every visitor. Anyone reading the storefront row would have had a
+permanent, unauthenticated link to a file someone else paid for. A production probe found 8
+products and **ZERO carrying a file_url**, so nothing has leaked; it would have become a live
+leak on the first digital product an artist uploaded. The offer wizard at `/offers/new` held
+a second copy of the same code.
+
+**It is fixed at the SOURCE, not by revoking the column, and that was forced.**
+`src/app/[slug]/page.tsx` reads products with `select('*')`, and naming a revoked column
+42501s the entire statement (embedded joins included), so a revoke would have emptied every
+storefront on the platform. Both upload sites now POST to `/api/products/upload-url`, which
+mints a PRIVATE key server-side under the artist's own folder; the row stores `file_key`, and
+the bytes are reachable only through `/api/products/download`, which requires a `purchases`
+row with `status = 'completed'` (or artist ownership) and returns a 300-second signed URL.
+`file_url` is left readable and simply never written again.
+
+**Member downloads (stems) are the same shape, deliberately.** `member_files` holds KEYS,
+never URLs; RLS is on with anon and authenticated revoked BY NAME, so every read and write
+goes through a route that resolves the artist from the session. A fan asks for a bundle id
+and a file INDEX, never a key: if the request carried the key, possession of a key would be
+the capability, and keys leak. An empty `allowed_tier_ids` means NOBODY, never everybody.
+
+**A badge only its owner could see is not recognition.** The comment badge was drawn from a
+browser query against `subscriptions`, whose RLS returns only the caller's own row, so every
+fan saw a badge beside their own name and none beside anyone else's. Opening that table would
+publish who pays an artist what, so the answer moved server-side (`/api/recognition`), which
+returns tier NAMES only: no price, spend, status, tier id or date. Day One comes from the
+existing `subscriptions.is_founder` and is PERMANENT (being early does not stop being true
+when a card expires); the tier label is CURRENT and disappears on cancellation.
+
+**A public route that takes a fan id is an enumeration surface until it is bounded.** The
+recognition route is public on purpose (a signed-out reader must see the same badges as
+everyone else), which meant it would have answered "is this person a member of this artist,
+and on which rung" for any user id pasted in. Every requested id is now intersected with the
+authors of that artist's own public posts, so disclosure equals exactly what the page already
+renders.
+
+**The deep link worked right up to the moment the fan acted on it.** `SubscribeSection` sent a
+signed-out fan to a bare `/login`, dropping both the artist and the campaign tags on the URL
+they arrived with. It now returns them to the current path AND search string, so a fan from a
+tagged DM link comes back to the same tagged URL and the attribution the checkout call reads
+is still on it.
+
+**Free members were enrolled in nothing.** `enrollInSequence` was private to
+`webhookHandlers.ts`, so only paid events could reach it; it is now `src/lib/sequences/enroll.ts`
+and a free join calls the same canonical writer. It stays opt-in: no sequence carries the
+`free_join` trigger until an artist builds one, and CRWN never writes one for them.
+
+**Gold vs Platinum A&R needed no code.** Song Lab decisions already validate
+`allowed_tier_ids` server-side against the artist's own tiers, and `checkVote` enforces exact
+membership, so "Gold and above" and "Platinum only" were already expressible and already
+enforced. Verified rather than assumed, and nothing was added.
+
 ## 2026-09-01 - GB's ladder is deliverable, and a capability column an artist could have set on themselves
 
 **Three migrations applied and probe-verified.** `verify:migrations` reports 0 not applied:

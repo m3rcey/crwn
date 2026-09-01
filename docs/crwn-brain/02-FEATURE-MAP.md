@@ -1,5 +1,24 @@
 # 02 — Feature Map
 
+## Member downloads (stems) — code live, migration PENDING (2026-09-01)
+
+An artist adds a bundle of files in Studio, Music, and picks which rungs can download it.
+Fans see every bundle on the artist page: entitled ones list their files, locked ones show a
+title and the rung that unlocks them, because a benefit nobody can see is not a benefit. The
+files are private from upload to download. Artist surface `MemberFilesManager`, fan surface
+`MemberFilesSection`, logic `src/lib/memberFiles/core.ts` (pure, tested), routes under
+`/api/member-files`. Until `schema-phase2-member-files.sql` is applied the Studio panel says
+member downloads are not switched on and the fan section renders nothing.
+
+## Fan recognition — live (2026-09-01)
+
+Two statuses that behave differently on purpose: **Day One** is earned and PERMANENT (from
+`subscriptions.is_founder`, survives cancellation) and the **tier label** is CURRENT and ends
+with the membership. Labels are the artist's own tier names, never an industry role, so a badge
+can never be read as a songwriting or production credit. Resolved server-side by
+`/api/recognition` because `subscriptions` RLS returns only the caller's own row; the route
+returns names only, and only for people who have actually posted on that artist's page.
+
 > Complete inventory grounded in `src/`. Status vocabulary: **Production-ready** (routed + real Supabase data + protected) · **Partial** · **Experimental/dark-launched** · **Legacy/deprecated** · **Unused/dead** · **Unclear**. A component existing does NOT mean the feature works — status reflects wiring + data + protection.
 
 ## Navigation reality

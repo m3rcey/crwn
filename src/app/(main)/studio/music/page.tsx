@@ -2,6 +2,7 @@
 
 import { HubPage } from '@/components/layout/HubPage';
 import { MusicManager } from '@/components/artist/MusicManager';
+import { MemberFilesManager } from '@/components/artist/MemberFilesManager';
 
 export default function StudioMusicPage() {
   return (
@@ -14,6 +15,9 @@ export default function StudioMusicPage() {
       width="wide"
     >
       <MusicManager />
+      <div className="mt-10">
+        <MemberFilesManager />
+      </div>
     </HubPage>
   );
 }

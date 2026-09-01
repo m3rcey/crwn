@@ -64,28 +64,26 @@ export function CommentSection({
       // Get unique author IDs
       const authorIds = [...new Set(commentsData.map(c => c.author_id))];
 
-      // Fetch active subscriptions and tier benefits for all authors
-      const { data: subscriptions } = await supabase
-        .from('subscriptions')
-        .select('fan_id, tier_id, tier:tier_id(tier_benefits(benefit_type, config))')
-        .eq('artist_id', artistId)
-        .eq('status', 'active')
-        .in('fan_id', authorIds);
-
-      // Build a map of author_id -> badge_text
+      // Recognition comes from the SERVER. The previous version queried `subscriptions`
+      // from the browser, where row-level security returns only the caller's own row, so
+      // this map held exactly one entry and every fan saw a badge beside their own name
+      // and nobody else's. The route returns labels only: no price, no spend, no status.
       const authorBadgeMap: Record<string, string> = {};
-
-      if (subscriptions) {
-        for (const sub of subscriptions) {
-          const tier = sub.tier as any;
-          if (tier?.tier_benefits) {
-            const badgeBenefit = tier.tier_benefits.find(
-              (b: any) => b.benefit_type === 'community_badge' && b.config?.badge_text
-            );
-            if (badgeBenefit) {
-              authorBadgeMap[sub.fan_id] = badgeBenefit.config.badge_text;
+      if (authorIds.length > 0) {
+        try {
+          const res = await fetch(
+            `/api/recognition?artistId=${encodeURIComponent(artistId)}&fanIds=${authorIds.join(',')}`,
+          );
+          if (res.ok) {
+            const { recognition } = await res.json();
+            for (const [fanId, entry] of Object.entries(recognition || {})) {
+              const labels = (entry as { labels?: string[] }).labels || [];
+              if (labels.length) authorBadgeMap[fanId] = labels[0];
             }
           }
+        } catch {
+          // Recognition is decoration. A failed lookup shows no badge and never blocks
+          // the comments themselves from rendering.
         }
       }
 

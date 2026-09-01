@@ -6,6 +6,7 @@ import { ArrowRight, Lightbulb } from 'lucide-react';
 import { AlbumsSection } from '@/components/artist/AlbumCard';
 import { ArtistPlaylistsSection } from '@/components/artist/ArtistPlaylistCard';
 import { ShopSection } from '@/components/artist/ShopSection';
+import { MemberFilesSection } from '@/components/artist/MemberFilesSection';
 import { TierCards } from '@/components/artist/SubscribeSection';
 import { SubscribeCTA } from '@/components/gating';
 import { CommunityFeed } from '@/components/community/CommunityFeed';
@@ -222,6 +223,9 @@ export function ArtistProfileContent({
 
             {/* Artist Playlists */}
             <ArtistPlaylistsSection playlists={playlists || []} artistSlug={artist.slug} />
+
+            {/* Member downloads (stems and packs). Renders nothing when the artist has none. */}
+            <MemberFilesSection artistId={artist.id} />
 
 
             {/* Tracks */}

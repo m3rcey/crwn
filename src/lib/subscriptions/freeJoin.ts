@@ -15,6 +15,8 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import { enrollInSequence, FREE_JOIN_TRIGGER } from '@/lib/sequences/enroll';
+
 export const FREE_SUB_PREFIX = 'free_';
 
 export function syntheticFreeSubId(fanId: string, artistId: string): string {
@@ -79,6 +81,22 @@ export async function joinFreeTier(
     console.error('[freeJoin] subscriptions upsert failed:', insertError.message);
     return { status: 'error', reason: 'write_failed' };
   }
+
+  // Nurture. Paid subscriptions have enrolled through the Stripe webhook since launch;
+  // free joins enrolled in nothing, so the whole top of an artist's funnel ended after a
+  // single delivery email. This is the one canonical free-membership writer, so it is the
+  // one correct place to close that.
+  //
+  // OPT-IN: enrollInSequence looks for an ACTIVE sequence on the `free_join` trigger and
+  // returns silently when the artist has none. No sequence carries that trigger until an
+  // artist deliberately builds one, so no existing artist starts emailing their free
+  // members because of this line.
+  //
+  // Fires only on a genuinely NEW membership, never on `already_member`, and the helper
+  // additionally refuses to re-enrol a fan already active or completed on the sequence, so
+  // a re-join or a resubscribe cannot produce a second run. Awaited but never able to
+  // throw, so nurture can never fail the join itself.
+  await enrollInSequence(admin, tier.artist_id, fanId, FREE_JOIN_TRIGGER);
 
   return { status: 'joined', tierId: tier.id, artistId: tier.artist_id };
 }

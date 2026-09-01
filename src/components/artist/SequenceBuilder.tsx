@@ -243,6 +243,10 @@ export function SequenceBuilder({ artistId, sequenceId, onBack, onSaved }: Seque
             onChange={e => setTriggerType(e.target.value)}
             className="w-full px-4 py-2.5 bg-crwn-surface border border-crwn-elevated rounded-xl text-sm text-crwn-text focus:outline-none focus:border-crwn-gold/50"
           >
+            {/* Free joins previously entered no sequence at all, so the top of the funnel
+                ended after one delivery email. Listed first because for most artists it is
+                the largest audience they have. */}
+            <option value="free_join">Joined a free tier</option>
             <option value="new_subscription">New Subscription</option>
             <option value="new_purchase">New Purchase</option>
             <option value="tier_upgrade">Tier Upgrade</option>

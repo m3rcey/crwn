@@ -37,6 +37,9 @@ export function ProducerSubmitPanel({ sessionId, prompt, deadline }: Props) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [thanks, setThanks] = useState(false); // show a real success state after a send
+  // Eligibility comes from the server, resolved by the same gate the write paths use.
+  // null = still loading, so the form is never shown speculatively.
+  const [canSubmit, setCanSubmit] = useState<boolean | null>(null);
 
   const wantsFile = kind === 'beat' || kind === 'vocal' || kind === 'other';
 
@@ -45,7 +48,11 @@ export function ProducerSubmitPanel({ sessionId, prompt, deadline }: Props) {
       const res = await fetch(`/api/producer/submissions?sessionId=${sessionId}`);
       const data = await res.json();
       if (data.submissions) setMine(data.submissions);
-    } catch { /* ignore */ }
+      setCanSubmit(data.canSubmit === true);
+    } catch {
+      // A failed probe must not offer a form the server will refuse.
+      setCanSubmit(false);
+    }
   }, [sessionId]);
 
   useEffect(() => { loadMine(); }, [loadMine]);
@@ -93,6 +100,25 @@ export function ProducerSubmitPanel({ sessionId, prompt, deadline }: Props) {
       setSubmitting(false);
     }
   };
+
+  // Still resolving: show nothing rather than a form that may be refused.
+  if (canSubmit === null) return null;
+
+  // In the room, but not on a submitting rung — or the artist allowed nobody to submit.
+  // This is the fix for a Gold viewer being shown a full upload form and then told
+  // "You need a seat", which is both wrong and insulting to someone who paid for one.
+  // Their participation is real and named: they watch and they vote.
+  if (!canSubmit) {
+    return (
+      <div className="rounded-2xl border border-crwn-elevated/60 p-4">
+        <p className="text-crwn-text text-sm font-semibold">You&apos;re in for this one</p>
+        <p className="text-crwn-text-secondary text-sm mt-1">
+          Watch the session and vote on the calls as they happen. Sending in your own
+          material is open to the top tier for this session.
+        </p>
+      </div>
+    );
+  }
 
   if (deadlinePassed) {
     return (

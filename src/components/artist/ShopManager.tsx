@@ -180,21 +180,46 @@ export function ShopManager() {
       // Store subcategory in description as JSON for now (or create separate column)
       const extraData: Record<string, string> = {};
       if (subcategory) extraData.subcategory = subcategory;
-      // Upload product file for digital products
-      let fileUrl: string | null = null;
+      // Product files go to PRIVATE storage and the row stores an object KEY, not a URL.
+      //
+      // This previously uploaded into the PUBLIC media bucket and saved the permanent
+      // public URL onto a row every visitor can read, which would have made a paid file
+      // downloadable by anyone who saw the link. Nothing had ever exercised it (no product
+      // in production carries a file), so it was latent rather than leaked — and it is
+      // closed at the source rather than by revoking the column, because the public artist
+      // page reads products with select('*') and a revoke there would empty every
+      // storefront.
+      //
+      // The key is minted server-side under this artist's own folder; delivery is
+      // /api/products/download after a purchase check.
+      let fileKey: string | null = null;
       if (formData.productFile && productType === 'digital') {
-        const ext = formData.productFile.name.split('.').pop();
-        const fileName = `${Date.now()}-product.${ext}`;
-        const path = `${artistProfile.id}/product-files/${fileName}`;
-        const { error: fileUploadError } = await supabase.storage
-          .from('album-art')
-          .upload(path, formData.productFile);
-        if (!fileUploadError) {
-          const { data: { publicUrl } } = supabase.storage
-            .from('album-art')
-            .getPublicUrl(path);
-          fileUrl = publicUrl;
+        const signRes = await fetch('/api/products/upload-url', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            filename: formData.productFile.name,
+            contentType: formData.productFile.type || 'application/octet-stream',
+            fileSize: formData.productFile.size,
+          }),
+        });
+        const signed = await signRes.json().catch(() => ({}));
+        if (!signRes.ok || !signed.uploadUrl) {
+          alert(signed.error || 'Could not start the file upload.');
+          return;
         }
+        const put = await fetch(signed.uploadUrl, {
+          method: 'PUT',
+          headers: { 'Content-Type': formData.productFile.type || 'application/octet-stream' },
+          body: formData.productFile,
+        });
+        if (!put.ok) {
+          // Never save a product that claims a file it does not have. The old code
+          // swallowed this and reported success with a null file.
+          alert('The file upload failed. Nothing was saved.');
+          return;
+        }
+        fileKey = signed.key;
       }
 
       if (formData.bpm) extraData.bpm = formData.bpm;
@@ -220,7 +245,8 @@ export function ShopManager() {
         is_free: formData.isFree,
         allowed_tier_ids: formData.isFree ? [] : formData.allowedTierIds,
         delivery_type: productType === 'experience' ? 'scheduled' : productType === 'physical' ? 'shipped' : 'instant',
-        file_url: fileUrl || (editingProduct?.file_url ?? null),
+        // file_url is legacy and deliberately no longer written; see the migration.
+        file_key: fileKey || (editingProduct?.file_key ?? null),
         duration_minutes: formData.durationField ? parseInt(formData.durationField) : null,
         max_quantity: formData.maxQuantity ? parseInt(formData.maxQuantity) : null,
         expires_at: formData.expiresAt ? new Date(formData.expiresAt).toISOString() : null,
@@ -311,7 +337,7 @@ export function ShopManager() {
       location: extraData.location || '',
       durationField: product.duration_minutes?.toString() || '',
       productFile: null,
-      productFileName: product.file_url ? product.file_url.split('/').pop() || 'Existing file' : '',
+      productFileName: product.file_key ? product.file_key.split('/').pop() || 'Existing file' : '',
       maxQuantity: product.max_quantity?.toString() || '',
       variants: product.variants || [],
       expiresAt: product.expires_at ? new Date(product.expires_at).toISOString().slice(0, 16) : '',
