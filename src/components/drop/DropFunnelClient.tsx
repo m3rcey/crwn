@@ -49,6 +49,25 @@ type Phase = 'capture' | 'delivered' | 'silver' | 'joined';
 
 const price = (cents: number) => `$${(cents / 100).toFixed(cents % 100 === 0 ? 0 : 2)}/mo`;
 
+// Supabase auth errors are written for developers. A fan on an artist's offer card must
+// never read "Signups not allowed for otp": it describes a correct refusal (the address
+// has no CRWN contact because the drop was never claimed with it) in words that make a
+// working product look broken. Mapped here, and anything unrecognised falls back to
+// plain language rather than leaking the raw string.
+function codeErrorText(raw: string): string {
+  const m = raw.toLowerCase();
+  if (m.includes('signups not allowed') || m.includes('otp_disabled')) {
+    return 'We do not have that email yet. Claim the drop above with it first, then this unlocks.';
+  }
+  if (m.includes('rate limit') || m.includes('too many')) {
+    return 'That is a lot of codes at once. Wait a minute and try again.';
+  }
+  if (m.includes('invalid') || m.includes('expired')) {
+    return 'That code has expired. Send a new one.';
+  }
+  return 'We could not send the code. Try again in a moment.';
+}
+
 export function DropFunnelClient({ token, artist, magnet, gold, goldItem, silver }: Props) {
   const storageKey = `crwn_drop_${token}`;
   const [phase, setPhase] = useState<Phase>('capture');
@@ -172,7 +191,7 @@ export function DropFunnelClient({ token, artist, magnet, gold, goldItem, silver
         email: addr,
         options: { shouldCreateUser: false },
       });
-      if (otpError) setCodeError(otpError.message);
+      if (otpError) setCodeError(codeErrorText(otpError.message));
       else setCodeSent(true);
     } catch {
       setCodeError('Could not send the code. Try again.');
