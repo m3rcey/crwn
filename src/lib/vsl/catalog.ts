@@ -18,7 +18,7 @@ export interface Vsl {
   title: string;
   /** The question the video answers, in the lead's own words. Used as the list line. */
   question: string;
-  /** Runtime in minutes, for the list. 0 until the cut is final. */
+  /** Runtime in minutes, measured with ffprobe against the cut. 0 means not cut yet. */
   minutes: number;
   /** Absolute or app-relative poster image. Slide 01 of the deck is literally the opening frame. */
   poster: string;
@@ -32,7 +32,7 @@ export const VSLS: Vsl[] = [
     n: 1,
     title: 'How much is one real fan actually worth?',
     question: 'Why the number is bigger than a follower count suggests.',
-    minutes: 0,
+    minutes: 9,
     poster: '/vsl/vsl-1-fan-worth.webp',
     url: null,
   },
@@ -41,7 +41,7 @@ export const VSLS: Vsl[] = [
     n: 2,
     title: 'What would your fans actually pay for?',
     question: 'How to decide what goes inside the offer without guessing.',
-    minutes: 0,
+    minutes: 9,
     poster: '/vsl/vsl-2-what-fans-pay-for.webp',
     url: null,
   },
@@ -50,7 +50,7 @@ export const VSLS: Vsl[] = [
     n: 3,
     title: "How I'd launch a membership to your first 100 fans",
     question: 'Who should see the offer first, and in what order.',
-    minutes: 0,
+    minutes: 9,
     poster: '/vsl/vsl-3-first-100-fans.webp',
     url: null,
   },
@@ -59,7 +59,7 @@ export const VSLS: Vsl[] = [
     n: 4,
     title: 'What happens if nobody buys?',
     question: 'What CRWN does differently when the first launch produces nothing.',
-    minutes: 0,
+    minutes: 6,
     poster: '/vsl/vsl-4-if-nobody-buys.webp',
     url: null,
   },

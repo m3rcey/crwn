@@ -95,20 +95,30 @@ responsible for. Do not work those.
       Verify after with: npm run verify:migrations (look for "session submission tiers")
 
 
-- [ ] **Host the four VSL MP4s and paste four URLs. Nothing else turns the videos on.**
-      The emails, the poster images, the watch page and the placements are all shipped and inert.
-      Each video is dark until its `url` stops being null in
-      [`src/lib/vsl/catalog.ts`](src/lib/vsl/catalog.ts). Do them one at a time as each cut is
-      finished; a video with a null url renders nothing in the email and 404s on /watch, so a
-      half-finished series is safe to leave sitting there.
-      1. Upload the MP4 (R2 is already wired, same bucket pattern as audio) or drop it anywhere
-         that serves a direct file URL over https.
-      2. In that file set `url` for the slug, and set `minutes` to the real runtime so the email
-         and the rail stop saying just "Watch".
-      3. Slugs, in series order: `vsl-1-fan-worth`, `vsl-2-what-fans-pay-for`,
-         `vsl-3-first-100-fans`, `vsl-4-if-nobody-buys`.
+- [ ] **Make a PUBLIC R2 bucket for the VSLs, then run one command.** The five cuts are finished
+      and sitting in `videos/output`. They are already web-ready (1080p H.264, 1.6 to 2.2 Mbps,
+      moov atom at the front), so nothing needs re-encoding. What is missing is somewhere public
+      to serve them from: this project has no working public R2 URL at all. The fallback in the
+      code, `https://crwn-media.r2.dev`, answers HTTP 500 and always has.
+
+      **Do NOT enable public access on `crwn-media` to solve this.** That bucket holds artist audio
+      served through short-lived signed URLs. Making it public exposes every private track in the
+      catalogue in one click. The upload script refuses that bucket by name for this reason.
+
+      1. Cloudflare dashboard, R2, create a new bucket, e.g. `crwn-public`.
+      2. On that bucket only, either enable the public development URL (gives you a
+         `https://pub-<hash>.r2.dev` hostname) or attach a custom domain such as
+         `media.thecrwn.app`, which is nicer in an email.
+      3. Add to `.env.local` (and to Vercel when the videos go live):
+             R2_PUBLIC_BUCKET=crwn-public
+             R2_PUBLIC_BASE_URL=https://<the hostname from step 2>
+      4. Upload all five:
+             node scripts/vsl/upload-videos.mjs --go
+         It prints the exact `url:` lines to paste into
+         [`src/lib/vsl/catalog.ts`](src/lib/vsl/catalog.ts). Paste them and push.
       Verify after: open https://thecrwn.app/watch/vsl-1-fan-worth and confirm it plays and the
-      rail lists only the videos that are actually live.
+      rail lists all four. Until the urls are set, every video stays dark and the emails read
+      exactly as they do now.
 
 - [ ] **Decide where the Calculator VSL sits on the calculator pages.**
       You said it plays after the result and the CTAs. That order is machine-pinned and
