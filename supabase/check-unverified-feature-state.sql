@@ -159,3 +159,18 @@ SELECT 'schema-phase2-free-join-sequence-trigger.sql' AS migration,
           WHERE conname = 'sequences_trigger_type_check'
             AND pg_get_constraintdef(oid) LIKE '%free_join%'
        ) AS applied;
+
+-- 10. Fan funnel foundation (2026-09-01). 'sql-check' because fan_automation_leads and
+--     fan_automations are revoked from anon, so a probe answers 42501 whether or not the
+--     new columns exist. information_schema only, so this parses pre-migration too.
+--     Expect applied = true after running supabase/schema-phase2-fan-funnel-foundation.sql.
+SELECT 'schema-phase2-fan-funnel-foundation.sql' AS migration,
+       (
+         EXISTS (SELECT 1 FROM information_schema.columns
+                  WHERE table_name='fan_automation_leads' AND column_name='attribution')
+         AND EXISTS (SELECT 1 FROM information_schema.columns
+                  WHERE table_name='song_lab_offer_claims' AND column_name='attribution')
+         AND EXISTS (SELECT 1 FROM information_schema.columns
+                  WHERE table_name='fan_automations' AND column_name='nurture_sequence_id')
+         AND EXISTS (SELECT 1 FROM pg_trigger WHERE tgname='trg_fan_automations_nurture_guard')
+       ) AS applied;

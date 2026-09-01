@@ -83,6 +83,7 @@ const PROBES = [
   // member_files is REVOKED from anon by design, so 42501 is the PASS for "applied".
   // The probe distinguishes it from 404 (table absent) rather than treating both as red.
   ['member files', 'member_files?select=id&limit=1', 'schema-phase2-member-files.sql'],
+  ['sequence conversion goal', 'sequences?select=goal_tier_id&limit=1', 'schema-phase2-sequence-conversion-goal.sql'],
   ['product file key', 'products?select=file_key&limit=1', 'schema-phase2-product-file-privacy.sql'],
   ['artist social connections', 'artist_social_connections?select=id&limit=1', 'schema-phase3-fan-automations.sql'],
   // FRL tables are admin-only RLS: anon resolves the table (zero rows) = applied.

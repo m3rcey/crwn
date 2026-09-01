@@ -15,7 +15,7 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { enrollInSequence, FREE_JOIN_TRIGGER } from '@/lib/sequences/enroll';
+import { enrollInSequence, FREE_JOIN_TRIGGER, type EnrollOptions } from '@/lib/sequences/enroll';
 
 export const FREE_SUB_PREFIX = 'free_';
 
@@ -43,6 +43,11 @@ export async function joinFreeTier(
   admin: any,
   fanId: string,
   tierId: string,
+  // Which nurture the join enters. A funnel passes its own sequence pointer
+  // (fan_automations.nurture_sequence_id); everything else takes the artist's default
+  // free_join sequence. Validation happens inside enrollInSequence: a stale or
+  // cross-artist id enrolls nobody.
+  nurture?: EnrollOptions,
 ): Promise<FreeJoinResult> {
   const { data: tier, error: tierError } = await admin
     .from('subscription_tiers')
@@ -96,7 +101,7 @@ export async function joinFreeTier(
   // additionally refuses to re-enrol a fan already active or completed on the sequence, so
   // a re-join or a resubscribe cannot produce a second run. Awaited but never able to
   // throw, so nurture can never fail the join itself.
-  await enrollInSequence(admin, tier.artist_id, fanId, FREE_JOIN_TRIGGER);
+  await enrollInSequence(admin, tier.artist_id, fanId, FREE_JOIN_TRIGGER, nurture);
 
   return { status: 'joined', tierId: tier.id, artistId: tier.artist_id };
 }

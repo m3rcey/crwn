@@ -37,6 +37,7 @@ import { notifyNewSubscriber } from '@/lib/notifications';
 import { resend, FROM_EMAIL } from '@/lib/resend';
 import { liveShowAccessEmail, liveShowAccessSubject } from '@/lib/emails/liveShowAccess';
 import { isPresentableArtistName } from '@/lib/publicName';
+import { parseCampaignAttribution, hasAttribution } from '@/lib/analytics/campaignAttribution';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -286,10 +287,18 @@ export async function POST(req: NextRequest) {
       // when we made it; a reused capture account is not.
       fresh_signup: createdNow,
     };
+    // Link-tag attribution, normalized server-side; reporting dimension only. Optional
+    // columns follow the source pattern: pre-migration the claim survives without them.
+    const attribution = parseCampaignAttribution(new URLSearchParams(
+      typeof body.query === 'string' ? body.query.slice(0, 2048) : ''));
+    const optional: Record<string, unknown> = {};
+    if (source) optional.source = source;
+    if (hasAttribution(attribution)) optional.attribution = attribution;
+
     const { error: claimError } = await supabaseAdmin
       .from('song_lab_offer_claims')
-      .upsert(source ? { ...claimRow, source } : claimRow, { onConflict: 'offer_id,fan_id', ignoreDuplicates: true });
-    if (claimError && source && (claimError.code === 'PGRST204' || claimError.code === '42703')) {
+      .upsert(Object.keys(optional).length ? { ...claimRow, ...optional } : claimRow, { onConflict: 'offer_id,fan_id', ignoreDuplicates: true });
+    if (claimError && Object.keys(optional).length && (claimError.code === 'PGRST204' || claimError.code === '42703')) {
       await supabaseAdmin.from('song_lab_offer_claims')
         .upsert(claimRow, { onConflict: 'offer_id,fan_id', ignoreDuplicates: true });
     }

@@ -152,6 +152,8 @@ export function OfferLanding({
           // the handover is never silently counted in Show 2.
           ...(ballot?.decisionId ? { decisionId: ballot.decisionId } : {}),
           ...(sourceParam ? { source: sourceParam } : {}),
+          // The page's own query string, so link tags survive into the claim row.
+          query: typeof window !== 'undefined' ? window.location.search : '',
         }),
       });
       const data = await res.json().catch(() => null);
@@ -229,6 +231,8 @@ export function OfferLanding({
           firstName: cleanFirstName(firstName),
           email: email.trim(),
           ...(sourceParam ? { source: sourceParam } : {}),
+          // The page's own query string, so link tags survive into the claim row.
+          query: typeof window !== 'undefined' ? window.location.search : '',
         }),
       });
       const data = await res.json().catch(() => null);

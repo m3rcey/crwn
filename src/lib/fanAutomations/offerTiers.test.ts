@@ -76,3 +76,60 @@ describe('resolveTierPointer', () => {
     expect(resolveTierPointer(LADDER, null)).toBeNull();
   });
 });
+
+// ── resolveFunnelOffers: the generic engine semantics ────────────────────────────
+import { resolveFunnelOffers } from './offerTiers';
+
+describe('resolveFunnelOffers — primary paid offer + optional downsell', () => {
+  const bronze = { id: 'b', name: 'Economy', price: 0 };
+  const silver = { id: 's', name: 'Inner Circle', price: 1000 };
+  const gold = { id: 'g', name: 'The Vault', price: 2500 };
+  const platinum = { id: 'p', name: 'Day One A&R', price: 5000 };
+  const ladder = [bronze, silver, gold, platinum];
+
+  it("GB's configuration: Platinum primary, Gold downsell, from pointers alone", () => {
+    const r = resolveFunnelOffers(ladder, { gold_tier_id: 'p', silver_tier_id: 'g' });
+    expect(r.primary?.id).toBe('p');
+    expect(r.downsell?.id).toBe('g');
+  });
+
+  it('any artist-owned paid tier works as primary; nothing special-cases a rung', () => {
+    const r = resolveFunnelOffers(ladder, { gold_tier_id: 's', silver_tier_id: null });
+    expect(r.primary?.id).toBe('s');
+  });
+
+  it('no pointers falls back to derivation (alias or price order)', () => {
+    const r = resolveFunnelOffers(ladder, { gold_tier_id: null, silver_tier_id: null });
+    expect(r.primary?.id).toBe('g'); // "The Vault" alias-matches the gold rung
+    expect(r.downsell?.id).toBe('s');
+  });
+
+  it('a CROSS-ARTIST or stale pointer resolves to null and falls back, never leaks', () => {
+    const r = resolveFunnelOffers(ladder, { gold_tier_id: 'someone-elses-tier', silver_tier_id: null });
+    expect(r.primary?.id).toBe('g'); // fell back to derivation within THIS ladder
+  });
+
+  it('the FREE tier is refused as a paid offer', () => {
+    const r = resolveFunnelOffers(ladder, { gold_tier_id: 'b', silver_tier_id: null });
+    expect(r.primary?.id).toBe('g'); // pointer refused (price 0), derivation fills
+  });
+
+  it('the downsell is optional', () => {
+    const one = [bronze, platinum];
+    const r = resolveFunnelOffers(one, { gold_tier_id: 'p', silver_tier_id: null });
+    expect(r.primary?.id).toBe('p');
+    expect(r.downsell).toBeNull();
+  });
+
+  it('a downsell at or above the primary price is dropped: the ladder never inverts', () => {
+    const r = resolveFunnelOffers(ladder, { gold_tier_id: 'g', silver_tier_id: 'p' });
+    expect(r.primary?.id).toBe('g');
+    expect(r.downsell).toBeNull();
+  });
+
+  it('no paid tiers at all: no offers, and no crash', () => {
+    const r = resolveFunnelOffers([bronze], { gold_tier_id: null, silver_tier_id: null });
+    expect(r.primary).toBeNull();
+    expect(r.downsell).toBeNull();
+  });
+});

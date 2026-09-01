@@ -70,6 +70,23 @@ export function AutomationWizard({ ctx, connections, onClose, onSaved }: Props) 
   const [goldItemTitle, setGoldItemTitle] = useState('');
   const [goldItemDescription, setGoldItemDescription] = useState('');
   const [silverTierId, setSilverTierId] = useState<string | null>(derived.silver?.id ?? null);
+  // Optional funnel-specific nurture: which of the artist's sequences a claim through
+  // THIS funnel enters (a boxing funnel can nurture differently from a story funnel).
+  // Empty = the artist's default free-join sequence, if they have one.
+  const [nurtureSequenceId, setNurtureSequenceId] = useState<string | null>(null);
+  const [sequences, setSequences] = useState<Array<{ id: string; name: string }>>([]);
+  useEffect(() => {
+    let cancelled = false;
+    fetch(`/api/sequences?artistId=${ctx.artistId}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (!cancelled && d?.sequences) {
+          setSequences(d.sequences.filter((q: { is_active: boolean }) => q.is_active).map((q: { id: string; name: string }) => ({ id: q.id, name: q.name })));
+        }
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [ctx.artistId]);
   const [saving, setSaving] = useState(false);
 
   const [posts, setPosts] = useState<ProviderPost[] | null>(null);
@@ -186,6 +203,7 @@ export function AutomationWizard({ ctx, connections, onClose, onSaved }: Props) 
         goldItemTitle,
         goldItemDescription,
         silverTierId,
+        nurtureSequenceId,
       };
       const res = await fetch('/api/fan-automations', {
         method: 'POST',
@@ -215,7 +233,7 @@ export function AutomationWizard({ ctx, connections, onClose, onSaved }: Props) 
     } finally {
       setSaving(false);
     }
-  }, [ctx.artistId, provider, anyPost, selectedPosts, keywords, publicReply, dmMessage, magnetKind, magnetTitle, magnetDescription, magnetFileKey, magnetFileName, magnetTrackId, goldTierId, goldItemTitle, goldItemDescription, silverTierId, onSaved, showToast]);
+  }, [ctx.artistId, provider, anyPost, selectedPosts, keywords, publicReply, dmMessage, magnetKind, magnetTitle, magnetDescription, magnetFileKey, magnetFileName, magnetTrackId, goldTierId, goldItemTitle, goldItemDescription, silverTierId, nurtureSequenceId, onSaved, showToast]);
 
   const tierLabel = (id: string | null) => {
     const t = paidTiers.find((x) => x.id === id);
@@ -422,6 +440,20 @@ export function AutomationWizard({ ctx, connections, onClose, onSaved }: Props) 
       case 'review':
         return (
           <div className="space-y-3 text-sm">
+            {sequences.length > 0 ? (
+              <div className="rounded-xl bg-crwn-elevated p-3">
+                <p className="text-xs uppercase tracking-wide text-crwn-text-secondary mb-2">Nurture after the claim (optional)</p>
+                <OptionSelect
+                  options={[{ value: '', label: 'My default free-join sequence' }, ...sequences.map((q) => ({ value: q.id, label: q.name }))]}
+                  value={nurtureSequenceId ?? ''}
+                  onChange={(v) => setNurtureSequenceId(v || null)}
+                  placeholder="My default free-join sequence"
+                />
+                <p className="text-[11px] text-crwn-text-secondary/70 mt-1.5">
+                  Fans who claim this drop enter this email sequence. It stops for anyone who upgrades past its goal.
+                </p>
+              </div>
+            ) : null}
             {[
               ['Trigger', `${keywords.trim() ? `Comments with "${keywords}"` : 'Any comment'} on ${anyPost ? 'any post' : `${selectedPosts.length} post${selectedPosts.length === 1 ? '' : 's'}`} (${provider})`],
               ['Public reply', publicReply || 'None'],

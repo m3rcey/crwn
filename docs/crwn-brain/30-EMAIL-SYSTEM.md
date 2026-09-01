@@ -97,7 +97,12 @@ CRWN's responsibility even though the artist writes the words.
 - **Campaigns** (`lib/campaignSender.ts`, `/api/campaigns/[id]/send`) are artist-composed blasts.
   Suppression and unsubscribe present.
 - **Artist sequences** (`/api/cron/sequences`, 09:00 UTC) runs artist-configured fan sequences. Keyed
-  on `enrollment.id`, distinct from platform sequences.
+  on `enrollment.id`, distinct from platform sequences. Since Build 1 of the fan sales engine
+  (2026-09-01), a sequence may carry a CONVERSION GOAL (`sequences.goal_tier_id`, migration
+  pending): a fan holding an active subscription at or above that tier by price rank exits as
+  'completed' the moment the Stripe webhook lands their purchase, the cron self-heals missed
+  exits before every send, and enrollment refuses fans already past the goal. Selling Gold to
+  someone who owns Gold no longer happens. Goal-less sequences are unchanged.
 - **Scheduled campaigns** (`/api/cron/scheduled-campaigns`, 08:00 UTC) sends what an artist queued.
 - **Fan digest** (`/api/cron/fan-digest`) is a roundup whose code is complete and **whose schedule is
   disabled**. It cannot send today. See "What actually fires".

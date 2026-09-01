@@ -30,6 +30,12 @@ import { dropDeliveryEmail, dropDeliverySubject } from '@/lib/emails/dropDeliver
 import { getSignedDownloadUrl } from '@/lib/r2/client';
 import { isPresentableArtistName } from '@/lib/publicName';
 import { siteBase } from '@/lib/fanAutomations/config';
+import {
+  parseCampaignAttribution,
+  sanitizeStoredAttribution,
+  mergeAttribution,
+  hasAttribution,
+} from '@/lib/analytics/campaignAttribution';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -57,6 +63,11 @@ export async function POST(req: NextRequest, context: { params: Promise<{ token:
     const body = await req.json().catch(() => ({}));
     const firstName = cleanFirstName(body.firstName);
     const typedEmail = normalizeEmail(body.email);
+    // The page's own query string, sent by the client verbatim and normalized HERE.
+    // Attribution is descriptive only: nothing below reads it into a price, a tier, an
+    // ownership check, or a redirect. The normalizer is the length and HTML boundary.
+    const rawQuery = typeof body.query === 'string' ? body.query.slice(0, 2048) : '';
+    const incomingAttribution = parseCampaignAttribution(new URLSearchParams(rawQuery));
 
     const ipOk = await checkRateLimit(`drop-ip:${clientIp(req)}`, 'drop-claim-ip', IP_WINDOW_SECONDS, IP_MAX);
     if (!ipOk) return NextResponse.json({ error: 'Too many requests. Try again in a minute.' }, { status: 429 });
@@ -131,6 +142,18 @@ export async function POST(req: NextRequest, context: { params: Promise<{ token:
     // The artist previewing their own funnel must not become their own member.
     const isOwner = !!fanUserId && fanUserId === artist.user_id;
 
+    // The funnel's own nurture pointer, read fail-soft: before the foundation migration
+    // this column does not exist and the read errors, which simply means default nurture.
+    let nurtureSequenceId: string | null = null;
+    try {
+      const { data: nurtureRow } = await supabaseAdmin
+        .from('fan_automations')
+        .select('nurture_sequence_id')
+        .eq('id', automation.id)
+        .maybeSingle();
+      nurtureSequenceId = nurtureRow?.nurture_sequence_id ?? null;
+    } catch { /* pre-migration */ }
+
     // ── Free membership through the ONE canonical writer. ──
     if (fanUserId && !isOwner) {
       const { data: freeTier } = await supabaseAdmin
@@ -143,7 +166,7 @@ export async function POST(req: NextRequest, context: { params: Promise<{ token:
         .limit(1)
         .maybeSingle();
       if (freeTier) {
-        const join = await joinFreeTier(supabaseAdmin, fanUserId, freeTier.id);
+        const join = await joinFreeTier(supabaseAdmin, fanUserId, freeTier.id, { sequenceId: nurtureSequenceId });
         if (join.status === 'joined') {
           membership = 'created';
           try {
@@ -186,22 +209,49 @@ export async function POST(req: NextRequest, context: { params: Promise<{ token:
 
     // ── Lead row: the attribution spine. Duplicate submission = re-delivery, not a lead. ──
     if (email && !isOwner) {
-      await supabaseAdmin
-        .from('fan_automation_leads')
-        .upsert(
-          {
-            automation_id: automation.id,
-            artist_id: artist.id,
-            email,
-            first_name: firstName || null,
-            fan_user_id: membership === 'sign_in_required' ? null : fanUserId,
-            membership_result: membership,
-            provider: automation.provider,
-            magnet_delivered_at: new Date().toISOString(),
-          },
-          { onConflict: 'automation_id,email', ignoreDuplicates: false },
-        )
-        .then(() => {}, () => {});
+      const leadRow: Record<string, unknown> = {
+        automation_id: automation.id,
+        artist_id: artist.id,
+        email,
+        first_name: firstName || null,
+        fan_user_id: membership === 'sign_in_required' ? null : fanUserId,
+        membership_result: membership,
+        provider: automation.provider,
+        magnet_delivered_at: new Date().toISOString(),
+      };
+
+      // FIRST-TOUCH attribution, same policy as the calculator funnel: merge never
+      // replaces a field that is already set, so a later untagged visit cannot erase the
+      // link that actually brought this fan. Every read and write is fail-soft so the
+      // lead row itself survives the pre-migration schema.
+      if (hasAttribution(incomingAttribution)) {
+        try {
+          const { data: existingLead } = await supabaseAdmin
+            .from('fan_automation_leads')
+            .select('attribution')
+            .eq('automation_id', automation.id)
+            .eq('email', email)
+            .maybeSingle();
+          leadRow.attribution = mergeAttribution(
+            sanitizeStoredAttribution(existingLead?.attribution),
+            incomingAttribution,
+          );
+        } catch { /* pre-migration: store without attribution */ }
+      }
+
+      const upsertLead = (row: Record<string, unknown>) =>
+        supabaseAdmin
+          .from('fan_automation_leads')
+          .upsert(row, { onConflict: 'automation_id,email', ignoreDuplicates: false });
+
+      const { error: leadError } = await upsertLead(leadRow).then(
+        (r: { error: unknown }) => r, (e: unknown) => ({ error: e }));
+      if (leadError && leadRow.attribution) {
+        // 42703 pre-migration: the unknown column fails the WHOLE statement. The lead
+        // matters more than the tag: retry without it.
+        delete leadRow.attribution;
+        await upsertLead(leadRow).then(() => {}, () => {});
+      }
     }
 
     // ── Deliver the magnet. Signed and short-lived for uploads, never a public URL. ──

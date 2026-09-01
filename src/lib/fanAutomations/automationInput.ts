@@ -20,11 +20,15 @@ export interface AutomationInput {
   goldItemTitle: string;
   goldItemDescription: string;
   silverTierId: string | null;
+  /** Optional artist-owned sequence a claim through this funnel enrolls into. */
+  nurtureSequenceId: string | null;
 }
 
 export interface OwnedResources {
   /** Active paid tier ids belonging to this artist. */
   tierIds: string[];
+  /** The artist's own sequence ids; a nurture pointer outside this set is refused. */
+  sequenceIds?: string[];
   /** FREE track ids belonging to this artist (a magnet may never be a gated track). */
   freeTrackIds: string[];
   /** R2 keys minted for this artist by the magnet-upload route (prefix check). */
@@ -80,6 +84,11 @@ export function validateAutomationInput(body: unknown, owned: OwnedResources): V
   if (silverTierId && !owned.tierIds.includes(silverTierId)) {
     return { ok: false, error: 'That tier does not belong to this artist.' };
   }
+  const nurtureSequenceId = strOrNull(b.nurtureSequenceId, 64);
+  if (nurtureSequenceId && !(owned.sequenceIds || []).includes(nurtureSequenceId)) {
+    return { ok: false, error: 'That nurture sequence is not one of yours' };
+  }
+
   if (goldTierId && silverTierId && goldTierId === silverTierId) {
     return { ok: false, error: 'The offer and the downsell must be different tiers.' };
   }
@@ -102,11 +111,23 @@ export function validateAutomationInput(body: unknown, owned: OwnedResources): V
       goldItemTitle: str(b.goldItemTitle, 120),
       goldItemDescription: str(b.goldItemDescription, 500),
       silverTierId,
+      nurtureSequenceId,
     },
   };
 }
 
-/** What an automation still needs before it may be activated. Empty list = ready. */
+/**
+ * What an automation still needs before it may be activated. Empty list = ready.
+ *
+ * A Meta connection is deliberately NOT a blocker any more (Build 1 of the fan sales
+ * engine, 2026-09-01). The drop page is the reusable funnel, and an artist driving
+ * traffic with EXTERNAL tooling (ManyChat, a link in bio, a QR code) needs the funnel
+ * live with no Instagram connection at all. The comment-matching engine already only
+ * routes events through automations that HAVE a connection, so an active connection-less
+ * automation simply never receives a comment: nothing about the Meta side loosens. The
+ * DM message is required only when a connection exists, because it is the one thing a
+ * connection delivers.
+ */
 export function activationBlockers(a: {
   connection_id: string | null;
   dm_message: string;
@@ -114,9 +135,8 @@ export function activationBlockers(a: {
   gold_tier_id: string | null;
 }): string[] {
   const blockers: string[] = [];
-  if (!a.connection_id) blockers.push('Connect the social account it listens on.');
   if (!a.magnet_kind) blockers.push('Choose what fans get when they comment.');
-  if (!a.dm_message.trim()) blockers.push('Write the private message fans receive.');
+  if (a.connection_id && !a.dm_message.trim()) blockers.push('Write the private message fans receive.');
   if (!a.gold_tier_id) blockers.push('Pick the membership tier to offer after the drop.');
   return blockers;
 }

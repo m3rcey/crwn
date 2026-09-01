@@ -64,3 +64,49 @@ export function resolveTierPointer(rows: OfferTierRow[], tierId: string | null |
   if (!tierId) return null;
   return rows.find((t) => t.id === tierId && (t.is_active ?? true) && t.price > 0) ?? null;
 }
+
+// ── The generic domain layer ─────────────────────────────────────────────────────
+//
+// The engine's concepts are PRIMARY PAID OFFER and OPTIONAL DOWNSELL, for any artist and
+// any ladder. The database columns keep their historical names (gold_tier_id /
+// silver_tier_id: renaming a live table for vocabulary is churn without product gain),
+// and this is the one place that maps them, so no caller reasons in rung words. GB's
+// Platinum-first funnel is exactly this function with his pointers set; nothing anywhere
+// branches on a rung name or an artist.
+
+export interface FunnelOfferPointers {
+  gold_tier_id: string | null;
+  silver_tier_id: string | null;
+}
+
+export interface FunnelOffers {
+  /** The paid tier this funnel leads with. Null only when the artist has no paid tier. */
+  primary: OfferTierRow | null;
+  /** The optional decline path. Always cheaper than primary, or absent. */
+  downsell: OfferTierRow | null;
+}
+
+/**
+ * Resolve a funnel's offers from the artist's LIVE tiers plus its stored pointers.
+ * The explicit pointer wins; derivation fills silence. Every rule the engine promises
+ * is enforced here:
+ *   - both offers resolve only against rows the caller loaded for THIS artist, so a
+ *     cross-artist or stale pointer resolves to null instead of leaking a foreign tier;
+ *   - primary is always PAID (resolveTierPointer and deriveOfferTiers both refuse
+ *     price = 0), and the free rung is never an offer;
+ *   - the downsell must be strictly cheaper than the primary and different from it, or
+ *     it is dropped: CRWN never presents an "alternative" costing the same or more.
+ */
+export function resolveFunnelOffers(
+  artistTiers: OfferTierRow[],
+  pointers: FunnelOfferPointers,
+): FunnelOffers {
+  const derived = deriveOfferTiers(artistTiers);
+  const primary = resolveTierPointer(artistTiers, pointers.gold_tier_id) ?? derived.gold;
+  let downsell = resolveTierPointer(artistTiers, pointers.silver_tier_id) ?? derived.silver;
+  if (!primary) return { primary: null, downsell: null };
+  if (downsell && (downsell.id === primary.id || downsell.price >= primary.price)) {
+    downsell = null;
+  }
+  return { primary, downsell };
+}

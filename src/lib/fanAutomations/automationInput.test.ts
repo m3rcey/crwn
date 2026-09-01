@@ -77,7 +77,21 @@ describe('activationBlockers', () => {
   });
 
   it('each missing piece is named', () => {
-    const blockers = activationBlockers({ connection_id: null, dm_message: ' ', magnet_kind: null, gold_tier_id: null });
-    expect(blockers).toHaveLength(4);
+    const blockers = activationBlockers({ connection_id: 'c', dm_message: ' ', magnet_kind: null, gold_tier_id: null });
+    expect(blockers).toHaveLength(3);
+  });
+
+  it('NO connection is not a blocker: external-traffic funnels activate link-only', () => {
+    // The reusable engine rule (Build 1): an artist driving traffic with external
+    // ManyChat, a bio link or a QR code needs the drop page live with no Instagram
+    // connection at all. The comment matcher only routes through automations that HAVE
+    // a connection, so nothing about the Meta side loosens.
+    expect(activationBlockers({ connection_id: null, dm_message: '', magnet_kind: 'track', gold_tier_id: 't' })).toEqual([]);
+  });
+
+  it('WITH a connection, the DM message is required, because the connection delivers it', () => {
+    const blockers = activationBlockers({ connection_id: 'c', dm_message: ' ', magnet_kind: 'track', gold_tier_id: 't' });
+    expect(blockers).toHaveLength(1);
+    expect(blockers[0]).toContain('private message');
   });
 });

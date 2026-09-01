@@ -92,14 +92,16 @@ export async function POST(req: NextRequest) {
 
     const { data: artist } = await supabaseAdmin
       .from('artist_profiles').select('slug').eq('id', artistId).maybeSingle();
-    const [{ data: tiers }, { data: tracks }] = await Promise.all([
+    const [{ data: tiers }, { data: tracks }, { data: sequences }] = await Promise.all([
       supabaseAdmin.from('subscription_tiers').select('id').eq('artist_id', artistId).eq('is_active', true).gt('price', 0),
       supabaseAdmin.from('tracks').select('id').eq('artist_id', artistId).eq('is_free', true),
+      supabaseAdmin.from('sequences').select('id').eq('artist_id', artistId).eq('is_active', true),
     ]);
 
     const validated = validateAutomationInput(body, {
       tierIds: (tiers || []).map((t) => t.id),
       freeTrackIds: (tracks || []).map((t) => t.id),
+      sequenceIds: (sequences || []).map((q: { id: string }) => q.id),
       magnetKeyPrefix: `${artist?.slug || artistId}/magnet/`,
     });
     if (!validated.ok) return NextResponse.json({ error: validated.error }, { status: 400 });
@@ -129,15 +131,49 @@ export async function POST(req: NextRequest) {
         gold_item_title: input.goldItemTitle,
         gold_item_description: input.goldItemDescription,
         silver_tier_id: input.silverTierId,
+        // Pre-migration this column is unknown and the insert retries without it below.
+        nurture_sequence_id: input.nurtureSequenceId,
       })
       .select('id, public_token')
       .single();
 
-    if (error || !created) {
-      console.error('[fan-automations] create failed:', error?.code, error?.message);
+    // Pre-foundation-migration, nurture_sequence_id 42703s the whole insert. The
+    // automation matters more than the pointer: retry without it.
+    let row = created;
+    let insertError = error;
+    if (insertError && input.nurtureSequenceId) {
+      ({ data: row, error: insertError } = await supabaseAdmin
+        .from('fan_automations')
+        .insert({
+          artist_id: artistId,
+          connection_id: connection?.id ?? null,
+          provider: input.provider,
+          status: 'draft',
+          public_token: randomBytes(9).toString('base64url'),
+          trigger_media_ids: input.triggerMediaIds,
+          trigger_keywords: input.triggerKeywords,
+          public_reply: input.publicReply || 'Check your DMs 👑',
+          dm_message: input.dmMessage,
+          magnet_kind: input.magnetKind,
+          magnet_title: input.magnetTitle,
+          magnet_description: input.magnetDescription,
+          magnet_file_key: input.magnetFileKey,
+          magnet_file_name: input.magnetFileName,
+          magnet_track_id: input.magnetTrackId,
+          gold_tier_id: input.goldTierId,
+          gold_item_title: input.goldItemTitle,
+          gold_item_description: input.goldItemDescription,
+          silver_tier_id: input.silverTierId,
+        })
+        .select('id, public_token')
+        .single());
+    }
+
+    if (insertError || !row) {
+      console.error('[fan-automations] create failed:', (insertError as { code?: string; message?: string } | null)?.code, (insertError as { message?: string } | null)?.message);
       return NextResponse.json({ error: 'Could not save. Try again.' }, { status: 500 });
     }
-    return NextResponse.json({ id: created.id, publicToken: created.public_token });
+    return NextResponse.json({ id: row.id, publicToken: row.public_token });
   } catch (err) {
     console.error('[fan-automations] create error:', err);
     return NextResponse.json({ error: 'Something went wrong. Try again.' }, { status: 500 });

@@ -12,6 +12,7 @@ import { resolveClipperRate } from '@/lib/clipperRate';
 import { hashVisitor } from '@/lib/analytics/visitorHash';
 import { recordTierEvent } from '@/lib/analytics/tierEvents';
 import { syntheticFreeSubId } from '@/lib/subscriptions/freeJoin';
+import { checkoutReturnUrls } from '@/lib/stripe/returnPath';
 
 export async function POST(req: NextRequest) {
   try {
@@ -106,9 +107,10 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'Failed to subscribe' }, { status: 500 });
       }
 
-      const successUrl = returnUrl
-        ? `${process.env.NEXT_PUBLIC_BASE_URL}${returnUrl}?subscription=success`
-        : `${process.env.NEXT_PUBLIC_BASE_URL}/${artistSlugValue}?subscription=success`;
+      // returnUrl is caller input; checkoutReturnUrls validates it and falls back to the
+      // artist page, so a crafted value can never send a fan off-origin. See returnPath.ts.
+      const { successUrl } = checkoutReturnUrls(
+        process.env.NEXT_PUBLIC_BASE_URL || 'https://thecrwn.app', returnUrl, artistSlugValue);
 
       return NextResponse.json({ url: successUrl });
     }
@@ -317,6 +319,9 @@ export async function POST(req: NextRequest) {
     }
 
     // Create Stripe Checkout Session (30-min expiry enables abandoned cart recovery)
+    const checkoutReturn = checkoutReturnUrls(
+      process.env.NEXT_PUBLIC_BASE_URL || 'https://thecrwn.app', returnUrl, artistSlugValue);
+
     const session = await stripe.checkout.sessions.create({
       expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
       mode: 'subscription',
@@ -337,12 +342,9 @@ export async function POST(req: NextRequest) {
           destination: artistStripeAccountId,
         },
       },
-      success_url: returnUrl
-        ? `${process.env.NEXT_PUBLIC_BASE_URL}${returnUrl}?subscription=success`
-        : `${process.env.NEXT_PUBLIC_BASE_URL}/${artistSlugValue}?subscription=success`,
-      cancel_url: returnUrl
-        ? `${process.env.NEXT_PUBLIC_BASE_URL}${returnUrl}?subscription=canceled`
-        : `${process.env.NEXT_PUBLIC_BASE_URL}/${artistSlugValue}?subscription=canceled`,
+      // Validated: caller input can never steer these off CRWN (src/lib/stripe/returnPath.ts).
+      success_url: checkoutReturn.successUrl,
+      cancel_url: checkoutReturn.cancelUrl,
       metadata: {
         // Proof of what the FIRST invoice withheld. The initial earnings writer reads this from the
         // session, because the first invoice was never a draft we could tag.

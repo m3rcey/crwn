@@ -1,4 +1,4 @@
-const CACHE_NAME = 'crwn-v468';
+const CACHE_NAME = 'crwn-v469';
 const STATIC_ASSETS = [
   '/favicon.ico',
   '/icon-192x192.png',

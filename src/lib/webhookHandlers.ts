@@ -28,6 +28,7 @@ import { maybeCreateVipWelcomeTask } from '@/lib/promiseTasks';
 import { recordFirstPaidConversion } from '@/lib/analytics/paidConversion';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { enrollInSequence } from '@/lib/sequences/enroll';
+import { exitConvertedEnrollments } from '@/lib/sequences/goalExit';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AdminClient = SupabaseClient<any, any, any>;
@@ -444,6 +445,11 @@ export async function handleCheckoutCompleted(supabaseAdmin: AdminClient, sessio
         console.error('Abandoned checkout recovery update failed:', err);
       }
 
+      // The conversion exit: any goal sequence this purchase satisfies closes NOW, so a
+      // fan never receives another email selling the tier they just bought. The daily
+      // cron re-runs the same check as the self-heal. Never throws.
+      await exitConvertedEnrollments(supabaseAdmin, artist_id, fan_id);
+
       // Enroll fan in active welcome sequence
       try {
         const { data: activeSequence } = await supabaseAdmin
@@ -785,6 +791,11 @@ export async function handleSubscriptionUpdated(supabaseAdmin: AdminClient, subs
         .eq('stripe_subscription_id', sub.id);
 
       console.log('Pending tier change applied successfully');
+
+      // Conversion exit first: an upgrade that reaches a goal ends the sequence selling
+      // it (Gold-goal nurture ends when Silver upgrades to Gold; the Platinum-goal
+      // ascension ends when Gold upgrades to Platinum).
+      await exitConvertedEnrollments(supabaseAdmin, subData.artist_id, subData.fan_id);
 
       // Enroll in tier_upgrade sequence
       await enrollInSequence(supabaseAdmin, subData.artist_id, subData.fan_id, 'tier_upgrade');

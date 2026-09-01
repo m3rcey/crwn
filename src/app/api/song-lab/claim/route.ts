@@ -36,6 +36,7 @@ import {
 } from '@/lib/songLab/core';
 import { joinFreeTier } from '@/lib/subscriptions/freeJoin';
 import { notifyNewSubscriber } from '@/lib/notifications';
+import { parseCampaignAttribution, hasAttribution } from '@/lib/analytics/campaignAttribution';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -103,15 +104,24 @@ export async function POST(req: NextRequest) {
       join_result: join.status === 'joined' ? 'joined' : 'already_member',
       fresh_signup: isFreshSignup(user.created_at, new Date()),
     };
+    // Link-tag attribution (utm_* and friends on the offer URL), normalized here and
+    // stored as a reporting dimension only. Optional columns follow the source pattern:
+    // pre-migration, the claim row survives and only the tag is lost.
+    const attribution = parseCampaignAttribution(new URLSearchParams(
+      typeof body.query === 'string' ? body.query.slice(0, 2048) : ''));
+    const optional: Record<string, unknown> = {};
+    if (source) optional.source = source;
+    if (hasAttribution(attribution)) optional.attribution = attribution;
+
     const { error: claimError } = await supabaseAdmin
       .from('song_lab_offer_claims')
-      .upsert(source ? { ...claimRow, source } : claimRow,
+      .upsert(Object.keys(optional).length ? { ...claimRow, ...optional } : claimRow,
         { onConflict: 'offer_id,fan_id', ignoreDuplicates: true });
     if (claimError) {
-      // `source` arrives with schema-phase2-song-lab-live-shows.sql. Before it is applied
-      // the column does not exist, and losing the whole attribution row over a reporting
-      // field would be worse than losing the field. Retry without it.
-      if (source && (claimError.code === 'PGRST204' || claimError.code === '42703')) {
+      // Optional columns arrive with their migrations. Before one is applied the column
+      // does not exist, and losing the whole claim row over a reporting field would be
+      // worse than losing the field. Retry without them.
+      if (Object.keys(optional).length && (claimError.code === 'PGRST204' || claimError.code === '42703')) {
         const { error: retryError } = await supabaseAdmin
           .from('song_lab_offer_claims')
           .upsert(claimRow, { onConflict: 'offer_id,fan_id', ignoreDuplicates: true });

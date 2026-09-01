@@ -1,5 +1,67 @@
 # CRWN Brain — Changelog
 
+## 2026-09-01 - Build 1 of the fan sales engine: one reusable funnel, GB is a configuration
+
+**The product decision this implements: CRWN has ONE artist fan-sales engine; every artist
+configures their own lead magnet, primary offer, downsell, nurture and conversion goal. GB
+is the first configuration, not the architecture.** Nothing anywhere branches on a rung
+name or an artist slug; the engine's concepts are primary paid offer, optional downsell,
+free fallback, nurture sequence, conversion goal, attribution.
+
+**Checkout return destinations are validated now.** /api/stripe/checkout concatenated a
+caller-supplied returnUrl into Stripe's success_url and cancel_url with no validation (the
+SEC-016 class). src/lib/stripe/returnPath.ts is the one place that decides where a fan
+lands after checkout: safeInternalPath from the canonical sanitizer, fail-SOFT to the
+artist's page so a malformed value never blocks a purchase, and the query string of a
+valid internal path preserved because funnel state rides it. Nine regression tests.
+
+**Sequences can stop selling.** sequences.goal_tier_id (migration PENDING) names the paid
+tier a sequence sells. Rank is price order through tierLadder.ts's expandFromTier (the
+same authority as cumulative access and the waterfall), so Platinum satisfies a Gold goal
+and a renamed ladder changes nothing. Three enforcement points share one pure module
+(src/lib/sequences/conversionGoal.ts): the Stripe webhook exits enrollments the moment a
+subscription lands, the daily sequences cron self-heals before every send, and
+enrollInSequence refuses to enroll a fan already past the goal. Exits are status
+'completed' (a conversion is the sequence SUCCEEDING, and the conversions cron reads
+completed rows), touch only active rows (idempotent), and are never resurrected by a
+downgrade. A goal-less sequence is byte-for-byte legacy.
+
+**The drop funnel speaks the engine's language.** resolveFunnelOffers in
+fanAutomations/offerTiers.ts maps the historical gold_tier_id/silver_tier_id columns onto
+primary/downsell (columns unchanged: renaming a live table for vocabulary is churn), and
+enforces: pointers resolve only against the artist's own live tiers, primary is always
+paid, downsell strictly cheaper or dropped. GB's Platinum-first funnel is these two
+pointers set in the wizard.
+
+**A Meta connection is no longer required to ACTIVATE an automation.** External ManyChat
+is just an acquisition source: activationBlockers now requires the magnet and the offer
+tier, and the DM message only when a connection exists. The comment matcher already only
+routes events through automations that HAVE a connection, so the Meta side loosened
+nothing; the drop link simply works for artists driving traffic themselves.
+
+**Attribution survives the fan funnel.** Both claim surfaces (drop + Song Lab offers) send
+their page's query string; the routes normalize it through campaignAttribution.ts (the one
+normalizer, also the length and HTML boundary) and store first-touch attribution on the
+claim rows (columns PENDING in schema-phase2-fan-funnel-foundation.sql; every writer
+retries without them pre-migration so the lead itself is never lost). The drop checkout
+passes real utm tags through to Stripe metadata, and its returnUrl keeps the query string
+across the Stripe round trip. Attribution is descriptive only: nothing reads it into
+price, entitlement, ownership or redirects.
+
+**Source-specific nurture without branching.** fan_automations.nurture_sequence_id points
+a funnel at a specific artist-owned sequence (boxing funnel, boxing sequence); silence
+means the artist's default free_join sequence. Same-artist is enforced by DB trigger and
+re-validated in enrollInSequence, so a stale or cross-artist pointer enrolls nobody.
+
+**The free-join disclosure is a contract now.** freeJoinDisclosure
+(src/lib/subscriptions/freeJoinDisclosure.ts) is the shared sentence on the drop capture,
+pinned by a source-contract test so it cannot be edited away; Song Lab's ballot disclosure
+gained 'unsubscribe anytime' and its own test still pins join+free+no-card.
+
+**GB's production state, probed 2026-09-01: Economy free / Silver $10 / Gold $25, and NO
+Platinum tier exists yet.** Creating it, building his sequences, and setting the funnel
+pointers are founder-controlled configuration steps in TODO.md. Nothing was mutated.
+
 ## 2026-09-01 - A paid file that would have been public on first upload, and the four gaps under GB's offer
 
 **Code shipped. All three migrations APPLIED and probe-verified the same day.** `member_files`

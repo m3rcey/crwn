@@ -19,6 +19,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Check, Crown, Download, Loader2, Lock, Mail, Play } from 'lucide-react';
 import { supabase } from '@/lib/supabase/client';
+import { freeJoinDisclosure } from '@/lib/subscriptions/freeJoinDisclosure';
 
 export interface DropOfferTier {
   id: string;
@@ -85,7 +86,9 @@ export function DropFunnelClient({ token, artist, magnet, gold, goldItem, silver
       const res = await fetch(`/api/drop/${token}/claim`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, firstName }),
+        // The page's query string rides along so the tags on the artist's DM link
+        // (utm_*, campaign, keyword) survive into the lead row. Normalized server-side.
+        body: JSON.stringify({ email, firstName, query: window.location.search }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -110,7 +113,7 @@ export function DropFunnelClient({ token, artist, magnet, gold, goldItem, silver
       const res = await fetch(`/api/drop/${token}/claim`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({}),
+        body: JSON.stringify({ query: window.location.search }),
       });
       const data = await res.json();
       if (res.ok) {
@@ -135,10 +138,15 @@ export function DropFunnelClient({ token, artist, magnet, gold, goldItem, silver
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           tierId,
-          returnUrl: `/drop/${token}`,
+          // The return path keeps the page's query string, so the campaign tags on the
+          // artist's link survive the Stripe round trip. Validated server-side either way.
+          returnUrl: `/drop/${token}${window.location.search}`,
           attributionSource: 'fan_automation',
-          utmSource: 'fan_automation',
-          utmCampaign: token,
+          // Real link tags win over the defaults, so a tagged DM link is traceable on the
+          // Stripe subscription itself; the funnel identity fills silence.
+          utmSource: new URLSearchParams(window.location.search).get('utm_source') || 'fan_automation',
+          utmMedium: new URLSearchParams(window.location.search).get('utm_medium') || '',
+          utmCampaign: new URLSearchParams(window.location.search).get('utm_campaign') || token,
         }),
       });
       const data = await res.json();
@@ -282,8 +290,7 @@ export function DropFunnelClient({ token, artist, magnet, gold, goldItem, silver
                   {submitting ? <Loader2 className="w-4 h-4 animate-spin inline" /> : `Send me ${magnet.title || 'the drop'}`}
                 </button>
                 <p className="text-xs text-crwn-text-secondary leading-relaxed">
-                  You get {magnet.title || 'the drop'} plus a free spot on {artist.name}&apos;s members list,
-                  with early word on new drops by email. Unsubscribe anytime.
+                  {freeJoinDisclosure(magnet.title, artist.name)}
                 </p>
               </div>
             )}

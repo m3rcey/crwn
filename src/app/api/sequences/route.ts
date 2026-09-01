@@ -24,6 +24,7 @@ export async function GET(req: NextRequest) {
     .single();
   if (!artist) return NextResponse.json({ error: 'Not your profile' }, { status: 403 });
 
+
   // Get sequences with steps and enrollment counts
   const { data: sequences } = await supabaseAdmin
     .from('sequences')
@@ -66,7 +67,7 @@ export async function POST(req: NextRequest) {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const body = await req.json();
-  const { id, artistId, name, triggerType, steps, activate } = body;
+  const { id, artistId, name, triggerType, steps, activate, goalTierId } = body;
 
   if (!artistId || !name) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -81,17 +82,46 @@ export async function POST(req: NextRequest) {
     .single();
   if (!artist) return NextResponse.json({ error: 'Not your profile' }, { status: 403 });
 
+  // Conversion goal: optional, and only ever one of THIS artist's own PAID tiers. The id
+  // is a pointer, never authority: it is resolved against rows the server loads for the
+  // authenticated owner, and the DB trigger enforces the same rule beneath us.
+  let goal_tier_id: string | null = null;
+  if (typeof goalTierId === 'string' && goalTierId) {
+    const { data: goalTier } = await supabaseAdmin
+      .from('subscription_tiers')
+      .select('id')
+      .eq('id', goalTierId)
+      .eq('artist_id', artistId)
+      .gt('price', 0)
+      .maybeSingle();
+    if (!goalTier) {
+      return NextResponse.json({ error: 'The conversion goal must be one of your own paid tiers' }, { status: 400 });
+    }
+    goal_tier_id = goalTier.id;
+  }
+
+
   if (id) {
     // Update existing sequence
-    const { error: seqError } = await supabaseAdmin
+    let { error: seqError } = await supabaseAdmin
       .from('sequences')
       .update({
         name,
         trigger_type: triggerType || 'new_subscription',
+        goal_tier_id,
         updated_at: new Date().toISOString(),
       })
       .eq('id', id)
       .eq('artist_id', artistId);
+
+    // Pre-migration: the column is unknown (PGRST204). Save everything else.
+    if (seqError && goal_tier_id === null) {
+      ({ error: seqError } = await supabaseAdmin
+        .from('sequences')
+        .update({ name, trigger_type: triggerType || 'new_subscription', updated_at: new Date().toISOString() })
+        .eq('id', id)
+        .eq('artist_id', artistId));
+    }
 
     if (seqError) return NextResponse.json({ error: seqError.message }, { status: 500 });
 
@@ -122,16 +152,31 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true, id });
   } else {
     // Create new sequence
-    const { data: sequence, error: seqError } = await supabaseAdmin
+    let { data: sequence, error: seqError } = await supabaseAdmin
       .from('sequences')
       .insert({
         artist_id: artistId,
         name,
         trigger_type: triggerType || 'new_subscription',
+        goal_tier_id,
         is_active: activate === true, // activate=true for one-click templates
       })
       .select()
       .single();
+
+    // Pre-migration: unknown column. Create without the goal.
+    if (seqError && goal_tier_id === null) {
+      ({ data: sequence, error: seqError } = await supabaseAdmin
+        .from('sequences')
+        .insert({
+          artist_id: artistId,
+          name,
+          trigger_type: triggerType || 'new_subscription',
+          is_active: activate === true,
+        })
+        .select()
+        .single());
+    }
 
     if (seqError) return NextResponse.json({ error: seqError.message }, { status: 500 });
 

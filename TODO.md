@@ -80,6 +80,41 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **Run TWO migrations for the fan sales engine (Build 1), in this order.** Both
+      self-verify and are safe to re-run. Until they run, everything ships fail-soft:
+      funnels, claims, joins and sequences all work exactly as before, and only the new
+      powers (conversion-goal exits, funnel attribution, per-funnel nurture) stay off.
+
+      1. [supabase/schema-phase2-sequence-conversion-goal.sql](supabase/schema-phase2-sequence-conversion-goal.sql)
+         Lets a sequence name the paid tier it is selling and STOP for fans who reach it.
+         This is the fix for selling Gold to people who already bought Gold.
+      2. [supabase/schema-phase2-fan-funnel-foundation.sql](supabase/schema-phase2-fan-funnel-foundation.sql)
+         Attribution columns on the two claim tables plus the funnel-to-nurture pointer.
+
+      Then: `npm run verify:migrations` proves 1; for 2, run
+      [supabase/check-unverified-feature-state.sql](supabase/check-unverified-feature-state.sql)
+      and read row 10 (the fan-automation tables are closed to anon, so the probe cannot
+      see their columns).
+
+- [ ] **Configure GB's funnel. This is ALL configuration, no code, and I cannot do it
+      because it mutates production.** In order, signed in as GB (or via login-as):
+      1. Account, Tiers: create **Platinum at $50/month**. His live ladder today is
+         Economy (free), Silver $10, Gold $25, verified by probe 2026-09-01; there is no
+         Platinum row yet, and the funnel cannot lead with a tier that does not exist.
+      2. Studio, Fans, Sequences: build the acquisition nurture (trigger: Joined a free
+         tier) and set **Stops when they join: Gold or higher** (or Platinum, your call).
+         Optionally one sequence per lead magnet (boxing, story, music): each funnel can
+         point at its own.
+      3. Hamburger, Fan Automations: create an automation. No Instagram connection is
+         needed any more; it activates link-only. Set the magnet (the lead magnet file or
+         a free track), **the offer tier = Platinum**, **the fallback = Gold**, and pick
+         the nurture sequence on the review screen. Activate.
+      4. Put the drop link in ManyChat with tags, e.g.
+         `https://thecrwn.app/drop/<token>?utm_source=instagram&utm_medium=organic&utm_campaign=boxing_v1`
+         The tags survive capture, the free join, the Stripe round trip, and land on the
+         lead row and the subscription.
+
+
 - [ ] **Build GB's free-join welcome sequence, or Bronze members get nothing.** The migration is in.
       Studio, Fans, Sequences, new sequence, trigger "Joined a free tier". One email is enough to
       start. Nothing auto-creates it: a sequence CRWN wrote for an artist would be CRWN emailing

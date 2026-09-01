@@ -9,7 +9,7 @@
 
 import { notFound } from 'next/navigation';
 import { createClient } from '@supabase/supabase-js';
-import { deriveOfferTiers, resolveTierPointer, type OfferTierRow } from '@/lib/fanAutomations/offerTiers';
+import { resolveFunnelOffers, type OfferTierRow } from '@/lib/fanAutomations/offerTiers';
 import { isPresentableArtistName } from '@/lib/publicName';
 import { DropFunnelClient, type DropOfferTier } from '@/components/drop/DropFunnelClient';
 
@@ -74,13 +74,12 @@ export default async function DropPage({ params }: { params: Promise<{ token: st
     benefitLines[t.id] = Array.isArray(b) ? b.filter((x): x is string => typeof x === 'string') : [];
   }
 
-  // Stored tier pointers are validated against LIVE rows; a stale pointer falls back to the
-  // derived rung, and the ladder never inverts (silver must sit under gold).
-  const derived = deriveOfferTiers(tiers);
-  const gold = resolveTierPointer(tiers, automation.gold_tier_id) ?? derived.gold;
-  let silver = resolveTierPointer(tiers, automation.silver_tier_id) ?? derived.silver;
-  if (silver && gold && (silver.id === gold.id || silver.price >= gold.price)) silver = derived.silver;
-  if (silver && gold && silver.id === gold.id) silver = null;
+  // Generic engine semantics: the funnel leads with its PRIMARY paid offer and may hold
+  // a cheaper DOWNSELL. Stored pointers are validated against LIVE rows inside
+  // resolveFunnelOffers (a stale or cross-artist pointer falls back to derivation), the
+  // primary is always paid, and the downsell is always strictly cheaper or absent.
+  // GB's Platinum-then-Gold funnel is configuration of these two pointers, not code.
+  const { primary: gold, downsell: silver } = resolveFunnelOffers(tiers, automation);
 
   return (
     <DropFunnelClient

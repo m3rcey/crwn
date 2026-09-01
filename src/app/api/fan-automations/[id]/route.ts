@@ -50,7 +50,9 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
         return NextResponse.json({ error: blockers[0], blockers }, { status: 409 });
       }
       update.status = 'active';
-      update.connection_id = connection!.id;
+      // Optional: an external-traffic funnel activates with no connection, and the
+      // matching engine simply never routes a comment to it.
+      update.connection_id = connection?.id ?? null;
       update.activated_at = new Date().toISOString();
     } else if (action === 'pause') {
       update.status = 'paused';
@@ -62,15 +64,17 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
     if (body.fields && typeof body.fields === 'object') {
       const { data: artist } = await supabaseAdmin
         .from('artist_profiles').select('slug').eq('id', artistId).maybeSingle();
-      const [{ data: tiers }, { data: tracks }] = await Promise.all([
+      const [{ data: tiers }, { data: tracks }, { data: sequences }] = await Promise.all([
         supabaseAdmin.from('subscription_tiers').select('id').eq('artist_id', artistId).eq('is_active', true).gt('price', 0),
         supabaseAdmin.from('tracks').select('id').eq('artist_id', artistId).eq('is_free', true),
+        supabaseAdmin.from('sequences').select('id').eq('artist_id', artistId).eq('is_active', true),
       ]);
       const validated = validateAutomationInput(
         { provider: existing.provider, ...body.fields },
         {
           tierIds: (tiers || []).map((t) => t.id),
           freeTrackIds: (tracks || []).map((t) => t.id),
+          sequenceIds: (sequences || []).map((q: { id: string }) => q.id),
           magnetKeyPrefix: `${artist?.slug || artistId}/magnet/`,
         },
       );
@@ -91,14 +95,25 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
         gold_item_title: v.goldItemTitle,
         gold_item_description: v.goldItemDescription,
         silver_tier_id: v.silverTierId,
+        nurture_sequence_id: v.nurtureSequenceId,
       });
     }
 
-    const { error } = await supabaseAdmin
+    let { error } = await supabaseAdmin
       .from('fan_automations')
       .update(update)
       .eq('id', id)
       .eq('artist_id', artistId);
+    // Pre-foundation-migration, nurture_sequence_id is an unknown column and fails the
+    // whole update. Every other edit matters more than the pointer: retry without it.
+    if (error && 'nurture_sequence_id' in update) {
+      delete update.nurture_sequence_id;
+      ({ error } = await supabaseAdmin
+        .from('fan_automations')
+        .update(update)
+        .eq('id', id)
+        .eq('artist_id', artistId));
+    }
     if (error) {
       console.error('[fan-automations] update failed:', error.code, error.message);
       return NextResponse.json({ error: 'Could not save. Try again.' }, { status: 500 });

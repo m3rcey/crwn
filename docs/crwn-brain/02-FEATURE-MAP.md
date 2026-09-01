@@ -1,5 +1,22 @@
 # 02 — Feature Map
 
+## Artist fan-sales engine, Build 1 — code live, two migrations PENDING (2026-09-01)
+
+ONE reusable funnel every artist configures; GB is the first configuration, never the
+architecture. The engine's concepts: free membership, PRIMARY paid offer, optional
+DOWNSELL, free fallback, nurture sequence, CONVERSION GOAL, attribution. The surfaces are
+the existing ones (the `/drop/[token]` funnel and Song Lab offers); Build 1 added the
+shared primitives underneath: `resolveFunnelOffers` (generic offer semantics over the
+historical gold/silver columns), `conversionGoal.ts` + `goalExit.ts` (sequences stop
+selling when the fan reaches the tier they sell, by price rank, exiting via webhook,
+cron self-heal, and enrollment refusal), funnel-specific nurture
+(`fan_automations.nurture_sequence_id`), first-touch attribution on both claim tables via
+the canonical normalizer, validated checkout return paths (`stripe/returnPath.ts`), the
+shared free-join disclosure contract, and link-only automation activation (no Meta
+connection required; external ManyChat is just a traffic source). Sequences without a
+goal are byte-for-byte legacy. Deliberately NOT in Build 1: artist VSLs, benefit
+previews, proof/scarcity sections, guest checkout, branching nurture, any new surface.
+
 ## Member downloads (stems) — live (2026-09-01)
 
 An artist adds a bundle of files in Studio, Music, and picks which rungs can download it.

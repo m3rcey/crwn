@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useToast } from '@/components/shared/Toast';
 import { ArrowLeft, Plus, Trash2, Save, Loader2, GripVertical } from 'lucide-react';
+import { supabase } from '@/lib/supabase/client';
 
 interface Step {
   id?: string;
@@ -90,9 +91,31 @@ export function SequenceBuilder({ artistId, sequenceId, onBack, onSaved }: Seque
 
   const [name, setName] = useState('');
   const [triggerType, setTriggerType] = useState('new_subscription');
+  // Conversion goal: the paid tier this sequence is selling. When the fan reaches it (or
+  // any higher rung), CRWN stops the sequence for them automatically.
+  const [goalTierId, setGoalTierId] = useState<string>('');
+  const [paidTiers, setPaidTiers] = useState<Array<{ id: string; name: string; price: number }>>([]);
   const [steps, setSteps] = useState<Step[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(!!sequenceId);
+
+  // The artist's own paid tiers, for the conversion-goal picker.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const { data } = await supabase
+          .from('subscription_tiers')
+          .select('id, name, price')
+          .eq('artist_id', artistId)
+          .eq('is_active', true)
+          .gt('price', 0)
+          .order('price', { ascending: true });
+        if (!cancelled) setPaidTiers(data || []);
+      } catch { /* picker simply stays empty */ }
+    })();
+    return () => { cancelled = true; };
+  }, [artistId]);
 
   // Load existing sequence
   useEffect(() => {
@@ -108,6 +131,7 @@ export function SequenceBuilder({ artistId, sequenceId, onBack, onSaved }: Seque
         if (seq) {
           setName(seq.name);
           setTriggerType(seq.trigger_type);
+          setGoalTierId(seq.goal_tier_id || '');
           setSteps(
             seq.steps.map((s: any) => ({
               id: s.id,
@@ -173,6 +197,7 @@ export function SequenceBuilder({ artistId, sequenceId, onBack, onSaved }: Seque
           artistId,
           name: name.trim(),
           triggerType,
+          goalTierId: goalTierId || null,
           steps: steps.map(s => ({
             delay_days: s.delay_days,
             subject: s.subject.trim(),
@@ -256,6 +281,24 @@ export function SequenceBuilder({ artistId, sequenceId, onBack, onSaved }: Seque
             <option value="abandoned_cart">Abandoned Cart</option>
             <option value="loyalty_survey">Loyalty Survey (90+ Day Fans)</option>
           </select>
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-crwn-text-secondary mb-1.5">Stops when they join (optional)</label>
+          <select
+            value={goalTierId}
+            onChange={e => setGoalTierId(e.target.value)}
+            className="w-full px-4 py-2.5 bg-crwn-surface border border-crwn-elevated rounded-xl text-sm text-crwn-text focus:outline-none focus:border-crwn-gold/50"
+          >
+            <option value="">Never stops automatically</option>
+            {paidTiers.map(t => (
+              <option key={t.id} value={t.id}>
+                {`${t.name} ($${(t.price / 100).toFixed(0)}/mo) or higher`}
+              </option>
+            ))}
+          </select>
+          <p className="text-[11px] text-crwn-text-secondary/70 mt-1">
+            A fan who reaches this tier exits the sequence. No more selling to someone who already bought.
+          </p>
         </div>
       </div>
 

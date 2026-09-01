@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { exitConvertedEnrollments } from '@/lib/sequences/goalExit';
 import { createClient } from '@supabase/supabase-js';
 import { resend, FROM_EMAIL } from '@/lib/resend';
 import { campaignEmail, resolveTokens } from '@/lib/emails/campaignEmail';
@@ -44,6 +45,22 @@ export async function GET(req: NextRequest) {
 
   for (const enrollment of dueEnrollments) {
     try {
+      // Conversion-goal self-heal: before any send, close the enrollment if this fan has
+      // reached the goal its sequence sells (the webhook normally does this the moment a
+      // purchase lands; the cron catches anything it missed). One fan+artist pass closes
+      // every converted enrollment, so later iterations of this loop for the same fan
+      // find their row already completed and skip below. No goal = no-op = legacy.
+      const healed = await exitConvertedEnrollments(supabaseAdmin, enrollment.artist_id, enrollment.fan_id);
+      if (healed > 0) {
+        const { data: stillActive } = await supabaseAdmin
+          .from('sequence_enrollments')
+          .select('id')
+          .eq('id', enrollment.id)
+          .eq('status', 'active')
+          .maybeSingle();
+        if (!stillActive) continue; // this very enrollment converted; send nothing
+      }
+
       // Get the current step
       const nextStepNumber = enrollment.current_step + 1;
       const { data: step } = await supabaseAdmin

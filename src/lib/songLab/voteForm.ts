@@ -100,7 +100,7 @@ export function possessive(name: string): string {
  */
 export function ballotDisclosure(artistName: string): string {
   const who = artistName.trim() || 'this artist';
-  return `By casting your vote, you also join ${possessive(who)} free fan community, so ${who} can send you the result and news about upcoming shows. Free. No card needed.`;
+  return `By casting your vote, you also join ${possessive(who)} free fan community, so ${who} can send you the result and news about upcoming shows. Free, no card needed, unsubscribe anytime.`;
 }
 
 /** What the fan is told while the request is in flight (also the disabled-button label). */
