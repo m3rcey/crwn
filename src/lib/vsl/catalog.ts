@@ -1,0 +1,89 @@
+// The four pre-signup VSLs, as data.
+//
+// One identifier, reused: a slug here IS the slide-deck id in scripts/vsl/decks/, which is also the
+// PNG folder under videos/vsl/ and the poster filename under public/vsl/. Renaming one renames
+// nothing else, so do not rename any of them.
+//
+// `url` is the whole gate. It is null until a rendered MP4 is actually hosted, and every consumer
+// treats null as "this video does not exist yet": the email block renders nothing, the watch page
+// does not list it, and /watch/<slug> is a 404. That is deliberate. The emails ship before the
+// videos are cut, so the failure mode of shipping early has to be an email that reads exactly as it
+// does today, never a broken thumbnail in a real lead's inbox. Turning one on is one line.
+
+export interface Vsl {
+  /** Stable id, shared with the slide deck. Never rename. */
+  slug: string;
+  /** Position in the series, used for ordering and the "N of 4" label. */
+  n: number;
+  title: string;
+  /** The question the video answers, in the lead's own words. Used as the list line. */
+  question: string;
+  /** Runtime in minutes, for the list. 0 until the cut is final. */
+  minutes: number;
+  /** Absolute or app-relative poster image. Slide 01 of the deck is literally the opening frame. */
+  poster: string;
+  /** Hosted MP4. NULL until it exists. See the note above: null means "not live", everywhere. */
+  url: string | null;
+}
+
+export const VSLS: Vsl[] = [
+  {
+    slug: 'vsl-1-fan-worth',
+    n: 1,
+    title: 'How much is one real fan actually worth?',
+    question: 'Why the number is bigger than a follower count suggests.',
+    minutes: 0,
+    poster: '/vsl/vsl-1-fan-worth.webp',
+    url: null,
+  },
+  {
+    slug: 'vsl-2-what-fans-pay-for',
+    n: 2,
+    title: 'What would your fans actually pay for?',
+    question: 'How to decide what goes inside the offer without guessing.',
+    minutes: 0,
+    poster: '/vsl/vsl-2-what-fans-pay-for.webp',
+    url: null,
+  },
+  {
+    slug: 'vsl-3-first-100-fans',
+    n: 3,
+    title: "How I'd launch a membership to your first 100 fans",
+    question: 'Who should see the offer first, and in what order.',
+    minutes: 0,
+    poster: '/vsl/vsl-3-first-100-fans.webp',
+    url: null,
+  },
+  {
+    slug: 'vsl-4-if-nobody-buys',
+    n: 4,
+    title: 'What happens if nobody buys?',
+    question: 'What CRWN does differently when the first launch produces nothing.',
+    minutes: 0,
+    poster: '/vsl/vsl-4-if-nobody-buys.webp',
+    url: null,
+  },
+];
+
+/** One VSL by slug, whether or not it is live. */
+export function getVsl(slug: string): Vsl | null {
+  return VSLS.find((v) => v.slug === slug) ?? null;
+}
+
+/**
+ * A VSL is LIVE only when a hosted video URL exists. Everything user-facing asks this, never
+ * `getVsl` alone, so an unhosted video cannot reach a lead through any surface.
+ */
+export function isVslLive(v: Vsl | null): v is Vsl {
+  return Boolean(v && v.url);
+}
+
+/** The live videos, in series order. Empty until the first one is hosted. */
+export function liveVsls(): Vsl[] {
+  return VSLS.filter(isVslLive);
+}
+
+/** The watch-page URL for a VSL. Relative, so an email caller prefixes the app origin. */
+export function watchPath(slug: string): string {
+  return `/watch/${slug}`;
+}

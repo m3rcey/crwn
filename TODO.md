@@ -80,6 +80,27 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **Host the four VSL MP4s and paste four URLs. Nothing else turns the videos on.**
+      The emails, the poster images, the watch page and the placements are all shipped and inert.
+      Each video is dark until its `url` stops being null in
+      [`src/lib/vsl/catalog.ts`](src/lib/vsl/catalog.ts). Do them one at a time as each cut is
+      finished; a video with a null url renders nothing in the email and 404s on /watch, so a
+      half-finished series is safe to leave sitting there.
+      1. Upload the MP4 (R2 is already wired, same bucket pattern as audio) or drop it anywhere
+         that serves a direct file URL over https.
+      2. In that file set `url` for the slug, and set `minutes` to the real runtime so the email
+         and the rail stop saying just "Watch".
+      3. Slugs, in series order: `vsl-1-fan-worth`, `vsl-2-what-fans-pay-for`,
+         `vsl-3-first-100-fans`, `vsl-4-if-nobody-buys`.
+      Verify after: open https://thecrwn.app/watch/vsl-1-fan-worth and confirm it plays and the
+      rail lists only the videos that are actually live.
+
+- [ ] **Decide where the Calculator VSL sits on the calculator pages.**
+      You said it plays after the result and the CTAs. That order is machine-pinned and
+      mutation-tested in `src/lib/leadMagnets/pageComposition.test.ts` (result + email ask inside
+      the hero, then LadderSection, then the builder, then CallRequestCard), so the video needs a
+      decided slot in that sequence or the suite fails. Tell Claude which slot and it ships.
+
 - [ ] **Run one SQL file to comp Executive Producer Sessions and DMs to GB while he stays on
       Launch.** Open and run:
       [`supabase/schema-phase2-artist-plan-overrides.sql`](supabase/schema-phase2-artist-plan-overrides.sql)

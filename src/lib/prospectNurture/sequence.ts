@@ -94,6 +94,8 @@ const V3: NurtureSequence = {
         },
         { kind: 'p', text: 'It measures one thing: value that exists in your fanbase today and has nowhere to land. The fan is in one tool, the sale happens in a second, the list lives in a third, and the next offer needs all three to talk. So the value sits between them.' },
         { kind: 'p', text: 'Worth doing today: open your result and read the assumptions. If an input looks wrong, change it. The figure moves. A number you cannot audit is a number you should not act on.' },
+        { kind: 'p', text: 'If you would rather hear the long version, this is it.' },
+        { kind: 'video', vsl: 'vsl-1-fan-worth' },
       ],
       primaryCta: { kind: 'result', label: 'Check what the number left out' },
     },
@@ -135,6 +137,8 @@ const V3: NurtureSequence = {
         { kind: 'p', text: 'That is genuinely it. Setting up the first version of your {{feature_name}} in the CRWN app takes minutes, it runs alongside everything you already have, and it does not touch a single existing subscriber.' },
         { kind: 'p', text: 'What you get on the other side of it is not just the offer. It is the first group of fans you can see in one place, with what they bought attached to them, which is the thing your current stack cannot give you at any price.' },
         { kind: 'p', text: 'A free account keeps your result and turns that first move on. Nothing you calculated gets re-entered.' },
+        { kind: 'p', text: 'If the part you are stuck on is what to actually put inside it, start here.' },
+        { kind: 'video', vsl: 'vsl-2-what-fans-pay-for' },
       ],
       primaryCta: { kind: 'auto', qualifiedLabel: 'See the assisted launch option' },
     },
@@ -202,6 +206,8 @@ const V3: NurtureSequence = {
         ] },
         { kind: 'p', text: 'You already have group one. That is what makes you different from most people who will read this: your first ten invitations can go to people with a payment history, not to strangers. Ten of those beats one public post, every time.' },
         { kind: 'p', text: 'Write that list down today, even on paper. It is the launch list, and it is the asset your platforms cannot take back.' },
+        { kind: 'p', text: 'The full version of this, start to finish, is here.' },
+        { kind: 'video', vsl: 'vsl-3-first-100-fans' },
       ],
       primaryCta: { kind: 'signup' },
     },
@@ -220,6 +226,31 @@ const V3: NurtureSequence = {
         { kind: 'moduleQuickWin' },
         { kind: 'p', text: 'You will know inside a few days whether your most proven fans respond. That is a real answer, from real buyers, for the cost of an evening. Compare that to how long you have had the question open.' },
         { kind: 'p', text: 'And if time genuinely is the wall: artists already selling directly do not have to do the move alone. You bring the exports, the heavy lifting gets shared.' },
+      ],
+      primaryCta: { kind: 'auto', qualifiedLabel: 'See the assisted launch option' },
+    },
+    {
+      // The failure objection had no email. v3 answers the Patreon objection (day 6), the time
+      // objection (day 14) and the cost of "fine" (day 45), but never "what if I do all of it and
+      // nobody buys", which is the last thing standing between a convinced lead and starting. The
+      // First Paid Member Guarantee also appeared nowhere before signup: day 6 only gestures at
+      // "hands-on help". This sits at 16 because the thought arrives right after the launch plan
+      // (day 11) and the effort answer (day 14), and it hands a qualified lead to the call.
+      id: 'v3.b.if-nobody-buys',
+      phase: 'believe',
+      dayOffset: 16,
+      objective: 'Answer the failure objection outright, and name the guarantee that only exists on the assisted path.',
+      subject: 'And if nobody buys?',
+      preview: 'The honest answer, including what happens when the first version fails.',
+      art: 'parallelBridge',
+      body: [
+        { kind: 'p', text: 'Hey {{first_name}},' },
+        { kind: 'p', text: 'There is one question left that nothing I have sent you actually answers. You build the offer, you invite the right people, you send it, and thirty days later nobody has paid. What then?' },
+        { kind: 'p', text: 'The part worth having first is that zero sales is a signal, not a verdict. It tells you something is wrong. It does not tell you which thing. Maybe the price. Maybe the benefits read as vague. Maybe the right people never saw it. Maybe the checkout quietly did not work. A first launch is partly a test, and a test that returns a readable answer is not a wasted evening.' },
+        { kind: 'callout', text: 'Zero paid members tells you there is a problem. It does not tell you what the problem is.' },
+        { kind: 'p', text: 'It is also the reason the order I sent on Monday matters so much. A small group you already know something about gives you an answer you can act on. A public post gives you silence you cannot read, and silence is what makes artists conclude the offer was wrong when the audience was.' },
+        { kind: 'p', text: 'What happens after a first version fails depends on which path you are on. Self-serve, you keep the offer, the list and everything the attempt taught you, and you change one thing and go again. Artists who qualify for the assisted launch get something more specific than that, and the video is where it is spelled out, conditions included.' },
+        { kind: 'video', vsl: 'vsl-4-if-nobody-buys' },
       ],
       primaryCta: { kind: 'auto', qualifiedLabel: 'See the assisted launch option' },
     },

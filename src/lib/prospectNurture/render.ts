@@ -9,6 +9,7 @@
 // self-entered artist name can never inject markup into an email.
 
 import { NURTURE_ART, artUrl } from './art';
+import { getVsl, isVslLive, watchPath } from '@/lib/vsl/catalog';
 import type { CalculatorModule, NurtureBlock, NurtureEmail, NurtureTokens } from './types';
 
 export interface RenderInput {
@@ -59,7 +60,13 @@ export function resolveTokens(text: string, tokens: NurtureTokens): string {
 }
 
 // Turn one block into resolved plain-text lines (an array so lists become multiple lines).
-function blockToText(block: NurtureBlock, tokens: NurtureTokens, module: CalculatorModule, hasNumber: boolean): string[] {
+function blockToText(
+  block: NurtureBlock,
+  tokens: NurtureTokens,
+  module: CalculatorModule,
+  hasNumber: boolean,
+  appUrl: string,
+): string[] {
   switch (block.kind) {
     case 'p':
     case 'callout':
@@ -72,13 +79,25 @@ function blockToText(block: NurtureBlock, tokens: NurtureTokens, module: Calcula
       return [resolveTokens(module.useCase, tokens)];
     case 'numberOrFallback':
       return [resolveTokens(hasNumber ? block.withNumber : block.withoutNumber, tokens)];
+    case 'video': {
+      const v = getVsl(block.vsl);
+      // Not hosted yet: the block contributes nothing at all, in text and in HTML alike.
+      if (!isVslLive(v)) return [];
+      return [`Watch: ${v.title} - ${appUrl}${watchPath(v.slug)}`];
+    }
     default:
       return [];
   }
 }
 
 // Turn one block into an HTML fragment. Every interpolated value is escaped.
-function blockToHtml(block: NurtureBlock, tokens: NurtureTokens, module: CalculatorModule, hasNumber: boolean): string {
+function blockToHtml(
+  block: NurtureBlock,
+  tokens: NurtureTokens,
+  module: CalculatorModule,
+  hasNumber: boolean,
+  appUrl: string,
+): string {
   const p = (t: string) =>
     `<p style="margin:0 0 16px;color:#e8e8ea;font-size:15px;line-height:1.7;">${escapeHtml(resolveTokens(t, tokens))}</p>`;
   switch (block.kind) {
@@ -105,6 +124,23 @@ function blockToHtml(block: NurtureBlock, tokens: NurtureTokens, module: Calcula
       return p(module.useCase);
     case 'numberOrFallback':
       return p(hasNumber ? block.withNumber : block.withoutNumber);
+    case 'video': {
+      const v = getVsl(block.vsl);
+      if (!isVslLive(v)) return '';
+      const href = `${appUrl}${watchPath(v.slug)}`;
+      const mins = v.minutes > 0 ? `${v.minutes} min watch` : 'Watch';
+      // A linked poster with a drawn play badge. No <video> and no GIF: Gmail and Outlook render
+      // neither, and a broken embed costs the click a poster reliably earns.
+      return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 20px;"><tr><td>
+        <a href="${escapeHtml(href)}" style="text-decoration:none;display:block;">
+          <img src="${escapeHtml(appUrl + v.poster)}" width="560" alt="${escapeHtml(v.title)}" style="display:block;width:100%;max-width:560px;border-radius:12px;border:1px solid #2a2a2a;" />
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:10px;"><tr>
+            <td style="color:#D4AF37;font-size:15px;font-weight:700;line-height:1.4;">&#9654;&nbsp; ${escapeHtml(v.title)}</td>
+            <td align="right" style="color:#8b8b8b;font-size:12px;white-space:nowrap;padding-left:12px;">${escapeHtml(mins)}</td>
+          </tr></table>
+        </a>
+      </td></tr></table>`;
+    }
     default:
       return '';
   }
@@ -127,9 +163,9 @@ export function renderNurtureEmail(input: RenderInput): RenderedEmail {
   const preview = resolveTokens(email.preview, tokens);
   const { url, label } = input.ctaOverride ?? ctaTarget(email, tokens);
 
-  const bodyHtml = email.body.map((b) => blockToHtml(b, tokens, module, hasNumber)).join('');
+  const bodyHtml = email.body.map((b) => blockToHtml(b, tokens, module, hasNumber, appUrl)).join('');
   const bodyText = email.body
-    .flatMap((b) => blockToText(b, tokens, module, hasNumber))
+    .flatMap((b) => blockToText(b, tokens, module, hasNumber, appUrl))
     .join('\n\n');
 
   const ctaHtml = url

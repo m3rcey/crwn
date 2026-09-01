@@ -30,7 +30,14 @@ export type NurtureBlock =
   | { kind: 'moduleUseCase' }
   // A line that reads well WITH the lead's real dollar figure and also WITHOUT it (score-only tools
   // like Royalty Readiness and the Quest Path have no dollar, so we must never render a blank).
-  | { kind: 'numberOrFallback'; withNumber: string; withoutNumber: string };
+  | { kind: 'numberOrFallback'; withNumber: string; withoutNumber: string }
+  // A VSL, referenced by its catalog slug. Renders as a POSTER IMAGE with a play badge linking to
+  // the watch page, because no email client plays an embedded video: that is not a limitation being
+  // worked around, it is the only thing that works in Gmail and Outlook.
+  //
+  // It renders NOTHING when the referenced video has no hosted URL yet. So this block can ship into
+  // a live sequence before a single video is cut, and the email simply reads as it does today.
+  | { kind: 'video'; vsl: string };
 
 export interface NurtureCta {
   // 'signup' opens the existing /signup handoff carrying the calculator + result token.
