@@ -80,27 +80,24 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
-- [ ] **Run three migrations, in this order, to finish GB's offer.** They are independent, but
-      run them in order anyway so a failure stops at a known point. Each one self-verifies and
-      will raise loudly rather than half-land.
+- [ ] **Run ONE migration to finish GB's offer:**
+      [supabase/schema-phase2-member-files.sql](supabase/schema-phase2-member-files.sql)
+      It creates `member_files`, the table behind stems and member-only downloads. Until it
+      runs, the Studio panel says member downloads are not switched on and nothing else changes.
+      I probed production rather than trusting my own list: `member_files` answers 404, so this
+      one is genuinely missing, while `products.file_key` already exists (200 to anon, against a
+      42703 control), so the product-file migration needs nothing from you.
 
-      1. [supabase/schema-phase2-product-file-privacy.sql](supabase/schema-phase2-product-file-privacy.sql)
-         Adds `products.file_key`. Until this runs, saving a digital product WITH a file fails
-         and the artist is told the upload failed. **This one is the security fix**, so it goes
-         first: the code that used to publish a paid file at a permanent public URL is already
-         gone, and this gives the replacement somewhere to store its private key.
-      2. [supabase/schema-phase2-member-files.sql](supabase/schema-phase2-member-files.sql)
-         One table, `member_files`, for stems and member-only downloads. Until this runs, the
-         Studio panel says member downloads are not switched on and nothing else changes.
-      3. [supabase/schema-phase2-free-join-sequence-trigger.sql](supabase/schema-phase2-free-join-sequence-trigger.sql)
-         Lets a sequence trigger on `free_join`. Until this runs, you cannot SAVE a free-join
-         sequence, so a free member gets no nurture email. Free joins themselves work either way.
+      Then run `npm run verify:migrations`. It should report 0 not applied.
 
-      Then, from the repo: `npm run verify:migrations` for 1 and 2, and run
+- [ ] **Optional, and only if you want free members to get a welcome email:**
+      [supabase/schema-phase2-free-join-sequence-trigger.sql](supabase/schema-phase2-free-join-sequence-trigger.sql)
+      It widens one CHECK constraint so a sequence can trigger on `free_join`. A constraint is
+      invisible to the anon probe, so I cannot tell you from here whether it is already in; the
+      file is safe to re-run either way. To check first instead, run
       [supabase/check-unverified-feature-state.sql](supabase/check-unverified-feature-state.sql)
-      for 3 (a CHECK constraint is invisible to the anon probe, so SQL is the only honest check).
-
-- [ ] **After migration 3, build GB's free-join welcome sequence, or Bronze members get nothing.**
+      and look at the last row.
+- [ ] **After that constraint is in, build GB's free-join welcome sequence, or Bronze members get nothing.**
       Studio, Fans, Sequences, new sequence, trigger "Joined a free tier". One email is enough to
       start. Nothing auto-creates it: a sequence CRWN wrote for an artist would be CRWN emailing
       that artist's fans in their name.
