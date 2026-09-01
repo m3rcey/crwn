@@ -2,10 +2,14 @@
 
 ## 2026-09-01 - A paid file that would have been public on first upload, and the four gaps under GB's offer
 
-**Code shipped. Three migrations written and NOT applied** (registered pending in
-`EXPECTED_MIGRATION_STATE`; founder actions are in TODO.md with the run order). Every path
-below is written to survive its own migration being absent, so nothing here is dark-launched
-in the sense of broken: the feature reports itself unavailable rather than failing.
+**Code shipped. All three migrations APPLIED and probe-verified the same day.** `member_files`
+answers 42501 to anon on id, files and allowed_tier_ids, and to an anon INSERT, where the same
+table answered 404 PGRST205 before the run: present and closed, not missing. `products.file_key`
+and the four Fan Automations tables turned out to have been applied ALREADY, which the first
+registry entry got wrong by recording state from the fact that a file existed rather than from
+asking production. `verify:migrations` now reports 0 not applied. The free-join CHECK is
+invisible to the anon probe by nature, so its evidence is its own canary: the migration inserted
+a real `free_join` row, deleted it, and proved an invalid trigger_type is still refused.
 
 **The product-file leak was structurally real and NOT yet exploitable, and the difference is
 the whole story.** `ShopManager` uploaded a paid digital product's file into the PUBLIC

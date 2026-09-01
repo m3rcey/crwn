@@ -1,14 +1,14 @@
 # 02 — Feature Map
 
-## Member downloads (stems) — code live, migration PENDING (2026-09-01)
+## Member downloads (stems) — live (2026-09-01)
 
 An artist adds a bundle of files in Studio, Music, and picks which rungs can download it.
 Fans see every bundle on the artist page: entitled ones list their files, locked ones show a
 title and the rung that unlocks them, because a benefit nobody can see is not a benefit. The
 files are private from upload to download. Artist surface `MemberFilesManager`, fan surface
 `MemberFilesSection`, logic `src/lib/memberFiles/core.ts` (pure, tested), routes under
-`/api/member-files`. Until `schema-phase2-member-files.sql` is applied the Studio panel says
-member downloads are not switched on and the fan section renders nothing.
+`/api/member-files`. The migration is applied and probe-verified: anon reads and writes both
+answer 42501, so the table is reachable only through the routes.
 
 ## Fan recognition — live (2026-09-01)
 

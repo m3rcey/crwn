@@ -162,7 +162,7 @@ can land in an analytics row. **Forward-looking from 2026-08-03**; there is no h
 | `community_posts_feed` | `schema-phase2-community-posts-rls.sql` | redacted feed with `can_view` flag |
 | `fan_testimonials_public` | `schema-phase2-fan-testimonials.sql` (**APPLIED**, probe-verified 2026-08-12) | the ONLY public surface for fan testimonials. Applies the publication predicate (fan consent + artist featured + not withdrawn/hidden/blocked), derives the verification badge from live `subscriptions` state, and emits bucketed tenure with NO tier name. Both base tables (`fan_testimonials`, `fan_testimonial_requests`) are CLOSED to anon and authenticated (RLS on + grants revoked), so this view is the entire client-readable surface. Never pair tier with tenure here: that is lifetime spend, the `leaderboardPrivacy` defect. PRODUCTION COLUMN LIST, verified 2026-08-12 via the PostgREST schema: `id, artist_id, body, context_kind, submitted_at, display_name, verification_label, tenure_label`. Nothing else. |
 
-### Member files (stems and member-only downloads; migration PENDING founder application)
+### Member files (stems and member-only downloads; applied 2026-09-01)
 
 `member_files` — id, artist_id, title, description, `files` jsonb, `allowed_tier_ids` jsonb,
 is_active. **The jsonb holds PRIVATE object KEYS, never URLs**, and the migration's self-verify
@@ -173,7 +173,7 @@ route that resolves the artist from the session. A fan requests a bundle id and 
 the key is resolved server-side and never leaves it. An empty `allowed_tier_ids` means NOBODY.
 Migration: [supabase/schema-phase2-member-files.sql](../../supabase/schema-phase2-member-files.sql).
 
-`products.file_key` (text, PENDING) — the private key for a digital product's file, replacing
+`products.file_key` (text, applied) — the private key for a digital product's file, replacing
 `products.file_url`. `file_url` is **deliberately NOT revoked**: `src/app/[slug]/page.tsx` reads
 products with `select('*')` and a revoked column 42501s the whole statement, which would empty
 every storefront. It is simply never written again. Delivery is `/api/products/download`, which

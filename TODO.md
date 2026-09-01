@@ -80,24 +80,7 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
-- [ ] **Run ONE migration to finish GB's offer:**
-      [supabase/schema-phase2-member-files.sql](supabase/schema-phase2-member-files.sql)
-      It creates `member_files`, the table behind stems and member-only downloads. Until it
-      runs, the Studio panel says member downloads are not switched on and nothing else changes.
-      I probed production rather than trusting my own list: `member_files` answers 404, so this
-      one is genuinely missing, while `products.file_key` already exists (200 to anon, against a
-      42703 control), so the product-file migration needs nothing from you.
-
-      Then run `npm run verify:migrations`. It should report 0 not applied.
-
-- [ ] **Optional, and only if you want free members to get a welcome email:**
-      [supabase/schema-phase2-free-join-sequence-trigger.sql](supabase/schema-phase2-free-join-sequence-trigger.sql)
-      It widens one CHECK constraint so a sequence can trigger on `free_join`. A constraint is
-      invisible to the anon probe, so I cannot tell you from here whether it is already in; the
-      file is safe to re-run either way. To check first instead, run
-      [supabase/check-unverified-feature-state.sql](supabase/check-unverified-feature-state.sql)
-      and look at the last row.
-- [ ] **After that constraint is in, build GB's free-join welcome sequence, or Bronze members get nothing.**
+- [ ] **Build GB's free-join welcome sequence, or Bronze members get nothing.** The migration is in.
       Studio, Fans, Sequences, new sequence, trigger "Joined a free tier". One email is enough to
       start. Nothing auto-creates it: a sequence CRWN wrote for an artist would be CRWN emailing
       that artist's fans in their name.
