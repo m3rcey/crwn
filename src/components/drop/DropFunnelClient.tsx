@@ -68,7 +68,11 @@ export function DropFunnelClient({ token, artist, magnet, gold, goldItem, silver
   useEffect(() => {
     const q = new URLSearchParams(window.location.search);
     let remembered = false;
-    try { remembered = sessionStorage.getItem(storageKey) === '1'; } catch { /* fine */ }
+    try {
+      remembered = sessionStorage.getItem(storageKey) === '1';
+      const savedEmail = sessionStorage.getItem(`${storageKey}_email`);
+      if (savedEmail) setEmail(savedEmail);
+    } catch { /* fine */ }
 
     if (q.get('subscription') === 'success') {
       setPhase('joined');
@@ -97,7 +101,14 @@ export function DropFunnelClient({ token, artist, magnet, gold, goldItem, silver
       }
       setClaimed({ magnet: data.magnet, emailSent: data.emailSent, hasSession: data.hasSession, isOwner: data.isOwner });
       setHasSession(data.hasSession);
-      try { sessionStorage.setItem(storageKey, '1'); } catch { /* fine */ }
+      try {
+        sessionStorage.setItem(storageKey, '1');
+        // The address is needed again to request a sign-in code on a LATER visit. It
+        // lived only in component state, so a reload or a Stripe round trip lost it and
+        // the code could never be sent. Same per-viewer storage as the claim flag, and
+        // it is the fan's own address in the fan's own browser.
+        if (email) sessionStorage.setItem(`${storageKey}_email`, email);
+      } catch { /* fine */ }
       setPhase('delivered');
     } catch {
       setError('Something went wrong. Try again.');
@@ -145,26 +156,20 @@ export function DropFunnelClient({ token, artist, magnet, gold, goldItem, silver
   // The tier they pressed is remembered, so checkout opens on the thing they wanted
   // rather than dropping them back on a page to press it again.
   const [codeForTier, setCodeForTier] = useState<string | null>(null);
+  const [emailForCode, setEmailForCode] = useState('');
   const [code, setCode] = useState('');
   const [codeBusy, setCodeBusy] = useState(false);
   const [codeSent, setCodeSent] = useState(false);
   const [codeError, setCodeError] = useState('');
 
-  const sendCode = useCallback(async (tierId: string) => {
+  const sendCodeTo = useCallback(async (addr: string, tierId: string) => {
     setCodeForTier(tierId);
     setCodeError('');
     setCode('');
-    if (!email) {
-      // Reached the offer in a session-less tab without the address on hand.
-      setCodeError('Enter your email again to get a code.');
-      return;
-    }
     setCodeBusy(true);
     try {
-      // shouldCreateUser false: this address already exists as a captured contact from
-      // the claim. Never mint an account here.
       const { error: otpError } = await supabase.auth.signInWithOtp({
-        email,
+        email: addr,
         options: { shouldCreateUser: false },
       });
       if (otpError) setCodeError(otpError.message);
@@ -174,7 +179,23 @@ export function DropFunnelClient({ token, artist, magnet, gold, goldItem, silver
     } finally {
       setCodeBusy(false);
     }
-  }, [email]);
+  }, []);
+
+  const sendCode = useCallback(async (tierId: string) => {
+    setCodeForTier(tierId);
+    setCodeError('');
+    setCode('');
+    if (!email) {
+      // A genuinely fresh tab with no stored address. The box below asks for it rather
+      // than dead-ending, because telling someone to "enter your email again" with no
+      // field to type into is not an instruction, it is a wall.
+      setCodeSent(false);
+      return;
+    }
+    // shouldCreateUser false inside: this address already exists as a captured contact
+    // from the claim. Never mint an account here.
+    await sendCodeTo(email, tierId);
+  }, [email, sendCodeTo]);
 
   const verifyCode = useCallback(async (tierId: string) => {
     const token = code.trim();
@@ -317,9 +338,34 @@ export function DropFunnelClient({ token, artist, magnet, gold, goldItem, silver
               <span>
                 {codeSent
                   ? `We sent a 6 digit code to ${email}. Enter it here and checkout opens.`
-                  : 'Getting your code ready...'}
+                  : email
+                    ? 'Getting your code ready...'
+                    : 'Confirm the email you claimed the drop with and we will send a code.'}
               </span>
             </p>
+            {!email && (
+              <div className="mt-3 flex gap-2">
+                <input
+                  type="email"
+                  value={emailForCode}
+                  onChange={(e) => setEmailForCode(e.target.value)}
+                  placeholder="you@email.com"
+                  aria-label="Your email"
+                  className="flex-1 rounded-xl bg-crwn-card px-4 py-3 text-sm text-crwn-text placeholder:text-crwn-text-secondary/50 outline-none"
+                />
+                <button
+                  onClick={() => {
+                    const addr = emailForCode.trim();
+                    setEmail(addr);
+                    void sendCodeTo(addr, tier.id);
+                  }}
+                  disabled={!emailForCode.trim()}
+                  className="px-5 rounded-xl font-semibold bg-crwn-gold text-crwn-bg press-scale disabled:opacity-50"
+                >
+                  Send code
+                </button>
+              </div>
+            )}
             <div className="mt-3 flex gap-2">
               <input
                 inputMode="numeric"
