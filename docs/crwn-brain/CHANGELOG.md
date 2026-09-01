@@ -1,5 +1,53 @@
 # CRWN Brain — Changelog
 
+## 2026-09-01 - GB's ladder is deliverable, and a capability column an artist could have set on themselves
+
+**Three migrations applied and probe-verified.** `verify:migrations` reports 0 not applied:
+the plan comp reads 42501 to anon (server-only) with gb carrying allowsLive + allowsDMs, the
+session submission column is readable with 0 of 8 existing sessions restricted (so none
+changed meaning), and the four Fan Automations tables are closed with 0 policies and 0
+client-role grants.
+
+**A new column on artist_profiles is UNPROTECTED by default, and that nearly shipped a
+paywall bypass.** Artists hold an owner UPDATE policy on their own row, and column
+protection lives in `freeze_artist_profiles_protected_cols()` as a DENYLIST. So
+`plan_feature_overrides` was writable from the browser: any artist could have granted
+themselves live and DMs, capabilities Pro sells at $49/mo, silently and on every account.
+`song_lab_enabled` from 2026-08-20 had the identical hole. Both are named in the trigger
+now, and the migration asserts the trigger actually contains them rather than trusting the
+author to have remembered. **The rule this establishes: adding a column to artist_profiles
+means asking whether the freeze covers it, every time.**
+
+**The self-verify that caught it was itself wrong, and the probe-first rule paid for itself
+again.** The first run raised `plan_feature_overrides must stay server-only; a client grant
+exists` AFTER `COMMIT`. Nothing was rolled back: the column and the comp had landed, and
+production was correct. The assertion matched ANY privilege on the column, while
+`authenticated` legitimately holds UPDATE on artist_profiles because artists edit their own
+profile. `launch_partner` scopes the same check to `privilege_type = 'SELECT'`, which is the
+property that actually matters; this one now does too. A migration that certifies a property
+it never enforces, and one that asserts a property production cannot satisfy, are the same
+class of defect from opposite sides.
+
+**Who may SUBMIT to a session is now separate from who may watch it.**
+`live_sessions.submission_tier_ids` NARROWS the session's access and is checked AFTER it, in
+`canSubmitMaterial`, so a fan who cannot enter the room can never submit however it is set,
+and an EMPTY list means nobody rather than everybody. It is deliberately NOT applied to
+`canSubmitToSession`, which the in-session poll vote route uses as its access check:
+narrowing that would have stopped a Gold member voting in a Platinum-submission room, which
+is the exact split the feature exists to create. That work also fixed a dead lookup in the
+vote fallback (`producer_sessions`, a table that has never existed, probe PGRST205), which
+meant no fan could vote once a submission window closed. It failed closed, so it was a
+benefit nobody could use rather than a hole.
+
+**Tier access is cumulative at write time across ten surfaces.** A ladder reading "Includes
+Silver, plus" was not what CRWN stored: the gate matches a fan's tier EXACTLY, so ticking
+Silver alone locked out the Gold and Platinum members who pay more. Picking a rung now saves
+that rung and everyone above it, ordered by PRICE because artists rename rungs (GB's free
+tier is "Economy"). The entitlement oracle is untouched, the same shape as the release
+waterfall: the write mutates the field, the gate keeps answering the one question it already
+answers correctly. An unknown tier id expands to NOBODY, never everybody.
+
+
 ## 2026-08-25 (2) - Twilio would not take our word for the paper form, so the opt-in became a page
 
 **Twilio rejected the campaign because the opt-in was described as a signed internal record it

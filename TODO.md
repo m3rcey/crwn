@@ -80,21 +80,6 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
-- [ ] **Run one SQL file so GB can let Gold WATCH a session while only Platinum SUBMITS.**
-      Open and run:
-      [`supabase/schema-phase2-session-submission-tiers.sql`](supabase/schema-phase2-session-submission-tiers.sql)
-      One nullable column on live_sessions, nothing destructive, safe to re-run. Until it
-      runs nothing breaks: the gate treats a missing column as "no restriction" and the
-      create form retries without the field, so sessions keep working exactly as today.
-      Why it is needed: GB's Gold rung sells Executive Producer Session viewer access plus
-      in-session voting, and his Platinum rung sells submitting beats, vocals and ideas.
-      One session had ONE tier list answering both questions, so anyone admitted could also
-      upload. After this he sets "who can send something in" separately in /studio/live.
-      Expected on success: one result row reading `session submission tiers applied` with
-      with_submission_list = 0 (no existing session changes meaning).
-      Verify after with: npm run verify:migrations (look for "session submission tiers")
-
-
 - [ ] **Make a PUBLIC R2 bucket for the VSLs, then run one command.** The five cuts are finished
       and sitting in `videos/output`. They are already web-ready (1080p H.264, 1.6 to 2.2 Mbps,
       moov atom at the front), so nothing needs re-encoding. What is missing is somewhere public
@@ -125,24 +110,6 @@ responsible for. Do not work those.
       mutation-tested in `src/lib/leadMagnets/pageComposition.test.ts` (result + email ask inside
       the hero, then LadderSection, then the builder, then CallRequestCard), so the video needs a
       decided slot in that sequence or the suite fails. Tell Claude which slot and it ships.
-
-- [ ] **Run one SQL file to comp Executive Producer Sessions and DMs to GB while he stays on
-      Launch.** Open and run:
-      [`supabase/schema-phase2-artist-plan-overrides.sql`](supabase/schema-phase2-artist-plan-overrides.sql)
-      One nullable jsonb column on artist_profiles, plus the override for slug `gb` ONLY
-      (it fails loudly if that slug is missing). Nobody else is comped, and the column is
-      server-only so no browser can read or appear to set its own capabilities.
-      Why it is needed: GB's Gold rung promises Executive Producer Sessions and his Platinum
-      rung promises direct interaction / Q&A. Both are live/DM features that Launch refuses
-      server-side, so without this he would be selling a tier benefit CRWN declines to
-      deliver. The override is ADDITIVE ONLY by construction (`applyPlanOverrides` ignores
-      `false`), so it can grant a capability and can never quietly revoke one from an artist
-      who is paying for a plan that includes it.
-      Expected on success: one result row reading `plan overrides applied`, comped_artists = 1,
-      comped_slug = gb.
-      Verify after with: npm run verify:migrations (look for the "artist plan overrides" line)
-      Until it runs, nothing breaks: a missing column reads as "no override" and GB simply
-      stays on plain Launch limits.
 
 - [ ] **Create GB's Platinum tier at $50/month.** No SQL and no code: he adds it himself in
       /account/tiers, or you do it from his account. His live ladder today is Economy (free),

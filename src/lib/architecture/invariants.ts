@@ -1335,11 +1335,11 @@ export const EXPECTED_MIGRATION_STATE: ReadonlyArray<{
   },
   // Per-artist comped plan capabilities. PENDING: every gate reads getEffectiveLimits,
   // and a missing column reads as "no override", so the plan answer stands until it runs.
-  { file: 'schema-phase2-artist-plan-overrides.sql', state: 'pending', note: 'Adds artist_profiles.plan_feature_overrides (server-only jsonb) and comps live + DMs to gb only. Additive by construction: applyPlanOverrides ignores false, so an override can never revoke a paid plan capability.' },
+  { file: 'schema-phase2-artist-plan-overrides.sql', state: 'applied', note: 'Founder-applied 2026-09-01 and probe-verified: anon reads the column 42501 (server-only), gb comped with allowsLive + allowsDMs. The FIRST run raised on its own self-verify AFTER commit; probing showed the column and the comp had landed and the assertion was wrong (it matched ANY privilege, and authenticated legitimately holds UPDATE because artists edit their own profile). Scoped to SELECT, as launch_partner does it. That chase also found a real hole: the freeze trigger is a DENYLIST, so a new column is unprotected and any artist could have granted THEMSELVES live + DMs from the browser. plan_feature_overrides and song_lab_enabled are both named in freeze_artist_profiles_protected_cols now, asserted by the migration.' },
   // Who may SUBMIT to an Executive Producer Session, separately from who may watch.
   // PENDING and fail-soft in both directions: canSubmitMaterial treats a missing column as
   // "no restriction", and the create form retries without the field if the column is absent.
-  { file: 'schema-phase2-session-submission-tiers.sql', state: 'pending', note: 'Adds live_sessions.submission_tier_ids (nullable). NARROWING ONLY: checked after the access gate, so it can never admit a fan who cannot reach the session. NULL keeps the original behaviour, so no existing session changes meaning.' },
+  { file: 'schema-phase2-session-submission-tiers.sql', state: 'applied', note: 'Founder-applied 2026-09-01 and probe-verified (column readable; 8 existing sessions, 0 with a submission list, so none changed meaning). NARROWING ONLY: checked after the access gate in canSubmitMaterial, so it can never admit a fan who cannot reach the session, and an empty list means nobody. Deliberately NOT applied to canSubmitToSession, which the in-session poll vote route uses as its access check.' },
   // Song Lab (GB experiment). The probe expects song_lab_projects to resolve for anon
   // (public SELECT policy on non-archived rows) and the gate column to answer 42501
   // (no client grant), exactly like launch_partner.
