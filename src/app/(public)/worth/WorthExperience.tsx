@@ -41,6 +41,9 @@ const BOOK_CALL_URL = 'https://cal.com/jnwcreative/15min';
 // The Streaming Loss calculator's feature-specific continuation CTA (single source of truth).
 const MEMBERSHIP_CTA = continueCtaFor('worth'); // "Build My Membership"
 
+const CALCULATOR_VSL_URL =
+  'https://pub-490263a6ac304986851fbf65e6f3ff13.r2.dev/vsl/vsl-calculator.mp4';
+
 // Brand gold as RGB for inline opacity steps (single-hue composition bar).
 
 const PRESETS: { key: AggressivenessPreset; label: string }[] = [
@@ -737,6 +740,17 @@ export function WorthExperience({
         ) : (
           <>
             {resultCard}
+
+            <div className="mb-6 overflow-hidden rounded-2xl border border-crwn-elevated bg-black">
+              <video
+                className="aspect-video w-full"
+                controls
+                playsInline
+                preload="metadata"
+                src={CALCULATOR_VSL_URL}
+              />
+            </div>
+
             {derivationCard}
             {/* THE LADDER, right under the result (founder decision 2026-08-25): the split of
                 the artist's own payers across the real rungs, before any ask. Personalized from

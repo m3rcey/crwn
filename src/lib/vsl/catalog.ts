@@ -34,7 +34,7 @@ export const VSLS: Vsl[] = [
     question: 'Why the number is bigger than a follower count suggests.',
     minutes: 9,
     poster: '/vsl/vsl-1-fan-worth.webp',
-    url: null,
+    url: 'https://pub-490263a6ac304986851fbf65e6f3ff13.r2.dev/vsl/vsl-1-fan-worth.mp4',
   },
   {
     slug: 'vsl-2-what-fans-pay-for',
@@ -43,7 +43,7 @@ export const VSLS: Vsl[] = [
     question: 'How to decide what goes inside the offer without guessing.',
     minutes: 9,
     poster: '/vsl/vsl-2-what-fans-pay-for.webp',
-    url: null,
+    url: 'https://pub-490263a6ac304986851fbf65e6f3ff13.r2.dev/vsl/vsl-2-what-fans-pay-for.mp4',
   },
   {
     slug: 'vsl-3-first-100-fans',
@@ -52,7 +52,7 @@ export const VSLS: Vsl[] = [
     question: 'Who should see the offer first, and in what order.',
     minutes: 9,
     poster: '/vsl/vsl-3-first-100-fans.webp',
-    url: null,
+    url: 'https://pub-490263a6ac304986851fbf65e6f3ff13.r2.dev/vsl/vsl-3-first-100-fans.mp4',
   },
   {
     slug: 'vsl-4-if-nobody-buys',
@@ -61,7 +61,7 @@ export const VSLS: Vsl[] = [
     question: 'What CRWN does differently when the first launch produces nothing.',
     minutes: 6,
     poster: '/vsl/vsl-4-if-nobody-buys.webp',
-    url: null,
+    url: 'https://pub-490263a6ac304986851fbf65e6f3ff13.r2.dev/vsl/vsl-4-if-nobody-buys.mp4',
   },
 ];
 
