@@ -21,6 +21,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Check, Crown, Download, Loader2, Lock, Mail, Play } from 'lucide-react';
 import { supabase } from '@/lib/supabase/client';
 import { freeJoinDisclosure } from '@/lib/subscriptions/freeJoinDisclosure';
+import { TierOfferExperience } from '@/components/offer/TierOfferExperience';
+import type { TierOfferExperience as OfferConfig } from '@/lib/offerExperience/types';
 
 export interface DropOfferTier {
   id: string;
@@ -40,6 +42,10 @@ interface ClaimMagnet {
 interface Props {
   token: string;
   artist: { name: string; slug: string; avatarUrl: string | null };
+  /** Normalized Tier Offer Experiences by tier id, read server-side. When a tier has one,
+   *  the funnel renders the full merchandised experience; otherwise the compact card, so
+   *  artists without a config are byte-for-byte unchanged. */
+  experiences?: Record<string, OfferConfig>;
   magnet: { kind: 'upload' | 'track' | null; title: string; description: string };
   gold: DropOfferTier | null;
   goldItem: { title: string; description: string };
@@ -69,7 +75,7 @@ function codeErrorText(raw: string): string {
   return 'We could not send the code. Try again in a moment.';
 }
 
-export function DropFunnelClient({ token, artist, magnet, gold, goldItem, silver }: Props) {
+export function DropFunnelClient({ token, artist, magnet, gold, goldItem, silver, experiences }: Props) {
   const storageKey = `crwn_drop_${token}`;
   const [phase, setPhase] = useState<Phase>('capture');
   const [email, setEmail] = useState('');
@@ -165,6 +171,21 @@ export function DropFunnelClient({ token, artist, magnet, gold, goldItem, silver
   useEffect(() => {
     if (phase === 'delivered' && !claimed && hasSession) void claimWithSession();
   }, [phase, claimed, hasSession, claimWithSession]);
+
+  // High-signal offer analytics through the EXISTING fan-side spine (tier_events):
+  // a view when a full experience renders, a play when its VSL starts, a declined when
+  // the fan explicitly passes. Best-effort beacons; checkout starts stay server-side.
+  const sentBeacons = useRef<Set<string>>(new Set());
+  const offerBeacon = useCallback((tierId: string, eventType: 'tier_card_viewed' | 'tier_vsl_started' | 'tier_offer_declined') => {
+    const k = `${tierId}:${eventType}`;
+    if (sentBeacons.current.has(k)) return;
+    sentBeacons.current.add(k);
+    fetch('/api/tier-events', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tierIds: [tierId], eventType, source: 'direct' }),
+    }).catch(() => {});
+  }, []);
 
   // startCheckout is declared below; a ref keeps the verify handler above it honest.
   const startCheckoutRef = useRef<((tierId: string) => void) | null>(null);
@@ -321,43 +342,22 @@ export function DropFunnelClient({ token, artist, magnet, gold, goldItem, silver
     <p className="text-sm text-crwn-text-secondary">Check your email: your access link is on the way.</p>
   ) : null;
 
-  const offerCard = (tier: DropOfferTier, opts: { headline: string; sub: string; itemTitle?: string; itemDescription?: string; declineLabel?: string; onDecline?: () => void }) => (
-    <div className="neu-raised rounded-2xl p-6 bg-crwn-card">
-      <p className="text-xs uppercase tracking-wide text-crwn-gold mb-2">{opts.headline}</p>
-      {opts.itemTitle ? (
-        <>
-          <h2 className="text-xl font-bold text-crwn-text">{opts.itemTitle}</h2>
-          {opts.itemDescription && <p className="text-sm text-crwn-text-secondary mt-2">{opts.itemDescription}</p>}
-          <div className="flex items-center gap-2 mt-4 text-sm text-crwn-text-secondary">
-            <Lock className="w-4 h-4 text-crwn-gold" />
-            <span>Inside {tier.name}, {price(tier.priceCents)}</span>
-          </div>
-        </>
-      ) : (
-        <>
-          <h2 className="text-xl font-bold text-crwn-text">{tier.name}</h2>
-          <p className="text-sm text-crwn-text-secondary mt-1">{price(tier.priceCents)}</p>
-        </>
-      )}
-      <p className="text-sm text-crwn-text-secondary mt-3">{opts.sub}</p>
-      {tier.benefits.length > 0 && (
-        <ul className="mt-4 space-y-2">
-          {tier.benefits.map((b) => (
-            <li key={b} className="flex items-start gap-2 text-sm text-crwn-text">
-              <Check className="w-4 h-4 text-crwn-gold mt-0.5 shrink-0" />
-              <span>{b}</span>
-            </li>
-          ))}
-        </ul>
-      )}
-      <div className="mt-5">
+  // The ONE purchase cluster: benefit CTA (or historical fallback), checkout for a
+  // session, and the inline sign-in-code flow for a captured contact. The compact offer
+  // card and the full Tier Offer Experience both render exactly this, so checkout and
+  // auth state can never fork between the two presentations.
+  const ctaLabel = (tier: DropOfferTier): string =>
+    experiences?.[tier.id]?.cta ?? `Join ${tier.name} for ${price(tier.priceCents)}`;
+
+  const purchaseAction = (tier: DropOfferTier) => (
+    <>
         {hasSession ? (
           <button
             onClick={() => startCheckout(tier.id)}
             disabled={checkoutBusy !== null}
             className="w-full py-3 rounded-full font-semibold bg-crwn-gold text-crwn-bg press-scale disabled:opacity-60"
           >
-            {checkoutBusy === tier.id ? 'Opening checkout…' : `Join ${tier.name} for ${price(tier.priceCents)}`}
+            {checkoutBusy === tier.id ? 'Opening checkout…' : ctaLabel(tier)}
           </button>
         ) : codeForTier === tier.id ? (
           <div className="rounded-xl bg-crwn-elevated p-4">
@@ -426,7 +426,7 @@ export function DropFunnelClient({ token, artist, magnet, gold, goldItem, silver
               disabled={codeBusy}
               className="w-full py-3 rounded-full font-semibold bg-crwn-gold text-crwn-bg press-scale disabled:opacity-60"
             >
-              {`Join ${tier.name} for ${price(tier.priceCents)}`}
+              {ctaLabel(tier)}
             </button>
             <p className="mt-2 text-xs text-crwn-text-secondary text-center">
               We will email you a code to confirm it is you. Already have CRWN?{' '}
@@ -434,7 +434,62 @@ export function DropFunnelClient({ token, artist, magnet, gold, goldItem, silver
             </p>
           </>
         )}
-      </div>
+    </>
+  );
+
+  // The full merchandised experience for a tier, bound to this funnel's ONE purchase
+  // cluster. A plain render FUNCTION, not an inner component: an inner component gets a
+  // new identity every parent render, which would remount the whole experience (and
+  // restart its video) on every keystroke in the sign-in-code box.
+  const offerView = (tier: DropOfferTier, config: OfferConfig, onDecline?: () => void, declineLabel?: string) => (
+    <TierOfferExperience
+      artist={{ name: artist.name, avatarUrl: artist.avatarUrl }}
+      tier={tier}
+      config={config}
+      price={price}
+      actionSlot={purchaseAction(tier)}
+      onDecline={onDecline}
+      declineLabel={declineLabel}
+      onVslStart={() => offerBeacon(tier.id, 'tier_vsl_started')}
+    />
+  );
+
+  // The offer VIEW beacon fires on phase entry, deduped per tier per mount.
+  useEffect(() => {
+    if (phase === 'delivered' && gold && experiences?.[gold.id]) offerBeacon(gold.id, 'tier_card_viewed');
+    if (phase === 'silver' && silver && experiences?.[silver.id]) offerBeacon(silver.id, 'tier_card_viewed');
+  }, [phase, gold, silver, experiences, offerBeacon]);
+
+  const offerCard = (tier: DropOfferTier, opts: { headline: string; sub: string; itemTitle?: string; itemDescription?: string; declineLabel?: string; onDecline?: () => void }) => (
+    <div className="neu-raised rounded-2xl p-6 bg-crwn-card">
+      <p className="text-xs uppercase tracking-wide text-crwn-gold mb-2">{opts.headline}</p>
+      {opts.itemTitle ? (
+        <>
+          <h2 className="text-xl font-bold text-crwn-text">{opts.itemTitle}</h2>
+          {opts.itemDescription && <p className="text-sm text-crwn-text-secondary mt-2">{opts.itemDescription}</p>}
+          <div className="flex items-center gap-2 mt-4 text-sm text-crwn-text-secondary">
+            <Lock className="w-4 h-4 text-crwn-gold" />
+            <span>Inside {tier.name}, {price(tier.priceCents)}</span>
+          </div>
+        </>
+      ) : (
+        <>
+          <h2 className="text-xl font-bold text-crwn-text">{tier.name}</h2>
+          <p className="text-sm text-crwn-text-secondary mt-1">{price(tier.priceCents)}</p>
+        </>
+      )}
+      <p className="text-sm text-crwn-text-secondary mt-3">{opts.sub}</p>
+      {tier.benefits.length > 0 && (
+        <ul className="mt-4 space-y-2">
+          {tier.benefits.map((b) => (
+            <li key={b} className="flex items-start gap-2 text-sm text-crwn-text">
+              <Check className="w-4 h-4 text-crwn-gold mt-0.5 shrink-0" />
+              <span>{b}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+      <div className="mt-5">{purchaseAction(tier)}</div>
       {opts.onDecline && (
         <button onClick={opts.onDecline} className="mt-3 w-full text-sm text-crwn-text-secondary press-scale">
           {opts.declineLabel || 'Not right now'}
@@ -480,7 +535,8 @@ export function DropFunnelClient({ token, artist, magnet, gold, goldItem, silver
                   disabled={submitting || !email}
                   className="w-full py-3 rounded-full font-semibold bg-crwn-gold text-crwn-bg press-scale disabled:opacity-60"
                 >
-                  {submitting ? <Loader2 className="w-4 h-4 animate-spin inline" /> : `Send me ${magnet.title || 'the drop'}`}
+                  {/* Benefit-led capture CTA: the fan is unlocking the thing, not filling a form. */}
+                  {submitting ? <Loader2 className="w-4 h-4 animate-spin inline" /> : `Unlock ${magnet.title || 'the drop'}`}
                 </button>
                 <p className="text-xs text-crwn-text-secondary leading-relaxed">
                   {freeJoinDisclosure(magnet.title, artist.name)}
@@ -501,7 +557,12 @@ export function DropFunnelClient({ token, artist, magnet, gold, goldItem, silver
                 <p className="mt-3 text-xs text-crwn-text-secondary">You are viewing your own funnel, so no membership was changed.</p>
               )}
             </div>
-            {gold ? (
+            {gold && experiences?.[gold.id] ? (
+              offerView(gold, experiences[gold.id], silver ? () => {
+                offerBeacon(gold.id, 'tier_offer_declined');
+                setPhase('silver');
+              } : undefined, 'Not right now')
+            ) : gold ? (
               offerCard(gold, {
                 headline: `The one thing ${artist.name} wants you to hear next`,
                 sub: goldItem.title
@@ -523,11 +584,18 @@ export function DropFunnelClient({ token, artist, magnet, gold, goldItem, silver
 
         {phase === 'silver' && silver && (
           <div className="space-y-6">
-            {offerCard(silver, {
-              headline: 'A lighter way in',
-              sub: `Same inner circle, lower commitment. You can move up whenever you want.`,
-              onDecline: undefined,
-            })}
+            {experiences?.[silver.id] ? (
+              offerView(silver, experiences[silver.id], () => {
+                offerBeacon(silver.id, 'tier_offer_declined');
+                setPhase('joined');
+              }, 'Stay free')
+            ) : (
+              offerCard(silver, {
+                headline: 'A lighter way in',
+                sub: `Same inner circle, lower commitment. You can move up whenever you want.`,
+                onDecline: undefined,
+              })
+            )}
             <a href={`/${artist.slug}`} className="block text-center text-sm text-crwn-text-secondary">
               Maybe later. Take me to {artist.name}&apos;s page
             </a>

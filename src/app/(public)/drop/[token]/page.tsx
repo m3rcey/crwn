@@ -10,6 +10,7 @@
 import { notFound } from 'next/navigation';
 import { createClient } from '@supabase/supabase-js';
 import { resolveFunnelOffers, type OfferTierRow } from '@/lib/fanAutomations/offerTiers';
+import { offerExperiencesForTiers } from '@/lib/offerExperience/server';
 import { isPresentableArtistName } from '@/lib/publicName';
 import { DropFunnelClient, type DropOfferTier } from '@/components/drop/DropFunnelClient';
 
@@ -81,6 +82,15 @@ export default async function DropPage({ params }: { params: Promise<{ token: st
   // GB's Platinum-then-Gold funnel is configuration of these two pointers, not code.
   const { primary: gold, downsell: silver } = resolveFunnelOffers(tiers, automation);
 
+  // Tier Offer Experiences, when the artist has them: the full merchandised sales
+  // presentation for the primary and downsell tiers, read server-side and fail-soft.
+  // No config means the funnel renders its compact cards exactly as before.
+  const experiences = await offerExperiencesForTiers(
+    supabaseAdmin,
+    artist.id,
+    [gold, silver].filter((t): t is NonNullable<typeof t> => !!t).map((t) => ({ id: t.id, name: t.name })),
+  );
+
   return (
     <DropFunnelClient
       token={automation.public_token}
@@ -96,6 +106,7 @@ export default async function DropPage({ params }: { params: Promise<{ token: st
         description: automation.gold_item_description || '',
       }}
       silver={toOffer(silver, benefitLines)}
+      experiences={experiences}
     />
   );
 }

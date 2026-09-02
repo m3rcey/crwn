@@ -20,7 +20,15 @@
 // Fail-safe, like every other recorder in this codebase: analytics must never break the flow
 // it measures, so nothing here throws for its caller.
 
-export const TIER_EVENT_TYPES = ['tier_card_viewed', 'tier_checkout_started'] as const;
+export const TIER_EVENT_TYPES = [
+  'tier_card_viewed',
+  'tier_checkout_started',
+  // Tier Offer Experience vocabulary (schema-phase2-tier-events-offer-vocabulary.sql).
+  // Emitting before the CHECK is widened simply fails the daily-unique insert, which the
+  // best-effort writer already swallows: analytics never breaks a page.
+  'tier_vsl_started',
+  'tier_offer_declined',
+] as const;
 export type TierEventType = (typeof TIER_EVENT_TYPES)[number];
 
 const TYPE_SET = new Set<string>(TIER_EVENT_TYPES);

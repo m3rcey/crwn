@@ -1,5 +1,31 @@
 # CRWN Brain — Changelog
 
+## 2026-09-02 - The Tier Offer Experience: one renderer, one write contract, GB first
+
+**Full doc: 32-TIER-OFFER-EXPERIENCE.md.** The universal fan-facing sales presentation
+for a membership tier, and the data foundation the future Offer Builder writes into. The
+line that governs it: subscription_tiers and the oracle define WHAT a fan gets; this
+layer only defines how that value is SHOWN before purchase, and it is structurally unable
+to grant, price, or leak anything.
+
+Two universal rules were ratified and live at the data boundary, not in anyone's memory:
+REAL vs EXAMPLE is a required field on every preview (undeclared truth is refused, the
+Example experience chip renders from data), and the benefit-based CTA rule (Join/
+Subscribe/Become/Upgrade buttons and tier-name CTAs are refused by the normalizer; the
+button answers what the fan GETS, with tier and price beside it).
+
+The renderer integrates into the EXISTING /drop funnel through its one purchase cluster,
+so checkout and sign-in-code state never fork; no config means the compact card renders
+exactly as before. Analytics reuses tier_events with two added types (vsl started,
+offer declined); checkout starts stay server-recorded and un-forgeable.
+
+GB is the reference implementation: reviewed content in offerExperience/reference/gb.ts,
+seeded by scripts/configure-gb-offer.mjs, canonical CTAs Unlock Go Bad / Take Me
+Backstage / Help Shape What Comes Next / Put My Ideas in the Room. Only two previews are
+REAL today (Platinum status, members-only music); the rest are disclosed examples until
+GB runs the real thing. His VSL ships null, which renders nothing, per the ratified
+catalog rule. Two migrations PENDING; everything fails soft to the previous funnel.
+
 ## 2026-09-01 (later) - Build 1 migrations APPLIED and verified in production; GB configured
 
 **Both migrations are live, proved independently of the founder's word.** `verify:migrations`

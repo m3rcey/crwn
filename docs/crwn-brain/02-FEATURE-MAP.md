@@ -1,5 +1,15 @@
 # 02 — Feature Map
 
+## Tier Offer Experience — code live, two migrations PENDING (2026-09-02)
+
+ONE universal renderer for the fan-facing sales presentation of any membership tier,
+driven by rows in `tier_offer_experiences` (service-role only) parsed through the one
+normalizer. REAL vs EXAMPLE truth is a required preview field; benefit-based CTAs are
+enforced at the data boundary; media references must be public URLs. Renders inside the
+existing /drop funnel via its single purchase cluster; no config = the previous compact
+card. GB is the reference configuration. Canonical doc: 32-TIER-OFFER-EXPERIENCE.md.
+The self-serve Offer Builder UI and AI generation are FUTURE, deliberately.
+
 ## Fan Automations: link-only funnels (2026-09-02)
 
 A funnel's traffic source is a CHOICE, and a link is one of them. The wizard's first screen

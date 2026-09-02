@@ -73,12 +73,21 @@ export async function POST(req: NextRequest) {
     const rawSource = (body as { source?: unknown }).source;
     const source = typeof rawSource === 'string' && ALLOWED_SOURCES.has(rawSource) ? rawSource : null;
 
+    // The beacon may name WHICH descriptive event this is. Allowlisted here, and
+    // tier_checkout_started is deliberately NOT in the set: checkout starts are recorded
+    // server-side inside the checkout route, where a client cannot forge one.
+    const CLIENT_EVENT_TYPES = new Set(['tier_card_viewed', 'tier_vsl_started', 'tier_offer_declined']);
+    const rawType = (body as { eventType?: unknown }).eventType;
+    const eventType = typeof rawType === 'string' && CLIENT_EVENT_TYPES.has(rawType)
+      ? (rawType as 'tier_card_viewed' | 'tier_vsl_started' | 'tier_offer_declined')
+      : 'tier_card_viewed';
+
     // Sequential rather than parallel: a handful of rows on a fire-and-forget beacon, and a
     // burst of concurrent upserts against one unique index buys nothing.
     for (const tierId of ids) {
       await recordTierEvent(supabaseAdmin, {
         tierId,
-        eventType: 'tier_card_viewed',
+        eventType,
         visitorHash,
         fanId,
         source,

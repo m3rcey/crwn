@@ -80,6 +80,18 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **Run TWO migrations to turn on GB's merchandised offer pages, in this order:**
+      1. [supabase/schema-phase2-tier-offer-experiences.sql](supabase/schema-phase2-tier-offer-experiences.sql)
+         The table behind the Tier Offer Experience. Until it runs, the drop funnel
+         renders its compact offer cards exactly as it does today.
+      2. [supabase/schema-phase2-tier-events-offer-vocabulary.sql](supabase/schema-phase2-tier-events-offer-vocabulary.sql)
+         Two offer analytics events in the existing tier_events spine.
+      Then tell Claude "migrations in" and it seeds GB's Platinum/Gold/Silver offer
+      configs (scripts/configure-gb-offer.mjs) and verifies the live pages end to end.
+      Verify rows 12 and 13 of
+      [supabase/check-unverified-feature-state.sql](supabase/check-unverified-feature-state.sql).
+
+
 - [ ] **Run one migration so a link funnel can say what it is:**
       [supabase/schema-phase2-fan-automation-link-provider.sql](supabase/schema-phase2-fan-automation-link-provider.sql)
       It widens `fan_automations.provider` to admit `link`. Nothing waits on it: the wizard's

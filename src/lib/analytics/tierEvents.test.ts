@@ -41,8 +41,18 @@ const TIER = { id: 'tier-1', artist_id: 'artist-1', price: 1000, is_active: true
 const FREE_TIER = { id: 'tier-free', artist_id: 'artist-1', price: 0, is_active: true };
 
 describe('tier event types', () => {
-  it('declares exactly the two events the evidence layer needs', () => {
-    expect(TIER_EVENT_TYPES).toEqual(['tier_card_viewed', 'tier_checkout_started']);
+  it('declares exactly the events the evidence layer needs, and no speculative ones', () => {
+    // Grown from two to four with the Tier Offer Experience (2026-09-02, migration
+    // schema-phase2-tier-events-offer-vocabulary.sql): a VSL play and an explicit decline
+    // are the two offer signals that turn "viewed but never bought" from an inference
+    // into facts. Still deliberately small; add a fifth only with the same chain
+    // (founder decision, migration, registry, this pin).
+    expect(TIER_EVENT_TYPES).toEqual([
+      'tier_card_viewed',
+      'tier_checkout_started',
+      'tier_vsl_started',
+      'tier_offer_declined',
+    ]);
   });
 
   it('rejects anything outside the union', () => {

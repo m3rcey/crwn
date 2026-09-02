@@ -184,3 +184,21 @@ SELECT 'schema-phase2-fan-automation-link-provider.sql' AS migration,
           WHERE conname = 'fan_automations_provider_check'
             AND pg_get_constraintdef(oid) LIKE '%link%'
        ) AS applied;
+
+-- 12. Tier Offer Experiences (2026-09-02). 'sql-check': the table is revoked from anon.
+SELECT 'schema-phase2-tier-offer-experiences.sql' AS migration,
+       (
+         to_regclass('public.tier_offer_experiences') IS NOT NULL
+         AND EXISTS (SELECT 1 FROM pg_trigger WHERE tgname='trg_tier_offer_experiences_owner')
+         AND NOT EXISTS (SELECT 1 FROM information_schema.role_table_grants
+                         WHERE table_schema='public' AND table_name='tier_offer_experiences'
+                           AND grantee IN ('anon','authenticated'))
+       ) AS applied;
+
+-- 13. Tier events offer vocabulary (2026-09-02). 'sql-check': a CHECK is invisible to anon.
+SELECT 'schema-phase2-tier-events-offer-vocabulary.sql' AS migration,
+       EXISTS (
+         SELECT 1 FROM pg_constraint
+          WHERE conname='tier_events_event_type_check'
+            AND pg_get_constraintdef(oid) LIKE '%tier_vsl_started%'
+       ) AS applied;
