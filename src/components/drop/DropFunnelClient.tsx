@@ -358,7 +358,7 @@ export function DropFunnelClient({ token, artist, magnet, gold, goldItem, silver
               <Mail className="w-4 h-4 text-crwn-gold mt-0.5 shrink-0" />
               <span>
                 {codeSent
-                  ? `We sent a code to ${email}. Enter it here and checkout opens.`
+                  ? `We sent a code to ${email}. Check spam if it is not in your inbox. Enter it here and checkout opens.`
                   : email
                     ? 'Getting your code ready...'
                     : 'Confirm the email you claimed the drop with and we will send a code.'}
