@@ -80,6 +80,16 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **Confirm DKIM and DMARC are fully verified for thecrwn.app in Resend.** Auth email
+      now routes through Resend SMTP (Supabase custom SMTP, configured 2026-09-01), and the
+      first real sign-in code landed in SPAM while CRWN's own API-sent drop email reached the
+      inbox. Same domain, different path, so the likely gap is authentication records rather
+      than content. Resend, Domains, thecrwn.app: check SPF, DKIM and DMARC all read verified,
+      and add a DMARC record if it is missing.
+      **This gates GB's funnel more than any remaining code.** A fan who never finds the code
+      never buys, and the whole paid path depends on that one email arriving.
+
+
 - [ ] **FOUNDER CONTENT REQUIRED: GB acquisition nurture emails.** Everything else in GB's
       funnel is now live and verified in production (2026-09-01): Platinum $50 exists with a
       real Stripe price, a DRAFT test automation is built with PRIMARY = Platinum and DOWNSELL

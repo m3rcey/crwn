@@ -8,7 +8,8 @@
 // Rules encoded here:
 //   * The email form is the ONLY gate, and it gates the magnet, not the page.
 //   * Gold success (?subscription=success) NEVER shows Silver.
-//   * An explicit decline, or a Stripe cancel return (?subscription=canceled), shows Silver.
+//   * ONLY an explicit decline shows Silver. A Stripe cancel return goes back to the
+//     primary offer: backing out of checkout is not the same as saying no.
 //   * Checkout is ALWAYS the canonical /api/stripe/checkout with a tierId; price, fee and
 //     destination are server-derived there. This component sends pointers and nothing else.
 //   * A signed-out fan cannot open Stripe (checkout requires a session); their delivery
@@ -96,7 +97,13 @@ export function DropFunnelClient({ token, artist, magnet, gold, goldItem, silver
     if (q.get('subscription') === 'success') {
       setPhase('joined');
     } else if (q.get('subscription') === 'canceled') {
-      setPhase(silver ? 'silver' : remembered ? 'delivered' : 'capture');
+      // Back to the PRIMARY offer, not the downsell. Opening checkout and returning is
+      // not a decision: a fan taps back to check the price, to find their card, or by
+      // accident, and answering that with a cheaper tier tells someone who was buying
+      // Platinum that we would rather sell them Gold. The downsell has one trigger now,
+      // the explicit "Not right now" below the offer, which is the only signal that
+      // actually means no.
+      setPhase(remembered ? 'delivered' : 'capture');
     } else if (q.get('offer') === 'gold' || remembered) {
       setPhase('delivered');
     }
