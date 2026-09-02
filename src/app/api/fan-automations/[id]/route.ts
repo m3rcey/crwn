@@ -69,14 +69,14 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
         .from('artist_profiles').select('slug').eq('id', artistId).maybeSingle();
       const [{ data: tiers }, { data: tracks }, { data: sequences }] = await Promise.all([
         supabaseAdmin.from('subscription_tiers').select('id').eq('artist_id', artistId).eq('is_active', true).gt('price', 0),
-        supabaseAdmin.from('tracks').select('id').eq('artist_id', artistId).eq('is_free', true),
+        supabaseAdmin.from('tracks').select('id').eq('artist_id', artistId),
         supabaseAdmin.from('sequences').select('id').eq('artist_id', artistId).eq('is_active', true),
       ]);
       const validated = validateAutomationInput(
         { provider: existing.provider, ...body.fields },
         {
           tierIds: (tiers || []).map((t) => t.id),
-          freeTrackIds: (tracks || []).map((t) => t.id),
+          magnetTrackIds: (tracks || []).map((t) => t.id),
           sequenceIds: (sequences || []).map((q: { id: string }) => q.id),
           magnetKeyPrefix: `${artist?.slug || artistId}/magnet/`,
         },

@@ -30,7 +30,14 @@ export interface OwnedResources {
   /** The artist's own sequence ids; a nurture pointer outside this set is refused. */
   sequenceIds?: string[];
   /** FREE track ids belonging to this artist (a magnet may never be a gated track). */
-  freeTrackIds: string[];
+  /**
+   * Tracks eligible to BE a magnet: the artist's own active tracks, whatever their gate.
+   * This used to be free tracks only, which quietly forced the giveaway to be public
+   * forever. A magnet is delivered by a short-lived signed URL at claim time, so the
+   * track itself can stay gated to members and the artist can give away music that is
+   * not otherwise free. It is their music; the choice is theirs.
+   */
+  magnetTrackIds: string[];
   /** R2 keys minted for this artist by the magnet-upload route (prefix check). */
   magnetKeyPrefix: string;
 }
@@ -73,7 +80,7 @@ export function validateAutomationInput(body: unknown, owned: OwnedResources): V
     }
   }
   if (magnetKind === 'track') {
-    if (!magnetTrackId || !owned.freeTrackIds.includes(magnetTrackId)) {
+    if (!magnetTrackId || !owned.magnetTrackIds.includes(magnetTrackId)) {
       return { ok: false, error: 'Pick one of your own free tracks.' };
     }
   }

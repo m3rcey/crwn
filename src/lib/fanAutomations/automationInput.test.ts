@@ -3,7 +3,7 @@ import { activationBlockers, validateAutomationInput, type OwnedResources } from
 
 const OWNED: OwnedResources = {
   tierIds: ['tier-gold', 'tier-silver'],
-  freeTrackIds: ['track-free'],
+  magnetTrackIds: ['track-free'],
   magnetKeyPrefix: 'm3rcey/magnet/',
 };
 

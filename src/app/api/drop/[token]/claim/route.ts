@@ -28,6 +28,7 @@ import { notifyNewSubscriber } from '@/lib/notifications';
 import { resend, FROM_EMAIL } from '@/lib/resend';
 import { dropDeliveryEmail, dropDeliverySubject } from '@/lib/emails/dropDelivery';
 import { getSignedDownloadUrl } from '@/lib/r2/client';
+import { signAudioValue } from '@/lib/storage/signedAudio';
 import { isPresentableArtistName } from '@/lib/publicName';
 import { siteBase } from '@/lib/fanAutomations/config';
 import {
@@ -265,7 +266,35 @@ export async function POST(req: NextRequest, context: { params: Promise<{ token:
         console.error('[drop] magnet signing failed:', e);
       }
     } else if (automation.magnet_kind === 'track' && automation.magnet_track_id) {
-      trackUrl = `${site}/embed/${automation.magnet_track_id}`;
+      // A track magnet is delivered exactly like an upload one: a SHORT-LIVED SIGNED URL,
+      // minted only after the claim above succeeded.
+      //
+      // Why not just link the embed page. Because the exchange this funnel exists to make
+      // is "identify yourself, join the free tier, then the music opens". Making the track
+      // is_free so the embed would serve it hands the same permanent, anonymous access to
+      // anybody who never claimed anything, which is the giveaway without the exchange.
+      // The track therefore stays GATED to the artist's rungs (every member can play it
+      // forever on the artist page, through the one oracle), and the person who just
+      // completed the claim gets bytes now through a URL that expires.
+      //
+      // The audio value is read with the service role here because audio_url_* is revoked
+      // from every browser role; it never reaches the client, only the signed URL does.
+      try {
+        const { data: magnetTrack } = await supabaseAdmin
+          .from('tracks')
+          .select('id, audio_url_128, is_active, artist_id')
+          .eq('id', automation.magnet_track_id)
+          .eq('artist_id', artist.id)
+          .maybeSingle();
+        if (magnetTrack?.is_active !== false && magnetTrack?.audio_url_128) {
+          trackUrl = await signAudioValue(magnetTrack.audio_url_128, 3600);
+        }
+      } catch (e) {
+        console.error('[drop] track magnet signing failed:', e);
+      }
+      // Fail soft to the embed page: a member who is signed in can still play it there,
+      // and a broken signature must not swallow the promise entirely.
+      if (!trackUrl) trackUrl = `${site}/embed/${automation.magnet_track_id}`;
     }
 
     // ── The delivery email. NOT a gate: the page already delivered above. ──
