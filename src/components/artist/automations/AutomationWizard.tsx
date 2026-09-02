@@ -51,7 +51,7 @@ export function AutomationWizard({ ctx, connections, onClose, onSaved }: Props) 
   const paidTiers = useMemo(() => ctx.tiers.filter((t) => t.price > 0), [ctx.tiers]);
   const derived = useMemo(() => deriveOfferTiers(ctx.tiers.map((t) => ({ id: t.id, name: t.name, price: t.price }))), [ctx.tiers]);
 
-  const [provider, setProvider] = useState<'instagram' | 'facebook' | null>(
+  const [provider, setProvider] = useState<'instagram' | 'facebook' | 'link' | null>(
     connections.find((c) => c.status === 'active')?.provider ?? null,
   );
   const [anyPost, setAnyPost] = useState(true);
@@ -151,12 +151,21 @@ export function AutomationWizard({ ctx, connections, onClose, onSaved }: Props) 
     }
   }, [ctx.artistId, showToast]);
 
+  // LINK ONLY is a first-class source, not a workaround. An artist whose traffic comes
+  // from a bio link, a QR code, or an external tool like ManyChat needs the same funnel
+  // with none of the Meta machinery, and the comment matcher already only routes events
+  // through automations that HAVE a connection, so a connection-less funnel simply never
+  // receives a comment. Everything after "the drop" is identical, which is the point:
+  // one engine, and the link is another way in.
+  const linkOnly = provider === 'link';
   const screens: { key: ScreenKey; group: string }[] = [
-    { key: 'provider', group: 'Listen' },
-    { key: 'posts', group: 'Listen' },
-    { key: 'keywords', group: 'Listen' },
-    { key: 'public-reply', group: 'Reply' },
-    { key: 'dm', group: 'Reply' },
+    { key: 'provider', group: 'Source' },
+    ...(linkOnly ? [] : ([
+      { key: 'posts', group: 'Listen' },
+      { key: 'keywords', group: 'Listen' },
+      { key: 'public-reply', group: 'Reply' },
+      { key: 'dm', group: 'Reply' },
+    ] as { key: ScreenKey; group: string }[])),
     { key: 'magnet-kind', group: 'The drop' },
     { key: 'magnet-detail', group: 'The drop' },
     { key: 'magnet-title', group: 'The drop' },
@@ -171,7 +180,7 @@ export function AutomationWizard({ ctx, connections, onClose, onSaved }: Props) 
 
   const canContinue = (): boolean => {
     switch (screen) {
-      case 'provider': return !!provider && connected;
+      case 'provider': return provider === 'link' ? true : (!!provider && connected);
       case 'posts': return anyPost || selectedPosts.length > 0;
       case 'dm': return dmMessage.trim().length > 0;
       case 'magnet-kind': return magnetKind !== null;
@@ -247,14 +256,22 @@ export function AutomationWizard({ ctx, connections, onClose, onSaved }: Props) 
           <div className="space-y-4">
             <OptionSelect
               options={[
+                { value: 'link', label: 'A link I share', hint: 'Bio, story, QR code, or any tool you already use' },
                 { value: 'instagram', label: 'Instagram', hint: 'Comments on your professional account' },
                 { value: 'facebook', label: 'Facebook Page', hint: 'Comments on your Page posts' },
               ]}
               value={provider}
-              onChange={(v) => setProvider(v as 'instagram' | 'facebook')}
-              placeholder="Where should CRWN listen?"
+              onChange={(v) => setProvider(v as 'instagram' | 'facebook' | 'link')}
+              placeholder="Where do fans come from?"
             />
-            {provider && !connected && (
+            {linkOnly && (
+              <p className="text-sm text-crwn-text-secondary">
+                CRWN gives you a link. Put it anywhere: your bio, a story, a QR code, or a tool
+                like ManyChat. Everything after this is the same, and you can connect a social
+                account later without rebuilding it.
+              </p>
+            )}
+            {provider && provider !== 'link' && !connected && (
               <div className="rounded-xl bg-crwn-elevated p-4">
                 <p className="text-sm text-crwn-text-secondary mb-3">
                   Every comment on an unconnected account is a fan you never hear from. Connect once and CRWN answers all of them.
@@ -267,7 +284,7 @@ export function AutomationWizard({ ctx, connections, onClose, onSaved }: Props) 
                 </button>
               </div>
             )}
-            {provider && connected && (
+            {provider && provider !== 'link' && connected && (
               <p className="text-sm text-crwn-text-secondary flex items-center gap-2">
                 <Check className="w-4 h-4 text-crwn-gold" /> Connected
               </p>

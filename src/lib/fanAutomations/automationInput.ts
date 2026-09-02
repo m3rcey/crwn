@@ -5,7 +5,7 @@
 // in the body is a POINTER the artist may only aim at their own rows, never authority.
 
 export interface AutomationInput {
-  provider: 'instagram' | 'facebook';
+  provider: 'instagram' | 'facebook' | 'link';
   triggerMediaIds: string[];
   triggerKeywords: string[];
   publicReply: string;
@@ -57,7 +57,9 @@ function stringList(v: unknown, maxItems: number, maxLen: number): string[] {
 export function validateAutomationInput(body: unknown, owned: OwnedResources): ValidationResult {
   const b = (body ?? {}) as Record<string, unknown>;
 
-  const provider = b.provider === 'facebook' ? 'facebook' : b.provider === 'instagram' ? 'instagram' : null;
+  // 'link' is a real source: a funnel whose traffic comes from a bio link, a QR code or
+  // an external tool, with no social account listening. It reaches the same engine.
+  const provider = b.provider === 'facebook' ? 'facebook' : b.provider === 'link' ? 'link' : b.provider === 'instagram' ? 'instagram' : null;
   if (!provider) return { ok: false, error: 'Pick where CRWN should listen for comments.' };
 
   const magnetKind = b.magnetKind === 'upload' ? 'upload' : b.magnetKind === 'track' ? 'track' : null;

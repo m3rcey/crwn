@@ -1,5 +1,19 @@
 # 02 — Feature Map
 
+## Fan Automations: link-only funnels (2026-09-02)
+
+A funnel's traffic source is a CHOICE, and a link is one of them. The wizard's first screen
+asks where fans come from: **a link I share** (bio, story, QR code, or an external tool like
+ManyChat), Instagram, or Facebook. Choosing the link skips the Listen and Reply screens
+entirely, requires no Meta connection, OAuth or webhook, and produces the same
+`/drop/[token]` funnel: capture, free join, magnet delivery, primary offer, downsell,
+canonical checkout, attribution. What makes a funnel link-only at RUNTIME is
+`connection_id` being null, and the comment matcher only routes events through automations
+that HAVE an active connection, so nothing about the Meta path loosened. The artist copies
+the funnel URL from the automation list. `provider = 'link'` needs
+`schema-phase2-fan-automation-link-provider.sql`; before it is applied the create route
+stores the historical value and only the label waits.
+
 ## Artist fan-sales engine, Build 1 — code live, two migrations PENDING (2026-09-01)
 
 ONE reusable funnel every artist configures; GB is the first configuration, never the

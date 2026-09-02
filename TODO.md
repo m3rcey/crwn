@@ -80,6 +80,22 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **Run one migration so a link funnel can say what it is:**
+      [supabase/schema-phase2-fan-automation-link-provider.sql](supabase/schema-phase2-fan-automation-link-provider.sql)
+      It widens `fan_automations.provider` to admit `link`. Nothing waits on it: the wizard's
+      link-only mode already works, because the create route falls back to the historical
+      value and what makes a funnel link-only at runtime is having no connection, which is
+      already true. Until it runs, a link funnel is labelled `instagram` in the list.
+      Verify with row 11 of
+      [supabase/check-unverified-feature-state.sql](supabase/check-unverified-feature-state.sql).
+
+- [ ] **Run the first real purchase through GB's funnel yourself.** Everything else is proved
+      in production; a real card is the one thing I cannot test. It proves three things at
+      once: Platinum entitlement lands from the webhook, the receipt sends, and the nurture
+      exits automatically at Gold or above.
+      Link: `https://thecrwn.app/drop/YTjOsa-rlvT9`
+
+
 - [ ] **Confirm DKIM and DMARC are fully verified for thecrwn.app in Resend.** Auth email
       now routes through Resend SMTP (Supabase custom SMTP, configured 2026-09-01), and the
       first real sign-in code landed in SPAM while CRWN's own API-sent drop email reached the

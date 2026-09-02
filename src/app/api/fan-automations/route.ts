@@ -107,14 +107,24 @@ export async function POST(req: NextRequest) {
     if (!validated.ok) return NextResponse.json({ error: validated.error }, { status: 400 });
     const input = validated.value;
 
-    const connection = await getActiveConnection(supabaseAdmin, artistId, input.provider);
+    // A link funnel listens on nothing, so there is no connection to look up.
+    const connection = input.provider === 'link'
+      ? null
+      : await getActiveConnection(supabaseAdmin, artistId, input.provider as 'instagram' | 'facebook');
+
+    // Pre-migration the provider CHECK still refuses 'link' (23514 on insert). What makes a
+    // funnel link-only at RUNTIME is connection_id being null, not this label, so before the
+    // migration lands the historical value is stored and the funnel behaves identically.
+    // schema-phase2-fan-automation-link-provider.sql widens the CHECK; after it runs, new
+    // link funnels record what they actually are.
+    let providerToStore: string = input.provider;
 
     const { data: created, error } = await supabaseAdmin
       .from('fan_automations')
       .insert({
         artist_id: artistId,
         connection_id: connection?.id ?? null,
-        provider: input.provider,
+        provider: providerToStore,
         status: 'draft',
         public_token: randomBytes(9).toString('base64url'),
         trigger_media_ids: input.triggerMediaIds,
@@ -137,10 +147,44 @@ export async function POST(req: NextRequest) {
       .select('id, public_token')
       .single();
 
-    // Pre-foundation-migration, nurture_sequence_id 42703s the whole insert. The
-    // automation matters more than the pointer: retry without it.
     let row = created;
     let insertError = error;
+
+    // The provider CHECK refuses 'link' until the migration widens it (23514). Retry with
+    // the historical value: connection_id is already null, so the funnel is link-only in
+    // every way that affects behavior, and only the label waits.
+    if (insertError && (insertError as { code?: string }).code === '23514' && providerToStore === 'link') {
+      providerToStore = 'instagram';
+      ({ data: row, error: insertError } = await supabaseAdmin
+        .from('fan_automations')
+        .insert({
+          artist_id: artistId,
+          connection_id: null,
+          provider: providerToStore,
+          status: 'draft',
+          public_token: randomBytes(9).toString('base64url'),
+          trigger_media_ids: input.triggerMediaIds,
+          trigger_keywords: input.triggerKeywords,
+          public_reply: input.publicReply || 'Check your DMs 👑',
+          dm_message: input.dmMessage,
+          magnet_kind: input.magnetKind,
+          magnet_title: input.magnetTitle,
+          magnet_description: input.magnetDescription,
+          magnet_file_key: input.magnetFileKey,
+          magnet_file_name: input.magnetFileName,
+          magnet_track_id: input.magnetTrackId,
+          gold_tier_id: input.goldTierId,
+          gold_item_title: input.goldItemTitle,
+          gold_item_description: input.goldItemDescription,
+          silver_tier_id: input.silverTierId,
+          nurture_sequence_id: input.nurtureSequenceId,
+        })
+        .select('id, public_token')
+        .single());
+    }
+
+    // Pre-foundation-migration, nurture_sequence_id 42703s the whole insert. The
+    // automation matters more than the pointer: retry without it.
     if (insertError && input.nurtureSequenceId) {
       ({ data: row, error: insertError } = await supabaseAdmin
         .from('fan_automations')

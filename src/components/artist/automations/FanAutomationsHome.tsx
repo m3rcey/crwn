@@ -179,15 +179,40 @@ export function FanAutomationsHome({ ctx }: { ctx: ArtistContext }) {
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <Instagram className="w-4 h-4 text-crwn-gold shrink-0" />
+                      {a.provider === 'link'
+                        ? <Link2 className="w-4 h-4 text-crwn-gold shrink-0" />
+                        : <Instagram className="w-4 h-4 text-crwn-gold shrink-0" />}
                       <p className="font-semibold text-crwn-text truncate">{a.magnet_title || 'Untitled drop'}</p>
                       <span className={`text-xs px-2 py-0.5 rounded-full ${a.status === 'active' ? 'bg-crwn-gold/15 text-crwn-gold' : 'bg-crwn-elevated text-crwn-text-secondary'}`}>
                         {a.status}
                       </span>
                     </div>
                     <p className="text-xs text-crwn-text-secondary mt-1">
-                      {a.trigger_keywords.length ? `Keyword: ${a.trigger_keywords.join(', ')}` : 'Any comment'} · {a.provider}
+                      {a.provider === 'link'
+                        ? 'A link you share'
+                        : `${a.trigger_keywords.length ? `Keyword: ${a.trigger_keywords.join(', ')}` : 'Any comment'} · ${a.provider}`}
                     </p>
+                    {/* The URL IS the funnel for a link source, and useful for every other
+                        one too: it is what a story sticker or a QR code points at. A draft
+                        is shown greyed with why, because a link that 404s reads as broken. */}
+                    <button
+                      onClick={() => {
+                        const url = `${window.location.origin}/drop/${a.public_token}`;
+                        navigator.clipboard?.writeText(url).then(
+                          () => showToast('Funnel link copied.', 'success'),
+                          () => showToast(url, 'info'),
+                        );
+                      }}
+                      className="mt-2 inline-flex items-center gap-1.5 text-xs text-crwn-gold press-scale"
+                    >
+                      <Link2 className="w-3.5 h-3.5" />
+                      Copy funnel link
+                    </button>
+                    {a.status === 'draft' && (
+                      <span className="ml-2 text-[11px] text-crwn-text-secondary">
+                        Activate first, or the link will not open.
+                      </span>
+                    )}
                   </div>
                   <div className="flex items-center gap-1 shrink-0">
                     {a.status === 'active' ? (

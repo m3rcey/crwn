@@ -95,3 +95,28 @@ describe('activationBlockers', () => {
     expect(blockers[0]).toContain('private message');
   });
 });
+
+describe('link-only funnels are a first-class source', () => {
+  it('accepts provider "link"', () => {
+    const r = validateAutomationInput({ ...BASE, provider: 'link' }, OWNED);
+    expect(r.ok).toBe(true);
+    expect(r.ok && r.value.provider).toBe('link');
+  });
+
+  it('still refuses a provider that is not a real source', () => {
+    const r = validateAutomationInput({ ...BASE, provider: 'carrier_pigeon' }, OWNED);
+    expect(r.ok).toBe(false);
+  });
+
+  it('a link funnel needs no DM message to activate, because nothing sends one', () => {
+    // The DM is what a CONNECTION delivers. A link funnel has no connection, so requiring
+    // the message would gate a funnel on a field it never uses.
+    expect(activationBlockers({ connection_id: null, dm_message: '', magnet_kind: 'track', gold_tier_id: 't' })).toEqual([]);
+  });
+
+  it('a link funnel still needs the two things it DOES use', () => {
+    const blockers = activationBlockers({ connection_id: null, dm_message: '', magnet_kind: null, gold_tier_id: null });
+    expect(blockers).toHaveLength(2);
+    expect(blockers.join(' ')).toContain('membership tier');
+  });
+});

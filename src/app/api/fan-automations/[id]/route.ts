@@ -38,7 +38,10 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
     // Status transition, if requested.
     const action = typeof body.action === 'string' ? body.action : null;
     if (action === 'activate') {
-      const connection = await getActiveConnection(supabaseAdmin, artistId, existing.provider);
+      // A link funnel listens on nothing; activation must not go looking for an account.
+      const connection = existing.provider === 'link'
+        ? null
+        : await getActiveConnection(supabaseAdmin, artistId, existing.provider);
       const merged = {
         connection_id: connection?.id ?? null,
         dm_message: typeof body.dmMessage === 'string' ? body.dmMessage : existing.dm_message,

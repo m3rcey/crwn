@@ -174,3 +174,13 @@ SELECT 'schema-phase2-fan-funnel-foundation.sql' AS migration,
                   WHERE table_name='fan_automations' AND column_name='nurture_sequence_id')
          AND EXISTS (SELECT 1 FROM pg_trigger WHERE tgname='trg_fan_automations_nurture_guard')
        ) AS applied;
+
+-- 11. Fan automation link provider (2026-09-02). 'sql-check' because fan_automations is
+--     revoked from anon, so a probe cannot read the constraint. Expect applied = true after
+--     running supabase/schema-phase2-fan-automation-link-provider.sql.
+SELECT 'schema-phase2-fan-automation-link-provider.sql' AS migration,
+       EXISTS (
+         SELECT 1 FROM pg_constraint
+          WHERE conname = 'fan_automations_provider_check'
+            AND pg_get_constraintdef(oid) LIKE '%link%'
+       ) AS applied;
