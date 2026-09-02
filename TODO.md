@@ -96,15 +96,16 @@ responsible for. Do not work those.
       Link: `https://thecrwn.app/drop/YTjOsa-rlvT9`
 
 
-- [ ] **Confirm DKIM and DMARC are fully verified for thecrwn.app in Resend.** Auth email
-      now routes through Resend SMTP (Supabase custom SMTP, configured 2026-09-01), and the
-      first real sign-in code landed in SPAM while CRWN's own API-sent drop email reached the
-      inbox. Same domain, different path, so the likely gap is authentication records rather
-      than content. Resend, Domains, thecrwn.app: check SPF, DKIM and DMARC all read verified,
-      and add a DMARC record if it is missing.
-      **This gates GB's funnel more than any remaining code.** A fan who never finds the code
-      never buys, and the whole paid path depends on that one email arriving.
-
+- [ ] **Tighten the DMARC policy for thecrwn.app when you are ready.** DNS is checked and
+      healthy, so this is a recommendation, not a blocker: SPF is present on the root and on
+      send.thecrwn.app (Amazon SES, which is Resend's sender), DKIM is published at
+      resend._domainkey, and DMARC exists as `v=DMARC1; p=none;`.
+      `p=none` means receivers are asked to enforce nothing, which is the correct setting
+      while a domain is new and the right one to move off later. Once you have a few weeks of
+      clean sending, step it to `p=quarantine` and add an `rua=` address so you get reports.
+      The sign-in code that landed in spam is NOT explained by a missing record. The likelier
+      cause is a brand new sending path with no reputation plus several near-identical mails
+      to one mailbox in seconds. It should settle as volume normalises.
 
 - [ ] **FOUNDER CONTENT REQUIRED: GB acquisition nurture emails.** Everything else in GB's
       funnel is now live and verified in production (2026-09-01): Platinum $50 exists with a
