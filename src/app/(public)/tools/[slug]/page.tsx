@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getLeadMagnet, LEAD_MAGNET_SLUGS } from '@/lib/leadMagnets/registry';
+import { shareTitle } from '@/lib/shareMetadata';
 import { PublicToolClient } from '@/components/lead-magnets/PublicToolClient';
 
 interface Props {
@@ -16,7 +17,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const config = getLeadMagnet(slug);
   if (!config) return { title: 'Tool Not Found | CRWN' };
-  const title = `${config.name} | CRWN`;
+  // Under 40 characters: a link preview truncates past roughly that, and the site name
+  // already rides along in openGraph.siteName.
+  const title = shareTitle(config.name);
   return {
     title,
     description: config.description,

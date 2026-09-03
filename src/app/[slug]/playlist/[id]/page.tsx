@@ -7,6 +7,8 @@ import { GatedTrackPlayer } from '@/components/gating';
 import { useSubscription } from '@/hooks/useSubscription';
 import { Lock } from 'lucide-react';
 import { ShareButtons } from '@/components/shared/ShareButtons';
+import type { Metadata } from 'next';
+import { shareMetadata } from '@/lib/shareMetadata';
 
 interface PlaylistPageProps {
   params: Promise<{ slug: string; id: string }>;
@@ -147,4 +149,35 @@ export default async function PlaylistPage({ params }: PlaylistPageProps) {
       </div>
     </div>
   );
+}
+
+export async function generateMetadata({ params }: PlaylistPageProps): Promise<Metadata> {
+  const { slug, id: playlistId } = await params;
+  const supabase = await createServerSupabaseClient();
+
+  const { data: artist } = await supabase
+    .from('artist_profiles_public')
+    .select('id, slug, profile:profiles(display_name)')
+    .eq('slug', slug)
+    .maybeSingle();
+
+  const { data: playlist } = await supabase
+    .from('playlists')
+    .select('title, description, cover_url')
+    .eq('id', playlistId)
+    .eq('is_artist_playlist', true)
+    .eq('is_active', true)
+    .maybeSingle();
+
+  if (!playlist) return shareMetadata({ title: 'Playlist | CRWN', description: 'This playlist is no longer live.' });
+
+  const profile = artist?.profile as unknown as { display_name: string | null } | null;
+  const name = profile?.display_name || 'CRWN';
+
+  return shareMetadata({
+    title: playlist.title || 'Playlist',
+    description: playlist.description || `A playlist by ${name}.`,
+    path: `/${slug}/playlist/${playlistId}`,
+    image: playlist.cover_url || null,
+  });
 }

@@ -16,6 +16,8 @@ import {
   type LandingBallot,
   type LandingInterlude,
 } from '@/components/songlab/OfferLanding';
+import type { Metadata } from 'next';
+import { shareMetadata } from '@/lib/shareMetadata';
 
 interface OfferPageProps {
   params: Promise<{ slug: string; offer: string }>;
@@ -123,4 +125,42 @@ export default async function OfferPage({ params }: OfferPageProps) {
       interlude={interlude}
     />
   );
+}
+
+export async function generateMetadata({ params }: OfferPageProps): Promise<Metadata> {
+  const { slug, offer: offerSlug } = await params;
+  const admin = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
+    process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy-service-key-for-build',
+    { auth: { autoRefreshToken: false, persistSession: false } }
+  );
+
+  const artist = await songLabArtistBySlug(admin, slug);
+  if (!artist) return shareMetadata({ title: 'CRWN', description: 'This link is no longer live.' });
+
+  const { data: offer } = await admin
+    .from('song_lab_offers')
+    .select('headline, description, is_active, starts_at, ends_at')
+    .eq('artist_id', artist.artistId)
+    .eq('slug', offerSlug)
+    .maybeSingle();
+
+  const { data: profileRow } = await admin
+    .from('profiles')
+    .select('display_name, avatar_url')
+    .eq('id', artist.userId)
+    .maybeSingle();
+  const rawName = profileRow?.display_name ?? null;
+  const name = isPresentableArtistName(rawName) ? (rawName as string) : 'This artist';
+
+  if (!offer || !offerIsLive(offer as unknown as SongLabOfferCore, new Date())) {
+    return shareMetadata({ title: `${name} on CRWN`, description: 'This link is no longer live.' });
+  }
+
+  return shareMetadata({
+    title: offer.headline || `${name} on CRWN`,
+    description: offer.description || `From ${name}, on CRWN.`,
+    path: `/${slug}/join/${offerSlug}`,
+    image: profileRow?.avatar_url || null,
+  });
 }

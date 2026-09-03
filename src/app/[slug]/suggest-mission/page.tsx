@@ -1,6 +1,8 @@
 import { notFound } from 'next/navigation';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { SuggestMissionWizard } from '@/components/missions/SuggestMissionWizard';
+import type { Metadata } from 'next';
+import { shareMetadata } from '@/lib/shareMetadata';
 
 interface SuggestMissionPageProps {
   params: Promise<{ slug: string }>;
@@ -46,4 +48,25 @@ export default async function SuggestMissionPage({ params }: SuggestMissionPageP
       isOwnPage={user?.id === artist.user_id}
     />
   );
+}
+
+export async function generateMetadata({ params }: SuggestMissionPageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const supabase = await createServerSupabaseClient();
+
+  const { data: artist } = await supabase
+    .from('artist_profiles_public')
+    .select('slug, profile:profiles(display_name, avatar_url)')
+    .eq('slug', slug)
+    .maybeSingle();
+
+  const profile = artist?.profile as unknown as { display_name: string | null; avatar_url: string | null } | null;
+  const name = profile?.display_name || 'this artist';
+
+  return shareMetadata({
+    title: `Suggest a mission`,
+    description: `Tell ${name} what you would do for them, and they decide whether to run it.`,
+    path: `/${slug}/suggest-mission`,
+    image: profile?.avatar_url || null,
+  });
 }

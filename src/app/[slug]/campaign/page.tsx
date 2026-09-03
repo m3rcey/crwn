@@ -2,6 +2,8 @@ import { notFound } from 'next/navigation';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { isPresentableArtistName } from '@/lib/publicName';
 import { CampaignJoin } from '@/components/campaigns/CampaignJoin';
+import type { Metadata } from 'next';
+import { shareMetadata } from '@/lib/shareMetadata';
 
 interface CampaignPageProps {
   params: Promise<{ slug: string }>;
@@ -35,4 +37,26 @@ export default async function CampaignPage({ params }: CampaignPageProps) {
   const artistName = isPresentableArtistName(rawName) ? (rawName as string) : 'this artist';
 
   return <CampaignJoin slug={slug} artistName={artistName} />;
+}
+
+export async function generateMetadata({ params }: CampaignPageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const supabase = await createServerSupabaseClient();
+
+  const { data: artist } = await supabase
+    .from('artist_profiles_public')
+    .select('slug, profile:profiles(display_name, avatar_url)')
+    .eq('slug', slug)
+    .maybeSingle();
+
+  const profile = artist?.profile as unknown as { display_name: string | null; avatar_url: string | null } | null;
+  const rawName = profile?.display_name ?? null;
+  const name = isPresentableArtistName(rawName) ? (rawName as string) : 'this artist';
+
+  return shareMetadata({
+    title: `Fan drive for ${name}`,
+    description: `Take one job, get ${name} in front of more people, and track what you did.`,
+    path: `/${slug}/campaign`,
+    image: profile?.avatar_url || null,
+  });
 }

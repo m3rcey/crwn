@@ -1,6 +1,8 @@
 import { notFound } from 'next/navigation';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { DemandPublicView, type PublicDemandTest } from '@/components/demand/DemandPublicView';
+import type { Metadata } from 'next';
+import { shareMetadata } from '@/lib/shareMetadata';
 
 interface DemandPageProps {
   params: Promise<{ slug: string; testId: string }>;
@@ -61,4 +63,38 @@ export default async function DemandTestPublicPage({ params }: DemandPageProps) 
       initialResponded={alreadyResponded}
     />
   );
+}
+
+export async function generateMetadata({ params }: DemandPageProps): Promise<Metadata> {
+  const { slug, testId } = await params;
+  const supabase = await createServerSupabaseClient();
+
+  const { data: artist } = await supabase
+    .from('artist_profiles_public')
+    .select('id, slug, profile:profiles(display_name)')
+    .eq('slug', slug)
+    .maybeSingle();
+
+  if (!artist) return shareMetadata({ title: 'CRWN', description: 'This link is no longer live.' });
+
+  const { data: test } = await supabase
+    .from('proof_of_demand')
+    .select('title, description, image_url, status')
+    .eq('id', testId)
+    .eq('artist_id', artist.id)
+    .maybeSingle();
+
+  const profile = artist.profile as unknown as { display_name: string | null } | null;
+  const name = profile?.display_name || 'CRWN';
+
+  if (!test || test.status !== 'active') {
+    return shareMetadata({ title: `${name} on CRWN`, description: 'This link is no longer live.' });
+  }
+
+  return shareMetadata({
+    title: test.title || `${name} wants your answer`,
+    description: test.description || `${name} is testing this idea. Say whether you are in.`,
+    path: `/${slug}/demand/${testId}`,
+    image: test.image_url || null,
+  });
 }

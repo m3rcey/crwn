@@ -37,6 +37,8 @@ import { getLeadMagnet } from '@/lib/leadMagnets/registry';
 import { restoreWizardValues, prefillQueryString } from '@/lib/leadMagnets/resumeInputs';
 import { WorthExperience } from '@/app/(public)/worth/WorthExperience';
 import type { ResultSection } from '@/lib/leadMagnets/types';
+import type { Metadata } from 'next';
+import { shareMetadata } from '@/lib/shareMetadata';
 
 export const dynamic = 'force-dynamic';
 
@@ -570,4 +572,22 @@ function Section({ section }: { section: ResultSection }) {
       )}
     </section>
   );
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string; token: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const config = getLeadMagnet(slug);
+  // A result link is personal and unguessable. It gets a real preview so the person who
+  // sends it can see what it is, and noindex so it never lands in a search result.
+  return {
+    ...shareMetadata({
+      title: config ? `Your ${config.name}` : 'Your CRWN result',
+      description: config?.description || 'Your saved CRWN result.',
+    }),
+    robots: { index: false, follow: false },
+  };
 }

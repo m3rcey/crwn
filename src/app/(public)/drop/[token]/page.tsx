@@ -13,6 +13,8 @@ import { resolveFunnelOffers, type OfferTierRow } from '@/lib/fanAutomations/off
 import { offerExperiencesForTiers } from '@/lib/offerExperience/server';
 import { isPresentableArtistName } from '@/lib/publicName';
 import { DropFunnelClient, type DropOfferTier } from '@/components/drop/DropFunnelClient';
+import type { Metadata } from 'next';
+import { shareMetadata } from '@/lib/shareMetadata';
 
 export const dynamic = 'force-dynamic';
 
@@ -109,4 +111,39 @@ export default async function DropPage({ params }: { params: Promise<{ token: st
       experiences={experiences}
     />
   );
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ token: string }> }): Promise<Metadata> {
+  const { token } = await params;
+  const generic = shareMetadata({ title: 'CRWN', description: 'This link is no longer live.' });
+  if (!token || token.length > 64) return generic;
+
+  const { data: automation } = await supabaseAdmin
+    .from('fan_automations')
+    .select('artist_id, magnet_title, magnet_description')
+    .eq('public_token', token)
+    .in('status', ['active', 'paused'])
+    .maybeSingle();
+  if (!automation) return generic;
+
+  const { data: artist } = await supabaseAdmin
+    .from('artist_profiles')
+    .select('user_id, banner_url')
+    .eq('id', automation.artist_id)
+    .maybeSingle();
+
+  const { data: profile } = await supabaseAdmin
+    .from('profiles')
+    .select('display_name, avatar_url')
+    .eq('id', artist?.user_id || '')
+    .maybeSingle();
+  const rawName = profile?.display_name ?? null;
+  const name = isPresentableArtistName(rawName) ? (rawName as string) : 'This artist';
+
+  return shareMetadata({
+    title: automation.magnet_title || `${name} on CRWN`,
+    description: automation.magnet_description || `${name} is sending this out on CRWN.`,
+    path: `/drop/${token}`,
+    image: artist?.banner_url || profile?.avatar_url || null,
+  });
 }
