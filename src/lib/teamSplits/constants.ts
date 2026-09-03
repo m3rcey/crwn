@@ -111,14 +111,17 @@ export function dealTypeMeta(key: DealType): DealTypeMeta {
 }
 
 /** Which revenue-source types a deal type can attach to. */
+// 'booking' is deliberately absent from every list: the book-an-artist flow was removed on
+// 2026-09-03, so a deal fenced to a booking could never earn a cent. The type and its label
+// stay below so a deal created before that date still names its own source.
 export const SOURCE_TYPES_FOR_DEAL: Record<DealType, RevenueSourceType[]> = {
   campaign_share: ['road_campaign'],
   offer_share: ['product'],
   subscription_share: ['tier'],
   milestone_bonus: ['road_campaign', 'tier', 'product', 'all_earnings'],
-  hybrid: ['road_campaign', 'product', 'tier', 'track', 'live_session', 'booking'],
+  hybrid: ['road_campaign', 'product', 'tier', 'track', 'live_session'],
   artist_earnings_share: ['all_earnings'],
-  custom: ['tier', 'product', 'track', 'live_session', 'booking', 'road_campaign', 'all_earnings', 'custom', 'none'],
+  custom: ['tier', 'product', 'track', 'live_session', 'road_campaign', 'all_earnings', 'custom', 'none'],
 };
 
 export const SOURCE_LABELS: Record<RevenueSourceType, string> = {

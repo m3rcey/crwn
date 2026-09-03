@@ -1457,7 +1457,19 @@ export async function handleTrackPurchase(supabaseAdmin: AdminClient, session: S
   console.log('Track purchase recorded:', { fan_id, track_id, artist_id });
 }
 
-// ─── Booking purchase ────────────────────────────────────────────────────────
+// ─── Booking purchase (SETTLE ONLY, no longer reachable) ─────────────────────
+//
+// Booking an artist was removed on 2026-09-03: `/api/stripe/booking-checkout` and both
+// `/[slug]/book/success` pages are deleted, so nothing can start a booking checkout and
+// no new event will ever reach this handler. It is kept, rather than deleted, for two
+// reasons. It settles any Stripe session that was somehow already open, and it carries
+// the SEC-005 regression guard: the credited artist is read from the booking session's
+// OWNER, never from `metadata.artist_id`, which a caller once controlled. That property
+// is asserted by ledgerIntegrity.test.ts and must not be weakened here.
+//
+// The `booking` earnings type stays live across the money layer (payouts, team splits,
+// paid-conversion kinds). Historical rows exist under it and removing the vocabulary
+// would rewrite the ledger's meaning, which is a different and much larger decision.
 
 export async function handleBookingPurchase(supabaseAdmin: AdminClient, session: Stripe.Checkout.Session) {
   const metadata = session.metadata;

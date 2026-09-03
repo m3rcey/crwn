@@ -1310,6 +1310,35 @@ New artists do NOT get the old dashboard tour first. They flow **signup → `/se
 - **The Launch Kit (Launch Wizard Stage 8, 2026-07-30) generates launch copy as DRAFTS, never sends.** `src/lib/launchCampaign.ts` (pure, tested, no em dashes) builds announcement/follow-up emails + social/story/DM copy from the artist's real page, tiers, and imported audience; the `LaunchKit` panel (top of `/studio/fans?view=campaigns`) creates both emails as `campaigns` drafts through /api/campaigns (announcement preset to contacts + 20-contact test group). EMAIL campaigns live at `/studio/fans` (AudienceTab); `/campaign-hub` is Road-To campaigns; do not link "send an email" flows to /campaign-hub.
 - **The wizard ends on the `LaunchReview` screen (Launch Wizard Stage 9, 2026-07-30), and the publish action is UNCHANGED server-side.** "Launch my CRWN" is still `markComplete` (`/api/artist/complete-setup`) + the journey resolver; never add a second completion path. The checklist's "Fix it" jumps back into wizard screens; the calendar/roadmap previews render INLINE (their routes are behind the setup gate until launch), and the storefront/checkout preview is the public page. Post-launch, Rise Mode is the command screen, and since 2026-08-13 it shows ONE next move rather than the old stats-and-promises card: the real counts (members/paying/MRR vs the calculator goal) are still returned by `/api/artist/roadmap` and are owned for display by `/studio/analytics`. Real counts only wherever they render; never render projections as results. The paid cap is 3 on every plan, and the free tier does not count against it (Option-2 counting). LaunchReview also carries the **operating plan panel** (journey spec Screen 11): `recommendPlan()` re-derived client-side from the roadmap goal with `monthlyPlanCostCents()` arithmetic, advisory only, never blocking the launch; all numbers come from `TIER_PRICING`/`TIER_LIMITS`, never hardcoded. Post-launch, Level 5 quests close the activation loop (first visit via `artist_page_visits`, first delivered promise via completed `fulfillment_events`), and the upgrade pop-ups (`artist_pro_break_even`/`artist_scale_break_even`) fire once on REAL trailing-30-day GMV crossing the derived break-evens. Experiences + the lower fee (12% to 8%) + live/DMs/scheduling remain **Pro** ($49/mo), surfaced AFTER the wizard; the product step offers only **Digital** (see the physical-goods rule below).
 
+## Nobody books an artist through CRWN (founder decision, 2026-09-03)
+
+A fan cannot book an artist for a show, an appearance, or any dated slot. The flow that did it is
+deleted: `/api/stripe/booking-checkout`, `src/app/[slug]/book/` and `src/app/artist/[slug]/book/`
+are gone. It was already half-dead (no entry page had ever existed, only the success page), but
+the checkout route was a live POST endpoint any authenticated user could call against any
+`booking_sessions` row, so the ability was real even though no button pointed at it. Production
+held one session (a $49.99 30-minute call, Josh's own) and **zero purchases**.
+
+- **`ledgerIntegrity.test.ts` now asserts the route's ABSENCE**, which is stronger than the SEC-005
+  fix it replaces: a route that does not exist cannot be called with a client-supplied artist id.
+  Mutation-tested 2026-09-03 (recreated the file, the suite failed on SEC-005, reverted, green).
+  Re-adding a booking checkout fails there and in `security.test.ts`, whose TS-MONEY-002 and
+  TS-MONEY-012 rail lists dropped it.
+- **`handleBookingPurchase` in `webhookHandlers.ts` STAYS, settle-only.** Nothing can reach it now,
+  and it carries the SEC-005 guard the ledger tests pin. Do not delete it to tidy up.
+- **The `booking` earnings type stays across the money layer** (`PayoutDashboard` filter,
+  `POSITIVE_TYPES`, `FENCEABLE`, `paidConversion` kinds, `frl` PAID_TYPES). Historical rows are
+  keyed to it and rewriting ledger vocabulary is a separate, larger decision. It is removed only
+  from `SOURCE_TYPES_FOR_DEAL` in `src/lib/teamSplits/constants.ts`, because offering it there let
+  an artist fence a split to a source that can never earn.
+- **What is NOT booking, and stays:** `booking_tokens` + `BookingTokenButton` reveal the artist's
+  cal.com link to a fan who has ALREADY bought an experience the artist chose to sell. That is
+  scheduling a purchase, not booking a person. Live sessions, Executive Producer Sessions and the
+  city-demand tools are the artist planning their own room, not a fan hiring them.
+- **`in-person` left `EXPERIENCE_SUBCATEGORIES`** in `ShopManager` (kept in `LEGACY_SUBCATEGORIES`
+  for old rows): "In-Person Experience" was the last way to sell an appearance. What remains is
+  remote work done at a time the artist picks.
+
 ## CRWN does not sell physical goods (founder decision, 2026-09-03)
 
 No surface may offer, model, or promise a physical item. **The reason is fulfillment, and it is

@@ -498,11 +498,13 @@ describe('SEC-SPLIT — collaborator identity and funding', () => {
 
   // TS-MONEY-002 extended: every eligible one-time rail withholds the reserve. A rail that forgets
   // pays the artist money already promised to a collaborator, and Stripe sweeps it the same day.
+  // booking-checkout left this list on 2026-09-03 because the route was deleted with the
+  // book-an-artist flow. If a booking rail ever returns it belongs back in both lists here, and
+  // ledgerIntegrity.test.ts already fails the moment that file reappears.
   it('TS-MONEY-002 every one-time payment rail withholds the collaborator reserve', () => {
     const rails = [
       'src/app/api/stripe/track-checkout/route.ts',
       'src/app/api/stripe/product-checkout/route.ts',
-      'src/app/api/stripe/booking-checkout/route.ts',
       'src/app/api/stripe/live-checkout/route.ts',
       'src/app/api/stripe/live-tip-checkout/route.ts',
     ];
@@ -612,7 +614,6 @@ describe('SEC-SPLIT — collaborator identity and funding', () => {
     const rails = [
       'src/app/api/stripe/track-checkout/route.ts',
       'src/app/api/stripe/product-checkout/route.ts',
-      'src/app/api/stripe/booking-checkout/route.ts',
       'src/app/api/stripe/live-checkout/route.ts',
       'src/app/api/stripe/live-tip-checkout/route.ts',
       'src/app/api/stripe/checkout/route.ts',

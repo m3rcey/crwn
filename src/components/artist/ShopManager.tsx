@@ -37,11 +37,19 @@ const PHYSICAL_SUBCATEGORIES = [
 // was written to the purchase row and never read by a single artist screen. Artists
 // who sell merch link their own store from their profile (artist_profiles.merch_store_url).
 
+// 'in-person' left this list on 2026-09-03: booking an artist to show up somewhere is
+// not something CRWN offers. What remains is remote work the artist does at a time they
+// pick, which the cal.com link on their profile already schedules after payment. The
+// value stays in the legacy label map below so a pre-existing product still reads right.
 const EXPERIENCE_SUBCATEGORIES = [
   { value: 'video-call', label: '1-on-1 Video Call' },
   { value: 'custom-verse', label: 'Custom Verse / Feature' },
   { value: 'song-critique', label: 'Song Critique / Feedback' },
   { value: 'shoutout', label: 'Personalized Shoutout' },
+];
+
+/** Legacy only: retired subcategory labels, so an older product still names itself. */
+const LEGACY_SUBCATEGORIES = [
   { value: 'in-person', label: 'In-Person Experience' },
 ];
 
@@ -436,7 +444,7 @@ export function ShopManager() {
     try {
       const extra = JSON.parse(match[1]);
       if (!extra.subcategory) return null;
-      const label = [...DIGITAL_SUBCATEGORIES, ...EXPERIENCE_SUBCATEGORIES, ...PHYSICAL_SUBCATEGORIES].find(s => s.value === extra.subcategory)?.label;
+      const label = [...DIGITAL_SUBCATEGORIES, ...EXPERIENCE_SUBCATEGORIES, ...PHYSICAL_SUBCATEGORIES, ...LEGACY_SUBCATEGORIES].find(s => s.value === extra.subcategory)?.label;
       return label ? (
         <span className="px-2 py-0.5 rounded text-xs bg-crwn-elevated text-crwn-text-secondary">
           {label}

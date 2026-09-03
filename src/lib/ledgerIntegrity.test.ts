@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { existsSync } from 'node:fs';
 import { readStripped, violation } from './architecture/sourceScan';
 
 // Ledger integrity: the two things an `earnings` row must never get wrong.
@@ -8,7 +9,10 @@ import { readStripped, violation } from './architecture/sourceScan';
 //   Stripe metadata and the `booking_purchases` row. The money destination was always safe (the
 //   transfer used the artist derived from the booking session), but the webhook trusts that
 //   metadata into `earnings`, `checkAndAwardMilestones` and `recordFirstPaidConversion`, so a fan
-//   could pay artist A and credit artist B.
+//   could pay artist A and credit artist B. That route was DELETED on 2026-09-03 along with the
+//   rest of the book-an-artist flow, which is a strictly stronger guarantee than the fix was: a
+//   route that does not exist cannot be called with anything. The assertion below now pins its
+//   absence, so re-adding a booking checkout fails here and has to come back with the fix in it.
 //
 // SEC-006 (same audit) — HOW MUCH was earned.
 //   Subscription earnings recorded the tier's catalog price instead of the amount Stripe actually
@@ -22,7 +26,6 @@ import { readStripped, violation } from './architecture/sourceScan';
 const BOOKING_ROUTE_PATH = 'src/app/api/stripe/booking-checkout/route.ts';
 const HANDLERS_PATH = 'src/lib/webhookHandlers.ts';
 
-const BOOKING_ROUTE = readStripped(BOOKING_ROUTE_PATH);
 const HANDLERS = readStripped(HANDLERS_PATH);
 
 function slice(source: string, startMarker: string, endMarker: string): string {
@@ -55,7 +58,6 @@ const DOCS = 'docs/CYBERSECURITY_AUDIT_2026-08-12.md';
 
 describe('positive control — the scanned sources are real', () => {
   it('both files were read and are substantial', () => {
-    expect(BOOKING_ROUTE.length).toBeGreaterThan(1000);
     expect(HANDLERS.length).toBeGreaterThan(10000);
   });
 
@@ -74,36 +76,14 @@ describe('positive control — the scanned sources are real', () => {
 // ── SEC-005 — the artist credited is derived, never client-supplied ──
 
 describe('SEC-005 — no client-supplied artist id reaches the booking ledger', () => {
-  it('booking-checkout never writes a request-body artist id', () => {
+  it('there is no booking checkout route at all', () => {
     expect(
-      /artist_id:\s*artistId\b/.test(BOOKING_ROUTE),
-      violation('SEC-005', 'booking-checkout writes a request-body artistId into a stored row or Stripe metadata', {
+      existsSync(BOOKING_ROUTE_PATH),
+      violation('SEC-005', 'a booking checkout route is back; booking an artist was removed on 2026-09-03, and the route this replaces took a client-supplied artistId into the ledger', {
         file: BOOKING_ROUTE_PATH,
         docs: DOCS,
       }),
     ).toBe(false);
-  });
-
-  it('booking-checkout does not read an artist id out of the request body at all', () => {
-    expect(
-      /const\s*\{[^}]*\bartistId\b[^}]*\}\s*=\s*body/.test(BOOKING_ROUTE),
-      violation('SEC-005', 'booking-checkout destructures artistId from the request body', {
-        file: BOOKING_ROUTE_PATH,
-        docs: DOCS,
-      }),
-    ).toBe(false);
-    expect(/body\.artistId/.test(BOOKING_ROUTE)).toBe(false);
-  });
-
-  it('both booking-checkout artist writes use the value derived from the booking session', () => {
-    expect(BOOKING_ROUTE).toContain("const artistIdFromArtist = (session.artist as unknown as { id?: string }).id");
-    expect((BOOKING_ROUTE.match(/artist_id:\s*artistIdFromArtist/g) || []).length).toBe(2);
-  });
-
-  it('the money destination is still derived server-side too (unchanged, and must stay)', () => {
-    expect(BOOKING_ROUTE).toContain("\.eq('id', artistIdFromArtist)");
-    expect(BOOKING_ROUTE).toContain('destination: artistStripeAccountId');
-    expect(BOOKING_ROUTE).toContain('getArtistFeePercent(artistIdFromArtist)');
   });
 
   it('the booking webhook credits the booking session owner, not session metadata', () => {
