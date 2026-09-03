@@ -65,21 +65,24 @@ function PreviewShell({ p, children }: { p: OfferPreview; children?: React.React
   );
 }
 
-/** EXAMPLE interactions are demonstrations: rendered inert and marked for assistive
- *  tech, never as fake enabled controls that pretend to perform a real action. */
-function DemoButton({ label }: { label: string }) {
+/** EXAMPLE interactions are demonstrations of what members do, but the TAP is real: it
+ *  jumps the fan to the purchase cluster, because reaching for the thing is the buying
+ *  signal and dead air on that tap reads as broken. The assistive name says exactly
+ *  that, so a screen reader is never told this submits anything. */
+function DemoButton({ label, onTry }: { label: string; onTry?: () => void }) {
   return (
-    <span
-      role="img"
-      aria-label={`Demonstration of the ${label} button members see`}
-      className="inline-flex items-center justify-center px-4 py-2 rounded-full text-sm font-semibold bg-crwn-gold/25 text-crwn-gold select-none"
+    <button
+      type="button"
+      onClick={onTry}
+      aria-label={`${label}: a preview of what members do. Takes you to joining.`}
+      className="inline-flex items-center justify-center px-4 py-2 rounded-full text-sm font-semibold bg-crwn-gold/25 text-crwn-gold press-scale"
     >
       {label}
-    </span>
+    </button>
   );
 }
 
-function PreviewBody({ p }: { p: OfferPreview }) {
+function PreviewBody({ p, onTry }: { p: OfferPreview; onTry?: () => void }) {
   switch (p.kind) {
     case 'decision':
       return (
@@ -95,7 +98,7 @@ function PreviewBody({ p }: { p: OfferPreview }) {
               </div>
             </div>
           ))}
-          <div className="pt-1"><DemoButton label={p.actionLabel || 'Vote'} /></div>
+          <div className="pt-1 text-center"><DemoButton label={p.actionLabel || 'Vote'} onTry={onTry} /></div>
         </div>
       );
     case 'submission':
@@ -110,7 +113,7 @@ function PreviewBody({ p }: { p: OfferPreview }) {
               </div>
             </div>
           ))}
-          <div className="pt-1"><DemoButton label={p.actionLabel || 'Submit for consideration'} /></div>
+          <div className="pt-1 text-center"><DemoButton label={p.actionLabel || 'Submit for consideration'} onTry={onTry} /></div>
         </div>
       );
     case 'collection':
@@ -259,7 +262,7 @@ export function TierOfferExperience({ artist, tier, config, actionSlot, onDeclin
       <div id={`offer-previews-${tier.id}`} className="space-y-4">
         {config.previews.map((p, i) => (
           <PreviewShell key={i} p={p}>
-            <PreviewBody p={p} />
+            <PreviewBody p={p} onTry={scrollToAction} />
           </PreviewShell>
         ))}
       </div>
