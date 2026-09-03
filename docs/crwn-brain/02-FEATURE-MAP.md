@@ -94,7 +94,8 @@ Managers under `src/components/artist/`: `MusicManager` (`TrackUploadForm`), `Al
 ## Subscriptions, tiers, gating, payments
 | Feature | Routes / files | Status |
 |---|---|---|
-| Subscription tiers & benefits | `TierManager`, `TierBenefitsSelector/Editor`, `benefitCatalog.ts`, `/api/tier-benefits`; `subscription_tiers`, `tier_benefits` | **Production-ready** (some benefits `available:false` "coming soon") |
+| Subscription tiers & benefits | `TierManager`, `TierBenefitsSelector`, `benefitRegistry.ts` (the ONE benefit map; `benefitCatalog.ts` is derived from it), `/api/tier-benefits`; `subscription_tiers`, `tier_benefits` | **Production-ready**. Since 2026-09-03 each key is recommended / additional / manual / retired (doc 33); retired keys still render for old rows |
+| Promise to Delivery | `PromiseDeliveryPanel` on `/account/tiers`, `benefitReadiness.ts`, `/api/tier-benefits/readiness`, fast actions via `?benefit=&tier=` pointers into music / member files / playlists / lab / live / the page composer | **Production-ready** (2026-09-03, doc 33). Readiness derived on read, never stored, never a gate |
 | Content gating | `is_free`+`allowed_tier_ids`; `useSubscription`; `GatedTrackPlayer`, `GatedCommunityPost`; entitlement views | **Production-ready** (legacy `useContentAccess`/`access_level` deprecated) |
 | Checkout (sub/track/product/booking/live/platform/free) | 12 routes `src/app/api/stripe/*` | **Production-ready** |
 | Payouts / Connect | `connect`, `connect/status` (`backfillTierPrices`), `balance`, `cashout`, `fan-cashout`, `team-split-cashout`; `PayoutDashboard`. **Artist bank payouts belong to Stripe** (Express, automatic daily, `delay_days: 2`); the `weekly-payout` cron was retired 2026-08-11 having never created a payout | **Production-ready** |

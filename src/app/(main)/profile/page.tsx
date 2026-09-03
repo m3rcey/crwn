@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { memberSinceLabel } from '@/lib/recognition/status';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
@@ -42,7 +43,7 @@ export default function ProfilePage() {
         .from('subscriptions')
         // Name the FK: subscriptions has two to subscription_tiers, and an ambiguous
         // embed fails the whole statement, so the fan saw none of their memberships.
-        .select('id, tier_id, status, current_period_end, stripe_customer_id, artist_id, tier:subscription_tiers!subscriptions_tier_id_fkey(name, price), artist:artist_profiles(slug, profile:profiles(display_name, avatar_url))')
+        .select('id, tier_id, status, current_period_end, stripe_customer_id, artist_id, created_at, is_founder, tier:subscription_tiers!subscriptions_tier_id_fkey(name, price), artist:artist_profiles(slug, profile:profiles(display_name, avatar_url))')
         .eq('fan_id', user.id)
         .eq('status', 'active')
         .order('created_at', { ascending: false });
@@ -247,6 +248,11 @@ export default function ProfilePage() {
               const artistSlug = sub.artist?.slug || '';
               const tierName = sub.tier?.name || 'Subscription';
               const tierPrice = sub.tier?.price ? `$${(sub.tier.price / 100).toFixed(2)}/mo` : '';
+              // Self-visible recognition (founder decision D1, 2026-09-03): the fan's own rung and
+              // member-since date, from their own subscription row. Day One is the founder-window
+              // flag, the ONE existing definition of early; nothing here is public.
+              const memberSince = memberSinceLabel(sub.created_at);
+              const dayOne = sub.is_founder === true;
               return (
                 <div key={sub.id} className="flex items-center justify-between py-3 border-b border-crwn-elevated last:border-0">
                   <Link href={`/${artistSlug}`} className="flex items-center gap-3 min-w-0 flex-1">
@@ -262,6 +268,13 @@ export default function ProfilePage() {
                     <div className="min-w-0">
                       <p className="text-crwn-text font-medium text-sm truncate">{artistName}</p>
                       <p className="text-crwn-text-secondary text-xs">{tierName} {tierPrice && `· ${tierPrice}`}</p>
+                      {(memberSince || dayOne) && (
+                        <p className="text-crwn-gold/90 text-[11px] mt-0.5">
+                          {dayOne ? 'Day One' : ''}
+                          {dayOne && memberSince ? ' · ' : ''}
+                          {memberSince ? `Member since ${memberSince}` : ''}
+                        </p>
+                      )}
                     </div>
                   </Link>
                   <div className="flex items-center gap-2 flex-shrink-0 ml-2">

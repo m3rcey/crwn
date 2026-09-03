@@ -667,20 +667,15 @@ responsible for. Do not work those.
       and check the Stripe description matches the CRWN one. GB's four are already correct by
       hand, so use GB and change one word back and forth.
 
-- [ ] **Decide what happens to two benefits CRWN sells but never delivers.** Found while
-      cleaning GB's tier cards on 2026-09-03. Any artist can put these on a paid tier and no
-      code makes them real:
-      `community_badge` renders the words '"SR" community badge' on the card, and `badge_text`
-      is read in exactly one place ([src/lib/benefitCatalog.ts:282](src/lib/benefitCatalog.ts#L282)),
-      which is the card copy itself. No community surface draws a badge.
-      `supporter_wall` renders "Name on Supporter Wall", and its component
-      [src/components/artist/SupporterWall.tsx](src/components/artist/SupporterWall.tsx) is
-      imported by NOTHING, so there is no wall to be named on.
-      This is the plan-limits rule pointed at fan tiers: only advertise what the product
-      enforces. Your call which way: build the two surfaces, or drop both from
-      [src/lib/benefitCatalog.ts](src/lib/benefitCatalog.ts) and
-      [src/lib/tierTemplate.ts](src/lib/tierTemplate.ts) and strip the rows from every artist
-      who has one. I did not touch other artists' rows, only GB's.
+- [ ] **GB's Bronze says "Day One recognition", and nobody on it can be Day One until you turn
+      on the Founder Window.** Since 2026-09-03 every member sees their own rung and "Member since
+      <month>" on their tier card and on /profile. "Day One" is the ONE existing early flag,
+      `subscriptions.is_founder`, which only a tier's Founder Window sets. GB's Bronze has none, so
+      his Bronze members see a member-since date and no Day One label. Two honest options, your
+      call with GB: open a Founder Window on Bronze in /account/tiers (a cap, a deadline, or both;
+      early joiners are marked for good), or change the Bronze line to what it already delivers
+      ("Member since day one" reads true for everyone who joined at launch). No SQL either way.
+      Detail: [docs/crwn-brain/33-PROMISE-TO-DELIVERY.md](docs/crwn-brain/33-PROMISE-TO-DELIVERY.md).
 
 - [ ] **Build the two all-in-one ManyChat automations: FREE and PLAN.** Both route to the same
       tool (`opportunity-calculator`). Full step by step, including the exact one-line request

@@ -185,8 +185,48 @@ describe('config readers', () => {
     expect(d.getHours()).toBe(12);
   });
 
-  it('recurrenceFromConfig rejects unknown cadences', () => {
-    expect(recurrenceFromConfig({ frequency: 'daily' }, 'monthly')).toBe('monthly');
-    expect(recurrenceFromConfig({ frequency: 'quarterly' }, 'monthly')).toBe('quarterly');
+  it('recurrenceFromConfig answers null for anything the artist did not explicitly choose', () => {
+    expect(recurrenceFromConfig({ frequency: 'daily' })).toBeNull();
+    expect(recurrenceFromConfig({ frequency: '' })).toBeNull();
+    expect(recurrenceFromConfig({})).toBeNull();
+    expect(recurrenceFromConfig(null)).toBeNull();
+    expect(recurrenceFromConfig({ frequency: 'quarterly' })).toBe('quarterly');
+  });
+});
+
+describe('no fixed schedule unless chosen (2026-09-03)', () => {
+  // The bug this pins: PROMISE_BENEFITS used to carry a code default of monthly, so a rung
+  // that merely OFFERED behind-the-scenes posts planned a monthly obligation nobody chose.
+  it('a schedulable benefit with no frequency plans no promise', () => {
+    const silver = TIER_TEMPLATE_MAP.inner_circle;
+    const offered: TierTemplateDef = {
+      ...silver,
+      benefits: [
+        ...silver.benefits,
+        { label: 'Behind the scenes', workload: 'low', structured: { benefit_type: 'exclusive_posts' } },
+        { label: 'Live sessions', workload: 'moderate', structured: { benefit_type: 'group_live_qa', config: {} } },
+        { label: 'Votes', workload: 'low', structured: { benefit_type: 'creative_voting', config: { frequency: '' } } },
+      ],
+    };
+    const rungs = RECOMMENDED_LADDER.map((def) => ({ def: def.key === 'inner_circle' ? offered : def, included: true }));
+    const plan = planLadderPromises(rungs);
+    expect(plan.filter((p) => p.tierKey === 'inner_circle')).toEqual([]);
+    // The template's own explicit cadences are untouched.
+    expect(plan.map((p) => p.benefitType).sort()).toEqual(['exclusive_posts', 'group_live_qa']);
+  });
+
+  it('the same benefit WITH an explicit cadence plans exactly one promise at that cadence', () => {
+    const silver = TIER_TEMPLATE_MAP.inner_circle;
+    const scheduled: TierTemplateDef = {
+      ...silver,
+      benefits: [
+        ...silver.benefits,
+        { label: 'Weekly BTS', workload: 'low', structured: { benefit_type: 'creative_voting', config: { frequency: 'weekly' } } },
+      ],
+    };
+    const rungs = RECOMMENDED_LADDER.map((def) => ({ def: def.key === 'inner_circle' ? scheduled : def, included: true }));
+    const votes = planLadderPromises(rungs).filter((p) => p.benefitType === 'creative_voting');
+    expect(votes).toHaveLength(1);
+    expect(votes[0].defaultRecurrence).toBe('weekly');
   });
 });

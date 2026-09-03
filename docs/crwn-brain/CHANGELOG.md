@@ -1,5 +1,37 @@
 # CRWN Brain — Changelog
 
+## 2026-09-03 - Promise to Delivery: one benefit registry, readiness, fast actions, GB configured
+
+**Full doc: 33-PROMISE-TO-DELIVERY.md.** `tier_benefits.benefit_type` is now the identity that
+connects a tier promise to the CRWN mechanism that keeps it. `src/lib/benefitRegistry.ts` maps
+every key to its outcome label, support class (recommended / additional / manual / retired),
+delivery path, effort, cadence policy, readiness resolver, fast action and Offer Experience
+preview kind; `benefitCatalog.ts` is derived from it. Seven keys added for capabilities that were
+already live (stems, vault_collection, creative_voting, fan_submissions, member_recognition,
+welcome_unlock, drop_alerts); three retired from new selection (exclusive_albums,
+community_badge, supporter_wall); keys frozen as ID-007.
+
+Cadence rule change: NO fixed schedule unless the artist explicitly chooses one. The code default
+of monthly in PROMISE_BENEFITS is gone; syncTierObligations creates an obligation only for an
+explicit config.frequency and leaves legacy obligations untouched. Mutation-tested.
+
+The tier picker reads "What do fans get?" in fan language, separates "CRWN handles the delivery"
+from "You deliver this yourself", shows inherited benefits as included from the cheaper rung, and
+offers a schedule only as an opt-in. TierManager now saves benefits through /api/tier-benefits
+(so an emptied set actually clears) and can mark a card prose_only.
+
+The Promise to Delivery panel on /account/tiers reads /api/tier-benefits/readiness (session
+authority, counts and dates only) and gives each promise one state and one fast action that
+opens the existing surface with the rung preset: music, member files, playlists (the Vault),
+Song Lab, Live, the artist page composer, automations, the email composer. Pointer discipline
+everywhere: a foreign tier id opens nothing.
+
+The Vault is a tier-gated artist playlist; adding a track to it gates the TRACK (never narrowing).
+Recognition V1 is self-visible: rung plus member-since on the fan's own card and profile; Day One
+stays the founder-window flag. No migration. tier_offer_experiences corrected to APPLIED in the
+migration registry (three GB rows read back). GB's four tiers configured by
+scripts/configure-gb-tier-benefits.mjs with card_lines = prose_only.
+
 ## 2026-09-02 - The Tier Offer Experience: one renderer, one write contract, GB first
 
 **Full doc: 32-TIER-OFFER-EXPERIENCE.md.** The universal fan-facing sales presentation

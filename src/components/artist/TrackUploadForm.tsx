@@ -28,6 +28,8 @@ import { ReleaseCreditsModal } from './ReleaseCreditsModal';
 import { Edit2, X, Upload, Plus, Loader2, Music, Award } from 'lucide-react';
 import { hapticMedium } from '@/lib/haptics';
 import { TierAccessSelect } from '@/components/shared/TierAccessSelect';
+import { readBenefitPointer } from '@/lib/benefitRegistry';
+import { expandFromTier } from '@/lib/tierLadder';
 
 interface SubscriptionTier {
   id: string;
@@ -162,6 +164,20 @@ export function TrackUploadForm() {
         console.error('Error fetching tiers:', tiersError);
       } else if (tiersData) {
         setTiers(tiersData);
+        // Fast action from the Promise to Delivery panel. The tier id is a POINTER matched
+        // against the tiers just loaded for THIS artist; an id that is not theirs does
+        // nothing. Arriving with the rung already set removes the one step every delivery
+        // flow used to repeat: re-choosing the tier scope the artist clicked from.
+        const ptr = typeof window !== 'undefined' ? readBenefitPointer(window.location.search) : null;
+        if (ptr && tiersData.some((t) => t.id === ptr.tierId)) {
+          if (ptr.benefit === 'exclusive_tracks') {
+            setFormData((p) => ({ ...p, contentClass: 'member_only', allowedTierIds: expandFromTier(tiersData, ptr.tierId), price: '' }));
+          } else if (ptr.benefit === 'early_access') {
+            const paid = tiersData.filter((t) => t.price > 0);
+            const rung = expandFromTier(paid, ptr.tierId);
+            if (rung.length > 0) setFormData((p) => ({ ...p, contentClass: 'paid_first', allowedTierIds: rung, price: '' }));
+          }
+        }
       }
 
       // (The old early-access toggle read tier_benefits to decide whether to

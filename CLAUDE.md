@@ -34,6 +34,45 @@ names and prices, so drift fails `npm test` instead of reaching an artist.
 - "The Vault" survives as a FEATURE name (the Vault Revenue Planner, the monthly vault unlock, the
   artist's private archive). It is no longer a tier name: the vault lives in the Gold tier.
 
+## Promise to Delivery: one benefit registry, no fixed schedule, readiness is derived (2026-09-03)
+
+`src/lib/benefitRegistry.ts` is the ONE map from a `tier_benefits.benefit_type` to how CRWN
+delivers it (support class, delivery path, effort, cadence policy, readiness resolver, fast
+action, Offer Experience preview kind). `benefitCatalog.ts` is DERIVED from it: never add a
+label, a config field or a key anywhere else. Keys are frozen (ID-007, `FROZEN_BENEFIT_KEYS`):
+append, or retire with `support: 'retired'`, never rename. Full doc:
+`docs/crwn-brain/33-PROMISE-TO-DELIVERY.md`.
+
+- **Supported means CRWN has a live delivery mechanism today.** `recommended` (the fan-economy
+  set), `additional` (real but not a default), `manual` (the artist delivers; the picker says
+  "You deliver this yourself"; never a readiness chip, never a fast action), `retired`
+  (`exclusive_albums`, `community_badge`, `supporter_wall`; old rows still render). Never present
+  a manual promise as operationally supported, and never add a supported key without a live
+  delivery table behind it.
+- **No fixed schedule unless the artist explicitly chooses one.** `PROMISE_BENEFITS` carries no
+  default recurrence; `recurrenceFromConfig` returns null for a missing frequency, and null means
+  no obligation. `syncTierObligations` creates a Promise Calendar row only for an explicit
+  `config.frequency`, leaves a legacy obligation untouched when its benefit is present but
+  unscheduled, and archives only on removal. The picker's "No fixed schedule" writes NO key.
+  `tierObligations.test.ts` is mutation-tested against the monthly default; do not reintroduce one.
+- **Readiness is derived on read and never a gate.** `benefitReadiness.ts` is pure (no client, no
+  write, counts and dates only); `/api/tier-benefits/readiness` resolves the artist from the
+  session. A readiness answer may never widen access. Do not store readiness.
+- **Fast actions are pointers.** `?benefit=<key>&tier=<id>` is read by `readBenefitPointer`; every
+  destination matches the id against tiers it already loaded for the signed-in artist and expands
+  the rung with `expandFromTier`. A foreign id opens nothing. Never let a pointer decide a write.
+- **The Vault is a tier-gated artist playlist** (`vaultCollection.ts`). Adding a track gates the
+  TRACK for the collection's rungs and never narrows what a member already had. No Vault table,
+  route, player or second entitlement.
+- **Recognition V1 is self-visible only**: the fan's own rung and member-since on their card and
+  profile. Day One is `subscriptions.is_founder` (the Founder Window), never an invented cutoff.
+  No public supporter wall, no RLS change.
+- **`access_config.card_lines = 'prose_only'`** prints only the artist's own lines on the public
+  card while structured rows keep powering delivery. GB's four tiers use it; the structured rows
+  there are IDENTITY, not copy.
+- **The panel lives on `/account/tiers`** (`PromiseDeliveryPanel` inside `TierManager`). Not a
+  Studio tile, not a hamburger entry, not Rise Mode.
+
 ## Membership strategy + content classes (release strategy spec, 2026-08-01)
 
 `src/lib/membershipStrategy.ts` is the pure, tested brain for the release strategy

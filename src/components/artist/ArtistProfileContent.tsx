@@ -87,7 +87,13 @@ export function ArtistProfileContent({
   // Music is the default landing tab. A fan who lands on an artist page came for
   // the songs, and Movement asked them to care about the artist's campaign before
   // they had heard anything. Returning from checkout still lands on Tiers.
-  const [activeTab, setActiveTab] = useState<'movement' | 'music' | 'live' | 'tiers' | 'shop' | 'community' | 'leaderboard'>(returningFromCheckout ? 'tiers' : 'music');
+  // ?tab=community is the Promise to Delivery fast action for member posts: the composer lives
+  // on this page, so the owner is sent straight to it. A pointer only: unknown values fall
+  // through to the normal default.
+  const requestedTab = searchParams.get('tab');
+  const [activeTab, setActiveTab] = useState<'movement' | 'music' | 'live' | 'tiers' | 'shop' | 'community' | 'leaderboard'>(
+    returningFromCheckout ? 'tiers' : requestedTab === 'community' ? 'community' : 'music',
+  );
 
   // Trigger artist page tour on first visit (only when viewing own page)
   const isOwnPage = isArtistProfile;

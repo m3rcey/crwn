@@ -4,8 +4,16 @@ import { TrackUploadForm } from '@/components/artist/TrackUploadForm';
 import { AlbumManager } from '@/components/artist/AlbumManager';
 import { ArtistPlaylistManager } from '@/components/artist/ArtistPlaylistManager';
 import { VaultPlanner } from '@/components/artist/VaultPlanner';
+import { readBenefitPointer } from '@/lib/benefitRegistry';
+
+/** A Promise to Delivery fast action for the Vault lands on the Playlists sub-tab. */
+function initialSubTab(): 'tracks' | 'albums' | 'playlists' {
+  if (typeof window === 'undefined') return 'tracks';
+  return readBenefitPointer(window.location.search)?.benefit === 'vault_collection' ? 'playlists' : 'tracks';
+}
+
 export function MusicManager() {
-  const [activeSubTab, setActiveSubTab] = useState<'tracks' | 'albums' | 'playlists'>('tracks');
+  const [activeSubTab, setActiveSubTab] = useState<'tracks' | 'albums' | 'playlists'>(initialSubTab);
   return (
     <div>
       {/* Level 2 (Build Your Vault): catalog-shape planner + adapted steps. */}

@@ -5,7 +5,9 @@
 // writes through the session-authorized /api/song-lab/* routes; this component holds
 // no authority and renders nothing for artists without the capability.
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { readBenefitPointer } from '@/lib/benefitRegistry';
+import { expandFromTier } from '@/lib/tierLadder';
 import { Copy, Check, Plus, Loader2, QrCode, Trash2, Pencil } from 'lucide-react';
 import { OptionSelect } from '@/components/ui/OptionSelect';
 import { TierAccessSelect } from '@/components/shared/TierAccessSelect';
@@ -428,8 +430,20 @@ function ProjectsPanel({ projects, decisions, tiers, busy, call, remove, display
   reload: () => Promise<void>;
 }) {
   const [newTitle, setNewTitle] = useState('');
+  // Fast action from the Promise to Delivery panel (?benefit=creative_voting&tier=<id>): open
+  // the decision form on the most recent project with "this rung and above" already chosen.
+  // The id is matched against THIS artist's tiers; a foreign id changes nothing. With no
+  // project yet the artist names one first, which is the one thing CRWN cannot know.
+  const pointer = typeof window !== 'undefined' ? readBenefitPointer(window.location.search) : null;
+  const pointerTier = pointer?.benefit === 'creative_voting' && tiers.some((t) => t.id === pointer.tierId) ? pointer.tierId : null;
   const [addingTo, setAddingTo] = useState<string | null>(null);
   const [creatingShow, setCreatingShow] = useState(false);
+  const pointerApplied = useRef(false);
+  useEffect(() => {
+    if (pointerApplied.current || !pointerTier || projects.length === 0) return;
+    pointerApplied.current = true;
+    setAddingTo(projects[0].id);
+  }, [pointerTier, projects]);
 
   return (
     <div className="space-y-6">
@@ -536,6 +550,7 @@ function ProjectsPanel({ projects, decisions, tiers, busy, call, remove, display
               busy={busy}
               call={call}
               onDone={() => setAddingTo(null)}
+              initialTierIds={pointerTier ? expandFromTier(tiers, pointerTier) : undefined}
             />
           ) : (
             <button
@@ -721,18 +736,22 @@ function DecisionRow({ decision: d, busy, call, remove, timeZone }: {
   );
 }
 
-function NewDecisionForm({ projectId, tiers, busy, call, onDone }: {
+function NewDecisionForm({ projectId, tiers, busy, call, onDone, initialTierIds }: {
   projectId: string;
   tiers: Tier[];
   busy: boolean;
   call: (url: string, body: Record<string, unknown>, method?: string) => Promise<boolean>;
   onDone: () => void;
+  /** Pre-expanded "this rung and above" from a Promise to Delivery fast action. */
+  initialTierIds?: string[];
 }) {
   const [stageLabel, setStageLabel] = useState('');
   const [question, setQuestion] = useState('');
   const [labels, setLabels] = useState(['', '', '']);
   const [isFree, setIsFree] = useState(false);
-  const [tierIds, setTierIds] = useState<string[]>(tiers.filter((t) => t.price === 0).map((t) => t.id));
+  const [tierIds, setTierIds] = useState<string[]>(
+    initialTierIds && initialTierIds.length > 0 ? initialTierIds : tiers.filter((t) => t.price === 0).map((t) => t.id),
+  );
   const [closesAt, setClosesAt] = useState('');
   const [openNow, setOpenNow] = useState(true);
 

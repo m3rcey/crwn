@@ -9,6 +9,8 @@ import { TierConfig } from '@/types';
 import Image from 'next/image';
 import { Loader2, X, Image as ImageIcon, Video, Lock } from 'lucide-react';
 import { TierAccessSelect } from '@/components/shared/TierAccessSelect';
+import { readBenefitPointer } from '@/lib/benefitRegistry';
+import { expandFromTier } from '@/lib/tierLadder';
 
 interface PostComposerProps {
   artistId: string;
@@ -26,8 +28,13 @@ export function PostComposer({ artistId, isArtist, tiers, onPostCreated }: PostC
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
   const [mediaPreviews, setMediaPreviews] = useState<string[]>([]);
   const [isUploading, setIsUploading] = useState(false);
-  const [isFree, setIsFree] = useState(true);
-  const [selectedTiers, setSelectedTiers] = useState<string[]>([]);
+  // Fast action from the Promise to Delivery panel (?benefit=exclusive_posts&tier=<id>): the
+  // post starts gated to "this rung and above". The id is matched against the tiers this page
+  // loaded for the artist, and only the artist sees the visibility control at all.
+  const pointer = typeof window !== 'undefined' && isArtist ? readBenefitPointer(window.location.search) : null;
+  const pointerRung = pointer?.benefit === 'exclusive_posts' && tiers.some((t) => t.id === pointer.tierId) ? expandFromTier(tiers, pointer.tierId) : [];
+  const [isFree, setIsFree] = useState(pointerRung.length === 0);
+  const [selectedTiers, setSelectedTiers] = useState<string[]>(pointerRung);
   const [error, setError] = useState<string | null>(null);
   
   // Feature 1: Upload Progress

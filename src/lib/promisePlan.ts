@@ -17,32 +17,34 @@ import type { Recurrence } from '@/lib/fulfillment';
 import type { TierTemplateDef } from '@/lib/tierTemplate';
 import { tierNameAliases, normalizeTierName } from '@/lib/tierTemplate';
 
-// Only benefits that imply a RECURRING ARTIST ACTION become promises. Access /
-// passive perks (early_access, direct_messaging, shop_discount, badges, …) are
-// not scheduled fulfillment and are intentionally absent. (Moved here from
-// tierObligations.ts so the wizard can plan with the SAME definitions the
-// server syncs with.)
-export const PROMISE_BENEFITS: Record<
-  string,
-  { fulfillmentType: string; recurrence: Recurrence; title: string }
-> = {
-  group_live_qa: { fulfillmentType: 'livestream', recurrence: 'monthly', title: 'Group live Q&A' },
-  one_on_one_call: { fulfillmentType: 'event', recurrence: 'monthly', title: '1-on-1 call' },
-  monthly_merch: { fulfillmentType: 'shipment', recurrence: 'monthly', title: 'Monthly merch' },
-  exclusive_posts: { fulfillmentType: 'content_drop', recurrence: 'monthly', title: 'Supporter-only post' },
+// The benefits that CAN carry a schedule. Being in this table does NOT make a benefit a
+// promise: since 2026-09-03 an obligation exists only when the artist explicitly chose a
+// cadence (config.frequency). Before that, this table carried a code default of `monthly`,
+// so ticking "behind the scenes" silently promised a monthly post the artist never made.
+// That default is gone: no frequency means no obligation, and CRWN never invents one.
+//
+// `fulfillmentType` and `title` describe the obligation IF the artist schedules it. Titles
+// are stable on purpose: they are half of an existing obligation's dedup identity.
+export const PROMISE_BENEFITS: Record<string, { fulfillmentType: string; title: string }> = {
+  group_live_qa: { fulfillmentType: 'livestream', title: 'Group live Q&A' },
+  one_on_one_call: { fulfillmentType: 'event', title: '1-on-1 call' },
+  monthly_merch: { fulfillmentType: 'shipment', title: 'Monthly merch' },
+  exclusive_posts: { fulfillmentType: 'content_drop', title: 'Supporter-only post' },
+  creative_voting: { fulfillmentType: 'fan_council', title: 'Creative vote' },
 };
 
 export const ALLOWED_RECURRENCES: Recurrence[] = ['weekly', 'biweekly', 'monthly', 'quarterly'];
 
-/** A benefit's config can override the default cadence (e.g. Platinum's quarterly). */
-export function recurrenceFromConfig(
-  config: Record<string, unknown> | null | undefined,
-  fallback: Recurrence,
-): Recurrence {
+/**
+ * The cadence the ARTIST chose, or null. Null is the answer for a missing, empty or unknown
+ * frequency, and null means "no scheduled promise". There is deliberately no fallback
+ * argument: the one place a default cadence could re-enter is this signature.
+ */
+export function recurrenceFromConfig(config: Record<string, unknown> | null | undefined): Recurrence | null {
   const freq = config?.frequency;
   return typeof freq === 'string' && (ALLOWED_RECURRENCES as string[]).includes(freq)
     ? (freq as Recurrence)
-    : fallback;
+    : null;
 }
 
 /** A benefit's config can give the obligation a specific, artist-facing title. */
@@ -112,6 +114,9 @@ export function planLadderPromises(rungs: LadderRungInput[]): PlannedPromise[] {
       if (!s || !(s.benefit_type in PROMISE_BENEFITS)) continue;
       const def = PROMISE_BENEFITS[s.benefit_type];
       const config = (s.config ?? {}) as Record<string, unknown>;
+      // No explicit cadence, no promise. The benefit is still offered; nothing is scheduled.
+      const recurrence = recurrenceFromConfig(config);
+      if (!recurrence) continue;
       const title = titleFromConfig(config, def.title);
       const identity = `${s.benefit_type}:${title.toLowerCase()}`;
 
@@ -136,7 +141,7 @@ export function planLadderPromises(rungs: LadderRungInput[]): PlannedPromise[] {
         fulfillmentType: def.fulfillmentType,
         title,
         note: b.fulfillment?.note ?? null,
-        defaultRecurrence: recurrenceFromConfig(config, def.recurrence),
+        defaultRecurrence: recurrence,
         inheritsUp,
       };
       byIdentity.set(identity, planned);

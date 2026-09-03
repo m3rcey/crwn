@@ -10,6 +10,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Loader2, Plus, Trash2, Download, FileAudio } from 'lucide-react';
 import { TierAccessSelect } from '@/components/shared/TierAccessSelect';
 import { MAX_FILES_PER_BUNDLE } from '@/lib/memberFiles/core';
+import { readBenefitPointer } from '@/lib/benefitRegistry';
+import { expandFromTier } from '@/lib/tierLadder';
 
 interface Tier { id: string; name: string; price: number }
 interface BundleFile { name: string; size: number | null }
@@ -58,6 +60,20 @@ export function MemberFilesManager() {
   }, []);
 
   useEffect(() => { load(); }, [load]);
+
+  // Fast action from the Promise to Delivery panel (?benefit=stems&tier=<id>): open the add
+  // form with "this rung and above" already chosen. The id is matched against the tiers the
+  // route returned for THIS artist; a foreign id opens nothing.
+  const pointerApplied = useRef(false);
+  useEffect(() => {
+    if (pointerApplied.current || loading || typeof window === 'undefined') return;
+    const ptr = readBenefitPointer(window.location.search);
+    if (!ptr || ptr.benefit !== 'stems' || !tiers.some((t) => t.id === ptr.tierId)) return;
+    pointerApplied.current = true;
+    setTierIds(expandFromTier(tiers, ptr.tierId));
+    setCreating(true);
+    document.getElementById('member-files')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [loading, tiers]);
 
   const addFiles = async (list: FileList | null) => {
     if (!list?.length) return;
@@ -154,7 +170,7 @@ export function MemberFilesManager() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" id="member-files">
       <div>
         <h3 className="text-lg font-bold text-crwn-text">Member downloads</h3>
         <p className="text-sm text-crwn-text-secondary">

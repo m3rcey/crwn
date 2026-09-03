@@ -18,7 +18,7 @@ import { ArtistPreviewProvider } from '@/hooks/useArtistPreview';
 import { PreviewBar } from '@/components/artist/PreviewBar';
 import type { Metadata } from 'next';
 import { getBenefitDisplayText, BENEFIT_CATALOG } from '@/lib/benefitCatalog';
-import { tierCardBenefitLines } from '@/lib/tierCardBenefits';
+import { tierCardBenefitLines, cardLinesModeOf } from '@/lib/tierCardBenefits';
 import { accentPageVars } from '@/lib/contrast';
 import { PaletteBackfill } from '@/components/artist/PaletteBackfill';
 import { BannerReposition } from '@/components/artist/BannerReposition';
@@ -167,7 +167,7 @@ export default async function ArtistPage({ params, searchParams }: ArtistPagePro
     const tierBenefits = benefitsByTierId[t.id] || [];
     // Structured tier_benefits rows first, then the artist's own access_config prose.
     // tierCardBenefitLines is the one place that order lives; see its note.
-    const benefits = tierCardBenefitLines(tierBenefits, t.access_config?.benefits);
+    const benefits = tierCardBenefitLines(tierBenefits, t.access_config?.benefits, cardLinesModeOf(t.access_config));
     
     return {
       id: t.id,

@@ -13,6 +13,7 @@ import { useTierViewTracker } from '@/hooks/useTierViewTracker';
 import { useArtistPreview } from '@/hooks/useArtistPreview';
 import { Check, Loader2, X } from 'lucide-react';
 import { safeInternalPath } from '@/lib/journey/resolveJourneyDestination';
+import { memberSinceLabel } from '@/lib/recognition/status';
 
 interface SubscribeButtonProps {
   tiers: TierConfig[];
@@ -217,6 +218,8 @@ export function TierCards({ tiers, artistSlug, artistId }: TierCardsProps) {
   const [isLoading, setIsLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [subscribedTierId, setSubscribedTierId] = useState<string | null>(null);
+  const [memberSince, setMemberSince] = useState<string | null>(null);
+  const [dayOne, setDayOne] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [confirmTier, setConfirmTier] = useState<TierConfig | null>(null);
   const [confirmAction, setConfirmAction] = useState<'upgrade' | 'downgrade' | null>(null);
@@ -243,9 +246,11 @@ export function TierCards({ tiers, artistSlug, artistId }: TierCardsProps) {
     async function checkSubscription() {
       if (!user || !artistId) return;
       
+      // The fan's OWN row (RLS returns nothing else). created_at and is_founder feed the
+      // self-visible recognition line on their tier card (founder decision D1, 2026-09-03).
       const { data } = await supabase
         .from('subscriptions')
-        .select('id, tier_id')
+        .select('id, tier_id, created_at, is_founder')
         .eq('fan_id', user.id)
         .eq('artist_id', artistId)
         .eq('status', 'active')
@@ -253,6 +258,8 @@ export function TierCards({ tiers, artistSlug, artistId }: TierCardsProps) {
       
       if (data) {
         setSubscribedTierId(data.tier_id);
+        setMemberSince(memberSinceLabel(data.created_at));
+        setDayOne(data.is_founder === true);
       }
     }
     
@@ -484,8 +491,19 @@ export function TierCards({ tiers, artistSlug, artistId }: TierCardsProps) {
               }}
             >
               {isThisTierSubscribed && (
-                <div className="flex items-center gap-1 text-crwn-gold text-sm font-medium mb-2">
-                  <Check className="w-4 h-4" /> Subscribed
+                <div className="mb-2">
+                  <div className="flex items-center gap-1 text-crwn-gold text-sm font-medium">
+                    <Check className="w-4 h-4" /> Subscribed
+                  </div>
+                  {/* Self-visible recognition: the member's own rung and join date, shown only to
+                      them. Day One is the founder-window flag, never an invented cutoff. */}
+                  {(memberSince || dayOne) && (
+                    <p className="text-[11px] text-crwn-gold/80 mt-0.5">
+                      {dayOne ? 'Day One' : ''}
+                      {dayOne && memberSince ? ' · ' : ''}
+                      {memberSince ? `Member since ${memberSince}` : ''}
+                    </p>
+                  )}
                 </div>
               )}
               <h3 className="text-lg font-semibold text-crwn-gold">{tier.name}</h3>

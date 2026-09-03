@@ -1,0 +1,27 @@
+// READ-ONLY. GB's current delivery baseline: what exists today per delivery table.
+import { readFileSync } from 'node:fs';
+import { createClient } from '@supabase/supabase-js';
+const env = readFileSync('.env.local', 'utf8');
+const pick = (k) => (env.match(new RegExp('^' + k + '=(.*)$', 'm')) || [])[1]?.trim().replace(/^"|"$/g, '');
+const db = createClient(pick('NEXT_PUBLIC_SUPABASE_URL'), pick('SUPABASE_SERVICE_ROLE_KEY'), { auth: { autoRefreshToken: false, persistSession: false } });
+const { data: gb } = await db.from('artist_profiles').select('id, slug, platform_tier').eq('slug', 'gb').single();
+console.log('gb', gb);
+const { data: tiers } = await db.from('subscription_tiers').select('id,name,price,is_active,access_config').eq('artist_id', gb.id).order('price');
+console.log(tiers.map(t => ({ id: t.id, name: t.name, price: t.price, active: t.is_active, keys: Object.keys(t.access_config||{}) })));
+const { data: tb } = await db.from('tier_benefits').select('tier_id,benefit_type,config,is_active').in('tier_id', tiers.map(t=>t.id));
+console.log('tier_benefits', tb);
+const q = async (table, sel, filt) => { let r = db.from(table).select(sel).eq('artist_id', gb.id); const { data, error } = await r; return error ? 'ERR ' + error.message : data; };
+console.log('tracks', await q('tracks', 'id,title,is_free,allowed_tier_ids,public_release_date,is_active'));
+console.log('playlists', await q('playlists', 'id,title,is_free,allowed_tier_ids,is_active,is_artist_playlist'));
+console.log('member_files', await q('member_files', 'id,title,allowed_tier_ids,is_active'));
+console.log('community_posts', await q('community_posts', 'id,is_free,allowed_tier_ids,is_artist_post,created_at'));
+console.log('song_lab_decisions', await q('song_lab_decisions', 'id,status,is_free,allowed_tier_ids,opens_at,closes_at,stage_label'));
+console.log('live_sessions', await q('live_sessions', 'id,title,status,scheduled_at,allowed_tier_ids,accepts_submissions,submission_deadline,is_active'));
+console.log('fan_automations', await q('fan_automations', 'id,status,gold_tier_id,silver_tier_id'));
+console.log('fulfillment_obligations', await q('fulfillment_obligations', 'id,benefit_type,status,recurrence,title'));
+const { count: subs } = await db.from('subscriptions').select('id', { count: 'exact', head: true }).eq('artist_id', gb.id).eq('status', 'active');
+console.log('active subs', subs);
+const { data: toe, error: toeErr } = await db.from('tier_offer_experiences').select('tier_id').in('tier_id', tiers.map(t=>t.id));
+console.log('tier_offer_experiences', toeErr ? 'ERR ' + toeErr.message : toe.length);
+const { data: subsRows } = await db.from('subscriptions').select('id,tier_id,status,created_at,current_period_end').eq('artist_id', gb.id).limit(3);
+console.log('sample subscription columns', subsRows?.[0] ? Object.keys(subsRows[0]) : subsRows);

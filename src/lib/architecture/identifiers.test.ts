@@ -9,9 +9,11 @@ import {
   FROZEN_FUNNEL_STAGES,
   FROZEN_POPUP_KEYS,
   FROZEN_TOUR_IDS,
+  FROZEN_BENEFIT_KEYS,
   RETIRED_TOUR_IDS,
   COMPATIBILITY_ROUTES,
 } from './invariants';
+import { BENEFIT_REGISTRY } from '../benefitRegistry';
 import { existsSync, listSourceFiles, readStripped, violation } from './sourceScan';
 
 describe('ID-001 — funnel stages are append-only', () => {
@@ -47,6 +49,30 @@ describe('ID-004 — pop-up keys are frozen', () => {
     expect(
       unfrozen,
       `new pop-up key(s) not yet in FROZEN_POPUP_KEYS: ${unfrozen.join(', ')}. Add them to the registry freeze so a later rename cannot reset their frequency history.`,
+    ).toEqual([]);
+  });
+});
+
+describe('ID-007 — tier benefit keys are frozen', () => {
+  it('every frozen key still resolves in the benefit registry', () => {
+    const keys = new Set<string>(BENEFIT_REGISTRY.map(b => b.key));
+    const missing = FROZEN_BENEFIT_KEYS.filter(k => !keys.has(k));
+    expect(
+      missing,
+      violation(
+        'ID-007',
+        `benefit key(s) renamed or removed: ${missing.join(', ')}. tier_benefits rows, fulfillment_obligations identities and the messaging/credits gates match on these strings. Retire a benefit by setting support: 'retired', never by deleting its key.`,
+        { owner: 'src/lib/benefitRegistry.ts', docs: 'docs/crwn-brain/33-PROMISE-TO-DELIVERY.md' },
+      ),
+    ).toEqual([]);
+  });
+
+  it('new benefit keys get frozen too (the freeze list tracks the registry)', () => {
+    const frozen = new Set(FROZEN_BENEFIT_KEYS);
+    const unfrozen = BENEFIT_REGISTRY.map(b => b.key).filter(k => !frozen.has(k));
+    expect(
+      unfrozen,
+      `new benefit key(s) not yet in FROZEN_BENEFIT_KEYS: ${unfrozen.join(', ')}. Add them to the registry freeze so a later rename cannot orphan production rows.`,
     ).toEqual([]);
   });
 });

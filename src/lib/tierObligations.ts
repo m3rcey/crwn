@@ -7,6 +7,12 @@
 // effort — must never break benefit saving. Uses the caller's RLS client: the
 // artist owns their tiers and obligations, so inserts satisfy the WITH CHECK.
 //
+// CADENCE RULE (2026-09-03): an obligation exists ONLY for a benefit whose config carries an
+// explicit `frequency` the artist chose. A schedulable benefit present WITHOUT a frequency is
+// "offered, not scheduled": nothing is created for it, and any obligation it already has
+// (from the era when a code default promised monthly on the artist's behalf) is left exactly
+// as it is. Only REMOVING the benefit archives its obligation. See promisePlan.ts.
+//
 // Launch Wizard Stage 3 rules (docs/ARTIST_LAUNCH_WIZARD.md): the pure decisions
 // (what counts as a promise, cadence/title/first-due from config, multi-tier
 // serve lists) live in promisePlan.ts and are shared with the wizard's review
@@ -71,16 +77,22 @@ export async function syncTierObligations(
   const { tierId, artistId, benefits } = args;
   const nowIso = new Date().toISOString();
 
-  // Keep the first occurrence of each promise-worthy benefit type (config and all).
-  const wantedByType = new Map<string, BenefitInput>();
+  // Every schedulable benefit PRESENT on the tier (first occurrence wins), whether or not the
+  // artist chose a cadence. Presence is what protects an existing obligation from archival.
+  const presentByType = new Map<string, BenefitInput>();
   for (const b of benefits) {
-    if (b.benefit_type in PROMISE_BENEFITS && !wantedByType.has(b.benefit_type)) {
-      wantedByType.set(b.benefit_type, b);
+    if (b.benefit_type in PROMISE_BENEFITS && !presentByType.has(b.benefit_type)) {
+      presentByType.set(b.benefit_type, b);
     }
   }
-  const wantedSet = new Set(wantedByType.keys());
+  // The subset the artist actually SCHEDULED. Only these create or update obligations.
+  const wantedByType = new Map<string, BenefitInput>();
+  for (const [type, b] of presentByType) {
+    if (recurrenceFromConfig(b.config ?? null)) wantedByType.set(type, b);
+  }
+  const wantedSet = new Set(presentByType.keys());
   const wantedIdentities = new Set(
-    [...wantedByType.entries()].map(([type, b]) =>
+    [...presentByType.entries()].map(([type, b]) =>
       identityOf(type, titleFromConfig(b.config ?? null, PROMISE_BENEFITS[type].title)),
     ),
   );
@@ -146,7 +158,8 @@ export async function syncTierObligations(
       // propagate cadence/title edits so FUTURE cycles follow the changed
       // benefit (completed history is never rewritten; the next chained event
       // uses obligation.recurrence at completion time).
-      const wantedRecurrence = recurrenceFromConfig(config, def.recurrence);
+      // Non-null: wantedByType only holds benefits with an explicit cadence.
+      const wantedRecurrence = recurrenceFromConfig(config) as NonNullable<ReturnType<typeof recurrenceFromConfig>>;
       const patch: Record<string, unknown> = {};
       if (anchored.status === 'archived') patch.status = 'active';
       if (anchored.recurrence !== wantedRecurrence) patch.recurrence = wantedRecurrence;
@@ -183,7 +196,7 @@ export async function syncTierObligations(
       continue;
     }
 
-    const recurrence = recurrenceFromConfig(config, def.recurrence);
+    const recurrence = recurrenceFromConfig(config) as NonNullable<ReturnType<typeof recurrenceFromConfig>>;
     const inheritsUp = (config as Record<string, unknown> | null)?.serves_higher_tiers === true;
     const firstDue = firstDueFromConfig(config) ?? defaultFirstDue(new Date());
     const following = computeNextDue(recurrence, firstDue);
@@ -241,7 +254,8 @@ export async function syncTierObligations(
     }
   }
 
-  // Removal pass 1: obligations ANCHORED here whose benefit was removed.
+  // Removal pass 1: obligations ANCHORED here whose benefit was REMOVED from the tier. A
+  // benefit still present but unscheduled is not removal: its obligation stays untouched.
   for (const o of anchoredHere) {
     if (!o.benefit_type || wantedSet.has(o.benefit_type) || o.status === 'archived') continue;
     const mergedIds = mergedTierIdsOf(o.metadata).filter((id) => id !== tierId);

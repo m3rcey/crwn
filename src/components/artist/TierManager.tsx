@@ -8,7 +8,8 @@ import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { Loader2, Edit2, Trash2, X } from 'lucide-react';
 import { usePlatformLimits } from '@/hooks/usePlatformLimits';
 import { getPlatformFeePercent } from '@/lib/platformTier';
-import { TierBenefitsSelector } from './TierBenefitsSelector';
+import { TierBenefitsSelector, type InheritedBenefit } from './TierBenefitsSelector';
+import { PromiseDeliveryPanel } from './PromiseDeliveryPanel';
 import { TierBenefit } from '@/types';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { TierLadderTemplate } from './TierLadderTemplate';
@@ -20,6 +21,8 @@ interface Tier {
   description: string;
   access_config: {
     benefits?: string[];
+    /** 'prose_only': the card prints the artist's own lines; structured rows stay for delivery. */
+    card_lines?: string;
   };
   stripe_price_id?: string;
   stripe_annual_price_id?: string;
@@ -73,8 +76,13 @@ export function TierManager() {
     founderWindowEnabled: false,
     founderCap: '',
     founderDeadline: '',
+    cardLinesProseOnly: false,
   });
   const [selectedBenefits, setSelectedBenefits] = useState<TierBenefit[]>([]);
+  /** Every active tier's structured benefits, so the editor can show what a cheaper rung already carries. */
+  const [allBenefits, setAllBenefits] = useState<{ tier_id: string; benefit_type: string }[]>([]);
+  /** Bumped after every save so the Promise to Delivery panel re-reads readiness. */
+  const [deliveryRefresh, setDeliveryRefresh] = useState(0);
   const [loadingBenefits, setLoadingBenefits] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deletingTierId, setDeletingTierId] = useState<string | null>(null);
@@ -108,10 +116,36 @@ export function TierManager() {
 
       if (data) {
         setTiers(data as Tier[]);
+        const ids = (data as Tier[]).map((t) => t.id);
+        if (ids.length > 0) {
+          const { data: rows } = await supabase
+            .from('tier_benefits')
+            .select('tier_id, benefit_type')
+            .in('tier_id', ids)
+            .eq('is_active', true);
+          setAllBenefits((rows || []) as { tier_id: string; benefit_type: string }[]);
+        } else {
+          setAllBenefits([]);
+        }
       }
     }
     setIsLoading(false);
   }, [user, supabase]);
+
+  // Benefits carried by tiers priced BELOW the one being edited (or below the price being
+  // typed for a new one). Cumulative access means those members already get them, so the
+  // editor shows them as inherited rather than offering them again.
+  const editingPriceCents = Math.round((parseFloat(formData.price) || 0) * 100);
+  const inheritedBenefits: InheritedBenefit[] = (() => {
+    const cheaper = tiers.filter((t) => (editingTier ? t.id !== editingTier.id : true) && t.price < editingPriceCents);
+    const seen = new Map<string, string>();
+    for (const t of [...cheaper].sort((a, b) => a.price - b.price)) {
+      for (const b of allBenefits.filter((x) => x.tier_id === t.id)) {
+        if (!seen.has(b.benefit_type)) seen.set(b.benefit_type, t.name);
+      }
+    }
+    return [...seen.entries()].map(([benefit_type, fromTierName]) => ({ benefit_type, fromTierName }));
+  })();
 
   const checkStripeConnection = useCallback(async () => {
     if (!user) return;
@@ -160,6 +194,27 @@ export function TierManager() {
     loadTiers();
     checkStripeConnection();
   }, [loadTiers, checkStripeConnection]);
+
+  /**
+   * Write a tier's structured benefits through /api/tier-benefits. The route verifies the
+   * session owns the tier, replaces the set, and runs syncTierObligations, which since
+   * 2026-09-03 creates an obligation ONLY for a benefit carrying an explicit frequency.
+   */
+  const saveBenefits = async (tierId: string) => {
+    const res = await fetch('/api/tier-benefits', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        tier_id: tierId,
+        benefits: selectedBenefits.map((b, index) => ({
+          benefit_type: b.benefit_type,
+          config: b.config || {},
+          sort_order: index,
+        })),
+      }),
+    });
+    if (!res.ok) throw new Error('benefits save failed: ' + res.status);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -227,6 +282,7 @@ export function TierManager() {
             description: formData.description,
             access_config: {
               benefits: formData.benefits.filter(b => b.trim() !== ''),
+              ...(formData.cardLinesProseOnly ? { card_lines: 'prose_only' } : {}),
             },
             stripe_price_id: stripePriceId,
             stripe_annual_price_id: stripeAnnualPriceId,
@@ -248,20 +304,9 @@ export function TierManager() {
 
         if (error) throw error;
 
-        // Save benefits to tier_benefits table
-        if (selectedBenefits.length > 0) {
-          // Delete existing benefits
-          await supabase.from('tier_benefits').delete().eq('tier_id', editingTier.id);
-          // Insert new benefits
-          const benefitsToInsert = selectedBenefits.map((b, index) => ({
-            tier_id: editingTier.id,
-            benefit_type: b.benefit_type,
-            config: b.config || {},
-            is_active: true,
-            sort_order: index,
-          }));
-          await supabase.from('tier_benefits').insert(benefitsToInsert);
-        }
+        // Save benefits through the ONE route that replaces the set (an empty set included, so
+        // unticking the last benefit actually clears it) and reconciles the Promise Calendar.
+        await saveBenefits(editingTier.id);
 
         // Stripe Checkout renders the product name and description in its order summary, and
         // create-price only ever wrote them once. Without this, renaming a tier or rewriting
@@ -272,9 +317,11 @@ export function TierManager() {
 
         setTiers(prev => prev.map(t => t.id === editingTier.id ? (updated as Tier) : t));
         setEditingTier(null);
-        setFormData({ name: '', price: '', description: '', benefits: [''], offersAnnual: true, annualDiscountPercent: '25', founderWindowEnabled: false, founderCap: '', founderDeadline: '' });
+        setFormData({ name: '', price: '', description: '', benefits: [''], offersAnnual: true, annualDiscountPercent: '25', founderWindowEnabled: false, founderCap: '', founderDeadline: '', cardLinesProseOnly: false });
         setSelectedBenefits([]);
         showToast('Tier updated successfully!', 'success');
+        setDeliveryRefresh((k) => k + 1);
+        void loadTiers();
       } else {
         // CREATE new tier. Same rounding rule as the update path above.
         const priceInCents = Math.round((parseFloat(formData.price) || 0) * 100);
@@ -311,6 +358,7 @@ export function TierManager() {
             description: formData.description,
             access_config: {
               benefits: formData.benefits.filter(b => b.trim() !== ''),
+              ...(formData.cardLinesProseOnly ? { card_lines: 'prose_only' } : {}),
             },
             stripe_price_id: stripePriceId,
             stripe_annual_price_id: stripeAnnualPriceId,
@@ -331,22 +379,14 @@ export function TierManager() {
 
         if (error) throw error;
 
-        // Save benefits to tier_benefits table
-        if (selectedBenefits.length > 0 && tier) {
-          const benefitsToInsert = selectedBenefits.map((b, index) => ({
-            tier_id: tier.id,
-            benefit_type: b.benefit_type,
-            config: b.config || {},
-            is_active: true,
-            sort_order: index,
-          }));
-          await supabase.from('tier_benefits').insert(benefitsToInsert);
-        }
+        if (selectedBenefits.length > 0 && tier) await saveBenefits(tier.id);
 
         setTiers(prev => [...prev, tier as Tier]);
-        setFormData({ name: '', price: '', description: '', benefits: [''], offersAnnual: true, annualDiscountPercent: '25', founderWindowEnabled: false, founderCap: '', founderDeadline: '' });
+        setFormData({ name: '', price: '', description: '', benefits: [''], offersAnnual: true, annualDiscountPercent: '25', founderWindowEnabled: false, founderCap: '', founderDeadline: '', cardLinesProseOnly: false });
         setSelectedBenefits([]);
         showToast('Tier created successfully!', 'success');
+        setDeliveryRefresh((k) => k + 1);
+        void loadTiers();
 
         // Record activation milestone (fire-and-forget)
         fetch('/api/artist/milestone', {
@@ -376,6 +416,7 @@ export function TierManager() {
       founderWindowEnabled: fw.founder_window_enabled ?? false,
       founderCap: fw.founder_cap != null ? String(fw.founder_cap) : '',
       founderDeadline: fw.founder_deadline ? fw.founder_deadline.slice(0, 10) : '',
+      cardLinesProseOnly: tier.access_config?.card_lines === 'prose_only',
     });
     
     // Load existing benefits for this tier
@@ -419,7 +460,7 @@ export function TierManager() {
 
   const handleCancelEdit = () => {
     setEditingTier(null);
-    setFormData({ name: '', price: '', description: '', benefits: [''], offersAnnual: true, annualDiscountPercent: '25', founderWindowEnabled: false, founderCap: '', founderDeadline: '' });
+    setFormData({ name: '', price: '', description: '', benefits: [''], offersAnnual: true, annualDiscountPercent: '25', founderWindowEnabled: false, founderCap: '', founderDeadline: '', cardLinesProseOnly: false });
     setSelectedBenefits([]);
   };
 
@@ -567,6 +608,10 @@ export function TierManager() {
           </div>
         )}
       </div>
+
+      {/* Promise to Delivery: what each tier promised, whether it is ready, and the one tap
+          that keeps it. Lives here because this is where the promise is made (D4). */}
+      {artistProfileId && tiers.length > 0 && <PromiseDeliveryPanel refreshKey={deliveryRefresh} />}
 
       {/* Create New Tier */}
       {stripeConnected && (
@@ -740,7 +785,7 @@ export function TierManager() {
 
             <div>
               <label className="block text-sm font-medium text-crwn-text-secondary mb-2">
-                Benefits
+                What do fans get?
               </label>
               {loadingBenefits ? (
                 <div className="flex items-center justify-center py-4">
@@ -755,6 +800,7 @@ export function TierManager() {
                     sort_order: b.sort_order,
                   }))}
                   onChange={(benefits) => setSelectedBenefits(benefits as TierBenefit[])}
+                  inherited={inheritedBenefits}
                 />
               )}
             </div>
@@ -764,11 +810,21 @@ export function TierManager() {
                 In your own words
               </label>
               <p className="text-xs text-crwn-text-secondary/70 mb-2">
-                One line per thing this tier includes. Write them exactly as your fans should
-                read them. The checkboxes above cover what CRWN can enforce or schedule (early
-                access, discounts, call cadence); these lines cover everything else, and they
-                show on your page alongside them.
+                One line per thing this tier includes, exactly as your fans should read it. These
+                are yours to keep by hand: CRWN prints them and does not check them.
               </p>
+              <label className="flex items-start gap-2 mb-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={formData.cardLinesProseOnly}
+                  onChange={(e) => setFormData(prev => ({ ...prev, cardLinesProseOnly: e.target.checked }))}
+                  className="mt-0.5 w-4 h-4 accent-[#D4AF37] cursor-pointer"
+                />
+                <span className="text-xs text-crwn-text-secondary">
+                  Show only my own lines on the tier card. The promises picked above still power
+                  delivery and readiness; they just do not print a second time.
+                </span>
+              </label>
               <div className="space-y-2">
                 {formData.benefits.map((benefit, idx) => (
                   <div key={idx} className="flex gap-2">

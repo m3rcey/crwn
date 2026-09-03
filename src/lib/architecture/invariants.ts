@@ -579,6 +579,18 @@ export const INVARIANTS: Invariant[] = [
     docs: ['CLAUDE.md', 'docs/crwn-brain/02-FEATURE-MAP.md'],
   },
 
+  {
+    id: 'ID-007',
+    severity: 'P1',
+    category: 'identifiers',
+    rule: 'tier_benefits.benefit_type keys are frozen: production rows, fulfillment_obligations.benefit_type identities, and the messaging and release-credit gates match on the string. Keys may be appended (and a key may be RETIRED from new selection), never renamed or removed.',
+    owner: 'src/lib/benefitRegistry.ts',
+    sourceOfTruth: 'FROZEN_BENEFIT_KEYS in this registry',
+    enforcement: 'test',
+    enforcedBy: ['src/lib/architecture/identifiers.test.ts'],
+    docs: ['docs/crwn-brain/33-PROMISE-TO-DELIVERY.md'],
+  },
+
   // ------------------------------------------------------------ REACHABILITY
   {
     id: 'REACH-001',
@@ -880,6 +892,37 @@ export const FROZEN_POPUP_KEYS: readonly string[] = [
   'notice_terms_2026_07_24',
   'fan_share_experience',
   'notice_legal_2026_08_25',
+];
+
+/**
+ * ID-007. Frozen tier benefit keys. Append-only. A key retired from NEW selection stays in
+ * this list forever: rows in production still carry it and must keep resolving.
+ */
+export const FROZEN_BENEFIT_KEYS: readonly string[] = [
+  'exclusive_tracks',
+  'exclusive_albums',
+  'exclusive_posts',
+  'early_access',
+  'community_badge',
+  'shop_discount',
+  'supporter_wall',
+  'priority_replies',
+  'direct_messaging',
+  'one_on_one_call',
+  'group_live_qa',
+  'custom_song_request',
+  'custom_experience',
+  'monthly_merch',
+  'credits_on_releases',
+  'shoutout',
+  // Added 2026-09-03 (Promise to Delivery).
+  'stems',
+  'vault_collection',
+  'creative_voting',
+  'fan_submissions',
+  'member_recognition',
+  'welcome_unlock',
+  'drop_alerts',
 ];
 
 /** ID-006. Tour anchors that are persistence keys (localStorage dismissal state). */
@@ -1386,7 +1429,7 @@ export const EXPECTED_MIGRATION_STATE: ReadonlyArray<{
   { file: 'schema-phase3-fan-automations.sql', state: 'applied', note: 'Probe-verified 2026-09-01: all four tables answer 42501 to anon, while an absent table on the same project answers 404 PGRST205 (member_files did, in the same probe run), so revoked-and-present is distinguishable from missing. Artist social connections (encrypted Meta tokens), fan_automations, social_webhook_receipts (UNIQUE(provider, comment_id) is both webhook dedupe and the one-private-reply-per-comment enforcement), fan_automation_leads. No money columns anywhere: conversions derive from subscriptions joins. Separate in every identifier from the founder ManyChat acquisition engine (H-07).' },
   { file: 'schema-phase2-free-join-sequence-trigger.sql', state: 'applied', liveCheck: 'sql-check', note: "Applied 2026-09-01; the migration's own canary is the evidence, since a CHECK is invisible to the anon probe: it inserted a real free_join row, deleted it, then proved an invalid trigger_type is still refused with check_violation. Widens sequences_trigger_type_check to admit free_join (plus abandoned_cart and loyalty_survey, which webhookHandlers has always emitted and the constraint never listed). Opt-in by construction: it adds a NEW trigger type rather than reusing new_subscription, so no artist emails their free members until they deliberately build a free_join sequence. 0 exist today." },
   { file: 'schema-phase2-sequence-conversion-goal.sql', state: 'applied', note: "Probe-verified 2026-09-01: goal_tier_id readable, and behavioral canaries against GB's real rows accepted a valid own-artist paid goal, refused a cross-artist goal, and refused a free goal. sequences.goal_tier_id: the optional PAID tier a sequence is selling. A fan holding an active subscription at or above it (price rank via tierLadder.ts, never a tier name) exits the sequence as converted: immediately in the Stripe webhook, self-healed by the daily sequences cron, and refused at enrollment. Same-artist and paid-only are enforced by a DB trigger AND at the API. Null = legacy sequence, behavior byte-for-byte unchanged; every reader retries without the column pre-migration, so nothing breaks while this waits." },
-  { file: 'schema-phase2-tier-offer-experiences.sql', state: 'pending', liveCheck: 'sql-check', note: "One table, tier_offer_experiences: the Tier Offer Experience, HOW a tier's value is presented before purchase. It grants nothing (no entitlement, price or benefit flag lives in it); subscription_tiers and can_play_track keep defining what a fan GETS. Config jsonb is parsed only through offerExperience/normalize.ts, which bounds strings, refuses previews without a declared REAL/EXAMPLE truth state, refuses Join-<tier> CTAs, and strips non-public media URLs. Service-role only (RLS on, anon+authenticated revoked by name; sql-check for that reason), same-artist tier trigger. Until applied, offerExperiencesForTiers returns {} and the drop funnel renders its compact cards exactly as before." },
+  { file: 'schema-phase2-tier-offer-experiences.sql', state: 'applied', liveCheck: 'sql-check', note: "APPLIED: three GB rows read back through the service role on 2026-09-03 (scripts/probe-gb-delivery-baseline.mjs); the registry said pending while production had been serving them. One table, tier_offer_experiences: the Tier Offer Experience, HOW a tier's value is presented before purchase. It grants nothing (no entitlement, price or benefit flag lives in it); subscription_tiers and can_play_track keep defining what a fan GETS. Config jsonb is parsed only through offerExperience/normalize.ts, which bounds strings, refuses previews without a declared REAL/EXAMPLE truth state, refuses Join-<tier> CTAs, and strips non-public media URLs. Service-role only (RLS on, anon+authenticated revoked by name; sql-check for that reason), same-artist tier trigger. Until applied, offerExperiencesForTiers returns {} and the drop funnel renders its compact cards exactly as before." },
   { file: 'schema-phase2-tier-events-offer-vocabulary.sql', state: 'pending', liveCheck: 'sql-check', note: "Widens tier_events event_type with tier_vsl_started and tier_offer_declined, the two high-signal offer events, reusing the existing fan-side spine instead of a parallel stack. tier_checkout_started remains server-recorded only; the beacon route allowlists which types a client may name. sql-check because a CHECK is invisible to PostgREST. Pre-migration the daily-unique insert fails the CHECK and the best-effort writer swallows it: analytics never breaks a page." },
   { file: 'schema-phase2-fan-automation-link-provider.sql', state: 'pending', liveCheck: 'sql-check', note: "Widens fan_automations.provider to admit 'link', so a funnel whose traffic comes from a bio link, QR code or external tool can SAY what it is. What makes a funnel link-only at runtime is connection_id being null, which is unchanged and already true of the first such funnel; the comment matcher only routes events through automations that HAVE an active connection. sql-check because fan_automations is revoked from anon. The create route retries with the historical provider on 23514, so the wizard's link-only mode works before this is applied and only the label waits." },
   { file: 'schema-phase2-fan-funnel-foundation.sql', state: 'applied', liveCheck: 'sql-check', note: "Applied 2026-09-01; a service-role probe confirms all three columns and the nurture guard trigger, and a cross-artist nurture pointer is refused. Build 1 of the reusable fan sales engine: attribution jsonb on fan_automation_leads and song_lab_offer_claims (first-touch, written only through campaignAttribution.ts normalization; descriptive only, never price/entitlement/redirect authority) and fan_automations.nurture_sequence_id (funnel-specific nurture pointer, same-artist trigger). sql-check because both fan-automation tables are revoked from anon, so a probe answers 42501 whether or not a column exists. Every writer retries without the new columns pre-migration: the lead, the claim and the automation all survive; only the tag or pointer is lost." },

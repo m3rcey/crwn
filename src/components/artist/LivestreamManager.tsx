@@ -20,6 +20,8 @@ import { validateUpload } from '@/lib/uploadValidation';
 import { CalculatorPrefillBanner } from '@/components/lead-magnets/CalculatorPrefillBanner';
 import { CalculatorSuggestions } from '@/components/lead-magnets/CalculatorSuggestions';
 import { trackFunnel } from '@/lib/analytics/trackFunnelClient';
+import { readBenefitPointer } from '@/lib/benefitRegistry';
+import { expandFromTier } from '@/lib/tierLadder';
 import { TierAccessSelect } from '@/components/shared/TierAccessSelect';
 
 interface LivestreamManagerProps {
@@ -187,6 +189,29 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
     if (q.get('lm_submissions') === '1') setAcceptsSubmissions(true);
     setShowForm(true);
   }, []);
+
+  // Fast action from the Promise to Delivery panel. ?benefit=group_live_qa opens the create
+  // form gated to "this rung and above"; ?benefit=fan_submissions additionally turns on
+  // submissions for that rung. The tier id is a POINTER matched against THIS artist's tiers.
+  // Write-time still gates submissions on the producer flag, so setting it here is safe.
+  const benefitPointerApplied = useRef(false);
+  useEffect(() => {
+    if (benefitPointerApplied.current || typeof window === 'undefined') return;
+    const ptr = readBenefitPointer(window.location.search);
+    if (!ptr || (ptr.benefit !== 'group_live_qa' && ptr.benefit !== 'fan_submissions')) return;
+    if (!tierList.some((t) => t.id === ptr.tierId)) return;
+    benefitPointerApplied.current = true;
+    const rung = expandFromTier(tierList, ptr.tierId);
+    setMode('live');
+    setIsFree(false);
+    setSelectedTiers(rung);
+    if (ptr.benefit === 'fan_submissions') {
+      setAcceptsSubmissions(true);
+      setSubmissionTierIds(rung);
+    }
+    setShowForm(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tierList]);
 
   const resetForm = () => {
     setMode('live');

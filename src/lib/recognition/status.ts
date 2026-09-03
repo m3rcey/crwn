@@ -87,3 +87,16 @@ export function allLabels(r: Recognition): string[] {
   if (r.dayOne) out.push('Day One');
   return out;
 }
+
+/**
+ * "Member since August 2026", from the fan's OWN subscription row (created_at). Self-visible
+ * recognition (founder decision D1, 2026-09-03): the truthful join fact CRWN already holds,
+ * shown to the member and to nobody else. Null for a missing or unparseable date, so a
+ * surface can skip the line rather than print "Member since Invalid Date".
+ */
+export function memberSinceLabel(iso: string | null | undefined): string | null {
+  if (!iso) return null;
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return null;
+  return d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+}

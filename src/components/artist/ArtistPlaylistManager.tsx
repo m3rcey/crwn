@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/components/shared/Toast';
 import { supabase } from '@/lib/supabase/client';
@@ -9,6 +9,9 @@ import Image from 'next/image';
 import { SortableTrackList } from '@/components/shared/SortableTrackList';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { TierAccessSelect } from '@/components/shared/TierAccessSelect';
+import { readBenefitPointer } from '@/lib/benefitRegistry';
+import { expandFromTier } from '@/lib/tierLadder';
+import { describeVaultEffect, findVaultPlaylist, vaultTrackUpdates, VAULT_DEFAULT_TITLE } from '@/lib/vaultCollection';
 
 interface SubscriptionTier {
   id: string;
@@ -130,6 +133,38 @@ export function ArtistPlaylistManager() {
     loadData();
   }, [loadData]);
 
+  // Fast action from the Promise to Delivery panel: /studio/music?benefit=vault_collection&tier=<id>.
+  // The tier id is a POINTER: it is matched against the tiers loaded for THIS artist, and an id
+  // that is not theirs opens nothing. If a Vault collection for that rung already exists it opens
+  // for editing (select tracks, confirm); otherwise the create form opens named and gated, so the
+  // artist's only decisions are which tracks and whether to save.
+  const pointerApplied = useRef(false);
+  useEffect(() => {
+    if (pointerApplied.current || isLoading || typeof window === 'undefined') return;
+    const ptr = readBenefitPointer(window.location.search);
+    if (!ptr || ptr.benefit !== 'vault_collection') return;
+    if (!tiers.some((t) => t.id === ptr.tierId)) return;
+    pointerApplied.current = true;
+    const existing = findVaultPlaylist(playlists, tiers, ptr.tierId);
+    if (existing) {
+      void handleEdit(existing);
+      return;
+    }
+    setEditingPlaylist(null);
+    setSelectedTracks([]);
+    setFormData({
+      title: VAULT_DEFAULT_TITLE,
+      description: '',
+      coverFile: null,
+      coverUrl: '',
+      isFree: false,
+      allowedTierIds: expandFromTier(tiers, ptr.tierId),
+      price: '',
+    });
+    setShowForm(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoading, tiers, playlists]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
@@ -187,6 +222,7 @@ export function ArtistPlaylistManager() {
 
         // Update track associations
         await updatePlaylistTracks(editingPlaylist.id, selectedTracks);
+        await gateVaultTracks();
         showToast('Playlist updated!', 'success');
       } else {
         // Create playlist
@@ -214,6 +250,7 @@ export function ArtistPlaylistManager() {
         if (playlist && selectedTracks.length > 0) {
           await updatePlaylistTracks(playlist.id, selectedTracks);
         }
+        await gateVaultTracks();
 
         showToast('Playlist created!', 'success');
       }
@@ -223,6 +260,21 @@ export function ArtistPlaylistManager() {
     } catch (error) {
       console.error('Error saving playlist:', error);
       showToast('Failed to save playlist', 'error');
+    }
+  };
+
+  /**
+   * A gated collection gates its TRACKS (founder decision D5: the Vault is a playlist, and the
+   * track's own allow list is the only real lock). vaultTrackUpdates never narrows what a member
+   * already had; the form states the effect before save. Writes go through the same track update
+   * the track form uses, so can_play_track stays the one oracle.
+   */
+  const gateVaultTracks = async () => {
+    if (formData.isFree || formData.allowedTierIds.length === 0) return;
+    const updates = vaultTrackUpdates(selectedTracks, formData.allowedTierIds);
+    for (const u of updates) {
+      const { error } = await supabase.from('tracks').update(u.fields).eq('id', u.trackId);
+      if (error) console.error('Vault track gate failed:', error.message);
     }
   };
 
@@ -502,6 +554,12 @@ export function ArtistPlaylistManager() {
                 <label className="block text-sm font-medium text-crwn-text-secondary mb-2">
                   Tracks ({selectedTracks.length} selected)
                 </label>
+                {!formData.isFree && formData.allowedTierIds.length > 0 && (() => {
+                  const effect = describeVaultEffect(selectedTracks, formData.allowedTierIds, tiers);
+                  return effect ? (
+                    <p className="text-xs text-crwn-gold mb-2">{effect}</p>
+                  ) : null;
+                })()}
 
                 {/* Selected Tracks - Reorderable with DnD */}
                 <div className="mb-4">
