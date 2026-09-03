@@ -655,6 +655,18 @@ responsible for. Do not work those.
 
 ### P2 — worth doing, nothing breaks if you never do it
 
+- [ ] **Confirm the Stripe tier sync once, by editing a tier.** Shipped 2026-09-03: saving a
+      tier now pushes its name and description to the Stripe product, so a rename no longer
+      leaves the old words on the Checkout order summary
+      ([src/app/api/stripe/sync-tier-product/route.ts](src/app/api/stripe/sync-tier-product/route.ts)).
+      Three branches are proven against production (anonymous 401, another artist's tier 404,
+      own tier reaches Stripe), but no artist has saved a tier since it deployed, so a real
+      `synced: true` has never been observed. To close it: open Fan tiers and pricing on a live
+      artist, change a tier description, save, then run
+          npx tsx scripts/probe-gb-stripe-products.mjs
+      and check the Stripe description matches the CRWN one. GB's four are already correct by
+      hand, so use GB and change one word back and forth.
+
 - [ ] **Decide what happens to two benefits CRWN sells but never delivers.** Found while
       cleaning GB's tier cards on 2026-09-03. Any artist can put these on a paid tier and no
       code makes them real:
