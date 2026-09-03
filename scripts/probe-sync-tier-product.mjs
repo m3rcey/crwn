@@ -58,16 +58,18 @@ const session = sess.session;
 console.log("2. signed in, OWN tier  ->", JSON.stringify(await call(session, mine.id)));
 console.log("3. signed in, GB's tier ->", JSON.stringify(await call(session, theirs.id)));
 
+
+// The TEST artist's Stripe ids are TEST mode (a stale row), so a live key cannot read the
+// product. That is exactly the resource_missing case the route now answers plainly.
 try {
   const after = await stripe.products.retrieve(mine.stripe_product_id);
-  console.log('
-Stripe product now:', JSON.stringify({ name: after.name, description: after.description }));
+  console.log('\nStripe product now:', JSON.stringify({ name: after.name, description: after.description }));
   console.log('CRWN row holds    :', JSON.stringify({ name: mine.name, description: mine.description }));
 } catch (e) {
-  console.log('
-Stripe read on the TEST artist skipped:', e.code || e.message);
+  console.log('\nStripe read on the test artist skipped:', e.code || e.message);
 }
 
-const gbProd = await admin.from('subscription_tiers').select('stripe_product_id').eq('id', theirs.id).single();
-const gbAfter = await stripe.products.retrieve(gbProd.data.stripe_product_id);
-console.log("GB's Silver product untouched:", JSON.stringify(gbAfter.description));
+const { data: gbProd } = await admin.from('subscription_tiers')
+  .select('stripe_product_id').eq('id', theirs.id).single();
+const gbAfter = await stripe.products.retrieve(gbProd.stripe_product_id);
+console.log("GB's Silver product, untouched by the 404 above:", JSON.stringify(gbAfter.description));
