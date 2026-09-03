@@ -539,6 +539,55 @@ information already exists.
   silently). `StrategyCard` is on `/account/tiers`. Stats belong to `/studio/analytics`, promises to
   `/studio/promise`. Absence from this screen is never evidence a system was deleted.
 
+## Rise Mode Guided Setup: launch readiness is a working funnel (founder decisions D1 to D7, 2026-09-03)
+
+The roadmap stage between setup and first paid is **First revenue**, the revenue machine in the
+order a stranger meets it: Build your offer, Give fans something worth joining for, Show fans why
+the paid tier is worth it, Follow up with fans who do not buy yet, Get paid to your own account,
+Turn it on, Test it, Launch it, Get your first paid fan. The page-centric private launch is gone
+("first page visit" removed, welcome post moved to deliver-and-retain, first ten to the audience
+launch, Stripe joined the chain). **A published page is a Foundation prerequisite, not the
+definition of launch.** The constraint engine's Stage 0 launch gate is a different question and
+was deliberately left alone.
+
+- **Never drop an artist from a Rise Mode quest into a blank generic screen.** Every
+  configuration-heavy move opens a guided flow under `/build/<flow>` that already knows the
+  artist, pre-fills every fact CRWN holds, asks only for decisions CRWN cannot make, writes
+  canonical rows, and returns to Rise Mode where the quest completes from those rows on the next
+  read. The flow table is [src/lib/guidedSetup/flows.ts](src/lib/guidedSetup/flows.ts) (the ONE
+  place a flow's route lives); the shell is `/build/[flow]` + `useGuidedEntry` (pointers, never
+  authority) + the existing `Wizard`. **No wizard-state table and no `wizard_complete` flag,
+  ever**: a draft is an inactive canonical row (a draft `fan_automations` row, the browser for
+  in-flight sales-page text) and resume is derived from the row (`resumeIndex` in each pure
+  steps file, `automationResume.ts`). `guidedSetup.test.ts` pins the registry and the boundary.
+- **The funnel object is `fan_automations`.** Magnet, primary (`gold_tier_id`), downsell
+  (`silver_tier_id`), nurture pointer, drop link. Rise Mode orchestrates it and never copies it.
+  [src/lib/funnelReadiness.ts](src/lib/funnelReadiness.ts) is the ONE definition of "is the
+  funnel whole", read by the four funnel DomainChecks, the roadmap, the Test flow and the
+  readiness route. Launch checks gate, truth checks (the sales page) gate traffic readiness,
+  recommended (follow-up) and optional (downsell) never block anything. Nurture is never an
+  activation blocker; a tier with no Stripe price is.
+- **Quest completion stays permanent; the next move is derived.** Delete a tier and the roadmap
+  reopens the step while the quest and its XP stay (`completionSemantics.test.ts`). Existing
+  artists are credited on their next load through the normal cascade; nothing is reset.
+- **A subscription is built through `/build/offer`, never `/offers/new`** (D2). The legacy
+  route keeps only one-time goals; every membership producer (calculator seeds, nurture modules,
+  deliverable specs, the avatar taxonomy, quest CTAs) points at the guided flow, and the
+  share-to-earn seed at `/account/referrals`.
+- **The V1 Offer Builder is `/build/experience`**, a structured writer over the Tier Offer
+  Experience contract through `PUT /api/tier-offer-experiences` (session authority, same
+  normalizer as the drop page). Truth comes from the artist's CHOICE (real thing, own artwork,
+  labelled example); video, FAQ and downsell never block; there is no proof screen because the
+  contract has no proof field. Do not build a page builder or an AI dependency here.
+- **Test it** records two artist observations through the ONE manual quest in the chain
+  (`artist_funnel_tested`), and the roadmap ANDs that with the machine checks. **Launch it**
+  records the existing `fan_invited` event with a `funnel_*` method; it is the weakest signal in
+  the chain and says so. Admin accounts are never counted there, so the founder's own artist can
+  never complete Launch it.
+- **Telemetry** rides the journey sink: `guided_setup_started`, `guided_setup_step_reached`,
+  `guided_setup_completed` with `flow`, `step`, `totalSteps`, and the flow key plus artist id in
+  `lead_magnet_events.metadata`. Abandonment is derived, never emitted.
+
 ## Navigation — three surfaces, one rule each
 
 The artist dashboard is NO LONGER a tab strip. `/profile/artist` is Rise Mode and nothing else.

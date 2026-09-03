@@ -98,19 +98,12 @@ responsible for. Do not work those.
       cause is a brand new sending path with no reputation plus several near-identical mails
       to one mailbox in seconds. It should settle as volume normalises.
 
-- [ ] **FOUNDER CONTENT REQUIRED: GB acquisition nurture emails.** Everything else in GB's
-      funnel is now live and verified in production (2026-09-01): Platinum $50 exists with a
-      real Stripe price, a DRAFT test automation is built with PRIMARY = Platinum and DOWNSELL
-      = Gold, and an end-to-end claim proved capture, free join, magnet delivery and
-      attribution all work. The ONE thing I cannot create is the emails, because a sequence
-      CRWN writes would be CRWN emailing GB's fans in his name.
-      Studio, Fans, Sequences, new sequence, trigger "Joined a free tier", and set
-      **Stops when they join: Gold or higher** (this is the new conversion-goal control; it
-      makes the sequence stop for anyone who reaches Gold or Platinum). Write at least one
-      email. Then, in Fan Automations, open the draft automation and pick that sequence on the
-      review screen, and **Activate** when you are ready for traffic.
-      The test automation's drop link is live only while it is active; activate to test, or
-      build a fresh one. Tagged link shape for ManyChat:
+- [ ] **GB's follow-up has ONE message; let the guided flow draft the other four for him to
+      approve.** His funnel is live, his free-join sequence is on with the Gold-or-higher goal
+      (probe 2026-09-03), so nothing blocks traffic. Open Rise Mode as GB (or send him) to
+      `/build/followup`: it drafts five messages from his gift, Platinum and its benefits; he
+      edits and presses "Save and keep it on". His next Rise Mode move is "Test it", the two
+      checks only he can make on his own phone. Tagged link shape for ManyChat:
       `https://thecrwn.app/drop/<token>?utm_source=instagram&utm_medium=manychat&utm_campaign=<name>`
 
 - [ ] **Make a PUBLIC R2 bucket for the VSLs, then run one command.** The five cuts are finished
@@ -153,17 +146,15 @@ responsible for. Do not work those.
       applying the template. Renaming Economy to Bronze is optional and costs nothing.
 
 
-- [ ] **Fan Automations (artists' own comment-to-DM funnels) is BUILT and DARK. Two founder
-      steps turn it on; until then artists keep renting this exact outcome from ManyChat.**
+- [ ] **Fan Automations: the comment-to-DM half is still DARK (the link funnel is live). One
+      founder step turns it on; until then artists keep renting this exact outcome from ManyChat.**
       Shipped 2026-08-29: an artist connects their own Instagram or Facebook Page, a fan's
       comment gets the one private reply Meta permits with a link to the artist's drop page,
       the email there delivers the lead magnet, joins the fan to the free tier, then offers
       Gold with a Silver downsell through the normal checkout. Full architecture:
       [docs/crwn-brain/31-FAN-AUTOMATIONS.md](docs/crwn-brain/31-FAN-AUTOMATIONS.md).
-      **Step 1, five minutes: run
-      [supabase/schema-phase3-fan-automations.sql](supabase/schema-phase3-fan-automations.sql)
-      in the SQL Editor** (four closed tables; the proof-of-commit grid prints at the end),
-      then run `npm run verify:migrations` or ask me to.
+      Step 1 (the migration) is done: applied and probe-verified 2026-09-01, and the LINK
+      funnel is live for every artist since then. What remains is the comment-to-DM half.
       **Step 2, the Meta app setup (your accounts, so only you can):**
       1. developers.facebook.com → your app (or a new Business-type app). Add the products
          **Instagram** (API setup with Instagram Login) and **Facebook Login for Business**

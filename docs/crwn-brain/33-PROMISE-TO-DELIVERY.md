@@ -144,12 +144,26 @@ truthful recognition his Bronze members see is their member-since date. The sepa
 own lines while the structured rows keep powering delivery. GB's four tiers use it, so his approved
 prose is still exactly what fans read. The toggle is in the tier editor under "In your own words".
 
-## Offer Builder connection
+## Offer Builder connection (shipped 2026-09-03)
 
-The Tier Offer Experience is unchanged and still holds no benefit key. The registry's `previewKind`
-is the suggestion the future Offer Builder will read for each selected benefit, and readiness is
-the source of truth it will show beside a preview. A preview's `truth` never counts as fulfillment.
-The Offer Builder itself has not shipped.
+The Tier Offer Experience is unchanged and still holds no benefit key. The guided builder at
+`/build/experience` reads the registry's `previewKind` for each selected benefit and shows this
+readiness beside the choice: a REAL preview is offered only when the state is ready, active or
+upcoming; otherwise the honest default is a labelled EXAMPLE. A preview's `truth` never counts
+as fulfillment.
+
+## Rise Mode reads the same facts (2026-09-03)
+
+The readiness facts assembly moved verbatim from the route into
+`src/lib/benefitReadinessFacts.ts` (`loadDeliveryReport`), so a second reader uses the same
+reads: the roadmap's Deliver step. When an artist has a paying member and that step is the open
+one, `/api/artist/roadmap` names the sold tier's first promise that is not ready and points the
+Rise Mode CTA at its existing fast action with `?benefit=&tier=`, exactly the pointer this panel
+hands out ("You made the sale. Now give them what you promised."). The `promises_completed`
+fact also counts "every CRWN-delivered promise on a sold tier reads ready or active", because
+since cadence became optional most promises never produce a calendar event. No new fulfillment
+surface exists; the guided funnel readiness module (`src/lib/funnelReadiness.ts`) is the third
+reader of the funnel half of this picture.
 
 ## GB fulfillment matrix (configured by `scripts/configure-gb-tier-benefits.mjs`)
 

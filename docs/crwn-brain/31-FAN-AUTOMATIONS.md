@@ -1,11 +1,22 @@
 # 31 — Fan Automations (artist comment-to-DM funnels)
 
-**Status: BUILT AND DARK (2026-08-29).** Code complete, tests green, build green. Two founder
-actions gate it live: applying
-[supabase/schema-phase3-fan-automations.sql](../../supabase/schema-phase3-fan-automations.sql)
-and the Meta app setup in TODO.md (env vars + App Review). Until both land, the artist screen
-says connections are not available, the webhook drops everything unmatched, and the drop pages
-404.
+**Status: the LINK funnel is LIVE; the comment-to-DM half is DARK (2026-09-03).** The
+migration is applied (probe-verified 2026-09-01) and activation no longer needs a Meta
+connection, so `/drop/<token>` works for every artist today; GB's live funnel is a link funnel.
+Only the Instagram/Facebook listening half waits on the Meta app setup in TODO.md (env vars +
+App Review); until it lands the connection screen says so and the webhook drops everything.
+
+**The funnel row IS the artist's fan funnel** (Rise Mode Guided Setup, 2026-09-03): magnet,
+primary paid offer (`gold_tier_id`), optional downsell (`silver_tier_id`), nurture pointer,
+public drop link. Rise Mode orchestrates this one row and never keeps a copy. The wizard
+(`AutomationWizard`) now takes `existing` (reopen a saved row; the row is the draft and
+`src/lib/fanAutomations/automationResume.ts` derives the resume screen from it), `mode`
+(`'magnet'` for "Give fans something worth joining for", saves a draft; `'funnel'` for "Turn it
+on", the offer screens plus activate; `'full'` on `/studio/automations`), and `flow` (telemetry).
+Activation refuses a funnel whose offered tier has no Stripe price
+(`activationBlockers.gold_tier_purchasable`); nurture is deliberately never a blocker. The owner
+can open a DRAFT drop page as a preview (session user must be the artist's user); everyone else
+still gets the 404. Any active track can be the gift, matching the server validator.
 
 **Founder decision recorded:** the 2026-08-24 publishing-engine investigation ratified "no DM
 automation, no ManyChat replacement, nothing artist-facing" for the FOUNDER publishing stack.

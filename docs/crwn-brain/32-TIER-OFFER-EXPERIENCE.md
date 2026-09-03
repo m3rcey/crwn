@@ -68,11 +68,29 @@ Bad is member-gated in production); everything else is truth: 'example' until GB
 runs one. Tests in `reference/gb.test.ts` pin the truth discipline: no rights/royalty/
 credit language, no cadence promises, "for consideration" present, no em dashes, VSL null.
 
-## Changing an artist's offer copy today (concierge)
+## The V1 Offer Builder (shipped 2026-09-03, Rise Mode Guided Setup)
 
-There is deliberately NO artist-facing editor yet: `tier_offer_experiences` is
-service-role only, with no CRUD route and no UI. Until the Offer Builder ships, offer
-copy changes are concierge, and the loop is two steps:
+An artist writes their own experience through the guided flow at `/build/experience`
+(`src/components/guided/experience/`), which Rise Mode opens as "Show fans why the paid tier
+is worth it". It is a STRUCTURED writer over this contract, not a page builder: CRWN owns the
+layout (the one renderer), the artist supplies truthful content one decision per screen.
+Promise and description are pre-filled from the tier; the button is checked by `isBenefitCta`
+before publish; each CRWN-delivered benefit gets one screen where the artist chooses a REAL
+thing (offered only when Promise to Delivery readiness says it exists), their own public
+artwork, a labelled EXAMPLE, or words only, so the truth state comes from the choice and is
+never typed; the FAQ is drafted deterministically from tier facts (`draftFaqs`, no cadence, no
+result); the video is optional; the preview IS `TierOfferExperience` over the normalized draft.
+Publish goes through `PUT /api/tier-offer-experiences` (session authority, the tier id matched
+against the owner's own active paid tiers), which validates with `normalizeOfferExperience` and
+names the first refusal in the artist's words (`src/lib/offerExperience/refusal.ts`). In-flight
+text lives in the browser; the published row is the only canonical state, and it is what
+`artist_offer_experience_live` (the quest) and the roadmap read. There is deliberately no proof
+screen: the contract has no proof field, and real proof becomes a preview when it exists.
+
+## Changing an artist's offer copy by hand (the concierge loop still works)
+
+The script loop below predates the builder and remains valid for GB's reference configs; it
+writes the same row through the same normalizer:
 
 1. Edit the artist's reference config (GB: `src/lib/offerExperience/reference/gb.ts`).
    Promise, description, CTA, preview titles and copy, FAQs, and preview ORDER all live
@@ -107,8 +125,9 @@ page builder, and not a theme editor.
 
 ## Deferred deliberately
 
-The self-serve Offer Builder UI, AI copy/VSL generation, per-tier ascension VSLs,
+AI copy/VSL generation (every field has a deterministic default from the artist's rows;
+a model may later suggest, the normalizer still decides), per-tier ascension VSLs,
 proof/testimonial wiring for GB (he has none yet; the renderer omits the section
-gracefully), and any further analytics events. GB plus the next 3 to 5 ICP artists run
-concierge-style through this architecture first; what they need decides what gets
-automated.
+gracefully), uploaded preview media (the builder offers artwork the artist already
+publishes; a private upload would need a public image path that does not exist), and any
+further analytics events.

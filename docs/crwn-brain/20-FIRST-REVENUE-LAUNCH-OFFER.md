@@ -37,11 +37,14 @@ members. Not software access, not a fan page, not a 14-day setup process.
 ## Activation (the product principle underneath everything)
 
 **Activation is the first paid member.** Not account created, not setup completed, not Stripe
-connected, not page published. SHIPPED: the roadmap's private-launch stage is "Get member
-number one before the world hears about it," its money step is "Get your first paid member,"
-the wizard's LaunchReview says a live page is not the finish line and steers first shares at
-warm fans (ten direct messages beat one public post), and fan import lives in the Foundation
-stage BEFORE the private launch (pinned by `artistRoadmap.test.ts`).
+connected, not page published. SHIPPED (revised 2026-09-03, founder decision D1): the roadmap's
+launch stage is **First revenue**, the working funnel in the order a stranger meets it (offer,
+gift, sales page, follow-up, Stripe, the switch, a test, the link, first paid), and every
+configuration step opens a guided flow under `/build/<flow>`. Its money step is still "Get your
+first paid member," the wizard's LaunchReview says a live page is not the finish line, and fan
+import lives in the Foundation stage BEFORE the launch stages (pinned by `artistRoadmap.test.ts`).
+The page-centric private launch ("first page visit") is gone: a published page is a Foundation
+prerequisite, not the definition of launch.
 
 The onboarding sequence the offer prescribes: build the offer → import the most likely buyers →
 invite the first small group → acquire the first paid member → show the transaction → complete

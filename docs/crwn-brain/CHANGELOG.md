@@ -1,5 +1,44 @@
 # CRWN Brain — Changelog
 
+## 2026-09-03 - Rise Mode Guided Setup: launch readiness is a working funnel, seven guided flows
+
+**Rules: CLAUDE.md "Rise Mode Guided Setup". Founder decisions D1 to D7 settled with the
+recommended defaults.** The roadmap's page-centric private launch is replaced by **First
+revenue**: Build your offer, Give fans something worth joining for, Show fans why the paid
+tier is worth it, Follow up with fans who do not buy yet, Get paid to your own account, Turn
+it on, Test it, Launch it, Get your first paid fan. "First page visit" is removed, the welcome
+post moved to deliver-and-retain, the first ten to the audience launch, Stripe joined the
+chain; `promises_on_track` no longer needs a scheduled promise (uncompletable since cadence
+became optional). The constraint engine's Stage 0 gate is untouched.
+
+Every configuration step opens a guided flow under `/build/<flow>` (`src/lib/guidedSetup/flows.ts`,
+`src/app/build/[flow]`, `useGuidedEntry`, the existing `Wizard`): pre-filled from canonical rows,
+one decision per screen, resume derived from the row, no wizard-state table, back to Rise Mode
+where the quest completes from state. `src/lib/funnelReadiness.ts` is the ONE definition of a
+whole funnel (launch / truth / recommended / optional), read by four new DomainChecks
+(`artist_has_lead_magnet`, `artist_funnel_live`, `artist_offer_experience_live`,
+`artist_funnel_nurture_active`), the roadmap's `funnel_tested` / `funnel_launched` /
+`first_paid` facts, the Test flow and `/api/funnel-readiness`. Five quest templates added;
+existing artists are credited on their next load through the normal cascade.
+
+Flows: `/build/offer` (registry-driven benefits, workload, one-line promise, optional cheaper
+rung through `applyTemplateTier`); `/build/magnet` and `/build/funnel` (the automation wizard
+in two modes, reopening a saved row; activation now refuses an offered tier with no Stripe
+price; the owner can preview a draft drop page); `/build/experience` (the V1 Offer Builder over
+the Tier Offer Experience contract, `PUT /api/tier-offer-experiences`, truth from the artist's
+choice, video/FAQ/downsell never block); `/build/followup` (a deterministic five-message
+free-join starter, reviewed and switched on with the primary tier as the goal and the funnel's
+nurture pointer set); `/build/test` (machine checks plus the two artist observations recorded
+through the manual `artist_funnel_tested` quest); `/build/launch` (link, QR, one distribution
+path, the existing `fan_invited` event). Deliver: the roadmap names the sold tier's first
+unready promise and opens its Promise to Delivery fast action; `loadDeliveryReport` is shared.
+
+`/offers/new` lost its subscription goals (D2); every membership producer points at
+`/build/offer`, the share-to-earn seed at `/account/referrals`. Telemetry rides the journey
+sink (`guided_setup_started` / `_step_reached` / `_completed`). Two sql-check migrations
+(tier-events offer vocabulary, fan-automation link provider) confirmed applied by service-role
+evidence and their TODO items deleted. No migration, no production data change. sw.js v495.
+
 ## 2026-09-03 - Promise to Delivery: one benefit registry, readiness, fast actions, GB configured
 
 **Full doc: 33-PROMISE-TO-DELIVERY.md.** `tier_benefits.benefit_type` is now the identity that

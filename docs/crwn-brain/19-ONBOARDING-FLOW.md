@@ -247,7 +247,7 @@ get, and at launch the artist is already looking at the finished page.
   as the artist's override.
 - **The landing is Rise Mode** (`/profile/artist`), which since 2026-08-13 renders ONE next move
   (`NextMoveCard`) resolved from the Constraint Engine and the 5-stage
-  personalized roadmap (Foundation → Private launch → Audience launch → Deliver and retain →
+  personalized roadmap (Foundation → First revenue → Audience launch → Deliver and retain →
   Expand, `src/lib/artistRoadmap.ts` + `/api/artist/roadmap`), derived through the Quest
   Engine's own `evaluateCondition` so roadmap and quests can never disagree. The surface shows
   the current stage as discrete milestones (`Foundation · 2 of 7 complete`), the one move, one
