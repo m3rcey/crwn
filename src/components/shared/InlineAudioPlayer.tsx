@@ -76,7 +76,7 @@ export function InlineAudioPlayer({ src, title }: { src: string; title: string }
   const pct = duration ? (current / duration) * 100 : 0;
 
   return (
-    <div className="rounded-xl bg-crwn-elevated px-4 py-3">
+    <div className="w-full rounded-xl bg-crwn-elevated px-4 py-3 text-left">
       <audio ref={audioRef} src={src} preload="metadata" />
       <div className="flex items-center gap-3">
         <button

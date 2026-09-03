@@ -574,10 +574,10 @@ export function DropFunnelClient({ token, artist, magnet, gold, goldItem, silver
 
         {phase === 'delivered' && (
           <div className="space-y-6">
-            <div className="neu-raised rounded-2xl p-6 bg-crwn-card">
+            <div className="neu-raised rounded-2xl p-6 bg-crwn-card text-center">
               <p className="text-xs uppercase tracking-wide text-crwn-gold mb-2">Delivered</p>
               <h1 className="text-xl font-bold text-crwn-text">{magnet.title || 'Your drop'}</h1>
-              <div className="mt-4">{submitting && !claimed ? <Loader2 className="w-5 h-5 animate-spin text-crwn-gold" /> : magnetAccess}</div>
+              <div className="mt-4 flex justify-center">{submitting && !claimed ? <Loader2 className="w-5 h-5 animate-spin text-crwn-gold" /> : magnetAccess}</div>
               {magnet.kind === 'track' && (
                 <p className="mt-3 text-xs text-crwn-text-secondary">
                   Yours for good: as a free member it plays any time on{' '}
