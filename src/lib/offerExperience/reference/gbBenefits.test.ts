@@ -60,6 +60,23 @@ describe('GB approved tier offer', () => {
     }
   });
 
+  // These four are the tier `description` column on GB's rows, and they render under the
+  // tier name on the public card AND on the Stripe Checkout order summary (the product
+  // description is copied from this field). They replaced "Basic level + Exclusive perks"
+  // and friends on 2026-09-03.
+  it('states each rung as its approved promise', () => {
+    expect(GB_TIER_PROMISES).toEqual({
+      Bronze: 'Be early.',
+      Silver: 'Go backstage.',
+      Gold: "Help shape GB's music before the public hears it.",
+      Platinum: 'Put your own ideas in the room while GB is creating.',
+    });
+    for (const [rung, promise] of Object.entries(GB_TIER_PROMISES)) {
+      expect(promise, rung).not.toMatch(/[—–]/); // no em or en dash in fan-facing copy
+      expect(promise.toLowerCase(), rung).not.toContain('basic level');
+    }
+  });
+
   it('leaves the Tier Offer Experience CTAs alone', () => {
     expect(GB_PLATINUM_OFFER.cta).toBe('Put My Ideas in the Room');
     expect(GB_GOLD_OFFER.cta).toBe('Help Shape What Comes Next');
