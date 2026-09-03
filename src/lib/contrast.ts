@@ -169,6 +169,50 @@ export function auditContrast(
 }
 
 /**
+ * Raise a colour's CHROMA to call-to-action strength while keeping its HUE.
+ *
+ * WHY THIS EXISTS. The palette sampler is honest: it returns the photo's actual dominant
+ * colour, and plenty of real artist photos are moody. GB's avatar sampled to #658c96, a
+ * blue-grey sitting near 20% saturation, which is a truthful colourway and a weak buy
+ * button: on a dark page it reads as another surface rather than the one thing to press.
+ *
+ * So the hue is kept exactly (it is still the artist's colour, and the page still matches
+ * the photo) and only the saturation floor is enforced. A colour already at or above the
+ * floor is returned untouched, which is what stops a naturally vivid artist from being
+ * pushed somewhere they never were.
+ *
+ * Deliberately NOT applied to the sampled value in the database: the stored palette stays
+ * the photo's truth, and this is a presentation decision made at render time.
+ */
+export function vibrantFor(hex: string, floor = 0.5): string {
+  const [r, g, b] = hexToRgb(hex).map((v) => v / 255);
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const l = (max + min) / 2;
+  const d = max - min;
+  if (d === 0) return hex; // true grey has no hue to preserve; leave it alone
+  const sat = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+  if (sat >= floor) return hex;
+
+  // Rebuild at the same hue and lightness with the floor saturation.
+  const h =
+    max === r ? (((g - b) / d) % 6) : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
+  const hue = ((h * 60) + 360) % 360;
+  const c = (1 - Math.abs(2 * l - 1)) * floor;
+  const x = c * (1 - Math.abs(((hue / 60) % 2) - 1));
+  const m = l - c / 2;
+  const [r2, g2, b2] =
+    hue < 60 ? [c, x, 0] :
+    hue < 120 ? [x, c, 0] :
+    hue < 180 ? [0, c, x] :
+    hue < 240 ? [0, x, c] :
+    hue < 300 ? [x, 0, c] : [c, 0, x];
+  const to = (v: number) => Math.round(Math.min(255, Math.max(0, (v + m) * 255)))
+    .toString(16).padStart(2, '0');
+  return `#${to(r2)}${to(g2)}${to(b2)}`;
+}
+
+/**
  * Scoped CSS-variable overrides for an artist-accented page.
  *
  * The app's gold utilities compile to `var(--crwn-gold)` (Tailwind v4 `@theme
@@ -182,7 +226,9 @@ export function auditContrast(
  */
 export function accentPageVars(accent: string | null | undefined): Record<string, string> | null {
   if (!accent || !/^#[0-9a-fA-F]{6}$/.test(accent)) return null;
-  const safe = liftForInk(accent, 4.5);
+  // Chroma floor first (the accent must read as a CTA), contrast lift second (it must
+  // stay legible). Order matters: saturating after lifting could push it back under AA.
+  const safe = liftForInk(vibrantFor(accent), 4.5);
   if (safe === toHex(LIGHT)) return null; // hue unusable; keep gold
   const [r, g, b] = hexToRgb(safe);
 

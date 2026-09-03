@@ -1,16 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import {
-  contrast,
-  hexToRgb,
-  inkOn,
-  fillFor,
-  liftForInk,
-  requiredRatio,
-  accentTheme,
-  accentPageVars,
-  auditContrast,
-  type RGB,
-} from './contrast';
+import { contrast, hexToRgb, inkOn, fillFor, liftForInk, requiredRatio, accentTheme, accentPageVars, auditContrast, type RGB, vibrantFor } from './contrast';
 
 const DARK: RGB = [15, 15, 15];
 
@@ -189,5 +178,51 @@ describe('accentTheme', () => {
       // Chip must hold light ink at >=4.5:1 (walked to 4.6 with margin).
       expect(contrast(hexToRgb(t.chip), [240, 240, 240])).toBeGreaterThanOrEqual(4.5);
     }
+  });
+});
+
+describe('vibrantFor — the CTA chroma floor', () => {
+  const sat = (hex: string) => {
+    const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255);
+    const max = Math.max(r, g, b), min = Math.min(r, g, b), l = (max + min) / 2, d = max - min;
+    return d === 0 ? 0 : l > 0.5 ? d / (2 - max - min) : d / (max + min);
+  };
+  const hue = (hex: string) => {
+    const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255);
+    const max = Math.max(r, g, b), min = Math.min(r, g, b), d = max - min;
+    if (!d) return 0;
+    const h = max === r ? ((g - b) / d) % 6 : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
+    return ((h * 60) + 360) % 360;
+  };
+
+  it("raises a muted photo colour to CTA strength", () => {
+    // GB's avatar sampled to this: truthful, and far too quiet for a buy button.
+    const out = vibrantFor('#658c96');
+    expect(sat(out)).toBeGreaterThanOrEqual(0.49);
+  });
+
+  it('KEEPS the hue, so the page still matches the photo', () => {
+    const before = hue('#658c96');
+    const after = hue(vibrantFor('#658c96'));
+    expect(Math.abs(after - before)).toBeLessThan(3);
+  });
+
+  it('leaves an already-vivid colour completely alone', () => {
+    // A naturally saturated artist must not be pushed somewhere they never were.
+    for (const hex of ['#d4af37', '#e01b24', '#1b9ce0']) {
+      expect(vibrantFor(hex)).toBe(hex);
+    }
+  });
+
+  it('leaves true grey alone: there is no hue to preserve', () => {
+    expect(vibrantFor('#8a8a8a')).toBe('#8a8a8a');
+    expect(vibrantFor('#ffffff')).toBe('#ffffff');
+  });
+
+  it('the boosted accent still clears AA as page ink', () => {
+    const vars = accentPageVars('#658c96');
+    expect(vars).not.toBeNull();
+    const ink = hexToRgb(vars!['--crwn-gold']);
+    expect(contrast(ink, [13, 13, 13])).toBeGreaterThanOrEqual(4.5);
   });
 });
