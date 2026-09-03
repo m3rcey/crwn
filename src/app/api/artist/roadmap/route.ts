@@ -21,6 +21,7 @@ import { reconcileStripeConnect } from '@/lib/stripe/connectReconcile';
 import { assessFunnel } from '@/lib/funnelReadiness';
 import { loadFunnelFacts } from '@/lib/funnelReadinessFacts';
 import { FUNNEL_TEST_QUEST_KEY } from '@/lib/guidedSetup/testQuest';
+import { loadDeliveryReport } from '@/lib/benefitReadinessFacts';
 import {
   buildRoadmapDefs,
   assembleRoadmap,
@@ -49,6 +50,45 @@ const RAMP_STEP = 'ramp_step';
 const fanObligations = (q: any) => q.or(`benefit_type.is.null,benefit_type.neq.${RAMP_STEP}`);
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const fanPromiseEvents = (q: any) => q.is('metadata->>ramp_step_key', null);
+
+/** Tier ids with at least one ACTIVE paid subscription: the promises somebody is paying for. */
+async function soldPaidTierIds(artistId: string): Promise<Set<string>> {
+  const { data: subs } = await supabaseAdmin
+    .from('subscriptions')
+    .select('tier_id')
+    .eq('artist_id', artistId)
+    .eq('status', 'active');
+  const ids = [...new Set((subs ?? []).map((s: { tier_id: string | null }) => s.tier_id).filter((v): v is string => !!v))];
+  if (!ids.length) return new Set();
+  const { data: tiers } = await supabaseAdmin.from('subscription_tiers').select('id, price').in('id', ids);
+  return new Set((tiers ?? []).filter((t: { price: number | null }) => (Number(t.price) || 0) > 0).map((t: { id: string }) => t.id));
+}
+
+/**
+ * The delivery report (Promise to Delivery) for the roadmap's Deliver step. Null when the
+ * artist has no paying member yet: nothing is owed to anyone, so nothing is "undelivered".
+ */
+async function deliveryForSoldTiers(artistId: string, slug: string | null) {
+  const sold = await soldPaidTierIds(artistId);
+  if (sold.size === 0) return null;
+  const { data: ap } = await supabaseAdmin.from('artist_profiles').select('song_lab_enabled').eq('id', artistId).maybeSingle();
+  const report = await loadDeliveryReport(supabaseAdmin, {
+    id: artistId,
+    slug,
+    song_lab_enabled: (ap as { song_lab_enabled?: boolean | null } | null)?.song_lab_enabled,
+  });
+  return report.rows.filter((r) => sold.has(r.tierId) && r.support !== 'manual' && r.support !== 'retired');
+}
+
+async function soldTiersAllReady(artistId: string): Promise<boolean> {
+  try {
+    const rows = await deliveryForSoldTiers(artistId, null);
+    if (!rows || rows.length === 0) return false;
+    return rows.every((r) => r.state === 'ready' || r.state === 'active' || r.state === 'upcoming');
+  } catch {
+    return false;
+  }
+}
 
 /** The synthetic instance the roadmap hands the Quest Engine's evaluator. Nothing is written. */
 function syntheticInstance(userId: string, artistId: string, key: string, condition: unknown): QuestInstance {
@@ -135,7 +175,12 @@ async function evalFact(artistId: string, userId: string, fact: RoadmapFact): Pr
           .eq('status', 'completed'),
       );
       const n = count || 0;
-      return { done: n >= 1, current: n, target: 1 };
+      if (n >= 1) return { done: true, current: n, target: 1 };
+      // Since cadence became optional (2026-09-03) most promises are kept on demand and never
+      // produce a calendar event. The other honest proof of "delivered": every CRWN-delivered
+      // promise on a tier somebody is PAYING for reads ready or active in Promise to Delivery.
+      const delivered = await soldTiersAllReady(artistId);
+      return { done: delivered, current: delivered ? 1 : 0, target: 1 };
     }
     // promises_on_track: nothing is overdue or missed. It used to also require at least one
     // active obligation, which could never be true for an artist who chose "No fixed schedule"
@@ -236,6 +281,25 @@ export async function GET() {
   );
 
   const roadmap = assembleRoadmap(defs, Object.fromEntries(evaluated), goalMonthlyCents);
+
+  // "You made the sale. Now give them what you promised." When the Deliver step is the open
+  // one, Rise Mode names the sold tier's first promise that is not ready and opens its
+  // existing Promise to Delivery fast action with the tier and benefit already known. No new
+  // fulfillment surface: the pointer is the same one the panel on /account/tiers hands out.
+  const deliverStep = roadmap.stages.flatMap((s) => s.steps).find((s) => s.key === 'deliver-first-promise');
+  if (deliverStep && !deliverStep.done) {
+    try {
+      const rows = await deliveryForSoldTiers(artist.id, artist.slug ?? null);
+      const open = rows?.find((r) => (r.state === 'needs_setup' || r.state === 'nothing_yet') && r.fastAction);
+      if (open && open.fastAction) {
+        deliverStep.label = `Deliver: ${open.label}`;
+        deliverStep.detail = `${open.tierName} members are paying for it. ${open.fact}`;
+        deliverStep.href = open.fastAction.href;
+      }
+    } catch {
+      // The static step stands when the report cannot be read.
+    }
+  }
 
   // Launch-command extras (Stage 9): the next promises due and the real
   // numbers. Derived the same way as everything else; no stored copies.

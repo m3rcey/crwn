@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync, existsSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { GUIDED_FLOWS, GUIDED_FLOW_KEYS, guidedFlowHref, isGuidedFlowKey, safeSitePath, RISE_MODE_PATH } from './flows';
+import { FUNNEL_TEST_MANUAL_CHECKS } from './testQuest';
 import { buildRoadmapDefs } from '../artistRoadmap';
 import { questCta } from '../../components/quests/questRoutes';
 import { GUIDED_SETUP_EVENT_NAMES, ALL_OPPORTUNITY_EVENT_NAMES, sanitizeOpportunityMeta } from '../opportunityFunnels/analytics';
@@ -47,6 +48,62 @@ describe('the flow registry', () => {
     expect(roadmap['revenue-experience']).toBe(cta('artist_offer_experience'));
     expect(roadmap['revenue-followup']).toBe(cta('artist_funnel_followup'));
     expect(roadmap['revenue-live']).toBe(cta('artist_funnel_live'));
+  });
+});
+
+describe('every flow is built and reachable', () => {
+  it('no flow forwards to a legacy surface any more, and each has a registered component', () => {
+    const registry = readFileSync('src/components/guided/registry.ts', 'utf8');
+    for (const key of GUIDED_FLOW_KEYS) {
+      const def = GUIDED_FLOWS[key];
+      if (def.guidance === 'direct') continue; // Stripe opens the existing control
+      expect(def.legacyHref, key).toBeNull();
+      expect(registry, key).toMatch(new RegExp(`^\\s*${key}: lazyFlow\\(`, 'm'));
+    }
+  });
+
+  it('the readiness the Test flow reads is the one the roadmap and the quests read', () => {
+    const route = readFileSync('src/app/api/funnel-readiness/route.ts', 'utf8');
+    expect(route).toContain("from '@/lib/funnelReadiness'");
+    expect(route).toContain("from '@/lib/funnelReadinessFacts'");
+    const roadmap = readFileSync('src/app/api/artist/roadmap/route.ts', 'utf8');
+    expect(roadmap).toContain('assessFunnel(');
+    const evaluator = readFileSync('src/lib/quests/evaluator.ts', 'utf8');
+    expect(evaluator).toContain("from '@/lib/funnelReadiness'");
+  });
+
+  it('the sales page writer validates with the same normalizer the drop page reads through', () => {
+    const route = readFileSync('src/app/api/tier-offer-experiences/route.ts', 'utf8');
+    expect(route).toContain('normalizeOfferExperience(');
+    expect(route).toContain('refusalReason(');
+    // Authority is the session; the tier id is matched against the owner's own active tiers.
+    expect(route).toContain('supabase.auth.getUser()');
+    expect(route).toContain(".eq('artist_id', owner.artistId)");
+    expect(route).not.toMatch(/body\.artistId|req\.nextUrl\.searchParams\.get\('artistId'\)/);
+  });
+
+  it('the follow-up starter is deterministic and the flow sets the goal and trigger itself', () => {
+    const flow = readFileSync('src/components/guided/followup/FollowupFlow.tsx', 'utf8');
+    expect(flow).toContain('buildFreeJoinStarter(');
+    expect(flow).toContain('triggerType: FREE_JOIN_TRIGGER');
+    expect(flow).toContain('goalTierId: primary.id');
+    expect(flow).not.toMatch(/anthropic|deepseek|openai/i);
+  });
+
+  it('the Test flow records only the two approved observations, through the manual quest route', () => {
+    const flow = readFileSync('src/components/guided/test/TestFlow.tsx', 'utf8');
+    expect(flow).toContain("fetch('/api/quests/complete'");
+    expect(flow).not.toMatch(/subscriptions|purchases|earnings|first_paid/);
+    expect(FUNNEL_TEST_MANUAL_CHECKS.length).toBe(2);
+  });
+
+  it('the Launch flow hands out the funnel link and records the existing fan_invited event', () => {
+    const flow = readFileSync('src/components/guided/launch/LaunchFlow.tsx', 'utf8');
+    expect(flow).toContain("stage: 'fan_invited'");
+    expect(flow).toContain('funnel_${method}');
+    expect(flow).toContain("import('qrcode')");
+    // No Meta plumbing and no scheduler: the link is handed out, never published for the artist.
+    expect(flow).not.toMatch(/instagram_business|graph\.facebook|social_posts|publish_at/i);
   });
 });
 

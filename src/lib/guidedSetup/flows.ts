@@ -47,14 +47,14 @@ export const GUIDED_FLOWS: Record<GuidedFlowKey, GuidedFlowDef> = {
     title: 'Show fans why the paid tier is worth it',
     guidance: 'guided',
     href: '/build/experience',
-    legacyHref: '/account/tiers',
+    legacyHref: null,
   },
   followup: {
     key: 'followup',
     title: 'Follow up with fans who do not buy yet',
     guidance: 'guided',
     href: '/build/followup',
-    legacyHref: '/studio/fans?view=sequences',
+    legacyHref: null,
   },
   stripe: {
     key: 'stripe',
@@ -77,14 +77,14 @@ export const GUIDED_FLOWS: Record<GuidedFlowKey, GuidedFlowDef> = {
     title: 'Test it',
     guidance: 'guided',
     href: '/build/test',
-    legacyHref: '/studio/automations',
+    legacyHref: null,
   },
   launch: {
     key: 'launch',
     title: 'Launch it',
     guidance: 'guided',
     href: '/build/launch',
-    legacyHref: '/studio/automations',
+    legacyHref: null,
   },
 };
 

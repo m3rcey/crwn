@@ -14,4 +14,8 @@ export const GUIDED_FLOW_COMPONENTS: Partial<Record<GuidedFlowKey, ComponentType
   offer: lazyFlow(() => import('./offer/OfferFlow')),
   magnet: lazyFlow(() => import('./funnel/MagnetFlow')),
   funnel: lazyFlow(() => import('./funnel/FunnelFlow')),
+  experience: lazyFlow(() => import('./experience/ExperienceFlow')),
+  followup: lazyFlow(() => import('./followup/FollowupFlow')),
+  test: lazyFlow(() => import('./test/TestFlow')),
+  launch: lazyFlow(() => import('./launch/LaunchFlow')),
 };
