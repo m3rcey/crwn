@@ -68,6 +68,30 @@ Bad is member-gated in production); everything else is truth: 'example' until GB
 runs one. Tests in `reference/gb.test.ts` pin the truth discipline: no rights/royalty/
 credit language, no cadence promises, "for consideration" present, no em dashes, VSL null.
 
+## Changing an artist's offer copy today (concierge)
+
+There is deliberately NO artist-facing editor yet: `tier_offer_experiences` is
+service-role only, with no CRUD route and no UI. Until the Offer Builder ships, offer
+copy changes are concierge, and the loop is two steps:
+
+1. Edit the artist's reference config (GB: `src/lib/offerExperience/reference/gb.ts`).
+   Promise, description, CTA, preview titles and copy, FAQs, and preview ORDER all live
+   there as plain data.
+2. Run `npx tsx scripts/configure-gb-offer.mjs`. It validates each config through the
+   same normalizer the read path uses, upserts, and re-reads to confirm. Content-only
+   changes need no deploy: the page reads the row server-side on the next request.
+
+Two rules the normalizer will enforce on whatever the artist asks for, and they are not
+negotiable in a concierge edit either: the CTA cannot be "Join <tier>" or contain the
+tier name (it must name the OUTCOME), and every preview must carry a REAL or EXAMPLE
+truth state. A config that breaks either is refused by the seed script rather than
+written, which is the point: the artist's voice can change freely, the honesty rules
+cannot.
+
+**Why concierge rather than a form, for now.** The first artists on this architecture
+tell us which fields actually get edited. Building the editor before that is guessing at
+a form, and the wrong fields are more expensive to remove than to add.
+
 ## What the future Offer Builder will control
 
 Promise, description, CTA (validated by `isBenefitCta` and against configured

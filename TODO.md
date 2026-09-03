@@ -655,6 +655,22 @@ responsible for. Do not work those.
 
 ### P2 — worth doing, nothing breaks if you never do it
 
+- [ ] **Let artists edit their own offer copy (the first slice of the Offer Builder).**
+      Today `tier_offer_experiences` is service-role only with no route and no UI, so
+      changing GB's promise, description, CTA, preview copy, FAQs or ordering is a
+      concierge edit: I change `src/lib/offerExperience/reference/gb.ts` and run
+      `npx tsx scripts/configure-gb-offer.mjs`. That is the right mode while GB is the
+      only artist on it.
+      When it stops being right, the smallest honest version is an owner-authorized
+      PATCH route plus one Studio screen for the TEXT fields (promise, description, CTA,
+      FAQs), reusing `normalizeOfferExperience` so the benefit-CTA rule and the
+      REAL/EXAMPLE requirement are enforced on artist input exactly as they are on mine.
+      Previews and ordering can stay concierge longer: they are the fields most likely to
+      need a real interview rather than a textarea.
+      **The trigger to build it is evidence, not a hunch:** the second or third artist
+      asking for the same edit, or GB changing his copy more than a couple of times.
+
+
 - [ ] **Decide whether CRWN claims to replace Shopify.** The stack audit maps Shopify, Gumroad and
       Bandcamp all to the `storefront` category, and `CRWN_REPLACES.storefront` is `true`
       ([src/lib/stackReplacement.ts](src/lib/stackReplacement.ts)). That is true for Gumroad and a
