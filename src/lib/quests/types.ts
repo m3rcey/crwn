@@ -97,6 +97,12 @@ export type DomainCheck =
   | 'artist_has_smart_link' // >=1 active smart_link (L9)
   | 'artist_captured_lead' // a smart_link captured a lead OR >=1 fan_contact (L9)
   | 'artist_has_active_sequence' // >=1 active lifecycle sequence (L9)
+  // artist-side: the fan funnel (Rise Mode first-revenue journey, 2026-09-03). All four read the
+  // ONE funnel object (fan_automations) through src/lib/funnelReadiness.ts, never wizard state.
+  | 'artist_has_lead_magnet' // the funnel's magnet exists AND its asset still exists (file key or an active track)
+  | 'artist_funnel_live' // the funnel is active with a purchasable primary tier behind it
+  | 'artist_offer_experience_live' // a valid, active Tier Offer Experience exists for the primary tier
+  | 'artist_funnel_nurture_active' // an active free_join follow-up with messages and a conversion goal
   | 'artist_referrals_on' // referral_commission_rate > 0 (L9)
   | 'artist_clipper_on' // clipper program configured + started (L9)
   | 'artist_sent_campaign' // >=1 campaign with status 'sent' (L9 side)

@@ -2,6 +2,7 @@
 // EXISTING feature surfaces (offers, campaigns, dashboard tabs); the Quest Engine
 // just points at them. Returns an href; the dashboard can intercept ?tab= links.
 import type { QuestInstance } from '@/lib/quests/types';
+import { guidedFlowHref } from '@/lib/guidedSetup/flows';
 
 export interface QuestCta {
   label: string;
@@ -50,6 +51,12 @@ const TEMPLATE_CTA: Record<string, QuestCta> = {
   artist_tier_purchasable: { label: 'Check tiers', href: '/account/tiers' },
   artist_welcome_post: { label: 'Post a welcome', href: '/community' },
   artist_infrastructure_ready: { label: 'Review your tiers', href: '/account/tiers' },
+  // The fan funnel (2026-09-03): every one opens its guided flow, never a blank tool.
+  artist_lead_magnet: { label: 'Build it with me', href: guidedFlowHref('magnet') },
+  artist_offer_experience: { label: 'Build it with me', href: guidedFlowHref('experience') },
+  artist_funnel_followup: { label: 'Build it with me', href: guidedFlowHref('followup') },
+  artist_funnel_live: { label: 'Turn it on', href: guidedFlowHref('funnel') },
+  artist_funnel_tested: { label: 'Test it', href: guidedFlowHref('test') },
   // Level 5 (Founding Fans)
   artist_prospect_list: { label: 'Open audience', href: '/studio/fans' },
   // The Launch Kit (campaigns view) writes the announcement and sends it, which is

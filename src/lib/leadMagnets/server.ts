@@ -51,10 +51,23 @@ export async function recordLmEvent(
       conversion_target: str(meta.conversionTarget),
       generator_version: str(meta.generatorVersion),
       reason_code: str(meta.reasonCode),
+      // Guided Setup (2026-09-03): the task key and the artist it belongs to, so "which step do
+      // artists quit on" is answerable per flow and per artist. An ALLOWLIST of two keys into
+      // the existing metadata column; nothing else a client sends can land here.
+      metadata: eventMetadata(meta),
     });
   } catch {
     // swallow
   }
+}
+
+function eventMetadata(meta: Record<string, unknown>): Record<string, string> {
+  const out: Record<string, string> = {};
+  const flow = str(meta.flow);
+  if (flow && /^[a-z_]{1,40}$/.test(flow)) out.flow = flow;
+  const artistId = uuidOrNull(meta.artistId);
+  if (artistId) out.artistId = artistId;
+  return out;
 }
 
 const str = (v: unknown): string | null => (typeof v === 'string' && v ? v.slice(0, 200) : null);

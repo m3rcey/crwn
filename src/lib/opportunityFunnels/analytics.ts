@@ -82,15 +82,31 @@ export const PERSONALIZED_JOURNEY_EVENTS = {
 
 export type PersonalizedJourneyEvent = (typeof PERSONALIZED_JOURNEY_EVENTS)[keyof typeof PERSONALIZED_JOURNEY_EVENTS];
 
+/**
+ * Rise Mode Guided Setup (2026-09-03): a guided flow reports itself with three events. The
+ * `flow` dimension names the task, `step`/`totalSteps` ride the sink's existing step columns.
+ * Abandonment is derived (started, never completed), never emitted. Same sink, same sanitizer,
+ * never mirrored into funnel_events.
+ */
+export const GUIDED_SETUP_EVENTS = {
+  started: 'guided_setup_started',
+  stepReached: 'guided_setup_step_reached',
+  completed: 'guided_setup_completed',
+} as const;
+
+export type GuidedSetupEvent = (typeof GUIDED_SETUP_EVENTS)[keyof typeof GUIDED_SETUP_EVENTS];
+
 /** Every event name, for the server allowlist and tests. */
 export const OPPORTUNITY_EVENT_NAMES: string[] = Object.values(OPPORTUNITY_EVENTS);
 export const JOURNEY_EVENT_NAMES: string[] = Object.values(JOURNEY_EVENTS);
 export const PERSONALIZED_JOURNEY_EVENT_NAMES: string[] = Object.values(PERSONALIZED_JOURNEY_EVENTS);
+export const GUIDED_SETUP_EVENT_NAMES: string[] = Object.values(GUIDED_SETUP_EVENTS);
 /** The full set of names the analytics sink must allowlist for this layer. */
 export const ALL_OPPORTUNITY_EVENT_NAMES: string[] = [
   ...OPPORTUNITY_EVENT_NAMES,
   ...JOURNEY_EVENT_NAMES,
   ...PERSONALIZED_JOURNEY_EVENT_NAMES,
+  ...GUIDED_SETUP_EVENT_NAMES,
 ];
 
 /**
@@ -130,10 +146,17 @@ export interface OpportunityEventMeta {
    */
   surface?: 'tool' | 'homepage';
   authed?: boolean;
+  /** Guided Setup: which task (a flow key, never free text) and how far into it. */
+  flow?: string;
+  step?: number | string;
+  totalSteps?: number | string;
 }
 
 // The only keys allowed out. Anything else (including anything sensitive) is dropped.
 const ALLOWED_KEYS: (keyof OpportunityEventMeta)[] = [
+  'flow',
+  'step',
+  'totalSteps',
   'opportunityKey',
   'toolKey',
   'toolVersion',
@@ -207,7 +230,10 @@ export function sanitizeOpportunityMeta(meta: Record<string, unknown> | Opportun
  * maps the surviving dimensions onto the existing beacon fields the sink understands (so the tool
  * shows up in lead_magnet_events with no new columns), and posts to the existing analytics route.
  */
-export function trackOpportunity(event: OpportunityEvent | JourneyEvent | PersonalizedJourneyEvent, meta: OpportunityEventMeta): void {
+export function trackOpportunity(
+  event: OpportunityEvent | JourneyEvent | PersonalizedJourneyEvent | GuidedSetupEvent,
+  meta: OpportunityEventMeta,
+): void {
   if (typeof window === 'undefined') return;
   try {
     const safe = sanitizeOpportunityMeta(meta);

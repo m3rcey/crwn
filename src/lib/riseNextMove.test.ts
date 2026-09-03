@@ -155,10 +155,10 @@ describe('exactly one instruction, whatever the inputs', () => {
     expect(reach.status === 'diagnosed' && reach.constraint).toBe('REACH');
     expect(reach.status === 'diagnosed' && reach.action.verifiedBy).toBe('artist_has_fan_contacts');
 
-    const open = roadmapWithOpen(['audience-contacts', 'foundation-promises']);
+    const open = roadmapWithOpen(['foundation-content', 'audience-contacts']);
     const next = resolveRiseNextMove(resolveOperatingFlow(reach), open);
     expect(next.move?.title).toBe('Import your fan contacts');
-    expect(next.afterThis).toBe('Get your promises on the calendar');
+    expect(next.afterThis).toBe('Put music on your page');
   });
 
   it('still shows the very next step when it is genuinely different work', () => {
@@ -321,7 +321,7 @@ describe('the CTA lands on the exact task, not the hub that contains it', () => 
     // /account/payouts shows an unconnected artist "$0.00, no earnings yet" and no way to fix it:
     // the only Connect Stripe control (with its Artist Agreement gate) is on the tiers screen.
     const steps = buildRoadmapDefs({ slug: 'someone' }).flatMap((s) => s.steps);
-    expect(steps.find((s) => s.key === 'foundation-stripe')?.href).toBe('/account/tiers');
+    expect(steps.find((s) => s.key === 'revenue-stripe')?.href).toBe('/account/tiers');
     const tiers = readStripped('src/components/artist/TierManager.tsx');
     expect(tiers).toContain('Connect with Stripe');
     const payouts = readStripped('src/components/artist/PayoutDashboard.tsx');
@@ -385,10 +385,10 @@ describe('the accelerated destinations read their pointer without trusting it', 
 
 describe('the stage line counts requirements that all actually apply', () => {
   it('"2 of 7 complete" is the CURRENT stage, counted over steps that are all mandatory', () => {
-    const open = roadmapWithOpen(['audience-contacts', 'foundation-promises']);
+    const open = roadmapWithOpen(['foundation-content', 'audience-contacts']);
     const next = resolveRiseNextMove(resolveOperatingFlow(null), open);
     expect(next.stageTitle).toBe('Foundation');
-    expect(next.stageProgress).toBe('5 of 7 complete');
+    expect(next.stageProgress).toBe('3 of 5 complete');
 
     const stage = open.stages[open.currentStageIndex];
     // The denominator is this stage's steps, never the whole roadmap.

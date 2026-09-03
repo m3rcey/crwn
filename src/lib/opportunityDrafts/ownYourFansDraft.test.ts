@@ -86,7 +86,8 @@ describe('journey analytics contract', () => {
     expect(JOURNEY_EVENT_NAMES).toContain('signup_completed_from_opportunity');
     // 12 funnel events (incl. the two call-request events) + 16 journey events +
     // 9 personalized-journey events are all allowlistable.
-    expect(ALL_OPPORTUNITY_EVENT_NAMES).toHaveLength(37);
+    // Plus the 3 Rise Mode Guided Setup events (2026-09-03): started, step reached, completed.
+    expect(ALL_OPPORTUNITY_EVENT_NAMES).toHaveLength(40);
     // A claim token is never an event name (it must never appear in analytics).
     expect(ALL_OPPORTUNITY_EVENT_NAMES.some((n) => n.includes('token'))).toBe(false);
   });

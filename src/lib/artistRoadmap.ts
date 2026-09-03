@@ -1,16 +1,24 @@
 // artistRoadmap.ts — the personalized artist roadmap (Launch Wizard Stage 6,
 // docs/ARTIST_LAUNCH_WIZARD.md; spec Phase 4).
 //
-// A 5-stage execution plan (Foundation → Private launch → Audience launch →
+// A 5-stage execution plan (Foundation → First revenue → Audience launch →
 // Deliver and retain → Expand) that answers ONE question: "what do I do next?"
 // It is NOT a feature list and NOT a second progression system:
 //  - Step completion is DERIVED from the same authoritative DomainChecks the
-//    Quest Engine's evaluator runs (plus three Promise Calendar facts the
-//    evaluator does not know). Nothing here is stored or client-asserted, so
-//    the roadmap can never disagree with the quests. XP continues to flow
-//    through the Quest Engine when the underlying action completes.
+//    Quest Engine's evaluator runs (plus a few facts the evaluator does not
+//    know). Nothing here is stored or client-asserted, so the roadmap can never
+//    disagree with the quests. XP continues to flow through the Quest Engine
+//    when the underlying action completes.
 //  - This module is PURE (structure + assembly); the evaluation happens in
 //    /api/artist/roadmap, which feeds results back into assembleRoadmap().
+//
+// LAUNCH READINESS IS FUNNEL-CENTRIC (founder decision D1, 2026-09-03). An artist is not
+// launch-ready because their public page exists. The stage between setup and first paid is
+// the working revenue machine: offer, magnet, sales experience, follow-up, payments, the
+// switch, a test, a shareable link. Every step opens a guided flow (src/lib/guidedSetup/flows.ts)
+// that already knows why the artist arrived, and completes from canonical state: the ONE funnel
+// object (fan_automations), the tiers, the Tier Offer Experience, the sequence, Stripe.
+// "Page published" remains a Foundation prerequisite; it is not the definition of launch.
 //
 // Personalization inputs kept deliberately light (what CRWN actually has):
 // the artist's public slug (share links) and the monthly goal from their own
@@ -18,9 +26,26 @@
 // platforms are not collected anywhere yet, so no step pretends to use them.
 
 import type { DomainCheck } from '@/lib/quests/types';
+import { guidedFlowHref } from '@/lib/guidedSetup/flows';
 
-/** Promise Calendar facts the quest evaluator has no DomainCheck for. */
-export type RoadmapFact = 'promises_scheduled' | 'promises_completed' | 'promises_on_track';
+/**
+ * Facts the quest evaluator has no DomainCheck for.
+ *   promises_*     Promise Calendar reads (fan promises only, never the Revenue Ramp).
+ *   funnel_tested  every launch and truth check in funnelReadiness passes AND the artist
+ *                  acknowledged the two observations only they can make (the manual
+ *                  artist_funnel_tested quest). Acknowledgement never substitutes for state.
+ *   funnel_launched the artist put the funnel link into the world: a distribution action
+ *                  recorded as the existing fan_invited funnel event with a funnel method.
+ *   first_paid     the canonical first_paid_conversion event, or (for artists paid before
+ *                  that event existed) real net revenue through the same rails.
+ */
+export type RoadmapFact =
+  | 'promises_scheduled'
+  | 'promises_completed'
+  | 'promises_on_track'
+  | 'funnel_tested'
+  | 'funnel_launched'
+  | 'first_paid';
 
 export type RoadmapStepSource =
   | { kind: 'check'; check: DomainCheck; count?: number }
@@ -74,16 +99,19 @@ export interface ArtistRoadmap {
 /** Expand-stage MRR milestone when the artist has no claimed calculator goal: $500/mo. */
 export const DEFAULT_GOAL_MONTHLY_CENTS = 50000;
 
+/** The stage keys, in order. Pinned by artistRoadmap.test.ts. */
+export const ROADMAP_STAGE_KEYS = ['foundation', 'first-revenue', 'audience-launch', 'deliver-retain', 'expand'] as const;
+
 /**
  * The five stages, personalized by slug (share destinations) and the monthly
  * goal the artist's own calculator modeled. Steps reference EXISTING DomainChecks
  * by exact name; adding a step means picking (or first building) its check.
  */
 export function buildRoadmapDefs(opts: {
+  /** Kept for callers; every step now has a real door, so the public page is no longer a destination. */
   slug?: string | null;
   goalMonthlyCents?: number | null;
 }): RoadmapStageDef[] {
-  const share = opts.slug ? `/${opts.slug}` : '/account/profile';
   const goal =
     typeof opts.goalMonthlyCents === 'number' && opts.goalMonthlyCents > 0
       ? Math.round(opts.goalMonthlyCents)
@@ -93,7 +121,7 @@ export function buildRoadmapDefs(opts: {
     {
       key: 'foundation',
       title: 'Foundation',
-      goal: 'Make the system real: page, offers, payments, promises.',
+      goal: 'Make the page real: profile, a free door, a paid tier, music, your list.',
       steps: [
         {
           key: 'foundation-profile',
@@ -117,17 +145,6 @@ export function buildRoadmapDefs(opts: {
           source: { kind: 'check', check: 'artist_has_paid_offer' },
         },
         {
-          key: 'foundation-stripe',
-          label: 'Connect Stripe',
-          detail: 'Fans cannot pay you without it. Five minutes, once.',
-          // /account/tiers, NOT /account/payouts. The ONLY Connect Stripe control in the product
-          // (with its Artist Agreement gate) lives in TierManager; the payouts screen shows an
-          // unconnected artist "$0.00, no earnings yet" and no way to fix it, so this step used to
-          // dead-end on the one requirement that decides whether a fan can pay at all.
-          href: '/account/tiers',
-          source: { kind: 'check', check: 'artist_stripe_connected' },
-        },
-        {
           key: 'foundation-content',
           label: 'Put music on your page',
           detail: 'At least one track. A silent page converts nobody.',
@@ -135,65 +152,90 @@ export function buildRoadmapDefs(opts: {
           source: { kind: 'check', check: 'artist_has_track' },
         },
         {
-          // Deliberately BEFORE the private launch (2026-08-06): you cannot
-          // privately launch to your warmest fans if the list of them does not
-          // exist yet. The import is foundation work, not audience-launch work.
+          // Deliberately BEFORE the launch stages (2026-08-06): you cannot invite your warmest
+          // fans if the list of them does not exist yet. The import is foundation work.
           key: 'audience-contacts',
           label: 'Import your fan contacts',
-          detail: 'The fans scattered across your other platforms become a list you own. The private launch invites the warmest of them.',
+          detail: 'The fans scattered across your other platforms become a list you own. Your launch invites the warmest of them.',
           // Opens the Fan CRM with the import dialog already up: the importer is a button inside
           // the fans table, and "go to the Fan CRM and find Import" is a step CRWN can spend.
           href: '/studio/fans?import=1',
           source: { kind: 'check', check: 'artist_has_fan_contacts' },
         },
-        {
-          key: 'foundation-promises',
-          label: 'Get your promises on the calendar',
-          detail: 'Your tier benefits become dated, scheduled promises so nothing slips.',
-          href: '/studio/promise',
-          source: { kind: 'fact', fact: 'promises_scheduled' },
-        },
       ],
     },
     {
-      key: 'private-launch',
-      title: 'Private launch',
-      goal: 'Get member number one before the world hears about it.',
+      // The revenue machine, in the order a stranger meets it. Every configuration step opens
+      // a guided flow; the two outcomes (tested, first paid) are observed, never asserted.
+      key: 'first-revenue',
+      title: 'First revenue',
+      goal: 'Build the machine that turns a stranger into a paying fan, then turn it on.',
       steps: [
         {
-          key: 'private-checkout',
-          label: 'Make a paid tier purchasable',
-          detail: 'A tier with a real Stripe price behind it. Verify money can actually move.',
-          href: '/account/tiers',
-          source: { kind: 'check', check: 'artist_tier_purchasable' },
+          key: 'revenue-offer',
+          label: 'Build your offer',
+          detail: 'A paid tier that promises real things CRWN can deliver. A price with nothing behind it sells nothing.',
+          href: guidedFlowHref('offer'),
+          source: { kind: 'check', check: 'artist_tier_has_benefits' },
         },
         {
-          key: 'private-welcome-post',
-          label: 'Publish your welcome post',
-          detail: 'The first thing a joining fan sees. An empty community reads as abandoned.',
-          href: '/community',
-          source: { kind: 'check', check: 'artist_has_community_post' },
+          key: 'revenue-magnet',
+          label: 'Give fans something worth joining for',
+          detail: 'A track or a file a fan gets the moment they join free. Without it, your link asks for an email and offers nothing.',
+          href: guidedFlowHref('magnet'),
+          source: { kind: 'check', check: 'artist_has_lead_magnet' },
         },
         {
-          key: 'private-first-visit',
-          label: 'Get your first page visit',
-          detail: 'Someone has to actually open the link. No visits means a reach problem, not an offer problem, and the fix is different.',
-          href: share,
-          source: { kind: 'check', check: 'artist_first_visit' },
+          key: 'revenue-experience',
+          label: 'Show fans why the paid tier is worth it',
+          detail: 'A sales page that shows what members get. A compact card asks fans to imagine it, and most will not.',
+          href: guidedFlowHref('experience'),
+          source: { kind: 'check', check: 'artist_offer_experience_live' },
         },
         {
-          key: 'private-first-10',
-          label: 'Invite your first 10 fans',
-          detail: 'Ten trusted fans through the free front door. Your imported contacts are the list; start with the warmest, one at a time.',
-          href: share,
-          source: { kind: 'check', check: 'artist_free_supporter_count', count: 10 },
+          key: 'revenue-followup',
+          label: 'Follow up with fans who do not buy yet',
+          detail: 'A few messages to everyone who joins free, stopping the moment they buy. Silence after the join is where most fans are lost.',
+          href: guidedFlowHref('followup'),
+          source: { kind: 'check', check: 'artist_funnel_nurture_active' },
         },
         {
-          key: 'private-first-money',
-          label: 'Get your first paid member',
-          detail: 'One real membership or sale. A live page is setup; member one paying is the launch.',
-          href: share,
-          source: { kind: 'check', check: 'artist_revenue_milestone', count: 100 },
+          key: 'revenue-stripe',
+          label: 'Get paid to your own account',
+          detail: 'Fans cannot pay you without it. Five minutes, once.',
+          // /account/tiers, NOT /account/payouts. The ONLY Connect Stripe control in the product
+          // (with its Artist Agreement gate) lives in TierManager; the payouts screen shows an
+          // unconnected artist "$0.00, no earnings yet" and no way to fix it.
+          href: guidedFlowHref('stripe'),
+          source: { kind: 'check', check: 'artist_stripe_connected' },
+        },
+        {
+          key: 'revenue-live',
+          label: 'Turn it on',
+          detail: 'One confirmation and your link goes live: join free, get the gift, see the offer.',
+          href: guidedFlowHref('funnel'),
+          source: { kind: 'check', check: 'artist_funnel_live' },
+        },
+        {
+          key: 'revenue-tested',
+          label: 'Test it',
+          detail: 'CRWN checks every piece it can see; you check the two it cannot. Sending people to a broken link costs them, not you.',
+          href: guidedFlowHref('test'),
+          source: { kind: 'fact', fact: 'funnel_tested' },
+        },
+        {
+          key: 'revenue-launched',
+          label: 'Launch it',
+          detail: 'Put the link where your fans already are. A funnel nobody can reach earns nothing.',
+          href: guidedFlowHref('launch'),
+          source: { kind: 'fact', fact: 'funnel_launched' },
+        },
+        {
+          key: 'revenue-first-paid',
+          label: 'Get your first paid fan',
+          detail: 'One real membership or sale. A live funnel is setup; member one paying is the launch.',
+          href: guidedFlowHref('launch'),
+          source: { kind: 'fact', fact: 'first_paid' },
         },
       ],
     },
@@ -208,6 +250,13 @@ export function buildRoadmapDefs(opts: {
           detail: 'Your imported fans cannot join a page they never heard about. The Launch Kit writes it for you.',
           href: '/studio/fans?view=campaigns',
           source: { kind: 'check', check: 'artist_sent_campaign' },
+        },
+        {
+          key: 'audience-first-10',
+          label: 'Invite your first 10 fans',
+          detail: 'Ten trusted fans through the free front door. Your imported contacts are the list; start with the warmest, one at a time.',
+          href: guidedFlowHref('launch'),
+          source: { kind: 'check', check: 'artist_free_supporter_count', count: 10 },
         },
         {
           key: 'audience-share-to-earn',
@@ -229,6 +278,13 @@ export function buildRoadmapDefs(opts: {
           detail: 'Mark the first calendar promise complete. Fans renew for what arrives.',
           href: '/studio/promise',
           source: { kind: 'fact', fact: 'promises_completed' },
+        },
+        {
+          key: 'deliver-welcome-post',
+          label: 'Publish your welcome post',
+          detail: 'The first thing a joining fan sees. An empty community reads as abandoned.',
+          href: '/community',
+          source: { kind: 'check', check: 'artist_has_community_post' },
         },
         {
           key: 'deliver-on-track',

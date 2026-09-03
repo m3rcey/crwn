@@ -129,4 +129,4 @@ export async function enrollInSequence(
 }
 
 /** The trigger a FREE tier join fires. Opt-in: an artist must build a sequence for it. */
-export const FREE_JOIN_TRIGGER = 'free_join';
+export { FREE_JOIN_TRIGGER } from './triggers';

@@ -15,6 +15,7 @@
 import Link from 'next/link';
 import { Check } from 'lucide-react';
 import type { ArtistRoadmap } from '@/lib/artistRoadmap';
+import { withReturnTo } from '@/lib/constraint/presentation';
 
 export function FullRoadmap({ roadmap }: { roadmap: ArtistRoadmap }) {
   return (
@@ -50,7 +51,7 @@ export function FullRoadmap({ roadmap }: { roadmap: ArtistRoadmap }) {
                     {step.label}
                   </span>
                 ) : (
-                  <Link prefetch href={step.href} className="text-crwn-text hover:text-crwn-gold transition-colors">
+                  <Link prefetch href={withReturnTo(step.href)} className="text-crwn-text hover:text-crwn-gold transition-colors">
                     {step.label}
                     {step.target > 1 && (
                       <span className="text-crwn-text-secondary">

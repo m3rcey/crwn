@@ -18,6 +18,9 @@ import { evaluateCondition } from '@/lib/quests/evaluator';
 import type { QuestInstance } from '@/lib/quests/types';
 import { getLeadMagnetSeed } from '@/lib/leadResults/handoffSeed';
 import { reconcileStripeConnect } from '@/lib/stripe/connectReconcile';
+import { assessFunnel } from '@/lib/funnelReadiness';
+import { loadFunnelFacts } from '@/lib/funnelReadinessFacts';
+import { FUNNEL_TEST_QUEST_KEY } from '@/lib/guidedSetup/testQuest';
 import {
   buildRoadmapDefs,
   assembleRoadmap,
@@ -47,8 +50,71 @@ const fanObligations = (q: any) => q.or(`benefit_type.is.null,benefit_type.neq.$
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const fanPromiseEvents = (q: any) => q.is('metadata->>ramp_step_key', null);
 
-async function evalFact(artistId: string, fact: RoadmapFact): Promise<RoadmapStepResult> {
+/** The synthetic instance the roadmap hands the Quest Engine's evaluator. Nothing is written. */
+function syntheticInstance(userId: string, artistId: string, key: string, condition: unknown): QuestInstance {
+  return {
+    id: `roadmap:${key}`,
+    user_id: userId,
+    artist_id: artistId,
+    status: 'active',
+    progress_percent: 0,
+    completion_condition: condition,
+  } as unknown as QuestInstance;
+}
+
+async function evalFact(artistId: string, userId: string, fact: RoadmapFact): Promise<RoadmapStepResult> {
   try {
+    if (fact === 'funnel_tested') {
+      // Two halves, both required: every launch and truth check CRWN can see passes, AND the
+      // artist acknowledged the two observations only they can make (the manual
+      // artist_funnel_tested quest, completable only through /api/quests/complete). The
+      // acknowledgement never stands in for state: a funnel that breaks later reopens this step
+      // on the next read even though the quest instance stays completed.
+      const [facts, ack] = await Promise.all([
+        loadFunnelFacts(supabaseAdmin, artistId),
+        supabaseAdmin
+          .from('quest_instances')
+          .select('id')
+          .eq('user_id', userId)
+          .eq('artist_id', artistId)
+          .eq('template_key', FUNNEL_TEST_QUEST_KEY)
+          .eq('status', 'completed')
+          .limit(1)
+          .maybeSingle(),
+      ]);
+      const machine = assessFunnel(facts).readyForTraffic;
+      const acked = !!ack.data;
+      const n = (machine ? 1 : 0) + (acked ? 1 : 0);
+      return { done: machine && acked, current: n, target: 2 };
+    }
+    if (fact === 'funnel_launched') {
+      // A distribution action on the funnel link, recorded as the EXISTING fan_invited funnel
+      // event with a funnel_* method (the Launch flow writes it). Nothing new is stored.
+      const { count } = await supabaseAdmin
+        .from('funnel_events')
+        .select('id', { count: 'exact', head: true })
+        .eq('artist_id', artistId)
+        .eq('stage', 'fan_invited')
+        .like('metadata->>method', 'funnel_%');
+      const n = count || 0;
+      return { done: n >= 1, current: n >= 1 ? 1 : 0, target: 1 };
+    }
+    if (fact === 'first_paid') {
+      // The canonical first paid conversion (src/lib/analytics/paidConversion.ts, six rails,
+      // one row per artist). Artists paid before that event existed carry real net revenue
+      // through the same rails, which the evaluator's revenue milestone already reads.
+      const { count } = await supabaseAdmin
+        .from('funnel_events')
+        .select('id', { count: 'exact', head: true })
+        .eq('artist_id', artistId)
+        .eq('stage', 'first_paid_conversion');
+      if ((count || 0) >= 1) return { done: true, current: 1, target: 1 };
+      const res = await evaluateCondition(
+        supabaseAdmin,
+        syntheticInstance(userId, artistId, 'first-paid', { kind: 'domain', check: 'artist_revenue_milestone', count: 100 }),
+      );
+      return { done: res.done, current: res.done ? 1 : 0, target: 1 };
+    }
     if (fact === 'promises_scheduled') {
       const { count } = await fanObligations(
         supabaseAdmin
@@ -71,15 +137,11 @@ async function evalFact(artistId: string, fact: RoadmapFact): Promise<RoadmapSte
       const n = count || 0;
       return { done: n >= 1, current: n, target: 1 };
     }
-    // promises_on_track: promises exist AND nothing is overdue or missed.
-    const [{ count: active }, { count: overdue }, { count: missed }] = await Promise.all([
-      fanObligations(
-        supabaseAdmin
-          .from('fulfillment_obligations')
-          .select('id', { count: 'exact', head: true })
-          .eq('artist_id', artistId)
-          .eq('status', 'active'),
-      ),
+    // promises_on_track: nothing is overdue or missed. It used to also require at least one
+    // active obligation, which could never be true for an artist who chose "No fixed schedule"
+    // for every benefit (the default since 2026-09-03), so the step was uncompletable for
+    // exactly the artists keeping their promises on demand.
+    const [{ count: overdue }, { count: missed }] = await Promise.all([
       fanPromiseEvents(
         supabaseAdmin
           .from('fulfillment_events')
@@ -96,7 +158,7 @@ async function evalFact(artistId: string, fact: RoadmapFact): Promise<RoadmapSte
           .eq('status', 'missed'),
       ),
     ]);
-    const ok = (active || 0) >= 1 && (overdue || 0) === 0 && (missed || 0) === 0;
+    const ok = (overdue || 0) === 0 && (missed || 0) === 0;
     return { done: ok, current: ok ? 1 : 0, target: 1 };
   } catch {
     return { done: false, current: 0, target: 1 };
@@ -154,20 +216,17 @@ export async function GET() {
   const evaluated = await Promise.all(
     steps.map(async (step): Promise<[string, RoadmapStepResult]> => {
       if (step.source.kind === 'fact') {
-        return [step.key, await evalFact(artist.id, step.source.fact)];
+        return [step.key, await evalFact(artist.id, user.id, step.source.fact)];
       }
       try {
         // Minimal synthetic instance: evaluateCondition only reads artist_id,
         // user_id, completion_condition (and status/progress for manual, which
         // roadmap steps never are).
-        const instance = {
-          id: `roadmap:${step.key}`,
-          user_id: user.id,
-          artist_id: artist.id,
-          status: 'active',
-          progress_percent: 0,
-          completion_condition: { kind: 'domain', check: step.source.check, count: step.source.count },
-        } as unknown as QuestInstance;
+        const instance = syntheticInstance(user.id, artist.id, step.key, {
+          kind: 'domain',
+          check: step.source.check,
+          count: step.source.count,
+        });
         const res = await evaluateCondition(supabaseAdmin, instance);
         return [step.key, { done: res.done, current: res.current, target: res.target }];
       } catch {

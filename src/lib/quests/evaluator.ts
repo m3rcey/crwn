@@ -13,6 +13,22 @@ import { levelFromXp } from './progression';
 import { getLimit } from '@/lib/platformTier';
 import { awardFanBadge } from '@/lib/fanBadges';
 import { createNotification } from '@/lib/notifications';
+import {
+  EMPTY_FUNNEL_FACTS,
+  experienceIsLive,
+  followupIsActive,
+  funnelIsLive,
+  magnetIsValid,
+  pickFunnel,
+  primaryTier,
+} from '@/lib/funnelReadiness';
+import {
+  loadFunnelAutomations,
+  loadFunnelExperiences,
+  loadFunnelSequences,
+  loadFunnelTiers,
+  loadFunnelTracks,
+} from '@/lib/funnelReadinessFacts';
 import type {
   QuestInstance,
   EvalResult,
@@ -23,6 +39,7 @@ import type {
 } from './types';
 
 const EMPTY_EVAL: EvalResult = { done: false, progressPercent: 0, current: 0, target: 1 };
+const boolEval = (ok: boolean): EvalResult => ({ done: ok, progressPercent: ok ? 100 : 0, current: ok ? 1 : 0, target: 1 });
 
 function pct(current: number, target: number): number {
   if (target <= 0) return current > 0 ? 100 : 0;
@@ -617,6 +634,37 @@ async function evalDomain(admin: any, instance: QuestInstance, cond: Extract<Com
     case 'artist_has_active_sequence': {
       const n = artistId ? await countActive(admin, 'sequences', { artist_id: artistId, is_active: true }) : 0;
       return { done: n >= 1, progressPercent: n >= 1 ? 100 : 0, current: n, target: 1 };
+    }
+
+    // ---- The fan funnel (Rise Mode first-revenue journey, 2026-09-03) ----
+    // Each check reads the ONE funnel object (fan_automations) through the pure predicates in
+    // src/lib/funnelReadiness.ts, with the narrowest loads that predicate needs. The same
+    // predicates drive the roadmap's First revenue stage and the Test flow, so a quest, the
+    // next move and the checklist can never disagree about whether the funnel is whole.
+    case 'artist_has_lead_magnet': {
+      if (!artistId) return EMPTY_EVAL;
+      const [autos, tracks] = await Promise.all([loadFunnelAutomations(admin, artistId), loadFunnelTracks(admin, artistId)]);
+      return boolEval(magnetIsValid(pickFunnel(autos), tracks));
+    }
+    case 'artist_funnel_live': {
+      if (!artistId) return EMPTY_EVAL;
+      const [autos, tiers] = await Promise.all([loadFunnelAutomations(admin, artistId), loadFunnelTiers(admin, artistId)]);
+      const facts = { ...EMPTY_FUNNEL_FACTS, automations: autos, tiers };
+      return boolEval(funnelIsLive(facts, pickFunnel(autos)));
+    }
+    case 'artist_offer_experience_live': {
+      if (!artistId) return EMPTY_EVAL;
+      const [autos, tiers] = await Promise.all([loadFunnelAutomations(admin, artistId), loadFunnelTiers(admin, artistId)]);
+      const facts = { ...EMPTY_FUNNEL_FACTS, automations: autos, tiers };
+      const primary = primaryTier(facts, pickFunnel(autos));
+      if (!primary) return EMPTY_EVAL;
+      const experiences = await loadFunnelExperiences(admin, artistId, tiers);
+      return boolEval(experienceIsLive(primary.id, experiences));
+    }
+    case 'artist_funnel_nurture_active': {
+      if (!artistId) return EMPTY_EVAL;
+      const [autos, sequences] = await Promise.all([loadFunnelAutomations(admin, artistId), loadFunnelSequences(admin, artistId)]);
+      return boolEval(followupIsActive(pickFunnel(autos), sequences));
     }
     case 'artist_referrals_on': {
       if (!artistId) return EMPTY_EVAL;
