@@ -15,8 +15,43 @@ import { Wizard } from '@/components/ui/Wizard';
 import { OptionSelect } from '@/components/ui/OptionSelect';
 import { useToast } from '@/components/shared/Toast';
 import { supabase } from '@/lib/supabase/client';
+import { shareTitle, SHARE_TITLE_MAX } from '@/lib/shareMetadata';
 import { deriveOfferTiers } from '@/lib/fanAutomations/offerTiers';
 import type { ArtistContext } from '@/hooks/useArtistContext';
+
+/**
+ * What a pasted drop link actually looks like.
+ *
+ * The title an artist types here is not only the drop page's headline: it is the headline
+ * every link preview renders (iMessage, WhatsApp, Slack, Instagram DMs), and a preview cuts
+ * off around 40 characters. The field accepts 120, so without this the artist writes a
+ * sentence and a fan is sent half of one. `shareTitle` is the SAME function the drop page's
+ * generateMetadata calls, so this card cannot drift from the real preview.
+ */
+function SharePreview({ title, description }: { title: string; description: string }) {
+  const trimmed = title.trim();
+  if (!trimmed) return null;
+  const shown = shareTitle(trimmed);
+  const cut = trimmed.length > SHARE_TITLE_MAX;
+  return (
+    <div className="rounded-xl bg-crwn-elevated p-4">
+      <p className="text-[11px] uppercase tracking-wide text-crwn-text-secondary mb-2">
+        When you paste the link
+      </p>
+      <div className="border-l-2 border-crwn-gold pl-3">
+        <p className="text-sm font-semibold text-crwn-text">{shown}</p>
+        {description.trim() && (
+          <p className="text-xs text-crwn-text-secondary mt-1 line-clamp-2">{description.trim()}</p>
+        )}
+      </div>
+      {cut && (
+        <p className="text-xs text-crwn-text-secondary mt-2">
+          Cut at {SHARE_TITLE_MAX} characters. Shorten it and a fan sees the whole thing.
+        </p>
+      )}
+    </div>
+  );
+}
 
 interface ProviderPost {
   id: string;
@@ -408,13 +443,17 @@ export function AutomationWizard({ ctx, connections, onClose, onSaved }: Props) 
         );
       case 'magnet-title':
         return (
-          <input value={magnetTitle} onChange={(e) => setMagnetTitle(e.target.value)} maxLength={120} placeholder='e.g. "Unreleased: Midnight Tape"' className={inputCls} />
+          <div className="space-y-3">
+            <input value={magnetTitle} onChange={(e) => setMagnetTitle(e.target.value)} maxLength={120} placeholder='e.g. "Unreleased: Midnight Tape"' className={inputCls} />
+            <SharePreview title={magnetTitle} description={magnetDescription} />
+          </div>
         );
       case 'magnet-promise':
         return (
           <div className="space-y-3">
             <textarea value={magnetDescription} onChange={(e) => setMagnetDescription(e.target.value)} maxLength={500} rows={3} placeholder="One line on why they want it" className={inputCls} />
-            <p className="text-xs text-crwn-text-secondary">Optional. Shows on the drop page above the email box.</p>
+            <p className="text-xs text-crwn-text-secondary">Optional. Shows on the drop page above the email box, and under the title wherever the link is pasted.</p>
+            <SharePreview title={magnetTitle} description={magnetDescription} />
           </div>
         );
       case 'gold-tier':
@@ -505,7 +544,7 @@ export function AutomationWizard({ ctx, connections, onClose, onSaved }: Props) 
     'dm': ['What do you want CRWN to send them privately?', 'Write it like a DM to one fan.'],
     'magnet-kind': ['What do they get?', 'The drop is the reason they hand you their email.'],
     'magnet-detail': ['The drop itself', ''],
-    'magnet-title': ['Name the drop', 'This is the headline on your drop page.'],
+    'magnet-title': ['Name the drop', 'The headline on your drop page, and on the link preview anywhere you paste it.'],
     'magnet-promise': ['Why do they want it?', ''],
     'gold-tier': ['After the drop, what do you offer?', 'The membership a brand-new fan should want most.'],
     'gold-item': ['The standout item', 'The one thing inside that tier a new fan cannot get anywhere else.'],
