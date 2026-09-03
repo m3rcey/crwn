@@ -65,7 +65,19 @@ export async function POST(req: NextRequest) {
     // accepts it, which is what lets an artist remove a description they no longer want.
     const description = (tier.description || '').trim();
 
-    const product = await stripe.products.update(tier.stripe_product_id, { name, description });
+    let product;
+    try {
+      product = await stripe.products.update(tier.stripe_product_id, { name, description });
+    } catch (err) {
+      // A stored id the LIVE key cannot see. Production really does hold test-mode ids on
+      // some rows (a test-mode checkout wrote them), and a stale id is unrecoverable here:
+      // there is nothing to rename. Answer plainly instead of throwing a 500 every time the
+      // artist saves, which would bury real failures in noise.
+      if ((err as { code?: string })?.code === 'resource_missing') {
+        return NextResponse.json({ synced: false, reason: 'product_missing' });
+      }
+      throw err;
+    }
 
     return NextResponse.json({
       synced: true,
