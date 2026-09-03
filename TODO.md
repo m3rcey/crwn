@@ -655,6 +655,21 @@ responsible for. Do not work those.
 
 ### P2 — worth doing, nothing breaks if you never do it
 
+- [ ] **Decide what happens to two benefits CRWN sells but never delivers.** Found while
+      cleaning GB's tier cards on 2026-09-03. Any artist can put these on a paid tier and no
+      code makes them real:
+      `community_badge` renders the words '"SR" community badge' on the card, and `badge_text`
+      is read in exactly one place ([src/lib/benefitCatalog.ts:282](src/lib/benefitCatalog.ts#L282)),
+      which is the card copy itself. No community surface draws a badge.
+      `supporter_wall` renders "Name on Supporter Wall", and its component
+      [src/components/artist/SupporterWall.tsx](src/components/artist/SupporterWall.tsx) is
+      imported by NOTHING, so there is no wall to be named on.
+      This is the plan-limits rule pointed at fan tiers: only advertise what the product
+      enforces. Your call which way: build the two surfaces, or drop both from
+      [src/lib/benefitCatalog.ts](src/lib/benefitCatalog.ts) and
+      [src/lib/tierTemplate.ts](src/lib/tierTemplate.ts) and strip the rows from every artist
+      who has one. I did not touch other artists' rows, only GB's.
+
 - [ ] **Build the two all-in-one ManyChat automations: FREE and PLAN.** Both route to the same
       tool (`opportunity-calculator`). Full step by step, including the exact one-line request
       bodies, is section 11 of

@@ -18,6 +18,7 @@ import { ArtistPreviewProvider } from '@/hooks/useArtistPreview';
 import { PreviewBar } from '@/components/artist/PreviewBar';
 import type { Metadata } from 'next';
 import { getBenefitDisplayText, BENEFIT_CATALOG } from '@/lib/benefitCatalog';
+import { tierCardBenefitLines } from '@/lib/tierCardBenefits';
 import { accentPageVars } from '@/lib/contrast';
 import { PaletteBackfill } from '@/components/artist/PaletteBackfill';
 import { BannerReposition } from '@/components/artist/BannerReposition';
@@ -164,22 +165,16 @@ export default async function ArtistPage({ params, searchParams }: ArtistPagePro
 
   const tiers: TierConfig[] = (subscriptionTiers || []).map((t) => {
     const tierBenefits = benefitsByTierId[t.id] || [];
-    // Convert tier benefits to display strings with icons
-    const benefitStrings = tierBenefits.map((tb) => {
-      const def = BENEFIT_CATALOG?.find((b) => b.type === tb.benefit_type);
-      const icon = def?.icon || '✓';
-      const text = getBenefitDisplayText(tb.benefit_type, tb.config);
-      return `${icon} ${text}`;
-    });
-    // Also include legacy benefits from access_config for backward compatibility
-    const legacyBenefits = t.access_config?.benefits || [];
+    // Structured tier_benefits rows first, then the artist's own access_config prose.
+    // tierCardBenefitLines is the one place that order lives; see its note.
+    const benefits = tierCardBenefitLines(tierBenefits, t.access_config?.benefits);
     
     return {
       id: t.id,
       name: t.name,
       price: t.price,
       description: t.description,
-      benefits: [...benefitStrings, ...legacyBenefits],
+      benefits,
       tierBenefits: tierBenefits, // Store structured benefits for advanced features
       offersAnnual: t.offers_annual !== false,
       annualDiscountPercent: t.annual_discount_percent ?? 25,
