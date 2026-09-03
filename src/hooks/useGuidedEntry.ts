@@ -21,10 +21,18 @@ export interface GuidedEntry {
   funnelId: string | null;
   /** True when the flow was opened from Rise Mode (returnTo names it). */
   fromRise: boolean;
+  /**
+   * A claimed calculator's suggestion for a NEW tier (`lm_tier_name`, `lm_price`), the same
+   * params the legacy builder read. Suggestions only: the flow uses them as defaults when no
+   * paid tier exists and ignores them otherwise.
+   */
+  prefill: { tierName: string | null; priceDollars: string | null };
 }
 
 const ID_RE = /^[A-Za-z0-9_-]{1,64}$/;
 const idOrNull = (v: string | null) => (v && ID_RE.test(v) ? v : null);
+const nameOrNull = (v: string | null) => (v && v.trim() && v.trim().length <= 40 ? v.trim() : null);
+const priceOrNull = (v: string | null) => (v && /^\d{1,5}(\.\d{1,2})?$/.test(v.trim()) ? v.trim() : null);
 
 export function useGuidedEntry(): GuidedEntry {
   const params = useSearchParams();
@@ -35,6 +43,10 @@ export function useGuidedEntry(): GuidedEntry {
       tierId: idOrNull(params?.get('tier') ?? null),
       funnelId: idOrNull(params?.get('funnel') ?? null),
       fromRise: returnTo.startsWith(RISE_MODE_PATH),
+      prefill: {
+        tierName: nameOrNull(params?.get('lm_tier_name') ?? null),
+        priceDollars: priceOrNull(params?.get('lm_price') ?? null),
+      },
     };
   }, [params]);
 }

@@ -7,9 +7,11 @@ import type { ComponentType } from 'react';
 import type { GuidedFlowKey } from '@/lib/guidedSetup/flows';
 import type { GuidedFlowProps } from './types';
 
-export const GUIDED_FLOW_COMPONENTS: Partial<Record<GuidedFlowKey, ComponentType<GuidedFlowProps>>> = {};
-
-// Kept here so the import is used once the first flow registers; dynamic() stays the
-// one loading mechanism.
-export const lazyFlow = (loader: () => Promise<{ default: ComponentType<GuidedFlowProps> }>) =>
+const lazyFlow = (loader: () => Promise<{ default: ComponentType<GuidedFlowProps> }>) =>
   dynamic(loader, { ssr: false });
+
+export const GUIDED_FLOW_COMPONENTS: Partial<Record<GuidedFlowKey, ComponentType<GuidedFlowProps>>> = {
+  offer: lazyFlow(() => import('./offer/OfferFlow')),
+  magnet: lazyFlow(() => import('./funnel/MagnetFlow')),
+  funnel: lazyFlow(() => import('./funnel/FunnelFlow')),
+};

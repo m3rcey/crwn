@@ -5,11 +5,19 @@
 // node: they answer what should happen and CRWN builds the automation.
 //
 // Screen order mirrors the fan's journey: where CRWN listens -> which comments -> what
-// people see -> what CRWN sends -> what fans get -> the Gold offer -> the Silver fallback
-// -> review. Gold/Silver default from deriveOfferTiers over the artist's LIVE tiers and stay
-// editable; prices always render from those rows, never from anything typed here.
+// people see -> what CRWN sends -> what fans get -> the primary offer -> the cheaper fallback
+// -> review. Primary/downsell default from deriveOfferTiers over the artist's LIVE tiers and
+// stay editable; prices always render from those rows, never from anything typed here.
+//
+// Rise Mode Guided Setup (2026-09-03) added three things without a second wizard:
+//   existing  reopen a saved row (draft, paused or active). The row IS the draft; resume lands
+//             on the first decision it does not answer (src/lib/fanAutomations/automationResume.ts).
+//   mode      'magnet' runs the screens up to the gift and saves a DRAFT ("Give fans something
+//             worth joining for"); 'funnel' runs the offer screens and switches it on ("Turn it
+//             on"); 'full' is the original all-in-one wizard on /studio/automations.
+//   flow      when launched from Rise Mode, the flow key for telemetry and the sticky footer.
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Check, Upload } from 'lucide-react';
 import { Wizard } from '@/components/ui/Wizard';
 import { OptionSelect } from '@/components/ui/OptionSelect';
@@ -17,6 +25,9 @@ import { useToast } from '@/components/shared/Toast';
 import { supabase } from '@/lib/supabase/client';
 import { shareTitle, SHARE_TITLE_MAX } from '@/lib/shareMetadata';
 import { deriveOfferTiers } from '@/lib/fanAutomations/offerTiers';
+import { funnelResumeScreen, magnetResumeScreen } from '@/lib/fanAutomations/automationResume';
+import { guidedSetupTelemetry } from '@/lib/guidedSetup/telemetry';
+import { guidedFlowHref, type GuidedFlowKey } from '@/lib/guidedSetup/flows';
 import type { ArtistContext } from '@/hooks/useArtistContext';
 
 /**
@@ -66,49 +77,95 @@ interface ConnectionInfo {
   status: string;
 }
 
+/** A saved funnel row, as /api/fan-automations returns it. Reopening reads every field back. */
+export interface ExistingAutomation {
+  id: string;
+  provider: string;
+  status: string;
+  public_token: string;
+  trigger_media_ids: string[];
+  trigger_keywords: string[];
+  public_reply: string;
+  dm_message: string;
+  magnet_kind: string | null;
+  magnet_title: string;
+  magnet_description: string;
+  magnet_file_key: string | null;
+  magnet_file_name: string | null;
+  magnet_track_id: string | null;
+  gold_tier_id: string | null;
+  gold_item_title: string;
+  gold_item_description: string;
+  silver_tier_id: string | null;
+  nurture_sequence_id: string | null;
+  connection_id: string | null;
+}
+
+export type AutomationWizardMode = 'full' | 'magnet' | 'funnel';
+
+export interface AutomationSaveResult {
+  id: string;
+  publicToken: string | null;
+  activated: boolean;
+}
+
 interface Props {
   ctx: ArtistContext;
   connections: ConnectionInfo[];
   onClose: () => void;
-  onSaved: () => void;
+  onSaved: (result: AutomationSaveResult) => void;
+  existing?: ExistingAutomation | null;
+  mode?: AutomationWizardMode;
+  flow?: GuidedFlowKey;
 }
 
 type ScreenKey =
   | 'provider' | 'posts' | 'keywords' | 'public-reply' | 'dm'
-  | 'magnet-kind' | 'magnet-detail' | 'magnet-title' | 'magnet-promise'
-  | 'gold-tier' | 'gold-item' | 'silver-tier' | 'review';
+  | 'magnet-kind' | 'magnet-detail' | 'magnet-title' | 'magnet-promise' | 'magnet-review'
+  | 'gold-tier' | 'gold-item' | 'silver-tier' | 'nurture' | 'funnel-review' | 'review';
 
 const inputCls = 'w-full rounded-xl bg-crwn-elevated px-4 py-3 text-sm text-crwn-text placeholder:text-crwn-text-secondary outline-none';
 
-export function AutomationWizard({ ctx, connections, onClose, onSaved }: Props) {
+const money = (cents: number) => `$${(cents / 100).toFixed(cents % 100 === 0 ? 0 : 2)}`;
+
+export function AutomationWizard({ ctx, connections, onClose, onSaved, existing = null, mode = 'full', flow }: Props) {
   const { showToast } = useToast();
 
   const paidTiers = useMemo(() => ctx.tiers.filter((t) => t.price > 0), [ctx.tiers]);
+  const freeTierName = useMemo(() => ctx.tiers.find((t) => t.price === 0)?.name ?? 'your free tier', [ctx.tiers]);
   const derived = useMemo(() => deriveOfferTiers(ctx.tiers.map((t) => ({ id: t.id, name: t.name, price: t.price }))), [ctx.tiers]);
+  const hasActiveConnection = connections.some((c) => c.status === 'active');
+
+  // Stored pointers are re-validated against LIVE tiers: a tier deleted elsewhere resolves to
+  // the derivation, never to a dead id.
+  const liveOr = (id: string | null | undefined, fallback: string | null) =>
+    id && paidTiers.some((t) => t.id === id) ? id : fallback;
 
   const [provider, setProvider] = useState<'instagram' | 'facebook' | 'link' | null>(
-    connections.find((c) => c.status === 'active')?.provider ?? null,
+    (existing?.provider as 'instagram' | 'facebook' | 'link' | undefined) ??
+      connections.find((c) => c.status === 'active')?.provider ??
+      (mode === 'full' ? null : 'link'),
   );
-  const [anyPost, setAnyPost] = useState(true);
-  const [selectedPosts, setSelectedPosts] = useState<string[]>([]);
-  const [keywords, setKeywords] = useState('');
-  const [publicReply, setPublicReply] = useState('Check your DMs 👑');
-  const [dmMessage, setDmMessage] = useState('');
-  const [magnetKind, setMagnetKind] = useState<'upload' | 'track' | null>(null);
-  const [magnetFileKey, setMagnetFileKey] = useState<string | null>(null);
-  const [magnetFileName, setMagnetFileName] = useState<string | null>(null);
+  const [anyPost, setAnyPost] = useState(existing ? existing.trigger_media_ids.length === 0 : true);
+  const [selectedPosts, setSelectedPosts] = useState<string[]>(existing?.trigger_media_ids ?? []);
+  const [keywords, setKeywords] = useState(existing?.trigger_keywords.join(', ') ?? '');
+  const [publicReply, setPublicReply] = useState(existing?.public_reply ?? 'Check your DMs 👑');
+  const [dmMessage, setDmMessage] = useState(existing?.dm_message ?? '');
+  const [magnetKind, setMagnetKind] = useState<'upload' | 'track' | null>((existing?.magnet_kind as 'upload' | 'track' | null) ?? null);
+  const [magnetFileKey, setMagnetFileKey] = useState<string | null>(existing?.magnet_file_key ?? null);
+  const [magnetFileName, setMagnetFileName] = useState<string | null>(existing?.magnet_file_name ?? null);
   const [uploading, setUploading] = useState(false);
-  const [magnetTrackId, setMagnetTrackId] = useState<string | null>(null);
-  const [magnetTitle, setMagnetTitle] = useState('');
-  const [magnetDescription, setMagnetDescription] = useState('');
-  const [goldTierId, setGoldTierId] = useState<string | null>(derived.gold?.id ?? null);
-  const [goldItemTitle, setGoldItemTitle] = useState('');
-  const [goldItemDescription, setGoldItemDescription] = useState('');
-  const [silverTierId, setSilverTierId] = useState<string | null>(derived.silver?.id ?? null);
+  const [magnetTrackId, setMagnetTrackId] = useState<string | null>(existing?.magnet_track_id ?? null);
+  const [magnetTitle, setMagnetTitle] = useState(existing?.magnet_title ?? '');
+  const [magnetDescription, setMagnetDescription] = useState(existing?.magnet_description ?? '');
+  const [goldTierId, setGoldTierId] = useState<string | null>(liveOr(existing?.gold_tier_id, derived.gold?.id ?? null));
+  const [goldItemTitle, setGoldItemTitle] = useState(existing?.gold_item_title ?? '');
+  const [goldItemDescription, setGoldItemDescription] = useState(existing?.gold_item_description ?? '');
+  const [silverTierId, setSilverTierId] = useState<string | null>(liveOr(existing?.silver_tier_id, derived.silver?.id ?? null));
   // Optional funnel-specific nurture: which of the artist's sequences a claim through
   // THIS funnel enters (a boxing funnel can nurture differently from a story funnel).
   // Empty = the artist's default free-join sequence, if they have one.
-  const [nurtureSequenceId, setNurtureSequenceId] = useState<string | null>(null);
+  const [nurtureSequenceId, setNurtureSequenceId] = useState<string | null>(existing?.nurture_sequence_id ?? null);
   const [sequences, setSequences] = useState<Array<{ id: string; name: string }>>([]);
   useEffect(() => {
     let cancelled = false;
@@ -125,7 +182,7 @@ export function AutomationWizard({ ctx, connections, onClose, onSaved }: Props) 
   const [saving, setSaving] = useState(false);
 
   const [posts, setPosts] = useState<ProviderPost[] | null>(null);
-  const [freeTracks, setFreeTracks] = useState<{ id: string; title: string }[]>([]);
+  const [tracks, setTracks] = useState<{ id: string; title: string }[] | null>(null);
 
   const connected = provider ? connections.some((c) => c.provider === provider && c.status === 'active') : false;
 
@@ -137,13 +194,15 @@ export function AutomationWizard({ ctx, connections, onClose, onSaved }: Props) 
       .catch(() => setPosts([]));
   }, [provider, connected, ctx.artistId]);
 
+  // Any of the artist's active tracks can be the gift (the server validates the same set).
+  // The fan receives a short-lived signed link at claim time, so a members-only track stays
+  // members-only on the page and still opens for the person who just joined.
   useEffect(() => {
     supabase
       .from('tracks')
-      .select('id, title')
+      .select('id, title, is_active')
       .eq('artist_id', ctx.artistId)
-      .eq('is_free', true)
-      .then(({ data }) => setFreeTracks(data || []));
+      .then(({ data }) => setTracks((data || []).filter((t) => t.is_active !== false).map((t) => ({ id: t.id, title: t.title }))));
   }, [ctx.artistId]);
 
   const startConnect = useCallback(async (p: 'instagram' | 'facebook') => {
@@ -193,25 +252,83 @@ export function AutomationWizard({ ctx, connections, onClose, onSaved }: Props) 
   // receives a comment. Everything after "the drop" is identical, which is the point:
   // one engine, and the link is another way in.
   const linkOnly = provider === 'link';
-  const screens: { key: ScreenKey; group: string }[] = [
-    { key: 'provider', group: 'Source' },
-    ...(linkOnly ? [] : ([
-      { key: 'posts', group: 'Listen' },
-      { key: 'keywords', group: 'Listen' },
-      { key: 'public-reply', group: 'Reply' },
-      { key: 'dm', group: 'Reply' },
-    ] as { key: ScreenKey; group: string }[])),
+  const metaScreens: { key: ScreenKey; group: string }[] = linkOnly
+    ? []
+    : [
+        { key: 'posts', group: 'Listen' },
+        { key: 'keywords', group: 'Listen' },
+        { key: 'public-reply', group: 'Reply' },
+        { key: 'dm', group: 'Reply' },
+      ];
+  const magnetScreens: { key: ScreenKey; group: string }[] = [
     { key: 'magnet-kind', group: 'The drop' },
     { key: 'magnet-detail', group: 'The drop' },
     { key: 'magnet-title', group: 'The drop' },
     { key: 'magnet-promise', group: 'The drop' },
-    { key: 'gold-tier', group: 'The offer' },
-    { key: 'gold-item', group: 'The offer' },
-    { key: 'silver-tier', group: 'The offer' },
-    { key: 'review', group: 'Launch' },
   ];
+  const goldTier = paidTiers.find((t) => t.id === goldTierId) ?? null;
+  const cheaperExists = !!goldTier && paidTiers.some((t) => t.id !== goldTier.id && t.price < goldTier.price);
+  // The tier question is asked only when there is a choice to make.
+  const askGoldTier = paidTiers.length !== 1;
+
+  const screens: { key: ScreenKey; group: string }[] =
+    mode === 'magnet'
+      ? [
+          // A new funnel for an artist with a connection may still be a comment funnel; a
+          // saved row already knows its source, and an artist with no connection has one answer.
+          ...(!existing && hasActiveConnection ? [{ key: 'provider' as const, group: 'Source' }] : []),
+          ...(existing || !hasActiveConnection ? [] : metaScreens),
+          ...magnetScreens,
+          { key: 'magnet-review', group: 'Preview' },
+        ]
+      : mode === 'funnel'
+        ? [
+            ...(askGoldTier ? [{ key: 'gold-tier' as const, group: 'The offer' }] : []),
+            { key: 'gold-item', group: 'The offer' },
+            ...(cheaperExists ? [{ key: 'silver-tier' as const, group: 'The offer' }] : []),
+            ...(sequences.length > 0 ? [{ key: 'nurture' as const, group: 'Follow-up' }] : []),
+            { key: 'funnel-review', group: 'Turn it on' },
+          ]
+        : [
+            { key: 'provider', group: 'Source' },
+            ...metaScreens,
+            ...magnetScreens,
+            { key: 'gold-tier', group: 'The offer' },
+            { key: 'gold-item', group: 'The offer' },
+            { key: 'silver-tier', group: 'The offer' },
+            { key: 'review', group: 'Launch' },
+          ];
+
   const [index, setIndex] = useState(0);
-  const screen = screens[index].key;
+  const safeIndex = Math.min(index, screens.length - 1);
+  const screen = screens[safeIndex].key;
+
+  // Resume once, from the row, after the tracks list arrives (a track magnet's validity needs it).
+  const resumed = useRef(false);
+  useEffect(() => {
+    if (resumed.current || mode === 'full' || tracks === null) return;
+    resumed.current = true;
+    const key: ScreenKey =
+      mode === 'magnet'
+        ? magnetResumeScreen(existing, (id) => tracks.some((t) => t.id === id))
+        : existing
+          ? funnelResumeScreen(existing, paidTiers.map((t) => t.id), askGoldTier)
+          : 'gold-item';
+    const at = screens.findIndex((s) => s.key === key);
+    setIndex(at >= 0 ? at : 0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tracks, mode]);
+
+  // Telemetry when launched from Rise Mode.
+  const started = useRef(false);
+  useEffect(() => {
+    if (!flow) return;
+    if (!started.current) {
+      started.current = true;
+      guidedSetupTelemetry.started({ flow, artistId: ctx.artistId, step: safeIndex + 1, totalSteps: screens.length });
+    }
+    guidedSetupTelemetry.stepReached({ flow, artistId: ctx.artistId, step: safeIndex + 1, totalSteps: screens.length });
+  }, [flow, ctx.artistId, safeIndex, screens.length]);
 
   const canContinue = (): boolean => {
     switch (screen) {
@@ -222,7 +339,8 @@ export function AutomationWizard({ ctx, connections, onClose, onSaved }: Props) 
       case 'magnet-detail': return magnetKind === 'upload' ? !!magnetFileKey : !!magnetTrackId;
       case 'magnet-title': return magnetTitle.trim().length > 0;
       case 'gold-tier': return !!goldTierId;
-      case 'gold-item': return goldItemTitle.trim().length > 0;
+      case 'gold-item': return goldItemTitle.trim().length > 0 && !!goldTierId;
+      case 'funnel-review': return !!goldTierId && !!magnetKind;
       default: return true;
     }
   };
@@ -230,9 +348,7 @@ export function AutomationWizard({ ctx, connections, onClose, onSaved }: Props) 
   const save = useCallback(async (activate: boolean) => {
     setSaving(true);
     try {
-      const payload = {
-        artistId: ctx.artistId,
-        provider,
+      const fields = {
         triggerMediaIds: anyPost ? [] : selectedPosts,
         triggerKeywords: keywords.split(',').map((k) => k.trim()).filter(Boolean),
         publicReply,
@@ -249,39 +365,62 @@ export function AutomationWizard({ ctx, connections, onClose, onSaved }: Props) 
         silverTierId,
         nurtureSequenceId,
       };
-      const res = await fetch('/api/fan-automations', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        showToast(data.error || 'Could not save.', 'error');
-        return;
+      let id = existing?.id ?? null;
+      let publicToken = existing?.public_token ?? null;
+      if (!id) {
+        const res = await fetch('/api/fan-automations', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ artistId: ctx.artistId, provider, ...fields }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          showToast(data.error || 'Could not save.', 'error');
+          return;
+        }
+        id = data.id;
+        publicToken = data.publicToken ?? null;
+      } else {
+        const res = await fetch(`/api/fan-automations/${id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ artistId: ctx.artistId, fields }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          showToast(data.error || 'Could not save.', 'error');
+          return;
+        }
       }
-      if (activate) {
-        const act = await fetch(`/api/fan-automations/${data.id}`, {
+      let activated = false;
+      if (activate && id) {
+        const act = await fetch(`/api/fan-automations/${id}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ artistId: ctx.artistId, action: 'activate' }),
         });
         const actData = await act.json();
         if (!act.ok) {
-          showToast(actData.error || 'Saved as a draft. Finish the missing piece to turn it on.', 'warning');
-          onSaved();
+          showToast(actData.error || 'Saved. Finish the missing piece to turn it on.', 'warning');
+          onSaved({ id: id!, publicToken, activated: false });
           return;
         }
+        activated = true;
       }
-      showToast(activate ? 'Your automation is live.' : 'Draft saved.', 'success');
-      onSaved();
+      showToast(activated ? 'Your funnel is live.' : mode === 'magnet' ? 'Saved. Your gift is ready for the funnel.' : 'Draft saved.', 'success');
+      onSaved({ id: id!, publicToken, activated });
     } finally {
       setSaving(false);
     }
-  }, [ctx.artistId, provider, anyPost, selectedPosts, keywords, publicReply, dmMessage, magnetKind, magnetTitle, magnetDescription, magnetFileKey, magnetFileName, magnetTrackId, goldTierId, goldItemTitle, goldItemDescription, silverTierId, nurtureSequenceId, onSaved, showToast]);
+  }, [ctx.artistId, existing, mode, provider, anyPost, selectedPosts, keywords, publicReply, dmMessage, magnetKind, magnetTitle, magnetDescription, magnetFileKey, magnetFileName, magnetTrackId, goldTierId, goldItemTitle, goldItemDescription, silverTierId, nurtureSequenceId, onSaved, showToast]);
 
   const tierLabel = (id: string | null) => {
     const t = paidTiers.find((x) => x.id === id);
-    return t ? `${t.name} ($${(t.price / 100).toFixed(0)}/mo)` : 'Not set';
+    return t ? `${t.name} (${money(t.price)}/mo)` : 'Not set';
+  };
+  const jumpTo = (key: ScreenKey) => {
+    const at = screens.findIndex((s) => s.key === key);
+    if (at >= 0) setIndex(at);
   };
 
   const body = () => {
@@ -410,8 +549,8 @@ export function AutomationWizard({ ctx, connections, onClose, onSaved }: Props) 
         return (
           <OptionSelect
             options={[
+              { value: 'track', label: 'One of my tracks', hint: 'A song from your CRWN page, delivered privately' },
               { value: 'upload', label: 'A file I upload', hint: 'Unreleased track, PDF, stems, a video' },
-              { value: 'track', label: 'One of my free tracks', hint: 'Already on your CRWN page' },
             ]}
             value={magnetKind}
             onChange={(v) => setMagnetKind(v as 'upload' | 'track')}
@@ -434,12 +573,17 @@ export function AutomationWizard({ ctx, connections, onClose, onSaved }: Props) 
             <p className="text-xs text-crwn-text-secondary">Fans get a private, expiring download link. The file never gets a public URL.</p>
           </div>
         ) : (
-          <OptionSelect
-            options={freeTracks.map((t) => ({ value: t.id, label: t.title }))}
-            value={magnetTrackId}
-            onChange={setMagnetTrackId}
-            placeholder={freeTracks.length ? 'Pick a free track' : 'No free tracks yet'}
-          />
+          <div className="space-y-3">
+            <OptionSelect
+              options={(tracks ?? []).map((t) => ({ value: t.id, label: t.title }))}
+              value={magnetTrackId}
+              onChange={setMagnetTrackId}
+              placeholder={tracks === null ? 'Loading your tracks…' : tracks.length ? 'Pick a track' : 'No tracks yet'}
+            />
+            <p className="text-xs text-crwn-text-secondary">
+              A members-only track stays locked on your page. The fan who just joined gets a private link that expires.
+            </p>
+          </div>
         );
       case 'magnet-title':
         return (
@@ -456,15 +600,40 @@ export function AutomationWizard({ ctx, connections, onClose, onSaved }: Props) 
             <SharePreview title={magnetTitle} description={magnetDescription} />
           </div>
         );
+      case 'magnet-review':
+        return (
+          <div className="space-y-3 text-sm">
+            <SharePreview title={magnetTitle} description={magnetDescription} />
+            <ol className="space-y-2 rounded-xl bg-crwn-elevated p-4 list-decimal list-inside text-crwn-text">
+              <li>A fan opens your link and sees <span className="font-semibold">{magnetTitle || 'your gift'}</span>.</li>
+              <li>They enter an email. No account, no password.</li>
+              <li>CRWN delivers {magnetKind === 'track' ? 'the track' : 'the file'} right there, and joins them to {freeTierName}.</li>
+              <li>Then they see your paid offer. That part is the next move.</li>
+            </ol>
+            {existing?.public_token && (
+              <a
+                href={`/drop/${existing.public_token}`}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1.5 text-crwn-gold text-sm press-scale"
+              >
+                Open the real page as a preview
+              </a>
+            )}
+            <p className="text-xs text-crwn-text-secondary">
+              Saved as a draft. Your link opens only after you turn the funnel on.
+            </p>
+          </div>
+        );
       case 'gold-tier':
         return paidTiers.length === 0 ? (
           <div className="rounded-xl bg-crwn-elevated p-4 text-sm text-crwn-text-secondary">
-            Without a paid tier this automation stops at the free list, and the fans it catches have nothing to buy.{' '}
-            <a href="/account/tiers" className="text-crwn-gold">Set up your tiers</a> first.
+            Without a paid tier this funnel stops at the free list, and the fans it catches have nothing to buy.{' '}
+            <a href={guidedFlowHref('offer')} className="text-crwn-gold">Build your offer</a> first.
           </div>
         ) : (
           <OptionSelect
-            options={paidTiers.map((t) => ({ value: t.id, label: t.name, hint: `$${(t.price / 100).toFixed(0)}/mo` }))}
+            options={paidTiers.map((t) => ({ value: t.id, label: t.name, hint: `${money(t.price)}/mo` }))}
             value={goldTierId}
             onChange={setGoldTierId}
             placeholder="Which tier do you offer?"
@@ -482,15 +651,57 @@ export function AutomationWizard({ ctx, connections, onClose, onSaved }: Props) 
         );
       case 'silver-tier': {
         const options = paidTiers
-          .filter((t) => t.id !== goldTierId && (paidTiers.find((g) => g.id === goldTierId)?.price ?? Infinity) > t.price)
-          .map((t) => ({ value: t.id, label: t.name, hint: `$${(t.price / 100).toFixed(0)}/mo` }));
+          .filter((t) => t.id !== goldTierId && (goldTier?.price ?? Infinity) > t.price)
+          .map((t) => ({ value: t.id, label: t.name, hint: `${money(t.price)}/mo` }));
         return options.length === 0 ? (
           <div className="rounded-xl bg-crwn-elevated p-4 text-sm text-crwn-text-secondary">
             No tier sits under your offer yet, so fans who hesitate have nowhere cheaper to land and simply leave.{' '}
-            <a href="/account/tiers" className="text-crwn-gold">Add a lower tier</a> to catch them. You can activate without one.
+            <a href={guidedFlowHref('offer')} className="text-crwn-gold">Add a lower tier</a> to catch them. You can turn it on without one.
           </div>
         ) : (
           <OptionSelect options={options} value={silverTierId} onChange={setSilverTierId} placeholder="The fallback offer" />
+        );
+      }
+      case 'nurture':
+        return (
+          <div className="space-y-3">
+            <OptionSelect
+              options={[{ value: '', label: 'My free-join follow-up', hint: 'Whichever sequence is switched on for new free members' }, ...sequences.map((q) => ({ value: q.id, label: q.name }))]}
+              value={nurtureSequenceId ?? ''}
+              onChange={(v) => setNurtureSequenceId(v || null)}
+              placeholder="My free-join follow-up"
+            />
+            <p className="text-xs text-crwn-text-secondary">
+              Fans who claim this drop enter this sequence. It stops for anyone who buys past its goal.
+            </p>
+          </div>
+        );
+      case 'funnel-review': {
+        const line = (k: string, v: string, key?: ScreenKey) => (
+          <div key={k} className="rounded-xl bg-crwn-elevated p-3 flex items-start justify-between gap-3">
+            <div>
+              <p className="text-xs uppercase tracking-wide text-crwn-text-secondary">{k}</p>
+              <p className="text-crwn-text mt-1">{v}</p>
+            </div>
+            {key && screens.some((s) => s.key === key) && (
+              <button type="button" onClick={() => jumpTo(key)} className="text-xs text-crwn-gold shrink-0 press-scale">Change</button>
+            )}
+          </div>
+        );
+        const seqName = nurtureSequenceId ? sequences.find((q) => q.id === nurtureSequenceId)?.name : null;
+        return (
+          <div className="space-y-3 text-sm">
+            {line('They join free into', freeTierName)}
+            {line('They get', magnetTitle || 'your gift')}
+            {line('Then they see', `${goldItemTitle || 'your standout item'} inside ${tierLabel(goldTierId)}`, askGoldTier ? 'gold-tier' : 'gold-item')}
+            {line('If they say no', silverTierId ? tierLabel(silverTierId) : 'No cheaper option. They stay free.', cheaperExists ? 'silver-tier' : undefined)}
+            {line(
+              'If they still do not buy',
+              seqName ? `They hear from you: ${seqName}.` : sequences.length ? 'They hear from your free-join follow-up, if one is on.' : 'They hear nothing yet. Follow-up is the next move, and turning on does not wait for it.',
+              sequences.length ? 'nurture' : undefined,
+            )}
+            <p className="text-xs text-crwn-text-secondary">Turning it on makes your link live. You can pause it any time from Fan Automations.</p>
+          </div>
         );
       }
       case 'review':
@@ -542,32 +753,43 @@ export function AutomationWizard({ ctx, connections, onClose, onSaved }: Props) 
     'keywords': ['Which comments trigger it?', 'A keyword keeps it intentional. Empty means everyone.'],
     'public-reply': ['What should people see after they comment?', 'This shows publicly under their comment.'],
     'dm': ['What do you want CRWN to send them privately?', 'Write it like a DM to one fan.'],
-    'magnet-kind': ['What do they get?', 'The drop is the reason they hand you their email.'],
-    'magnet-detail': ['The drop itself', ''],
-    'magnet-title': ['Name the drop', 'The headline on your drop page, and on the link preview anywhere you paste it.'],
+    'magnet-kind': ['What can you give a fan right now?', 'The gift is the reason a stranger hands you their email. It is delivered the second they do.'],
+    'magnet-detail': ['The gift itself', ''],
+    'magnet-title': ['Name it', 'The headline on your drop page, and on the link preview anywhere you paste it.'],
     'magnet-promise': ['Why do they want it?', ''],
-    'gold-tier': ['After the drop, what do you offer?', 'The membership a brand-new fan should want most.'],
+    'magnet-review': ['What a fan will see', 'The page your link opens, in words.'],
+    'gold-tier': ['After the gift, what do you offer?', 'The membership a brand-new fan should want most.'],
     'gold-item': ['The standout item', 'The one thing inside that tier a new fan cannot get anywhere else.'],
     'silver-tier': ['If they say not now', 'A lighter option catches the fans the big offer loses.'],
+    'nurture': ['Who follows up when they do not buy?', 'Fans who join free enter this sequence. It stops the moment they buy.'],
+    'funnel-review': ['Confirm the path', 'This is exactly what a fan will experience.'],
     'review': ['Look it over', 'This is exactly what a fan will experience.'],
   };
+
+  const continueLabel =
+    screen === 'review' ? 'Activate automation'
+      : screen === 'funnel-review' ? 'Turn it on'
+        : screen === 'magnet-review' ? 'Save my gift'
+          : 'Continue';
 
   return (
     <Wizard
       steps={screens.map((s) => ({ id: s.key, group: s.group }))}
-      currentIndex={index}
+      currentIndex={safeIndex}
       title={titles[screen][0]}
       subtitle={titles[screen][1] || undefined}
-      onBack={index > 0 ? () => setIndex((i) => i - 1) : undefined}
+      onBack={safeIndex > 0 ? () => setIndex((i) => i - 1) : undefined}
       onContinue={() => {
-        if (screen === 'review') { void save(true); return; }
+        if (screen === 'review' || screen === 'funnel-review') { void save(true); return; }
+        if (screen === 'magnet-review') { void save(false); return; }
         setIndex((i) => Math.min(i + 1, screens.length - 1));
       }}
-      continueLabel={screen === 'review' ? 'Activate automation' : 'Continue'}
+      continueLabel={continueLabel}
       continueDisabled={!canContinue()}
       continueLoading={saving}
-      onSkip={['keywords', 'magnet-promise', 'silver-tier'].includes(screen) ? () => setIndex((i) => i + 1) : undefined}
+      onSkip={['keywords', 'magnet-promise', 'silver-tier', 'nurture'].includes(screen) ? () => setIndex((i) => Math.min(i + 1, screens.length - 1)) : undefined}
       onClose={onClose}
+      stickyFooter={!!flow}
     >
       {body()}
     </Wizard>

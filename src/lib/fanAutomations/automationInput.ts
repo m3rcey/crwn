@@ -142,10 +142,21 @@ export function activationBlockers(a: {
   dm_message: string;
   magnet_kind: string | null;
   gold_tier_id: string | null;
+  /**
+   * Does the offered tier carry a live Stripe price? Undefined when the caller did not look
+   * (legacy callers), null when the tier row is gone. Added 2026-09-03 (Rise Mode Guided Setup):
+   * checkout reads the tier's stored price id directly, so a funnel switched on ahead of a price
+   * captured emails and joined fans free, then failed the fan who said yes at the one moment that
+   * mattered. Nurture is deliberately NOT a blocker here: a valid funnel may turn on without it.
+   */
+  gold_tier_purchasable?: boolean | null;
 }): string[] {
   const blockers: string[] = [];
   if (!a.magnet_kind) blockers.push('Choose what fans get when they comment.');
   if (a.connection_id && !a.dm_message.trim()) blockers.push('Write the private message fans receive.');
   if (!a.gold_tier_id) blockers.push('Pick the membership tier to offer after the drop.');
+  else if (a.gold_tier_purchasable === false || a.gold_tier_purchasable === null) {
+    blockers.push('Connect Stripe so the offer has a live price a fan can pay.');
+  }
   return blockers;
 }

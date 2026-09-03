@@ -44,9 +44,11 @@ const WORTH_LADDER = [
 describe('buildDraftConfig drafts only real fields and suggests the rest', () => {
   it('Streaming Loss -> Membership: drafts the ENTRY tier, suggests the full ladder', () => {
     const cfg = buildDraftConfig(seed({ toolSlug: 'worth', conversionPayload: { ladder: WORTH_LADDER } }));
-    expect(cfg?.path).toBe('/offers/new');
+    expect(cfg?.path).toBe('/build/offer');
     // Entry tier only (plan caps Free at 1 live tier) — priced from ladder tier 1, not an average.
-    expect(cfg?.prefill.lm_goal).toBe('grow-supporters');
+    // The guided offer flow (D2, 2026-09-03) reads the name and price as suggestions; there is
+    // no goal preset to name any more.
+    expect(cfg?.prefill.lm_goal).toBeUndefined();
     expect(cfg?.prefill.lm_tier_name).toBe('Silver');
     expect(cfg?.prefill.lm_price).toBe('10');
     // The rest of the ladder is a suggestion, never a hidden draft.
@@ -55,7 +57,7 @@ describe('buildDraftConfig drafts only real fields and suggests the rest', () =>
 
   it('worth with no ladder data still routes, with no fabricated price or ladder', () => {
     const cfg = buildDraftConfig(seed({ toolSlug: 'worth', conversionPayload: {} }));
-    expect(cfg?.path).toBe('/offers/new');
+    expect(cfg?.path).toBe('/build/offer');
     expect(cfg?.prefill.lm_price).toBeUndefined();
     expect(cfg?.suggest.lm_suggest_ladder).toBeUndefined();
   });
@@ -64,8 +66,8 @@ describe('buildDraftConfig drafts only real fields and suggests the rest', () =>
     const cfg = buildDraftConfig(
       seed({ toolSlug: 'vault-revenue-planner', conversionPayload: { tierName: 'Gold', priceCents: 500 } }),
     );
-    expect(cfg?.path).toBe('/offers/new');
-    expect(cfg?.prefill.lm_goal).toBe('vault-access');
+    expect(cfg?.path).toBe('/build/offer');
+    expect(cfg?.prefill.lm_goal).toBeUndefined();
     expect(cfg?.prefill.lm_tier_name).toBe('Gold');
     expect(cfg?.prefill.lm_price).toBe('5');
     expect(cfg?.suggest.lm_suggest_cadence).toBe('1');
@@ -73,7 +75,8 @@ describe('buildDraftConfig drafts only real fields and suggests the rest', () =>
 
   it('Share-to-Earn -> referral share step, on, default rate', () => {
     const cfg = buildDraftConfig(seed({ toolSlug: 'share-to-earn-planner' }));
-    expect(cfg?.path).toBe('/offers/new');
+    // Share-to-Earn is turned on where the control lives, never through the offer flow (D2).
+    expect(cfg?.path).toBe('/account/referrals');
     expect(cfg?.prefill.lm_share_on).toBe('1');
     expect(cfg?.prefill.lm_share_percent).toBe('20');
   });
@@ -115,7 +118,7 @@ describe('buildDraftConfig drafts only real fields and suggests the rest', () =>
 describe('postSetupDestination + URL serialization', () => {
   it('merges base + prefill + suggestions and always carries the banner flag', () => {
     const dest = postSetupDestination(seed({ toolSlug: 'worth', conversionPayload: { ladder: WORTH_LADDER } }));
-    expect(dest?.path).toBe('/offers/new');
+    expect(dest?.path).toBe('/build/offer');
     expect(dest?.params.lm_prefill).toBe('1');
     expect(dest?.params.lm_result).toBe('r1');
     expect(dest?.params.lm_tier_name).toBe('Silver');
@@ -123,8 +126,8 @@ describe('postSetupDestination + URL serialization', () => {
   });
 
   it('serializes to a relative URL', () => {
-    const url = destinationToUrl({ path: '/offers/new', params: { lm_prefill: '1', lm_goal: 'vault-access' } });
-    expect(url.startsWith('/offers/new?')).toBe(true);
+    const url = destinationToUrl({ path: '/build/offer', params: { lm_prefill: '1', lm_tier_name: 'Gold' } });
+    expect(url.startsWith('/build/offer?')).toBe(true);
     expect(url).toContain('lm_prefill=1');
   });
 });

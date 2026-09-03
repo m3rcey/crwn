@@ -25,7 +25,10 @@ export async function GET(req: NextRequest) {
 
   const { data: automations } = await supabaseAdmin
     .from('fan_automations')
-    .select('id, provider, status, public_token, trigger_media_ids, trigger_keywords, public_reply, dm_message, magnet_kind, magnet_title, magnet_description, magnet_file_name, magnet_track_id, gold_tier_id, gold_item_title, gold_item_description, silver_tier_id, connection_id, created_at, activated_at')
+    // magnet_file_key and nurture_sequence_id are what a guided flow needs to REOPEN a draft
+    // (Rise Mode Guided Setup, 2026-09-03). The key is a private object name the owner uploaded,
+    // never a URL; delivery still mints a short-lived signed URL at claim time.
+    .select('id, provider, status, public_token, trigger_media_ids, trigger_keywords, public_reply, dm_message, magnet_kind, magnet_title, magnet_description, magnet_file_key, magnet_file_name, magnet_track_id, gold_tier_id, gold_item_title, gold_item_description, silver_tier_id, nurture_sequence_id, connection_id, created_at, activated_at, updated_at')
     .eq('artist_id', artistId)
     .neq('status', 'archived')
     .order('created_at', { ascending: false });

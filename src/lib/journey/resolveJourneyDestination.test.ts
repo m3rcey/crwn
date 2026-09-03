@@ -49,9 +49,9 @@ describe('resolveJourneyDestination', () => {
     expect(d.params.lm_tool).toBe('own-your-fans-calculator');
   });
 
-  it('Streaming Loss new user -> the offers builder', () => {
+  it('Streaming Loss new user -> the guided offer flow', () => {
     const d = resolveJourneyDestination({ ...baseCtx, seed: seed({ toolSlug: 'worth', toolName: 'Streaming Loss', resultId: 'r2' }) });
-    expect(d.path).toBe('/offers/new');
+    expect(d.path).toBe('/build/offer');
     expect(d.reason).toBe('builder_restored');
     expect(d.opportunityKey).toBe('streaming-loss');
   });

@@ -16,7 +16,9 @@ const RETURN_TO_RISE = '%2Fprofile%2Fartist%3Ftab%3Drise';
 
 const CATEGORY_CTA: Record<string, QuestCta> = {
   setup: { label: 'Go to setup', href: '/account/profile' },
-  offer: { label: 'Build offer', href: `/offers/new?returnTo=${RETURN_TO_RISE}` },
+  // A subscription offer is built through the guided flow (founder decision D2, 2026-09-03):
+  // the legacy /offers/new path wrote free-text benefits disconnected from the registry.
+  offer: { label: 'Build offer', href: `${guidedFlowHref('offer')}?returnTo=${RETURN_TO_RISE}` },
   campaign: { label: 'Start campaign', href: `/campaigns/new?returnTo=${RETURN_TO_RISE}` },
   support: { label: 'View supporters', href: '/studio/fans' },
   promotion: { label: 'Open Earn Center', href: '/earn' },

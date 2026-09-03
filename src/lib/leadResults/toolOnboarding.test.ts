@@ -105,8 +105,8 @@ describe('no regression: Own Your Fans + Streaming Loss', () => {
     const d = resolveJourneyDestination({ ...artistCtx, seed: seed({ toolSlug: 'own-your-fans-calculator', toolName: 'Own Your Fans' }) });
     expect(d.path).toBe('/own-your-fans/plan');
   });
-  it('Streaming Loss still resumes to the offers builder', () => {
+  it('Streaming Loss still resumes to the membership builder, now the guided offer flow', () => {
     const d = resolveJourneyDestination({ ...artistCtx, seed: seed({ toolSlug: 'worth', toolName: 'Streaming Loss' }) });
-    expect(d.path).toBe('/offers/new');
+    expect(d.path).toBe('/build/offer');
   });
 });

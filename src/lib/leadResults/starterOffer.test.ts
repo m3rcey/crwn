@@ -62,7 +62,7 @@ describe('buildStarterOffer', () => {
     expect(offer.confidence).toBe('low');
     expect(offer.priceCents).toBe(1000);
     expect(offer.offerName).toBe('Silver');
-    expect(offer.builderHref).toContain('/offers/new');
+    expect(offer.builderHref).toContain('/build/offer');
     expect(offer.builderHref).toContain('returnTo=%2Fprofile%2Fartist');
     expect(offer.toolSlug).toBeNull();
   });
@@ -132,7 +132,7 @@ describe('buildStarterOffer', () => {
     const offer = buildStarterOffer(input({ seeds: [s], platformTier: 'starter' }));
     expect(offer.kind).toBe('membership');
     expect(offer.constraintNote).toMatch(/Pro/);
-    expect(offer.builderHref).toContain('/offers/new');
+    expect(offer.builderHref).toContain('/build/offer');
   });
 
   it('falls back to membership on Free for a live-experience seed', () => {

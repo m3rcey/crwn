@@ -29,6 +29,7 @@ import {
   effortLabel,
   recommendedBenefits,
   type BenefitDelivery,
+  type BenefitPillar,
   type BenefitType,
   type ConfigField,
 } from '@/lib/benefitRegistry';
@@ -53,6 +54,11 @@ interface TierBenefitsSelectorProps {
   readOnly?: boolean;
   /** Benefits carried by tiers priced below the one being edited. */
   inherited?: InheritedBenefit[];
+  /**
+   * The pillar to list first (Rise Mode Guided Setup: the artist named the kind of experience
+   * on the previous screen). Ordering only; every pillar still renders.
+   */
+  pillarFirst?: BenefitPillar | null;
 }
 
 const RECOMMENDED = recommendedBenefits();
@@ -74,9 +80,14 @@ export function TierBenefitsSelector({
   onChange,
   readOnly = false,
   inherited = [],
+  pillarFirst = null,
 }: TierBenefitsSelectorProps) {
   const [selected, setSelected] = useState<Record<string, SelectedBenefit>>({});
   const [showMore, setShowMore] = useState(false);
+  const pillarOrder = useMemo<readonly BenefitPillar[]>(
+    () => (pillarFirst ? [pillarFirst, ...PILLAR_ORDER.filter((p) => p !== pillarFirst)] : PILLAR_ORDER),
+    [pillarFirst],
+  );
 
   useEffect(() => {
     const map: Record<string, SelectedBenefit> = {};
@@ -261,7 +272,7 @@ export function TierBenefitsSelector({
           and puts you one tap from delivering it.
         </p>
         <div className="space-y-4">
-          {PILLAR_ORDER.map((pillar) => {
+          {pillarOrder.map((pillar) => {
             const defs = RECOMMENDED.filter((b) => b.pillar === pillar);
             if (defs.length === 0) return null;
             return (

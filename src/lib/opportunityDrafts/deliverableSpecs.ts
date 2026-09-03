@@ -176,7 +176,7 @@ const SPECS: DeliverableSpec[] = [
     buildCta: 'Build my offer',
     signupContext: 'Create your account to save your membership system and publish it inside the CRWN app.',
     claimLine: 'Claim it by signing up, making your memberships live with your catalog, and sharing your link.',
-    continueRoute: '/offers/new',
+    continueRoute: '/build/offer',
     // The entry PAID tier is what the offer builder drafts (plan-legal); the rest ride along as the
     // saved ladder the artist already reviewed.
     continueParams: (v) => ({
@@ -256,7 +256,7 @@ const SPECS: DeliverableSpec[] = [
     claimLine: 'Claim it by signing up, filling your Vault from your catalog, and sharing your link.',
     transition: 'Turn your unreleased catalog into a Vault plan.',
     buildCta: 'Build my Vault',
-    continueRoute: '/offers/new',
+    continueRoute: '/build/offer',
     continueParams: (v) => ({ lm_prefill: '1', lm_goal: 'vault-access', lm_tier_name: String(v.tierName || ''), ...(v.price ? { lm_price: String(v.price) } : {}) }),
     steps: [
       {
@@ -297,7 +297,7 @@ const SPECS: DeliverableSpec[] = [
     signupContext: 'Create your account to save your founding window and open it to your first supporters.',
     transition: 'Turn your first supporters into founders with a real window.',
     buildCta: 'Build my founding offer',
-    continueRoute: '/offers/new',
+    continueRoute: '/build/offer',
     continueParams: (v) => ({ lm_prefill: '1', lm_goal: 'grow-supporters', lm_tier_name: String(v.tierName || ''), ...(v.price ? { lm_price: String(v.price) } : {}) }),
     steps: [
       {
@@ -340,7 +340,7 @@ const SPECS: DeliverableSpec[] = [
     signupContext: 'Create your account to save your fan journey and start closing the leaks.',
     transition: 'Turn the leaks into a journey with a fix at every step.',
     buildCta: 'Build my journey',
-    continueRoute: '/offers/new',
+    continueRoute: '/build/offer',
     steps: [
       {
         id: 'steps', group: 'Journey', label: 'The path', fields: [
@@ -730,7 +730,7 @@ const SPECS: DeliverableSpec[] = [
     buildCta: 'Build my campaign',
     signupContext: 'Create your account to save your referral campaigns, get your share links, and start earning from fan referrals.',
     claimLine: 'Claim it by signing up, turning on share-to-earn, and giving your fans their links.',
-    continueRoute: '/offers/new',
+    continueRoute: '/account/referrals',
     continueParams: () => ({ lm_prefill: '1', lm_goal: 'grow-supporters', lm_share_on: '1' }),
     steps: [
       {
@@ -919,7 +919,7 @@ const SPECS: DeliverableSpec[] = [
     claimLine: 'Claim it by signing up and publishing the ladder first. Everything else feeds it.',
     overlapNote:
       'Counted once: your Vault is a tier inside the membership, not a second subscription on top of it.',
-    continueRoute: '/offers/new',
+    continueRoute: '/build/offer',
     // The entry PAID tier is what the offer builder drafts. The rest of the coordinated system
     // rides along in the saved draft the artist already reviewed.
     continueParams: (v) => ({
@@ -1031,7 +1031,7 @@ const SPECS: DeliverableSpec[] = [
     buildCta: 'Build my consolidated membership',
     signupContext: 'Create your account to save your consolidated membership and open it beside your existing tools.',
     claimLine: 'Claim it by signing up, publishing the ladder, and personally inviting your existing members first.',
-    continueRoute: '/offers/new',
+    continueRoute: '/build/offer',
     continueParams: (v) => ({
       lm_prefill: '1',
       lm_goal: 'grow-supporters',
@@ -1119,7 +1119,7 @@ const SPECS: DeliverableSpec[] = [
     buildCta: 'Build my VIP membership',
     signupContext: 'Create your account to save your VIP membership and invite your show audiences to it.',
     claimLine: 'Claim it by signing up, publishing the tier, and inviting your VIP buyers first.',
-    continueRoute: '/offers/new',
+    continueRoute: '/build/offer',
     continueParams: (v) => ({
       lm_prefill: '1',
       lm_goal: 'grow-supporters',

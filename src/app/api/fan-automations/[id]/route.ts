@@ -42,11 +42,24 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
       const connection = existing.provider === 'link'
         ? null
         : await getActiveConnection(supabaseAdmin, artistId, existing.provider);
+      // The offered tier must be purchasable before the switch goes on: checkout reads its
+      // stored Stripe price id directly (Rise Mode Guided Setup, 2026-09-03).
+      let goldPurchasable: boolean | null = null;
+      if (existing.gold_tier_id) {
+        const { data: goldTier } = await supabaseAdmin
+          .from('subscription_tiers')
+          .select('stripe_price_id, is_active')
+          .eq('id', existing.gold_tier_id)
+          .eq('artist_id', artistId)
+          .maybeSingle();
+        goldPurchasable = goldTier ? goldTier.is_active !== false && !!goldTier.stripe_price_id : null;
+      }
       const merged = {
         connection_id: connection?.id ?? null,
         dm_message: typeof body.dmMessage === 'string' ? body.dmMessage : existing.dm_message,
         magnet_kind: existing.magnet_kind,
         gold_tier_id: existing.gold_tier_id,
+        gold_tier_purchasable: goldPurchasable,
       };
       const blockers = activationBlockers(merged);
       if (blockers.length > 0) {

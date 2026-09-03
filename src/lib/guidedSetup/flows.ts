@@ -33,14 +33,14 @@ export const GUIDED_FLOWS: Record<GuidedFlowKey, GuidedFlowDef> = {
     title: 'Build your offer',
     guidance: 'guided',
     href: '/build/offer',
-    legacyHref: '/account/tiers',
+    legacyHref: null,
   },
   magnet: {
     key: 'magnet',
     title: 'Give fans something worth joining for',
     guidance: 'guided',
     href: '/build/magnet',
-    legacyHref: '/studio/automations',
+    legacyHref: null,
   },
   experience: {
     key: 'experience',
@@ -70,7 +70,7 @@ export const GUIDED_FLOWS: Record<GuidedFlowKey, GuidedFlowDef> = {
     title: 'Turn it on',
     guidance: 'prefill',
     href: '/build/funnel',
-    legacyHref: '/studio/automations',
+    legacyHref: null,
   },
   test: {
     key: 'test',

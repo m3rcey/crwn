@@ -31,22 +31,22 @@ function seed(overrides: Partial<LeadMagnetSeed>): LeadMagnetSeed {
 }
 
 describe('seedToMission maps each calculator to its mission', () => {
-  it('Streaming Loss -> Build Membership, dollar from netMrr, CTA into /offers/new', () => {
+  it('Streaming Loss -> Build Membership, dollar from netMrr, CTA into the guided offer flow', () => {
     const m = seedToMission(
       seed({ toolSlug: 'worth', conversionPayload: { netMrrCents: 120_000, ladder: [] } }),
     );
     expect(m?.title).toBe('Build Membership');
     expect(m?.monthlyValue).toBe('$1,200/mo');
     expect(m?.monthlyCents).toBe(120_000);
-    expect(m?.href.startsWith('/offers/new?')).toBe(true);
+    expect(m?.href.startsWith('/build/offer?')).toBe(true);
   });
 
   it('the four loss tools carry their exact mission titles and estimatedMonthlyCents', () => {
     const cases: Array<[string, string, string]> = [
-      ['share-to-earn-planner', 'Turn On Share-to-Earn', '/offers/new'],
+      ['share-to-earn-planner', 'Turn On Share-to-Earn', '/account/referrals'],
       ['executive-producer-session', 'Create Your First Executive Producer Session', '/studio/live'],
       ['live-experience-calculator', 'Schedule Your First Ticketed Live', '/studio/live'],
-      ['vault-revenue-planner', 'Launch Your Vault', '/offers/new'],
+      ['vault-revenue-planner', 'Launch Your Vault', '/build/offer'],
     ];
     for (const [slug, title, path] of cases) {
       const m = seedToMission(seed({ toolSlug: slug, estimatedMonthlyCents: 500_000 }));

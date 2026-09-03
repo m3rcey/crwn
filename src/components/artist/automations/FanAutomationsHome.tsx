@@ -117,6 +117,7 @@ export function FanAutomationsHome({ ctx }: { ctx: ArtistContext }) {
         connections={connections}
         onClose={() => setShowWizard(false)}
         onSaved={() => { setShowWizard(false); void load(); }}
+        mode="full"
       />
     );
   }

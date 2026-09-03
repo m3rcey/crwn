@@ -24,7 +24,7 @@ const AVATAR_MODULES: Record<SubAvatarId, Omit<CalculatorModule, 'slug'>> = {
     firstBuild: 'Build the full four-tier ladder, not just an entry tier, and open it to the buyers you already have.',
     useCase:
       'The empire you are already running across separate platforms becomes one business where every fan and every offer compounds instead of resetting.',
-    destinationRoute: '/offers/new',
+    destinationRoute: '/build/offer',
   },
   established_independent_operator: {
     featureName: 'Membership',
@@ -33,7 +33,7 @@ const AVATAR_MODULES: Record<SubAvatarId, Omit<CalculatorModule, 'slug'>> = {
     firstBuild: 'Build one membership that covers what your current tools cover, then move fans over on your own schedule.',
     useCase:
       'The business you already run yourself gets one operating system, so a new offer starts from your existing fans instead of from zero.',
-    destinationRoute: '/offers/new',
+    destinationRoute: '/build/offer',
   },
   brand_led_hip_hop_artist: {
     featureName: 'Membership',
@@ -42,7 +42,7 @@ const AVATAR_MODULES: Record<SubAvatarId, Omit<CalculatorModule, 'slug'>> = {
     firstBuild: 'Build the membership your content has been missing a destination for, then point every caption at it.',
     useCase:
       'The attention your brand earns every week starts converting into members and contacts you own, instead of into metrics on somebody else\'s platform.',
-    destinationRoute: '/offers/new',
+    destinationRoute: '/build/offer',
   },
   rnb_empire_builder: {
     featureName: 'Membership',
@@ -51,7 +51,7 @@ const AVATAR_MODULES: Record<SubAvatarId, Omit<CalculatorModule, 'slug'>> = {
     firstBuild: 'Build a depth-first membership: the vault plus one members-only listening session.',
     useCase:
       'The fans who already stayed get somewhere real to go deeper, and the devotion that paid nothing becomes recurring support.',
-    destinationRoute: '/offers/new',
+    destinationRoute: '/build/offer',
   },
 };
 
@@ -183,21 +183,21 @@ const MODULES: Record<string, Omit<CalculatorModule, 'slug'>> = {
     firstBuild: 'Build the free front door plus one paid tier, and leave the rest of the ladder for later.',
     useCase:
       'The whole picture your result laid out stops being a number and becomes one ladder your fans can actually join, starting with the rung you can deliver now.',
-    destinationRoute: '/offers/new',
+    destinationRoute: '/build/offer',
   },
   'fan-stack-calculator': {
     featureName: 'Consolidated Membership',
     quickWin: 'List every tool currently holding a piece of your fan business and what each one knows that the others do not. That list is the cost of fragmentation, and it is also your migration checklist.',
     firstBuild: 'Rebuild your existing tiers as one four-tier membership in the CRWN app, priced so moving is an upgrade for your current members.',
     useCase: 'The members, buyers and community scattered across Patreon, Discord and your shop become one fan relationship in one place, where every offer can see every fan.',
-    destinationRoute: '/offers/new',
+    destinationRoute: '/build/offer',
   },
   'between-tour-calculator': {
     featureName: 'VIP Membership',
     quickWin: 'Pull the list of everyone who ever bought VIP or premium access from you. Those fans already proved they pay for access, and they are the first invite to a year-round membership.',
     firstBuild: 'Open one recurring VIP tier with early ticket access and a member stream in the off months.',
     useCase: 'The revenue that stops the night the tour ends becomes a membership your VIP buyers pay every month, tour or no tour.',
-    destinationRoute: '/offers/new',
+    destinationRoute: '/build/offer',
   },
   worth: {
     featureName: 'Membership',

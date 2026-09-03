@@ -101,7 +101,7 @@ export const SUB_AVATARS: SubAvatarDef[] = [
     entryNote:
       'You already sell to your fans, so we start with what you have proven and what it is worth in one place, not with whether fans will pay.',
     firstOffer: 'The full four-tier membership, launched to the buyers who already pay.',
-    continueRoute: '/offers/new',
+    continueRoute: '/build/offer',
     nurtureThemes: [
       'scale multiplies what a fragmented stack leaks',
       'proven buyers deserve one home, not five logins',

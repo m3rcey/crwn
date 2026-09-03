@@ -481,7 +481,7 @@ describe('restoration after signup', () => {
 
   it('routes the claimed artist into the membership builder, phase one of their own plan', () => {
     const cfg = buildDraftConfig(seed);
-    expect(cfg?.path).toBe('/offers/new');
+    expect(cfg?.path).toBe('/build/offer');
     expect(cfg?.prefill.lm_tier_name).toBeTruthy();
     expect(cfg?.prefill.lm_price).toBeTruthy();
     // The whole reviewed ladder rides along as the suggestion.

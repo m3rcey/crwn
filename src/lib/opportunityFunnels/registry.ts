@@ -141,8 +141,9 @@ const OVERLAYS: Record<string, FunnelOverlay> = {
     promotion: 'secondary',
     promotionRank: 2,
     authBoundary: 'signup_to_save',
-    builderRoute: '/offers/new',
-    recommendedNextRoute: '/offers/new',
+    // The membership is built through Rise Mode's guided offer flow (D2, 2026-09-03).
+    builderRoute: '/build/offer',
+    recommendedNextRoute: '/build/offer',
     resultVersion: 'unifiedOpportunity@1',
     internalNotes:
       'The all-in-one calculator. Models every opportunity in ONE layered model so the same fan, subscriber and dollar cannot be counted twice. Entry contexts let a single-opportunity video (vault, share, clip, live, worth, own-your-fans) lead with its own questions.',

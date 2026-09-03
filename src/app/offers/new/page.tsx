@@ -79,18 +79,13 @@ interface GoalDef {
   detailsHint?: string;
 }
 
+// A SUBSCRIPTION is no longer built here (founder decision D2, 2026-09-03). This path wrote
+// free-text benefit strings with no registry identity, so a tier made here had no delivery
+// path, no readiness, no fast action and no Promise Calendar row. Memberships are built through
+// Rise Mode's guided flow (/build/offer, src/components/guided/offer), which writes structured
+// benefits. The subscription branches below are kept only for the one-time goals' shared code;
+// existing tiers are untouched.
 const GOALS: GoalDef[] = [
-  {
-    id: 'grow-supporters',
-    label: 'Grow Supporters',
-    hint: 'A monthly membership your core fans join',
-    offerType: 'subscription',
-    price: '10',
-    tierName: 'Silver',
-    benefits: ['Exclusive tracks', 'Members-only posts', 'Shout-outs from me'],
-    productTitle: '',
-    productType: 'digital',
-  },
   {
     id: 'fund-video',
     label: 'Fund a Video',
@@ -106,17 +101,6 @@ const GOALS: GoalDef[] = [
     priceHint: 'What each backer pays to help fund it.',
     detailsTitle: 'Name your backer pack',
     detailsHint: 'Fans buy this once to support the video. Add perks and delivery details later in the Shop tab.',
-  },
-  {
-    id: 'vault-access',
-    label: 'Vault Access',
-    hint: 'Unreleased music behind a monthly sub',
-    offerType: 'subscription',
-    price: '5',
-    tierName: 'Gold',
-    benefits: ['Unreleased vault tracks', 'Early access to new releases', 'Behind-the-scenes content'],
-    productTitle: '',
-    productType: 'digital',
   },
   {
     id: 'unlock-drop',
@@ -257,7 +241,9 @@ function OfferBuilder() {
 
   // ---- Draft state (nothing persists until Publish) -----------------------
   const [goalId, setGoalId] = useState<string | null>(null);
-  const [offerType, setOfferType] = useState<OfferType>('subscription');
+  // Every remaining goal is one-time (D2, 2026-09-03); the subscription branches stay only
+  // because the shared step code still types both.
+  const [offerType, setOfferType] = useState<OfferType>('onetime');
   const [price, setPrice] = useState('10');
   const [tierName, setTierName] = useState('Silver');
   const [benefits, setBenefits] = useState<string[]>(GOALS[0].benefits);

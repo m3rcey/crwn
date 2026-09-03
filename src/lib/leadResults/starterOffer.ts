@@ -148,15 +148,18 @@ function builderHrefFor(seed: LeadMagnetSeed | null): string {
       return `${dest.path}?${qs}`;
     }
   }
-  return `/offers/new?returnTo=${encodeURIComponent(RISE_ROUTE)}`;
+  return `/build/offer?returnTo=${encodeURIComponent(RISE_ROUTE)}`;
 }
 
-/** Membership builder URL prefilled from the template entry tier, keeping the seed's banner. */
+/**
+ * The guided offer flow, prefilled from the template entry tier, keeping the seed's banner.
+ * A subscription is built through Guided Setup (founder decision D2, 2026-09-03): the legacy
+ * /offers/new path wrote free-text benefits disconnected from the registry.
+ */
 function membershipHrefFor(seed: LeadMagnetSeed | null): string {
   const entry = TIER_TEMPLATE_MAP.inner_circle;
   const params: Record<string, string> = {
     lm_prefill: '1',
-    lm_goal: 'grow-supporters',
     lm_tier_name: entry.name,
     lm_price: String(Math.round(entry.priceCents / 100)),
     returnTo: RISE_ROUTE,
@@ -166,7 +169,7 @@ function membershipHrefFor(seed: LeadMagnetSeed | null): string {
     params.lm_tool_name = seed.toolName;
     params.lm_result = seed.resultId;
   }
-  return `/offers/new?${new URLSearchParams(params).toString()}`;
+  return `/build/offer?${new URLSearchParams(params).toString()}`;
 }
 
 function trimEverything(labels: string[]): string[] {

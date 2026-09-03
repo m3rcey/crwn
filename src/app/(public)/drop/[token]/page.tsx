@@ -9,6 +9,7 @@
 
 import { notFound } from 'next/navigation';
 import { createClient } from '@supabase/supabase-js';
+import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { resolveFunnelOffers, type OfferTierRow } from '@/lib/fanAutomations/offerTiers';
 import { offerExperiencesForTiers } from '@/lib/offerExperience/server';
 import { accentPageVars } from '@/lib/contrast';
@@ -45,7 +46,7 @@ export default async function DropPage({ params }: { params: Promise<{ token: st
     .from('fan_automations')
     .select('id, artist_id, status, public_token, magnet_kind, magnet_title, magnet_description, gold_tier_id, gold_item_title, gold_item_description, silver_tier_id')
     .eq('public_token', token)
-    .in('status', ['active', 'paused'])
+    .in('status', ['active', 'paused', 'draft'])
     .maybeSingle();
   if (!automation) notFound();
 
@@ -55,6 +56,18 @@ export default async function DropPage({ params }: { params: Promise<{ token: st
     .eq('id', automation.artist_id)
     .maybeSingle();
   if (!artist) notFound();
+
+  // A DRAFT renders only for its owner, as a preview (Rise Mode Guided Setup, 2026-09-03):
+  // the artist sees the real page their link will open before turning it on. Everyone else
+  // gets the same 404 a draft always produced. Owner means the SESSION user is the artist's
+  // user, the same check the artist page uses; the token alone never opens a draft.
+  let preview = false;
+  if (automation.status === 'draft') {
+    const session = await createServerSupabaseClient();
+    const { data: { user } } = await session.auth.getUser();
+    if (!user || user.id !== artist.user_id) notFound();
+    preview = true;
+  }
 
   const { data: profile } = await supabaseAdmin
     .from('profiles')
@@ -99,6 +112,11 @@ export default async function DropPage({ params }: { params: Promise<{ token: st
     <div
       style={(accentPageVars(artist.accent_hex) ?? undefined) as CSSProperties | undefined}
     >
+    {preview && (
+      <div className="bg-crwn-gold text-crwn-bg text-center text-sm font-semibold px-4 py-2">
+        Preview. Only you can see this until you turn the funnel on; the email box does not deliver yet.
+      </div>
+    )}
     <DropFunnelClient
       token={automation.public_token}
       artist={{ name: artistName, slug: artist.slug, avatarUrl: profile?.avatar_url ?? null }}

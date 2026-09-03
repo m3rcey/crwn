@@ -71,6 +71,39 @@ describe('telemetry rides the existing sink', () => {
   });
 });
 
+describe('a subscription is built through the guided flow (founder decision D2, 2026-09-03)', () => {
+  it('the legacy offer builder offers no subscription goal', () => {
+    const legacy = readFileSync('src/app/offers/new/page.tsx', 'utf8');
+    // The GOALS array carries no membership preset; a tier made there had free-text benefits
+    // with no registry identity, so no delivery path and no readiness.
+    expect(legacy).not.toMatch(/offerType: 'subscription'/);
+    expect(legacy).not.toContain("id: 'grow-supporters'");
+    expect(legacy).not.toContain("id: 'vault-access'");
+  });
+
+  it('every membership door points at the guided flow, and the share-to-earn seed at referrals', () => {
+    const starter = readFileSync('src/lib/leadResults/starterOffer.ts', 'utf8');
+    expect(starter).not.toContain("'/offers/new");
+    expect(starter).toContain('/build/offer');
+    const dest = readFileSync('src/lib/leadResults/postSetupDestination.ts', 'utf8');
+    expect(dest).not.toContain("path: '/offers/new'");
+    expect(dest).toContain("path: '/build/offer'");
+    expect(dest).toContain("path: '/account/referrals'");
+    const cta = questCta({ template_key: 'anything_uncatalogued', category: 'offer' }).href;
+    expect(cta.startsWith(guidedFlowHref('offer'))).toBe(true);
+  });
+
+  it('the guided flow writes structured benefits through the one tier write path', () => {
+    const flow = readFileSync('src/components/guided/offer/OfferFlow.tsx', 'utf8');
+    expect(flow).toContain("fetch('/api/tier-benefits'");
+    expect(flow).toContain('applyTemplateTier(');
+    expect(flow).toContain('TierBenefitsSelector');
+    expect(flow).not.toMatch(/BENEFIT_SUGGESTIONS|free-text/);
+    // Never a hardcoded ladder or price: the recommended template is the only source.
+    expect(flow).not.toMatch(/priceCents: (1000|2500|10000)\b/);
+  });
+});
+
 describe('the onboarding boundary holds', () => {
   const setup = readFileSync('src/app/setup/page.tsx', 'utf8');
 

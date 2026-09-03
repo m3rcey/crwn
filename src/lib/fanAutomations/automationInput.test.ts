@@ -94,6 +94,24 @@ describe('activationBlockers', () => {
     expect(blockers).toHaveLength(1);
     expect(blockers[0]).toContain('private message');
   });
+
+  it('the offered tier must be purchasable before the switch goes on (2026-09-03)', () => {
+    // Checkout reads the tier's stored Stripe price id directly, so a funnel switched on ahead
+    // of a price would capture the email, join the fan free, then fail the fan who said yes.
+    const base = { connection_id: null, dm_message: '', magnet_kind: 'track', gold_tier_id: 't' };
+    expect(activationBlockers({ ...base, gold_tier_purchasable: true })).toEqual([]);
+    expect(activationBlockers({ ...base, gold_tier_purchasable: false }).join(' ')).toContain('Stripe');
+    expect(activationBlockers({ ...base, gold_tier_purchasable: null }).join(' ')).toContain('Stripe');
+    // Legacy callers that did not look are unchanged.
+    expect(activationBlockers(base)).toEqual([]);
+    // Without a tier at all, the missing tier is the message, not Stripe.
+    expect(activationBlockers({ ...base, gold_tier_id: null, gold_tier_purchasable: null }).join(' ')).not.toContain('Stripe');
+  });
+
+  it('nurture is never an activation blocker: a valid funnel turns on without it', () => {
+    const src = activationBlockers.toString();
+    expect(src).not.toMatch(/nurture|sequence/i);
+  });
 });
 
 describe('link-only funnels are a first-class source', () => {

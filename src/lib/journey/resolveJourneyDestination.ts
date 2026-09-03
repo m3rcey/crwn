@@ -10,6 +10,14 @@
 // resolves ownership server-side and passes the resolved context in.
 
 import { buildDraftConfig } from '@/lib/leadResults/postSetupDestination';
+
+/**
+ * Destinations whose end state is "create your membership tier". Once a paid tier exists the
+ * wizard already built it, so a restore that lands here would re-draft what is live. The guided
+ * offer flow (/build/offer, D2 2026-09-03) replaced the legacy builder for memberships; the old
+ * path stays in the list so a deliverable saved before the change is still recognised.
+ */
+const TIER_DRAFTING_ROUTES = ['/offers/new', '/build/offer'];
 import { getFunnelByToolKey } from '@/lib/opportunityFunnels/registry';
 import { hasDeliverable, getDeliverableSpec } from '@/lib/opportunityDrafts/deliverableSpecs';
 import type { LeadMagnetSeed } from '@/lib/leadResults/handoffSeed';
@@ -105,7 +113,7 @@ export function resolveJourneyDestination(ctx: JourneyContext): JourneyDestinati
   const deliverableIsRedundant =
     !!ctx.hasPaidTier &&
     !!ctx.savedDeliverableTool &&
-    getDeliverableSpec(ctx.savedDeliverableTool)?.continueRoute === '/offers/new';
+    TIER_DRAFTING_ROUTES.includes(getDeliverableSpec(ctx.savedDeliverableTool)?.continueRoute ?? '');
   if (ctx.savedDeliverableTool && hasDeliverable(ctx.savedDeliverableTool) && !deliverableIsRedundant) {
     const funnel = getFunnelByToolKey(ctx.savedDeliverableTool);
     const params: Record<string, string> = {};
@@ -125,7 +133,7 @@ export function resolveJourneyDestination(ctx: JourneyContext): JourneyDestinati
   // 4. Otherwise a claimed calculator -> its real prefilled builder (the recommended action).
   //    Same redundancy rule: a tier-drafting destination is skipped once a paid tier exists.
   const draft = ctx.seed ? buildDraftConfig(ctx.seed) : null;
-  if (ctx.seed && draft && !(ctx.hasPaidTier && draft.path === '/offers/new')) {
+  if (ctx.seed && draft && !(ctx.hasPaidTier && TIER_DRAFTING_ROUTES.includes(draft.path))) {
     const funnel = getFunnelByToolKey(ctx.seed.toolSlug);
     const params: Record<string, string> = {
       lm_prefill: '1',

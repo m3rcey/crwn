@@ -30,10 +30,20 @@ export interface ApplyTierInput {
    * benefit config into /api/tier-benefits → syncTierObligations.
    */
   benefitConfigOverrides?: Record<string, Record<string, unknown>>;
+  /**
+   * The structured benefit rows to write INSTEAD of the template's (Rise Mode Guided Setup,
+   * 2026-09-03): the "Build your offer" flow lets the artist choose from the registry, so the
+   * rung it creates carries what they chose, not what the template suggests. Same route, same
+   * obligation sync; only the source of the rows differs.
+   */
+  structuredOverride?: { benefit_type: string; config: Record<string, unknown>; sort_order?: number }[];
 }
 
-export async function applyTemplateTier(supabase: Supa, input: ApplyTierInput): Promise<{ error?: string }> {
-  const { artistId, stripeConnected, def, name, priceCents, description, benefits, benefitConfigOverrides } = input;
+export async function applyTemplateTier(
+  supabase: Supa,
+  input: ApplyTierInput,
+): Promise<{ error?: string; tierId?: string }> {
+  const { artistId, stripeConnected, def, name, priceCents, description, benefits, benefitConfigOverrides, structuredOverride } = input;
   const isPaid = priceCents > 0;
 
   try {
@@ -79,7 +89,7 @@ export async function applyTemplateTier(supabase: Supa, input: ApplyTierInput): 
 
     if (error) throw error;
 
-    const structured = structuredBenefits(def);
+    const structured = structuredOverride ?? structuredBenefits(def);
     if (created && structured.length > 0) {
       // Best-effort: a benefits/calendar hiccup must not undo the tier.
       try {
@@ -91,7 +101,7 @@ export async function applyTemplateTier(supabase: Supa, input: ApplyTierInput): 
             benefits: structured.map((b, i) => ({
               benefit_type: b.benefit_type,
               config: { ...(b.config || {}), ...(benefitConfigOverrides?.[b.benefit_type] ?? {}) },
-              sort_order: i,
+              sort_order: 'sort_order' in b && typeof b.sort_order === 'number' ? b.sort_order : i,
             })),
           }),
         });
@@ -106,7 +116,7 @@ export async function applyTemplateTier(supabase: Supa, input: ApplyTierInput): 
       body: JSON.stringify({ milestone: 'tiers_created' }),
     }).catch(() => {});
 
-    return {};
+    return { tierId: created?.id };
   } catch (err) {
     console.error('Apply tier failed:', err);
     return { error: err instanceof Error ? err.message : 'Could not add that tier. Please try again.' };
