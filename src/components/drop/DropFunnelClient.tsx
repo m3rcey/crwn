@@ -328,18 +328,43 @@ export function DropFunnelClient({ token, artist, magnet, gold, goldItem, silver
     </div>
   );
 
-  const magnetAccess = claimed?.magnet && (claimed.magnet.url || claimed.magnet.trackUrl) ? (
+  const magnetAccess = claimed?.magnet?.trackUrl ? (
+    // The song plays HERE. The signed URL is short-lived by design; the player mounts it
+    // for this visit, and re-access below mints a fresh one any time.
+    <div className="space-y-2">
+      <audio
+        controls
+        preload="none"
+        src={claimed.magnet.trackUrl}
+        aria-label={`${magnet.title || 'Your track'} player`}
+        className="w-full"
+      />
+    </div>
+  ) : claimed?.magnet?.url ? (
     <a
-      href={claimed.magnet.url || claimed.magnet.trackUrl || '#'}
+      href={claimed.magnet.url}
       target="_blank"
       rel="noopener noreferrer"
       className="inline-flex items-center gap-2 bg-crwn-gold text-crwn-bg font-semibold px-6 py-3 rounded-full press-scale"
     >
-      {claimed.magnet.kind === 'upload' ? <Download className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-      {claimed.magnet.kind === 'upload' ? 'Download it now' : 'Play it now'}
+      <Download className="w-4 h-4" /> Download it now
     </a>
   ) : claimed?.emailSent ? (
     <p className="text-sm text-crwn-text-secondary">Check your email: your access link is on the way.</p>
+  ) : phase === 'delivered' && !hasSession ? (
+    // A RETURNING session-less visitor: the page remembered the claim but not the signed
+    // URL, which expires on purpose. A duplicate claim is re-delivery by design, so one
+    // tap (or one email, in a fresh browser) brings the song back.
+    <button
+      onClick={() => {
+        if (email) { void claim(); } else { setPhase('capture'); }
+      }}
+      disabled={submitting}
+      className="inline-flex items-center gap-2 bg-crwn-gold text-crwn-bg font-semibold px-6 py-3 rounded-full press-scale disabled:opacity-60"
+    >
+      {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
+      {`Get ${magnet.title || 'it'} again`}
+    </button>
   ) : null;
 
   // The ONE purchase cluster: benefit CTA (or historical fallback), checkout for a
@@ -560,6 +585,13 @@ export function DropFunnelClient({ token, artist, magnet, gold, goldItem, silver
               <p className="text-xs uppercase tracking-wide text-crwn-gold mb-2">Delivered</p>
               <h1 className="text-xl font-bold text-crwn-text">{magnet.title || 'Your drop'}</h1>
               <div className="mt-4">{submitting && !claimed ? <Loader2 className="w-5 h-5 animate-spin text-crwn-gold" /> : magnetAccess}</div>
+              {magnet.kind === 'track' && (
+                <p className="mt-3 text-xs text-crwn-text-secondary">
+                  Yours for good: as a free member it plays any time on{' '}
+                  <a href={`/${artist.slug}`} className="text-crwn-gold">{artist.name}&apos;s page</a>
+                  {' '}once you sign in with the link from your email.
+                </p>
+              )}
               {claimed?.isOwner && (
                 <p className="mt-3 text-xs text-crwn-text-secondary">You are viewing your own funnel, so no membership was changed.</p>
               )}
