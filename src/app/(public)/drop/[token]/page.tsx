@@ -11,6 +11,8 @@ import { notFound } from 'next/navigation';
 import { createClient } from '@supabase/supabase-js';
 import { resolveFunnelOffers, type OfferTierRow } from '@/lib/fanAutomations/offerTiers';
 import { offerExperiencesForTiers } from '@/lib/offerExperience/server';
+import { accentPageVars } from '@/lib/contrast';
+import type { CSSProperties } from 'react';
 import { isPresentableArtistName } from '@/lib/publicName';
 import { DropFunnelClient, type DropOfferTier } from '@/components/drop/DropFunnelClient';
 import type { Metadata } from 'next';
@@ -49,7 +51,7 @@ export default async function DropPage({ params }: { params: Promise<{ token: st
 
   const { data: artist } = await supabaseAdmin
     .from('artist_profiles')
-    .select('id, slug, user_id, banner_url')
+    .select('id, slug, user_id, banner_url, accent_hex')
     .eq('id', automation.artist_id)
     .maybeSingle();
   if (!artist) notFound();
@@ -94,6 +96,9 @@ export default async function DropPage({ params }: { params: Promise<{ token: st
   );
 
   return (
+    <div
+      style={(accentPageVars(artist.accent_hex) ?? undefined) as CSSProperties | undefined}
+    >
     <DropFunnelClient
       token={automation.public_token}
       artist={{ name: artistName, slug: artist.slug, avatarUrl: profile?.avatar_url ?? null }}
@@ -110,6 +115,7 @@ export default async function DropPage({ params }: { params: Promise<{ token: st
       silver={toOffer(silver, benefitLines)}
       experiences={experiences}
     />
+    </div>
   );
 }
 

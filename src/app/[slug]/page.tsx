@@ -335,6 +335,7 @@ export default async function ArtistPage({ params, searchParams }: ArtistPagePro
         <PaletteBackfill
           artistId={artist.id}
           bannerUrl={artist.banner_url ?? null}
+          avatarUrl={artist.profile?.avatar_url ?? null}
           isOwner={isOwner}
           hasPalette={!!(artist as { accent_hex?: string | null }).accent_hex}
         />
