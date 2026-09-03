@@ -29,6 +29,25 @@ interface Tier {
   tierBenefits?: TierBenefit[];
 }
 
+/**
+ * Best-effort push of a tier's saved name and description onto its Stripe product.
+ * The route re-reads both from the database and checks ownership on the session, so this
+ * call carries a POINTER and no copy. Failure is logged and swallowed: the tier row is
+ * already saved and Stripe being briefly unreachable is not the artist's problem.
+ */
+async function syncTierProduct(tierId: string) {
+  try {
+    const res = await fetch('/api/stripe/sync-tier-product', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tierId }),
+    });
+    if (!res.ok) console.warn('tier product sync failed:', res.status);
+  } catch (err) {
+    console.warn('tier product sync failed:', err);
+  }
+}
+
 export function TierManager() {
   const router = useRouter();
   const { user } = useAuth();
@@ -243,6 +262,13 @@ export function TierManager() {
           }));
           await supabase.from('tier_benefits').insert(benefitsToInsert);
         }
+
+        // Stripe Checkout renders the product name and description in its order summary, and
+        // create-price only ever wrote them once. Without this, renaming a tier or rewriting
+        // its promise left the OLD words on the page where the fan pays. Deliberately not
+        // awaited into the failure path: the tier is already saved, and a Stripe hiccup must
+        // not tell the artist their edit failed. Free tiers no-op server-side.
+        void syncTierProduct(editingTier.id);
 
         setTiers(prev => prev.map(t => t.id === editingTier.id ? (updated as Tier) : t));
         setEditingTier(null);
