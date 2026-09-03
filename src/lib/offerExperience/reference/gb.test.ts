@@ -56,9 +56,15 @@ describe('truth discipline in the reference content', () => {
     expect(JSON.stringify([GB_PLATINUM_OFFER, GB_GOLD_OFFER, GB_SILVER_OFFER]).includes('—')).toBe(false);
   });
 
-  it('the VSL ships null: nothing fan-facing renders until GB records his own', () => {
-    expect(GB_PLATINUM_OFFER.vsl!.url).toBeNull();
-    expect(GB_GOLD_OFFER.vsl!.url).toBeNull();
+  it('the interim VSL is DISCLOSED as a placeholder, never implied to be GB', () => {
+    // Founder direction 2026-09-02: the CRWN founder video stands in until GB records
+    // his own. isPlaceholder is what renders the Example video chip, so it must be set
+    // wherever a stand-in url is; Silver has no video and correctly ships null.
+    for (const offer of [GB_PLATINUM_OFFER, GB_GOLD_OFFER]) {
+      expect(offer.vsl!.url).toMatch(/^https:\/\//);
+      expect(offer.vsl!.isPlaceholder).toBe(true);
+    }
+    expect(GB_SILVER_OFFER.vsl!.url).toBeNull();
   });
 
   it('no generic Join-tier button anywhere in the configs', () => {

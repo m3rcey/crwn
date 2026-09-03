@@ -13,8 +13,10 @@
 //   - Nothing promises a cadence (no monthly anything), a response, feedback, use of a
 //     submission, credit, rights, or royalties. Submissions are "for consideration".
 //   - Go Bad is referenced as itself (REAL), with no unreleased/exclusive claim.
-//   - The VSL slot ships with url: null. Null renders NOTHING fan-facing, per the
-//     ratified catalog rule; GB's video becomes one config field when he records it.
+//   - Platinum and Gold carry the founder CRWN video as a DISCLOSED placeholder
+//     (isPlaceholder renders the Example video chip); GB's own recording replaces it by
+//     editing the url here and re-running the seed script. Silver ships url: null, which
+//     renders nothing, per the ratified catalog rule.
 
 import type { TierOfferExperience } from '../types';
 
@@ -24,7 +26,11 @@ export const GB_PLATINUM_OFFER: TierOfferExperience = {
     'Do not just vote on what GB creates. Get opportunities to submit your own ideas and material for consideration while selected projects are being built.',
   cta: 'Put My Ideas in the Room',
   secondaryCue: 'See what you get',
-  vsl: { url: null },
+  vsl: {
+    url: 'https://pub-490263a6ac304986851fbf65e6f3ff13.r2.dev/vsl/vsl-1-fan-worth.mp4',
+    posterUrl: 'https://thecrwn.app/vsl/vsl-1-fan-worth.webp',
+    isPlaceholder: true,
+  },
   previews: [
     {
       kind: 'submission',
@@ -69,6 +75,13 @@ export const GB_PLATINUM_OFFER: TierOfferExperience = {
       actionLabel: 'Cast your vote',
     },
     {
+      kind: 'session',
+      truth: 'example',
+      title: 'Group sessions with GB',
+      description:
+        'When GB opens a group Q and A or a listening room, Platinum is in it. No fixed schedule is promised; when it happens, you are there.',
+    },
+    {
       kind: 'timeline',
       truth: 'example',
       title: 'Where Platinum sits in a project',
@@ -87,13 +100,6 @@ export const GB_PLATINUM_OFFER: TierOfferExperience = {
       title: 'Platinum status',
       description: 'Your name carries it wherever you show up in GB’s world.',
       badge: 'PLATINUM',
-    },
-    {
-      kind: 'session',
-      truth: 'example',
-      title: 'Group sessions with GB',
-      description:
-        'When GB opens a group Q and A or a listening room, Platinum is in it. No fixed schedule is promised; when it happens, you are there.',
     },
   ],
   inherited: {
@@ -137,7 +143,11 @@ export const GB_GOLD_OFFER: TierOfferExperience = {
     'Hear what GB is working on, get inside selected parts of the creative process, and vote on real decisions before everyone else gets the finished version.',
   cta: 'Help Shape What Comes Next',
   secondaryCue: 'See what you get',
-  vsl: { url: null },
+  vsl: {
+    url: 'https://pub-490263a6ac304986851fbf65e6f3ff13.r2.dev/vsl/vsl-1-fan-worth.mp4',
+    posterUrl: 'https://thecrwn.app/vsl/vsl-1-fan-worth.webp',
+    isPlaceholder: true,
+  },
   previews: [
     {
       kind: 'decision',
@@ -163,6 +173,18 @@ export const GB_GOLD_OFFER: TierOfferExperience = {
       ],
     },
     {
+      kind: 'audio',
+      truth: 'real',
+      title: 'Members-only music',
+      description: 'Go Bad already lives behind the member gate. Gold hears what comes next before the public does.',
+    },
+    {
+      kind: 'session',
+      truth: 'example',
+      title: 'Watch Executive Producer Sessions',
+      description: 'When GB runs a session, Gold watches it happen: the room, the takes, the calls.',
+    },
+    {
       kind: 'decision',
       truth: 'example',
       title: 'Selected creative decisions',
@@ -172,12 +194,6 @@ export const GB_GOLD_OFFER: TierOfferExperience = {
         { label: 'Cover B', sublabel: 'The night shot' },
       ],
       actionLabel: 'Pick one',
-    },
-    {
-      kind: 'session',
-      truth: 'example',
-      title: 'Watch Executive Producer Sessions',
-      description: 'When GB runs a session, Gold watches it happen: the room, the takes, the calls.',
     },
     {
       kind: 'timeline',
@@ -191,12 +207,6 @@ export const GB_GOLD_OFFER: TierOfferExperience = {
         { label: 'Cover', participates: true },
         { label: 'Release' },
       ],
-    },
-    {
-      kind: 'audio',
-      truth: 'real',
-      title: 'Members-only music',
-      description: 'Go Bad already lives behind the member gate. Gold hears what comes next before the public does.',
     },
   ],
   inherited: {

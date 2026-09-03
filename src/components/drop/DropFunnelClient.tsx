@@ -454,6 +454,13 @@ export function DropFunnelClient({ token, artist, magnet, gold, goldItem, silver
     />
   );
 
+  // A phase change is a new page in the fan's mind: declining Platinum must land them at
+  // the TOP of the Gold offer, not mid-scroll where the tap happened. Instant, not
+  // smooth, deliberately: reduced-motion users get no animation to object to.
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [phase]);
+
   // The offer VIEW beacon fires on phase entry, deduped per tier per mount.
   useEffect(() => {
     if (phase === 'delivered' && gold && experiences?.[gold.id]) offerBeacon(gold.id, 'tier_card_viewed');

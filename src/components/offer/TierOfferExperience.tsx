@@ -56,11 +56,9 @@ function ExampleChip() {
 
 function PreviewShell({ p, children }: { p: OfferPreview; children?: React.ReactNode }) {
   return (
-    <section aria-label={p.title} className="neu-raised rounded-2xl p-5 bg-crwn-card">
-      <div className="flex items-start justify-between gap-3">
-        <h3 className="text-base font-bold text-crwn-text">{p.title}</h3>
-        {p.truth === 'example' && <ExampleChip />}
-      </div>
+    <section aria-label={p.title} className="neu-raised rounded-2xl p-5 bg-crwn-card text-center">
+      {p.truth === 'example' && <div className="mb-2"><ExampleChip /></div>}
+      <h3 className="text-base font-bold text-crwn-text">{p.title}</h3>
       {p.description && <p className="text-sm text-crwn-text-secondary mt-1.5">{p.description}</p>}
       {children}
     </section>
@@ -87,7 +85,7 @@ function PreviewBody({ p }: { p: OfferPreview }) {
       return (
         <div className="mt-3 space-y-2">
           {(p.options || []).map((o, i) => (
-            <div key={i} className="flex items-center gap-3 rounded-xl bg-crwn-elevated px-4 py-3">
+            <div key={i} className="flex items-center gap-3 rounded-xl bg-crwn-elevated px-4 py-3 text-left">
               <span aria-hidden className="w-8 h-8 rounded-full bg-crwn-card flex items-center justify-center">
                 <Play className="w-3.5 h-3.5 text-crwn-gold" />
               </span>
@@ -102,7 +100,7 @@ function PreviewBody({ p }: { p: OfferPreview }) {
       );
     case 'submission':
       return (
-        <div className="mt-3 rounded-xl bg-crwn-elevated p-4 space-y-2.5">
+        <div className="mt-3 rounded-xl bg-crwn-elevated p-4 space-y-2.5 text-left">
           {(p.fields || []).map((f, i) => (
             <div key={i}>
               <p className="text-[11px] uppercase tracking-wide text-crwn-text-secondary mb-1">{f.label}</p>
@@ -119,7 +117,7 @@ function PreviewBody({ p }: { p: OfferPreview }) {
       return (
         <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 gap-2.5">
           {(p.items || []).map((it, i) => (
-            <div key={i} className="rounded-xl bg-crwn-elevated p-3">
+            <div key={i} className="rounded-xl bg-crwn-elevated p-3 text-left">
               {it.artUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={it.artUrl} alt={`${it.title} artwork`} loading="lazy" className="w-full aspect-square object-cover rounded-lg mb-2" />
@@ -136,7 +134,7 @@ function PreviewBody({ p }: { p: OfferPreview }) {
       );
     case 'timeline':
       return (
-        <ol className="mt-3 flex flex-wrap items-center gap-y-2">
+        <ol className="mt-3 flex flex-wrap items-center justify-center gap-y-2">
           {(p.steps || []).map((s, i, arr) => (
             <li key={i} className="flex items-center">
               <span className={`text-xs px-3 py-1.5 rounded-full ${s.participates ? 'bg-crwn-gold text-crwn-bg font-semibold' : 'bg-crwn-elevated text-crwn-text-secondary'}`}>
@@ -149,7 +147,7 @@ function PreviewBody({ p }: { p: OfferPreview }) {
       );
     case 'window':
       return (
-        <div className="mt-3 rounded-xl bg-crwn-elevated px-4 py-3 flex items-center justify-between">
+        <div className="mt-3 rounded-xl bg-crwn-elevated px-4 py-3 flex items-center justify-center gap-3">
           <p className="text-sm text-crwn-text">{p.actionLabel || 'Submission window'}</p>
           <span className={`text-xs px-2.5 py-1 rounded-full font-semibold ${
             p.windowState === 'open' ? 'bg-crwn-gold text-crwn-bg'
@@ -162,7 +160,7 @@ function PreviewBody({ p }: { p: OfferPreview }) {
       );
     case 'status':
       return (
-        <div className="mt-3 flex items-center gap-3 rounded-xl bg-crwn-elevated px-4 py-3">
+        <div className="mt-3 flex items-center justify-center gap-3 rounded-xl bg-crwn-elevated px-4 py-3">
           <span className="text-xs font-bold uppercase tracking-wide px-2.5 py-1 rounded-full bg-crwn-gold text-crwn-bg">{p.badge || 'Member'}</span>
           <p className="text-sm text-crwn-text-secondary">shows beside your name across the artist&apos;s world</p>
         </div>
@@ -212,7 +210,7 @@ export function TierOfferExperience({ artist, tier, config, actionSlot, onDeclin
   return (
     <div className="space-y-6 pb-24">
       {/* ── HERO: promise, price and the benefit CTA, above the fold. ── */}
-      <div className="neu-raised rounded-2xl p-6 bg-crwn-card">
+      <div className="neu-raised rounded-2xl p-6 bg-crwn-card text-center">
         <p className="text-xs uppercase tracking-wide text-crwn-gold mb-2">
           {tier.name} · {price(tier.priceCents)}
         </p>
@@ -236,7 +234,7 @@ export function TierOfferExperience({ artist, tier, config, actionSlot, onDeclin
       {vsl && (
         <div className="neu-raised rounded-2xl overflow-hidden bg-crwn-card">
           {vsl.isPlaceholder && (
-            <div className="px-4 pt-3"><ExampleChip /></div>
+            <div className="px-4 pt-3 text-center"><ExampleChip /></div>
           )}
           <div className="p-4">
             {/* Lazy: metadata only, never autoplay, sound stays off until the fan acts. */}
@@ -269,7 +267,7 @@ export function TierOfferExperience({ artist, tier, config, actionSlot, onDeclin
       {/* ── Inherited value: presentation of canonical cumulative entitlements. ── */}
       {config.inherited && (
         <div className="neu-raised rounded-2xl p-5 bg-crwn-card">
-          <h3 className="text-base font-bold text-crwn-text">{config.inherited.heading}</h3>
+          <h3 className="text-base font-bold text-crwn-text text-center">{config.inherited.heading}</h3>
           <ul className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
             {config.inherited.items.map((item, i) => (
               <li key={i} className="flex items-start gap-2 text-sm text-crwn-text">
@@ -284,7 +282,7 @@ export function TierOfferExperience({ artist, tier, config, actionSlot, onDeclin
       {/* ── FAQ ── */}
       {config.faqs && config.faqs.length > 0 && (
         <div className="neu-raised rounded-2xl p-5 bg-crwn-card">
-          <h3 className="text-base font-bold text-crwn-text mb-2">Questions</h3>
+          <h3 className="text-base font-bold text-crwn-text mb-2 text-center">Questions</h3>
           {config.faqs.map((f, i) => (
             <details key={i} className="group border-t border-white/5 py-3">
               <summary className="text-sm font-medium text-crwn-text cursor-pointer list-none flex items-center justify-between gap-2">
