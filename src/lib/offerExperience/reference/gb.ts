@@ -177,6 +177,11 @@ export const GB_GOLD_OFFER: TierOfferExperience = {
       truth: 'real',
       title: 'Members-only music',
       description: 'Go Bad already lives behind the member gate. Gold hears what comes next before the public does.',
+      items: [
+        { title: 'Go Bad', subtitle: 'Yours already', locked: true },
+        { title: 'What GB finishes next', subtitle: 'Before it goes public', locked: true },
+      ],
+      actionLabel: 'Unlock the music',
     },
     {
       kind: 'session',

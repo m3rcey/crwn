@@ -168,10 +168,38 @@ function PreviewBody({ p, onTry }: { p: OfferPreview; onTry?: () => void }) {
           <p className="text-sm text-crwn-text-secondary">shows beside your name across the artist&apos;s world</p>
         </div>
       );
+    case 'audio':
+      return (
+        <div className="mt-3 space-y-2 text-left">
+          {(p.items && p.items.length ? p.items : [{ title: p.title }]).map((it, i) => (
+            <div key={i} className="rounded-xl bg-crwn-elevated px-4 py-3 flex items-center gap-3">
+              {it.artUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={it.artUrl} alt="" loading="lazy" className="w-11 h-11 rounded-lg object-cover shrink-0" />
+              ) : (
+                <span aria-hidden className="w-11 h-11 rounded-full bg-crwn-gold text-crwn-bg flex items-center justify-center shrink-0">
+                  <Play className="w-5 h-5 ml-0.5" />
+                </span>
+              )}
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-crwn-text truncate">{it.title}</p>
+                {/* A still progress bar: the shape of the player members get, not a
+                    control pretending to be one. */}
+                <div className="mt-1.5 h-1.5 w-full rounded-full bg-crwn-card overflow-hidden">
+                  <div className="h-full w-1/3 bg-crwn-gold/60 rounded-full" />
+                </div>
+              </div>
+              <Lock className="w-4 h-4 text-crwn-gold/60 shrink-0" aria-label="Members only" />
+            </div>
+          ))}
+          <div className="pt-1 text-center">
+            <DemoButton label={p.actionLabel || 'Unlock the music'} onTry={onTry} />
+          </div>
+        </div>
+      );
     case 'session':
     case 'video':
     case 'image':
-    case 'audio':
       return (
         <div className="mt-3 rounded-xl overflow-hidden bg-crwn-elevated">
           {p.posterUrl ? (
