@@ -313,13 +313,13 @@ export function DropFunnelClient({ token, artist, magnet, gold, goldItem, silver
   startCheckoutRef.current = startCheckout;
 
   const header = (
-    <div className="flex items-center gap-3 mb-6">
+    <div className="flex flex-col items-center text-center gap-2 mb-6">
       {artist.avatarUrl ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={artist.avatarUrl} alt={artist.name} className="w-12 h-12 rounded-full object-cover" />
+        <img src={artist.avatarUrl} alt={artist.name} className="w-16 h-16 rounded-full object-cover" />
       ) : (
-        <div className="w-12 h-12 rounded-full bg-crwn-elevated flex items-center justify-center">
-          <Crown className="w-6 h-6 text-crwn-gold" />
+        <div className="w-16 h-16 rounded-full bg-crwn-elevated flex items-center justify-center">
+          <Crown className="w-8 h-8 text-crwn-gold" />
         </div>
       )}
       <div>
@@ -529,7 +529,7 @@ export function DropFunnelClient({ token, artist, magnet, gold, goldItem, silver
         {header}
 
         {phase === 'capture' && (
-          <div className="neu-raised rounded-2xl p-6 bg-crwn-card">
+          <div className="neu-raised rounded-2xl p-6 bg-crwn-card text-center">
             <h1 className="text-2xl font-bold text-crwn-text">{magnet.title || 'Your drop is here'}</h1>
             {magnet.description && <p className="text-sm text-crwn-text-secondary mt-2">{magnet.description}</p>}
             {hasSession ? (
