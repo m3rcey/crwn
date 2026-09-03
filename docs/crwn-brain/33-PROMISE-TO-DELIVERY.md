@@ -25,8 +25,8 @@ whether it is ready, and where to go next. GB should not need to know which feat
 |---|---|---|
 | **recommended** | The fan-economy model CRWN sells, in pillar order (access, influence, contribution, status, experience). Prominent in the picker. | `exclusive_tracks`, `early_access`, `exclusive_posts`, `stems`, `vault_collection`, `creative_voting`, `fan_submissions`, `member_recognition`, `group_live_qa` |
 | **additional** | Real and enforced, not a default recommendation. Under "More options". | `welcome_unlock`, `drop_alerts`, `direct_messaging`, `shop_discount`, `credits_on_releases` |
-| **manual** | The artist delivers it. Printed on the card, never given a readiness chip or a fast action. The picker says "You deliver this yourself". | `one_on_one_call`, `priority_replies`, `custom_song_request`, `custom_experience`, `monthly_merch`, `shoutout` |
-| **retired** | Not selectable for new tiers. Existing rows still resolve and render; the picker shows them only on a tier that already carries one, under "No longer supported". | `exclusive_albums`, `community_badge`, `supporter_wall` |
+| **manual** | The artist delivers it. Printed on the card, never given a readiness chip or a fast action. The picker says "You deliver this yourself". | `one_on_one_call`, `priority_replies`, `custom_song_request`, `custom_experience`, `shoutout` |
+| **retired** | Not selectable for new tiers. Existing rows still resolve and render; the picker shows them only on a tier that already carries one, under "No longer supported". | `exclusive_albums`, `community_badge`, `supporter_wall`, `monthly_merch` |
 
 Seven keys were added on 2026-09-03 for capabilities that were already live with no benefit
 identity: `stems` (member_files), `vault_collection` (gated artist playlist), `creative_voting`
@@ -120,6 +120,18 @@ V1 is self-visible: the fan's own rung plus "Member since <Month Year>" from the
 `/profile`. Day One is the existing `is_founder` flag (`src/lib/recognition/status.ts`), set only by
 a tier's Founder Window; no cutoff is invented. Public membership recognition is deferred pending a
 fan opt-in decision; `supporter_wall` is retired; subscription RLS is unchanged.
+
+## `monthly_merch` retired, 2026-09-03
+
+CRWN sells no physical goods (see the physical-goods rule in `CLAUDE.md`). The shop, the setup
+wizard and the offer builder no longer offer a physical product type, so a tier promising "Merch
+in the mail" was the only place left where CRWN handed an artist a shipping obligation it had no
+screen to help them keep. It is now `support: 'retired'`, and it also left `PROMISE_BENEFITS` in
+`promisePlan.ts`, so no shipment obligation can be scheduled under it at all. The key is retired,
+never renamed: `FROZEN_BENEFIT_KEYS` still carries it and any legacy row still renders.
+
+Production carried zero `tier_benefits` rows with this key when the change landed (anon probe,
+2026-09-03), so nothing an artist had already promised was touched.
 
 **Semantic gap:** GB's Bronze promises "Day One recognition", and no Bronze member is `is_founder`
 because his Bronze has no Founder Window. Until he turns one on (cap and/or deadline in Tiers), the

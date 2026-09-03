@@ -147,8 +147,8 @@ export const RECOMMENDED_LADDER: TierTemplateDef[] = [
         },
       },
       { label: 'Private listening-party replays', workload: 'low' },
-      { label: 'Priority voting on releases, artwork, and merch', workload: 'low' },
-      { label: 'Early access to tickets, merch, and limited drops', workload: 'moderate' },
+      { label: 'Priority voting on releases and artwork', workload: 'low' },
+      { label: 'Early access to tickets and limited drops', workload: 'moderate' },
       {
         label: '15% shop discount',
         workload: 'low',
@@ -171,7 +171,7 @@ export const RECOMMENDED_LADDER: TierTemplateDef[] = [
         structured: { benefit_type: 'credits_on_releases', config: { role_label: 'Executive Supporter' } },
       },
       { label: 'Permanent Platinum badge in your community', workload: 'low' },
-      { label: 'Highest priority for ticket and merch drops', workload: 'moderate' },
+      { label: 'Highest priority for every ticket and limited drop', workload: 'moderate' },
       {
         // The one Platinum-specific scheduled promise. A quarterly group event
         // serves every Platinum member at once, so it replaces one-on-one calls.

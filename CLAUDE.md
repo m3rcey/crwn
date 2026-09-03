@@ -464,6 +464,17 @@ primitive, never 19 copies. `src/lib/leadMagnets/conversionContract.test.ts` pin
 
 Every surface that interrupts a user (pop-ups, artist broadcasts, fan notifications, surveys)
 must pass a frequency governor. Do NOT add a new interruption path without one.
+
+**POP-UPS ARE PAUSED (founder decision, 2026-09-03).** `POPUPS_PAUSED = true` in
+[src/lib/popups/index.ts](src/lib/popups/index.ts) short-circuits `isPopupEngineEnabled`, so
+`/api/popups` answers `{ enabled: false, popup: null }` for every account on every page and
+nobody is interrupted on sign-in. This is a CODE gate deliberately sitting ABOVE the flag:
+`admin_settings.popup_engine` is still ON in production and `npm run verify:flags` will keep
+saying so, because the flag and the runtime reachability are the separate third and fourth
+states the four-states rule exists to keep apart. Flip that one constant to `false` to resume;
+no SQL, no migration. Everything below still describes how the engine works when it is running,
+and adding a `PopupDef` while it is paused ships a pop-up nobody will see.
+
 - **Pop-ups** go through the Pop-up Engine, NOT ad-hoc modals: add a `PopupDef` to
   `src/lib/popups/registry.ts` (targeting + `frequency` cap + loss-framed copy). The engine
   enforces **max one pop-up per user per day** on top of each pop-up's own cap. **Every
@@ -1297,7 +1308,37 @@ New artists do NOT get the old dashboard tour first. They flow **signup → `/se
 - **The personalized roadmap (Launch Wizard Stage 6, 2026-07-30) is a VIEW over the Quest Engine, never a second progression system.** `src/lib/artistRoadmap.ts` defines 5 stages whose steps reference existing DomainChecks by exact name; `/api/artist/roadmap` evaluates them through the quest evaluator's `evaluateCondition` (synthetic instance) plus three Promise Calendar facts, derived on read, stored nowhere. Surfaced as `RoadmapCard` above `RiseMode` on `/profile/artist`. Never grant XP from the roadmap and never store per-step completion; if a step needs a new fact, add a DomainCheck to the evaluator (or a fact to the route), not a parallel query in a component.
 - **The fan import hub (Launch Wizard Stage 7, 2026-07-30) lives in `FanImportModal`, and a Patreon export is auto-recognized.** `src/lib/patreonImport.ts` (pure, tested) detects the Relationship Manager CSV, parses status/pledge/tier, and suggests the closest CRWN tier; members import with `patreon` / `patreon-tier:<name>` tags through the SAME `/api/fan-contacts/import` with the versioned attestation. Import never sends anything: invites go through Campaign Hub's contacts audience, which only emails attested, still-subscribed contacts. Never add an invite path that bypasses that campaign sender.
 - **The Launch Kit (Launch Wizard Stage 8, 2026-07-30) generates launch copy as DRAFTS, never sends.** `src/lib/launchCampaign.ts` (pure, tested, no em dashes) builds announcement/follow-up emails + social/story/DM copy from the artist's real page, tiers, and imported audience; the `LaunchKit` panel (top of `/studio/fans?view=campaigns`) creates both emails as `campaigns` drafts through /api/campaigns (announcement preset to contacts + 20-contact test group). EMAIL campaigns live at `/studio/fans` (AudienceTab); `/campaign-hub` is Road-To campaigns; do not link "send an email" flows to /campaign-hub.
-- **The wizard ends on the `LaunchReview` screen (Launch Wizard Stage 9, 2026-07-30), and the publish action is UNCHANGED server-side.** "Launch my CRWN" is still `markComplete` (`/api/artist/complete-setup`) + the journey resolver; never add a second completion path. The checklist's "Fix it" jumps back into wizard screens; the calendar/roadmap previews render INLINE (their routes are behind the setup gate until launch), and the storefront/checkout preview is the public page. Post-launch, Rise Mode is the command screen, and since 2026-08-13 it shows ONE next move rather than the old stats-and-promises card: the real counts (members/paying/MRR vs the calculator goal) are still returned by `/api/artist/roadmap` and are owned for display by `/studio/analytics`. Real counts only wherever they render; never render projections as results. The paid cap is 3 on every plan, and the free tier does not count against it (Option-2 counting). LaunchReview also carries the **operating plan panel** (journey spec Screen 11): `recommendPlan()` re-derived client-side from the roadmap goal with `monthlyPlanCostCents()` arithmetic, advisory only, never blocking the launch; all numbers come from `TIER_PRICING`/`TIER_LIMITS`, never hardcoded. Post-launch, Level 5 quests close the activation loop (first visit via `artist_page_visits`, first delivered promise via completed `fulfillment_events`), and the upgrade pop-ups (`artist_pro_break_even`/`artist_scale_break_even`) fire once on REAL trailing-30-day GMV crossing the derived break-evens. Experiences + the lower fee (12% to 8%) + live/DMs/scheduling remain **Pro** ($49/mo), surfaced AFTER the wizard; the product step offers only **Digital + Physical**.
+- **The wizard ends on the `LaunchReview` screen (Launch Wizard Stage 9, 2026-07-30), and the publish action is UNCHANGED server-side.** "Launch my CRWN" is still `markComplete` (`/api/artist/complete-setup`) + the journey resolver; never add a second completion path. The checklist's "Fix it" jumps back into wizard screens; the calendar/roadmap previews render INLINE (their routes are behind the setup gate until launch), and the storefront/checkout preview is the public page. Post-launch, Rise Mode is the command screen, and since 2026-08-13 it shows ONE next move rather than the old stats-and-promises card: the real counts (members/paying/MRR vs the calculator goal) are still returned by `/api/artist/roadmap` and are owned for display by `/studio/analytics`. Real counts only wherever they render; never render projections as results. The paid cap is 3 on every plan, and the free tier does not count against it (Option-2 counting). LaunchReview also carries the **operating plan panel** (journey spec Screen 11): `recommendPlan()` re-derived client-side from the roadmap goal with `monthlyPlanCostCents()` arithmetic, advisory only, never blocking the launch; all numbers come from `TIER_PRICING`/`TIER_LIMITS`, never hardcoded. Post-launch, Level 5 quests close the activation loop (first visit via `artist_page_visits`, first delivered promise via completed `fulfillment_events`), and the upgrade pop-ups (`artist_pro_break_even`/`artist_scale_break_even`) fire once on REAL trailing-30-day GMV crossing the derived break-evens. Experiences + the lower fee (12% to 8%) + live/DMs/scheduling remain **Pro** ($49/mo), surfaced AFTER the wizard; the product step offers only **Digital** (see the physical-goods rule below).
+
+## CRWN does not sell physical goods (founder decision, 2026-09-03)
+
+No surface may offer, model, or promise a physical item. **The reason is fulfillment, and it is
+absolute: CRWN has no fulfillment screen at all.** A physical checkout collected the fan's
+shipping address, `webhookHandlers.ts` wrote it to `purchases.shipping_address`, and **not one
+artist-facing component ever read that column back.** The artist was sold an order they could not
+see and the fan was sold a shipment nobody was told to send.
+
+- **`ProductType 'physical'` still exists in [src/types/index.ts](src/types/index.ts) and the
+  schema, and nothing offers it.** The Shop type selector, the setup wizard's `product-type`
+  screen and the offer builder's `PRODUCT_TYPES` are digital-only. `product-checkout`'s
+  `shipping_address_collection` branch and `ShopManager`'s legacy `PHYSICAL_SUBCATEGORIES` label
+  map are kept ONLY so a pre-existing row still renders and can be edited. Production carried
+  zero physical products when this landed (probed 2026-09-03).
+- **`monthly_merch` is `support: 'retired'`** in [src/lib/benefitRegistry.ts](src/lib/benefitRegistry.ts),
+  not renamed (the keys are frozen), and it left `PROMISE_BENEFITS` in
+  [src/lib/promisePlan.ts](src/lib/promisePlan.ts) so no shipment obligation can ever be scheduled.
+  Zero production `tier_benefits` rows carried the key.
+- **An artist who sells merch links their own store.** `artist_profiles.merch_store_url` renders as
+  the "Visit Merch Store" button in `ShopSection`, and that stays: it is the honest answer to where
+  merch lives, and it is a link OUT, not a claim CRWN fulfills anything.
+- **Diagnostic vocabulary about the artist's OWN merch stays.** The Proof-of-Demand test's `merch`
+  idea type, the `merch_only` monetization band in the lead scorer, the `merch-buyers` import
+  source and the `merch_promo` marketing-cost category all describe money the artist makes
+  elsewhere. They are evidence, never an offer. Do not strip them.
+- Open founder question, deliberately NOT changed here: `stackReplacement.ts` maps Shopify to
+  `storefront`, and `CRWN_REPLACES.storefront` is `true`. That is honest for Gumroad and a digital
+  Bandcamp, and an over-claim for a merch Shopify, exactly the way ticketing is already held at
+  `false`. Decide it before the stack audit is promoted.
 - **Item creation:** the multi-field items (tier, track, product) collect their fields across screens into **draft state** in `setup/page.tsx`, then create on the last field's Continue via `src/lib/onboardingItems.ts` (`createOnboardingTier/Track/Product`). Minimal fields only (first track free; product file/advanced options deferred to the Shop tab). **Onboarding tiers do NOT call Stripe** (`/api/stripe/create-price` requires a connected account) — the row is inserted with null Stripe ids and `backfillTierPrices()` in `/api/stripe/connect/status` creates the Stripe prices automatically once the artist connects Stripe and charges are enabled. Completion (`hasTier/hasMusic/hasProduct`) is DB-derived — after create, `refresh()` unlocks Continue. Ends on a **share screen** → "Enter CRWN" → dashboard + trimmed tour.
 - **Source of truth:** `src/hooks/useArtistSetup.ts` (now also exposes `onboardingCompleted` from `profiles.onboarding_completed` — a brand-new signup has no artist row yet and stays in the wizard on the identity screens; only an established fan, onboarding done + no artist row, is bounced to `/home`). Step completion is **DERIVED from live data, never stored per-step** — identity = `artist_profiles` row exists; profile = fresh `profiles.avatar_url`; music = ≥1 `tracks`; monetize = ≥1 active `subscription_tiers`; shop = ≥1 `products`. Everything is read straight from the DB, **NOT the `useAuth` context, which lags** — right after the identity save flips `fan→artist` the context `profile.role` is still `'fan'` until the next token refresh. So both the hook AND the `(main)` gate derive "is an artist" from the **`artist_profiles` row existing**, never from `profile.role` (a role check there would bounce a brand-new artist out of `/setup` into a redirect loop). Continue unlocks live off DB reads; Stripe status is cosmetic-only, fetched once.
 - **The only stored flag** is `artist_profiles.setup_completed` (migration `supabase/schema-phase2-artist-setup-wizard.sql`, already applied). It just records "finished the wizard once." Existing artists were backfilled to `true`. The gate fails OPEN if the column is missing.

@@ -109,7 +109,7 @@ export function PurchasesSection() {
       <EmptyState
         icon="🛍️"
         title="No purchases yet"
-        description="When you buy music, merch, or experiences, they'll appear here."
+        description="When you buy music, digital products, or experiences, they'll appear here."
       />
     );
   }
@@ -229,7 +229,7 @@ export function PurchasesSection() {
       {/* Other Purchases */}
       {otherPurchases.length > 0 && (
         <div>
-          <h2 className="text-lg font-semibold text-crwn-text mb-4">Digital & Merch</h2>
+          <h2 className="text-lg font-semibold text-crwn-text mb-4">Digital products</h2>
           <div className="grid gap-3 sm:grid-cols-2">
             {otherPurchases.map((purchase) => (
               <div

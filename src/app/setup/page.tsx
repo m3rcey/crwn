@@ -111,7 +111,7 @@ const SCREENS: ScreenDef[] = [
   // decade of releases. The first track ON CRWN is a true statement; their first track is not.
   { key: 'track-audio', group: 'music', groupRequired: true, title: 'Add a track to your page', subtitle: 'The audio file fans will hear. This one starts free.', icon: Music },
   { key: 'track-title', group: 'music', groupRequired: true, title: 'Name your track', subtitle: 'What’s this one called?', icon: Music, create: 'track' },
-  { key: 'product-type', group: 'shop', groupRequired: false, title: 'What are you selling?', subtitle: 'Pick the kind of product.', icon: ShoppingBag },
+  { key: 'product-type', group: 'shop', groupRequired: false, title: 'What are you selling?', subtitle: 'A digital product fans can buy and download.', icon: ShoppingBag },
   { key: 'product-title', group: 'shop', groupRequired: false, title: 'Name your product', subtitle: 'What’s it called?', icon: ShoppingBag },
   { key: 'product-price', group: 'shop', groupRequired: false, title: 'Set the price', subtitle: 'What fans pay. Enter 0 to give it away.', icon: ShoppingBag, create: 'product' },
 ];
@@ -141,11 +141,12 @@ function screenDone(s: ScreenDef, setup: ArtistSetupState): boolean {
 
 const isValidPrice = (v: string) => v.trim() !== '' && !isNaN(parseFloat(v)) && parseFloat(v) >= 0;
 
+// CRWN sells digital only. Physical goods were removed 2026-09-03: there is no
+// fulfillment surface, so offering them promised something CRWN cannot help keep.
 // Experiences/1-on-1s require scheduling — a Pro-only platform feature — so they're
 // NOT offered here; artists set those up in the dashboard Shop tab (which gates Pro).
 const PRODUCT_TYPES: { value: ProductType; label: string; hint: string }[] = [
-  { value: 'digital', label: 'Digital download', hint: 'Unreleased tracks, videos, art' },
-  { value: 'physical', label: 'Physical / merch', hint: 'Vinyl, shirts, CDs' },
+  { value: 'digital', label: 'Digital download', hint: 'Unreleased tracks, stems, sample packs, videos, art' },
 ];
 
 // The wizard confirms the full recommended ladder (Bronze free + Silver $10 +

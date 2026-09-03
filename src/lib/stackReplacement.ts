@@ -45,7 +45,7 @@ export type StackCategory =
 
 export const STACK_CATEGORY_LABELS: Record<StackCategory, string> = {
   membership: 'Membership platform',
-  storefront: 'Store / merch platform',
+  storefront: 'Digital product store',
   email: 'Email platform',
   community: 'Community platform',
   ticketing: 'Ticketing platform',

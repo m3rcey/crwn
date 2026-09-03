@@ -1018,7 +1018,11 @@ export const FEATURES: readonly FeatureContract[] = [
   {
     key: 'popup_engine',
     title: 'Pop-up Engine (interruption owner)',
-    expectedState: 'live',
+    // Paused 2026-09-03 by founder decision: POPUPS_PAUSED in the gate module short
+    // circuits isPopupEngineEnabled, so no account sees a pop-up. The flag is still
+    // ON in production and the surfaces are still wired; this is the runtime state,
+    // which is exactly the fourth state the four-states rule keeps separate.
+    expectedState: 'dark',
     flag: 'popup_engine',
     gateModule: 'src/lib/popups/index.ts',
     surfaces: [
@@ -1030,7 +1034,7 @@ export const FEATURES: readonly FeatureContract[] = [
       { file: 'src/app/(main)/MainShell.tsx', mustContain: 'Popup' },
     ],
     migration: null,
-    notes: 'Flag verified ON in production 2026-08-12 (16 popup_events).',
+    notes: 'Flag verified ON in production 2026-08-12 (16 popup_events). PAUSED IN CODE 2026-09-03 (POPUPS_PAUSED = true in src/lib/popups/index.ts): flip that one constant to false to resume, no SQL needed.',
   },
   {
     key: 'quest_engine',

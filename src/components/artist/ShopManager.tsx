@@ -21,6 +21,8 @@ const DIGITAL_SUBCATEGORIES = [
   { value: 'video-content', label: 'Video Content' },
 ];
 
+// Legacy only: kept so a physical product created before 2026-09-03 still shows its
+// category label. Never offered in the picker.
 const PHYSICAL_SUBCATEGORIES = [
   { value: 'merch', label: 'Merch (T-Shirts, Hoodies, etc.)' },
   { value: 'vinyl', label: 'Vinyl Records' },
@@ -28,6 +30,12 @@ const PHYSICAL_SUBCATEGORIES = [
   { value: 'poster', label: 'Posters / Art Prints' },
   { value: 'other-physical', label: 'Other Physical Product' },
 ];
+
+// Physical goods are NOT sold on CRWN (2026-09-03). The type still exists in the
+// schema so any legacy row keeps rendering, but nothing offers it: CRWN has no
+// fulfillment surface at all, and the shipping address a physical checkout collected
+// was written to the purchase row and never read by a single artist screen. Artists
+// who sell merch link their own store from their profile (artist_profiles.merch_store_url).
 
 const EXPERIENCE_SUBCATEGORIES = [
   { value: 'video-call', label: '1-on-1 Video Call' },
@@ -475,7 +483,7 @@ export function ShopManager() {
 
             {/* Type Selector */}
             <div className="flex gap-2 mb-6">
-              {(['digital', 'experience', 'bundle', 'physical'] as ProductType[]).filter(t => t !== 'bundle' || platformLimits.limits.bundles).map((type) => (
+              {(['digital', 'experience', 'bundle'] as ProductType[]).filter(t => t !== 'bundle' || platformLimits.limits.bundles).map((type) => (
                 <button
                   key={type}
                   onClick={() => { setProductType(type); setSubcategory(''); }}
@@ -504,9 +512,6 @@ export function ShopManager() {
                     <option key={cat.value} value={cat.value}>{cat.label}</option>
                   ))}
                   {productType === 'experience' && EXPERIENCE_SUBCATEGORIES.map((cat) => (
-                    <option key={cat.value} value={cat.value}>{cat.label}</option>
-                  ))}
-                  {productType === 'physical' && PHYSICAL_SUBCATEGORIES.map((cat) => (
                     <option key={cat.value} value={cat.value}>{cat.label}</option>
                   ))}
                 </select>
@@ -903,7 +908,7 @@ export function ShopManager() {
             <ShoppingBag className="w-6 h-6 text-crwn-gold" />
           </div>
           <p className="text-crwn-text font-medium mb-1">No products yet</p>
-          <p className="text-crwn-text-secondary text-sm mb-4">Sell beats, samples, merch, and more to your fans</p>
+          <p className="text-crwn-text-secondary text-sm mb-4">Sell beats, samples, stems, and more to your fans</p>
           <button
             onClick={() => setShowForm(true)}
             className="inline-flex items-center gap-2 px-5 py-2.5 bg-crwn-gold text-crwn-bg font-semibold rounded-full hover:bg-crwn-gold-hover transition-colors text-sm"

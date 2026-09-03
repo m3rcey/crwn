@@ -58,7 +58,7 @@ export const DEAL_TYPES: DealTypeMeta[] = [
     key: 'offer_share',
     label: 'Offer Revenue Share',
     blurb: 'A percentage of one specific offer (a product or membership).',
-    bestFor: 'Merch, supporter packs, vault offers, tickets',
+    bestFor: 'Supporter packs, vault offers, product drops, tickets',
     requiresPercentage: true,
     requiresSource: true,
   },

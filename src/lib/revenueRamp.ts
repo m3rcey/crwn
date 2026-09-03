@@ -377,7 +377,7 @@ export const RAMP_STEPS: RampStepDef[] = [
     key: 'expand_shop',
     phase: 'depth',
     title: 'Expand the shop to five products',
-    detail: 'Stems, sample packs, presets, merch. This is the a la carte line in your number, and it is the part that does not depend on anyone subscribing.',
+    detail: 'Stems, sample packs, presets, loop kits. This is the a la carte line in your number, and it is the part that does not depend on anyone subscribing.',
     dueDay: 230,
     href: '/studio/shop',
     fulfillmentType: 'manual_task',

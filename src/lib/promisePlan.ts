@@ -25,10 +25,14 @@ import { tierNameAliases, normalizeTierName } from '@/lib/tierTemplate';
 //
 // `fulfillmentType` and `title` describe the obligation IF the artist schedules it. Titles
 // are stable on purpose: they are half of an existing obligation's dedup identity.
+//
+// `monthly_merch` left this table on 2026-09-03 with the rest of the physical-goods
+// surface: CRWN ships nothing and has no fulfillment screen, so it could not help an
+// artist keep a shipment schedule it let them promise. The key is retired in the
+// registry rather than renamed, and production carried no row under it.
 export const PROMISE_BENEFITS: Record<string, { fulfillmentType: string; title: string }> = {
   group_live_qa: { fulfillmentType: 'livestream', title: 'Group live Q&A' },
   one_on_one_call: { fulfillmentType: 'event', title: '1-on-1 call' },
-  monthly_merch: { fulfillmentType: 'shipment', title: 'Monthly merch' },
   exclusive_posts: { fulfillmentType: 'content_drop', title: 'Supporter-only post' },
   creative_voting: { fulfillmentType: 'fan_council', title: 'Creative vote' },
 };

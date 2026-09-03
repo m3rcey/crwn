@@ -8,7 +8,7 @@ export type ContributionType = 'support' | 'rsvp' | 'referral' | 'share' | 'vote
 export const UNLOCK_TYPES: { value: UnlockType; label: string; icon: string; hint: string }[] = [
   { value: 'event', label: 'Live event / show', icon: '🎤', hint: 'A show, pop-up, or listening party.' },
   { value: 'live', label: 'City-exclusive live', icon: '📡', hint: 'A livestream just for this city.' },
-  { value: 'drop', label: 'Local drop', icon: '📦', hint: 'Merch or a release for the city.' },
+  { value: 'drop', label: 'Local drop', icon: '📦', hint: 'A release or unlock just for this city.' },
   { value: 'offer', label: 'Special offer', icon: '🎟️', hint: 'A ticket or backer offer.' },
   { value: 'content', label: 'Exclusive content', icon: '🎬', hint: 'A video or track for the city.' },
   { value: 'custom', label: 'Custom', icon: '➕', hint: 'Your own reward.' },

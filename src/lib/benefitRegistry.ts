@@ -474,19 +474,6 @@ export const BENEFIT_REGISTRY: readonly BenefitDelivery[] = [
     configFields: [{ key: 'experience_text', label: 'Describe it', type: 'text', maxLength: 60, default: '' }],
   },
   {
-    key: 'monthly_merch',
-    label: 'Merch in the mail',
-    fanMeaning: 'Physical merch shipped to them.',
-    cardLine: 'Merch drop',
-    support: 'manual',
-    icon: '📦',
-    category: 'shop',
-    delivery: 'You make and ship it yourself.',
-    effort: 'active',
-    cadence: 'optional',
-    configFields: [FREQUENCY_FIELD],
-  },
-  {
     key: 'shoutout',
     label: 'A shoutout from you',
     fanMeaning: 'You name them in a post or a session.',
@@ -500,6 +487,23 @@ export const BENEFIT_REGISTRY: readonly BenefitDelivery[] = [
   },
 
   // --------------------------------------------------------------- RETIRED
+  {
+    // Retired 2026-09-03 with the rest of the physical-goods surface. CRWN does not
+    // sell, ship, or track a physical item: the shop no longer offers a physical
+    // product type, and no artist screen ever read the shipping address a physical
+    // checkout collected. A tier that promised merch in the mail was promising
+    // something CRWN could not help keep. Zero production rows carried this key.
+    key: 'monthly_merch',
+    label: 'Merch in the mail',
+    fanMeaning: 'Retired. CRWN does not ship physical items.',
+    cardLine: 'Merch drop',
+    support: 'retired',
+    icon: '📦',
+    category: 'shop',
+    delivery: 'No longer offered. Link your own merch store from your profile instead.',
+    effort: 'active',
+    cadence: 'none',
+  },
   {
     key: 'exclusive_albums',
     label: 'Exclusive albums',

@@ -527,7 +527,7 @@ export const guides: GuideData[] = [
       },
       {
         title: 'Beyond 1,000: Scale and diversify',
-        content: 'With a strong member base, explore: live experiences for your fans, physical merchandise, ticketed sessions, and collaboration projects. The platform grows with you.',
+        content: 'With a strong member base, explore: live experiences for your fans, ticketed sessions, deeper vault drops, and collaboration projects. The platform grows with you.',
       },
     ],
     proTips: [

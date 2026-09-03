@@ -47,7 +47,7 @@ export const BENEFIT_CATALOG: BenefitDefinition[] = BENEFIT_REGISTRY.map(toDefin
 export const BENEFIT_CATEGORIES = [
   { key: 'music', label: 'Music Access' },
   { key: 'community', label: 'Community' },
-  { key: 'shop', label: 'Shop & Merch' },
+  { key: 'shop', label: 'Shop' },
   { key: 'experiences', label: 'Experiences' },
   { key: 'recognition', label: 'Recognition' },
 ] as const;

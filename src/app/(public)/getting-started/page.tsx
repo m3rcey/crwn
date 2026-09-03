@@ -204,7 +204,7 @@ const fanSteps = [
   { icon: Search, step: 1, title: 'Find Your Artist', description: 'Most people arrive on CRWN through a link from an artist they already follow. Every artist here is independent and keeps the majority of what you pay.' },
   { icon: Crown, step: 2, title: 'Subscribe to Artists', description: 'Pick a tier and support your favorite artists directly. Annual subscriptions save you 25%. Your subscription unlocks exclusive content.' },
   { icon: Heart, step: 3, title: 'Build Your Library', description: 'Like songs to save them, create playlists, and organize your collection. Your library grows as you discover new music.' },
-  { icon: Store, step: 4, title: 'Shop for Exclusives', description: 'Buy digital products like beat packs, physical merch, or experiences like listening parties and sessions with your favorite artists.' },
+  { icon: Store, step: 4, title: 'Shop for Exclusives', description: 'Buy digital products like beat packs and sample packs, or experiences like listening parties and sessions with your favorite artists.' },
   { icon: Headphones, step: 5, title: 'Listen Anywhere', description: 'Music keeps playing as you browse. Add CRWN to your home screen for the best mobile experience.' },
   { icon: MessageCircle, step: 6, title: 'Join the Conversation', description: 'Comment on posts and talk to the artist and other fans on their page. Higher tiers unlock posts nobody else can see.' },
   { icon: Share2, step: 7, title: 'Share & Earn', description: 'Share any link (an artist page, a track, the shop) with friends. When someone subscribes through your link, you earn a recurring commission on every payment.' },

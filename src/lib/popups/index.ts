@@ -15,8 +15,24 @@ interface PopupEventRow {
   created_at: string;
 }
 
+/**
+ * Founder pause, 2026-09-03: no user sees a pop-up, on any page, on any account.
+ *
+ * This is deliberately a CODE gate above the flag rather than a flag flip. It takes
+ * effect on deploy without a SQL round trip, it is one line to lift, and it leaves
+ * admin_settings.popup_engine exactly as production has it, so nothing is lost about
+ * the intended state when the pause is lifted. Note that verify:flags will keep
+ * reporting popup_engine ON: the flag IS on, and this is the separate fourth state
+ * (runtime reachability), which is why the two are never collapsed.
+ *
+ * popup_events keep their meaning: they are the governor's frequency-cap state, and
+ * nothing is written while nothing is shown.
+ */
+const POPUPS_PAUSED = true;
+
 /** Is the Pop-up Engine dark-launch flag on? Reads admin_settings.popup_engine. */
 export async function isPopupEngineEnabled(admin: any): Promise<boolean> {
+  if (POPUPS_PAUSED) return false;
   try {
     const { data } = await admin
       .from('admin_settings')

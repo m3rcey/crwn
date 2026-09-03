@@ -50,7 +50,7 @@ const MONETIZE = [
   { icon: Disc3, tag: 'One-off', title: 'Tracks, stems & remixes', line: 'Sell songs, beat stems, and multitracks as one-off downloads.' },
   { icon: Radio, tag: 'Ticketed', title: 'Live sessions', line: 'Charge a ticket to go live, or make it a tier perk. Every stream auto-saves.' },
   { icon: Video, tag: 'Premium', title: 'Access to you', line: 'Priority DMs, voice notes, 1-on-1 video calls, custom songs.' },
-  { icon: ShoppingBag, tag: 'Shop', title: 'Shop & merch', line: 'Digital products, sample packs, merch. Members get discounts.' },
+  { icon: ShoppingBag, tag: 'Shop', title: 'Digital storefront', line: 'Beat stems, sample packs, presets, videos. Members get discounts.' },
   { icon: Star, tag: 'Whale', title: 'Custom & experiences', line: 'Custom verses, shoutouts, one-of-one experiences. Name your price.' },
 ];
 
@@ -236,7 +236,7 @@ export function CrwnShowcase({ claimed, claimHref }: { claimed: boolean; claimHr
       <MockSection
         icon={ShoppingBag}
         title="Your storefront, live in minutes"
-        copy="Sell tracks, stems, sample packs, and merch as one-off products. Members get a discount."
+        copy="Sell tracks, stems, sample packs, and presets as one-off downloads. Members get a discount."
       >
         <ShopMock />
       </MockSection>

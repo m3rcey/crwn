@@ -655,6 +655,21 @@ responsible for. Do not work those.
 
 ### P2 — worth doing, nothing breaks if you never do it
 
+- [ ] **Decide whether CRWN claims to replace Shopify.** The stack audit maps Shopify, Gumroad and
+      Bandcamp all to the `storefront` category, and `CRWN_REPLACES.storefront` is `true`
+      ([src/lib/stackReplacement.ts](src/lib/stackReplacement.ts)). That is true for Gumroad and a
+      digital Bandcamp and false for a merch Shopify, now that CRWN sells no physical goods at all.
+      Ticketing is already held at `false` for exactly this reason. Left alone on purpose on
+      2026-09-03 because flipping it changes a modelled savings number an artist is shown, which is
+      your call, not mine. Either split the category, or drop Shopify from the mapping in
+      [src/lib/stackReplacementSource.ts](src/lib/stackReplacementSource.ts). Say which and I ship it.
+
+- [ ] **Pop-ups are paused. Say when to turn them back on.** Since 2026-09-03 nobody sees a pop-up:
+      `POPUPS_PAUSED = true` in [src/lib/popups/index.ts](src/lib/popups/index.ts). The
+      `admin_settings.popup_engine` flag is untouched and still ON, so this is one constant to flip
+      back, no SQL. Nothing is broken while it is paused, but every announcement pop-up written in
+      the meantime ships to an audience of zero, and the Post-Win referral prompt is not firing.
+
 - [ ] **Confirm the Stripe tier sync once, by editing a tier.** Shipped 2026-09-03: saving a
       tier now pushes its name and description to the Stripe product, so a rename no longer
       leaves the old words on the Checkout order summary

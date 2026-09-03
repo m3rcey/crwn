@@ -65,9 +65,9 @@ interface GoalDef {
   benefits: string[];
   productTitle: string;
   productType: Exclude<ProductType, 'experience' | 'bundle'>;
-  // One-time only: whether to ask the digital/physical delivery kind. Funding /
-  // backer-pack goals skip it — "digital download vs physical merch" doesn't fit them
-  // (the type is preset and delivery is refined later in the Shop tab).
+  // One-time only: whether this goal would ask the delivery kind. Only meaningful
+  // while more than one kind exists (see ASK_KIND); funding / backer-pack goals
+  // never asked it, since the type is preset for them.
   askKind?: boolean;
   // One-time only: a backer/funding contribution — fans buy it to SUPPORT, not to
   // download something. Contributions never require a delivered file, even when
@@ -159,11 +159,15 @@ const BENEFIT_SUGGESTIONS = [
   'Unreleased vault tracks',
 ];
 
-// Experiences require Pro-only scheduling, so the builder offers digital/physical only.
+// Experiences require Pro-only scheduling, and physical goods were removed on
+// 2026-09-03 (CRWN has no fulfillment surface), so the builder offers digital only.
+// With one kind left there is nothing to ask, so ASK_KIND turns the question off
+// rather than showing a one-answer screen. It stays derived from the list so adding
+// a second kind back brings the question back with it.
 const PRODUCT_TYPES: { value: Exclude<ProductType, 'experience' | 'bundle'>; label: string; hint: string }[] = [
-  { value: 'digital', label: 'Digital download', hint: 'Unreleased tracks, videos, art' },
-  { value: 'physical', label: 'Physical / merch', hint: 'Vinyl, shirts, CDs' },
+  { value: 'digital', label: 'Digital download', hint: 'Unreleased tracks, stems, sample packs, videos, art' },
 ];
+const ASK_KIND = PRODUCT_TYPES.length > 1;
 
 const ARTIST_WIDE_NOTE =
   'This is your artist-wide rate. It applies to everyone promoting your page, not just this offer (per-offer rates come later).';
@@ -175,7 +179,7 @@ const INPUT =
 
 // A "digital deliverable" — the fan downloads a file after buying. Only these
 // offers get the upload step: one-time + digital + not a backer contribution.
-// Subscriptions, physical/merch, and Fund-a-Video style contributions don't.
+// Subscriptions and Fund-a-Video style contributions don't.
 function offerDeliversFile(
   offerType: OfferType,
   goal: GoalDef | null,
@@ -398,8 +402,8 @@ function OfferBuilder() {
 
   const pickProductType = (t: Exclude<ProductType, 'experience' | 'bundle'>) => {
     setProductType(t);
-    // Physical ships — never attach a previously uploaded digital file to it.
-    if (t === 'physical') {
+    // A kind that does not deliver a file must never carry a previously uploaded one.
+    if (t !== 'digital') {
       setProductFileKey(null);
       setProductFileName('');
     }
@@ -732,10 +736,9 @@ function OfferBuilder() {
                 value={productTitle}
                 onChange={(e) => setProductTitle(e.target.value)}
               />
-              {/* The digital/physical delivery kind only shows for goals where it
-                  actually applies (e.g. a drop or a merch pack) — funding/backer
-                  goals skip it (type is preset, delivery is set later in the Shop tab). */}
-              {selectedGoal?.askKind && (
+              {/* The delivery kind only shows when there is more than one kind to
+                  pick and the goal actually asks it. Funding/backer goals never do. */}
+              {ASK_KIND && selectedGoal?.askKind && (
                 <div>
                   <label className="block text-sm font-medium text-crwn-text mb-2">What kind is it?</label>
                   <div className="grid gap-3">
@@ -890,8 +893,8 @@ function OfferBuilder() {
                 />
                 {offerType === 'subscription' ? (
                   <ReviewRow label="Benefits" value={benefits.length > 0 ? benefits.join(' · ') : 'None yet'} />
-                ) : selectedGoal?.askKind ? (
-                  <ReviewRow label="Kind" value={productType === 'digital' ? 'Digital download' : 'Physical / merch'} />
+                ) : ASK_KIND && selectedGoal?.askKind ? (
+                  <ReviewRow label="Kind" value={PRODUCT_TYPES.find((t) => t.value === productType)?.label ?? 'Digital download'} />
                 ) : null}
                 {deliversFile && <ReviewRow label="File" value={productFileName || 'No file'} />}
                 {offerType === 'subscription' && (
@@ -925,7 +928,7 @@ function OfferBuilder() {
                       ? 'Your membership tier, live on your page (Stripe prices are added automatically when you connect Stripe)'
                       : deliversFile
                         ? 'Your product, live in your shop. The file is attached and ready to sell'
-                        : 'Your product, live in your shop (add the file or shipping details from the Shop tab)'}
+                        : 'Your product, live in your shop (add the file from the Shop tab)'}
                   </li>
                   {shareOn && (
                     <li className="flex items-start gap-2">

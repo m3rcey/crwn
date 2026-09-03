@@ -71,8 +71,8 @@ describe('support classification (D2, D3, section 1)', () => {
     }
   });
 
-  it('retires the three benefits CRWN sold and never delivered', () => {
-    for (const k of ['exclusive_albums', 'community_badge', 'supporter_wall']) {
+  it('retires the benefits CRWN sold and never delivered', () => {
+    for (const k of ['exclusive_albums', 'community_badge', 'supporter_wall', 'monthly_merch']) {
       expect(benefitDelivery(k)?.support).toBe('retired');
       expect(isSupportedBenefit(k)).toBe(false);
       expect(selectableBenefits().map((b) => b.key)).not.toContain(k);
@@ -83,7 +83,7 @@ describe('support classification (D2, D3, section 1)', () => {
   });
 
   it('classifies the artist-delivered promises as manual, with no readiness and no fast action', () => {
-    for (const k of ['one_on_one_call', 'priority_replies', 'custom_song_request', 'custom_experience', 'monthly_merch', 'shoutout']) {
+    for (const k of ['one_on_one_call', 'priority_replies', 'custom_song_request', 'custom_experience', 'shoutout']) {
       const b = benefitDelivery(k)!;
       expect(b.support).toBe('manual');
       expect(b.readiness).toBeUndefined();
