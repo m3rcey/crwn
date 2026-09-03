@@ -21,6 +21,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Check, Crown, Download, Loader2, Lock, Mail, Play } from 'lucide-react';
 import { supabase } from '@/lib/supabase/client';
 import { freeJoinDisclosure } from '@/lib/subscriptions/freeJoinDisclosure';
+import { InlineAudioPlayer } from '@/components/shared/InlineAudioPlayer';
 import { TierOfferExperience } from '@/components/offer/TierOfferExperience';
 import type { TierOfferExperience as OfferConfig } from '@/lib/offerExperience/types';
 
@@ -331,15 +332,7 @@ export function DropFunnelClient({ token, artist, magnet, gold, goldItem, silver
   const magnetAccess = claimed?.magnet?.trackUrl ? (
     // The song plays HERE. The signed URL is short-lived by design; the player mounts it
     // for this visit, and re-access below mints a fresh one any time.
-    <div className="space-y-2">
-      <audio
-        controls
-        preload="none"
-        src={claimed.magnet.trackUrl}
-        aria-label={`${magnet.title || 'Your track'} player`}
-        className="w-full"
-      />
-    </div>
+    <InlineAudioPlayer src={claimed.magnet.trackUrl} title={magnet.title || 'Your track'} />
   ) : claimed?.magnet?.url ? (
     <a
       href={claimed.magnet.url}
