@@ -13,6 +13,7 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { resolveFunnelOffers, type OfferTierRow } from '@/lib/fanAutomations/offerTiers';
 import { offerExperiencesForTiers } from '@/lib/offerExperience/server';
 import { accentPageVars } from '@/lib/contrast';
+import { presentCampaign, type CampaignRow } from '@/lib/campaigns/giveaway';
 import type { CSSProperties } from 'react';
 import { isPresentableArtistName } from '@/lib/publicName';
 import { DropFunnelClient, type DropOfferTier } from '@/components/drop/DropFunnelClient';
@@ -99,6 +100,33 @@ export default async function DropPage({ params }: { params: Promise<{ token: st
   // GB's Platinum-then-Gold funnel is configuration of these two pointers, not code.
   const { primary: gold, downsell: silver } = resolveFunnelOffers(tiers, automation);
 
+  // ── The temporary campaign layer, if one is running. ──────────────────────────
+  //
+  // FAILS CLOSED, always: a campaign that is draft, outside its window, misconfigured, or
+  // a giveaway missing any legal fact resolves to null and this page renders the ordinary
+  // evergreen funnel. The fan never sees a half-configured sweepstakes, and the magnet,
+  // the free join and both offers below are untouched either way.
+  //
+  // prizeFulfillable is FALSE as of 2026-09-02 and that is a product fact, not a setting:
+  // CRWN has no mechanism to grant months of a paid tier without a real payment (the
+  // discount rail mints single-cycle coupons; the only writers of a paid subscription are
+  // Stripe-driven). Until that exists, a campaign offering a membership prize cannot go
+  // public, which is exactly the intended behaviour.
+  let campaign = null;
+  try {
+    const { data: row } = await supabaseAdmin
+      .from('fan_campaigns')
+      .select('id, artist_id, archetype, title, status, toolkit, starts_at, ends_at')
+      .eq('artist_id', artist.id)
+      .eq('status', 'active')
+      .maybeSingle();
+    if (row) {
+      campaign = presentCampaign(row as CampaignRow, new Date(), { prizeFulfillable: false });
+    }
+  } catch {
+    /* no campaign spine, or a read fault: the evergreen funnel is the answer */
+  }
+
   // Tier Offer Experiences, when the artist has them: the full merchandised sales
   // presentation for the primary and downsell tiers, read server-side and fail-soft.
   // No config means the funnel renders its compact cards exactly as before.
@@ -132,6 +160,7 @@ export default async function DropPage({ params }: { params: Promise<{ token: st
       }}
       silver={toOffer(silver, benefitLines)}
       experiences={experiences}
+      campaign={campaign}
     />
     </div>
   );

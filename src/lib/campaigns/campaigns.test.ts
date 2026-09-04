@@ -54,8 +54,14 @@ function diagnosed(over: Partial<DiagnosedConstraint> = {}): DiagnosedConstraint
 // ---------------------------------------------------------------------------
 
 describe('archetypes are data, and only shippable ones exist', () => {
-  it('ships exactly one archetype in V1', () => {
-    expect(ARCHETYPE_KEYS).toEqual(['fan_recruitment']);
+  it('ships only archetypes the spine can actually run', () => {
+    // Grew from one to two on 2026-09-02 with founding_ar_week, the temporary campaign
+    // layer that wraps an evergreen funnel (docs/crwn-brain/22, "Campaigns that WRAP an
+    // evergreen funnel"). It declares 'participation' ONLY: no referral_link, because a
+    // campaign entry must never depend on recruiting. Adding a third takes the same
+    // chain: founder decision, registry entry, capabilities the spine implements, and
+    // this pin.
+    expect(ARCHETYPE_KEYS).toEqual(['fan_recruitment', 'founding_ar_week']);
   });
 
   it('every shipped archetype only declares capabilities the spine implements', () => {

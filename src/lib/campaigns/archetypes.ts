@@ -149,8 +149,104 @@ const FAN_RECRUITMENT: CampaignArchetype = {
   ],
 };
 
+/**
+ * Founding A&R Week. A time-boxed participation campaign that WRAPS an artist's existing
+ * evergreen acquisition funnel: same lead magnet, same free join, same paid offers. The
+ * campaign adds a deadline and a reason to take part now; it never replaces the magnet
+ * and it can never redefine what a tier grants.
+ *
+ * GIVEAWAY IS OPTIONAL AND GATED. An artist may attach a prize, and when they do this
+ * becomes a sweepstakes, which is legally sensitive in a way the rest of the spine is
+ * not. Every one of those facts (rules URL, prize, eligibility, entry action, the
+ * no-purchase-necessary path) is a REQUIRED toolkit slot, and nothing renders publicly
+ * until src/lib/campaigns/giveaway.ts says every one of them is present. There is no
+ * partial sweepstakes state: it is fully configured or the fan sees the ordinary funnel.
+ *
+ * Capabilities are 'participation' ONLY. No referral_link: entries must never depend on
+ * recruiting, and no purchase and no share may improve anyone's odds.
+ */
+const FOUNDING_AR_WEEK: CampaignArchetype = {
+  key: 'founding_ar_week',
+  label: 'Founding A&R Week',
+  summary:
+    'Your funnel runs all year and nothing about it ever says now. A week with a deadline and a real decision to take part in gives the people already looking a reason to stop scrolling and join today.',
+  servesConstraints: ['REACH', 'FIRST_PAID'],
+  acceptedRoles: ['participant'],
+  capabilities: ['participation'],
+  toolkit: [
+    {
+      key: 'promise',
+      label: 'The campaign promise',
+      help: 'One line. What the fan gets to do this week that they cannot do the rest of the year.',
+      required: true,
+      maxLength: 140,
+    },
+    {
+      key: 'what_to_do',
+      label: 'What taking part actually means',
+      help: 'The exact action. If a prize is attached, this is also the qualifying action, so it must match your Official Rules word for word.',
+      required: true,
+      maxLength: 300,
+    },
+    {
+      key: 'prize',
+      label: 'The prize, exactly as you will honour it',
+      help: 'Leave blank for a campaign with no giveaway. Anything written here must be something you can actually deliver.',
+      required: false,
+      maxLength: 140,
+    },
+    {
+      key: 'prize_value',
+      label: 'Stated retail value',
+      help: 'Only if your rules state one, and only if it is true at the current price.',
+      required: false,
+      maxLength: 60,
+    },
+    {
+      key: 'official_rules_url',
+      label: 'Official Rules link',
+      help: 'Required for any giveaway. Your own sweepstakes rules; a general terms page is not Official Rules.',
+      required: false,
+      maxLength: 300,
+    },
+    {
+      key: 'eligibility',
+      label: 'Who can enter, in one line',
+      help: 'Required for any giveaway. Age and territory as stated in your rules.',
+      required: false,
+      maxLength: 200,
+    },
+    {
+      key: 'free_entry',
+      label: 'The free way to enter',
+      help: 'Required for any giveaway. No purchase necessary is not a slogan: this is the path a fan takes without paying anything.',
+      required: false,
+      maxLength: 240,
+    },
+  ],
+  defaultToolkit: {
+    promise: 'Help shape what comes next.',
+    what_to_do: "Join free, unlock the drop, and take part in this week's decision.",
+  },
+  incentive: {
+    kind: 'non_cash',
+    badgeKey: 'first_100',
+    description:
+      "Taking part during the week counts toward the First 100 badge on this artist's page.",
+  },
+  verifiedOutcomes: [
+    'Fans who joined the free tier during the campaign window, recorded by the same free-join writer the evergreen funnel uses.',
+    'Participants who took the campaign action, where that action is a CRWN surface that records it.',
+  ],
+  unmeasuredOutcomes: [
+    'Anything a fan did off CRWN. There is no social integration, so a post, a story or a share is not counted and is reported as unknown rather than zero.',
+    'Whether a participant would have joined anyway without the campaign. The window is a report boundary, not a causal claim.',
+  ],
+};
+
 export const CAMPAIGN_ARCHETYPES: Record<string, CampaignArchetype> = {
   [FAN_RECRUITMENT.key]: FAN_RECRUITMENT,
+  [FOUNDING_AR_WEEK.key]: FOUNDING_AR_WEEK,
 };
 
 /** Archetype keys shippable today. A key outside this list is rejected at every boundary. */

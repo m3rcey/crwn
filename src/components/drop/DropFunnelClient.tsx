@@ -22,6 +22,8 @@ import { Check, Crown, Download, Loader2, Lock, Mail, Play } from 'lucide-react'
 import { supabase } from '@/lib/supabase/client';
 import { freeJoinDisclosure } from '@/lib/subscriptions/freeJoinDisclosure';
 import { InlineAudioPlayer } from '@/components/shared/InlineAudioPlayer';
+import { CampaignBanner } from '@/components/drop/CampaignBanner';
+import type { CampaignPresentation } from '@/lib/campaigns/giveaway';
 import { TierOfferExperience } from '@/components/offer/TierOfferExperience';
 import type { TierOfferExperience as OfferConfig } from '@/lib/offerExperience/types';
 
@@ -43,6 +45,9 @@ interface ClaimMagnet {
 interface Props {
   token: string;
   artist: { name: string; slug: string; avatarUrl: string | null };
+  /** The active campaign wrapper, or null. Null is the normal state and means the
+   *  evergreen funnel renders exactly as it always has. */
+  campaign?: CampaignPresentation | null;
   /** Normalized Tier Offer Experiences by tier id, read server-side. When a tier has one,
    *  the funnel renders the full merchandised experience; otherwise the compact card, so
    *  artists without a config are byte-for-byte unchanged. */
@@ -76,7 +81,7 @@ function codeErrorText(raw: string): string {
   return 'We could not send the code. Try again in a moment.';
 }
 
-export function DropFunnelClient({ token, artist, magnet, gold, goldItem, silver, experiences }: Props) {
+export function DropFunnelClient({ token, artist, magnet, gold, goldItem, silver, experiences, campaign }: Props) {
   const storageKey = `crwn_drop_${token}`;
   const [phase, setPhase] = useState<Phase>('capture');
   const [email, setEmail] = useState('');
@@ -527,6 +532,10 @@ export function DropFunnelClient({ token, artist, magnet, gold, goldItem, silver
     <div className="min-h-screen bg-crwn-bg text-crwn-text">
       <div className="max-w-lg mx-auto px-4 py-10">
         {header}
+
+        {campaign && (phase === 'capture' || phase === 'delivered') && (
+          <CampaignBanner campaign={campaign} />
+        )}
 
         {phase === 'capture' && (
           <div className="neu-raised rounded-2xl p-6 bg-crwn-card text-center">

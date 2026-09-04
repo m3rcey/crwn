@@ -80,6 +80,28 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **Founding A&R Week is built and CANNOT go live yet. Five things are missing and four
+      of them are yours.** The campaign draft exists for GB and fails closed, so the
+      evergreen Go Bad funnel is running normally right now and will keep doing so until
+      every blocker clears. Run `npx tsx scripts/configure-gb-campaign.mjs` any time to
+      re-print the live blocker list.
+
+      **1. A prize CRWN can actually deliver (THE BLOCKER I CANNOT CLEAR).** There is no
+      mechanism to grant 12 months of Platinum without a real payment: the discount rail
+      mints single-cycle coupons only, and every paid-subscription writer is Stripe-driven.
+      The options are a Stripe coupon at 100% for 12 months applied to a real subscription,
+      or a comped-membership concept. Both are a separate build and a founder decision
+      about how comped members appear in revenue. **Until this exists no membership prize
+      may be advertised.**
+      2. **Official Rules.** GB's own sweepstakes rules at a real URL. The CRWN terms page
+         is not Official Rules.
+      3. **Eligibility.** Age and territory, matching those rules.
+      4. **The free entry path, in one line**, matching the rules word for word.
+      5. **Start and end dates.**
+
+      Give me 2 to 5 and I will fill them in; 1 needs a decision before I build anything.
+
+
 - [ ] **Run the first real purchase through GB's funnel yourself.** Everything else is proved
       in production; a real card is the one thing I cannot test. It proves three things at
       once: Platinum entitlement lands from the webhook, the receipt sends, and the nurture

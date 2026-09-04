@@ -1,5 +1,46 @@
 # VIRALITY ENGINE: Canonical Architecture
 
+## Campaigns that WRAP an evergreen funnel (2026-09-02)
+
+A temporary campaign layers on top of an artist's existing acquisition funnel. **It wraps
+it, it never replaces it.** The lead magnet, the free join, the paid offers, the nurture
+and the entitlements are all untouched; the campaign adds a deadline and a reason to take
+part now. A campaign can never redefine what a tier grants.
+
+**NO NEW SCHEMA.** `founding_ar_week` is an archetype in the registry (archetypes are DATA,
+so adding one is not a migration), its configuration lives in `fan_campaigns.toolkit`, its
+lifecycle is the existing `status` + `starts_at`/`ends_at`, and an entrant is an ordinary
+`fan_campaign_participants` row. `capabilities` is `['participation']` only: deliberately
+NOT `referral_link`, because entry must never depend on recruiting.
+
+**It FAILS CLOSED, and that is the whole safety model.** `src/lib/campaigns/giveaway.ts`
+resolves a campaign to a fan-facing presentation or to null, and null renders the ordinary
+evergreen funnel. Draft, archived, outside the window, inverted dates, missing copy, or a
+giveaway missing any legal fact all resolve to null. There is no partial sweepstakes state.
+
+**A prize makes it a sweepstakes, and those facts are inputs, never inferences.** When any
+prize field is set, the gate additionally requires an Official Rules URL (a real https URL;
+a general terms page is not Official Rules), an eligibility line, and the stated free entry
+path. Software may not invent an age, a territory, a deadline, a qualifying action or a
+winner method.
+
+**No purchase necessary is structural.** The presentation type carries no tier, price,
+subscription or checkout field at all, so making entry depend on paying would require
+adding one. Paying cannot improve odds because nothing about a purchase reaches the entry
+path, and a test asserts the shape rather than the copy.
+
+**Prize fulfilment is a real gap, not a config gap.** As of 2026-09-02 CRWN has NO way to
+grant months of a paid tier without a real payment: the discount rail mints single-cycle
+coupons (`duration: 'once'`), and the only writers of a paid subscription row are
+Stripe-driven. So `prizeFulfillable` is passed as false and any membership prize is blocked
+from going public. A sweepstakes that cannot pay out is the failure worth blocking hardest.
+
+**GB's Founding A&R Week is a DRAFT and is NOT live.** Its prize concept and value line are
+configured (the value is derived from the live Platinum price so it cannot outlive it); its
+dates, rules URL, eligibility and free-entry path are deliberately empty and each one is a
+listed blocker. Rise Mode is unchanged: it still builds the evergreen first-revenue machine,
+and temporary campaigns remain a later growth layer.
+
 > **Status: V1 LIVE IN PRODUCTION 2026-08-11 (Z11). Migration applied to `ecpqtuidtsncjfwtkvwc`
 > and verified against the real database. Everything beyond V1 in this document remains
 > architecture only.** What is live, and what is explicitly not, is section 28. Read that first
