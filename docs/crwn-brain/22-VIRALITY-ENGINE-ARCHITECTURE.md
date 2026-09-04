@@ -1869,3 +1869,102 @@ personalised claim is rendered anywhere.
 [`21-MONEY-MODEL-MEASUREMENT.md`](21-MONEY-MODEL-MEASUREMENT.md) (the money discipline this
 inherits), [`07-BUSINESS-RULES.md`](07-BUSINESS-RULES.md) (the rules a campaign may not
 contradict), [`docs/ICP.md`](../ICP.md) (who these campaigns are for).*
+
+---
+
+## 29. The prize delivery rail (2026-09-04): built, proven, and deliberately not invocable
+
+A campaign may promise a membership prize ("1 year of Platinum"). This section is what CRWN
+can actually do about it, what it proved, and the one thing it refused to build.
+
+### 29.1 What a prize IS
+
+A prize is a membership CRWN GRANTS. It is never revenue. `subscriptions.prize_campaign_id`
+(nullable FK to `fan_campaigns`, `ON DELETE SET NULL`, APPLIED 2026-09-04) marks it. The fan is
+a full member for entitlement (the oracle reads an active row and a tier, never a price) and
+contributes nothing to paying-member counts, MRR, earnings, fees, payouts or first-paid
+conversion while the prize is active.
+
+### 29.2 Scheduled versus active: the accounting edge that matters
+
+A paying Gold member who wins does not stop paying today. Their prize is SCHEDULED for their
+next renewal and their $25 is real until then. The first prize-aware rule excluded every row
+with `prize_campaign_id`, which would have erased that revenue months early. So there are two
+states, distinguished with NO new schema by the existing `pending_change_date` column (the same
+column a scheduled downgrade uses for the same meaning):
+
+| `prize_campaign_id` | `pending_change_date` | State | Counts as paying |
+|---|---|---|---|
+| set | null | ACTIVE (immediate prize, or boundary passed and tidied) | no |
+| set | in the past | ACTIVE (boundary passed, webhook not yet tidied) | no |
+| set | in the future | SCHEDULED | yes, at their current tier |
+| null | anything | not a prize | yes if priced |
+
+`src/lib/campaigns/prizeState.ts` is the ONE rule (`countsAsPaying`), read by the constraint
+assembler, the roadmap route and the analytics route. Three readers, one function, pinned in
+`prizeMembership.test.ts`.
+
+### 29.3 The four winner states and what Stripe builds
+
+| Winner today | Plan | Stripe | Row |
+|---|---|---|---|
+| nothing / Bronze | `create_now` | schedule at `'now'`, one Platinum phase, 100% coupon, 12 monthly periods, `end_behavior: 'cancel'`, artist routing in `default_settings` | the SAME (fan, artist) row updated in place: tier, Stripe ids, `prize_campaign_id`, `pending_change_date: null` |
+| Silver / Gold | `schedule_at_period_end` | `from_subscription`, paid phase re-sent unchanged, prize phase appended, cancel after | `prize_campaign_id`, `pending_change_date = boundary`, **`pending_tier_id = Platinum`** |
+| existing Platinum | `schedule_at_period_end` | same | `prize_campaign_id`, `pending_change_date = boundary`, no `pending_tier_id` (tier does not change) |
+
+Proven in Stripe test mode, 38 checks, 0 failures, 0 unproven (`npm run verify:prize-lifecycle`):
+no card for the immediate prize (finalised invoice `status=paid`, $0, zero charges), paid
+period preserved to the day, no refund, no duplicate subscription, exactly twelve monthly
+periods, hard stop, and on a routed $0 invoice zero charges, zero transfers, no fee. The
+construction is `src/lib/campaigns/prizeStripe.ts`, pinned against the harness by test.
+
+### 29.4 `pending_tier_id` is load-bearing, and the handler had a bug
+
+`handleSubscriptionUpdated` only moves `tier_id` when `pending_tier_id` is set AND Stripe is now
+billing that tier's price. A scheduled Silver/Gold prize therefore MUST set `pending_tier_id`
+or the winner flips to free billing while keeping Silver entitlement.
+
+Fixing that exposed a pre-existing bug: the handler compared the live price against the
+CURRENT tier's price (the embed joined `subscriptions_tier_id_fkey`), which is always equal
+before a change, so every pending change applied on the next event while Stripe kept billing
+the old price. It now reads the PENDING tier's price by id, the decision is pure
+(`src/lib/subscriptions/pendingTierApply.ts`), a prize is recorded as `campaign_prize` rather
+than `scheduled_downgrade`, and a winner is not enrolled in the tier_upgrade nurture (goal
+exit still runs, on tier rank, with no fake revenue).
+
+**Still open, and not this rail's to fix:** the scheduled DOWNGRADE path never tells Stripe
+about the downgrade at all (`/api/stripe/subscription-update` only writes the DB). With the
+comparison corrected, a downgrade now waits for a Stripe price change that nothing schedules.
+Before: the fan saw the lower tier and paid the higher one. After: the fan keeps what they pay
+for and the request is ignored. The correct mechanism is the same subscription schedule the
+prize uses. Tracked in TODO.md.
+
+### 29.5 The executor and the missing endpoint
+
+`fulfillCampaignPrize` (`src/lib/campaigns/prizeExecutor.ts`) is the only writer. It takes
+three POINTERS (campaign, fan, acting artist) and resolves everything else itself: ownership,
+campaign status (active or ended; a draft has no winner), participation in THIS campaign, the
+prize tier from the campaign toolkit (`prize_tier_id`, confirmed to belong to the artist and
+to carry a Stripe price), one prize per campaign, and the pure planner. Idempotent three ways:
+the row's `prize_campaign_id` (`already_fulfilled`), the Stripe schedule's metadata (a retry
+after a failed row write finds and reuses it), and deterministic Stripe idempotency keys.
+Twelve months cannot become twenty-four. 28 tests.
+
+**There is no HTTP endpoint, on purpose.** The authorization chain needs "this participant was
+selected as the winner", and `fan_campaign_participants` cannot record that: its only
+descriptive column is `role`, ratified as never authorizing, and the campaign toolkit is frozen
+after draft. An endpoint that let the artist name any participant would make the request itself
+the selection, with no durable record and no database guarantee of one winner. So
+`PRIZE_RAIL.ready` is `false` (pinned by `prizeState.test.ts`), `prizeFulfillable` derives from
+it, and a fan is not shown a prize.
+
+The smallest field that closes this: `fan_campaign_participants.selected_winner_at
+TIMESTAMPTZ NULL` with a partial unique index on `(campaign_id) WHERE selected_winner_at IS
+NOT NULL`. Selection becomes a durable artist act, one winner per campaign is a database fact,
+and the endpoint's chain has something to check. Founder decision.
+
+### 29.6 What is not built
+
+Winner drawing, random selection, eligibility adjudication, contest emails, public activation,
+the endpoint, any giveaway admin surface. Founding A&R Week remains DRAFT with its prize tier
+configured and four legal fields empty.

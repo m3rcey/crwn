@@ -23,6 +23,7 @@ const FULL_GIVEAWAY = {
   official_rules_url: 'https://thecrwn.app/gb/rules',
   eligibility: '18+, US only.',
   free_entry: 'Join the free tier and vote. No purchase necessary.',
+  prize_tier_id: '11111111-2222-4333-8444-555555555555',
 };
 
 describe('campaignPhase — server time decides, and boundaries are half-open', () => {
@@ -84,6 +85,17 @@ describe('readiness — a giveaway needs every legal fact or it does not exist',
     const r = campaignReadiness(base({ toolkit: FULL_GIVEAWAY }), { prizeFulfillable: false });
     expect(r.ready).toBe(false);
     expect(r.blockers.join(' ')).toContain('no way to deliver this prize');
+  });
+
+  it('a giveaway with no prize TIER configured is BLOCKED: there is nothing to deliver', () => {
+    const { prize_tier_id: _omit, ...noTier } = FULL_GIVEAWAY;
+    void _omit;
+    const r = campaignReadiness(base({ toolkit: noTier }), ok);
+    expect(r.ready).toBe(false);
+    expect(r.blockers.join(' ')).toContain('prize tier is not configured');
+    // A malformed pointer is the same as a missing one.
+    const bad = campaignReadiness(base({ toolkit: { ...FULL_GIVEAWAY, prize_tier_id: 'platinum' } }), ok);
+    expect(bad.ready).toBe(false);
   });
 
   it('a stated value with no described prize is refused', () => {

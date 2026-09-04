@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { requireArtistOwner } from '@/lib/apiAuth';
 import { computeChurn, rateChurnAgainstBenchmark, lifespanMonthsFromChurn } from '@/lib/analytics/retention';
+import { countsAsPaying } from '@/lib/campaigns/prizeState';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -113,7 +114,7 @@ export async function GET(req: NextRequest) {
   // ---- SUBSCRIPTION DATA ----
   const { data: allSubs } = await supabaseAdmin
     .from('subscriptions')
-    .select('id, fan_id, tier_id, status, created_at, canceled_at, current_period_end')
+    .select('id, fan_id, tier_id, status, created_at, canceled_at, current_period_end, prize_campaign_id, pending_change_date')
     .eq('artist_id', artistId);
 
   const subs = allSubs || [];
@@ -134,15 +135,19 @@ export async function GET(req: NextRequest) {
   const tierMap: Record<string, { name: string; price: number }> = {};
   (tiers || []).forEach(t => { tierMap[t.id] = { name: t.name, price: t.price }; });
 
-  const mrr = activeSubs.reduce((sum, s) => sum + (tierMap[s.tier_id]?.price || 0), 0);
-
   // FREE vs PAYING. A free Bronze member is a real member and belongs in the member count, but
   // they are not a customer, and putting them in the ARPU denominator understates what a paying
   // fan is worth by exactly the size of the free tier. The two numbers answer different
   // questions ("how many joined my world" and "how many pay me"), so both are returned and the
   // money metrics below are computed over PAYING members only.
-  const paidSubs = activeSubs.filter(s => (tierMap[s.tier_id]?.price || 0) > 0);
+  //
+  // A campaign PRIZE member is a member and not a payer once the prize is ACTIVE; while it is
+  // only scheduled they still pay their own tier. countsAsPaying is the one rule, shared with
+  // the constraint assembler and the roadmap, so MRR cannot read differently on three screens.
+  const nowForPrize = new Date();
+  const paidSubs = activeSubs.filter(s => countsAsPaying(s, tierMap[s.tier_id]?.price || 0, nowForPrize));
   const freeSubs = activeSubs.filter(s => (tierMap[s.tier_id]?.price || 0) === 0);
+  const mrr = paidSubs.reduce((sum, s) => sum + (tierMap[s.tier_id]?.price || 0), 0);
 
   // ARPU: average revenue per PAYING member.
   const arpu = paidSubs.length > 0 ? Math.round(mrr / paidSubs.length) : 0;

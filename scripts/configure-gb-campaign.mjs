@@ -18,6 +18,7 @@
 import { readFileSync } from 'node:fs';
 import { createClient } from '@supabase/supabase-js';
 import { campaignReadiness } from '../src/lib/campaigns/giveaway.ts';
+import { PRIZE_RAIL } from '../src/lib/campaigns/prizeState.ts';
 
 const env = readFileSync('.env.local', 'utf8');
 const pick = (k) => (env.match(new RegExp('^' + k + '=(.*)$', 'm')) || [])[1]?.trim().replace(/^"|"$/g, '');
@@ -45,10 +46,15 @@ const toolkit = {
 };
 
 // The stated value is DERIVED from the live price, so $600 can never outlive $50/month.
+// The prize TIER is configured here too: it is the pointer the executor resolves (and
+// re-checks belongs to GB) when the prize is finally awarded. Twelve monthly periods is the
+// planner's default and is stated explicitly so the campaign row is self-describing.
 const { data: platinum } = await db.from('subscription_tiers')
-  .select('price').eq('artist_id', gb.id).eq('name', 'Platinum').eq('is_active', true).maybeSingle();
+  .select('id, price').eq('artist_id', gb.id).eq('name', 'Platinum').eq('is_active', true).maybeSingle();
 if (platinum?.price) {
   toolkit.prize_value = `$${(platinum.price / 100) * 12} value at $${platinum.price / 100}/month`;
+  toolkit.prize_tier_id = platinum.id;
+  toolkit.prize_months = '12';
 }
 
 const { data: existing } = await db.from('fan_campaigns')
@@ -93,8 +99,8 @@ const { data: saved } = await db.from('fan_campaigns')
 console.log('\nStatus:', saved.status, '(never public while draft)');
 console.log('Prize value line:', saved.toolkit.prize_value ?? '(no Platinum price found)');
 
-// prizeFulfillable is false: CRWN has no way to grant 12 months of a paid tier today.
-const r = campaignReadiness(saved, { prizeFulfillable: false });
+// prizeFulfillable is the product's capability, read from PRIZE_RAIL, never typed here.
+const r = campaignReadiness(saved, { prizeFulfillable: PRIZE_RAIL.ready });
 console.log('\nReadiness:', r.ready ? 'READY' : 'NOT READY');
 console.log('Is a giveaway:', r.isGiveaway);
 for (const b of r.blockers) console.log('  BLOCKER:', b);

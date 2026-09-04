@@ -16,6 +16,7 @@ import type { DomainCheck, QuestInstance } from '@/lib/quests/types';
 import { readTierEvidence } from '@/lib/analytics/tierEvidence';
 import { computeChurn } from '@/lib/analytics/retention';
 import { onlyFanPromises, summarizePromiseHealth } from '@/lib/fulfillment';
+import { countsAsPaying } from '@/lib/campaigns/prizeState';
 // The ONE recipient-eligibility rule, shared with the Promise Calendar and the reminder cron.
 import {
   obligationHasNoEligibleRecipient,
@@ -149,14 +150,14 @@ export async function assembleConstraintEvidence(
       db.from('subscription_tiers').select('id, price').eq('artist_id', artistId).eq('is_active', true),
       db
         .from('subscriptions')
-        .select('tier_id, status, created_at, canceled_at, prize_campaign_id')
+        .select('tier_id, status, created_at, canceled_at, prize_campaign_id, pending_change_date')
         .eq('artist_id', artistId),
     ]);
 
-    // Pre-migration, naming prize_campaign_id 42703s the WHOLE statement and supabase-js
-    // returns { data: null } rather than throwing, which would silently report every
-    // artist as having zero members and zero MRR. Retry without the column: the answer is
-    // then exactly today's answer, because no prize subscription can exist yet either.
+    // The prize column is APPLIED in production (2026-09-04), so this retry should never
+    // fire again. It stays as a guard: naming a missing column 42703s the WHOLE statement and
+    // supabase-js returns { data: null } rather than throwing, which would silently report
+    // every artist as having zero members and zero MRR.
     let subRows = subsRes.data;
     if (subsRes.error) {
       const retry = await db
@@ -175,8 +176,10 @@ export async function assembleConstraintEvidence(
       status: string | null;
       created_at: string;
       canceled_at?: string | null;
-      /** Set when a campaign PRIZE funded this membership. Undefined pre-migration. */
+      /** Set when a campaign PRIZE funded this membership. */
       prize_campaign_id?: string | null;
+      /** On a SCHEDULED prize, the boundary it starts at. Null once active. */
+      pending_change_date?: string | null;
     }[];
     subRowsForEligibility = subs;
 
@@ -184,18 +187,19 @@ export async function assembleConstraintEvidence(
     const priceOf = (s: { tier_id: string | null }) =>
       s.tier_id ? tierPriceById.get(s.tier_id) ?? 0 : 0;
 
-    // A PRIZE membership is a real member and not a payer. These two numbers are the
-    // financial ones (paidMembers feeds the Constraint Engine's stage thresholds, mrrCents
-    // is revenue), so a comped Platinum must contribute to neither: counting it would tell
-    // CRWN the artist has $50/month of recurring revenue that nobody is paying. Entitlement
-    // is unaffected, because the oracle reads an ACTIVE row and a tier, never a price.
-    //
-    // Pre-migration the column is undefined on every row, so this reads exactly as it did
-    // before: no prize subscriptions exist and nothing changes.
-    const isPrize = (s: { prize_campaign_id?: string | null }) => !!s.prize_campaign_id;
+    // A PRIZE membership is a real member and not a payer, but ONLY once the prize is ACTIVE.
+    // These two numbers are the financial ones (paidMembers feeds the Constraint Engine's
+    // stage thresholds, mrrCents is revenue), so an active comped Platinum contributes to
+    // neither: counting it would tell CRWN the artist has $50/month nobody pays. A SCHEDULED
+    // prize on a paying Gold member is the opposite case: that fan is still genuinely paying
+    // $25 until their renewal, and excluding them early would erase real revenue. The one rule
+    // that tells the two apart is countsAsPaying (prizeState.ts), shared with the roadmap and
+    // analytics so the three readers cannot drift. Entitlement is unaffected either way,
+    // because the oracle reads an ACTIVE row and a tier, never a price.
+    const nowForPrize = new Date();
 
     freeMembers = active.filter((s) => priceOf(s) === 0).length;
-    const paid = active.filter((s) => priceOf(s) > 0 && !isPrize(s));
+    const paid = active.filter((s) => countsAsPaying(s, priceOf(s), nowForPrize));
     paidMembers = paid.length;
     mrrCents = paid.reduce((sum, s) => sum + priceOf(s), 0);
 

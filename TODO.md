@@ -80,38 +80,23 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
-- [ ] **Run one migration, then get me a Stripe TEST key to finish the prize.**
-      [supabase/schema-phase2-subscription-prize-campaign.sql](supabase/schema-phase2-subscription-prize-campaign.sql)
-      adds `subscriptions.prize_campaign_id` so a comped membership stops counting as $50
-      of MRR nobody pays. Additive, no backfill, every existing row NULL. Nothing waits on
-      it: the assembler retries without the column, so members and MRR read correctly
-      either way. Verify with `npm run verify:migrations`.
-
-      **The Stripe lifecycle is now PROVEN** (2026-09-04, test mode, 35 checks, 0 failures,
-      0 unproven). Your test key did it. All three winner cases hold against real Stripe
-      objects: a Bronze winner gets a $0 Platinum subscription with no card, whose first
-      invoice FINALISES as paid at $0 with zero charges; a paying Silver or Gold winner
-      keeps their paid period to the exact day and the prize starts at that boundary with
-      no refund and no second subscription; an existing Platinum winner the same. Twelve
-      monthly periods, then a hard stop, so there is no month 13. Rerun any time with
-      `npm run verify:prize-lifecycle`.
-
-      **Applying the migration is the only thing left here, and it is yours** (I cannot run
-      DDL). It is the ONLY pending migration. After it, `npm run verify:migrations` should
-      report zero.
-
-
 - [ ] **Founding A&R Week is built and CANNOT go live yet. Five things are missing and four
       of them are yours.** The campaign draft exists for GB and fails closed, so the
       evergreen Go Bad funnel is running normally right now and will keep doing so until
       every blocker clears. Run `npx tsx scripts/configure-gb-campaign.mjs` any time to
       re-print the live blocker list.
 
-      **1. A prize CRWN can actually deliver.** The Stripe half is now PROVEN in test mode
-      (see the migration item above): a 100%-off coupon for 12 months on a subscription
-      schedule, ending in a hard stop. What is still missing is the CRWN half, and it is on
-      me, not you: the executor that writes it, gated on the migration being applied. Until
-      that ships `prizeFulfillable` stays false and no membership prize may be advertised.
+      **1. A prize CRWN can actually deliver. This is now ONE decision away, and it is yours.**
+      The delivery rail shipped 2026-09-04: Stripe construction proven (38 checks), executor
+      built and tested, webhook transitions fixed, accounting prize-aware, migration applied,
+      GB's prize tier configured on the draft. What does not exist is any way to RECORD which
+      participant won, so there is no endpoint and `prizeFulfillable` stays false. The
+      participant table has no column for it and its `role` column is ratified as never
+      authorizing. The smallest fix is one nullable column plus a one-winner-per-campaign
+      index: `fan_campaign_participants.selected_winner_at TIMESTAMPTZ NULL` with a partial
+      unique index on `(campaign_id) WHERE selected_winner_at IS NOT NULL`. Say yes and I
+      ship the migration, the endpoint, and flip the rail in one change. Until then no
+      membership prize may be advertised.
       2. **Official Rules.** GB's own sweepstakes rules at a real URL. The CRWN terms page
          is not Official Rules.
       3. **Eligibility.** Age and territory, matching those rules.
@@ -841,15 +826,21 @@ Things that are never finished. Cadence, then the thing.
 
 ## On Claude's plate (not yours)
 
-- **Write the prize executor, AFTER the Stripe test key proves the lifecycle.** The rig is built
-  (`npm run verify:prize-lifecycle`); the executor deliberately is not, because it should be a
-  translation of what Stripe actually does rather than a set of assumptions with tests that agree
-  with them. Two requirements are already settled without Stripe, by reading the webhook path, and
-  are recorded in [src/lib/campaigns/prizeFulfillment.ts](src/lib/campaigns/prizeFulfillment.ts):
-  a scheduled prize must also set `pending_tier_id` (otherwise a Silver winner flips to free
-  billing but keeps SILVER entitlement, and the prize under-delivers in silence), and the
-  no-paid-tier path must UPDATE the existing membership row rather than insert a second one.
-  **Nothing for you to do beyond the key.**
+- **Prize rail: SHIPPED 2026-09-04, endpoint waits on your winner-field decision** (the
+  Founding A&R Week item above). Executor, proven Stripe construction, webhook fix, prize-aware
+  MRR on all three readers, 74 new tests. The moment you approve the participant column I write
+  the migration, the ownership-checked endpoint, and flip `PRIZE_RAIL.ready` in one change.
+
+- **Scheduled DOWNGRADES never reach Stripe. Pre-existing, found while wiring the prize.**
+  `/api/stripe/subscription-update` writes `pending_tier_id` to the DB and changes nothing in
+  Stripe; the webhook then compared the live price against the CURRENT tier (always equal), so
+  every downgrade applied on the next event while Stripe kept billing the old price: the fan saw
+  Silver and paid Gold. The comparison is fixed (it now reads the PENDING tier's price), which
+  means a downgrade now waits for a Stripe change that nothing schedules: the fan keeps what
+  they pay for and the request is silently ignored. Strictly less harmful, still wrong. The right
+  mechanism is the subscription schedule the prize now uses. No production row is currently
+  mid-downgrade (0 rows carry `pending_tier_id`, probed 2026-09-04), so nobody is stuck. On my
+  plate; nothing for you to do.
 
 - **Flip `ALLOW_UNSIGNED_LEGACY_LINKS` to false, NOT BEFORE 2026-09-24 (30 days).** The signing
   half shipped 2026-08-24: all four fan/prospect senders now emit signed unsubscribe links, so

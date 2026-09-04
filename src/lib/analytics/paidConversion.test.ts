@@ -171,3 +171,59 @@ describe('first paid requires actual money (the $0 guard)', () => {
     expect(b!.dedupeKey).toBe('artist-1');
   });
 });
+
+describe('the prize regression matrix: a granted membership is never a first dollar', () => {
+  /** A db double with a dedupe that behaves like the unique key: the same artist records once. */
+  const dedupingDb = () => {
+    const keys = new Set<string>();
+    const writes: { dedupe_key?: string }[] = [];
+    const chain = {
+      select: () => chain, eq: () => chain, in: () => chain, order: () => chain,
+      limit: () => chain, maybeSingle: async () => ({ data: null }), single: async () => ({ data: null }),
+      insert: async (row: { dedupe_key?: string }) => {
+        if (row.dedupe_key && keys.has(row.dedupe_key)) return { error: { code: '23505' } };
+        if (row.dedupe_key) keys.add(row.dedupe_key);
+        writes.push(row);
+        return { error: null };
+      },
+      upsert: async (row: { dedupe_key?: string }) => {
+        if (row.dedupe_key && keys.has(row.dedupe_key)) return { error: null };
+        if (row.dedupe_key) keys.add(row.dedupe_key);
+        writes.push(row);
+        return { error: null };
+      },
+    };
+    return { db: { from: () => chain }, writes };
+  };
+
+  it('artist has never earned: a $0 prize invoice records nothing, a later real payment fires ONCE', async () => {
+    const { db, writes } = dedupingDb();
+    await recordFirstPaidConversion(db as never, { artistId: 'artist-1', kind: 'subscription', userId: 'winner', grossAmountCents: 0 });
+    expect(writes).toHaveLength(0);
+    await recordFirstPaidConversion(db as never, { artistId: 'artist-1', kind: 'subscription', userId: 'fan-2', grossAmountCents: 1000 });
+    expect(writes).toHaveLength(1);
+    // And a second real payment still cannot double-fire.
+    await recordFirstPaidConversion(db as never, { artistId: 'artist-1', kind: 'product', userId: 'fan-3', grossAmountCents: 500 });
+    expect(writes).toHaveLength(1);
+  });
+
+  it('artist already has first-paid: twelve $0 prize renewals add nothing', async () => {
+    const { db, writes } = dedupingDb();
+    await recordFirstPaidConversion(db as never, { artistId: 'artist-1', kind: 'subscription', userId: 'fan-1', grossAmountCents: 2500 });
+    expect(writes).toHaveLength(1);
+    for (let month = 0; month < 12; month += 1) {
+      await recordFirstPaidConversion(db as never, { artistId: 'artist-1', kind: 'subscription', userId: 'winner', grossAmountCents: 0 });
+    }
+    expect(writes).toHaveLength(1);
+  });
+
+  it('an existing paid winner: their historical real payments were recorded and a scheduled prize rewrites nothing', async () => {
+    const { db, writes } = dedupingDb();
+    // Months of real Gold payments before they won.
+    await recordFirstPaidConversion(db as never, { artistId: 'artist-1', kind: 'subscription', userId: 'winner', grossAmountCents: 2500 });
+    const before = [...writes];
+    // The prize starts: renewals are now $0.
+    await recordFirstPaidConversion(db as never, { artistId: 'artist-1', kind: 'subscription', userId: 'winner', grossAmountCents: 0 });
+    expect(writes).toEqual(before);
+  });
+});

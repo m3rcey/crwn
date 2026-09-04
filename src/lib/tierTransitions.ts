@@ -42,6 +42,8 @@ export type TransitionSource =
   | 'stripe_checkout'
   | 'stripe_subscription_update'
   | 'scheduled_downgrade'
+  /** A campaign prize moved the fan's tier: granted, not bought. Never a revenue signal. */
+  | 'campaign_prize'
   | 'import'
   | 'baseline';
 

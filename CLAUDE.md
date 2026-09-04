@@ -386,6 +386,21 @@ against the source, so breaking it fails `npm test` rather than reaching an arti
 - **Free joins attributed to a participant are UNMEASURABLE** (`/api/stripe/free-subscribe` writes
   no referral row). Report `missing`, never 0. Same for external views: CRWN has no social
   integration, and a self-reported number may never rank, pay or feed a recommendation.
+- **A campaign PRIZE is a membership CRWN grants, never revenue** (rail shipped 2026-09-04;
+  see `docs/crwn-brain/22-VIRALITY-ENGINE-ARCHITECTURE.md` §29). `subscriptions.prize_campaign_id`
+  (APPLIED) marks it; `src/lib/campaigns/prizeState.ts` is the ONE rule for whether that prize
+  is ACTIVE (member, not payer, $0 MRR) or merely SCHEDULED (the fan still pays their own tier
+  until `pending_change_date`), and the constraint assembler, roadmap and analytics all read it.
+  Never exclude a row from MRR on `prize_campaign_id` alone: that erases a paying Gold winner's
+  real revenue months early. `fulfillCampaignPrize` (`prizeExecutor.ts`) is the only writer,
+  takes three POINTERS (campaign, fan, acting artist) and resolves everything else itself; a
+  scheduled prize MUST set `pending_tier_id` or the webhook leaves the winner on their old
+  entitlement. The Stripe construction is in `prizeStripe.ts` and was PROVEN in test mode (38
+  checks): `discounts: [{ coupon }]` not `coupon`, `duration` not `iterations`, `start_date:
+  'now'`, `end_behavior: 'cancel'`. **`PRIZE_RAIL.ready` is false** because
+  `fan_campaign_participants` cannot record a selected winner and its `role` column is ratified
+  never-authorizing, so no endpoint exists; do not flip it without shipping that field and the
+  endpoint that reads it.
 - **No campaign leaderboard**, and `/api/leaderboard` publishes no score, because the points total
   was exactly invertible back to a fan's lifetime spend given the counts beside it
   (`src/lib/leaderboardPrivacy.ts` holds the scoring and the public projection, with a test).

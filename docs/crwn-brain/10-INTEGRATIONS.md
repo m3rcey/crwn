@@ -70,9 +70,14 @@ parameters it just sent.
   end; `--keep` leaves them for dashboard inspection.
 - **It touches no database.** Stripe primitives need none, and keeping the DB out is what makes
   the harness safe to run from a machine pointed at production Supabase.
-- **Validation status: PROVEN IN STRIPE TEST MODE 2026-09-04. 35 checks, 0 failures, 0
-  unproven.** All three winner states, plus Connect. What the run actually established, most of
-  which contradicted the design it was built to confirm:
+- **Validation status: PROVEN IN STRIPE TEST MODE 2026-09-04. 38 checks, 0 failures, 0
+  unproven** (35 on the first proof; 3 more once every leg carried the production routing,
+  `default_settings.transfer_data` + `application_fee_percent`, and the Connect leg measured the
+  transfer DELTA rather than the account total, because the paid legs correctly produce real
+  transfers and the prize produces none). All three winner states, plus Connect. The production
+  construction lives in `src/lib/campaigns/prizeStripe.ts`, and `prizeStripe.test.ts` scans the
+  harness for the same literals so proof and production cannot drift. What the run actually
+  established, most of which contradicted the design it was built to confirm:
 
   | Assumption | What Stripe said |
   |---|---|

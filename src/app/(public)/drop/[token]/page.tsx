@@ -14,6 +14,7 @@ import { resolveFunnelOffers, type OfferTierRow } from '@/lib/fanAutomations/off
 import { offerExperiencesForTiers } from '@/lib/offerExperience/server';
 import { accentPageVars } from '@/lib/contrast';
 import { presentCampaign, type CampaignRow } from '@/lib/campaigns/giveaway';
+import { PRIZE_RAIL } from '@/lib/campaigns/prizeState';
 import type { CSSProperties } from 'react';
 import { isPresentableArtistName } from '@/lib/publicName';
 import { DropFunnelClient, type DropOfferTier } from '@/components/drop/DropFunnelClient';
@@ -107,11 +108,11 @@ export default async function DropPage({ params }: { params: Promise<{ token: st
   // evergreen funnel. The fan never sees a half-configured sweepstakes, and the magnet,
   // the free join and both offers below are untouched either way.
   //
-  // prizeFulfillable is FALSE as of 2026-09-02 and that is a product fact, not a setting:
-  // CRWN has no mechanism to grant months of a paid tier without a real payment (the
-  // discount rail mints single-cycle coupons; the only writers of a paid subscription are
-  // Stripe-driven). Until that exists, a campaign offering a membership prize cannot go
-  // public, which is exactly the intended behaviour.
+  // prizeFulfillable is a PRODUCT capability, read from PRIZE_RAIL rather than typed here.
+  // The delivery rail (executor, proven Stripe construction, webhook transitions, prize-aware
+  // accounting) shipped 2026-09-04; what still holds it at false is that no surface can
+  // record a selected winner, so nothing can invoke it. Until that lands, a campaign offering
+  // a membership prize cannot go public, which is exactly the intended behaviour.
   let campaign = null;
   try {
     const { data: row } = await supabaseAdmin
@@ -121,7 +122,7 @@ export default async function DropPage({ params }: { params: Promise<{ token: st
       .eq('status', 'active')
       .maybeSingle();
     if (row) {
-      campaign = presentCampaign(row as CampaignRow, new Date(), { prizeFulfillable: false });
+      campaign = presentCampaign(row as CampaignRow, new Date(), { prizeFulfillable: PRIZE_RAIL.ready });
     }
   } catch {
     /* no campaign spine, or a read fault: the evergreen funnel is the answer */

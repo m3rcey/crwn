@@ -45,9 +45,13 @@ export interface CurrentSubscription {
   tier_id: string | null;
   status: string | null;
   stripe_subscription_id: string | null;
-  /** Unix seconds. The boundary a paid winner's prize must wait for. */
+  /** ISO timestamp. The boundary a paid winner's prize must wait for. */
   current_period_end: string | null;
   prize_campaign_id?: string | null;
+  /** A scheduled tier change already queued on this membership (a downgrade, or another prize). */
+  pending_tier_id?: string | null;
+  /** The fan has already asked to leave at period end. */
+  cancel_at_period_end?: boolean | null;
 }
 
 export type PrizePlan =
@@ -121,6 +125,19 @@ export function planPrizeFulfillment(input: PlanInput): PrizePlan {
   // honest rather than asserting, and a surprise null refuses instead of scheduling blind.
   if (!cur.current_period_end || !cur.stripe_subscription_id) {
     return { action: 'refuse', reason: 'The current billing period end is unknown, so the prize cannot be scheduled safely.' };
+  }
+  // A change is already queued on this membership (a scheduled downgrade, most likely). The
+  // prize would overwrite it silently, and `pending_tier_id` is also how the webhook decides
+  // which tier to apply at the boundary, so two intentions in one column is a wrong tier for
+  // somebody. Refuse and let a human resolve the order.
+  if (cur.pending_tier_id) {
+    return { action: 'refuse', reason: 'This membership already has a scheduled tier change. Resolve that before awarding the prize.' };
+  }
+  // The fan has asked to leave. Appending a prize after a cancelling subscription was NOT part
+  // of the proven Stripe lifecycle, so it is refused rather than guessed at. The founder can
+  // clear the cancellation first if the prize should still be honoured.
+  if (cur.cancel_at_period_end) {
+    return { action: 'refuse', reason: 'This membership is set to cancel at period end. Clear the cancellation before awarding the prize.' };
   }
   return {
     action: 'schedule_at_period_end',

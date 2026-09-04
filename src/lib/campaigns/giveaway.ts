@@ -18,6 +18,7 @@
 // is already fan_campaign_participants. This module is the typed reader over that.
 
 import type { CampaignStatus } from './lifecycle';
+import { prizeTierIdOf } from './prizeState';
 
 /** Where a campaign sits relative to its window, from SERVER time. */
 export type CampaignPhase = 'off' | 'upcoming' | 'active' | 'ended';
@@ -145,6 +146,10 @@ export function campaignReadiness(
     if (!isRulesUrl(t.official_rules_url)) blockers.push('Official Rules link is missing or is not a URL.');
     if (!str(t.eligibility, 200)) blockers.push('Who may enter is not stated.');
     if (!str(t.free_entry, 240)) blockers.push('The free way to enter is not stated, so no purchase necessary cannot be shown.');
+    // The prize must name the tier it delivers, or the executor has nothing to grant. This is
+    // the campaign's own configuration; whether the tier really belongs to the artist is
+    // confirmed by the executor, which is the only thing that ever acts on it.
+    if (!prizeTierIdOf(t)) blockers.push('The prize tier is not configured, so the prize cannot be delivered.');
     if (!opts.prizeFulfillable) {
       blockers.push('CRWN has no way to deliver this prize yet, so the giveaway cannot be shown.');
     }

@@ -32,6 +32,25 @@ describe('winner has no paid period: the prize starts now', () => {
   });
 });
 
+describe('a paid membership with a change already queued is refused, never overwritten', () => {
+  it('a pending tier change (a scheduled downgrade) blocks the prize', () => {
+    const p = plan(sub({ pending_tier_id: 'tier-silver' }), 2500);
+    expect(p.action).toBe('refuse');
+    expect(p.action === 'refuse' && p.reason).toMatch(/scheduled tier change/);
+  });
+
+  it('a membership set to cancel at period end blocks the prize', () => {
+    const p = plan(sub({ cancel_at_period_end: true }), 2500);
+    expect(p.action).toBe('refuse');
+    expect(p.action === 'refuse' && p.reason).toMatch(/cancel at period end/);
+  });
+
+  it('neither guard applies to a free member: there is no paid period to conflict with', () => {
+    const p = plan(sub({ tier_id: 'tier-bronze', stripe_subscription_id: 'free_x', pending_tier_id: null, cancel_at_period_end: false }), 0);
+    expect(p.action).toBe('create_now');
+  });
+});
+
 describe('winner is already paying: their paid period finishes first', () => {
   it.each([
     ['SILVER', 'tier-silver', 1000],

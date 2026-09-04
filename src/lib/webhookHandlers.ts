@@ -29,6 +29,7 @@ import { recordFirstPaidConversion } from '@/lib/analytics/paidConversion';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { enrollInSequence } from '@/lib/sequences/enroll';
 import { exitConvertedEnrollments } from '@/lib/sequences/goalExit';
+import { decidePendingApply, shouldClearPassedPrizeBoundary } from '@/lib/subscriptions/pendingTierApply';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AdminClient = SupabaseClient<any, any, any>;
@@ -745,35 +746,50 @@ export async function handleSubscriptionUpdated(supabaseAdmin: AdminClient, subs
   // First, check if there's a pending tier change to apply
   const { data: subData } = await supabaseAdmin
     .from('subscriptions')
-    // Name the FK: two exist to subscription_tiers, and an ambiguous embed fails the
-    // whole statement, which on a money path reads as "subscription not found".
-    .select('*, tier:subscription_tiers!subscriptions_tier_id_fkey(stripe_price_id)')
+    .select('*')
     .eq('stripe_subscription_id', sub.id)
     .single();
 
   if (subData && subData.pending_tier_id) {
     // Get the current price from Stripe subscription items
     const currentPriceId = sub.items?.data[0]?.price?.id;
-    const pendingTierPriceId = (subData.tier as unknown as { stripe_price_id: string })?.stripe_price_id;
+
+    // The PENDING tier's price, read directly by id. This used to come from an embed on
+    // subscriptions_tier_id_fkey, which is the CURRENT tier, so the comparison below was
+    // always true before the change and applied every pending tier on the next event while
+    // Stripe kept billing the old price. The decision itself lives in pendingTierApply.ts.
+    const { data: pendingTier } = await supabaseAdmin
+      .from('subscription_tiers')
+      .select('stripe_price_id')
+      .eq('id', subData.pending_tier_id)
+      .maybeSingle();
+
+    const decision = decidePendingApply({
+      liveStripePriceId: currentPriceId,
+      pendingTierStripePriceId: pendingTier?.stripe_price_id as string | null | undefined,
+      isPrize: !!subData.prize_campaign_id,
+    });
 
     // If the current price matches the pending tier's price, the change has taken effect
-    if (currentPriceId === pendingTierPriceId) {
+    if (decision.apply) {
       console.log('Applying pending tier change:', {
         subscriptionId: subData.id,
         pendingTierId: subData.pending_tier_id,
-        pendingChangeDate: subData.pending_change_date
+        pendingChangeDate: subData.pending_change_date,
+        source: decision.source,
       });
 
-      // Z8: a scheduled downgrade becomes a transition HERE, when Stripe confirms the new price is
-      // in force, not when the fan requested it. The request only set pending_tier_id; access and
+      // Z8: a scheduled change becomes a transition HERE, when Stripe confirms the new price is
+      // in force, not when it was requested. The request only set pending_tier_id; access and
       // billing did not change until this moment, so this is when the state actually moved.
+      // A campaign prize is recorded as granted, never as a downgrade.
       await recordTierTransition(supabaseAdmin, {
         artistId: subData.artist_id as string,
         fanId: subData.fan_id as string,
         subscriptionId: subData.id as string,
         fromTierId: (subData.tier_id as string) ?? null,
         toTierId: subData.pending_tier_id as string,
-        source: 'scheduled_downgrade',
+        source: decision.source,
         evidence: 'observed',
       });
 
@@ -793,19 +809,26 @@ export async function handleSubscriptionUpdated(supabaseAdmin: AdminClient, subs
 
       console.log('Pending tier change applied successfully');
 
-      // Conversion exit first: an upgrade that reaches a goal ends the sequence selling
-      // it (Gold-goal nurture ends when Silver upgrades to Gold; the Platinum-goal
-      // ascension ends when Gold upgrades to Platinum).
+      // Conversion exit first: reaching a goal tier ends the sequence selling it (Gold-goal
+      // nurture ends when Silver reaches Gold; the Platinum-goal ascension ends when Gold
+      // reaches Platinum). Goal exit reads tier RANK, so a prize winner exits too, without
+      // any fake revenue being written to make it happen.
       await exitConvertedEnrollments(supabaseAdmin, subData.artist_id, subData.fan_id);
 
-      // Enroll in tier_upgrade sequence
-      await enrollInSequence(supabaseAdmin, subData.artist_id, subData.fan_id, 'tier_upgrade');
+      // A prize winner did not upgrade; they won. Selling them the upgrade they were just
+      // handed is the wrong email, so the tier_upgrade enrolment is for real upgrades only.
+      if (decision.enrollUpgradeNurture) {
+        await enrollInSequence(supabaseAdmin, subData.artist_id, subData.fan_id, 'tier_upgrade');
+      }
 
       return;
     }
   }
 
-  // Normal subscription update (no pending tier change)
+  // Normal subscription update (no pending tier change). A prize whose tier never changed
+  // (an existing Platinum winner) carries only a boundary date; once that has passed the
+  // column is cleared so the row reads the same as every other active prize.
+  const tidyPrizeBoundary = subData ? shouldClearPassedPrizeBoundary(subData, new Date()) : false;
   await supabaseAdmin
     .from('subscriptions')
     .update({
@@ -814,6 +837,7 @@ export async function handleSubscriptionUpdated(supabaseAdmin: AdminClient, subs
       current_period_start: new Date(sub.current_period_start * 1000).toISOString(),
       current_period_end: new Date(sub.current_period_end * 1000).toISOString(),
       updated_at: new Date().toISOString(),
+      ...(tidyPrizeBoundary ? { pending_change_date: null } : {}),
     })
     .eq('stripe_subscription_id', sub.id);
 }

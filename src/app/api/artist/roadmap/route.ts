@@ -22,6 +22,7 @@ import { assessFunnel } from '@/lib/funnelReadiness';
 import { loadFunnelFacts } from '@/lib/funnelReadinessFacts';
 import { FUNNEL_TEST_QUEST_KEY } from '@/lib/guidedSetup/testQuest';
 import { loadDeliveryReport } from '@/lib/benefitReadinessFacts';
+import { countsAsPaying } from '@/lib/campaigns/prizeState';
 import {
   buildRoadmapDefs,
   assembleRoadmap,
@@ -325,12 +326,12 @@ export async function GET() {
       .limit(3),
     supabaseAdmin
       .from('subscriptions')
-      .select('tier_id')
+      .select('tier_id, status, prize_campaign_id, pending_change_date')
       .eq('artist_id', artist.id)
       .eq('status', 'active'),
   ]);
-  const subs = subsRes.data ?? [];
-  const tierIds = [...new Set(subs.map((s: { tier_id: string | null }) => s.tier_id).filter(Boolean))] as string[];
+  const subs = (subsRes.data ?? []) as { tier_id: string | null; status: string | null; prize_campaign_id?: string | null; pending_change_date?: string | null }[];
+  const tierIds = [...new Set(subs.map((s) => s.tier_id).filter(Boolean))] as string[];
   let mrrCents = 0;
   let paidMembers = 0;
   if (tierIds.length) {
@@ -339,10 +340,14 @@ export async function GET() {
       .select('id, price')
       .in('id', tierIds);
     const priceById = new Map((tiers ?? []).map((t: { id: string; price: number | null }) => [t.id, Number(t.price) || 0]));
+    // Same rule as the constraint assembler: an ACTIVE campaign prize is a member, not a
+    // payer; a SCHEDULED one is still paying their own tier until the boundary.
+    const now = new Date();
     for (const s of subs) {
       const price = priceById.get(s.tier_id as string) ?? 0;
+      if (!countsAsPaying(s, price, now)) continue;
       mrrCents += price;
-      if (price > 0) paidMembers += 1;
+      paidMembers += 1;
     }
   }
 

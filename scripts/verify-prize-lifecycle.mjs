@@ -84,6 +84,37 @@ const coupon = await stripe.coupons.create({
 });
 created.coupons.push(coupon.id);
 
+// A TEST connected account, created FIRST so every leg can carry the production routing
+// (default_settings.transfer_data + application_fee_percent on the schedule) rather than
+// proving routing on a separate object. A fresh Express account is not payouts-enabled; in
+// test mode a Custom account with Stripe's documented test verification values comes back
+// enabled immediately. These are Stripe's own test fixtures, not invented identity data.
+let connectAcct = null;
+try {
+  const acct = await stripe.accounts.create({
+    type: 'custom', country: 'US', business_type: 'individual', email: 'sandbox@example.com',
+    capabilities: { transfers: { requested: true }, card_payments: { requested: true } },
+    business_profile: { mcc: '5734', url: 'https://thecrwn.app', product_description: 'CRWN sandbox' },
+    individual: {
+      first_name: 'Sandbox', last_name: 'Tester', email: 'sandbox@example.com',
+      phone: '+15555555555', ssn_last_4: '0000',
+      id_number: '000000000',
+      dob: { day: 1, month: 1, year: 1990 },
+      address: { line1: 'address_full_match', city: 'Beverly Hills', state: 'CA', postal_code: '90210', country: 'US' },
+    },
+    external_account: 'btok_us_verified',
+    tos_acceptance: { date: Math.floor(Date.now() / 1000), ip: '8.8.8.8' },
+    metadata: meta,
+  });
+  created.accounts.push(acct.id);
+  connectAcct = acct.capabilities?.transfers === 'active' ? acct.id : null;
+  console.log('Connect: test account ' + acct.id + ' transfers=' + (acct.capabilities?.transfers ?? 'none') + '\n');
+} catch (e) {
+  console.log('Connect: could not create a test connected account (' + e.message + '); legs run without routing\n');
+}
+/** The production routing, exactly as prizeStripe.ts builds it. */
+const routing = connectAcct ? { transfer_data: { destination: connectAcct }, application_fee_percent: 8 } : null;
+
 /**
  * Stripe renamed phase-level coupons to `discounts`. Which one this API version accepts is a
  * fact the executor needs, so it is discovered once and reported rather than assumed.
@@ -174,9 +205,15 @@ try {
     end_behavior: 'cancel',
     metadata: meta,
     phases: [buildPrizePhase(startUnix, d, t)],
+    ...(routing ? { default_settings: routing } : {}),
   }));
   created.schedules.push(schedule.id);
   record('A', 'phase shape accepted by this API version', true, 'discount=' + discountParam + ', duration=' + durationParam);
+  if (routing) {
+    record('A', 'the schedule carries the artist routing (default_settings.transfer_data)',
+      schedule.default_settings?.transfer_data?.destination === connectAcct,
+      'destination=' + String(schedule.default_settings?.transfer_data?.destination) + ' fee=' + String(schedule.default_settings?.application_fee_percent));
+  }
 
   const fresh = await stripe.subscriptionSchedules.retrieve(schedule.id, { expand: ['subscription'] });
   const sub = typeof fresh.subscription === 'string'
@@ -247,8 +284,11 @@ async function paidWinnerLeg(legName, fromPrice, fromCents, label) {
     });
     created.customers.push(customer.id);
 
+    // Built the way CRWN builds every paid fan subscription: routed to the artist. The prize
+    // schedule is derived FROM this subscription, so routing must survive that derivation.
     const paid = await stripe.subscriptions.create({
       customer: customer.id, items: [{ price: fromPrice }], metadata: meta, expand: ['latest_invoice'],
+      ...(routing ? routing : {}),
     });
     created.subscriptions.push(paid.id);
 
@@ -312,6 +352,11 @@ async function paidWinnerLeg(legName, fromPrice, fromCents, label) {
     record(legName, 'a hard stop exists after the prize',
       after.end_behavior === 'cancel' && after.phases.length === 2,
       'end_behavior=' + after.end_behavior + ', phases=' + after.phases.length);
+    if (routing) {
+      record(legName, 'artist routing survives from_subscription onto the schedule',
+        after.default_settings?.transfer_data?.destination === connectAcct,
+        'destination=' + String(after.default_settings?.transfer_data?.destination));
+    }
     record(legName, 'the existing card is retained but cannot be charged during the prize',
       !!customer.invoice_settings?.default_payment_method || true,
       'card stays on file; every prize invoice is $0 so nothing is charged');
@@ -331,31 +376,17 @@ await paidWinnerLeg('LEG C — existing Platinum winner (no refund, no duplicate
 // ─────────────────────────────────────────────────────────────────────────────
 console.log('\nLEG D — Connect topology on a fully discounted subscription');
 try {
-  // A fresh Express account is not payouts-enabled, which made the first run report this leg
-  // UNPROVEN. In TEST mode a Custom account with the documented test verification values comes
-  // back enabled immediately, which is what makes the $0-invoice question actually answerable.
-  // These are Stripe's own test fixtures, not invented identity data.
-  const acct = await stripe.accounts.create({
-    type: 'custom', country: 'US', business_type: 'individual', email: 'sandbox@example.com',
-    capabilities: { transfers: { requested: true }, card_payments: { requested: true } },
-    business_profile: { mcc: '5734', url: 'https://thecrwn.app', product_description: 'CRWN sandbox' },
-    individual: {
-      first_name: 'Sandbox', last_name: 'Tester', email: 'sandbox@example.com',
-      phone: '+15555555555', ssn_last_4: '0000',
-      id_number: '000000000',
-      dob: { day: 1, month: 1, year: 1990 },
-      address: { line1: 'address_full_match', city: 'Beverly Hills', state: 'CA', postal_code: '90210', country: 'US' },
-    },
-    external_account: 'btok_us_verified',
-    tos_acceptance: { date: Math.floor(Date.now() / 1000), ip: '8.8.8.8' },
-    metadata: meta,
-  });
-  created.accounts.push(acct.id);
-  record('D', 'an isolated TEST connected account can be created', true,
-    acct.id + ' charges_enabled=' + acct.charges_enabled + ' transfers=' + (acct.capabilities?.transfers ?? 'none'));
+  if (!connectAcct) throw new Error('no transfers-enabled test connected account');
+  const acct = { id: connectAcct };
+  record('D', 'an isolated TEST connected account is transfers-enabled', true, acct.id);
 
   const customer = await stripe.customers.create({ name: 'CRWN sandbox connect winner', metadata: meta });
   created.customers.push(customer.id);
+
+  // Legs B and C created PAID subscriptions routed to this same account, and their real
+  // charges correctly produced real transfers. The prize question is whether THIS $0
+  // subscription adds one, so the measure is the delta, not the account total.
+  const transfersBefore = (await stripe.transfers.list({ destination: acct.id, limit: 20 })).data.length;
 
   try {
     const sub = await stripe.subscriptions.create({
@@ -370,10 +401,11 @@ try {
     created.subscriptions.push(sub.id);
     const inv = typeof sub.latest_invoice === 'string' ? await stripe.invoices.retrieve(sub.latest_invoice) : sub.latest_invoice;
     const dCharges = await stripe.charges.list({ customer: customer.id, limit: 5 });
-    const dTransfers = await stripe.transfers.list({ destination: acct.id, limit: 5 });
+    const transfersAfter = (await stripe.transfers.list({ destination: acct.id, limit: 20 })).data.length;
+    const newTransfers = transfersAfter - transfersBefore;
     record('D', 'a $0 prize invoice moves no money to the connected account',
-      inv.amount_paid === 0 && inv.total === 0 && dCharges.data.length === 0 && dTransfers.data.length === 0 && !inv.application_fee_amount,
-      'paid=' + money(inv.amount_paid) + ' charges=' + dCharges.data.length + ' transfers=' + dTransfers.data.length + ' fee=' + String(inv.application_fee_amount));
+      inv.amount_paid === 0 && inv.total === 0 && dCharges.data.length === 0 && newTransfers === 0 && !inv.application_fee_amount,
+      'paid=' + money(inv.amount_paid) + ' charges=' + dCharges.data.length + ' new transfers=' + newTransfers + ' (paid legs made ' + transfersBefore + ') fee=' + String(inv.application_fee_amount));
   } catch (e) {
     // A fresh Express account is not payouts-enabled, which is a property of Stripe onboarding
     // rather than of the prize. Reported as unproven; never as a pass.
