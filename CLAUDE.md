@@ -581,9 +581,13 @@ was deliberately left alone.
   contract has no proof field. Do not build a page builder or an AI dependency here.
 - **Test it** records two artist observations through the ONE manual quest in the chain
   (`artist_funnel_tested`), and the roadmap ANDs that with the machine checks. **Launch it**
-  records the existing `fan_invited` event with a `funnel_*` method; it is the weakest signal in
-  the chain and says so. Admin accounts are never counted there, so the founder's own artist can
-  never complete Launch it.
+  writes TWO things for one action, on purpose (browser QA, 2026-09-03): the `fan_invited`
+  funnel EVENT with a `funnel_*` method (analytics; still excluded for admin accounts and
+  `crwn_dnt` devices) and the `funnel_launched` activation MILESTONE through the
+  session-authorized `/api/artist/milestone` route (progression state on the artist's own row,
+  counts nobody). The roadmap reads either. **Analytics exclusion must never make legitimate
+  product state impossible**: before this, the founder's own artist and any admin device could
+  never complete Launch it. Never fix that class of bug by counting admin traffic.
 - **Telemetry** rides the journey sink: `guided_setup_started`, `guided_setup_step_reached`,
   `guided_setup_completed` with `flow`, `step`, `totalSteps`, and the flow key plus artist id in
   `lead_magnet_events.metadata`. Abandonment is derived, never emitted.

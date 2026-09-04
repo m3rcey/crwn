@@ -12,8 +12,12 @@ off to Promise to Delivery). `src/lib/funnelReadiness.ts` is the one definition 
 funnel, read by four new DomainChecks, the roadmap, the Test flow and `/api/funnel-readiness`.
 The V1 Offer Builder shipped as `/build/experience` + `PUT /api/tier-offer-experiences`. The
 subscription door on `/offers/new` was retired (D2). No migration; no wizard-state table; quest
-completion stays permanent while the next move is derived. GB passes every readiness check and
-is credited automatically on his next load; his next move is "Test it". `Confirmed`.
+completion stays permanent while the next move is derived. Browser-verified end to end the same
+day on a throwaway do-not-track artist (see the changelog); the admin-owned-artist "Launch it"
+gap is closed by the `funnel_launched` activation milestone. GB passes every funnel readiness
+check (his First revenue stage reads 6 of 9) and is credited automatically on his next load;
+his roadmap move is "Complete your public profile" because his tagline, banner and bio are
+empty. `Confirmed`.
 
 CRWN is **live in production** (`thecrwn.app`) and the core money loop is real and hardened. The codebase is **large and layered** — it has grown many parallel feature surfaces (241 API routes, 25 crons, 134 migrations, 115 pages) faster than it has been consolidated. Earlier threads: a **security-hardening sprint** (entitlement oracle, signed audio, RLS canary), and the **Quest Engine / Rise Mode** gamification layer, which is built but remains **dark-launched (flag off)**. The **current frontier** is the **Opportunity Funnel system** (public calculator tools → value-before-signup builders → one journey resolver → holistic experiments), which is **live** with its experiments engine **on**; its latest addition (2026-07-29) is the **unified Opportunity Calculator**, the first surface that models every opportunity together without double-counting; on 2026-07-30 the calculator gained the **Tier 1 launch journey** around it: the 40% qualification question in its wizard, a qualified immediate-call hand-raiser (server-recomputed `scoreLead`, one deduplicated founder alert per phone per day, admin Calls-tab CRM record with manual statuses; the alert channel became EMAIL always on 2026-07-31 when SMS was removed, with an optional `FOUNDER_ALERT_SMS_EMAIL` carrier-gateway mirror), consent-attested fan-contact import, first-fan invites through the existing campaign sender (live; `schema-phase2-fan-invites.sql` applied 2026-07-30), a post-publish launch transition on `/offers/new` (Stripe prompt + "choose who sees it first"), and five new funnel stages carrying the journey to `first_paid_conversion`. `Confirmed`.
 

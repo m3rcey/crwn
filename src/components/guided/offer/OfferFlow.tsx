@@ -178,6 +178,17 @@ export default function OfferFlow({ context, entry }: GuidedFlowProps) {
 
   const goBack = () => setIndex((i) => Math.max(0, i - 1));
 
+  // Arriving at the promise screen with nothing written: pre-fill it from what was just chosen.
+  // Browser QA (2026-09-03) showed the suggestion only as a placeholder, which reads as "type
+  // something" instead of "here is your line, change it if you like".
+  useEffect(() => {
+    if (step?.key === 'promise' && !promise.trim()) {
+      const s = suggestPromise(state);
+      if (s) setPromise(s);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step?.key]);
+
   const advance = async () => {
     if (!step) return;
     if (step.key === 'promise' && !promise.trim()) setPromise(suggestPromise(state));

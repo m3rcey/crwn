@@ -242,8 +242,17 @@ export function canContinue(step: ExperienceStepDef, s: ExperienceState): boolea
  * the published page. With no draft, a published page resumes at review; a fresh tier starts
  * at the promise.
  */
-export function resumeIndex(steps: ExperienceStepDef[], s: ExperienceState, hasPublished: boolean): number {
+export function resumeIndex(
+  steps: ExperienceStepDef[],
+  s: ExperienceState,
+  hasPublished: boolean,
+  /** True when the artist has been here before (a browser draft exists). A first visit always
+   *  starts at the promise, even though CRWN pre-filled it: a suggestion the artist never saw
+   *  is not a decision they made (browser QA, 2026-09-03). */
+  hasDraft = false,
+): number {
   const at = (k: ExperienceStepKey) => Math.max(0, steps.findIndex((st) => st.key === k));
+  if (!hasPublished && !hasDraft) return at('promise');
   if (!s.promise.trim() || !s.description.trim()) return at('promise');
   if (!canContinue(steps[at('cta')], s)) return at('cta');
   const firstOpen = steps.findIndex((st) => st.key === 'preview-benefit' && !canContinue(st, s));

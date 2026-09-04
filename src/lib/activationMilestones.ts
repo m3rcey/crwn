@@ -7,7 +7,13 @@ export type ActivationMilestone =
   | 'stripe_connected'
   | 'first_subscriber'
   // First album/EP/mixtape container created (onboarding project flow).
-  | 'first_project_created';
+  | 'first_project_created'
+  // The artist put their funnel link into the world (copied it, printed the QR, opened the
+  // Launch Kit or the automations screen from the Launch flow). PROGRESSION state, not a
+  // metric: the analytics event for the same action stays excluded for admin accounts and
+  // do-not-track devices, and this milestone is what lets those artists complete "Launch it"
+  // without ever being counted as fan acquisition (2026-09-03).
+  | 'funnel_launched';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',

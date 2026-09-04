@@ -73,6 +73,7 @@ export default function ExperienceFlow({ context, entry }: GuidedFlowProps) {
   const [faqs, setFaqs] = useState<ExperienceState['faqs']>([]);
   const [index, setIndex] = useState(0);
   const [saving, setSaving] = useState(false);
+  const [hadDraft, setHadDraft] = useState(false);
 
   // ---- Load everything CRWN already knows, once. ----
   useEffect(() => {
@@ -145,6 +146,7 @@ export default function ExperienceFlow({ context, entry }: GuidedFlowProps) {
       const initial: ExperienceState['decisions'] = {};
       for (const b of previewableBenefits(base.benefits)) initial[b.benefit] = draft?.decisions?.[b.benefit] ?? defaultDecision(b);
       setDecisions(initial);
+      setHadDraft(!!draft);
       setLoaded(true);
       if (draft && Number.isFinite(draft.index)) setIndex(Math.max(0, draft.index));
       else setIndex(-1); // resolved below once steps exist
@@ -159,7 +161,7 @@ export default function ExperienceFlow({ context, entry }: GuidedFlowProps) {
     [tier, benefits, promise, description, cta, decisions, vslUrl, faqs, inheritedFrom],
   );
   const steps = useMemo(() => visibleSteps(state), [state]);
-  const resolvedIndex = index < 0 ? resumeIndex(steps, state, hasPublished) : Math.min(index, steps.length - 1);
+  const resolvedIndex = index < 0 ? resumeIndex(steps, state, hasPublished, hadDraft) : Math.min(index, steps.length - 1);
   const step = steps[resolvedIndex];
 
   // In-flight text lives in the browser; the published row is the only canonical state.

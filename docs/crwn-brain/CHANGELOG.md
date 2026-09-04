@@ -1,5 +1,38 @@
 # CRWN Brain — Changelog
 
+## 2026-09-03 - Rise Mode Guided Setup browser-verified end to end; admin launch completion fixed
+
+A throwaway non-admin artist (created and deleted the way the onboarding canary does it, with
+the `crwn_dnt` device cookie so nothing it did was counted) walked the whole journey in headless
+Chromium against the dev server: Rise Mode named Build your offer, and each guided flow ran to
+its canonical save, returned to Rise Mode, and reopened at the right decision, through to "Get
+your first paid fan". Desktop and 390px mobile, no horizontal overflow, primary button always in
+the viewport; foreign tier, funnel, experience and goal pointers refused or ignored server-side.
+The harness lives in `scripts/qa/guided-setup/` (fixture + walk; needs `playwright-core` and a
+Chromium, see the file headers).
+
+Four defects fixed from browser evidence: the offer promise was only a placeholder on arrival
+(now pre-filled from the choice just made); the sales page flow skipped its first screen on a
+first visit because the promise was suggested (a first visit now starts at the promise); the
+automation wizard showed a second "Close" beside the frame's X from Rise Mode; "1 track play"
+grammar in the readiness fact.
+
+**Admin-owned artist could never complete "Launch it."** The launch signal was the `fan_invited`
+funnel event, which is analytics and is dropped for admin accounts and do-not-track devices by
+design. Resolution: the Launch flow now also writes the `funnel_launched` activation milestone
+through the session-authorized `/api/artist/milestone` route (progression state on the artist's
+own row), and the roadmap's `funnel_launched` fact reads the milestone OR the event. Analytics
+stay exactly as excluded; the fix is general (no artist id anywhere), and it is not a manual
+completion. Verified in the browser on a do-not-track session: Rise Mode advanced to "Get your
+first paid fan" after the Launch flow.
+
+Also observed, pre-existing and out of scope: `/api/lead-results/auto-claim` answers 429 after
+repeated Rise Mode loads in one hour (swallowed client-side), an unknown `/drop/<token>` renders
+the app's not-found page with status 200 in both dev and production (no funnel content leaks),
+and GB's real Foundation state has no tagline, banner or bio, so his roadmap move is "Complete
+your public profile" before the revenue chain (his funnel chain reads 6 of 9 done; the constraint
+engine, which owns his card once diagnosed, is unchanged).
+
 ## 2026-09-03 - Rise Mode Guided Setup: launch readiness is a working funnel, seven guided flows
 
 **Rules: CLAUDE.md "Rise Mode Guided Setup". Founder decisions D1 to D7 settled with the

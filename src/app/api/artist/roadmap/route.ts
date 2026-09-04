@@ -128,8 +128,19 @@ async function evalFact(artistId: string, userId: string, fact: RoadmapFact): Pr
       return { done: machine && acked, current: n, target: 2 };
     }
     if (fact === 'funnel_launched') {
-      // A distribution action on the funnel link, recorded as the EXISTING fan_invited funnel
-      // event with a funnel_* method (the Launch flow writes it). Nothing new is stored.
+      // A distribution action on the funnel link. Two sources, either suffices: the
+      // funnel_launched activation MILESTONE (progression state on the artist row, written by
+      // the Launch flow through the session-authorized milestone route, never excluded), or the
+      // fan_invited funnel EVENT with a funnel_* method (analytics, excluded for admin accounts
+      // and do-not-track devices). Analytics exclusion must never make legitimate product state
+      // impossible (2026-09-03).
+      const { data: ap } = await supabaseAdmin
+        .from('artist_profiles')
+        .select('activation_milestones')
+        .eq('id', artistId)
+        .maybeSingle();
+      const milestones = (ap?.activation_milestones || {}) as Record<string, unknown>;
+      if (milestones.funnel_launched) return { done: true, current: 1, target: 1 };
       const { count } = await supabaseAdmin
         .from('funnel_events')
         .select('id', { count: 'exact', head: true })

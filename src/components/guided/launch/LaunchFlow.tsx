@@ -92,7 +92,13 @@ export default function LaunchFlow({ context, entry }: GuidedFlowProps) {
     [url, artistName, context.tiers, r?.primaryTier, contactCount],
   );
 
-  /** The one canonical signal: the existing fan_invited event with a funnel_* method. */
+  /**
+   * Two writes for one action, on purpose. The fan_invited funnel EVENT is analytics and stays
+   * excluded for admin accounts and do-not-track devices. The funnel_launched MILESTONE is
+   * progression state on the artist's own row, written through the session-authorized
+   * milestone route, so an admin-owned artist completes "Launch it" without ever being counted
+   * as fan acquisition. The roadmap reads either.
+   */
   const record = useCallback(
     (method: string) => {
       void fetch('/api/funnel/track', {
@@ -103,6 +109,11 @@ export default function LaunchFlow({ context, entry }: GuidedFlowProps) {
           dedupeKey: `${context.artistId}:funnel:${method}`,
           metadata: { method: `funnel_${method}`, funnel: r?.funnel?.publicToken ?? null },
         }),
+      }).catch(() => {});
+      void fetch('/api/artist/milestone', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ milestone: 'funnel_launched' }),
       }).catch(() => {});
     },
     [context.artistId, r?.funnel?.publicToken],

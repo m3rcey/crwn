@@ -788,7 +788,8 @@ export function AutomationWizard({ ctx, connections, onClose, onSaved, existing 
       continueDisabled={!canContinue()}
       continueLoading={saving}
       onSkip={['keywords', 'magnet-promise', 'silver-tier', 'nurture'].includes(screen) ? () => setIndex((i) => Math.min(i + 1, screens.length - 1)) : undefined}
-      onClose={onClose}
+      // From Rise Mode the frame's X is the one exit; a second "Close" beside it read as two doors.
+      onClose={flow ? undefined : onClose}
       stickyFooter={!!flow}
     >
       {body()}

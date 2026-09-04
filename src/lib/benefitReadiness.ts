@@ -122,7 +122,7 @@ const RESOLVERS: Record<ReadinessKey, Resolver> = {
       (t) => t.is_active !== false && classifyTrack(t, f.now) === 'member_only' && includes(t.allowed_tier_ids, tierId),
     ).length;
     return n > 0
-      ? { state: 'ready', fact: `${plural(n, 'track')} play for this rung and lock for everyone else.` }
+      ? { state: 'ready', fact: `${plural(n, 'track')} ${n === 1 ? 'plays' : 'play'} for this rung and ${n === 1 ? 'locks' : 'lock'} for everyone else.` }
       : { state: 'nothing_yet', fact: 'No track is gated to this rung yet.' };
   },
 

@@ -19,6 +19,7 @@ const VALID_MILESTONES: ActivationMilestone[] = [
   'stripe_connected',
   'first_subscriber',
   'first_project_created',
+  'funnel_launched',
 ];
 
 export async function POST(req: NextRequest) {

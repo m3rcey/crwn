@@ -155,18 +155,26 @@ describe('prefill', () => {
 });
 
 describe('resume', () => {
-  it('lands on the first open decision, or review when a page is already published', () => {
+  it('a first visit always starts at the promise, even though it is pre-filled', () => {
+    // Browser QA (2026-09-03): the flow skipped straight to the button because the promise was
+    // suggested. A suggestion the artist never saw is not a decision they made.
     const steps = visibleSteps(state());
-    expect(steps[resumeIndex(steps, state(), false)].key).toBe('promise');
+    const prefilled = state({ promise: 'p', description: 'd', cta: 'Hear it first' });
+    expect(steps[resumeIndex(steps, prefilled, false, false)].key).toBe('promise');
+  });
+
+  it('with a draft, lands on the first open decision; with a published page, on review', () => {
+    const steps = visibleSteps(state());
+    expect(steps[resumeIndex(steps, state(), false, true)].key).toBe('promise');
     const withPromise = state({ promise: 'p', description: 'd' });
-    expect(steps[resumeIndex(steps, withPromise, false)].key).toBe('cta');
+    expect(steps[resumeIndex(steps, withPromise, false, true)].key).toBe('cta');
     const withCta = state({ promise: 'p', description: 'd', cta: 'Hear it first' });
-    expect(steps[resumeIndex(steps, withCta, false)].key).toBe('preview-benefit');
+    expect(steps[resumeIndex(steps, withCta, false, true)].key).toBe('preview-benefit');
     const decided = state({
       promise: 'p', description: 'd', cta: 'Hear it first',
       decisions: { exclusive_tracks: defaultDecision(TRACKS), creative_voting: defaultDecision(VOTING) },
     });
-    expect(steps[resumeIndex(steps, decided, false)].key).toBe('vsl');
+    expect(steps[resumeIndex(steps, decided, false, true)].key).toBe('vsl');
     expect(steps[resumeIndex(steps, decided, true)].key).toBe('preview');
   });
 });

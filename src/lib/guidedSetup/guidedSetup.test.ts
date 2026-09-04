@@ -105,6 +105,31 @@ describe('every flow is built and reachable', () => {
     // No Meta plumbing and no scheduler: the link is handed out, never published for the artist.
     expect(flow).not.toMatch(/instagram_business|graph\.facebook|social_posts|publish_at/i);
   });
+
+  it('analytics exclusion never makes "Launch it" impossible: progression rides a milestone, not the metric', () => {
+    // Browser QA 2026-09-03: on a do-not-track device (every admin device, and the founder's
+    // own artist) the fan_invited event is dropped by design, so the roadmap could never see a
+    // launch. The Launch flow now ALSO writes the funnel_launched activation milestone through
+    // the session-authorized milestone route, and the roadmap reads either source. The metric
+    // stays excluded; the milestone is state on the artist's own row and counts nobody.
+    const flow = readFileSync('src/components/guided/launch/LaunchFlow.tsx', 'utf8');
+    expect(flow).toContain("fetch('/api/artist/milestone'");
+    expect(flow).toContain("milestone: 'funnel_launched'");
+    const route = readFileSync('src/app/api/artist/milestone/route.ts', 'utf8');
+    expect(route).toContain("'funnel_launched'");
+    expect(route).toContain('supabase.auth.getUser()');
+    const roadmap = readFileSync('src/app/api/artist/roadmap/route.ts', 'utf8');
+    expect(roadmap).toContain('milestones.funnel_launched');
+    expect(roadmap).toContain("'fan_invited'");
+    // The analytics chokepoints are untouched: the track route still honours the device cookie
+    // and recordFunnelEvent still skips admin accounts.
+    const track = readFileSync('src/app/api/funnel/track/route.ts', 'utf8');
+    expect(track).toContain('requestHasDnt(req.headers)');
+    const events = readFileSync('src/lib/analytics/funnelEvents.ts', 'utf8');
+    expect(events).toMatch(/role === 'admin'\) return/);
+    // Not GB-specific, not a manual completion: no artist id or slug anywhere in the path.
+    expect(flow).not.toMatch(/\bgb\b|61cfacee|quests\/complete/);
+  });
 });
 
 describe('telemetry rides the existing sink', () => {
