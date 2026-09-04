@@ -334,6 +334,7 @@ export async function handleCheckoutCompleted(supabaseAdmin: AdminClient, sessio
         artistId: artist_id,
         kind: 'subscription',
         userId: artistProfile?.user_id,
+        grossAmountCents: grossAmount,
       });
 
       // Promise Calendar: high-ticket (VIP) supporters get a 48h personal-welcome
@@ -1078,6 +1079,7 @@ export async function handleProductPurchase(supabaseAdmin: AdminClient, session:
       artistId: artist_id,
       kind: 'product',
       userId: artistProfile?.user_id,
+      grossAmountCents: grossAmount,
     });
   }
 
@@ -1380,6 +1382,7 @@ export async function handleTrackPurchase(supabaseAdmin: AdminClient, session: S
     artistId: artist_id,
     kind: 'track',
     userId: artistProfile?.user_id,
+    grossAmountCents: grossAmount,
   });
 
   // Send receipts
@@ -1593,6 +1596,7 @@ export async function handleBookingPurchase(supabaseAdmin: AdminClient, session:
     artistId: artist_id,
     kind: 'booking',
     userId: artistProfile?.user_id,
+    grossAmountCents: grossAmount,
   });
 
   console.log('Booking purchase recorded:', { booking_session_id, buyer_id, artist_id, netAmount });
@@ -1732,6 +1736,7 @@ export async function handleLiveTicketPurchase(supabaseAdmin: AdminClient, sessi
     artistId: artist_id,
     kind: 'live_ticket',
     userId: artistProfile?.user_id,
+    grossAmountCents: grossAmount,
   });
 
   console.log('Live ticket recorded:', { live_session_id, buyer_id, artist_id, netAmount });
@@ -1853,6 +1858,7 @@ export async function handleLiveTip(supabaseAdmin: AdminClient, session: Stripe.
     artistId: artist_id,
     kind: 'live_tip',
     userId: artistProfile?.user_id,
+    grossAmountCents: grossAmount,
   });
 
   console.log('Live tip recorded:', { live_session_id, buyer_id, artist_id, netAmount });

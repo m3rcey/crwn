@@ -145,13 +145,26 @@ export async function assembleConstraintEvidence(
   // the gate treats that as unknown.
   let subRowsForEligibility: { tier_id: string | null; status: string | null }[] | null = null;
   try {
-    const [{ data: tierRows }, { data: subRows }] = await Promise.all([
+    const [{ data: tierRows }, subsRes] = await Promise.all([
       db.from('subscription_tiers').select('id, price').eq('artist_id', artistId).eq('is_active', true),
       db
         .from('subscriptions')
-        .select('tier_id, status, created_at, canceled_at')
+        .select('tier_id, status, created_at, canceled_at, prize_campaign_id')
         .eq('artist_id', artistId),
     ]);
+
+    // Pre-migration, naming prize_campaign_id 42703s the WHOLE statement and supabase-js
+    // returns { data: null } rather than throwing, which would silently report every
+    // artist as having zero members and zero MRR. Retry without the column: the answer is
+    // then exactly today's answer, because no prize subscription can exist yet either.
+    let subRows = subsRes.data;
+    if (subsRes.error) {
+      const retry = await db
+        .from('subscriptions')
+        .select('tier_id, status, created_at, canceled_at')
+        .eq('artist_id', artistId);
+      subRows = retry.data;
+    }
 
     tierPriceById = new Map(
       (tierRows ?? []).map((r: { id: string; price: number | null }) => [r.id, Number(r.price) || 0]),
@@ -162,6 +175,8 @@ export async function assembleConstraintEvidence(
       status: string | null;
       created_at: string;
       canceled_at?: string | null;
+      /** Set when a campaign PRIZE funded this membership. Undefined pre-migration. */
+      prize_campaign_id?: string | null;
     }[];
     subRowsForEligibility = subs;
 
@@ -169,8 +184,18 @@ export async function assembleConstraintEvidence(
     const priceOf = (s: { tier_id: string | null }) =>
       s.tier_id ? tierPriceById.get(s.tier_id) ?? 0 : 0;
 
+    // A PRIZE membership is a real member and not a payer. These two numbers are the
+    // financial ones (paidMembers feeds the Constraint Engine's stage thresholds, mrrCents
+    // is revenue), so a comped Platinum must contribute to neither: counting it would tell
+    // CRWN the artist has $50/month of recurring revenue that nobody is paying. Entitlement
+    // is unaffected, because the oracle reads an ACTIVE row and a tier, never a price.
+    //
+    // Pre-migration the column is undefined on every row, so this reads exactly as it did
+    // before: no prize subscriptions exist and nothing changes.
+    const isPrize = (s: { prize_campaign_id?: string | null }) => !!s.prize_campaign_id;
+
     freeMembers = active.filter((s) => priceOf(s) === 0).length;
-    const paid = active.filter((s) => priceOf(s) > 0);
+    const paid = active.filter((s) => priceOf(s) > 0 && !isPrize(s));
     paidMembers = paid.length;
     mrrCents = paid.reduce((sum, s) => sum + priceOf(s), 0);
 

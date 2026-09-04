@@ -104,9 +104,28 @@ type Db = { from: (t: string) => any };
  */
 export async function recordFirstPaidConversion(
   db: Db,
-  args: { artistId: string; kind: PaidConversionKind; userId?: string | null },
+  args: {
+    artistId: string;
+    kind: PaidConversionKind;
+    userId?: string | null;
+    /**
+     * What Stripe ACTUALLY collected on this event, in cents.
+     *
+     * REQUIRED, and the guard lives here rather than at the six call sites so a rail added
+     * later cannot forget it. "First paid" means an artist has been paid; a $0 invoice is
+     * not a payment. Fully discounted subscriptions are real (SEC-006 already books their
+     * gross as 0), and a prize membership is the case that makes this urgent: without the
+     * guard, giving a fan twelve free months would permanently mark an artist as having
+     * earned their first dollar. `dedupeKey` is the artist id forever, so a false event
+     * cannot be corrected later by a real payment.
+     */
+    grossAmountCents: number;
+  },
 ): Promise<void> {
   try {
+    // No money, no conversion. Non-finite or negative is treated as no money too: a
+    // refund or a malformed amount is certainly not a first dollar.
+    if (!Number.isFinite(args.grossAmountCents) || args.grossAmountCents <= 0) return;
     // Attribution: the artist's own claimed calculator result. Best-effort by design, since an
     // artist who signed up without a calculator is a normal case, not an error.
     let calculator: string | null = null;

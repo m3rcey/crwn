@@ -3,6 +3,7 @@ import {
   PAID_CONVERSION_KINDS,
   isPaidConversionKind,
   buildPaidConversionEvent,
+  recordFirstPaidConversion,
 } from './paidConversion';
 import { buildFunnelRow } from './funnelEvents';
 
@@ -111,5 +112,62 @@ describe('buildPaidConversionEvent', () => {
     const row = buildFunnelRow(buildPaidConversionEvent({ artistId: 'a', kind: 'subscription' })!);
     expect(row).not.toBeNull();
     expect(row!.stage).toBe('first_paid_conversion');
+  });
+});
+
+describe('first paid requires actual money (the $0 guard)', () => {
+  /** Minimal db double: records what recordFunnelEvent would have written. */
+  const spyDb = () => {
+    const writes: unknown[] = [];
+    const chain = {
+      select: () => chain, eq: () => chain, in: () => chain, order: () => chain,
+      limit: () => chain, maybeSingle: async () => ({ data: null }), single: async () => ({ data: null }),
+      insert: async (row: unknown) => { writes.push(row); return { error: null }; },
+      upsert: async (row: unknown) => { writes.push(row); return { error: null }; },
+    };
+    return { db: { from: () => chain }, writes };
+  };
+
+  it('a $0 subscription records NOTHING: a prize is not a first dollar', async () => {
+    const { db, writes } = spyDb();
+    await recordFirstPaidConversion(db as never, {
+      artistId: 'artist-1', kind: 'subscription', userId: 'u1', grossAmountCents: 0,
+    });
+    expect(writes).toHaveLength(0);
+  });
+
+  it('a negative or malformed amount records nothing either', async () => {
+    for (const amount of [-100, Number.NaN, Number.POSITIVE_INFINITY]) {
+      const { db, writes } = spyDb();
+      await recordFirstPaidConversion(db as never, {
+        artistId: 'artist-1', kind: 'subscription', userId: 'u1', grossAmountCents: amount,
+      });
+      expect(writes, `amount ${amount} must not record`).toHaveLength(0);
+    }
+  });
+
+  it('a real payment still records, on every rail', async () => {
+    for (const kind of ['subscription', 'product', 'track', 'booking', 'live_ticket', 'live_tip'] as const) {
+      const { db, writes } = spyDb();
+      await recordFirstPaidConversion(db as never, {
+        artistId: 'artist-1', kind, userId: 'u1', grossAmountCents: 1000,
+      });
+      expect(writes.length, `${kind} must record a real payment`).toBeGreaterThan(0);
+    }
+  });
+
+  it('the smallest real payment counts: one cent is money', async () => {
+    const { db, writes } = spyDb();
+    await recordFirstPaidConversion(db as never, {
+      artistId: 'artist-1', kind: 'subscription', userId: 'u1', grossAmountCents: 1,
+    });
+    expect(writes.length).toBeGreaterThan(0);
+  });
+
+  it('dedupe is untouched: the key is still the artist, so a later real payment cannot double-fire', () => {
+    const a = buildPaidConversionEvent({ artistId: 'artist-1', kind: 'subscription' });
+    const b = buildPaidConversionEvent({ artistId: 'artist-1', kind: 'product' });
+    expect(a!.dedupeKey).toBe('artist-1');
+    expect(b!.dedupeKey).toBe('artist-1');
   });
 });
