@@ -13,6 +13,7 @@
     "verify:migrations": "node scripts/probe-migrations.mjs",
     "verify:flags": "node scripts/probe-flags.mjs",
     "verify:stripe": "node scripts/probe-stripe-prices.mjs",
+    "verify:prize-lifecycle": "node scripts/verify-prize-lifecycle.mjs",
     "preview:emails": "PREVIEW_EMAILS=1 vitest run src/lib/prospectNurture/emailPreview.test.ts",
     "preview:platform-emails": "PREVIEW_PLATFORM_EMAILS=1 vitest run src/lib/emails/platformSequenceEmail.test.ts",
     "video:dryrun": "node scripts/video/video.mjs dryrun",

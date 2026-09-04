@@ -47,6 +47,7 @@ npm test             # vitest, 820 tests across 50 files (a moving figure: run i
 | `SUPABASE_SERVICE_ROLE_KEY` | RLS-bypassing admin client (API routes only) |
 | `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET` | Stripe |
 | `STRIPE_CRWN_{PRO,SCALE}_{,ANNUAL_}PRICE_ID` (4) | platform plan Stripe price ids (LABEL/EMPIRE vars removed 2026-07-31; checkout verifies the live price amount against `TIER_PRICING`) |
+| `STRIPE_TEST_SECRET_KEY` | **LOCAL TOOLING ONLY. Never set this in Vercel.** The Stripe TEST secret the financial sandbox harness runs on (`npm run verify:prize-lifecycle`). Nothing in `src/` reads it. It exists because a sandbox script must be structurally incapable of reaching the live key: `scripts/lib/stripeSandbox.mjs` reads this variable and only this one, refuses `sk_live_`/`rk_live_`, refuses anything it cannot positively identify as test mode, and then makes Stripe itself confirm `livemode: false` before a client exists. There is deliberately no fallback to `STRIPE_SECRET_KEY`. |
 | `CLOUDFLARE_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET_NAME` | Cloudflare R2 |
 | `LIVEKIT_API_KEY`, `LIVEKIT_API_SECRET`, `LIVE_PROVIDER` | LiveKit |
 | `RESEND_API_KEY`, `FROM_EMAIL` | Resend email |

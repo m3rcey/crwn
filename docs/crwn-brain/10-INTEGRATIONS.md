@@ -39,6 +39,44 @@
 - **Webhook** `/api/stripe/webhook`: **signature-verified** (`stripe.webhooks.constructEvent`). Idempotent via atomic `processed_webhook_events` INSERT (unique-violation = already processed). Handles `checkout.session.completed` (routed by metadata), `invoice.paid`, `invoice.payment_failed`, `customer.subscription.updated/deleted`, `charge.refunded`, `checkout.session.expired`, `charge.dispute.created`.
 - **Failure behavior:** idempotency-insert errors are logged but processing continues (fail-open by design so a schema hiccup never drops a payment event).
 
+### Stripe financial lifecycle testing — the sandbox harness (2026-09-04)
+
+Some money questions cannot be answered by unit tests, because the answer belongs to Stripe and
+not to CRWN. "Does a 100% discounted subscription really need no card", "does appending a phase
+to a paying fan's schedule really leave their paid period intact", "is 12 monthly periods really
+12 invoices" are all facts about Stripe's object model. `scripts/verify-prize-lifecycle.mjs`
+runs them against real Stripe TEST objects and reads the results back rather than inspecting the
+parameters it just sent.
+
+- **Env: `STRIPE_TEST_SECRET_KEY`, local tooling only.** Never set it in Vercel; nothing in
+  `src/` reads it. It is a NEW convention because the repo had none: prior to this the only
+  Stripe secret was the live key.
+- **`scripts/lib/stripeSandbox.mjs` is the one safety primitive**, deliberately generic so
+  future financial-rail validation (Team Splits funding) reuses the guard without inheriting
+  anything prize-shaped. It reads `STRIPE_TEST_SECRET_KEY` and only that name; it refuses
+  `sk_live_`/`rk_live_` by prefix before any network call; it refuses anything it cannot
+  positively identify as test mode; and it then requires **Stripe itself** to answer
+  `livemode: false`, because a prefix is a string a typo can produce. **There is no fallback to
+  `STRIPE_SECRET_KEY`,** which is the whole point: the app's `src/lib/stripe/client.ts` binds
+  the live key at module load, so a harness importing it would be live by construction.
+- **The refusal is frozen by `src/lib/stripe/sandboxKey.test.ts`** (mutation-tested 2026-09-04:
+  adding a `|| process.env.STRIPE_SECRET_KEY` fallback and separately disabling the live-prefix
+  branch each failed the suite; both reverted, clean pass). It asserts the live refusal, the
+  missing-key refusal, the refuse-by-default for unknown shapes, and that the guard's only
+  environment read is the test variable.
+- **No secret is ever printed, returned, logged or committed.** Only the mode and the Stripe
+  account id are printed. `.env*` is gitignored.
+- **Every object the harness creates is labelled** `crwn_sandbox_run=<run>` and deleted at the
+  end; `--keep` leaves them for dashboard inspection.
+- **It touches no database.** Stripe primitives need none, and keeping the DB out is what makes
+  the harness safe to run from a machine pointed at production Supabase.
+- **Validation status: HARNESS READY, STRIPE TEST KEY REQUIRED.** As of 2026-09-04 no test key
+  exists in the project, so the three winner lifecycles are DESIGNED AND UNPROVEN, not proven.
+  Run `npm run verify:prize-lifecycle` once a key is in place.
+- **This does NOT satisfy the Team Splits canary**, which additionally needs a non-production
+  Supabase project and a webhook secret (see `28-TEAM-SPLIT-FUNDING-ARCHITECTURE.md` §27.3).
+  Same blocker, larger environment. Team Split funding remains disabled.
+
 ## Cloudflare R2 — object storage (S3-compatible)
 - **Env:** `CLOUDFLARE_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET_NAME`, `NEXT_PUBLIC_R2_PUBLIC_URL`.
 - **Files:** `src/lib/r2/client.ts` (`@aws-sdk/client-s3` + `s3-request-presigner`; `getSignedUploadUrl` 300s / `getSignedDownloadUrl` 3600s). Reused by LiveKit egress to write recordings directly to R2.

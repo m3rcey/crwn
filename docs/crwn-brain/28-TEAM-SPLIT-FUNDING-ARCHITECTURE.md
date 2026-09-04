@@ -1069,3 +1069,26 @@ Everything except supplying the credentials:
 Before creating any Stripe object, the next pass re-runs the preflight and requires all of:
 `balance.livemode === false`, Supabase ref `!== ecpqtuidtsncjfwtkvwc`, and a real
 `STRIPE_WEBHOOK_SECRET`. If any is not satisfied it stops again.
+
+### 27.6 Half of that preflight now exists as reusable code (2026-09-04)
+
+The prize-lifecycle work needed the same first gate, so it was built as a shared primitive rather
+than a second copy: **`scripts/lib/stripeSandbox.mjs`**. It supplies exactly the three things
+§27.5 opens with, and nothing prize-shaped:
+
+- the test-key guard (`STRIPE_TEST_SECRET_KEY`, refuses `sk_live_`/`rk_live_`, refuses anything
+  not positively identified as test mode),
+- test-mode client creation that Stripe itself confirms via `livemode === false`,
+- live-key refusal, frozen and mutation-tested in `src/lib/stripe/sandboxKey.test.ts`.
+
+**This does not unblock the canary, and the gate does not move.** Note the variable: it is
+`STRIPE_TEST_SECRET_KEY`, deliberately NOT the `STRIPE_SECRET_KEY` swap §27.3 describes. That
+swap is right for the canary, which drives real CRWN code paths and therefore needs the whole
+app pointed at test mode; it is wrong for a script, where "put the test key in the live key's
+variable" is one edit away from running a sandbox against production. The two coexist: a script
+uses the guard, the canary runtime uses the env swap.
+
+What is still missing for Team Splits is unchanged and is the larger half: a **non-production
+Supabase project** and a real `STRIPE_WEBHOOK_SECRET`. The prize harness sidesteps both by
+touching no database at all, which a money-movement canary cannot do. **Team Split funding
+remains disabled (503), and `FUNDING_RATIFIED_DECISIONS` is unchanged.**

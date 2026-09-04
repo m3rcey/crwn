@@ -94,6 +94,23 @@ responsible for. Do not work those.
       test-mode key. This is the same sandbox gap Team Splits funding is waiting on, so
       one key unblocks both.
 
+      **The test rig is now built and waiting on that one key.** Four steps:
+        1. Stripe Dashboard, switch to Test mode (toggle, top right), or open a Sandbox.
+        2. Developers, then API keys, then reveal the test-mode SECRET key (starts `sk_test_`).
+        3. Add one line to `.env.local` (gitignored, never commit it, do not paste it to me):
+
+               STRIPE_TEST_SECRET_KEY=sk_test_...
+
+        4. Run:
+
+               npm run verify:prize-lifecycle
+
+      It creates its own throwaway Stripe test objects, checks all three winner cases
+      (no paid tier, a paying Silver/Gold, an existing Platinum), prints PASS or FAIL per
+      check, and deletes everything again. It refuses to run on a live key, so it cannot
+      touch real money or GB's Connect account. Send me the output and I will finish the
+      executor against what Stripe actually did rather than what I assumed.
+
 
 - [ ] **Founding A&R Week is built and CANNOT go live yet. Five things are missing and four
       of them are yours.** The campaign draft exists for GB and fails closed, so the
@@ -836,6 +853,16 @@ Things that are never finished. Cadence, then the thing.
 ---
 
 ## On Claude's plate (not yours)
+
+- **Write the prize executor, AFTER the Stripe test key proves the lifecycle.** The rig is built
+  (`npm run verify:prize-lifecycle`); the executor deliberately is not, because it should be a
+  translation of what Stripe actually does rather than a set of assumptions with tests that agree
+  with them. Two requirements are already settled without Stripe, by reading the webhook path, and
+  are recorded in [src/lib/campaigns/prizeFulfillment.ts](src/lib/campaigns/prizeFulfillment.ts):
+  a scheduled prize must also set `pending_tier_id` (otherwise a Silver winner flips to free
+  billing but keeps SILVER entitlement, and the prize under-delivers in silence), and the
+  no-paid-tier path must UPDATE the existing membership row rather than insert a second one.
+  **Nothing for you to do beyond the key.**
 
 - **Flip `ALLOW_UNSIGNED_LEGACY_LINKS` to false, NOT BEFORE 2026-09-24 (30 days).** The signing
   half shipped 2026-08-24: all four fan/prospect senders now emit signed unsubscribe links, so

@@ -13,6 +13,29 @@
 // NOTHING HERE COMES FROM A BROWSER. The plan is computed from the campaign row and the
 // fan's current subscription, both read server-side. A caller supplies a campaign id and a
 // fan id and nothing else: not the tier, not the duration, not the discount.
+//
+// ── TWO CONSTRAINTS THE EXECUTOR MUST SATISFY (found 2026-09-04, no Stripe needed) ──
+//
+// These are properties of CRWN's existing webhook path, not of Stripe, so they were provable
+// by reading the code and they bind whatever the Stripe sandbox eventually reports.
+//
+// 1. `schedule_at_period_end` MUST also set `subscriptions.pending_tier_id` to the prize tier.
+//    handleSubscriptionUpdated (src/lib/webhookHandlers.ts) only ever moves `tier_id` when a
+//    `pending_tier_id` is already set AND the incoming Stripe price matches that tier's price.
+//    With no pending tier it takes the "normal update" branch, which writes status and period
+//    dates and LEAVES tier_id ALONE. So a Silver winner whose schedule flips to Platinum at
+//    the boundary would pay nothing (correct) and still hold SILVER entitlement: the prize
+//    would silently under-deliver the thing it promised. Setting pending_tier_id makes the
+//    existing, ratified path apply the change at exactly the moment Stripe confirms the new
+//    price is in force, which is also the only moment it is true. Do NOT add a second writer
+//    of tier_id. Two details ride along: that path records the transition with
+//    `source: 'scheduled_downgrade'`, which mislabels a prize, and it enrolls the fan in the
+//    `tier_upgrade` nurture sequence, which would sell an upgrade to someone who just won one.
+//
+// 2. `create_now` MUST UPDATE the existing membership row, never INSERT a second one.
+//    `subscriptions` is uniquely constrained on (fan_id, artist_id), and a Bronze winner
+//    already holds a row with a synthetic `free_...` id. The prize swaps that row's tier_id
+//    and stripe_subscription_id; an insert would simply violate the constraint.
 
 /** Twelve MONTHLY billing periods, which is what "1 year of Platinum" is sold as. */
 export const PRIZE_MONTHS = 12;
