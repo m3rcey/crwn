@@ -80,6 +80,21 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **Run one migration, then get me a Stripe TEST key to finish the prize.**
+      [supabase/schema-phase2-subscription-prize-campaign.sql](supabase/schema-phase2-subscription-prize-campaign.sql)
+      adds `subscriptions.prize_campaign_id` so a comped membership stops counting as $50
+      of MRR nobody pays. Additive, no backfill, every existing row NULL. Nothing waits on
+      it: the assembler retries without the column, so members and MRR read correctly
+      either way. Verify with `npm run verify:migrations`.
+
+      **Then the real blocker: this project has only a LIVE Stripe key.** I cannot prove
+      the prize lifecycle (a $0 subscription with no card, a schedule that switches a
+      paying winner to free Platinum at their renewal, and the automatic end after twelve
+      months) without either creating live Stripe objects, which I will not do, or a
+      test-mode key. This is the same sandbox gap Team Splits funding is waiting on, so
+      one key unblocks both.
+
+
 - [ ] **Founding A&R Week is built and CANNOT go live yet. Five things are missing and four
       of them are yours.** The campaign draft exists for GB and fails closed, so the
       evergreen Go Bad funnel is running normally right now and will keep doing so until
