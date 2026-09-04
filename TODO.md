@@ -87,29 +87,18 @@ responsible for. Do not work those.
       it: the assembler retries without the column, so members and MRR read correctly
       either way. Verify with `npm run verify:migrations`.
 
-      **Then the real blocker: this project has only a LIVE Stripe key.** I cannot prove
-      the prize lifecycle (a $0 subscription with no card, a schedule that switches a
-      paying winner to free Platinum at their renewal, and the automatic end after twelve
-      months) without either creating live Stripe objects, which I will not do, or a
-      test-mode key. This is the same sandbox gap Team Splits funding is waiting on, so
-      one key unblocks both.
+      **The Stripe lifecycle is now PROVEN** (2026-09-04, test mode, 35 checks, 0 failures,
+      0 unproven). Your test key did it. All three winner cases hold against real Stripe
+      objects: a Bronze winner gets a $0 Platinum subscription with no card, whose first
+      invoice FINALISES as paid at $0 with zero charges; a paying Silver or Gold winner
+      keeps their paid period to the exact day and the prize starts at that boundary with
+      no refund and no second subscription; an existing Platinum winner the same. Twelve
+      monthly periods, then a hard stop, so there is no month 13. Rerun any time with
+      `npm run verify:prize-lifecycle`.
 
-      **The test rig is now built and waiting on that one key.** Four steps:
-        1. Stripe Dashboard, switch to Test mode (toggle, top right), or open a Sandbox.
-        2. Developers, then API keys, then reveal the test-mode SECRET key (starts `sk_test_`).
-        3. Add one line to `.env.local` (gitignored, never commit it, do not paste it to me):
-
-               STRIPE_TEST_SECRET_KEY=sk_test_...
-
-        4. Run:
-
-               npm run verify:prize-lifecycle
-
-      It creates its own throwaway Stripe test objects, checks all three winner cases
-      (no paid tier, a paying Silver/Gold, an existing Platinum), prints PASS or FAIL per
-      check, and deletes everything again. It refuses to run on a live key, so it cannot
-      touch real money or GB's Connect account. Send me the output and I will finish the
-      executor against what Stripe actually did rather than what I assumed.
+      **Applying the migration is the only thing left here, and it is yours** (I cannot run
+      DDL). It is the ONLY pending migration. After it, `npm run verify:migrations` should
+      report zero.
 
 
 - [ ] **Founding A&R Week is built and CANNOT go live yet. Five things are missing and four
@@ -118,13 +107,11 @@ responsible for. Do not work those.
       every blocker clears. Run `npx tsx scripts/configure-gb-campaign.mjs` any time to
       re-print the live blocker list.
 
-      **1. A prize CRWN can actually deliver (THE BLOCKER I CANNOT CLEAR).** There is no
-      mechanism to grant 12 months of Platinum without a real payment: the discount rail
-      mints single-cycle coupons only, and every paid-subscription writer is Stripe-driven.
-      The options are a Stripe coupon at 100% for 12 months applied to a real subscription,
-      or a comped-membership concept. Both are a separate build and a founder decision
-      about how comped members appear in revenue. **Until this exists no membership prize
-      may be advertised.**
+      **1. A prize CRWN can actually deliver.** The Stripe half is now PROVEN in test mode
+      (see the migration item above): a 100%-off coupon for 12 months on a subscription
+      schedule, ending in a hard stop. What is still missing is the CRWN half, and it is on
+      me, not you: the executor that writes it, gated on the migration being applied. Until
+      that ships `prizeFulfillable` stays false and no membership prize may be advertised.
       2. **Official Rules.** GB's own sweepstakes rules at a real URL. The CRWN terms page
          is not Official Rules.
       3. **Eligibility.** Age and territory, matching those rules.

@@ -90,22 +90,65 @@ created.coupons.push(coupon.id);
  */
 let discountParam = null;
 
-async function createScheduleTryingBothDiscountShapes(base, phases) {
-  const attempts = [
-    ['discounts', phases.map((p) => (p.prize ? { ...strip(p), discounts: [{ coupon: coupon.id }] } : strip(p)))],
-    ['coupon', phases.map((p) => (p.prize ? { ...strip(p), coupon: coupon.id } : strip(p)))],
-  ];
-  let lastErr;
-  for (const [shape, built] of attempts) {
-    try {
-      const sched = await stripe.subscriptionSchedules.create({ ...base, phases: built });
-      discountParam = shape;
-      return sched;
-    } catch (e) {
-      lastErr = e;
+let durationParam = null;
+
+/** Exactly N calendar months on from a unix second, which for a monthly price is N periods. */
+function plusMonths(unix, n) {
+  const d = new Date(unix * 1000);
+  d.setUTCMonth(d.getUTCMonth() + n);
+  return Math.floor(d.getTime() / 1000);
+}
+
+/**
+ * Build the prize phase in one candidate shape.
+ *
+ * TWO things vary, because test mode disproved the assumptions about both. `coupon` on a phase
+ * is rejected outright under billing_mode flexible, and `iterations` is not a parameter this
+ * API version knows at all. So the discount attachment and the way a phase states its length
+ * are each tried in the shapes Stripe might accept, and whichever works is reported so the
+ * executor can be written to it rather than to a guess.
+ */
+function buildPrizePhase(startUnix, discountShape, durationShape) {
+  const phase = { items: [{ price: platinumPrice.id, quantity: 1 }] };
+
+  if (discountShape === 'discounts') phase.discounts = [{ coupon: coupon.id }];
+  else if (discountShape === 'coupon') phase.coupon = coupon.id;
+
+  if (durationShape === 'duration') phase.duration = { interval: 'month', interval_count: PRIZE_MONTHS };
+  else if (durationShape === 'end_date') phase.end_date = plusMonths(startUnix, PRIZE_MONTHS);
+  else if (durationShape === 'iterations') phase.iterations = PRIZE_MONTHS;
+
+  return phase;
+}
+
+const DISCOUNT_SHAPES = ['discounts', 'coupon'];
+const DURATION_SHAPES = ['duration', 'end_date', 'iterations'];
+
+/**
+ * Try every candidate shape and, on total failure, report EVERY attempt's error.
+ *
+ * The first version reported only the last error, which hid the more informative one and made
+ * a two-cause failure look like one cause. A harness whose whole job is diagnosis must never
+ * throw a diagnosis away. Once a combination works it is remembered, so later legs try the
+ * known-good shape first instead of re-deriving it.
+ */
+async function trySchedule(call) {
+  const errors = [];
+  const discounts = discountParam ? [discountParam] : DISCOUNT_SHAPES;
+  const durations = durationParam ? [durationParam] : DURATION_SHAPES;
+  for (const d of discounts) {
+    for (const t of durations) {
+      try {
+        const out = await call(d, t);
+        discountParam = d;
+        durationParam = t;
+        return out;
+      } catch (e) {
+        errors.push(d + '+' + t + ': ' + e.message);
+      }
     }
   }
-  throw lastErr;
+  throw new Error(errors.join('  ||  '));
 }
 const strip = (p) => { const { prize, ...rest } = p; return rest; };
 
@@ -120,12 +163,20 @@ try {
   const customer = await stripe.customers.create({ name: 'CRWN sandbox bronze winner', metadata: meta });
   created.customers.push(customer.id);
 
-  const schedule = await createScheduleTryingBothDiscountShapes(
-    { customer: customer.id, start_date: 'now', end_behavior: 'cancel', metadata: meta },
-    [{ prize: true, items: [{ price: platinumPrice.id, quantity: 1 }], iterations: PRIZE_MONTHS }],
-  );
+  // start_date MUST be 'now'. A start even seconds in the future leaves the schedule
+  // `not_started` with schedule.subscription still null, so there is no subscription and no
+  // invoice to inspect: the first run reported three failures that were this, not Stripe.
+  // The prize for a fan with nothing to protect begins immediately, so 'now' is also correct.
+  const startUnix = Math.floor(Date.now() / 1000);
+  const schedule = await trySchedule((d, t) => stripe.subscriptionSchedules.create({
+    customer: customer.id,
+    start_date: 'now',
+    end_behavior: 'cancel',
+    metadata: meta,
+    phases: [buildPrizePhase(startUnix, d, t)],
+  }));
   created.schedules.push(schedule.id);
-  record('A', 'discount parameter accepted by this API version', true, discountParam);
+  record('A', 'phase shape accepted by this API version', true, 'discount=' + discountParam + ', duration=' + durationParam);
 
   const fresh = await stripe.subscriptionSchedules.retrieve(schedule.id, { expand: ['subscription'] });
   const sub = typeof fresh.subscription === 'string'
@@ -139,9 +190,23 @@ try {
     !sub?.default_payment_method && !sub?.default_source,
     'default_payment_method=' + String(sub?.default_payment_method));
 
-  const inv = sub?.latest_invoice
+  let inv = sub?.latest_invoice
     ? (typeof sub.latest_invoice === 'string' ? await stripe.invoices.retrieve(sub.latest_invoice) : sub.latest_invoice)
     : null;
+
+  // A DRAFT invoice's amounts are not final, so asserting $0 on one proves nothing durable.
+  // Finalise it and re-read: the question is what the fan is actually billed, and only a
+  // finalised invoice answers that.
+  if (inv && inv.status === 'draft') {
+    try {
+      inv = await stripe.invoices.finalizeInvoice(inv.id);
+      record('A', 'the first prize invoice FINALISED at $0 (not just drafted)',
+        inv.amount_due === 0 && inv.amount_paid === 0 && inv.total === 0 && (inv.status === 'paid' || inv.amount_remaining === 0),
+        'status=' + inv.status + ' due=' + money(inv.amount_due) + ' paid=' + money(inv.amount_paid) + ' remaining=' + money(inv.amount_remaining ?? 0));
+    } catch (e) {
+      record('A', 'the first prize invoice FINALISED at $0 (not just drafted)', null, e.message);
+    }
+  }
   // total and amount_remaining are asserted alongside amount_due because a field that this API
   // version removed reads as undefined, and `!undefined` would be a false pass. These three
   // exist in every version and cannot be silently satisfied.
@@ -206,24 +271,11 @@ async function paidWinnerLeg(legName, fromPrice, fromCents, label) {
       start_date: existing.start_date,
       end_date: existing.end_date,
     };
-    const prizePhase = { prize: true, items: [{ price: platinumPrice.id, quantity: 1 }], iterations: PRIZE_MONTHS };
-
-    let updated;
-    const shapes = discountParam ? [discountParam] : ['discounts', 'coupon'];
-    let lastErr;
-    for (const shape of shapes) {
-      const built = shape === 'discounts'
-        ? { ...strip(prizePhase), discounts: [{ coupon: coupon.id }] }
-        : { ...strip(prizePhase), coupon: coupon.id };
-      try {
-        updated = await stripe.subscriptionSchedules.update(sched.id, {
-          end_behavior: 'cancel', phases: [keepPhase, built], metadata: meta,
-        });
-        discountParam = shape;
-        break;
-      } catch (e) { lastErr = e; }
-    }
-    if (!updated) throw lastErr;
+    const updated = await trySchedule((d, t) => stripe.subscriptionSchedules.update(sched.id, {
+      end_behavior: 'cancel',
+      phases: [keepPhase, buildPrizePhase(existing.end_date, d, t)],
+      metadata: meta,
+    }));
 
     const after = await stripe.subscriptionSchedules.retrieve(updated.id);
     const [ph0, ph1] = after.phases;
@@ -279,13 +331,28 @@ await paidWinnerLeg('LEG C — existing Platinum winner (no refund, no duplicate
 // ─────────────────────────────────────────────────────────────────────────────
 console.log('\nLEG D — Connect topology on a fully discounted subscription');
 try {
+  // A fresh Express account is not payouts-enabled, which made the first run report this leg
+  // UNPROVEN. In TEST mode a Custom account with the documented test verification values comes
+  // back enabled immediately, which is what makes the $0-invoice question actually answerable.
+  // These are Stripe's own test fixtures, not invented identity data.
   const acct = await stripe.accounts.create({
-    type: 'express', country: 'US',
+    type: 'custom', country: 'US', business_type: 'individual', email: 'sandbox@example.com',
     capabilities: { transfers: { requested: true }, card_payments: { requested: true } },
+    business_profile: { mcc: '5734', url: 'https://thecrwn.app', product_description: 'CRWN sandbox' },
+    individual: {
+      first_name: 'Sandbox', last_name: 'Tester', email: 'sandbox@example.com',
+      phone: '+15555555555', ssn_last_4: '0000',
+      id_number: '000000000',
+      dob: { day: 1, month: 1, year: 1990 },
+      address: { line1: 'address_full_match', city: 'Beverly Hills', state: 'CA', postal_code: '90210', country: 'US' },
+    },
+    external_account: 'btok_us_verified',
+    tos_acceptance: { date: Math.floor(Date.now() / 1000), ip: '8.8.8.8' },
     metadata: meta,
   });
   created.accounts.push(acct.id);
-  record('D', 'an isolated TEST connected account can be created', true, acct.id + ' charges_enabled=' + acct.charges_enabled);
+  record('D', 'an isolated TEST connected account can be created', true,
+    acct.id + ' charges_enabled=' + acct.charges_enabled + ' transfers=' + (acct.capabilities?.transfers ?? 'none'));
 
   const customer = await stripe.customers.create({ name: 'CRWN sandbox connect winner', metadata: meta });
   created.customers.push(customer.id);

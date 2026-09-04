@@ -70,9 +70,31 @@ parameters it just sent.
   end; `--keep` leaves them for dashboard inspection.
 - **It touches no database.** Stripe primitives need none, and keeping the DB out is what makes
   the harness safe to run from a machine pointed at production Supabase.
-- **Validation status: HARNESS READY, STRIPE TEST KEY REQUIRED.** As of 2026-09-04 no test key
-  exists in the project, so the three winner lifecycles are DESIGNED AND UNPROVEN, not proven.
-  Run `npm run verify:prize-lifecycle` once a key is in place.
+- **Validation status: PROVEN IN STRIPE TEST MODE 2026-09-04. 35 checks, 0 failures, 0
+  unproven.** All three winner states, plus Connect. What the run actually established, most of
+  which contradicted the design it was built to confirm:
+
+  | Assumption | What Stripe said |
+  |---|---|
+  | phase `coupon: <id>` | **REJECTED.** Under `billing_mode.type=flexible` (this API version) a phase takes `discounts: [{ coupon }]`. |
+  | phase `iterations: 12` | **REJECTED**, unknown parameter. Use `duration: { interval: 'month', interval_count: 12 }`. |
+  | `start_date` slightly in the future | **Leaves the schedule `not_started` and `schedule.subscription` null.** For an immediate prize it must be `'now'`. |
+  | a $0 subscription needs no card | **TRUE.** Customer with no payment method, subscription `active`, first invoice FINALISED (not draft) at `status=paid`, $0 due / $0 paid / $0 remaining, zero charges. |
+  | `from_subscription` preserves the paid period | **TRUE.** Phase 0's `end_date` came back identical to the pre-existing `current_period_end`; no refund, no duplicate subscription, prize phase starts exactly at that boundary. |
+  | `transfer_data` + `application_fee_percent` on a $0 invoice | **Safe.** Zero charges, zero transfers to the destination, no application fee. |
+
+  The 100%-off coupon is `percent_off: 100, duration: 'repeating', duration_in_months: 12`, and
+  the hard stop is `end_behavior: 'cancel'` with the prize as the final phase. A `forever`
+  coupon would outlive the prize; a `once` coupon would leave months 2 to 12 payable.
+
+  **A draft invoice is not evidence.** The first pass asserted $0 on a `status=draft` invoice,
+  whose amounts are not final. The harness now finalises it and re-reads, because the question
+  is what the fan is actually billed.
+
+  **A test Connect account needs to be `custom` with Stripe's documented test fixtures**
+  (`external_account: 'btok_us_verified'`, `address.line1: 'address_full_match'`) to come back
+  `transfers: active`. A fresh Express account is not enabled and makes the Connect leg
+  unanswerable rather than passing.
 - **This does NOT satisfy the Team Splits canary**, which additionally needs a non-production
   Supabase project and a webhook secret (see `28-TEAM-SPLIT-FUNDING-ARCHITECTURE.md` §27.3).
   Same blocker, larger environment. Team Split funding remains disabled.
