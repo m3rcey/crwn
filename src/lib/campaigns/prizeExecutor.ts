@@ -115,10 +115,14 @@ export async function fulfillCampaignPrize(deps: PrizeExecutorDeps, input: Fulfi
     return refuse('not_owner', 'This campaign belongs to a different artist.');
   }
 
-  // 2. A draft has never run, so it has no participants and no winner. Awarding from one
-  //    would be awarding from nothing.
-  if (campaign.status !== 'active' && campaign.status !== 'ended') {
-    return refuse('campaign_not_awardable', 'Only an active or ended campaign can award its prize.');
+  // 2. A draft has never run, so it has no participants and no winner. Awarding from one would
+  //    be awarding from nothing. Every other state may award: `ended` is the normal case,
+  //    `archived` is an ended campaign the artist tidied away, and a winner recorded before
+  //    archiving is still owed their prize. `active` is reachable only by a direct caller,
+  //    because the endpoint requires a RECORDED winner and a winner cannot be recorded while
+  //    entries are open (winnerSelection.ts).
+  if (campaign.status === 'draft') {
+    return refuse('campaign_not_awardable', 'A draft campaign has no entrants, so it cannot award a prize.');
   }
 
   // 3. Participation in THIS campaign. A fan of the artist who never joined is not a candidate.

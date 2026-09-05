@@ -1966,5 +1966,102 @@ and the endpoint's chain has something to check. Founder decision.
 ### 29.6 What is not built
 
 Winner drawing, random selection, eligibility adjudication, contest emails, public activation,
-the endpoint, any giveaway admin surface. Founding A&R Week remains DRAFT with its prize tier
-configured and four legal fields empty.
+any giveaway admin surface. Founding A&R Week remains DRAFT with its prize tier configured and
+four legal fields empty. The endpoint arrived in §30.
+
+---
+
+## 30. Winner state (2026-09-04): CRWN records a winner, and never chooses one
+
+This is the boundary that matters most in this section, so it is stated first and in one line:
+**a sweepstakes winner is determined by a legally-governed process under the artist's own
+Official Rules, outside the product. CRWN writes the result down.** There is no drawing engine,
+no randomness, no ranking, no weighting, no eligibility adjudication anywhere in this rail, and
+`winnerSelection.test.ts` asserts the absence (mutation-tested: adding `Math.random()` fails it).
+
+### 30.1 One column, one index, one trigger
+
+`supabase/schema-phase3-campaign-winner-selection.sql` (**PENDING** at time of writing) adds
+`fan_campaign_participants.selected_winner_at TIMESTAMPTZ NULL`. Nothing else. No `is_winner`
+(the timestamp carries both truth and time), no `winner_rank` (there is one winner), no
+`drawing_id` (there is no drawing), no `eligibility_status` (CRWN does not judge), no fulfilment
+column (§30.5).
+
+**One winner per campaign is a DATABASE fact**, via a partial unique index on `(campaign_id)
+WHERE selected_winner_at IS NOT NULL`. Partial is load-bearing: a plain unique index on
+`campaign_id` would permit only one participant per campaign at all and break joining.
+
+**The column is frozen by a trigger, not only by RLS.** The table has RLS enabled with a SELECT
+policy and no write policy, so a client write matches nothing today. But that is safety by the
+ABSENCE of a policy. Probed live 2026-09-04: anon INSERT correctly `42501`s, while anon UPDATE
+and DELETE return **200 with an empty array**, denied by matching zero rows rather than by an
+explicit refusal. A later migration adding any UPDATE policy to this table would silently hand
+every fan the ability to crown themselves. So `trg_freeze_campaign_winner_selection` makes it
+explicit: `anon` and `authenticated` may never set or change the column in any operation;
+`service_role` may record a winner **once** and may never change or clear one, which makes
+append-only a database fact rather than a code convention; a direct database connection is
+exempt, and that is the deliberate, audited path for a legal correction.
+
+The migration's self-verify is behavioural, not existence-only: it impersonates each API role
+with `set_config('request.jwt.claims', ...)` and asserts a fan is refused, the application can
+record once, clearing is refused, and a second winner is refused by the index. Triggers fire for
+superusers, so unlike an RLS self-check this is not vacuous. It creates a throwaway campaign and
+deletes it on every path, then asserts nothing was left behind.
+
+### 30.2 Lifecycle: selection may begin when entries are closed
+
+`canRecordWinner` (`winnerSelection.ts`) uses the spine's own vocabulary rather than inventing a
+state. `ended` is already defined as "window closed, results readable, NO new participants",
+which is exactly "entries are closed"; `archived` is that, tidied away. `draft` is refused
+(nobody entered) and **`active` is refused and is deliberately not reinterpreted**: while a
+campaign is live the participant list is still growing, so a selection made from it could
+exclude someone who entered legitimately a minute later. That is a fairness property and
+precisely what a sweepstakes gets challenged on. No new lifecycle state was needed.
+
+### 30.3 The two routes
+
+| Route | Authority | Input |
+|---|---|---|
+| `POST /api/fan-campaigns/[id]/winner` | session → artist → campaign owned by that artist → lifecycle permits → not already won | a fan id, accepted ONLY as "which of this campaign's participants" |
+| `POST /api/fan-campaigns/[id]/fulfill-prize` | the same chain, then a RECORDED winner must exist | **nothing at all** |
+
+The winner route writes with an `UPDATE ... WHERE campaign_id AND fan_id AND selected_winner_at
+IS NULL`, never an insert or upsert, so a stranger cannot be recorded into existence by winning.
+It has no PATCH and no DELETE. A fan cannot reach either route (no `artist_profiles` row → 403)
+and cannot reach the column another way (the trigger).
+
+**The fulfilment route reads nothing from the request** and `SEC-PRIZE` in `security.test.ts`
+freezes that (mutation-tested). Its attack surface is closed by having no inputs rather than by
+validating them: the winner comes from the database, the artist from the session, the tier and
+duration from the campaign's own configuration, the price from that tier, and the schedule and
+cancellation from the proven construction. With no recorded winner it refuses, which is what
+stops it being a general "grant anyone Platinum" capability.
+
+### 30.4 Two layers guarantee one winner
+
+The server pre-checks and answers in a sentence; the partial unique index is the authority. Two
+concurrent selections both pass the pre-check and exactly one commits, so `23505` is a NORMAL
+outcome and is translated into the same friendly refusal. Recording the SAME participant twice
+is idempotent and reports success, because a retried request is not a failure.
+
+### 30.5 Fulfilment is DERIVED, never stored twice
+
+No "fulfilled" column exists and none is needed. Three facts already answer three questions and
+must not be duplicated:
+
+- `fan_campaign_participants.selected_winner_at` — **WHO** won
+- `subscriptions.prize_campaign_id` — **WHICH** campaign is funding a membership
+- the Stripe schedule and its metadata — **HOW** it is being delivered
+
+The planner reads the second and answers `already_fulfilled`, so a retry is safe. A recorded
+winner may sit unfulfilled indefinitely, and that is a legitimate state: selection and
+fulfilment are separate facts on purpose.
+
+### 30.6 Readiness
+
+`PRIZE_RAIL.ready` stays **false** until the migration is applied, and its `blocker` names the
+migration file. `prizeState.test.ts` asserts the blocker names a migration the registry also
+lists as `pending`, so the flag and the registry cannot drift apart. Before the migration,
+`selectedWinner()` reads `42703` as "no winner recorded" and the fulfil route refuses: correct
+behaviour, not an outage. **Founding A&R Week stays DRAFT regardless**, still blocked on its
+Official Rules URL, eligibility, free-entry line and dates.

@@ -86,17 +86,19 @@ responsible for. Do not work those.
       every blocker clears. Run `npx tsx scripts/configure-gb-campaign.mjs` any time to
       re-print the live blocker list.
 
-      **1. A prize CRWN can actually deliver. This is now ONE decision away, and it is yours.**
-      The delivery rail shipped 2026-09-04: Stripe construction proven (38 checks), executor
-      built and tested, webhook transitions fixed, accounting prize-aware, migration applied,
-      GB's prize tier configured on the draft. What does not exist is any way to RECORD which
-      participant won, so there is no endpoint and `prizeFulfillable` stays false. The
-      participant table has no column for it and its `role` column is ratified as never
-      authorizing. The smallest fix is one nullable column plus a one-winner-per-campaign
-      index: `fan_campaign_participants.selected_winner_at TIMESTAMPTZ NULL` with a partial
-      unique index on `(campaign_id) WHERE selected_winner_at IS NOT NULL`. Say yes and I
-      ship the migration, the endpoint, and flip the rail in one change. Until then no
-      membership prize may be advertised.
+      **1. A prize CRWN can actually deliver: RUN ONE MIGRATION and this is done.**
+      [supabase/schema-phase3-campaign-winner-selection.sql](supabase/schema-phase3-campaign-winner-selection.sql)
+      adds `fan_campaign_participants.selected_winner_at` plus a partial unique index that
+      makes one-winner-per-campaign a database rule, and a trigger that stops any fan from
+      making themselves the winner. Additive, nullable, no backfill, and it verifies its own
+      behaviour before it finishes. Production has zero campaign participants, so nothing
+      existing can conflict. Verify with `npm run verify:migrations` (it should go from 1 not
+      applied to 0). Tell me when it is in and I flip the rail in a one-line change.
+
+      Everything else is built and tested: the winner-recording route, the fulfilment route
+      (which reads NOTHING from the request), the executor, the proven Stripe construction,
+      and the accounting. **CRWN does not pick the winner.** You run the drawing under your
+      Official Rules however you choose, and CRWN records the result and pays it out.
       2. **Official Rules.** GB's own sweepstakes rules at a real URL. The CRWN terms page
          is not Official Rules.
       3. **Eligibility.** Age and territory, matching those rules.
@@ -826,10 +828,11 @@ Things that are never finished. Cadence, then the thing.
 
 ## On Claude's plate (not yours)
 
-- **Prize rail: SHIPPED 2026-09-04, endpoint waits on your winner-field decision** (the
-  Founding A&R Week item above). Executor, proven Stripe construction, webhook fix, prize-aware
-  MRR on all three readers, 74 new tests. The moment you approve the participant column I write
-  the migration, the ownership-checked endpoint, and flip `PRIZE_RAIL.ready` in one change.
+- **Prize rail: COMPLETE in code, waiting on the one migration above.** Winner state, both
+  ownership-checked routes, executor, proven Stripe construction (38 sandbox checks), webhook
+  fix, prize-aware MRR on all three readers, 105 new tests. `PRIZE_RAIL.ready` flips to true the
+  moment `npm run verify:migrations` reports the winner migration applied; its blocker names
+  that exact file and a test holds the two in agreement. Nothing else outstanding on my side.
 
 - **Scheduled DOWNGRADES never reach Stripe. Pre-existing, found while wiring the prize.**
   `/api/stripe/subscription-update` writes `pending_tier_id` to the DB and changes nothing in

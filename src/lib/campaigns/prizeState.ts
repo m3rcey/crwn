@@ -79,17 +79,25 @@ export function prizeTierIdOf(toolkit: Record<string, unknown> | null | undefine
 /**
  * Can CRWN, as a product, actually deliver a membership prize today?
  *
- * This is the capability half of `prizeFulfillable`. The delivery rail (executor, Stripe
- * construction, webhook transitions, accounting) is built and tested. What is NOT built is any
- * surface that can invoke it in production: `fan_campaign_participants` has no column that can
- * record "this participant was selected as the winner", and the ratified rule on its `role`
- * column is that it never authorizes anything. Without a durable selection there is nothing for
- * an endpoint to check, so there is no endpoint, so a fan must not yet be shown a prize.
+ * This is the capability half of `prizeFulfillable`, and it is a statement about the PRODUCT,
+ * never a founder preference: it may only be true when every part of the rail genuinely exists.
  *
- * Flip to true in the same change that ships the selection field and the endpoint that reads
- * it. Not before, and never as a constant edit on its own: `prizeState.test.ts` pins the reason.
+ * The application half is now complete: the winner-recording primitive
+ * (`recordCampaignWinner`), the two ownership-checked routes
+ * (`/api/fan-campaigns/[id]/winner` and `/fulfill-prize`), the executor, the proven Stripe
+ * construction, the webhook transition and the prize-aware accounting all ship.
+ *
+ * What is missing is the SCHEMA those depend on. `supabase/schema-phase3-campaign-winner-selection.sql`
+ * adds `fan_campaign_participants.selected_winner_at` plus the partial unique index that makes
+ * one-winner-per-campaign a database fact, and it must be applied by the founder (this codebase
+ * cannot run DDL). Until then `selectedWinner()` reads `42703` as "no winner recorded" and the
+ * fulfil route refuses, which is correct behaviour and not an outage.
+ *
+ * Flip to true ONLY after `npm run verify:migrations` reports that migration applied. That is a
+ * one-line change and `prizeState.test.ts` pins the reason so it cannot drift loose from it.
  */
 export const PRIZE_RAIL = {
   ready: false as const,
-  blocker: 'No surface can award the prize yet: campaign participants cannot record a selected winner.',
+  blocker:
+    'The winner-selection migration (schema-phase3-campaign-winner-selection.sql) is not applied yet, so no selected winner can be recorded.',
 };

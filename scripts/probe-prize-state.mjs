@@ -46,6 +46,17 @@ const { error: colErr, data: prizeRows } = await db.from('subscriptions')
 console.log('prize_campaign_id column:', colErr ? 'NOT APPLIED (' + colErr.code + ')' : 'applied');
 if (!colErr) console.log('prize subscriptions:', prizeRows.length);
 
+// Same trap as the prize column: naming selected_winner_at before the migration 42703s the
+// whole statement, and supabase-js returns {data: null}, which reads exactly like "no winner".
+const { error: winErr, data: winners } = await db.from('fan_campaign_participants')
+  .select('campaign_id, fan_id, selected_winner_at').not('selected_winner_at', 'is', null);
+console.log('selected_winner_at column:', winErr ? 'NOT APPLIED (' + winErr.code + ')' : 'applied');
+if (!winErr) console.log('recorded winners platform-wide:', winners.length);
+
+const { count: participants } = await db.from('fan_campaign_participants')
+  .select('*', { count: 'exact', head: true });
+console.log('campaign participants platform-wide:', participants);
+
 const { data: camp } = await db.from('fan_campaigns')
   .select('id, title, status, starts_at, ends_at, toolkit').eq('artist_id', gb.id);
 for (const c of camp || []) {
@@ -54,6 +65,7 @@ for (const c of camp || []) {
   console.log('  official_rules_url:', t.official_rules_url ? 'set' : 'EMPTY');
   console.log('  eligibility:', t.eligibility ? 'set' : 'EMPTY');
   console.log('  free_entry:', t.free_entry ? 'set' : 'EMPTY');
+  console.log('  prize_tier_id:', t.prize_tier_id ? 'set' : 'EMPTY');
   console.log('  starts_at:', c.starts_at ?? 'null');
 }
 

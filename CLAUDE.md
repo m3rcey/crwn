@@ -399,8 +399,21 @@ against the source, so breaking it fails `npm test` rather than reaching an arti
   checks): `discounts: [{ coupon }]` not `coupon`, `duration` not `iterations`, `start_date:
   'now'`, `end_behavior: 'cancel'`. **`PRIZE_RAIL.ready` is false** because
   `fan_campaign_participants` cannot record a selected winner and its `role` column is ratified
-  never-authorizing, so no endpoint exists; do not flip it without shipping that field and the
-  endpoint that reads it.
+  never-authorizing. **`PRIZE_RAIL.ready` stays false until
+  [supabase/schema-phase3-campaign-winner-selection.sql](supabase/schema-phase3-campaign-winner-selection.sql)
+  is applied**, and its blocker names that file (a test asserts the registry agrees).
+- **CRWN RECORDS a campaign winner; it never CHOOSES one** (2026-09-04, doc 22 §30). The winner
+  is determined under the artist's own Official Rules outside the product. There is no drawing,
+  randomness, ranking, weighting or eligibility adjudication anywhere in this rail, and
+  `winnerSelection.test.ts` plus SEC-PRIZE assert the absence. Do not add one without a founder
+  decision. `fan_campaign_participants.selected_winner_at` is the WHO (one per campaign, by
+  partial unique index; frozen against `anon`/`authenticated` by a trigger, and append-only even
+  for `service_role`, because RLS here denies only by the ABSENCE of a write policy). A winner
+  may only be recorded once entries are closed (`ended`/`archived`); `active` is refused and must
+  not be reinterpreted. `POST /api/fan-campaigns/[id]/fulfill-prize` **reads nothing from the
+  request** and refuses without a recorded winner, which is what stops it being a general
+  grant-a-tier endpoint. Fulfilment is DERIVED from `subscriptions.prize_campaign_id`; never add
+  a "fulfilled" column.
 - **No campaign leaderboard**, and `/api/leaderboard` publishes no score, because the points total
   was exactly invertible back to a fan's lifetime spend given the counts beside it
   (`src/lib/leaderboardPrivacy.ts` holds the scoring and the public projection, with a test).

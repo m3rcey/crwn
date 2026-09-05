@@ -235,6 +235,84 @@ export async function joinCampaign(
   return { joined: false, alreadyJoined: false, error: 'Could not join.' };
 }
 
+/**
+ * The participant RECORDED as this campaign's winner, or null.
+ *
+ * This is how the fulfilment endpoint learns who won: the browser never names a fan. Returns
+ * null (never throws) when the column does not exist yet, so the product behaves exactly as it
+ * did before the migration rather than 500ing.
+ */
+export async function selectedWinner(
+  db: SupabaseClient,
+  campaignId: string,
+): Promise<{ fan_id: string; selected_winner_at: string } | null> {
+  const { data, error } = await db
+    .from(PARTICIPANTS)
+    .select('fan_id, selected_winner_at')
+    .eq('campaign_id', campaignId)
+    .not('selected_winner_at', 'is', null)
+    .maybeSingle();
+  if (error) {
+    // 42703 = the winner migration has not been applied. Naming a missing column fails the
+    // WHOLE statement and supabase-js returns an object rather than throwing, so this must be
+    // read as "no winner recorded", which is the truth before the column exists.
+    if (error.code !== '42703' && !isMissingTable(error)) {
+      console.error('selected winner read failed:', error.code, error.message);
+    }
+    return null;
+  }
+  return (data as { fan_id: string; selected_winner_at: string } | null) ?? null;
+}
+
+export type RecordWinnerResult =
+  | { recorded: true; alreadyWinner: boolean }
+  | { recorded: false; reason: 'not_a_participant' | 'winner_already_selected' | 'not_supported' | 'write_failed' };
+
+/**
+ * Write down who won. The RESULT of a selection, never the selection itself.
+ *
+ * The one-winner guarantee is the database's partial unique index, not this function: two
+ * concurrent requests both pass the pre-check and exactly one commits, so `23505` is a normal
+ * outcome and is translated into the same friendly refusal as the pre-check. Recording the
+ * SAME participant twice is idempotent and reports success, because a retried request should
+ * not read as a failure.
+ *
+ * Caller must have already proven ownership and lifecycle. This function trusts its arguments,
+ * which is why it is not exported through any route without that chain in front of it.
+ */
+export async function recordCampaignWinner(
+  db: SupabaseClient,
+  campaignId: string,
+  fanId: string,
+  now: string,
+): Promise<RecordWinnerResult> {
+  const existing = await selectedWinner(db, campaignId);
+  if (existing) {
+    return existing.fan_id === fanId
+      ? { recorded: true, alreadyWinner: true }
+      : { recorded: false, reason: 'winner_already_selected' };
+  }
+
+  // Update, never upsert: a winner must be an EXISTING participant. Someone who never entered
+  // cannot be made to have entered by winning.
+  const { data, error } = await db
+    .from(PARTICIPANTS)
+    .update({ selected_winner_at: now })
+    .eq('campaign_id', campaignId)
+    .eq('fan_id', fanId)
+    .is('selected_winner_at', null)
+    .select('fan_id');
+
+  if (error) {
+    if (error.code === '23505') return { recorded: false, reason: 'winner_already_selected' };
+    if (error.code === '42703') return { recorded: false, reason: 'not_supported' };
+    console.error('record winner failed:', error.code, error.message);
+    return { recorded: false, reason: 'write_failed' };
+  }
+  if (!data || data.length === 0) return { recorded: false, reason: 'not_a_participant' };
+  return { recorded: true, alreadyWinner: false };
+}
+
 export async function isParticipant(
   db: SupabaseClient,
   campaignId: string,

@@ -942,3 +942,78 @@ describe('SEC-SERVICE — service-role routes are the only authorization boundar
     ).toEqual([]);
   });
 });
+
+describe('SEC-PRIZE — a campaign prize is granted by canonical state, never by a request', () => {
+  // The prize rail can put a fan on a paid tier for twelve months at no charge, which makes its
+  // two routes the most capability-dense writes in the campaign spine. What keeps them from
+  // becoming a general "grant anyone Platinum" endpoint is not validation, it is the absence of
+  // inputs, and that is the property frozen here.
+  const WINNER = 'src/app/api/fan-campaigns/[id]/winner/route.ts';
+  const FULFIL = 'src/app/api/fan-campaigns/[id]/fulfill-prize/route.ts';
+
+  it('found both prize routes (positive control)', () => {
+    expect(readStripped(WINNER).length, 'winner route missing').toBeGreaterThan(200);
+    expect(readStripped(FULFIL).length, 'fulfil route missing').toBeGreaterThan(200);
+  });
+
+  it('the fulfilment route reads NOTHING from the request', () => {
+    // Its only input is the campaign id in the URL, matched against the session's artist. The
+    // winner, tier, duration, discount, Stripe price and dates all come from canonical rows, so
+    // there is no parameter to tamper with rather than a parameter that is carefully validated.
+    const src = readStripped(FULFIL);
+    for (const reader of ['req.json', 'request.json', 'searchParams', 'formData', 'req.text']) {
+      expect(
+        src.includes(reader),
+        violation(
+          'SEC-PRIZE',
+          `the prize fulfilment route reads ${reader} from the caller; every fact that decides money must be read from canonical rows`,
+          { owner: 'src/lib/campaigns/prizeExecutor.ts' },
+        ),
+      ).toBe(false);
+    }
+  });
+
+  it('the fulfilment route derives the winner from the database and refuses without one', () => {
+    const src = readStripped(FULFIL);
+    expect(src).toMatch(/selectedWinner\s*\(/);
+    // No recorded winner means there is nobody to pay. Without this refusal the route would be
+    // a way to hand a membership to any participant a caller could name.
+    expect(src).toMatch(/if\s*\(\s*!winner\s*\)/);
+    expect(src).toMatch(/fulfillCampaignPrize\s*\(/);
+  });
+
+  it('both prize routes prove the artist from the SESSION, never from the request', () => {
+    for (const f of [WINNER, FULFIL]) {
+      const src = readStripped(f);
+      expect(src, `${f} must resolve the caller from the session`).toMatch(/auth\.getUser\s*\(/);
+      expect(src, `${f} must look the artist up by user_id`).toMatch(/eq\(\s*'user_id'\s*,\s*user\.id\s*\)/);
+      expect(src, `${f} must match the campaign to the session artist`).toMatch(/campaign\.artist_id\s*!==\s*artist\.id/);
+    }
+  });
+
+  it('neither prize route selects a winner: recording is not drawing', () => {
+    // CRWN records a winner determined under the artist's own Official Rules, outside the
+    // product. A drawing engine appearing here is an architectural change, not a refactor.
+    for (const f of [WINNER, FULFIL]) {
+      const src = readStripped(f);
+      for (const forbidden of ['Math.random', 'randomUUID', 'randomInt', 'getRandomValues', 'listParticipants']) {
+        expect(
+          src.includes(forbidden),
+          violation('SEC-PRIZE', `${f} uses ${forbidden}; CRWN records a winner and never chooses one`, {
+            owner: 'src/lib/campaigns/winnerSelection.ts',
+          }),
+        ).toBe(false);
+      }
+    }
+  });
+
+  it('a recorded winner can never be changed or cleared through the API', () => {
+    const src = readStripped(WINNER);
+    expect(src).toMatch(/recordCampaignWinner\s*\(/);
+    // Append-only, at the route as well as at the database trigger.
+    expect(src).not.toMatch(/export\s+async\s+function\s+(PATCH|PUT|DELETE)/);
+    const migration = readRaw('supabase/schema-phase3-campaign-winner-selection.sql');
+    expect(migration).toContain('cannot be changed or cleared through the API');
+    expect(migration).toContain('WHERE selected_winner_at IS NOT NULL');
+  });
+});
