@@ -1981,7 +1981,7 @@ no randomness, no ranking, no weighting, no eligibility adjudication anywhere in
 
 ### 30.1 One column, one index, one trigger
 
-`supabase/schema-phase3-campaign-winner-selection.sql` (**PENDING** at time of writing) adds
+`supabase/schema-phase3-campaign-winner-selection.sql` (**APPLIED 2026-09-04**, see §30.7) adds
 `fan_campaign_participants.selected_winner_at TIMESTAMPTZ NULL`. Nothing else. No `is_winner`
 (the timestamp carries both truth and time), no `winner_rank` (there is one winner), no
 `drawing_id` (there is no drawing), no `eligibility_status` (CRWN does not judge), no fulfilment
@@ -2057,11 +2057,37 @@ The planner reads the second and answers `already_fulfilled`, so a retry is safe
 winner may sit unfulfilled indefinitely, and that is a legitimate state: selection and
 fulfilment are separate facts on purpose.
 
-### 30.6 Readiness
+### 30.6 Readiness — the rail is READY as of 2026-09-04
 
-`PRIZE_RAIL.ready` stays **false** until the migration is applied, and its `blocker` names the
-migration file. `prizeState.test.ts` asserts the blocker names a migration the registry also
-lists as `pending`, so the flag and the registry cannot drift apart. Before the migration,
-`selectedWinner()` reads `42703` as "no winner recorded" and the fulfil route refuses: correct
-behaviour, not an outage. **Founding A&R Week stays DRAFT regardless**, still blocked on its
-Official Rules URL, eligibility, free-entry line and dates.
+`PRIZE_RAIL.ready` is **true**. It is not asserted on its own: `PRIZE_RAIL.migration` names the
+schema it depends on and `prizeState.test.ts` requires `EXPECTED_MIGRATION_STATE` to agree in
+BOTH directions, so the flag cannot read true while the registry calls that schema pending, nor
+be left false once it is applied. Either drift fails the suite.
+
+**READY IS NOT LIVE.** The capability and the permission are different questions.
+`campaignReadiness` still demands Official Rules, eligibility, a free-entry path and dates, and
+`prizeState.test.ts` pins that a fully-capable rail still renders nothing for a campaign missing
+them. **Founding A&R Week remains DRAFT**, blocked on exactly those four and nothing else: the
+"CRWN has no way to deliver this prize" blocker is gone, which is the only thing that changed.
+
+### 30.7 How the migration was verified, and the bug in its own self-verify
+
+The migration applied on the first run and its `DO` block then failed at step 5d with `23505`.
+The failure was in the CHECK, not the schema: 5d inserted a second participant reusing the same
+`fan_id`, which collides with the table's pre-existing `UNIQUE (campaign_id, fan_id)` and so
+tested that older constraint instead of the new index. Fixed by selecting a second, distinct
+profile, and skipping with a notice when only one exists.
+
+Two things are worth keeping from that. The DDL sits in its own committed transaction ahead of
+the `DO` block, so the schema landed while the failed block **rolled back completely** — probed
+straight afterwards: zero leftover rows, `verify:migrations` clean. And the failure point proves
+what ran: reaching 5d means steps 1 to 4 and 5a to 5c all passed, so the column, the partial
+unique index, the trigger, the no-client-write-policy assumption, the refusal of an
+authenticated client, a single successful `service_role` record and the refusal to clear were
+all already verified in production.
+
+`scripts/probe-winner-freeze.mjs` then closed the remaining gap from the OTHER side, driving the
+real service-role PostgREST path rather than a superuser with a faked claim: a second winner is
+refused (`23505` on `idx_fan_campaign_participants_one_winner`), a recorded winner can be
+neither cleared nor changed (`42501`), a different campaign may still have its own winner, and
+cleanup leaves zero rows. Two callers, same answers.

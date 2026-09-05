@@ -399,9 +399,12 @@ against the source, so breaking it fails `npm test` rather than reaching an arti
   checks): `discounts: [{ coupon }]` not `coupon`, `duration` not `iterations`, `start_date:
   'now'`, `end_behavior: 'cancel'`. **`PRIZE_RAIL.ready` is false** because
   `fan_campaign_participants` cannot record a selected winner and its `role` column is ratified
-  never-authorizing. **`PRIZE_RAIL.ready` stays false until
-  [supabase/schema-phase3-campaign-winner-selection.sql](supabase/schema-phase3-campaign-winner-selection.sql)
-  is applied**, and its blocker names that file (a test asserts the registry agrees).
+  never-authorizing. **`PRIZE_RAIL.ready` is TRUE as of 2026-09-04**
+  ([supabase/schema-phase3-campaign-winner-selection.sql](supabase/schema-phase3-campaign-winner-selection.sql)
+  APPLIED and probe-verified). It is tied to `EXPECTED_MIGRATION_STATE` in BOTH directions by
+  test, so it can never read true on a pending schema nor stay false on an applied one.
+  **Ready is not live:** a campaign still needs Official Rules, eligibility, a free-entry line
+  and dates, and Founding A&R Week is still DRAFT blocked on exactly those four.
 - **CRWN RECORDS a campaign winner; it never CHOOSES one** (2026-09-04, doc 22 §30). The winner
   is determined under the artist's own Official Rules outside the product. There is no drawing,
   randomness, ranking, weighting or eligibility adjudication anywhere in this rail, and

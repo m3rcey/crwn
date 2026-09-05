@@ -86,19 +86,10 @@ responsible for. Do not work those.
       every blocker clears. Run `npx tsx scripts/configure-gb-campaign.mjs` any time to
       re-print the live blocker list.
 
-      **1. A prize CRWN can actually deliver: RUN ONE MIGRATION and this is done.**
-      [supabase/schema-phase3-campaign-winner-selection.sql](supabase/schema-phase3-campaign-winner-selection.sql)
-      adds `fan_campaign_participants.selected_winner_at` plus a partial unique index that
-      makes one-winner-per-campaign a database rule, and a trigger that stops any fan from
-      making themselves the winner. Additive, nullable, no backfill, and it verifies its own
-      behaviour before it finishes. Production has zero campaign participants, so nothing
-      existing can conflict. Verify with `npm run verify:migrations` (it should go from 1 not
-      applied to 0). Tell me when it is in and I flip the rail in a one-line change.
-
-      Everything else is built and tested: the winner-recording route, the fulfilment route
-      (which reads NOTHING from the request), the executor, the proven Stripe construction,
-      and the accounting. **CRWN does not pick the winner.** You run the drawing under your
-      Official Rules however you choose, and CRWN records the result and pays it out.
+      **1. A prize CRWN can actually deliver: DONE.** Your migration went in on 2026-09-04 and
+      the whole rail is verified in production. The four below are all that is left, and they
+      are all yours. **CRWN does not pick the winner.** You run the drawing under your Official
+      Rules however you choose; CRWN records the result and pays it out.
       2. **Official Rules.** GB's own sweepstakes rules at a real URL. The CRWN terms page
          is not Official Rules.
       3. **Eligibility.** Age and territory, matching those rules.
@@ -828,11 +819,14 @@ Things that are never finished. Cadence, then the thing.
 
 ## On Claude's plate (not yours)
 
-- **Prize rail: COMPLETE in code, waiting on the one migration above.** Winner state, both
+- **Prize rail: COMPLETE and verified in production (2026-09-04).** Winner state, both
   ownership-checked routes, executor, proven Stripe construction (38 sandbox checks), webhook
-  fix, prize-aware MRR on all three readers, 105 new tests. `PRIZE_RAIL.ready` flips to true the
-  moment `npm run verify:migrations` reports the winner migration applied; its blocker names
-  that exact file and a test holds the two in agreement. Nothing else outstanding on my side.
+  fix, prize-aware MRR on all three readers. `PRIZE_RAIL.ready` is true and is tied by test to
+  the migration registry in both directions, so it cannot drift from reality.
+  `npm run verify:migrations` reports 0 pending; `node scripts/probe-winner-freeze.mjs` re-proves
+  the one-winner and append-only rules against production any time, cleaning up after itself.
+  **Nothing outstanding on my side.** What remains is the four legal fields above, which are
+  yours, and no drawing engine, which is deliberate.
 
 - **Scheduled DOWNGRADES never reach Stripe. Pre-existing, found while wiring the prize.**
   `/api/stripe/subscription-update` writes `pending_tier_id` to the DB and changes nothing in

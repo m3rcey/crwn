@@ -77,27 +77,31 @@ export function prizeTierIdOf(toolkit: Record<string, unknown> | null | undefine
 }
 
 /**
- * Can CRWN, as a product, actually deliver a membership prize today?
+ * Can CRWN, as a product, actually deliver a membership prize?
  *
  * This is the capability half of `prizeFulfillable`, and it is a statement about the PRODUCT,
- * never a founder preference: it may only be true when every part of the rail genuinely exists.
+ * never a founder preference. READY as of 2026-09-04, when the last dependency landed:
  *
- * The application half is now complete: the winner-recording primitive
- * (`recordCampaignWinner`), the two ownership-checked routes
- * (`/api/fan-campaigns/[id]/winner` and `/fulfill-prize`), the executor, the proven Stripe
- * construction, the webhook transition and the prize-aware accounting all ship.
+ *   - winner state          `fan_campaign_participants.selected_winner_at`, one per campaign by
+ *                           partial unique index, frozen against clients and append-only even
+ *                           for the application (migration below, APPLIED and probe-verified)
+ *   - recording             `recordCampaignWinner`, which writes down a result decided outside
+ *                           the product and never chooses anything
+ *   - two routes            `/api/fan-campaigns/[id]/winner` and `/fulfill-prize`, both
+ *                           session-authorized; the second reads NOTHING from the request
+ *   - delivery              `fulfillCampaignPrize` over the Stripe construction proven in test
+ *                           mode (38 checks), plus the webhook transition and prize accounting
  *
- * What is missing is the SCHEMA those depend on. `supabase/schema-phase3-campaign-winner-selection.sql`
- * adds `fan_campaign_participants.selected_winner_at` plus the partial unique index that makes
- * one-winner-per-campaign a database fact, and it must be applied by the founder (this codebase
- * cannot run DDL). Until then `selectedWinner()` reads `42703` as "no winner recorded" and the
- * fulfil route refuses, which is correct behaviour and not an outage.
+ * `ready` is deliberately tied to the migration rather than asserted on its own:
+ * `prizeState.test.ts` requires `EXPECTED_MIGRATION_STATE` to agree in BOTH directions, so this
+ * cannot read true while the registry still calls that schema pending, or the reverse.
  *
- * Flip to true ONLY after `npm run verify:migrations` reports that migration applied. That is a
- * one-line change and `prizeState.test.ts` pins the reason so it cannot drift loose from it.
+ * READY IS NOT LIVE. This says CRWN can honour a membership prize. Whether any particular
+ * campaign may show one is `campaignReadiness`, which still demands Official Rules, eligibility,
+ * a free-entry path and dates. Founding A&R Week remains DRAFT and blocked on all four.
  */
 export const PRIZE_RAIL = {
-  ready: false as const,
-  blocker:
-    'The winner-selection migration (schema-phase3-campaign-winner-selection.sql) is not applied yet, so no selected winner can be recorded.',
+  ready: true as const,
+  /** The schema this capability depends on. The test ties `ready` to the registry's view of it. */
+  migration: 'schema-phase3-campaign-winner-selection.sql',
 };

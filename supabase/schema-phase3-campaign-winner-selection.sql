@@ -114,6 +114,10 @@ DO $$
 DECLARE
   v_artist   uuid;
   v_fan      uuid;
+  -- A SECOND, DIFFERENT fan. The table already carries UNIQUE (campaign_id, fan_id), so the
+  -- two-winner check must use a distinct person: reusing one fan tests that older constraint
+  -- instead of the new index, which is exactly how the first run of this migration failed.
+  v_fan2     uuid;
   v_campaign uuid;
   v_part     uuid;
   v_part2    uuid;
@@ -163,8 +167,9 @@ BEGIN
 
   -- 5. BEHAVIOUR. Superusers do not bypass triggers, so unlike an RLS check this is not
   --    vacuous. request.jwt.claims is set to impersonate each API role in turn.
-  SELECT id INTO v_artist FROM public.artist_profiles LIMIT 1;
-  SELECT id INTO v_fan FROM public.profiles LIMIT 1;
+  SELECT id INTO v_artist FROM public.artist_profiles ORDER BY id LIMIT 1;
+  SELECT id INTO v_fan FROM public.profiles ORDER BY id LIMIT 1;
+  SELECT id INTO v_fan2 FROM public.profiles WHERE id <> v_fan ORDER BY id LIMIT 1;
   IF v_artist IS NULL OR v_fan IS NULL THEN
     RAISE NOTICE 'no artist/profile available; behavioural checks skipped';
     RETURN;
@@ -207,18 +212,24 @@ BEGIN
       RAISE EXCEPTION 'MIGRATION FAILED: a recorded winner was cleared through the API';
     END IF;
 
-    -- 5d. A SECOND winner in the same campaign must be refused by the index.
+    -- 5d. A SECOND winner in the same campaign must be refused by the index. Needs a DIFFERENT
+    --     fan: UNIQUE (campaign_id, fan_id) already forbids the same person joining twice, so
+    --     reusing v_fan would prove that older constraint and never reach the new index.
     PERFORM set_config('request.jwt.claims', '', true);
-    INSERT INTO public.fan_campaign_participants (campaign_id, fan_id, role)
-         VALUES (v_campaign, v_fan, 'second') RETURNING id INTO v_part2;
-    v_blocked := false;
-    BEGIN
-      UPDATE public.fan_campaign_participants SET selected_winner_at = now() WHERE id = v_part2;
-    EXCEPTION WHEN unique_violation THEN
-      v_blocked := true;
-    END;
-    IF NOT v_blocked THEN
-      RAISE EXCEPTION 'MIGRATION FAILED: a campaign accepted two selected winners';
+    IF v_fan2 IS NULL THEN
+      RAISE NOTICE 'only one profile exists; the two-winner check needs a second person and was skipped';
+    ELSE
+      INSERT INTO public.fan_campaign_participants (campaign_id, fan_id, role)
+           VALUES (v_campaign, v_fan2, 'second') RETURNING id INTO v_part2;
+      v_blocked := false;
+      BEGIN
+        UPDATE public.fan_campaign_participants SET selected_winner_at = now() WHERE id = v_part2;
+      EXCEPTION WHEN unique_violation THEN
+        v_blocked := true;
+      END;
+      IF NOT v_blocked THEN
+        RAISE EXCEPTION 'MIGRATION FAILED: a campaign accepted two selected winners';
+      END IF;
     END IF;
   EXCEPTION WHEN OTHERS THEN
     PERFORM set_config('request.jwt.claims', '', true);

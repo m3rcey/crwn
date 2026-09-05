@@ -2,21 +2,39 @@ import { describe, it, expect } from 'vitest';
 import { PRIZE_RAIL, prizeTierIdOf } from './prizeState';
 
 describe('PRIZE_RAIL: the product capability behind prizeFulfillable', () => {
-  it('is NOT ready, and names the exact thing that is missing', () => {
-    // The whole application rail now exists: winner recording, both ownership-checked routes,
-    // the executor, the proven Stripe construction, the webhook transition, prize-aware
-    // accounting. The one remaining dependency is SCHEMA, which only the founder can apply.
-    // This pin keeps the reason attached to the flag so it cannot be flipped on a hunch.
-    expect(PRIZE_RAIL.ready).toBe(false);
-    expect(PRIZE_RAIL.blocker).toMatch(/schema-phase3-campaign-winner-selection\.sql/);
+  it('is READY: every part of the delivery rail now exists', () => {
+    // Winner state + recording + both ownership-checked routes + executor + proven Stripe
+    // construction + webhook transition + prize-aware accounting.
+    expect(PRIZE_RAIL.ready).toBe(true);
   });
 
-  it('the blocker names a migration the registry also lists as pending', async () => {
-    // Two places record this fact; they must agree, or one of them is lying about production.
+  it('readiness agrees with the migration registry in BOTH directions', async () => {
+    // This is what makes `ready` deterministic rather than a boolean somebody set. It cannot
+    // read true while the registry calls the schema pending, and it cannot be left false once
+    // the schema is applied: either drift fails here.
     const { EXPECTED_MIGRATION_STATE } = await import('@/lib/architecture/invariants');
-    const row = EXPECTED_MIGRATION_STATE.find((m) => PRIZE_RAIL.blocker.includes(m.file));
-    expect(row, 'the blocker must name a registered migration').toBeTruthy();
-    expect(row!.state).toBe('pending');
+    const row = EXPECTED_MIGRATION_STATE.find((m) => m.file === PRIZE_RAIL.migration);
+    expect(row, 'PRIZE_RAIL.migration must name a registered migration').toBeTruthy();
+    expect(row!.state).toBe(PRIZE_RAIL.ready ? 'applied' : 'pending');
+  });
+
+  it('READY does not mean any campaign may show a prize', async () => {
+    // The capability and the permission are different questions. A fully-capable rail still
+    // renders nothing for a campaign missing its Official Rules, eligibility, free-entry line
+    // or dates, which is exactly Founding A&R Week's state.
+    const { campaignReadiness } = await import('./giveaway');
+    const r = campaignReadiness(
+      {
+        id: 'c', artist_id: 'a', archetype: 'founding_ar_week', title: 'Founding A&R Week',
+        status: 'draft', starts_at: null, ends_at: '2099-01-01T00:00:00Z',
+        toolkit: { promise: 'Help shape what comes next.', what_to_do: 'Join free.', prize: '1 year of Platinum', prize_tier_id: '11111111-2222-4333-8444-555555555555' },
+      },
+      { prizeFulfillable: PRIZE_RAIL.ready },
+    );
+    expect(r.ready).toBe(false);
+    expect(r.blockers.join(' ')).toMatch(/Official Rules/);
+    // ...and the reason is never "CRWN cannot deliver this" any more.
+    expect(r.blockers.join(' ')).not.toMatch(/no way to deliver/);
   });
 });
 
