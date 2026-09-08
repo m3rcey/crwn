@@ -20,6 +20,7 @@ import type { Metadata } from 'next';
 import { getBenefitDisplayText, BENEFIT_CATALOG } from '@/lib/benefitCatalog';
 import { tierCardBenefitLines, cardLinesModeOf } from '@/lib/tierCardBenefits';
 import { accentPageVars } from '@/lib/contrast';
+import { orderTracksForDisplay } from '@/lib/trackOrder';
 import { PaletteBackfill } from '@/components/artist/PaletteBackfill';
 import { BannerReposition } from '@/components/artist/BannerReposition';
 import type { CSSProperties } from 'react';
@@ -189,15 +190,12 @@ export default async function ArtistPage({ params, searchParams }: ArtistPagePro
     .eq('is_active', true)
     .eq('artist_id', artist.id);
 
-  // Sort by position, then by created_at for tracks without position
-  const sortedTracks = (tracks || []).sort((a: unknown, b: unknown) => {
-    const trackA = a as { position: number | null; created_at: string };
-    const trackB = b as { position: number | null; created_at: string };
-    if (trackA.position != null && trackB.position != null) return trackA.position - trackB.position;
-    if (trackA.position != null) return -1;
-    if (trackB.position != null) return 1;
-    return new Date(trackB.created_at).getTime() - new Date(trackA.created_at).getTime();
-  });
+  // The artist's running order. This result used to be computed and then THROWN AWAY: the
+  // render below passed the raw `tracks` array, so the chosen order never reached the page and
+  // the list came back in whatever order Postgres happened to return. It is also the PLAYBACK
+  // order, since ArtistProfileContent hands this same array to GatedTrackPlayer as `trackList`,
+  // which becomes the player's queue. The rule now lives in one tested place.
+  const sortedTracks = orderTracksForDisplay(tracks ?? []);
 
   // Fetch artist's albums
   const { data: albums } = await supabase
@@ -465,7 +463,7 @@ export default async function ArtistPage({ params, searchParams }: ArtistPagePro
           albums={albumsWithCounts}
           playlists={playlistsWithCounts}
           products={products || []}
-          tracks={tracks || []}
+          tracks={sortedTracks}
           isOwner={isOwner}
           commissionRate={artist.referral_commission_rate ?? 0}
           liveSessions={liveSessions || []}
