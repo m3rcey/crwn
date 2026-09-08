@@ -6,6 +6,7 @@ import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/components/shared/Toast';
 import { clientHasDnt } from '@/lib/analytics/doNotTrack';
+import { freshStreamUrl } from '@/lib/storage/streamUrl';
 
 type RepeatMode = 'off' | 'all' | 'one';
 
@@ -124,6 +125,15 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
   const setAudioSource = useCallback(async (track: Track): Promise<boolean> => {
     if (!audioRef.current) return false;
     const token = ++srcRequestRef.current;
+    // A page that read tracks_public as this caller may have signed the grant
+    // already (attachStreamUrls). While that url is fresh it is the same answer
+    // the route would give, minus a round trip, so the browser starts buffering
+    // now instead of after a function invocation.
+    const presigned = freshStreamUrl(track);
+    if (presigned) {
+      audioRef.current.src = presigned;
+      return true;
+    }
     try {
       const res = await fetch(`/api/tracks/${track.id}/stream`, { cache: 'no-store' });
       if (!res.ok) return false;
@@ -261,10 +271,16 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
     }
 
     if (currentTrack?.id !== track.id) {
+      // Resolve the source FIRST. Nothing below is needed to start buffering, and
+      // click-to-sound was measured at 2.2s with the metadata read and the stream
+      // route in series ahead of the audio request (2026-09-08).
+      const sourceReady = audioRef.current ? setAudioSource(track) : null;
+
+      // History is a write nobody is waiting on; it reads its inputs synchronously.
       if (currentTrack && playStartTime) {
-        await logPlayHistory();
+        void logPlayHistory();
       }
-      
+
       // Fetch artist info if missing (Option B)
       let trackWithArtist = track;
       if (track.artist_id && !track.artist?.slug) {
@@ -305,7 +321,7 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
 
       // Only a NEW track needs a fresh signed url. Resuming the current one keeps
       // the src it already has, so pause/resume costs no round trip.
-      if (audioRef.current && !(await setAudioSource(track))) {
+      if (sourceReady && !(await sourceReady)) {
         showToast('Could not load this track', 'error');
         setIsPlaying(false);
         return;

@@ -217,6 +217,27 @@ each composition was paired with its section), `public/hero-*.webp` and `public/
 calculators, `studio_*.jpg` and `homepage_*.jpg` are still photographic; this rule governs what is
 GENERATED from now on, and does not license a mass re-shoot nobody asked for.
 
+## Playback: nothing waits in front of the audio request (2026-09-08)
+
+Tap-to-sound was 2.2s on desktop and about 6s on a phone, and the cause was not a slow query:
+two round trips (an artist-metadata read, then `/api/tracks/[id]/stream`) ran IN SERIES before
+the browser asked for any audio. Rules that keep it fixed:
+
+- **A page that reads `tracks_public` as the caller pre-signs.** `attachStreamUrls`
+  ([src/lib/storage/signedAudio.ts](src/lib/storage/signedAudio.ts)) signs every row that carries
+  a locator in one Storage call and attaches `stream_url` + `stream_url_expires_at`. The locator on
+  a `tracks_public` row IS the grant, the same fact the stream route keys on, so this widens
+  nothing. Never feed it rows read with the admin client.
+- **`usePlayer.setAudioSource` is still the ONE client seam.** It uses a fresh pre-signed url
+  (`freshStreamUrl`, 10-minute margin) and otherwise mints through the route. `play()` starts the
+  source FIRST; metadata reads and history writes never sit ahead of it. Do not add an await
+  before `setAudioSource` in any play path.
+- **The remaining cost is the format.** 29 of 59 active tracks are raw WAV masters served as the
+  stream, and the upload form's "transcoded to 128kbps" line is false. Transcoding is the next
+  lever; do not "fix" it with a bigger preload or a second player.
+- **Measure, do not guess.** The headless-Chrome timeline script and method are in the memory
+  note `playback-latency-presigned-stream-urls`; rerun it after touching the play path.
+
 ## Copy Rule — NEVER use em dashes
 
 NEVER use an em dash (—) in ANY user-facing copy, anywhere, ever: UI strings, emails, web/marketing pages, notifications, button labels, tooltips, error messages, docs — all of it. This applies to everything new you write and anything you edit. Do not substitute an en dash (–) either. Rewrite instead: split into two short sentences (also better for readability), or use a comma, colon, or parentheses. Example: "Your front door — the easiest yes" becomes "Your front door: the easiest yes". (Hyphens in compound words like "one-time" are fine; this rule is about the dash punctuation between clauses.)

@@ -55,6 +55,13 @@ export interface Track {
   title: string;
   audio_url_128: string | null;
   audio_url_320: string | null;
+  /**
+   * Pre-signed stream url + expiry (epoch ms), attached server-side by
+   * attachStreamUrls() on pages that read tracks_public as the caller. Absent
+   * on every other read; the player then mints one through the stream route.
+   */
+  stream_url?: string | null;
+  stream_url_expires_at?: number | null;
   duration: number | null;
   access_level: AccessLevel;
   is_free: boolean;

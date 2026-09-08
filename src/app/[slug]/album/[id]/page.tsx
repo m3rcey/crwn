@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import type { Metadata } from 'next';
 import { AlbumShareContent } from '@/components/share/AlbumShareContent';
+import { attachStreamUrls } from '@/lib/storage/signedAudio';
 
 interface AlbumPageProps {
   params: Promise<{ slug: string; id: string }>;
@@ -95,10 +96,15 @@ export default async function AlbumPage({ params }: AlbumPageProps) {
     .eq('is_active', true)
     .order('price', { ascending: true });
 
+  // Entitlement was decided by tracks_public above; sign the grants so a tap plays at once.
+  const playableTracks = await attachStreamUrls(
+    (albumTracks || []).map((at: unknown) => (at as { track: never }).track).filter((t: any) => t && t.is_active !== false)
+  );
+
   return (
     <AlbumShareContent
       album={album}
-      tracks={(albumTracks || []).map((at: unknown) => (at as { track: never }).track).filter((t: any) => t && t.is_active !== false)}
+      tracks={playableTracks}
       artist={{
         id: artist.id,
         slug: artist.slug,

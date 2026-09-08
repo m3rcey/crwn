@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import type { StreamUrlCarrier } from './streamUrl';
 
 /**
  * Short-lived signed URLs for the `audio` Storage bucket.
@@ -193,4 +194,46 @@ export async function signAudioValue(
 
   if (error || !data?.signedUrl) return null;
   return data.signedUrl;
+}
+
+/**
+ * Attach a pre-signed stream url to every row that carries a locator, in ONE
+ * Storage call. See streamUrl.ts for why.
+ *
+ * CALLERS MUST PASS ROWS READ FROM `tracks_public` AS THE CALLER. That view
+ * NULLs `audio_url_128` for a reader it refuses, so a locator on the row is
+ * the entitlement proof, exactly as it is in /api/tracks/[id]/stream. Never
+ * feed this rows read with the admin client: that is the /api/explore leak.
+ *
+ * Fails soft. Any error leaves the rows untouched and the player falls back
+ * to the stream route, so signing can never make a playable track unplayable.
+ */
+export async function attachStreamUrls<T extends { audio_url_128: string | null }>(
+  tracks: T[],
+  ttlSeconds: number = SIGNED_URL_TTL_SECONDS
+): Promise<(T & StreamUrlCarrier)[]> {
+  const paths = tracks.map((t) => storagePathFromAudioValue(t.audio_url_128));
+  const unique = [...new Set(paths.filter((p): p is string => !!p))];
+  if (unique.length === 0) return tracks;
+
+  try {
+    const mintedAt = Date.now();
+    const { data, error } = await admin()
+      .storage.from(AUDIO_BUCKET)
+      .createSignedUrls(unique, ttlSeconds);
+    if (error || !data) return tracks;
+
+    const byPath = new Map<string, string>();
+    for (const row of data) {
+      if (row.path && row.signedUrl && !row.error) byPath.set(row.path, row.signedUrl);
+    }
+    const expiresAt = mintedAt + ttlSeconds * 1000;
+    return tracks.map((t, i) => {
+      const path = paths[i];
+      const url = path ? byPath.get(path) : undefined;
+      return url ? { ...t, stream_url: url, stream_url_expires_at: expiresAt } : t;
+    });
+  } catch {
+    return tracks;
+  }
 }

@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import type { Metadata } from 'next';
 import { TrackShareContent } from '@/components/share/TrackShareContent';
+import { attachStreamUrls } from '@/lib/storage/signedAudio';
 
 interface TrackPageProps {
   params: Promise<{ slug: string; id: string }>;
@@ -78,6 +79,9 @@ export default async function TrackPage({ params }: TrackPageProps) {
 
   if (!track) notFound();
 
+  // Entitlement was decided by tracks_public above; sign the grant so a tap plays at once.
+  const [playableTrack] = await attachStreamUrls([track]);
+
   // Get tiers for subscribe CTA
   const { data: tiers } = await supabase
     .from('subscription_tiers')
@@ -88,7 +92,7 @@ export default async function TrackPage({ params }: TrackPageProps) {
 
   return (
     <TrackShareContent
-      track={track}
+      track={playableTrack}
       artist={{
         id: artist.id,
         slug: artist.slug,

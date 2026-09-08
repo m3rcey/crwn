@@ -806,6 +806,13 @@ Things that are never finished. Cadence, then the thing.
 
 ## On Claude's plate (not yours)
 
+- **Tap-to-sound was ~6s on a phone; the series of round trips before the audio request is
+  gone (2026-09-08), the WAV masters are not.** 29 of 59 active tracks are raw WAV (1411 kbps)
+  served as the stream, and the upload form still says "Files will be transcoded to 128kbps",
+  which has never been true. A 3-minute WAV is ~32 MB. Transcoding on upload (or a one-off
+  batch for the existing masters) is mine to design; it is a pipeline, not a flag. Nothing for
+  you to run.
+
 - **266 MB of orphaned audio is sitting in the bucket, and I want your call before deleting
   other artists' files.** Replacing a track's audio writes the new URL and leaves the old file
   behind (deleting a track does clean up; replacing does not). Measured 2026-09-08: 37 objects,

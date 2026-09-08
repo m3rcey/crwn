@@ -21,6 +21,7 @@ import { getBenefitDisplayText, BENEFIT_CATALOG } from '@/lib/benefitCatalog';
 import { tierCardBenefitLines, cardLinesModeOf } from '@/lib/tierCardBenefits';
 import { accentPageVars } from '@/lib/contrast';
 import { orderTracksForDisplay } from '@/lib/trackOrder';
+import { attachStreamUrls } from '@/lib/storage/signedAudio';
 import { PaletteBackfill } from '@/components/artist/PaletteBackfill';
 import { BannerReposition } from '@/components/artist/BannerReposition';
 import type { CSSProperties } from 'react';
@@ -190,12 +191,11 @@ export default async function ArtistPage({ params, searchParams }: ArtistPagePro
     .eq('is_active', true)
     .eq('artist_id', artist.id);
 
-  // The artist's running order. This result used to be computed and then THROWN AWAY: the
-  // render below passed the raw `tracks` array, so the chosen order never reached the page and
-  // the list came back in whatever order Postgres happened to return. It is also the PLAYBACK
-  // order, since ArtistProfileContent hands this same array to GatedTrackPlayer as `trackList`,
-  // which becomes the player's queue. The rule now lives in one tested place.
-  const sortedTracks = orderTracksForDisplay(tracks ?? []);
+  // Pre-sign a stream url for every track this reader is entitled to (the view already
+  // decided: a locator on the row is the grant), so a tap plays without first minting one
+  // through /api/tracks/[id]/stream. Started here and awaited just before render, so the
+  // Storage call overlaps the reads below instead of adding to the page's own latency.
+  const tracksWithStream = attachStreamUrls(tracks ?? []);
 
   // Fetch artist's albums
   const { data: albums } = await supabase
@@ -293,6 +293,13 @@ export default async function ArtistPage({ params, searchParams }: ArtistPagePro
   // rival artist is not the owner of this page, and treating them as one handed
   // them owner-only controls on someone else's community.
   const isOwner = !!session?.user?.id && session.user.id === artist.user_id;
+
+  // The artist's running order. This result used to be computed and then THROWN AWAY: the
+  // render below passed the raw `tracks` array, so the chosen order never reached the page and
+  // the list came back in whatever order Postgres happened to return. It is also the PLAYBACK
+  // order, since ArtistProfileContent hands this same array to GatedTrackPlayer as `trackList`,
+  // which becomes the player's queue. The rule now lives in one tested place.
+  const sortedTracks = orderTracksForDisplay(await tracksWithStream);
 
   return (
     <ArtistPreviewProvider

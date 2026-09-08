@@ -1,5 +1,21 @@
 # CRWN Brain — Changelog
 
+## 2026-09-08 - Click-to-sound: the round trips ran in series before any audio was requested
+
+Josh reported ~6 seconds from tap to sound. Measured in headless Chrome against production: 2.2s
+on a fast desktop link for a WAV track, 1.0s for an MP3, and in both cases the first 0.65 to 1.0s
+was two sequential round trips (an artist-metadata read, then `/api/tracks/[id]/stream` minting a
+signed url) before the browser asked for a single byte of audio. Then the signed url itself is a
+CDN MISS on every request (`Cache-Control: no-cache`). Each hop multiplies on a phone.
+
+Shipped: pages that already read `tracks_public` as the caller (artist, album, track) sign the
+grants in ONE Storage call (`attachStreamUrls`) and attach `stream_url` + expiry to each row; the
+player uses it while fresh (`freshStreamUrl`, 10-minute margin) and falls back to the route
+otherwise. `usePlayer.play()` starts the source before the metadata read and no longer awaits
+the history insert. Entitlement is unchanged: a locator on a `tracks_public` row is the grant.
+Not fixed: raw WAV masters (29 of 59 active tracks) served as the stream; the upload form's
+"transcoded to 128kbps" line has never been true.
+
 ## 2026-09-03 - Rise Mode Guided Setup browser-verified end to end; admin launch completion fixed
 
 A throwaway non-admin artist (created and deleted the way the onboarding canary does it, with
