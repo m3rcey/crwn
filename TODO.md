@@ -30,10 +30,21 @@ responsible for. Do not work those.
       at all, which rules out that one lead being unlucky.
       Nothing is wrong in CRWN: the webhook, the engine and the calculators are untouched, and the
       same flow ran end to end the night before.
-      **This is the acquisition funnel, so it outranks everything else in this file.** Scheduled
-      posts keep publishing on their own and every one of them ends with "comment OWN and I'll DM
-      you the link", so each hour it stays lapsed spends real reach on a promise CRWN cannot keep.
-      Either renew, or tell me and I will pause the queue until it is back.
+      **Re-confirmed 2026-09-08.** You DM'd WORTH and got nothing back. ManyChat made ZERO
+      requests to CRWN: the only hit on /api/integrations/manychat/webhook in that window was my
+      own probe (the log line reads `missing_secret`, which means no header was sent at all; a
+      real ManyChat call always sends one and would read `bad_secret`, so that line also proves
+      MANYCHAT_WEBHOOK_SECRET is still set in production). The last inbound event of any kind is
+      still 2026-08-26T01:31:35Z, the same day the lapse first showed. A lapsed plan kills the DM
+      keyword trigger and the comment trigger together, which is why both entry points are silent.
+      **This is the acquisition funnel, so it outranks everything else in this file.** Nothing is
+      queued to publish right now (social_posts holds one row, already published), so no reach is
+      being spent on a promise CRWN cannot keep. That is the only reason this is not on fire.
+      If it still does not answer a DM after you renew, the next two suspects are both in
+      docs/acquisition/manychat-setup-guide.md: the DM keyword trigger does NOT survive
+      duplication (S10 step 5) and must be re-created separately from the comment trigger, and
+      Instagram app - Settings - Messages and story replies - Message controls - "Allow access to
+      messages" must be ON or ManyChat is connected but deaf (Trap 6).
 
 - [ ] **To finish Team Splits I need a test-mode sandbox. This is the only thing left, and it is
       environment setup, not code.** Nothing to run in SQL.
