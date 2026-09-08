@@ -10,6 +10,9 @@ import { freshStreamUrl } from '@/lib/storage/streamUrl';
 
 type RepeatMode = 'off' | 'all' | 'one';
 
+/** Two back presses this close together mean "previous track", not "restart". */
+const BACK_DOUBLE_PRESS_MS = 3000;
+
 interface PlayerContextType {
   currentTrack: Track | null;
   isPlaying: boolean;
@@ -281,42 +284,10 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
         void logPlayHistory();
       }
 
-      // Fetch artist info if missing (Option B). This is DISPLAY metadata (the
-      // name and link in the player), so it no longer sits in front of play():
-      // it lands on the current track when it arrives, and only if this track is
-      // still the one playing. Awaiting it cost ~150ms desktop per tap.
-      if (track.artist_id && !track.artist?.slug) {
-        void supabase
-          .from('artist_profiles')
-          .select('id, slug, user_id, profile:profiles!inner(id, role, display_name, username, avatar_url, bio, social_links, created_at, updated_at)')
-          .eq('id', track.artist_id)
-          .single()
-          .then(({ data: artistData }) => {
-            if (!artistData) return;
-            const profileArray = (artistData.profile || []) as unknown as { id: string; role: string; display_name: string; username: string; avatar_url: string | null; bio: string | null; social_links: Record<string, unknown> | null; created_at: string; updated_at: string }[];
-            const profileData = Array.isArray(profileArray) ? profileArray[0] : profileArray;
-
-            const artistProfile = {
-              id: artistData.id,
-              slug: artistData.slug,
-              user_id: artistData.user_id,
-              is_verified: false,
-              banner_url: null,
-              tagline: null,
-              stripe_connect_id: null,
-              tier_config: [],
-              created_at: '',
-              updated_at: '',
-              profile: profileData as any,
-            };
-            setCurrentTrack((prev) =>
-              prev?.id === track.id
-                ? { ...prev, artist: artistProfile, artist_name: profileData?.display_name || 'Unknown Artist' }
-                : prev
-            );
-          });
-      }
-
+      // Artist name and link are DISPLAY metadata. The enrich effect below fills
+      // them in once the track is current; nothing about them belongs in front of
+      // play(). (An awaited copy of that read used to sit here and cost ~150ms
+      // desktop per tap.)
       setCurrentTrack(track);
       setCurrentTime(0);
       setPlayStartTime(Date.now());
@@ -391,18 +362,43 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
   }, [isPlaying, currentTrack, pause, play]);
 
   // Previous - declared after play
+  // Back button. ONE press restarts the song; a SECOND press within
+  // BACK_DOUBLE_PRESS_MS goes to the previous track. Founder decision 2026-09-08:
+  // it used to jump straight to the previous track (and at the first track it
+  // silently did nothing), so a listener who wanted the song from the top lost
+  // it. Position in the song is deliberately not the rule: "restart unless you
+  // pressed twice" is the same answer at 0:02 and at 2:40.
+  const lastBackPressRef = useRef(0);
   const previous = useCallback(() => {
-    if (queue.length === 0) return;
-    
+    const audio = audioRef.current;
+    if (!audio) return;
+    const now = Date.now();
+    const doublePress = now - lastBackPressRef.current < BACK_DOUBLE_PRESS_MS;
+    lastBackPressRef.current = now;
+
+    const restart = () => {
+      audio.currentTime = 0;
+      setCurrentTime(0);
+    };
+
+    if (!doublePress || queue.length === 0) {
+      restart();
+      return;
+    }
+
     let prevIndex = currentIndex - 1;
     if (prevIndex < 0) {
       if (repeat === 'all') {
         prevIndex = queue.length - 1;
       } else {
+        // Nothing before the first track: stay on it, from the top.
+        restart();
         return;
       }
     }
-    
+
+    // Consumed: the next press starts a fresh restart/previous cycle.
+    lastBackPressRef.current = 0;
     setCurrentIndex(prevIndex);
     const prevTrack = queue[prevIndex];
     if (prevTrack) {

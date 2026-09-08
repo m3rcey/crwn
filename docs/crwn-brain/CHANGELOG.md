@@ -1,5 +1,15 @@
 # CRWN Brain — Changelog
 
+## 2026-09-08 - The player's back button restarts the song; a second press goes back a track
+
+Josh: pressing back within seconds jumped to the previous song, and pressing it later did
+nothing. `previous()` in `usePlayer` only ever changed the queue index, and at the first track
+it returned silently. Now one press restarts the current song from 0:00 and a second press
+within three seconds goes to the previous track (at the first track it restarts again). The
+rule is the double press, not the position in the song, so it answers the same at 0:02 and at
+2:40. The redundant artist-metadata read in `play()` is gone: the enrich effect already fills
+the name and link the player renders.
+
 ## 2026-09-08 - Click-to-sound: the round trips ran in series before any audio was requested
 
 Josh reported ~6 seconds from tap to sound. Measured in headless Chrome against production: 2.2s
