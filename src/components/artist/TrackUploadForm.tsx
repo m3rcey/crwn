@@ -253,15 +253,19 @@ export function TrackUploadForm() {
     // fired.
     setConfirmDeleteTrack(null);
     try {
-      // Delete audio file from storage
-      if (track.audio_url_128) {
-        // Extract path from URL - format: https://xxx.supabase.co/storage/v1/object/public/audio/artistId/filename
+      // Delete the audio objects from storage. Since the stream copy landed
+      // (scripts/transcode-audio.mjs) a track can point at TWO objects: the
+      // 128 kbps stream and the original master under audio_url_320. Remove
+      // both, or the master is left as an orphan for the audit sweep.
+      // Format: https://xxx.supabase.co/storage/v1/object/public/audio/artistId/filename
+      const filePaths = [...new Set(
+        [track.audio_url_128, track.audio_url_320]
+          .map((u) => (u ? u.split('/storage/v1/object/public/audio/')[1] : undefined))
+          .filter((p): p is string => !!p)
+      )];
+      if (filePaths.length > 0) {
         try {
-          const urlParts = track.audio_url_128.split('/storage/v1/object/public/audio/');
-          if (urlParts.length > 1) {
-            const filePath = urlParts[1];
-            await supabase.storage.from('audio').remove([filePath]);
-          }
+          await supabase.storage.from('audio').remove(filePaths);
         } catch (storageError) {
           console.log('Could not delete audio file from storage:', storageError);
         }
@@ -789,7 +793,7 @@ export function TrackUploadForm() {
             </label>
           </div>
           <p className="text-xs text-crwn-text-secondary mt-1">
-            Files will be transcoded to 128kbps (stream) and 320kbps (premium)
+            WAV, AIFF and FLAC uploads get a 128kbps MP3 stream copy within a day. Your original is kept.
           </p>
         </div>
 

@@ -1,0 +1,38 @@
+# Give every new lossless upload a 128 kbps MP3 stream copy, once a day.
+#
+# Vercel Hobby cannot run ffmpeg over a 30 MB master inside a function, so the daily
+# conversion runs here instead. The script is scripts/transcode-audio.mjs: read-only by
+# default, converts only wav/aiff/flac stream files, verifies the new object before it
+# rewrites a row, never deletes a master, and is idempotent (re-running is harmless).
+#
+# Needs two repository secrets. Until they exist the job stops with a clear message and
+# converts nothing:
+#   NEXT_PUBLIC_SUPABASE_URL      the project url (same value as the Vercel env var)
+#   SUPABASE_SERVICE_ROLE_KEY     the service role key (Settings > Secrets and variables > Actions)
+name: transcode-audio
+
+on:
+  schedule:
+    - cron: '30 9 * * *'   # daily, 09:30 UTC
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  transcode:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: ffmpeg -version | head -1
+      - name: Convert lossless stream files
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: node scripts/transcode-audio.mjs --apply

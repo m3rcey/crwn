@@ -232,9 +232,16 @@ the browser asked for any audio. Rules that keep it fixed:
   (`freshStreamUrl`, 10-minute margin) and otherwise mints through the route. `play()` starts the
   source FIRST; metadata reads and history writes never sit ahead of it. Do not add an await
   before `setAudioSource` in any play path.
-- **The remaining cost is the format.** 29 of 59 active tracks are raw WAV masters served as the
-  stream, and the upload form's "transcoded to 128kbps" line is false. Transcoding is the next
-  lever; do not "fix" it with a bigger preload or a second player.
+- **`audio_url_128` is the STREAM COPY, `audio_url_320` is the master.** Uploads land raw in
+  both columns; [scripts/transcode-audio.mjs](scripts/transcode-audio.mjs) (`npm run
+  transcode:audio -- --apply`, read-only without the flag) gives every wav/aiff/flac stream file
+  a 128 kbps MP3 beside it and repoints ONLY the 128 column, after verifying the new object and
+  only if the row has not changed underneath it. It never deletes a master. The batch ran on
+  2026-09-08 (30 tracks, ~30 MB to ~2 MB each; Host went from 2.2s to ~0.4s tap-to-sound); the
+  daily GitHub Action `transcode-audio` repeats it for new uploads once its two secrets exist.
+  Deleting a track removes BOTH objects. Do not "fix" a slow start with a bigger preload, a
+  second player, or transcoding inside a Vercel function (a 30 MB master plus ffmpeg does not
+  fit a Hobby function).
 - **Measure, do not guess.** The headless-Chrome timeline script and method are in the memory
   note `playback-latency-presigned-stream-urls`; rerun it after touching the play path.
 

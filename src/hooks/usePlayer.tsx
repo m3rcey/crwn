@@ -281,41 +281,43 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
         void logPlayHistory();
       }
 
-      // Fetch artist info if missing (Option B)
-      let trackWithArtist = track;
+      // Fetch artist info if missing (Option B). This is DISPLAY metadata (the
+      // name and link in the player), so it no longer sits in front of play():
+      // it lands on the current track when it arrives, and only if this track is
+      // still the one playing. Awaiting it cost ~150ms desktop per tap.
       if (track.artist_id && !track.artist?.slug) {
-        const { data: artistData } = await supabase
+        void supabase
           .from('artist_profiles')
           .select('id, slug, user_id, profile:profiles!inner(id, role, display_name, username, avatar_url, bio, social_links, created_at, updated_at)')
           .eq('id', track.artist_id)
-          .single();
-        
-        if (artistData) {
-          const profileArray = (artistData.profile || []) as unknown as { id: string; role: string; display_name: string; username: string; avatar_url: string | null; bio: string | null; social_links: Record<string, unknown> | null; created_at: string; updated_at: string }[];
-          const profileData = Array.isArray(profileArray) ? profileArray[0] : profileArray;
-          
-          const artistProfile = {
-            id: artistData.id,
-            slug: artistData.slug,
-            user_id: artistData.user_id,
-            is_verified: false,
-            banner_url: null,
-            tagline: null,
-            stripe_connect_id: null,
-            tier_config: [],
-            created_at: '',
-            updated_at: '',
-            profile: profileData as any,
-          };
-          trackWithArtist = {
-            ...track,
-            artist: artistProfile,
-            artist_name: profileData?.display_name || 'Unknown Artist',
-          };
-        }
+          .single()
+          .then(({ data: artistData }) => {
+            if (!artistData) return;
+            const profileArray = (artistData.profile || []) as unknown as { id: string; role: string; display_name: string; username: string; avatar_url: string | null; bio: string | null; social_links: Record<string, unknown> | null; created_at: string; updated_at: string }[];
+            const profileData = Array.isArray(profileArray) ? profileArray[0] : profileArray;
+
+            const artistProfile = {
+              id: artistData.id,
+              slug: artistData.slug,
+              user_id: artistData.user_id,
+              is_verified: false,
+              banner_url: null,
+              tagline: null,
+              stripe_connect_id: null,
+              tier_config: [],
+              created_at: '',
+              updated_at: '',
+              profile: profileData as any,
+            };
+            setCurrentTrack((prev) =>
+              prev?.id === track.id
+                ? { ...prev, artist: artistProfile, artist_name: profileData?.display_name || 'Unknown Artist' }
+                : prev
+            );
+          });
       }
-      
-      setCurrentTrack(trackWithArtist);
+
+      setCurrentTrack(track);
       setCurrentTime(0);
       setPlayStartTime(Date.now());
 

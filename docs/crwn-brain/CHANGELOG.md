@@ -13,8 +13,14 @@ grants in ONE Storage call (`attachStreamUrls`) and attach `stream_url` + expiry
 player uses it while fresh (`freshStreamUrl`, 10-minute margin) and falls back to the route
 otherwise. `usePlayer.play()` starts the source before the metadata read and no longer awaits
 the history insert. Entitlement is unchanged: a locator on a `tracks_public` row is the grant.
-Not fixed: raw WAV masters (29 of 59 active tracks) served as the stream; the upload form's
-"transcoded to 128kbps" line has never been true.
+Second step the same day: every lossless stream file (30 tracks, wav) got a 128 kbps MP3 copy
+beside it through `scripts/transcode-audio.mjs` (`npm run transcode:audio -- --apply`), which
+verifies the new object through a signed HEAD before repointing ONLY `audio_url_128`, guarded by
+the value it read; `audio_url_320` keeps the untouched master. Host went from 30.5 MB to 1.8 MB
+and from 2.2s to 0.3 to 0.5s tap-to-sound. Deleting a track now removes both objects, the
+upload copy says what really happens, and the artist-metadata read in `play()` is
+fire-and-forget. Future uploads: the daily GitHub Action `transcode-audio`, blocked on two repo
+secrets (TODO P1).
 
 ## 2026-09-03 - Rise Mode Guided Setup browser-verified end to end; admin launch completion fixed
 

@@ -67,6 +67,18 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **Add two GitHub Actions secrets so new WAV uploads keep getting a stream copy.** Every
+      existing lossless master now has a 128 kbps MP3 stream copy (batch run 2026-09-08; tap-to-sound
+      went from ~2.2s to ~0.4s on desktop for those tracks). The daily job that does the same for
+      FUTURE uploads is [.github/workflows/transcode-audio.yml](.github/workflows/transcode-audio.yml),
+      and it stops with a clear message until these exist. GitHub repo > Settings > Secrets and
+      variables > Actions > New repository secret, twice:
+        NEXT_PUBLIC_SUPABASE_URL      (the same value Vercel has)
+        SUPABASE_SERVICE_ROLE_KEY     (the same value Vercel has)
+      Then Actions > transcode-audio > Run workflow once and confirm it prints "converted 0" (or the
+      count of anything uploaded since). Until then a fresh WAV upload streams raw; I can also run
+      it by hand with one plain line from the repo root: npm run transcode:audio -- --apply
+
 - [ ] **Founding A&R Week is built and CANNOT go live yet. Five things are missing and four
       of them are yours.** The campaign draft exists for GB and fails closed, so the
       evergreen Go Bad funnel is running normally right now and will keep doing so until
@@ -805,13 +817,6 @@ Things that are never finished. Cadence, then the thing.
 ---
 
 ## On Claude's plate (not yours)
-
-- **Tap-to-sound was ~6s on a phone; the series of round trips before the audio request is
-  gone (2026-09-08), the WAV masters are not.** 29 of 59 active tracks are raw WAV (1411 kbps)
-  served as the stream, and the upload form still says "Files will be transcoded to 128kbps",
-  which has never been true. A 3-minute WAV is ~32 MB. Transcoding on upload (or a one-off
-  batch for the existing masters) is mine to design; it is a pipeline, not a flag. Nothing for
-  you to run.
 
 - **266 MB of orphaned audio is sitting in the bucket, and I want your call before deleting
   other artists' files.** Replacing a track's audio writes the new URL and leaves the old file
