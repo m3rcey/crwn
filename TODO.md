@@ -819,6 +819,21 @@ Things that are never finished. Cadence, then the thing.
 
 ## On Claude's plate (not yours)
 
+- **266 MB of orphaned audio is sitting in the bucket, and I want your call before deleting
+  other artists' files.** Replacing a track's audio writes the new URL and leaves the old file
+  behind (deleting a track does clean up; replacing does not). Measured 2026-09-08: 37 objects,
+  266 MB, 16% of the bucket, across several artists. Run `npm run audit:audio` any time to see
+  the list; it is read-only and only deletes with `--delete`.
+
+  Two decisions, both yours. **(a) Shall I collect the existing 266 MB?** Nothing references any
+  of it, but it is other artists' masters, so I am not deleting it on my own initiative.
+  **(b) Shall this run automatically?** It would be a daily cron. I deliberately did NOT make
+  replacement delete the old file immediately: a signed URL already given to a listener keeps
+  working for up to an hour, so an instant delete cuts off anyone mid-song. A sweep that only
+  collects files older than 24h avoids that, and also catches leaks a per-button fix would miss
+  (a failed upload, a delete that silently failed). Nothing breaks while this waits; it is
+  storage cost, not correctness.
+
 - **Prize rail: COMPLETE and verified in production (2026-09-04).** Winner state, both
   ownership-checked routes, executor, proven Stripe construction (38 sandbox checks), webhook
   fix, prize-aware MRR on all three readers. `PRIZE_RAIL.ready` is true and is tied by test to
