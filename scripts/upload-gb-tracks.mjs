@@ -15,12 +15,22 @@
 // must not get permanent access to it. The player skips locked tracks when advancing, so a
 // stranger hears Pivotal then Maneuver and stops; a member hears all three.
 //
+// REPLACING A TRACK'S AUDIO (--replace <title>) uploads to a NEW timestamped path rather than
+// overwriting the old object. Two reasons: a signed URL already handed to a listener keeps
+// resolving to the path it was signed for, so overwriting in place is the one way to serve a
+// stale mix to somebody mid-listen; and the previous object survives as a rollback. Duration is
+// re-read from the new file rather than carried over, because a re-export can change length.
+//
 // Usage: node scripts/upload-gb-tracks.mjs [--dry]
+//        node scripts/upload-gb-tracks.mjs --replace Pivotal [--dry]
 
 import { readFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { createClient } from '@supabase/supabase-js';
 
 const DRY = process.argv.includes('--dry');
+const replaceIdx = process.argv.indexOf('--replace');
+const REPLACE_TITLE = replaceIdx >= 0 ? process.argv[replaceIdx + 1] : null;
 const env = readFileSync('.env.local', 'utf8');
 const pick = (k) => (env.match(new RegExp('^' + k + '=(.*)$', 'm')) || [])[1]?.trim().replace(/^"|"$/g, '');
 const db = createClient(pick('NEXT_PUBLIC_SUPABASE_URL'), pick('SUPABASE_SERVICE_ROLE_KEY'), {
@@ -71,11 +81,85 @@ if (gbErr || !gb) {
 
 const { data: existing } = await db
   .from('tracks')
-  .select('id, title, position, is_free, allowed_tier_ids')
+  // audio_url_128 is selected because --replace compares the live bytes against the local file
+  // before doing anything. Without it that guard reads "no old path" and skips silently, which
+  // is the exact failure it exists to prevent.
+  .select('id, title, position, is_free, allowed_tier_ids, audio_url_128')
   .eq('artist_id', gb.id);
 const byTitle = new Map((existing ?? []).map((t) => [t.title.toLowerCase(), t]));
 
 console.log('GB has ' + (existing?.length ?? 0) + ' track(s) before this run.\n');
+
+// ── Replace one track's audio, leaving position and access exactly as they are ────────────
+if (REPLACE_TITLE) {
+  const entry = ORDER.find((e) => e.title.toLowerCase() === REPLACE_TITLE.toLowerCase());
+  const row = byTitle.get(REPLACE_TITLE.toLowerCase());
+  if (!entry?.file) {
+    console.error(`No source file is registered for "${REPLACE_TITLE}".`);
+    process.exit(1);
+  }
+  if (!row) {
+    console.error(`GB has no track called "${REPLACE_TITLE}".`);
+    process.exit(1);
+  }
+
+  const bytes = readFileSync(entry.file);
+  const localHash = createHash('sha256').update(bytes).digest('hex');
+
+  // Prove the file actually differs before touching anything. A re-export can produce an
+  // identical byte COUNT with different audio, so size is not identity: only the hash is.
+  const oldPath = (row.audio_url_128 ?? '').split('/audio/')[1] ?? null;
+  if (oldPath) {
+    const { data: current } = await db.storage.from('audio').download(oldPath);
+    if (current) {
+      const remoteHash = createHash('sha256').update(Buffer.from(await current.arrayBuffer())).digest('hex');
+      if (remoteHash === localHash) {
+        console.log(`${entry.title} — the uploaded file is already byte-identical. Nothing to do.`);
+        process.exit(0);
+      }
+      console.log(`${entry.title} — local file differs from what is live:`);
+      console.log(`   live  ${remoteHash.slice(0, 16)}...  (${(current.size / 1048576).toFixed(1)} MB)`);
+      console.log(`   local ${localHash.slice(0, 16)}...  (${(bytes.length / 1048576).toFixed(1)} MB)`);
+    }
+  }
+
+  const duration = wavDuration(entry.file);
+  const mmss = Math.floor(duration / 60) + ':' + String(duration % 60).padStart(2, '0');
+  if (DRY) {
+    console.log(`${entry.title} — WOULD upload the new version (${mmss}) and repoint the track`);
+    process.exit(0);
+  }
+
+  const path = `${gb.id}/${Date.now()}.wav`;
+  const { error: upErr } = await db.storage
+    .from('audio')
+    .upload(path, bytes, { contentType: 'audio/wav', upsert: false });
+  if (upErr) {
+    console.error(`${entry.title} — upload FAILED: ${upErr.message}`);
+    process.exit(1);
+  }
+  const { data: { publicUrl } } = db.storage.from('audio').getPublicUrl(path);
+
+  const { error: updErr } = await db
+    .from('tracks')
+    .update({
+      audio_url_128: publicUrl,
+      audio_url_320: publicUrl,
+      duration,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', row.id);
+  if (updErr) {
+    console.error(`${entry.title} — the file uploaded but the track row FAILED: ${updErr.message}`);
+    process.exit(1);
+  }
+
+  console.log(`\n${entry.title} — now serving the new version (${mmss}).`);
+  console.log(`   was ${oldPath ?? 'nothing'}`);
+  console.log(`   now ${path.split('/').pop()}`);
+  console.log('   The previous object is left in place as a rollback; delete it once you are happy.');
+  process.exit(0);
+}
 
 for (let position = 0; position < ORDER.length; position += 1) {
   const entry = ORDER[position];
