@@ -64,6 +64,21 @@ Meta only forwards **direct messages** to ManyChat. A comment reaches ManyChat o
 **DM the connected account from a different Instagram account.** The contact appears instantly,
 with no automation live.
 
+### Trap 7 — a lapsed plan switches every automation OFF, and renewing does not switch them back on
+
+Confirmed 2026-09-08, after a 13-day outage. A lapsed ManyChat Pro plan does not merely degrade
+the flow, it DEACTIVATES the automations. The comment trigger and the DM keyword trigger stop
+together, so commenting `WORTH` and DMing `WORTH` are equally silent, and the earlier symptom (a
+bare "Automation powered by @Manychat" stub with an empty body, seen 2026-08-26) is what the
+in-between state sends. Turning them back on is MANUAL, one automation at a time. It does not
+happen for you when the plan comes back.
+
+**CRWN cannot detect this, by construction.** An off automation makes no request, so
+`/api/integrations/manychat/webhook` is never called and the acquisition tables look exactly like
+a day on which nobody commented. That is why the funnel was dead from 2026-08-26 to 2026-09-08
+and only surfaced because Josh tested it by hand. **After any billing interruption, open every
+automation and confirm it reads Live before trusting a quiet funnel.**
+
 ---
 
 ## 1. Prerequisites
