@@ -12,6 +12,7 @@
 import { levelFromXp } from './progression';
 import { getLimit } from '@/lib/platformTier';
 import { awardFanBadge } from '@/lib/fanBadges';
+import { stripeChargesReady } from '@/lib/stripe/paymentReadiness';
 import { createNotification } from '@/lib/notifications';
 import {
   EMPTY_FUNNEL_FACTS,
@@ -136,8 +137,8 @@ async function isStripeConnected(admin: any, artistId: string): Promise<boolean>
     .select('stripe_connect_id, activation_milestones')
     .eq('id', artistId)
     .maybeSingle();
-  const m = (data?.activation_milestones || {}) as Record<string, unknown>;
-  return !!data?.stripe_connect_id && !!m.stripe_connected;
+  // One shared rule (src/lib/stripe/paymentReadiness.ts). See MONEY-010.
+  return stripeChargesReady(data);
 }
 
 async function isReferralsOn(admin: any, artistId: string): Promise<boolean> {
@@ -429,8 +430,9 @@ async function evalDomain(admin: any, instance: QuestInstance, cond: Extract<Com
           .select('stripe_connect_id, activation_milestones')
           .eq('id', artistId)
           .maybeSingle();
-        const m = (ap?.activation_milestones || {}) as Record<string, unknown>;
-        const done = !!ap?.stripe_connect_id && !!m.stripe_connected;
+        // One shared rule (src/lib/stripe/paymentReadiness.ts), so this check, the funnel
+        // readiness fact and the fan checkout guard can never disagree about "can take money".
+        const done = stripeChargesReady(ap);
         return { done, progressPercent: done ? 100 : 0, current: done ? 1 : 0, target: 1 };
       } catch {
         return EMPTY_EVAL;

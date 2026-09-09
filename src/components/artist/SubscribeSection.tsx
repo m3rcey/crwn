@@ -11,7 +11,8 @@ import { hapticLight, hapticMedium, hapticSuccess, hapticError } from '@/lib/hap
 import { getPersistedReferralCode, getPersistedAttributionSource } from '@/components/shared/ReferralPersist';
 import { useTierViewTracker } from '@/hooks/useTierViewTracker';
 import { useArtistPreview } from '@/hooks/useArtistPreview';
-import { Check, Loader2, X } from 'lucide-react';
+import { Check, Clock, Loader2, X } from 'lucide-react';
+import { PURCHASE_BLOCKED_LABEL, PURCHASE_BLOCKER_MESSAGE } from '@/lib/stripe/paymentReadiness';
 import { safeInternalPath } from '@/lib/journey/resolveJourneyDestination';
 import { memberSinceLabel } from '@/lib/recognition/status';
 
@@ -543,14 +544,35 @@ export function TierCards({ tiers, artistSlug, artistId }: TierCardsProps) {
                 </ul>
               )}
               
-              <button
-                onClick={() => handleTierAction(tier)}
-                disabled={isLoading === tier.id || subscribedTierId === tier.id}
-                className={`mt-4 w-full py-2.5 rounded-full font-semibold transition-colors disabled:opacity-50 flex items-center justify-center gap-2 ${getButtonClass(tier)}`}
-              >
-                {isLoading === tier.id && <Loader2 className="w-4 h-4 animate-spin" />}
-                {getButtonText(tier)}
-              </button>
+              {/* A paid rung the artist cannot yet be paid for. Server-derived on the page from
+                  the charges milestone and the tier's Stripe price; the checkout route re-derives
+                  it and refuses anyway, so this only stops offering an action that cannot work.
+                  Before this, the fan pressed Subscribe and read "Failed to create checkout
+                  session", which reads as a broken app or a broken artist. */}
+              {tier.purchasable === false ? (
+                <div className="mt-4">
+                  <button
+                    disabled
+                    aria-disabled="true"
+                    className="w-full py-2.5 rounded-full font-semibold bg-crwn-elevated text-crwn-text-secondary cursor-not-allowed flex items-center justify-center gap-2"
+                  >
+                    <Clock className="w-4 h-4" />
+                    {PURCHASE_BLOCKED_LABEL}
+                  </button>
+                  <p className="text-xs text-crwn-text-secondary mt-2 text-center">
+                    {PURCHASE_BLOCKER_MESSAGE.artist_payments_unavailable}
+                  </p>
+                </div>
+              ) : (
+                <button
+                  onClick={() => handleTierAction(tier)}
+                  disabled={isLoading === tier.id || subscribedTierId === tier.id}
+                  className={`mt-4 w-full py-2.5 rounded-full font-semibold transition-colors disabled:opacity-50 flex items-center justify-center gap-2 ${getButtonClass(tier)}`}
+                >
+                  {isLoading === tier.id && <Loader2 className="w-4 h-4 animate-spin" />}
+                  {getButtonText(tier)}
+                </button>
+              )}
             </div>
           );
         })}

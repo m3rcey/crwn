@@ -5,15 +5,17 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { AuthForm } from '@/components/auth/AuthForm';
 import { useAuth } from '@/hooks/useAuth';
 import { BackgroundImage } from '@/components/ui/BackgroundImage';
+import { authPathWithNext, safeReturnPath } from '@/lib/auth/returnPath';
 
 export default function LoginPage() {
   const router = useRouter();
   const { user, isLoading } = useAuth();
   const searchParams = useSearchParams();
   const verified = searchParams.get('verified') === 'true';
-  // Optional return path (e.g. a public demand-test page) — internal paths only.
-  const nextParam = searchParams.get('next');
-  const next = nextParam && nextParam.startsWith('/') && !nextParam.startsWith('//') ? nextParam : null;
+  // Optional return path (e.g. an artist page a fan pressed Join Free on), internal paths only.
+  // Validated by the shared rule rather than a local check, so login, signup and /verify all
+  // agree on what is safe (the old inline test let a backslash and a control character through).
+  const next = safeReturnPath(searchParams.get('next'));
 
   useEffect(() => {
     if (user && !isLoading) {
@@ -81,7 +83,10 @@ export default function LoginPage() {
             
             <p className="mt-6 text-center text-sm text-crwn-text-secondary">
               Don&apos;t have an account?{' '}
-              <a href="/signup" className="text-crwn-gold hover:underline">
+              {/* Carries the return destination. Without it a fan who pressed Join Free on an
+                  artist page lost it here, and /verify then sent them into the ARTIST setup
+                  wizard instead of back to the membership they came for. */}
+              <a href={authPathWithNext('/signup', next)} className="text-crwn-gold hover:underline">
                 Sign up
               </a>
             </p>

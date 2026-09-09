@@ -167,6 +167,17 @@ export const INVARIANTS: Invariant[] = [
     enforcedBy: ['src/lib/earningsNet.test.ts'],
     docs: ['docs/crwn-brain/07-BUSINESS-RULES.md'],
   },
+  {
+    id: 'MONEY-010',
+    severity: 'P0',
+    category: 'money',
+    rule: 'Payment readiness is ONE rule (an account id plus the stripe_connected charges milestone, plus a live Stripe price for the interval), and a paid checkout may never be created on the presence of stripe_connect_id alone. /api/stripe/connect saves that id BEFORE Stripe onboarding, so the id alone means "started", never "can be paid".',
+    owner: 'src/lib/stripe/paymentReadiness.ts',
+    sourceOfTruth: 'artist_profiles.stripe_connect_id + activation_milestones.stripe_connected + subscription_tiers.stripe_price_id',
+    enforcement: 'test',
+    enforcedBy: ['src/lib/stripe/paymentReadiness.test.ts', 'src/lib/architecture/financial.test.ts'],
+    docs: ['docs/crwn-brain/07-BUSINESS-RULES.md'],
+  },
 
   // -------------------------------------------------------------- OWNERSHIP
   {

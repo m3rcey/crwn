@@ -22,6 +22,7 @@ import { tierCardBenefitLines, cardLinesModeOf } from '@/lib/tierCardBenefits';
 import { accentPageVars } from '@/lib/contrast';
 import { orderTracksForDisplay } from '@/lib/trackOrder';
 import { attachStreamUrls } from '@/lib/storage/signedAudio';
+import { chargesMilestonePresent, tierPurchaseBlocker } from '@/lib/stripe/paymentReadiness';
 import { PaletteBackfill } from '@/components/artist/PaletteBackfill';
 import { BannerReposition } from '@/components/artist/BannerReposition';
 import type { CSSProperties } from 'react';
@@ -165,6 +166,13 @@ export default async function ArtistPage({ params, searchParams }: ArtistPagePro
     benefitsByTierId[benefit.tier_id].push(benefit);
   });
 
+  // Can this artist take money right now? The public view exposes `activation_milestones` and
+  // deliberately withholds `stripe_connect_id`, so this is the milestone half of the shared rule
+  // in src/lib/stripe/paymentReadiness.ts. It is enough to stop offering a button that cannot
+  // work: the milestone is written only when Stripe confirms charges_enabled, and the checkout
+  // route re-derives the full rule server-side before any money moves.
+  const artistChargesReady = chargesMilestonePresent(artist);
+
   const tiers: TierConfig[] = (subscriptionTiers || []).map((t) => {
     const tierBenefits = benefitsByTierId[t.id] || [];
     // Structured tier_benefits rows first, then the artist's own access_config prose.
@@ -180,6 +188,12 @@ export default async function ArtistPage({ params, searchParams }: ArtistPagePro
       tierBenefits: tierBenefits, // Store structured benefits for advanced features
       offersAnnual: t.offers_annual !== false,
       annualDiscountPercent: t.annual_discount_percent ?? 25,
+      purchasable: tierPurchaseBlocker({
+        price: t.price,
+        stripe_price_id: t.stripe_price_id,
+        stripe_annual_price_id: t.stripe_annual_price_id,
+        chargesReady: artistChargesReady,
+      }) === null,
     };
   });
 

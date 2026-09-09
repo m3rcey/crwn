@@ -1,5 +1,47 @@
 # CRWN Brain — Changelog
 
+## 2026-09-09 - The two fan-conversion defects the Astra audit found, fixed
+
+**A supporter's intent now survives account creation.** A signed-out fan pressing Join Free on an
+artist page was sent to `/login?next=/<slug>`, which was right, and then the login page's "Sign up"
+link threw the destination away because it was a bare `/signup`. With no `next`, signup stored no
+`pending_next`, `/verify` found none, and routed the brand new FAN into the ARTIST setup wizard,
+which asked for a stage name. Astra had to abandon the wizard and find the artist again by hand.
+The rail was already complete end to end; only that one link dropped it. `authPathWithNext`
+(`src/lib/auth/returnPath.ts`) now builds both the login page's Sign up link and the signup page's
+Sign in link from one validator, and the login page's own hand-rolled `next` check (which let a
+backslash and a control character through) was replaced by that same validator. Relative CRWN
+paths only, re-validated at every hop, so no open redirect. An artist with no `next` is unchanged.
+The setup supporter escape also stops asking for a name signup already collected; the field itself
+stays un-prefilled (that guard exists so an email seed never becomes a public artist name) and
+`isPresentableArtistName` still refuses the seed, with the server re-validating either way.
+
+**A paid tier is no longer offered when the artist cannot be paid.** `/api/stripe/checkout`
+guarded on `stripe_connect_id` being present, but `/api/stripe/connect` saves that id BEFORE
+sending the artist to Stripe's hosted onboarding, so it exists from the moment they click Connect.
+Every artist who started onboarding and stopped, which is the common case given Stripe asks for a
+legal name, date of birth, address, SSN and a bank account, therefore showed fans a live Subscribe
+button; checkout passed the guard, Stripe rejected the session, and the fan read "Failed to create
+checkout session". `src/lib/stripe/paymentReadiness.ts` is now the ONE rule: an account id plus the
+`stripe_connected` charges milestone (written only when Stripe answers `charges_enabled`) plus a
+live price for the interval. The route refuses with 409 and plain copy that blames nobody and
+points at the free tier; the artist page renders a matching "Not available yet" from the milestone
+half, which is all the public view exposes, and is a hint rather than authority. The free rung is
+never gated: a $0 join writes its row directly and still works for an artist with no Stripe at all.
+
+**The rule replaced three copies, and the drift walk found the third.** `loadStripeConnected` and
+the Quest Engine's `artist_stripe_connected` each carried the same expression. MONEY-010 was added
+to the invariant registry with a source walk in `architecture/financial.test.ts`, and on its first
+run it failed on a second hand-rolled copy inside `evaluator.ts` that a manual sweep had missed.
+Mutation-tested: reverting the checkout guard to the account id alone fails the walk for the
+intended reason, and the registry integrity check separately caught that the new suite was missing
+from `vitest.architecture.config.ts`. 4,575 tests, 946 architecture assertions, build clean.
+
+**Deliberately NOT fixed here**, so the change stays attributable: builder benefits not carrying
+into setup, the calculator estimate not recalculating after a price edit, the referral banner
+defaulting on, the inherited Bronze/Silver wording, and the workload copy.
+
+
 ## 2026-09-08 - The player's back button restarts the song; a second press goes back a track
 
 Josh: pressing back within seconds jumped to the previous song, and pressing it later did

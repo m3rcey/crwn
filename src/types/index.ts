@@ -45,6 +45,13 @@ export interface TierConfig {
   tierBenefits?: TierBenefit[];
   offersAnnual?: boolean;
   annualDiscountPercent?: number;
+  /**
+   * Can a fan actually buy this rung right now? Derived SERVER-SIDE from the artist's charges
+   * milestone and the tier's Stripe price (src/lib/stripe/paymentReadiness.ts). A hint for
+   * rendering only: /api/stripe/checkout re-derives it and is the authority. Undefined means
+   * "not evaluated" and is treated as purchasable, so surfaces that never set it are unchanged.
+   */
+  purchasable?: boolean;
 }
 
 export type AccessLevel = 'free' | 'subscriber' | 'purchase';

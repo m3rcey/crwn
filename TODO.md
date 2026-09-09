@@ -67,6 +67,16 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **Decide which of the three remaining Astra audit findings I fix.** The first two are DONE
+      and shipped to the working tree (fan return path, and paid checkout refusing before Stripe
+      when the artist is not payment-ready; see the 2026-09-09 CHANGELOG entry). Still open, each
+      traced to a line, none fixed:
+      1. builder benefit edits are silently discarded while setup says "Every answer carried over"
+         (`ladderPrefill` carries names and prices only);
+      2. tier price edits never move the headline estimate (`recalcUnified` reads only vault placement);
+      3. new artists get a 10% referral banner they never chose, above their own offer.
+      Say which and I start. Evidence: [docs/ASTRA_ACTIVATION_AUDIT.md](docs/ASTRA_ACTIVATION_AUDIT.md).
+
 - [ ] **Add two GitHub Actions secrets so new WAV uploads keep getting a stream copy.** Every
       existing lossless master now has a 128 kbps MP3 stream copy (batch run 2026-09-08; tap-to-sound
       went from ~2.2s to ~0.4s on desktop for those tracks). The daily job that does the same for

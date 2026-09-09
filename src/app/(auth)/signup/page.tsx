@@ -10,6 +10,7 @@ import { DraftContinuation } from '@/components/opportunity/DraftContinuation';
 // Client-safe internal-path validator (same checks as safeRedirect's safeInternalPath;
 // that module imports node:crypto and cannot ship in a client bundle).
 import { safeLabPath as safeInternalPath } from '@/lib/songLab/core';
+import { authPathWithNext } from '@/lib/auth/returnPath';
 
 export default function SignupPage() {
   const router = useRouter();
@@ -89,7 +90,7 @@ export default function SignupPage() {
             
             <p className="mt-6 text-center text-sm text-crwn-text-secondary">
               Already have an account?{' '}
-              <a href={nextPath ? `/login?next=${encodeURIComponent(nextPath)}` : '/login'} className="text-crwn-gold hover:underline">
+              <a href={authPathWithNext('/login', nextPath)} className="text-crwn-gold hover:underline">
                 Sign in
               </a>
             </p>

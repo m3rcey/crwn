@@ -49,8 +49,16 @@ instead of restart.
    editable in `input_data.deliverableValues`, the revealed number in
    `input_data.opportunitySummary`, plus a 30-day `public_token`.
 3. **Signup carries the claim token.** The signup flow puts `pending_result_token` into auth
-   `user_metadata` (server-side, never browser storage). `/signup` deliberately ignores
-   `?next`.
+   `user_metadata` (server-side, never browser storage).
+
+   **A FAN's destination rides the same rail** (`?next` → `user_metadata.pending_next` →
+   `/verify`), and every link in the chain preserves it. `authPathWithNext`
+   ([src/lib/auth/returnPath.ts](../../src/lib/auth/returnPath.ts)) builds both the login page's
+   "Sign up" link and the signup page's "Sign in" link from one validator, so a signed-out
+   supporter who presses Join Free on an artist page returns to that artist after verifying
+   instead of landing in the ARTIST setup wizard. Relative CRWN paths only, re-validated at every
+   hop, so it can never become an open redirect. An artist arriving with no `next` is unchanged
+   and still lands on `/setup`.
 
 ## B. Verification and the claim
 
@@ -80,7 +88,11 @@ live data (`useArtistSetup`), never stored per-step; the only stored flag is
 
 7. **Profile group (required).**
    - `artist-name`: stage name. Never pre-filled (the profile seed is the signup email;
-     pre-filling leaks emails as public names). Carries the "continue as a supporter" escape.
+     pre-filling leaks emails as public names). Carries the "continue as a supporter" escape,
+     which REUSES the name signup already collected rather than asking for it twice: the field
+     itself stays un-prefilled for the artist reason above, and `isPresentableArtistName` still
+     refuses the email seed, so the escape only falls back to a real name. The server
+     (`/api/onboarding/identity`) re-validates and rejects an empty or email-like name either way.
    - `artist-link`: the handle, auto-synced from the name until edited. Continue calls
      `POST /api/onboarding/identity` (service-role writes for `profiles`, RLS insert for
      `artist_profiles`; the `trg_promote_to_artist` trigger promotes fan→artist server-side;

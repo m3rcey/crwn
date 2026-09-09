@@ -14,6 +14,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { normalizeOfferExperience } from '@/lib/offerExperience/normalize';
+import { stripeChargesReady } from '@/lib/stripe/paymentReadiness';
 import {
   EMPTY_FUNNEL_FACTS,
   type FunnelAutomationFacts,
@@ -95,7 +96,11 @@ export async function loadFunnelSequences(admin: any, artistId: string): Promise
   return list.map((s) => ({ ...s, stepCount: counts.get(s.id) ?? 0 }));
 }
 
-/** Mirrors the Quest Engine's artist_stripe_connected: an account id AND the charges milestone. */
+/**
+ * An account id AND the charges milestone. The rule itself lives in one place
+ * (`src/lib/stripe/paymentReadiness.ts`), shared with the Quest Engine's
+ * artist_stripe_connected and the fan checkout guard, so the three cannot drift apart.
+ */
 export async function loadStripeConnected(admin: any, artistId: string): Promise<boolean> {
   try {
     const { data } = await admin
@@ -103,8 +108,7 @@ export async function loadStripeConnected(admin: any, artistId: string): Promise
       .select('stripe_connect_id, activation_milestones')
       .eq('id', artistId)
       .maybeSingle();
-    const m = (data?.activation_milestones || {}) as Record<string, unknown>;
-    return !!data?.stripe_connect_id && !!m.stripe_connected;
+    return stripeChargesReady(data);
   } catch {
     return false;
   }

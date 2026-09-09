@@ -13,6 +13,7 @@ import { hashVisitor } from '@/lib/analytics/visitorHash';
 import { recordTierEvent } from '@/lib/analytics/tierEvents';
 import { syntheticFreeSubId } from '@/lib/subscriptions/freeJoin';
 import { checkoutReturnUrls } from '@/lib/stripe/returnPath';
+import { stripeChargesReady, tierPurchaseBlocker, PURCHASE_BLOCKER_MESSAGE } from '@/lib/stripe/paymentReadiness';
 
 export async function POST(req: NextRequest) {
   try {
@@ -120,17 +121,44 @@ export async function POST(req: NextRequest) {
       process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
       process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy-service-key-for-build'
     );
+    // Readiness is decided HERE, server-side, and this route is the authority. The fan page
+    // renders a matching unavailable state, but it reads the public view (which withholds the
+    // account id on purpose), so it can only ever be a hint. A client can never widen this.
+    //
+    // `activation_milestones` is read alongside the account id because the id alone is NOT
+    // payment readiness: /api/stripe/connect saves it BEFORE sending the artist to Stripe's
+    // hosted onboarding, so it is present from the moment they click Connect. Guarding on the id
+    // alone is what handed the fans of every artist who abandoned onboarding a live Subscribe
+    // button that died inside Stripe as "Failed to create checkout session" (Astra audit,
+    // 2026-09-08). The milestone is written only when Stripe answers charges_enabled.
     const { data: connectRow } = await svcConnect
       .from('artist_profiles')
-      .select('stripe_connect_id')
+      .select('stripe_connect_id, activation_milestones')
       .eq('id', tier.artist_id)
       .maybeSingle();
     const artistStripeAccountId = connectRow?.stripe_connect_id as string | undefined;
 
-    if (!artistStripeAccountId) {
+    const blocker = tierPurchaseBlocker({
+      price: tier.price,
+      stripe_price_id: tier.stripe_price_id,
+      stripe_annual_price_id: tier.stripe_annual_price_id,
+      interval,
+      chargesReady: stripeChargesReady(connectRow),
+    });
+    if (blocker) {
+      // 409, not 500: nothing failed and the fan did nothing wrong. The artist is not ready yet.
       return NextResponse.json(
-        { error: 'Artist has not connected payments yet. Try again later.' },
-        { status: 400 }
+        { error: PURCHASE_BLOCKER_MESSAGE[blocker], reason: blocker },
+        { status: 409 }
+      );
+    }
+
+    if (!artistStripeAccountId) {
+      // Unreachable while the blocker above stands (charges cannot be confirmed without an
+      // account), kept because `transfer_data.destination` below must never be undefined.
+      return NextResponse.json(
+        { error: PURCHASE_BLOCKER_MESSAGE.artist_payments_unavailable, reason: 'artist_payments_unavailable' },
+        { status: 409 }
       );
     }
 

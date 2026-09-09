@@ -60,6 +60,8 @@ export default defineConfig({
       'src/lib/architecture/agentContracts.test.ts',
       // Existing boundary/contract suites the registry references
       'src/lib/stripe/payoutOwnership.test.ts',
+      // MONEY-010: one payment-readiness rule, and a paid checkout never on the account id alone.
+      'src/lib/stripe/paymentReadiness.test.ts',
       'src/lib/earningsNet.test.ts',
       'src/lib/postWinReferral.test.ts',
       'src/lib/campaigns/boundaries.test.ts',

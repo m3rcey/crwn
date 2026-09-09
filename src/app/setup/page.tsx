@@ -55,7 +55,7 @@ import { recommendPlan, monthlyPlanCostCents, proBreakEvenGmvCents } from '@/lib
 import { TIER_PRICING, TIER_LIMITS } from '@/lib/platformTier';
 import { getAnonId } from '@/lib/experiments/anonId';
 import { slugify } from '@/lib/slugify';
-import { isEmailLike } from '@/lib/publicName';
+import { isEmailLike, isPresentableArtistName } from '@/lib/publicName';
 import type { ProductType } from '@/types';
 
 type ScreenKey =
@@ -217,7 +217,7 @@ const promiseSettings = (p: PlannedPromise, draft: PromiseDraft, offsetDays = 0)
 function SetupWizard() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { user, isLoading: authLoading } = useAuth();
+  const { user, profile, isLoading: authLoading } = useAuth();
   const { showToast } = useToast();
   const supabase = createBrowserSupabaseClient();
   // The wizard is the only place that reads `stripeConnected`, so it is the only
@@ -455,7 +455,7 @@ function SetupWizard() {
   // Saves the identity screens (name + link + role) through the server route.
   // Server-side because the browser cannot update `profiles` at all right now
   // (see /api/onboarding/identity), and so the artist page + name land together.
-  const saveIdentity = async (role: 'artist' | 'fan'): Promise<string | undefined> => {
+  const saveIdentity = async (role: 'artist' | 'fan', displayNameOverride?: string): Promise<string | undefined> => {
     const recruiterCode = typeof window !== 'undefined' ? localStorage.getItem('crwn_recruiter') : null;
     let res: Response;
     try {
@@ -463,7 +463,7 @@ function SetupWizard() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          displayName: identityDraft.name,
+          displayName: displayNameOverride ?? identityDraft.name,
           role,
           handle: identityDraft.handle,
           recruiterCode,
@@ -503,12 +503,21 @@ function SetupWizard() {
   // support artists: same identity save, fan role, straight to the feed.
   const continueAsSupporter = async () => {
     if (supporterBusy) return;
-    if (!identityDraft.name.trim()) {
+    // A supporter already gave their name at signup, so do not ask a second time. The NAME FIELD
+    // above is still never pre-filled: for an ARTIST that field becomes a public stage name and
+    // `display_name` may only be the un-chosen signup seed (the email, via the DB default), which
+    // is exactly how an email would leak onto a public page. A supporter's name is not public in
+    // that way, so reusing it here is safe, and `isPresentableArtistName` still refuses the email
+    // seed. The server re-validates either way (/api/onboarding/identity rejects an empty or
+    // email-like name), so this is a convenience and never the authority.
+    const knownName = isPresentableArtistName(profile?.display_name) ? (profile?.display_name || '').trim() : '';
+    const supporterName = identityDraft.name.trim() || knownName;
+    if (!supporterName) {
       showToast('Enter your name first, then continue as a supporter.', 'error');
       return;
     }
     setSupporterBusy(true);
-    const err = await saveIdentity('fan');
+    const err = await saveIdentity('fan', supporterName);
     if (err) {
       showToast(err, 'error');
       setSupporterBusy(false);

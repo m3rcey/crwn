@@ -78,6 +78,18 @@ only, the entitlement gate is never modified). `Confirmed` (2026-08-01, this ses
 
 ## 6. Stripe Connect / payouts
 - **Onboarding:** `/api/stripe/connect` creates an Express account (card_payments + transfers); `stripe_connect_id` saved via admin client (RLS-blocked otherwise). `Confirmed`.
+- **PAYMENT READINESS IS ONE RULE, AND THE ACCOUNT ID IS NOT IT** (MONEY-010, 2026-09-09).
+  `src/lib/stripe/paymentReadiness.ts` is the only definition: an account id **plus** the
+  `stripe_connected` charges milestone, **plus** a live Stripe price for the interval being
+  bought. The id alone means "started onboarding", never "can be paid": the connect route saves
+  it **before** the artist is sent to Stripe's hosted form, so it is present from the moment they
+  click Connect. `/api/stripe/checkout` is the authority and refuses with **409** and
+  plain-language copy; the artist page renders a matching "Not available yet" state from the
+  milestone half (the public view withholds the id by column grant), which is a rendering hint
+  and never authority. The free rung is never gated by this: a $0 join writes its row directly
+  and must keep working for an artist with no Stripe at all. The same predicate backs
+  `loadStripeConnected` and the Quest Engine's `artist_stripe_connected`, so the three cannot
+  drift. `Confirmed`.
 - **Backfill:** `/api/stripe/connect/status` — only when `charges_enabled`, records `stripe_connected` milestone and runs `backfillTierPrices()` (creates Stripe products/prices for onboarding-created tiers that skipped Stripe). `Confirmed`.
 - **WHO PAYS THE ARTIST: Stripe, not CRWN.** Every connected account is **Express**, on Stripe's
   **own automatic `daily` schedule with `delay_days: 2`**, in USD. CRWN passes **no**
