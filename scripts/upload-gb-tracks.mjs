@@ -81,10 +81,12 @@ if (gbErr || !gb) {
 
 const { data: existing } = await db
   .from('tracks')
-  // audio_url_128 is selected because --replace compares the live bytes against the local file
-  // before doing anything. Without it that guard reads "no old path" and skips silently, which
-  // is the exact failure it exists to prevent.
-  .select('id, title, position, is_free, allowed_tier_ids, audio_url_128')
+  // Both locator columns are selected because --replace compares the live bytes against the
+  // local file before doing anything, and since 2026-09-08 the two columns hold DIFFERENT
+  // files: audio_url_128 is a transcoded 128 kbps stream copy, audio_url_320 is the master.
+  // The comparison must use the MASTER, or it compares a wav against an mp3, always differs,
+  // and the "nothing to do" guard can never fire again.
+  .select('id, title, position, is_free, allowed_tier_ids, audio_url_128, audio_url_320')
   .eq('artist_id', gb.id);
 const byTitle = new Map((existing ?? []).map((t) => [t.title.toLowerCase(), t]));
 
@@ -108,16 +110,20 @@ if (REPLACE_TITLE) {
 
   // Prove the file actually differs before touching anything. A re-export can produce an
   // identical byte COUNT with different audio, so size is not identity: only the hash is.
-  const oldPath = (row.audio_url_128 ?? '').split('/audio/')[1] ?? null;
-  if (oldPath) {
-    const { data: current } = await db.storage.from('audio').download(oldPath);
+  // Compared against the MASTER (audio_url_320): the 128 column is a transcoded mp3, so
+  // hashing against it would report "differs" even for an unchanged file.
+  const pathOf = (u) => (u ?? '').split('/audio/')[1] || null;
+  const oldMaster = pathOf(row.audio_url_320) ?? pathOf(row.audio_url_128);
+  const oldStream = pathOf(row.audio_url_128);
+  if (oldMaster) {
+    const { data: current } = await db.storage.from('audio').download(oldMaster);
     if (current) {
       const remoteHash = createHash('sha256').update(Buffer.from(await current.arrayBuffer())).digest('hex');
       if (remoteHash === localHash) {
         console.log(`${entry.title} — the uploaded file is already byte-identical. Nothing to do.`);
         process.exit(0);
       }
-      console.log(`${entry.title} — local file differs from what is live:`);
+      console.log(`${entry.title} — local file differs from the live master:`);
       console.log(`   live  ${remoteHash.slice(0, 16)}...  (${(current.size / 1048576).toFixed(1)} MB)`);
       console.log(`   local ${localHash.slice(0, 16)}...  (${(bytes.length / 1048576).toFixed(1)} MB)`);
     }
@@ -154,10 +160,14 @@ if (REPLACE_TITLE) {
     process.exit(1);
   }
 
-  console.log(`\n${entry.title} — now serving the new version (${mmss}).`);
-  console.log(`   was ${oldPath ?? 'nothing'}`);
-  console.log(`   now ${path.split('/').pop()}`);
-  console.log('   The previous object is left in place as a rollback; delete it once you are happy.');
+  console.log(`\n${entry.title} — new master uploaded (${mmss}).`);
+  console.log(`   was master ${oldMaster ?? 'nothing'}`);
+  console.log(`   was stream ${oldStream ?? 'nothing'}`);
+  console.log(`   now both   ${path.split('/').pop()}`);
+  console.log('\n   BOTH columns point at the raw master right now, so a tap pulls ' +
+    (bytes.length / 1048576).toFixed(1) + ' MB. Give it a stream copy next:');
+  console.log('     npm run transcode:audio -- --apply --id ' + row.id);
+  console.log('   The previous objects are left in place as a rollback.');
   process.exit(0);
 }
 
