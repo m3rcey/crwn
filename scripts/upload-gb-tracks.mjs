@@ -40,6 +40,7 @@ const db = createClient(pick('NEXT_PUBLIC_SUPABASE_URL'), pick('SUPABASE_SERVICE
 /** The running order the artist asked for. Go Bad keeps its access, and only moves. */
 const ORDER = [
   { title: 'Pivotal', file: 'videos/output/GB THE G1FT - Pivotal.wav' },
+  { title: 'National', file: 'videos/output/GB THE G1FT - National.wav' },
   { title: 'Maneuver', file: 'videos/output/GB THE G1FT - Maneuver.wav' },
   { title: 'Go Bad', existing: true },
 ];
