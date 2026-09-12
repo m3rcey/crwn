@@ -6,6 +6,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { MUSIC, PATHS } from "../config.mjs";
+import { loadAnalysisCache, saveAnalysisCache, analyzeTrack, selectSegment } from "./audioAnalysis.mjs";
 
 const AUDIO_EXTS = new Set([".mp3", ".wav"]);
 export const TIERS = ["primary", "secondary", "tertiary"];
@@ -119,4 +120,46 @@ export function findTrackByName(tracks, name) {
   if (matches.length > 1)
     throw new Error(`"${name}" matches ${matches.length} tracks: ${matches.map((t) => t.name).join(", ")}`);
   throw new Error(`no track matching "${name}"`);
+}
+
+/**
+ * Propose a track + segment for a video of `durationSec`.
+ *
+ * Lifted out of video.mjs so the master-image pipeline and the handwritten-motion
+ * pipeline select music the same way: one weighted rotation, one repetition rule,
+ * one usage history. A second copy of this would let the two pipelines drift into
+ * playing the same track twice in a row.
+ *
+ * @param {number} durationSec
+ * @param {{ overrideName?: string|null, record?: boolean }} opts
+ */
+export function proposeTrack(durationSec, opts = {}) {
+  const { overrideName = null, record = false } = opts;
+  const tracks = scanLibrary();
+  if (!tracks.length) throw new Error(`no tracks found under ${PATHS.musicDir}/{primary,secondary,tertiary}`);
+  const cache = loadAnalysisCache();
+  const state = loadUsageState();
+  const track = overrideName ? findTrackByName(tracks, overrideName) : pickTrack(tracks, state);
+  const analysis = analyzeTrack(track.path, cache);
+  saveAnalysisCache(cache);
+  const segment = selectSegment(analysis, durationSec + 1);
+  if (record) {
+    recordUse(state, track);
+    saveUsageState(state);
+  }
+  return {
+    track: track.name,
+    tier: track.tier,
+    sourcePath: track.path,
+    segmentStart: segment.start,
+    segmentEnd: Math.round((segment.start + durationSec + 1) * 100) / 100,
+    duration: analysis.durationSec,
+    bpm: analysis.bpm,
+    selectionReason: overrideName
+      ? `founder override (--music "${overrideName}"); ${segment.reason}`
+      : `weighted ${track.tier} rotation; ${segment.reason}`,
+    lastUsed: state.tracks?.[track.path]?.lastUsed || null,
+    useCount: state.tracks?.[track.path]?.useCount || 0,
+    analysis: { beats: analysis.beats, downbeats: analysis.downbeats },
+  };
 }

@@ -67,6 +67,24 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **Watch the first handwritten-motion video and tell me yes or no.** Level 4 of the
+      verification is you, not a machine, and this is the whole point of the build: it is the
+      Seedance concept with the numbers made deterministic and the rerender made free.
+      Open: `videos/output/1-currensy-vs-westside-gunn-volume-vs-scarcity/render/final.mp4`
+      (30.0s, 1080x1920, 30fps, silent + instrumental, no narration).
+      Frames across the whole timeline, if you want the fast version:
+      `videos/output/1-currensy-vs-westside-gunn-volume-vs-scarcity/verify/contact-sheet.jpg`
+      Levels 1 to 3 already pass: every figure on screen traces to the script, VAULT is exact,
+      the safe zone holds, no frame is blank, and every scene measurably moves. Actual cost of
+      this video was $0.00 in API spend.
+      **What I need from you is taste, not correctness.** If one beat is wrong, say which scene
+      and what is wrong with it, and the fix costs one scene and about 25 seconds:
+      `npm run video:motion-render -- 1-currensy-vs-westside-gunn-volume-vs-scarcity --scene <n>`
+      If you want a different track: add `--music "Makavhan Zodiae"`.
+      If you approve it, say so and I will wire the second Fan Economy script the same way.
+      Full manual: [docs/VIDEO_PIPELINE.md](docs/VIDEO_PIPELINE.md).
+
+
 - [ ] **Decide which of the three remaining Astra audit findings I fix.** The first two are DONE
       and shipped to the working tree (fan return path, and paid checkout refusing before Stripe
       when the artist is not payment-ready; see the 2026-09-09 CHANGELOG entry). Still open, each
@@ -827,6 +845,22 @@ Things that are never finished. Cadence, then the thing.
 ---
 
 ## On Claude's plate (not yours)
+
+- **The handwritten-motion pipeline covers ONE script so far, and the second one is where I find
+  out what is really reusable.** The spec for the Curren$y video is hand-authored data
+  ([videos/motion-specs/1-currensy-vs-westside-gunn-volume-vs-scarcity.json](videos/motion-specs/1-currensy-vs-westside-gunn-volume-vs-scarcity.json));
+  `npm run video:motion-scaffold` drafts the scenes and the text placement from a storyboard, but
+  it cannot choose plate crops, because deciding which part of an accepted sheet is illustration
+  and which part is lettering is a judgement about that sheet. Next script tells me whether the
+  slot table and the motion vocabulary hold, or whether crop selection needs its own helper.
+  Waiting on your yes or no above, so I do not build a second one on a look you do not like.
+
+- **`scripts/video/lib/imageGen.mjs` still asks the model to draw the words.** That is correct for
+  the master-image pipeline, which is unchanged and still the right tool when there is no accepted
+  sheet to crop. But the two pipelines now disagree about who owns a figure, and if the motion one
+  becomes the default I should add a TEXT-FREE prompt mode to `imageGen` so new plates can be
+  generated without ever asking a model to spell a number. Not doing it speculatively.
+
 
 - **266 MB of orphaned audio is sitting in the bucket, and I want your call before deleting
   other artists' files.** Replacing a track's audio writes the new URL and leaves the old file

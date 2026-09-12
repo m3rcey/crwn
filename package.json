@@ -24,6 +24,10 @@
     "video:regen-scene": "node scripts/video/video.mjs regen-scene",
     "video:rerender": "node scripts/video/video.mjs rerender",
     "video:music": "node scripts/video/video.mjs music",
+    "video:motion-scaffold": "node scripts/video/video.mjs motion-scaffold",
+    "video:motion-plan": "node scripts/video/video.mjs motion-plan",
+    "video:motion-render": "node scripts/video/video.mjs motion-render",
+    "video:motion-verify": "node scripts/video/video.mjs motion-verify",
     "test:video": "vitest run --config vitest.video.config.ts"
   },
   "dependencies": {

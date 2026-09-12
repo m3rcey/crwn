@@ -77,7 +77,7 @@ export function slideComposite(oldFrame, newFrame, progress, direction = "left")
   return out;
 }
 
-function buildAudioFilter(durationSec) {
+export function buildAudioFilter(durationSec) {
   const fadeOutStart = Math.max(0, durationSec - MUSIC.fadeOutSec);
   return (
     `loudnorm=I=${MUSIC.targetLufs}:TP=-1.5:LRA=11,` +
@@ -87,47 +87,52 @@ function buildAudioFilter(durationSec) {
 }
 
 /**
- * Render the timeline to an MP4.
- * @param {{shots: any[], totalDurationSec: number}} timeline
- * @param {{ trackPath: string, segmentStart: number }} music
- * @param {string} outPath
- * @param {{ onProgress?: (frame:number, total:number) => void }} opts
+ * Pipe a computed frame sequence into one ffmpeg process.
+ *
+ * The single encode path for the whole pipeline: the master-image renderer below
+ * and the handwritten-motion renderer (lib/motionRender.mjs) both come through
+ * here, so the audio filter, the pixel format and the H.264 settings exist once.
+ * `music` may be null for a video-only segment.
+ *
+ * @param {{
+ *   totalFrames: number,
+ *   durationSec: number,
+ *   frameFor: (i:number) => Promise<Buffer>,
+ *   outPath: string,
+ *   music?: { trackPath: string, segmentStart?: number }|null,
+ *   onProgress?: (frame:number, total:number) => void,
+ * }} args
  */
-export async function renderVideo(timeline, music, outPath, opts = {}) {
-  const fps = RENDER.fps;
-  const totalFrames = Math.round(timeline.totalDurationSec * fps);
+export async function encodeFrames({ totalFrames, durationSec, frameFor, outPath, music = null, onProgress }) {
   fs.mkdirSync(path.dirname(outPath), { recursive: true });
-
-  // Preload each distinct image once.
-  const imageCache = new Map();
-  for (const shot of timeline.shots) {
-    if (!imageCache.has(shot.imageFile)) {
-      imageCache.set(shot.imageFile, await loadWorkingImage(shot.imageFile));
-    }
-  }
-
   const ffmpeg = require("ffmpeg-static");
-  const args = [
-    "-y",
+  const videoIn = [
     "-f", "rawvideo",
     "-pix_fmt", "rgb24",
     "-s", `${RENDER.width}x${RENDER.height}`,
-    "-r", String(fps),
+    "-r", String(RENDER.fps),
     "-i", "pipe:0",
-    "-ss", String(music.segmentStart || 0),
-    "-t", timeline.totalDurationSec.toFixed(3),
-    "-i", music.trackPath,
-    "-filter_complex", `[1:a]${buildAudioFilter(timeline.totalDurationSec)}[a]`,
-    "-map", "0:v",
-    "-map", "[a]",
+  ];
+  const audioIn = music
+    ? [
+        "-ss", String(music.segmentStart || 0),
+        "-t", durationSec.toFixed(3),
+        "-i", music.trackPath,
+        "-filter_complex", `[1:a]${buildAudioFilter(durationSec)}[a]`,
+        "-map", "0:v",
+        "-map", "[a]",
+      ]
+    : ["-map", "0:v", "-an"];
+  const args = [
+    "-y",
+    ...videoIn,
+    ...audioIn,
     "-c:v", "libx264",
     "-crf", String(RENDER.crf),
     "-preset", RENDER.preset,
     "-pix_fmt", "yuv420p",
     "-movflags", "+faststart",
-    "-c:a", "aac",
-    "-b:a", "192k",
-    "-shortest",
+    ...(music ? ["-c:a", "aac", "-b:a", "192k", "-shortest"] : []),
     outPath,
   ];
   const proc = spawn(ffmpeg, args, { stdio: ["pipe", "ignore", "pipe"] });
@@ -142,38 +147,65 @@ export async function renderVideo(timeline, music, outPath, opts = {}) {
     );
     proc.on("error", reject);
   });
-
   const writeFrame = (buf) =>
     new Promise((resolve, reject) => {
       proc.stdin.write(buf, (err) => (err ? reject(err) : resolve()));
     });
-
-  // Frame loop with transition compositing.
   for (let f = 0; f < totalFrames; f++) {
-    const t = f / fps;
-    const idx = shotIndexAt(timeline.shots, t);
-    const shot = timeline.shots[idx];
-    const local = Math.min(1, Math.max(0, (t - shot.startSec) / shot.durationSec));
-    let frame = await renderFrame(imageCache.get(shot.imageFile), cameraAt(shot, local));
-
-    // SWIPE/WHIP entry: composite the previous shot's final frame sliding out.
-    if (idx > 0 && shot.transition !== "CUT") {
-      const dur = shot.transition === "WHIP" ? RENDER.whipDurationSec : RENDER.swipeDurationSec;
-      const since = t - shot.startSec;
-      if (since < dur) {
-        const prev = timeline.shots[idx - 1];
-        const prevFrame = await renderFrame(imageCache.get(prev.imageFile), cameraAt(prev, 1));
-        const progress = ease(shot.transition === "WHIP" ? "easeOutQuint" : "easeInOutCubic", since / dur);
-        frame = slideComposite(prevFrame, frame, progress, shot.transitionDirection);
-      }
-    }
-
-    await writeFrame(frame);
-    if (opts.onProgress && f % 60 === 0) opts.onProgress(f, totalFrames);
+    await writeFrame(await frameFor(f));
+    if (onProgress && f % 60 === 0) onProgress(f, totalFrames);
   }
   proc.stdin.end();
   await done;
-  return { outPath, totalFrames, durationSec: timeline.totalDurationSec };
+  return { outPath, totalFrames, durationSec };
+}
+
+/**
+ * Render the timeline to an MP4.
+ * @param {{shots: any[], totalDurationSec: number}} timeline
+ * @param {{ trackPath: string, segmentStart: number }} music
+ * @param {string} outPath
+ * @param {{ onProgress?: (frame:number, total:number) => void }} opts
+ */
+export async function renderVideo(timeline, music, outPath, opts = {}) {
+  const fps = RENDER.fps;
+  const totalFrames = Math.round(timeline.totalDurationSec * fps);
+
+  // Preload each distinct image once.
+  const imageCache = new Map();
+  for (const shot of timeline.shots) {
+    if (!imageCache.has(shot.imageFile)) {
+      imageCache.set(shot.imageFile, await loadWorkingImage(shot.imageFile));
+    }
+  }
+
+  return encodeFrames({
+    totalFrames,
+    durationSec: timeline.totalDurationSec,
+    outPath,
+    music,
+    onProgress: opts.onProgress,
+    frameFor: async (f) => {
+      const t = f / fps;
+      const idx = shotIndexAt(timeline.shots, t);
+      const shot = timeline.shots[idx];
+      const local = Math.min(1, Math.max(0, (t - shot.startSec) / shot.durationSec));
+      let frame = await renderFrame(imageCache.get(shot.imageFile), cameraAt(shot, local));
+
+      // SWIPE/WHIP entry: composite the previous shot's final frame sliding out.
+      if (idx > 0 && shot.transition !== "CUT") {
+        const dur = shot.transition === "WHIP" ? RENDER.whipDurationSec : RENDER.swipeDurationSec;
+        const since = t - shot.startSec;
+        if (since < dur) {
+          const prev = timeline.shots[idx - 1];
+          const prevFrame = await renderFrame(imageCache.get(prev.imageFile), cameraAt(prev, 1));
+          const progress = ease(shot.transition === "WHIP" ? "easeOutQuint" : "easeInOutCubic", since / dur);
+          frame = slideComposite(prevFrame, frame, progress, shot.transitionDirection);
+        }
+      }
+      return frame;
+    },
+  });
 }
 
 export function shotIndexAt(shots, t) {

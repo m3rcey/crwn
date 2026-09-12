@@ -17,14 +17,7 @@ import { parseScriptMarkdown, sourceNumberTokens } from "./lib/scriptParse.mjs";
 import { validateStoryboard, sceneDurationSec, estimateReadTimeSec } from "./lib/schema.mjs";
 import { generateStoryboard } from "./lib/storyboardGen.mjs";
 import { generateSceneImage } from "./lib/imageGen.mjs";
-import {
-  scanLibrary,
-  pickTrack,
-  recordUse,
-  loadUsageState,
-  saveUsageState,
-  findTrackByName,
-} from "./lib/music.mjs";
+import { scanLibrary, loadUsageState, proposeTrack } from "./lib/music.mjs";
 import { analyzeTrack, loadAnalysisCache, saveAnalysisCache, selectSegment } from "./lib/audioAnalysis.mjs";
 import { buildTimeline } from "./lib/timeline.mjs";
 import { renderVideo } from "./lib/render.mjs";
@@ -90,34 +83,9 @@ async function ensureStoryboard(job, parsed, client, { forceNew = false } = {}) 
   return { storyboard, validation, reused: false };
 }
 
-function proposeMusic(durationSec, { overrideName = null, record = false } = {}) {
-  const tracks = scanLibrary();
-  if (!tracks.length) throw new Error(`no tracks found under ${PATHS.musicDir}/{primary,secondary,tertiary}`);
-  const cache = loadAnalysisCache();
-  const state = loadUsageState();
-  const track = overrideName ? findTrackByName(tracks, overrideName) : pickTrack(tracks, state);
-  const analysis = analyzeTrack(track.path, cache);
-  saveAnalysisCache(cache);
-  const segment = selectSegment(analysis, durationSec + 1);
-  if (record) {
-    recordUse(state, track);
-    saveUsageState(state);
-  }
-  return {
-    track: track.name,
-    tier: track.tier,
-    sourcePath: track.path,
-    segmentStart: segment.start,
-    segmentEnd: Math.round((segment.start + durationSec + 1) * 100) / 100,
-    duration: analysis.durationSec,
-    bpm: analysis.bpm,
-    selectionReason: overrideName
-      ? `founder override (--music "${overrideName}"); ${segment.reason}`
-      : `weighted ${track.tier} rotation; ${segment.reason}`,
-    lastUsed: state.tracks?.[track.path]?.lastUsed || null,
-    useCount: state.tracks?.[track.path]?.useCount || 0,
-    analysis: { beats: analysis.beats, downbeats: analysis.downbeats },
-  };
+/** Thin wrapper over the shared selector in lib/music.mjs. */
+function proposeMusic(durationSec, opts = {}) {
+  return proposeTrack(durationSec, opts);
 }
 
 function beatsInVideoTime(music, durationSec) {
@@ -461,6 +429,66 @@ function round2(n) {
   return Math.round(n * 100) / 100;
 }
 
+// ---------------------------------------------------------------------------
+// Handwritten-motion commands. Same slugs, same output directory, same music
+// rotation; the difference is that every factual string is lettered by this repo
+// instead of drawn by a model, and the render costs nothing.
+
+function motionSlug(arg) {
+  if (!arg) throw new Error("usage: <command> <slug|script number>");
+  return resolveJobSlug(arg);
+}
+
+async function cmdMotionScaffold(args) {
+  const { scaffoldMotion } = await import("./lib/motionJob.mjs");
+  scaffoldMotion(motionSlug(args[0]), { force: args.includes("--force") });
+}
+
+async function cmdMotionPlan(args) {
+  const { planMotion } = await import("./lib/motionJob.mjs");
+  const { validation } = await planMotion(motionSlug(args[0]), {});
+  if (!validation.ok) process.exitCode = 1;
+}
+
+async function cmdMotionRender(args) {
+  const { renderMotion, motionCostReport, verifyMotion } = await import("./lib/motionJob.mjs");
+  const slug = motionSlug(args[0]);
+  const sceneIdx = args.indexOf("--scene");
+  const musicIdx = args.indexOf("--music");
+  // --scene is 1-based on the command line, like video:regen-scene.
+  const onlyScenes =
+    sceneIdx !== -1
+      ? args[sceneIdx + 1].split(",").map((n) => {
+          const v = parseInt(n, 10) - 1;
+          if (Number.isNaN(v) || v < 0) throw new Error(`--scene expects 1-based scene numbers, got "${n}"`);
+          return v;
+        })
+      : undefined;
+  const t0 = Date.now();
+  const result = await renderMotion(slug, {
+    onlyScenes,
+    musicName: musicIdx !== -1 ? args[musicIdx + 1] : null,
+    repickMusic: args.includes("--repick-music"),
+    noMusic: args.includes("--no-music"),
+    quietPlan: true,
+  });
+  console.log(`rendered in ${((Date.now() - t0) / 1000).toFixed(0)}s`);
+  console.log(`\n${motionCostReport(result.ctx, result)}`);
+  if (!args.includes("--no-verify")) {
+    console.log("");
+    const report = await verifyMotion(slug, { expectAudio: !args.includes("--no-music") });
+    if (!report.ok) process.exitCode = 1;
+  }
+}
+
+async function cmdMotionVerify(args) {
+  const { verifyMotion } = await import("./lib/motionJob.mjs");
+  const report = await verifyMotion(motionSlug(args[0]), {
+    skipFrames: args.includes("--no-frames"),
+  });
+  if (!report.ok) process.exitCode = 1;
+}
+
 const [cmd, ...rest] = process.argv.slice(2);
 const commands = {
   dryrun: cmdDryrun,
@@ -469,6 +497,10 @@ const commands = {
   "regen-scene": cmdRegenScene,
   rerender: cmdRerender,
   music: cmdMusic,
+  "motion-scaffold": cmdMotionScaffold,
+  "motion-plan": cmdMotionPlan,
+  "motion-render": cmdMotionRender,
+  "motion-verify": cmdMotionVerify,
 };
 
 if (!cmd || !commands[cmd]) {

@@ -122,8 +122,34 @@ export function sourceNumberTokens(parsed) {
     tokens.add("0.01");
     tokens.add("1"); // "1 CENT" phrasings
   }
+  // Prose spells small numbers out ("in eight months", "three tiers"). A screen
+  // layer showing "8 MONTHS" is quoting the source, so the word has to produce the
+  // digit token or the deterministic fact lock cannot trace it. Without this the
+  // only thing letting "8 MONTHS" through is schema.mjs's <=12 exemption, which is
+  // wide enough to hide a fabricated "7 MONTHS" as well.
+  const sourceWords = new Set((source.toLowerCase().match(/[a-z]+/g) || []));
+  for (const [word, digit] of Object.entries(WORD_NUMBERS)) {
+    if (sourceWords.has(word)) tokens.add(digit);
+  }
   return tokens;
 }
+
+/** Number words a script realistically spells out. Deliberately stops at twelve:
+ * past that prose switches to digits, and a longer table starts matching nouns. */
+export const WORD_NUMBERS = {
+  one: "1",
+  two: "2",
+  three: "3",
+  four: "4",
+  five: "5",
+  six: "6",
+  seven: "7",
+  eight: "8",
+  nine: "9",
+  ten: "10",
+  eleven: "11",
+  twelve: "12",
+};
 
 // A digits token optionally followed by a magnitude word: "$2 million", "15,000",
 // "2M", "400". Both source and screen text run through the same normalization so

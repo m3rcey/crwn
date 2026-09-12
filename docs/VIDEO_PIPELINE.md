@@ -145,3 +145,175 @@ window under `MUSIC`; pacing bands under `ROLE_DURATION`; zoom caps and fps unde
   two-provider rule (DeepSeek + Anthropic) governs app call sites, not these scripts.
 - Wizard-of-oz numbers never enter a video: every on-screen number must exist in the
   source script/META or validation fails before spend.
+
+---
+
+# Handwritten motion: deterministic lettering over accepted artwork
+
+Built 2026-09-12. A SECOND way to make a video out of the same Fan Economy script,
+sharing the parser, the fact extractor, the music rotation, the ffmpeg encoder and
+the job directory with everything above. It exists for one reason: in the pipeline
+above the words are drawn by an image model, so a figure can come out wrong and the
+only fix is to pay for the image again. Here **no generative model is ever
+responsible for a number, a price, an equation or a CTA keyword.** Every factual
+string is lettered by this repo, and a rerender is free.
+
+Founder trigger: a Seedance test of the Curren$y script looked good, mis-rendered
+some numbers, cost about $7 per 30 seconds, and could not be corrected without
+paying again.
+
+## Commands
+
+Plan (validate, extract plates, probe geometry and facts, cost estimate; $0, ~1s):
+
+    npm run video:motion-plan -- 1-currensy-vs-westside-gunn-volume-vs-scarcity
+
+Render + verify (local, $0, ~90s cold / ~11s when nothing changed):
+
+    npm run video:motion-render -- <slug>
+
+Repair ONE scene (1-based, comma-separated) and re-concat the rest untouched:
+
+    npm run video:motion-render -- <slug> --scene 5
+    npm run video:motion-render -- <slug> --music "Makavhan Zodiae"
+    npm run video:motion-render -- <slug> --no-verify
+
+Verify what is already on disk:
+
+    npm run video:motion-verify -- <slug>
+
+Draft a spec for a NEW script from its validated storyboard:
+
+    npm run video:motion-scaffold -- 34
+
+## The three things a spec names
+
+A spec is DATA, version controlled at `videos/motion-specs/<slug>.json` (unlike
+`videos/output/`, which is gitignored). It names artwork, plates and scenes:
+
+- **artwork**, accepted handwritten sheets, by file. Also `letteredRegions`: where
+  that sheet carries its OWN hand-lettering.
+- **plates**, normalized crops of the artwork, illustration only. White paper is
+  turned into transparency so a plate can be grown, wiped, popped and pushed.
+- **scenes**, per scene: which plates move how, which EXACT strings are lettered,
+  which shapes draw themselves, and one camera over the composed sheet.
+
+## Rules (these are the reusable ones; none of them is Curren$y-specific)
+
+- **Silent. No narration, no TTS, no vocals.** Instrumental only, from
+  `videos/music/{primary,secondary,tertiary}` through the same weighted rotation and
+  repetition rules as the master-image pipeline (`proposeTrack` in `lib/music.mjs`,
+  shared by both so they cannot drift into repeating a track).
+- **The source script is semantic truth.** A spec may only state figures the script
+  or its META states. `sourceNumberTokens` reads digits AND spelled-out numbers
+  ("eight" yields the token 8), so "8 MONTHS" is traceable rather than slipping
+  through the small-number exemption in `schema.mjs`.
+- **A plate carries illustration, never lettering.** Enforced: a crop intersecting a
+  `letteredRegions` rectangle fails validation. Otherwise a sheet's own figure
+  reaches the screen having never been fact-checked.
+- **A generative model may only produce TEXT-FREE illustration.** If new plates are
+  ever needed they go through `lib/imageGen.mjs` and its existing ledger and caps,
+  and the prompt asks for blank areas, never words.
+- **No generative video provider, ever.** $0 by design, asserted by test.
+- **Motion serves the script.** Marker lines draw themselves, the record stack
+  grows, the crowd multiplies, the lone collector pops, the price gets circled.
+  Nothing is random: jitter is seeded from the string, so identical copy letters
+  identically and a rerender is the same video.
+- **Duration is pinned**, not approximate. Scene durations must total the target
+  (30.0s) within 0.05s or validation fails.
+- **The reveal is protected.** A withheld payoff figure may not appear in any scene
+  before the one carrying REVEAL.
+- **The CTA is held long enough to act on** (verification fails under 2.0s) and its
+  keyword must match the script character for character, case included.
+- **Repair the scene, never the video.** Each scene is its own video-only segment
+  keyed by a content hash; a fix re-encodes that segment and stream-copies the
+  concat.
+- **Costs are reported every run**, and the report says zero because it is zero.
+
+## How typo prevention actually works
+
+Four gates, and not one of them is a model looking at pixels:
+
+1. **Fact lock** (`lib/factLock.mjs`) derives the approved figures from the parsed
+   script. Unlike the storyboard validator it grants NO small-number exemption, it
+   detects malformed figures (`$120,00`, `1.5.2M`, `040,000`) separately from
+   unapproved ones, and it refuses outright when the script and META disagree rather
+   than picking a winner.
+2. **Spec validation** runs before a frame is drawn: every string, and every value a
+   counter passes through, has to trace to the lock.
+3. **Deterministic lettering** (`lib/lettering.mjs`) renders the exact string through
+   headless Chrome with the OFL fonts already in `scripts/vsl/assets/fonts`. Same
+   route `scripts/vsl/render.mjs` already uses for exact VSL copy.
+4. **A render manifest** records every string drawn, its sprite hash, its on-screen
+   box and its visible window. Verification compares that manifest to the lock and
+   to the spec, character for character. Proving the numbers are right is a string
+   comparison, not OCR and not an agent noticing a typo.
+
+An agent (Claude Code, Astra/Codex, anything else) can read the spec, the manifest
+and the contact sheet and ask for targeted corrections. It is not the thing keeping
+the numbers right, and the workflow needs no paid Astra API call.
+
+## Verification (four levels, three of them automatic)
+
+    LEVEL 1 structure  1080x1920, 30fps, the authored length, a segment per scene
+    LEVEL 2 facts      every figure traceable; CTA exact; required figures present;
+                       nothing malformed; manifest == spec, character for character
+    LEVEL 3 layout     platform safe zone, measured THROUGH the camera rather than on
+                       the sheet; overlap; minimum legible size; CTA hold
+            frames     blank-frame and contrast checks, from real pixels
+            motion     inter-frame difference per scene, so a static slideshow fails
+    LEVEL 4 a person watches it against the script. Nothing automates taste.
+
+The geometry + fact probe inside `motion-plan` computes levels 2 and 3 from the same
+functions the renderer uses, without drawing anything, so a composition problem
+costs a second instead of a 90-second encode.
+
+## Why not HyperFrames
+
+Investigated 2026-09-12. HyperFrames (HeyGen, Apache-2.0) is headless Chrome
+per-frame seek plus FFmpeg encode, driven by Puppeteer. That architecture is right,
+and this repo already owns both halves: `scripts/vsl/render.mjs` renders exact copy
+through headless Chrome, and `lib/render.mjs` pipes computed frames into one ffmpeg
+process. Adopting the package would have added a Puppeteer and Chromium download
+plus a second renderer that bypasses the existing timeline, music, beat-sync, ledger
+and job machinery, which is the duplicate pipeline this repo forbids. So the
+APPROACH was adopted and the dependency was not: Chrome runs once per job on a
+sprite sheet of every unique lettering state, and the motion is buffer arithmetic in
+the frame loop. Per-frame browser capture would have re-lettered the same words 900
+times for one video.
+
+## Layout of the extra artifacts
+
+    videos/motion-specs/<slug>.json          the spec (version controlled)
+    videos/output/<slug>/
+      plates/<id>-<hash>.png                 extracted illustration plates
+      segments/scene-NN.mp4 + .json          per-scene segment and its hash
+      motion-manifest.json                   every string drawn, with geometry
+      motion-validation.json                 spec validation
+      motion-geometry.json                   the no-render probe
+      motion-verification.json               all four levels
+      motion-music.json                      chosen track and segment
+      verify/plates.jpg                      every plate, to check it is text-free
+      verify/contact-sheet.jpg               frames across the timeline
+      render/final.mp4                       the video
+    videos/output/.lettering-cache/          content-addressed sprites, shared
+
+## Cost
+
+Marginal cost of a rerender: **$0.00**. Marginal cost of the first POC: **$0.00**,
+because the artwork was an already-accepted Fan Economy still and the storyboard had
+been generated, and paid for, on 2026-08-27. The only way spend enters is generating
+NEW text-free plates, which goes through the existing `imageGen` ledger and the
+`CAPS.maxJobSpendUsd` ceiling.
+
+## Module map
+
+    lib/factLock.mjs      approved figures, malformed detection, manifest checking
+    lib/motionSpec.mjs    spec schema, slot layout, validation, scaffolding
+    lib/plates.mjs        crop accepted artwork, paper to alpha, plate contact sheet
+    lib/lettering.mjs     exact strings to transparent sprites, content-addressed
+    lib/motion.mjs        the motion primitives, pure functions of time
+    lib/motionRender.mjs  compositor, per-scene segments, the render manifest
+    lib/verify.mjs        the four levels
+    lib/motionJob.mjs     plan / render / repair / verify orchestration
+    lib/render.mjs        `encodeFrames`, the ONE ffmpeg path, shared with above

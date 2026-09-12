@@ -140,3 +140,68 @@ export const ROLE_DURATION = {
 export const MOTIONS = ["PUSH", "PULL", "PAN", "PUNCH", "DRIFT", "HOLD", "REVEAL_CROP"];
 export const TRANSITIONS = ["CUT", "SWIPE", "WHIP"];
 export const STORY_ROLES = Object.keys(ROLE_DURATION);
+
+// ---------------------------------------------------------------------------
+// Handwritten-motion layer (§ deterministic lettering). A motion video composes
+// TEXT-FREE illustration plates with lettering this repo renders itself, so no
+// image or video model is ever responsible for a number, a price or a keyword.
+// Nothing here spends money: plates are crops of already-accepted artwork and
+// lettering is local Chrome + the repo's own OFL fonts.
+export const MOTION = {
+  // Authored per script and version controlled (unlike videos/output, which is not).
+  specsDir: path.join(REPO_ROOT, "videos/motion-specs"),
+  // Already in the repo and already shipped in the VSL decks: Patrick Hand and
+  // Caveat are SIL Open Font License. No font is downloaded for this pipeline.
+  fontsDir: path.join(REPO_ROOT, "scripts/vsl/assets/fonts"),
+  fonts: [
+    { file: "patrickhand.woff2", family: "Patrick Hand" },
+    { file: "caveat.woff2", family: "Caveat" },
+  ],
+  letterFamily: "Patrick Hand",
+  // Content-addressed, so a rerender of unchanged copy launches no browser at all.
+  spriteCacheDir: path.join(REPO_ROOT, "videos/output/.lettering-cache"),
+  // The sheet is composed larger than the output so a camera push crops into real
+  // pixels instead of upscaling. maxZoom below must not exceed this.
+  sheetScale: 1.4,
+  maxZoom: 1.4,
+  // Reels/TikTok/Shorts chrome: captions and the UI eat the bottom, the account
+  // handle eats the top. Text outside this box fails verification.
+  safeZone: { top: 0.055, bottom: 0.14, left: 0.05, right: 0.05 },
+  targetDurationSec: 30.0,
+  // Per-LINE reading overhead for sequenced lettering. READING.sceneOverheadSec
+  // covers orienting to a whole new page; a line landing on a page the viewer is
+  // already reading only needs time to land.
+  lineReadOverheadSec: 0.3,
+  // Liveliness floor: mean absolute pixel difference between two frames 0.2s
+  // apart inside a scene. Calibrated on the first finished POC (observed 0.71 to
+  // 15.2 per scene); identical frames measure about 0.05.
+  minInterFrameMad: 0.25,
+  durationToleranceSec: 0.05,
+  paper: "#FFFFFF",
+  ink: "#0D0D0D",
+  // Plate alpha: ink is anything darker than this luma. Pure white paper drops out,
+  // antialiased marker edges stay soft.
+  plateWhiteCut: 246,
+  // Marker treatment. Jitter is seeded from the string, so identical copy always
+  // letters identically; it is imperfection, not randomness.
+  lettering: {
+    strokeRatio: 0.055, // stroke width as a share of font size (marker weight)
+    jitterDeg: 1.5,
+    jitterPx: 0.028, // share of font size
+    roughness: 0.9, // feDisplacementMap scale in px at 100px type
+    lineHeight: 1.12,
+  },
+  // Chrome renders the lettering sprite sheet once per job. Same discovery order as
+  // scripts/vsl/render.mjs, which has been rendering exact VSL copy this way.
+  chromeCandidates: [
+    "C:/Program Files/Google/Chrome/Application/chrome.exe",
+    "C:/Program Files (x86)/Google/Chrome/Application/chrome.exe",
+    "C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe",
+    "C:/Program Files/Microsoft/Edge/Application/msedge.exe",
+    "/usr/bin/chromium",
+    "/usr/bin/google-chrome",
+  ],
+};
+
+export const PLATE_MOTIONS = ["HOLD", "DRIFT", "PUSH", "PULL", "PAN", "PUNCH", "GROW", "WIPE", "ENTER", "POP"];
+export const TEXT_MOTIONS = ["DRAW_ON", "POP", "FADE", "SLIDE", "COUNTER", "STATES", "HOLD"];

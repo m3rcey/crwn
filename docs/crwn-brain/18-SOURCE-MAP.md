@@ -101,8 +101,19 @@
 ## Tests
 `npm test` (vitest): 820 tests, 50 files (a moving figure: run it). Concentrated in the pure business layers: `src/lib/acquisition/acquisition.test.ts`, `src/lib/opportunity/*.test.ts`, `src/lib/opportunityDrafts/*.test.ts`, `src/lib/opportunityFunnels/*.test.ts`, `src/lib/leadResults/*.test.ts`, `src/lib/journey/`, `src/lib/experiments/`, `src/lib/prospectNurture/`, `src/lib/analytics/`, `src/lib/revenueRamp.test.ts`, `src/components/opportunity/fanCaptureSteps.test.ts`. **No component/integration/e2e test**, so `npm run build` + the canaries remain the gate for everything else. Several suites are coverage GUARDS (e.g. every public tool must have a deliverable, the event allowlist must match), so they fail when a new tool is added incompletely.
 
+## Content video pipelines (not app code, but version controlled and tested)
+- Operating manual: `docs/VIDEO_PIPELINE.md`
+- Silent short-form from a Fan Economy script: `scripts/video/` (storyboard -> sharpie
+  masters -> deterministic motion -> 1080x1920 MP4). Tests: `npm run test:video`.
+- Handwritten motion (2026-09-12): the same scripts, but every factual string is
+  lettered by the repo instead of drawn by a model, so a number cannot come out
+  wrong and a rerender is $0. Fact lock `scripts/video/lib/factLock.mjs`, specs in
+  `videos/motion-specs/*.json` (version controlled), no generative video provider.
+- VSL slide decks: `scripts/vsl/` (headless Chrome, exact copy, OFL fonts in
+  `scripts/vsl/assets/fonts`, reused by the handwritten-motion lettering).
+
 ## NOT app code (verify before assuming relevance)
-Root `*.mjs` (content generation), `carousel-*.json`, `videos/`, `.claude/` (harness config, incl. `.claude/agents/*.md` which are Claude Code subagents, not product roles).
+Root `*.mjs` (content generation), `carousel-*.json`, `videos/` (except `videos/scripts/` and `videos/motion-specs/`, which are tracked source content), `.claude/` (harness config, incl. `.claude/agents/*.md` which are Claude Code subagents, not product roles).
 
 ---
 
