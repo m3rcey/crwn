@@ -542,7 +542,9 @@ export async function renderMotionVideo(spec, ctx) {
   fs.writeFileSync(listFile, segments.map((s) => `file '${s.replace(/'/g, "'\\''")}'`).join("\n"));
   const silentPath = path.join(ctx.outDir, "render", "video-only.mp4");
   fs.mkdirSync(path.dirname(silentPath), { recursive: true });
-  await runFfmpeg(["-y", "-f", "concat", "-safe", "0", "-i", listFile, "-c", "copy", "-movflags", "+faststart", silentPath]);
+  // -dn: the concat demuxer otherwise carries a bin_data stream through from the
+  // segments, and a finished reel should hand a platform video and audio, nothing else.
+  await runFfmpeg(["-y", "-f", "concat", "-safe", "0", "-i", listFile, "-c", "copy", "-dn", "-movflags", "+faststart", silentPath]);
 
   const finalPath = path.join(ctx.outDir, "render", "final.mp4");
   const durationSec = spec.scenes.reduce((a, s) => a + s.durationSec, 0);
@@ -560,6 +562,11 @@ export async function renderMotionVideo(spec, ctx) {
       "-c:v", "copy",
       "-c:a", "aac",
       "-b:a", "192k",
+      // -dn drops data streams; -map_chapters -1 drops the chapter track, which
+      // ffmpeg otherwise writes into the mp4 as a QuickTime text stream picked up
+      // from the music file. A finished reel hands a platform video and audio only.
+      "-dn",
+      "-map_chapters", "-1",
       "-movflags", "+faststart",
       "-shortest",
       finalPath,
