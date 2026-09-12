@@ -176,6 +176,22 @@ export const MOTION = {
   // apart inside a scene. Calibrated on the first finished POC (observed 0.71 to
   // 15.2 per scene); identical frames measure about 0.05.
   minInterFrameMad: 0.25,
+  // V2 composes at native output size, so a camera push crops into the SVG
+  // rather than into a pre-rendered buffer: vector marks and lettering stay
+  // sharp at any zoom, and only raster subjects soften. 1.8 is the ceiling.
+  maxZoomV2: 1.8,
+  // Visual QA thresholds, calibrated against the MEASURED V1 failure (mean ink
+  // 10.8%, mean content bbox 43% of frame, four near-empty frames). A scene may
+  // declare a lower target with a stated reason; these are the defaults.
+  qa: {
+    minInkFraction: 0.045,      // below this a frame reads as empty paper
+    minContentCoverage: 0.5,    // content bbox as a share of the frame
+    minHeroHeight: 0.30,        // a hero subject shorter than this reads as tiny
+    minTextHeight: 0.026,       // hand-lettered caps below this stop being readable
+    maxDeadRunSec: 0.6,         // how long a frame may stay visually unchanged
+    minInterFrameMad: 0.25,
+    sampleStepSec: 0.25,        // temporal safety: how densely scenes are checked
+  },
   durationToleranceSec: 0.05,
   paper: "#FFFFFF",
   ink: "#0D0D0D",

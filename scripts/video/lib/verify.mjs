@@ -99,7 +99,11 @@ export function verifyFacts(manifest, lock, spec, opts = {}) {
   const res = verifyTextManifest(manifest, lock, {
     specText,
     requiredNumbers: opts.requiredNumbers || spec.requiredFigures || [],
-    safeZone: MOTION.safeZone,
+    requireCta: opts.requireCta,
+    // V1 checks the safe zone here. V2 owns it in visualQa.auditGeometry, which
+    // knows the separate text and art safe areas, so it passes null to avoid two
+    // different boxes both claiming to be the safe zone.
+    safeZone: opts.safeZone === null ? null : opts.safeZone || MOTION.safeZone,
   });
 
   const errors = [...res.errors];

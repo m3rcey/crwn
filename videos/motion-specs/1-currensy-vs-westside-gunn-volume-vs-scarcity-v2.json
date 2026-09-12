@@ -1,0 +1,2128 @@
+{
+  "slug": "1-currensy-vs-westside-gunn-volume-vs-scarcity-v2",
+  "title": "Curren$y vs Westside Gunn: 90 projects or 400 copies",
+  "sourceScript": "videos/scripts/fan-economy/1-currensy-vs-westside-gunn-volume-vs-scarcity.md",
+  "note": "V2. Subjects are isolated CONNECTED INK COMPONENTS of the accepted Fan Economy sheet, not rectangular crops, so a raised arm arrives attached and an inked face comes with the figure. Every factual string is lettered by the repo from the fact lock; no model spells a number. V1 is kept at the slug without the -v2 suffix for comparison.",
+  "targetDurationSec": 97.5,
+  "durationToleranceSec": 0.06,
+  "requiredFigures": [
+    "90",
+    "1.5M",
+    "400",
+    "187",
+    "300",
+    "120,000",
+    "15,000",
+    "8",
+    "30,000"
+  ],
+  "artwork": [
+    {
+      "id": "sheet",
+      "file": "/mnt/c/Users/Josh/Dropbox/nano banana output/Shortform Posts/Fan Economy/1-currensy-vs-westside-gunn-volume-vs-scarcity.jpg",
+      "provenance": "accepted Fan Economy still, generated 2026-08-18, approved by the founder",
+      "letteredRegionsNote": "Where the accepted sheet carries its own hand-lettering. No isolated subject may include a component touching these.",
+      "letteredRegions": [
+        {
+          "id": "headline",
+          "x": 0.03,
+          "y": 0.03,
+          "w": 0.94,
+          "h": 0.14
+        },
+        {
+          "id": "name-left",
+          "x": 0.12,
+          "y": 0.765,
+          "w": 0.24,
+          "h": 0.05
+        },
+        {
+          "id": "name-right",
+          "x": 0.55,
+          "y": 0.765,
+          "w": 0.38,
+          "h": 0.05
+        },
+        {
+          "id": "notes-left",
+          "x": 0.03,
+          "y": 0.838,
+          "w": 0.3,
+          "h": 0.137
+        },
+        {
+          "id": "notes-right",
+          "x": 0.73,
+          "y": 0.838,
+          "w": 0.26,
+          "h": 0.137
+        },
+        {
+          "id": "centre-verdict",
+          "x": 0.34,
+          "y": 0.852,
+          "w": 0.36,
+          "h": 0.12
+        }
+      ],
+      "excludeRegions": [
+        {
+          "id": "divider-rule",
+          "x": 0.476,
+          "y": 0.15,
+          "w": 0.056,
+          "h": 0.8
+        }
+      ],
+      "excludeRegionsNote": "The sheet's central divider rule touches the vinyl stack, which makes Curren$y and the line one component. Masking the band before labelling separates the two halves; the divider is drawn in the scene instead, where it can draw itself."
+    },
+    {
+      "id": "endcard",
+      "file": "/mnt/c/Users/Josh/Desktop/nano banana references/128-end-card.jpg",
+      "provenance": "existing founder asset: hand-drawn 128 crown sheet"
+    }
+  ],
+  "subjects": [
+    {
+      "id": "currensy",
+      "artwork": "sheet",
+      "mode": "subject",
+      "region": {
+        "x": 0.09,
+        "y": 0.195,
+        "w": 0.42,
+        "h": 0.565
+      },
+      "note": "mode \"subject\": the body component plus every detail ENCLOSED by it, so the inked face comes with the figure. An area threshold dropped his eyes."
+    },
+    {
+      "id": "westside",
+      "artwork": "sheet",
+      "mode": "subject",
+      "region": {
+        "x": 0.54,
+        "y": 0.205,
+        "w": 0.45,
+        "h": 0.36
+      },
+      "note": "mode \"subject\": the body component plus every detail ENCLOSED by it, so the inked face comes with the figure. An area threshold dropped his eyes."
+    },
+    {
+      "id": "collector",
+      "artwork": "sheet",
+      "mode": "each",
+      "region": {
+        "x": 0.52,
+        "y": 0.52,
+        "w": 0.47,
+        "h": 0.24
+      },
+      "minInside": 0.55,
+      "minAreaFrac": 0.004,
+      "maxAspect": 1.1
+    },
+    {
+      "id": "fan",
+      "artwork": "sheet",
+      "mode": "each",
+      "region": {
+        "x": 0.01,
+        "y": 0.245,
+        "w": 0.48,
+        "h": 0.31
+      },
+      "minInside": 0.8,
+      "minAreaFrac": 6e-05,
+      "limit": 40,
+      "padPx": 3,
+      "maxAspect": 0.85,
+      "note": "maxAspect rejects stray horizontal marker strokes that are not figures."
+    }
+  ],
+  "plates": [
+    {
+      "id": "endcard",
+      "artwork": "endcard",
+      "crop": {
+        "x": 0,
+        "y": 0,
+        "w": 1,
+        "h": 1
+      },
+      "keepPaper": true
+    }
+  ],
+  "scenes": [
+    {
+      "index": 0,
+      "roles": [
+        "HOOK"
+      ],
+      "beat": "hook",
+      "durationSec": 4.0,
+      "layout": "SPLIT_50_50",
+      "purpose": "the question, both models on one page, the rule drawn between them",
+      "camera": {
+        "keys": [
+          {
+            "at": 0,
+            "cx": 0.5,
+            "cy": 0.48,
+            "zoom": 1.03
+          },
+          {
+            "at": 4.0,
+            "cx": 0.5,
+            "cy": 0.5,
+            "zoom": 1.0,
+            "easing": "inOutSine"
+          }
+        ]
+      },
+      "art": [
+        {
+          "id": "currensy",
+          "subject": "currensy",
+          "slot": "left",
+          "plane": 1.0,
+          "z": 20,
+          "entrance": {
+            "kind": "SETTLE_IN",
+            "startSec": -0.45,
+            "durSec": 0.9,
+            "easing": "spring",
+            "distance": 0.045,
+            "overshoot": 0.07,
+            "rot": -1.1
+          },
+          "sustain": {
+            "kind": "BREATHE",
+            "amp": 0.9
+          }
+        },
+        {
+          "id": "wsg",
+          "subject": "westside",
+          "slot": "right",
+          "plane": 1.0,
+          "z": 20,
+          "entrance": {
+            "kind": "PUSH_FORWARD",
+            "startSec": -0.25,
+            "durSec": 0.9,
+            "easing": "outCubic",
+            "distance": 0.045,
+            "overshoot": 0.07,
+            "rot": -1.1
+          },
+          "sustain": {
+            "kind": "BREATHE",
+            "amp": 0.8
+          }
+        }
+      ],
+      "text": [
+        {
+          "id": "q",
+          "text": "WHOSE FANS ARE\nWORTH MORE?",
+          "slot": "kicker",
+          "motion": {
+            "kind": "WRITE",
+            "startSec": 0.25,
+            "durSec": 1.0
+          }
+        },
+        {
+          "id": "l",
+          "text": "CURREN$Y",
+          "slot": "leftLabel",
+          "motion": {
+            "kind": "RISE",
+            "startSec": 1.9,
+            "durSec": 0.45
+          }
+        },
+        {
+          "id": "r",
+          "text": "WESTSIDE GUNN",
+          "slot": "rightLabel",
+          "motion": {
+            "kind": "RISE",
+            "startSec": 2.3,
+            "durSec": 0.45
+          }
+        }
+      ]
+    },
+    {
+      "index": 1,
+      "roles": [
+        "CONTEXT"
+      ],
+      "beat": "explain",
+      "durationSec": 4.2,
+      "layout": "HERO_LEFT",
+      "purpose": "Curren$y and the model he runs: keep feeding them",
+      "camera": {
+        "keys": [
+          {
+            "at": 0,
+            "cx": 0.42,
+            "cy": 0.5,
+            "zoom": 1.06
+          },
+          {
+            "at": 4.2,
+            "cx": 0.5,
+            "cy": 0.5,
+            "zoom": 1.0,
+            "easing": "inOutSine"
+          }
+        ]
+      },
+      "art": [
+        {
+          "id": "currensy",
+          "subject": "currensy",
+          "slot": "hero",
+          "plane": 1.0,
+          "z": 20,
+          "entrance": {
+            "kind": "SETTLE_IN",
+            "startSec": -0.5,
+            "durSec": 1.0,
+            "easing": "spring",
+            "distance": 0.045,
+            "overshoot": 0.07,
+            "rot": -1.1
+          },
+          "sustain": {
+            "kind": "BREATHE",
+            "amp": 1.0
+          }
+        }
+      ],
+      "text": [
+        {
+          "id": "n",
+          "text": "CURREN$Y",
+          "slot": "kicker",
+          "motion": {
+            "kind": "WRITE",
+            "startSec": 0.2,
+            "durSec": 0.7
+          }
+        },
+        {
+          "id": "a",
+          "text": "HIS MODEL\nIS VOLUME",
+          "slot": "lead",
+          "motion": {
+            "kind": "WRITE",
+            "startSec": 1.2,
+            "durSec": 0.9
+          }
+        },
+        {
+          "id": "b",
+          "text": "KEEP FEEDING THEM",
+          "slot": "foot",
+          "motion": {
+            "kind": "RISE",
+            "startSec": 2.7,
+            "durSec": 0.45
+          }
+        }
+      ],
+      "marks": [
+        {
+          "id": "u",
+          "shape": "underline",
+          "slot": "kicker",
+          "stroke": 0.006,
+          "motion": {
+            "startSec": 0.95,
+            "durSec": 0.4
+          }
+        }
+      ]
+    },
+    {
+      "index": 2,
+      "roles": [
+        "BUILD"
+      ],
+      "beat": "explain",
+      "durationSec": 5.0,
+      "layout": "STACK_AND_LABEL",
+      "purpose": "the catalogue itself, stacked and large: what volume actually looks like",
+      "camera": {
+        "keys": [
+          {
+            "at": 0,
+            "cx": 0.5,
+            "cy": 0.42,
+            "zoom": 1.0
+          },
+          {
+            "at": 5.0,
+            "cx": 0.5,
+            "cy": 0.5,
+            "zoom": 1.12,
+            "easing": "inOutCubic"
+          }
+        ]
+      },
+      "art": [
+        {
+          "id": "currensy",
+          "subject": "currensy",
+          "slot": "hero",
+          "plane": 1.0,
+          "z": 20,
+          "entrance": {
+            "kind": "SETTLE_IN",
+            "startSec": -0.55,
+            "durSec": 1.1,
+            "easing": "spring",
+            "distance": 0.045,
+            "overshoot": 0.07,
+            "rot": -1.1
+          },
+          "sustain": {
+            "kind": "BREATHE",
+            "amp": 1.1
+          }
+        }
+      ],
+      "text": [
+        {
+          "id": "s",
+          "text": "90+ PROJECTS",
+          "slot": "lead",
+          "weight": "heavy",
+          "motion": {
+            "kind": "SETTLE_IN",
+            "startSec": 0.5,
+            "durSec": 0.7
+          },
+          "entrance": {
+            "kind": "SETTLE_IN",
+            "startSec": 0.5,
+            "durSec": 0.7,
+            "overshoot": 0.16,
+            "distance": 0.03,
+            "rot": -1.2,
+            "easing": "spring"
+          },
+          "sustain": {
+            "kind": "BREATHE",
+            "amp": 0.7
+          }
+        },
+        {
+          "id": "y",
+          "text": "SINCE 2009",
+          "slot": "sub",
+          "motion": {
+            "kind": "RISE",
+            "startSec": 2.6,
+            "durSec": 0.45
+          }
+        }
+      ],
+      "marks": [
+        {
+          "id": "u",
+          "shape": "underline",
+          "slot": "lead",
+          "stroke": 0.007,
+          "motion": {
+            "startSec": 1.7,
+            "durSec": 0.5
+          }
+        }
+      ]
+    },
+    {
+      "index": 3,
+      "roles": [
+        "BUILD"
+      ],
+      "beat": "explain",
+      "durationSec": 5.0,
+      "layout": "CROWD_WIDE",
+      "purpose": "reach, drawn: the listeners keep arriving across the whole frame",
+      "camera": {
+        "keys": [
+          {
+            "at": 0,
+            "cx": 0.5,
+            "cy": 0.34,
+            "zoom": 1.05
+          },
+          {
+            "at": 5.0,
+            "cx": 0.5,
+            "cy": 0.42,
+            "zoom": 1.0,
+            "easing": "inOutSine"
+          }
+        ]
+      },
+      "populations": [
+        {
+          "id": "reach",
+          "library": "fan",
+          "slot": "field",
+          "count": 78,
+          "itemHeight": 0.07,
+          "seed": 31,
+          "minScale": 0.42,
+          "maxScale": 1.0,
+          "jitter": 0.55,
+          "plane": 0.4,
+          "z": 6,
+          "startSec": -1.6,
+          "durSec": 4.4,
+          "itemDurSec": 0.5,
+          "easing": "outBack",
+          "minSourcePx": 26,
+          "orderBy": "outward"
+        }
+      ],
+      "text": [
+        {
+          "id": "a",
+          "text": "1.5M MONTHLY LISTENERS",
+          "slot": "lead",
+          "motion": {
+            "kind": "WRITE",
+            "startSec": 0.35,
+            "durSec": 1.0
+          }
+        },
+        {
+          "id": "b",
+          "text": "THAT IS REAL REACH",
+          "slot": "sub",
+          "motion": {
+            "kind": "RISE",
+            "startSec": 2.4,
+            "durSec": 0.45
+          }
+        },
+        {
+          "id": "c",
+          "text": "WIDE",
+          "slot": "kicker",
+          "motion": {
+            "kind": "RISE",
+            "startSec": 3.5,
+            "durSec": 0.45
+          }
+        }
+      ]
+    },
+    {
+      "index": 4,
+      "roles": [
+        "BUILD"
+      ],
+      "beat": "explain",
+      "durationSec": 4.2,
+      "layout": "HERO_RIGHT",
+      "purpose": "Westside runs the opposite play: he does not release records, he releases artifacts",
+      "camera": {
+        "keys": [
+          {
+            "at": 0,
+            "cx": 0.58,
+            "cy": 0.46,
+            "zoom": 1.05
+          },
+          {
+            "at": 4.2,
+            "cx": 0.5,
+            "cy": 0.5,
+            "zoom": 1.0,
+            "easing": "inOutSine"
+          }
+        ]
+      },
+      "art": [
+        {
+          "id": "wsg",
+          "subject": "westside",
+          "slot": "hero",
+          "plane": 1.0,
+          "z": 20,
+          "entrance": {
+            "kind": "PUSH_FORWARD",
+            "startSec": -0.45,
+            "durSec": 0.95,
+            "easing": "outCubic",
+            "distance": 0.045,
+            "overshoot": 0.07,
+            "rot": -1.1
+          },
+          "sustain": {
+            "kind": "BREATHE",
+            "amp": 1.0
+          }
+        }
+      ],
+      "text": [
+        {
+          "id": "n",
+          "text": "WESTSIDE GUNN",
+          "slot": "kicker",
+          "motion": {
+            "kind": "WRITE",
+            "startSec": 0.2,
+            "durSec": 0.75
+          }
+        },
+        {
+          "id": "a",
+          "text": "THE OPPOSITE\nPLAY",
+          "slot": "lead",
+          "motion": {
+            "kind": "WRITE",
+            "startSec": 1.3,
+            "durSec": 0.9
+          }
+        },
+        {
+          "id": "b",
+          "text": "NOT RECORDS. ARTIFACTS.",
+          "slot": "foot",
+          "motion": {
+            "kind": "RISE",
+            "startSec": 2.7,
+            "durSec": 0.45
+          }
+        }
+      ]
+    },
+    {
+      "index": 5,
+      "roles": [
+        "BUILD"
+      ],
+      "beat": "explain",
+      "durationSec": 5.5,
+      "layout": "OBJECT_CLOSEUP",
+      "purpose": "close on the one pressing: numbered, tiny, signed",
+      "camera": {
+        "keys": [
+          {
+            "at": 0,
+            "cx": 0.5,
+            "cy": 0.425,
+            "zoom": 1.0
+          },
+          {
+            "at": 2.0,
+            "cx": 0.5,
+            "cy": 0.415,
+            "zoom": 1.035,
+            "easing": "inOutSine"
+          },
+          {
+            "at": 5.5,
+            "cx": 0.5,
+            "cy": 0.395,
+            "zoom": 1.095,
+            "easing": "linear"
+          }
+        ]
+      },
+      "art": [
+        {
+          "id": "wsg",
+          "subject": "westside",
+          "slot": "hero",
+          "plane": 1.0,
+          "z": 20,
+          "entrance": {
+            "kind": "SETTLE_IN",
+            "startSec": -0.5,
+            "durSec": 1.0,
+            "easing": "spring",
+            "distance": 0.045,
+            "overshoot": 0.07,
+            "rot": -1.1
+          },
+          "sustain": {
+            "kind": "BREATHE",
+            "amp": 1.0
+          }
+        }
+      ],
+      "text": [
+        {
+          "id": "a",
+          "text": "400 COPIES",
+          "slot": "lead",
+          "weight": "heavy",
+          "motion": {
+            "kind": "SETTLE_IN",
+            "startSec": 0.45,
+            "durSec": 0.7
+          },
+          "entrance": {
+            "kind": "SETTLE_IN",
+            "startSec": 0.45,
+            "durSec": 0.7,
+            "overshoot": 0.16,
+            "distance": 0.03,
+            "rot": -1.2,
+            "easing": "spring"
+          },
+          "sustain": {
+            "kind": "BREATHE",
+            "amp": 0.7
+          }
+        },
+        {
+          "id": "b",
+          "text": "SIGNED #187",
+          "slot": "kicker",
+          "motion": {
+            "kind": "RISE",
+            "startSec": 2.9,
+            "durSec": 0.45
+          },
+          "overArt": true,
+          "overArtReason": "the line sits across his flat black coat on purpose and reads against it"
+        }
+      ],
+      "marks": [
+        {
+          "id": "ring",
+          "shape": "circle",
+          "slot": "lead",
+          "stroke": 0.0055,
+          "motion": {
+            "startSec": 1.8,
+            "durSec": 0.8
+          },
+          "rot": -2
+        }
+      ]
+    },
+    {
+      "index": 6,
+      "roles": [
+        "BUILD"
+      ],
+      "beat": "explain",
+      "durationSec": 4.5,
+      "layout": "HERO_AND_CLUSTER",
+      "purpose": "the buyers gather in front of him: this is who a numbered pressing is for",
+      "camera": {
+        "keys": [
+          {
+            "at": 0,
+            "cx": 0.5,
+            "cy": 0.42,
+            "zoom": 1.0
+          },
+          {
+            "at": 4.5,
+            "cx": 0.5,
+            "cy": 0.36,
+            "zoom": 1.1,
+            "easing": "inOutCubic"
+          }
+        ]
+      },
+      "art": [
+        {
+          "id": "wsg",
+          "subject": "westside",
+          "slot": "hero",
+          "plane": 1.0,
+          "z": 20,
+          "entrance": {
+            "kind": "SETTLE_IN",
+            "startSec": -0.6,
+            "durSec": 1.0,
+            "easing": "spring",
+            "distance": 0.045,
+            "overshoot": 0.07,
+            "rot": -1.1
+          },
+          "sustain": {
+            "kind": "BREATHE",
+            "amp": 0.7
+          }
+        }
+      ],
+      "populations": [
+        {
+          "id": "buyers",
+          "library": "collector",
+          "slot": "cluster",
+          "count": 4,
+          "itemHeight": 0.235,
+          "seed": 5,
+          "minScale": 0.9,
+          "maxScale": 1.0,
+          "jitter": 0.1,
+          "plane": 1.4,
+          "z": 30,
+          "startSec": -0.7,
+          "durSec": 2.0,
+          "itemDurSec": 0.6,
+          "easing": "outBack",
+          "cols": 4
+        }
+      ],
+      "text": [
+        {
+          "id": "a",
+          "text": "THE PEOPLE BUYING\nAINT CASUAL",
+          "slot": "lead",
+          "motion": {
+            "kind": "WRITE",
+            "startSec": 0.4,
+            "durSec": 1.0
+          }
+        },
+        {
+          "id": "b",
+          "text": "DEEP",
+          "slot": "sub",
+          "motion": {
+            "kind": "RISE",
+            "startSec": 2.9,
+            "durSec": 0.45
+          }
+        }
+      ]
+    },
+    {
+      "index": 7,
+      "roles": [
+        "CONTRAST_OR_ESCALATION"
+      ],
+      "beat": "compare",
+      "durationSec": 6.0,
+      "layout": "SPLIT_60_40",
+      "purpose": "the two fanbases side by side, deliberately unequal in size on the page",
+      "camera": {
+        "keys": [
+          {
+            "at": 0,
+            "cx": 0.5,
+            "cy": 0.46,
+            "zoom": 1.0
+          },
+          {
+            "at": 3.0,
+            "cx": 0.5,
+            "cy": 0.46,
+            "zoom": 1.05,
+            "easing": "inOutSine"
+          },
+          {
+            "at": 6.0,
+            "cx": 0.5,
+            "cy": 0.5,
+            "zoom": 1.0,
+            "easing": "inOutSine"
+          }
+        ]
+      },
+      "art": [
+        {
+          "id": "currensy",
+          "subject": "currensy",
+          "slot": "left",
+          "plane": 1.0,
+          "z": 20,
+          "entrance": {
+            "kind": "SETTLE_IN",
+            "startSec": -0.5,
+            "durSec": 0.95,
+            "easing": "spring",
+            "distance": 0.045,
+            "overshoot": 0.07,
+            "rot": -1.1
+          },
+          "sustain": {
+            "kind": "BREATHE",
+            "amp": 1.0
+          }
+        },
+        {
+          "id": "wsg",
+          "subject": "westside",
+          "slot": "right",
+          "plane": 1.0,
+          "z": 20,
+          "entrance": {
+            "kind": "PUSH_FORWARD",
+            "startSec": -0.3,
+            "durSec": 0.95,
+            "easing": "outCubic",
+            "distance": 0.045,
+            "overshoot": 0.07,
+            "rot": -1.1
+          },
+          "sustain": {
+            "kind": "BREATHE",
+            "amp": 0.8
+          }
+        }
+      ],
+      "text": [
+        {
+          "id": "l",
+          "text": "ONE IS WIDE",
+          "slot": "leftLabel",
+          "motion": {
+            "kind": "RISE",
+            "startSec": 0.9,
+            "durSec": 0.45
+          }
+        },
+        {
+          "id": "r",
+          "text": "ONE IS DEEP",
+          "slot": "rightLabel",
+          "motion": {
+            "kind": "RISE",
+            "startSec": 2.1,
+            "durSec": 0.45
+          }
+        },
+        {
+          "id": "k",
+          "text": "TWO DIFFERENT FANBASES",
+          "slot": "kicker",
+          "motion": {
+            "kind": "WRITE",
+            "startSec": 0.2,
+            "durSec": 0.9
+          }
+        },
+        {
+          "id": "c",
+          "text": "SAME QUESTION",
+          "slot": "lead",
+          "motion": {
+            "kind": "RISE",
+            "startSec": 3.6,
+            "durSec": 0.45
+          }
+        }
+      ]
+    },
+    {
+      "index": 8,
+      "roles": [
+        "BUILD"
+      ],
+      "beat": "explain",
+      "durationSec": 4.5,
+      "layout": "CROWD_WIDE",
+      "purpose": "what a listener is worth: the crowd is huge and each mark is almost nothing",
+      "camera": {
+        "keys": [
+          {
+            "at": 0,
+            "cx": 0.5,
+            "cy": 0.36,
+            "zoom": 1.02
+          },
+          {
+            "at": 4.5,
+            "cx": 0.5,
+            "cy": 0.4,
+            "zoom": 1.1,
+            "easing": "inOutCubic"
+          }
+        ]
+      },
+      "populations": [
+        {
+          "id": "many",
+          "library": "fan",
+          "slot": "field",
+          "count": 92,
+          "itemHeight": 0.06,
+          "seed": 47,
+          "minScale": 0.38,
+          "maxScale": 1.0,
+          "jitter": 0.6,
+          "plane": 0.4,
+          "z": 6,
+          "startSec": -1.8,
+          "durSec": 3.6,
+          "itemDurSec": 0.5,
+          "easing": "outBack",
+          "minSourcePx": 26,
+          "orderBy": "outward"
+        }
+      ],
+      "text": [
+        {
+          "id": "a",
+          "text": "STREAMING PAYS",
+          "slot": "lead",
+          "motion": {
+            "kind": "WRITE",
+            "startSec": 0.3,
+            "durSec": 0.8
+          }
+        },
+        {
+          "id": "b",
+          "text": "A PENNY A MONTH",
+          "slot": "sub",
+          "weight": "heavy",
+          "motion": {
+            "kind": "SETTLE_IN",
+            "startSec": 1.9,
+            "durSec": 0.6
+          },
+          "entrance": {
+            "kind": "SETTLE_IN",
+            "startSec": 1.9,
+            "durSec": 0.6,
+            "overshoot": 0.16,
+            "distance": 0.03,
+            "rot": -1.2,
+            "easing": "spring"
+          },
+          "sustain": {
+            "kind": "BREATHE",
+            "amp": 0.7
+          }
+        },
+        {
+          "id": "c",
+          "text": "PER LISTENER",
+          "slot": "detail",
+          "motion": {
+            "kind": "RISE",
+            "startSec": 3.2,
+            "durSec": 0.45
+          }
+        }
+      ]
+    },
+    {
+      "index": 9,
+      "roles": [
+        "TENSION"
+      ],
+      "beat": "explain",
+      "durationSec": 4.2,
+      "layout": "HERO_CENTER",
+      "purpose": "the question held open before the price is given: pure suspense",
+      "camera": {
+        "keys": [
+          {
+            "at": 0,
+            "cx": 0.5,
+            "cy": 0.4,
+            "zoom": 1.1
+          },
+          {
+            "at": 4.2,
+            "cx": 0.5,
+            "cy": 0.44,
+            "zoom": 1.02,
+            "easing": "holdThenGo"
+          }
+        ]
+      },
+      "art": [
+        {
+          "id": "wsg",
+          "subject": "westside",
+          "slot": "hero",
+          "plane": 1.0,
+          "z": 20,
+          "entrance": {
+            "kind": "SETTLE_IN",
+            "startSec": -0.5,
+            "durSec": 1.0,
+            "easing": "spring",
+            "distance": 0.045,
+            "overshoot": 0.07,
+            "rot": -1.1
+          },
+          "sustain": {
+            "kind": "BREATHE",
+            "amp": 0.9
+          }
+        }
+      ],
+      "text": [
+        {
+          "id": "q",
+          "text": "BUT WHAT ARE\nTHE 400 WORTH?",
+          "slot": "lead",
+          "motion": {
+            "kind": "WRITE",
+            "startSec": 0.4,
+            "durSec": 1.2
+          }
+        },
+        {
+          "id": "s",
+          "text": "GO LOOK AT RESALE",
+          "slot": "sub",
+          "motion": {
+            "kind": "RISE",
+            "startSec": 2.35,
+            "durSec": 0.45
+          }
+        }
+      ]
+    },
+    {
+      "index": 10,
+      "roles": [
+        "REVEAL"
+      ],
+      "beat": "reveal",
+      "durationSec": 5.5,
+      "layout": "FULL_FRAME_NUMBER",
+      "purpose": "the withheld figure, alone on the page, circled",
+      "camera": {
+        "keys": [
+          {
+            "at": 0,
+            "cx": 0.5,
+            "cy": 0.42,
+            "zoom": 1.04
+          },
+          {
+            "at": 5.5,
+            "cx": 0.5,
+            "cy": 0.46,
+            "zoom": 1.0,
+            "easing": "inOutSine"
+          }
+        ]
+      },
+      "populations": [
+        {
+          "id": "owners",
+          "library": "collector",
+          "slot": "backdrop",
+          "count": 5,
+          "itemHeight": 0.165,
+          "seed": 9,
+          "minScale": 0.8,
+          "maxScale": 1.0,
+          "jitter": 0.15,
+          "plane": 0.7,
+          "z": 6,
+          "startSec": -1.4,
+          "durSec": 1.4,
+          "itemDurSec": 0.5,
+          "easing": "outBack",
+          "cols": 5
+        },
+        {
+          "id": "more",
+          "library": "collector",
+          "slot": "footer",
+          "count": 6,
+          "itemHeight": 0.13,
+          "seed": 17,
+          "minScale": 0.7,
+          "maxScale": 1.0,
+          "jitter": 0.15,
+          "plane": 0.55,
+          "z": 5,
+          "startSec": -1.0,
+          "durSec": 1.6,
+          "itemDurSec": 0.5,
+          "easing": "outBack",
+          "cols": 6
+        }
+      ],
+      "text": [
+        {
+          "id": "a",
+          "text": "ONE COPY TRADES FOR",
+          "slot": "above",
+          "motion": {
+            "kind": "WRITE",
+            "startSec": 0.3,
+            "durSec": 0.9
+          }
+        },
+        {
+          "id": "n",
+          "text": "$300",
+          "slot": "number",
+          "weight": "heavy",
+          "motion": {
+            "kind": "SETTLE_IN",
+            "startSec": 1.9,
+            "durSec": 0.75
+          },
+          "entrance": {
+            "kind": "SETTLE_IN",
+            "startSec": 1.9,
+            "durSec": 0.75,
+            "overshoot": 0.16,
+            "distance": 0.03,
+            "rot": -1.2,
+            "easing": "spring"
+          },
+          "sustain": {
+            "kind": "BREATHE",
+            "amp": 0.7
+          },
+          "claim": "resale-per-copy"
+        },
+        {
+          "id": "b",
+          "text": "A COPY",
+          "slot": "below",
+          "motion": {
+            "kind": "RISE",
+            "startSec": 3.6,
+            "durSec": 0.45
+          }
+        }
+      ],
+      "marks": [
+        {
+          "id": "ring",
+          "shape": "circle",
+          "slot": "number",
+          "stroke": 0.0075,
+          "motion": {
+            "startSec": 2.8,
+            "durSec": 0.85
+          },
+          "rot": -2.5
+        }
+      ]
+    },
+    {
+      "index": 11,
+      "roles": [
+        "REVEAL",
+        "PAYOFF"
+      ],
+      "beat": "reveal",
+      "durationSec": 6.5,
+      "layout": "EQUATION_REVEAL",
+      "purpose": "the multiplication assembled in front of the owners, then the total held",
+      "camera": {
+        "keys": [
+          {
+            "at": 0,
+            "cx": 0.5,
+            "cy": 0.42,
+            "zoom": 1.05
+          },
+          {
+            "at": 2.6,
+            "cx": 0.5,
+            "cy": 0.47,
+            "zoom": 1.02,
+            "easing": "holdThenGo"
+          },
+          {
+            "at": 6.5,
+            "cx": 0.5,
+            "cy": 0.5,
+            "zoom": 1.0,
+            "easing": "inOutSine"
+          }
+        ]
+      },
+      "populations": [
+        {
+          "id": "owners",
+          "library": "collector",
+          "slot": "evidence",
+          "count": 8,
+          "itemHeight": 0.15,
+          "seed": 21,
+          "minScale": 0.82,
+          "maxScale": 1.0,
+          "jitter": 0.14,
+          "plane": 0.85,
+          "z": 8,
+          "startSec": -2.0,
+          "durSec": 1.8,
+          "itemDurSec": 0.5,
+          "easing": "outBack",
+          "cols": 4,
+          "orderBy": "outward"
+        }
+      ],
+      "text": [
+        {
+          "id": "eq",
+          "text": "400 COPIES × $300",
+          "slot": "row1",
+          "motion": {
+            "kind": "WRITE",
+            "startSec": 0.2,
+            "durSec": 1.15
+          }
+        },
+        {
+          "id": "total",
+          "text": "$120,000",
+          "slot": "row2",
+          "weight": "heavy",
+          "motion": {
+            "kind": "SETTLE_IN",
+            "startSec": 2.7,
+            "durSec": 0.7
+          },
+          "entrance": {
+            "kind": "SETTLE_IN",
+            "startSec": 2.7,
+            "durSec": 0.7,
+            "overshoot": 0.16,
+            "distance": 0.03,
+            "rot": -1.2,
+            "easing": "spring"
+          },
+          "sustain": {
+            "kind": "BREATHE",
+            "amp": 0.7
+          },
+          "claim": "collector-total"
+        },
+        {
+          "id": "cap",
+          "text": "OF FAN MONEY",
+          "slot": "row3",
+          "motion": {
+            "kind": "RISE",
+            "startSec": 4.4,
+            "durSec": 0.45
+          }
+        },
+        {
+          "id": "c2",
+          "text": "FROM ONE PRESSING",
+          "slot": "caption",
+          "motion": {
+            "kind": "RISE",
+            "startSec": 4.95,
+            "durSec": 0.45
+          }
+        }
+      ],
+      "marks": [
+        {
+          "id": "ring",
+          "shape": "circle",
+          "slot": "row2",
+          "stroke": 0.0065,
+          "motion": {
+            "startSec": 3.5,
+            "durSec": 0.85
+          },
+          "rot": -2.5
+        }
+      ],
+      "qa": {
+        "minContentCoverage": 0.45,
+        "reason": "a reveal beat withholds: the frame fills as the maths assembles, which is the point",
+        "allowEmptyBand": true
+      }
+    },
+    {
+      "index": 12,
+      "roles": [
+        "PAYOFF"
+      ],
+      "beat": "compare",
+      "durationSec": 5.2,
+      "layout": "CROWD_WIDE",
+      "purpose": "the same money seen from the streaming side, against the whole crowd",
+      "camera": {
+        "keys": [
+          {
+            "at": 0,
+            "cx": 0.5,
+            "cy": 0.34,
+            "zoom": 1.06
+          },
+          {
+            "at": 5.2,
+            "cx": 0.5,
+            "cy": 0.42,
+            "zoom": 1.0,
+            "easing": "inOutSine"
+          }
+        ]
+      },
+      "populations": [
+        {
+          "id": "listeners",
+          "library": "fan",
+          "slot": "field",
+          "count": 84,
+          "itemHeight": 0.066,
+          "seed": 63,
+          "minScale": 0.4,
+          "maxScale": 1.0,
+          "jitter": 0.55,
+          "plane": 0.4,
+          "z": 6,
+          "startSec": -1.6,
+          "durSec": 3.4,
+          "itemDurSec": 0.5,
+          "easing": "outBack",
+          "minSourcePx": 26,
+          "orderBy": "outward"
+        }
+      ],
+      "text": [
+        {
+          "id": "a",
+          "text": "1.5M MONTHLY LISTENERS",
+          "slot": "lead",
+          "motion": {
+            "kind": "WRITE",
+            "startSec": 0.3,
+            "durSec": 1.0
+          }
+        },
+        {
+          "id": "b",
+          "text": "≈ $15,000 A MONTH",
+          "slot": "sub",
+          "weight": "heavy",
+          "motion": {
+            "kind": "SETTLE_IN",
+            "startSec": 2.3,
+            "durSec": 0.65
+          },
+          "entrance": {
+            "kind": "SETTLE_IN",
+            "startSec": 2.3,
+            "durSec": 0.65,
+            "overshoot": 0.16,
+            "distance": 0.03,
+            "rot": -1.2,
+            "easing": "spring"
+          },
+          "sustain": {
+            "kind": "BREATHE",
+            "amp": 0.7
+          }
+        },
+        {
+          "id": "c",
+          "text": "FROM STREAMING",
+          "slot": "detail",
+          "motion": {
+            "kind": "RISE",
+            "startSec": 3.9,
+            "durSec": 0.45
+          }
+        }
+      ]
+    },
+    {
+      "index": 13,
+      "roles": [
+        "PAYOFF"
+      ],
+      "beat": "compare",
+      "durationSec": 4.8,
+      "layout": "FULL_FRAME_NUMBER",
+      "purpose": "how long the wide side needs to match the deep side",
+      "camera": {
+        "keys": [
+          {
+            "at": 0,
+            "cx": 0.5,
+            "cy": 0.44,
+            "zoom": 1.03
+          },
+          {
+            "at": 4.8,
+            "cx": 0.5,
+            "cy": 0.46,
+            "zoom": 1.0,
+            "easing": "inOutSine"
+          }
+        ]
+      },
+      "populations": [
+        {
+          "id": "four",
+          "library": "collector",
+          "slot": "backdrop",
+          "count": 5,
+          "itemHeight": 0.16,
+          "seed": 29,
+          "minScale": 0.8,
+          "maxScale": 1.0,
+          "jitter": 0.15,
+          "plane": 0.7,
+          "z": 6,
+          "startSec": -1.3,
+          "durSec": 1.5,
+          "itemDurSec": 0.5,
+          "easing": "outBack",
+          "cols": 5
+        },
+        {
+          "id": "everyone",
+          "library": "fan",
+          "slot": "footer",
+          "count": 70,
+          "itemHeight": 0.052,
+          "seed": 71,
+          "minScale": 0.45,
+          "maxScale": 1.0,
+          "jitter": 0.55,
+          "plane": 0.45,
+          "z": 5,
+          "startSec": -1.2,
+          "durSec": 2.4,
+          "itemDurSec": 0.5,
+          "easing": "outBack",
+          "cols": 18,
+          "minSourcePx": 26,
+          "orderBy": "outward"
+        }
+      ],
+      "text": [
+        {
+          "id": "a",
+          "text": "SO 400 PEOPLE SPENT",
+          "slot": "above",
+          "motion": {
+            "kind": "WRITE",
+            "startSec": 0.25,
+            "durSec": 0.9
+          }
+        },
+        {
+          "id": "n",
+          "text": "8 MONTHS",
+          "slot": "number",
+          "weight": "heavy",
+          "motion": {
+            "kind": "SETTLE_IN",
+            "startSec": 1.8,
+            "durSec": 0.7
+          },
+          "entrance": {
+            "kind": "SETTLE_IN",
+            "startSec": 1.8,
+            "durSec": 0.7,
+            "overshoot": 0.16,
+            "distance": 0.03,
+            "rot": -1.2,
+            "easing": "spring"
+          },
+          "sustain": {
+            "kind": "BREATHE",
+            "amp": 0.7
+          },
+          "claim": "months-to-match"
+        },
+        {
+          "id": "b",
+          "text": "OF EVERYBODY ELSE",
+          "slot": "below",
+          "motion": {
+            "kind": "RISE",
+            "startSec": 3.3,
+            "durSec": 0.45
+          }
+        }
+      ]
+    },
+    {
+      "index": 14,
+      "roles": [
+        "IMPLICATION"
+      ],
+      "beat": "compare",
+      "durationSec": 6.2,
+      "layout": "COMPARISON_SCALE",
+      "purpose": "one buyer against a month of anonymous listening, at the scale it really is",
+      "camera": {
+        "keys": [
+          {
+            "at": 0,
+            "cx": 0.5,
+            "cy": 0.4,
+            "zoom": 1.0
+          },
+          {
+            "at": 3.2,
+            "cx": 0.5,
+            "cy": 0.4,
+            "zoom": 1.04,
+            "easing": "inOutSine"
+          },
+          {
+            "at": 6.2,
+            "cx": 0.5,
+            "cy": 0.46,
+            "zoom": 1.0,
+            "easing": "inOutSine"
+          }
+        ]
+      },
+      "art": [
+        {
+          "id": "one",
+          "subject": "collector-1",
+          "slot": "small",
+          "plane": 1.3,
+          "z": 30,
+          "entrance": {
+            "kind": "SETTLE_IN",
+            "startSec": -0.5,
+            "durSec": 0.9,
+            "easing": "spring",
+            "distance": 0.045,
+            "overshoot": 0.07,
+            "rot": -1.1
+          },
+          "sustain": {
+            "kind": "BREATHE",
+            "amp": 1.0
+          }
+        }
+      ],
+      "populations": [
+        {
+          "id": "thirtyk",
+          "library": "fan",
+          "slot": "vast",
+          "count": 96,
+          "itemHeight": 0.055,
+          "seed": 83,
+          "minScale": 0.36,
+          "maxScale": 1.0,
+          "jitter": 0.6,
+          "plane": 0.4,
+          "z": 6,
+          "startSec": -1.4,
+          "durSec": 3.8,
+          "itemDurSec": 0.5,
+          "easing": "outBack",
+          "minSourcePx": 26,
+          "orderBy": "outward"
+        }
+      ],
+      "text": [
+        {
+          "id": "sl",
+          "text": "1 COLLECTOR",
+          "slot": "smallLabel",
+          "motion": {
+            "kind": "RISE",
+            "startSec": 0.8,
+            "durSec": 0.45
+          }
+        },
+        {
+          "id": "vl",
+          "text": "30,000 LISTENERS",
+          "slot": "vastLabel",
+          "motion": {
+            "kind": "RISE",
+            "startSec": 2.0,
+            "durSec": 0.45
+          }
+        },
+        {
+          "id": "eq",
+          "text": "SAME MONEY",
+          "slot": "lead",
+          "weight": "heavy",
+          "motion": {
+            "kind": "SETTLE_IN",
+            "startSec": 3.6,
+            "durSec": 0.65
+          },
+          "entrance": {
+            "kind": "SETTLE_IN",
+            "startSec": 3.6,
+            "durSec": 0.65,
+            "overshoot": 0.16,
+            "distance": 0.03,
+            "rot": -1.2,
+            "easing": "spring"
+          },
+          "sustain": {
+            "kind": "BREATHE",
+            "amp": 0.7
+          }
+        }
+      ]
+    },
+    {
+      "index": 15,
+      "roles": [
+        "IMPLICATION"
+      ],
+      "beat": "compare",
+      "durationSec": 4.8,
+      "layout": "SPLIT_50_50",
+      "purpose": "the difference that actually matters: one group has names",
+      "camera": {
+        "keys": [
+          {
+            "at": 0,
+            "cx": 0.5,
+            "cy": 0.46,
+            "zoom": 1.02
+          },
+          {
+            "at": 4.8,
+            "cx": 0.5,
+            "cy": 0.5,
+            "zoom": 1.0,
+            "easing": "inOutSine"
+          }
+        ]
+      },
+      "art": [
+        {
+          "id": "named",
+          "subject": "collector-2",
+          "slot": "left",
+          "plane": 1.1,
+          "z": 25,
+          "entrance": {
+            "kind": "SETTLE_IN",
+            "startSec": -0.45,
+            "durSec": 0.9,
+            "easing": "spring",
+            "distance": 0.045,
+            "overshoot": 0.07,
+            "rot": -1.1
+          },
+          "sustain": {
+            "kind": "BREATHE",
+            "amp": 1.0
+          }
+        }
+      ],
+      "populations": [
+        {
+          "id": "anon",
+          "library": "fan",
+          "slot": "right",
+          "count": 44,
+          "itemHeight": 0.07,
+          "seed": 97,
+          "minScale": 0.45,
+          "maxScale": 1.0,
+          "jitter": 0.5,
+          "plane": 0.6,
+          "z": 7,
+          "startSec": -1.2,
+          "durSec": 2.6,
+          "itemDurSec": 0.5,
+          "easing": "outBack",
+          "minSourcePx": 26,
+          "orderBy": "outward"
+        }
+      ],
+      "text": [
+        {
+          "id": "l",
+          "text": "NAMES AND ADDRESSES",
+          "slot": "leftLabel",
+          "motion": {
+            "kind": "RISE",
+            "startSec": 0.9,
+            "durSec": 0.45
+          }
+        },
+        {
+          "id": "r",
+          "text": "ANONYMOUS",
+          "slot": "rightLabel",
+          "motion": {
+            "kind": "RISE",
+            "startSec": 2.1,
+            "durSec": 0.45
+          }
+        },
+        {
+          "id": "k",
+          "text": "ONE GROUP YOU CAN CALL",
+          "slot": "kicker",
+          "motion": {
+            "kind": "WRITE",
+            "startSec": 0.2,
+            "durSec": 0.95
+          }
+        }
+      ]
+    },
+    {
+      "index": 16,
+      "roles": [
+        "IMPLICATION"
+      ],
+      "beat": "explain",
+      "durationSec": 5.0,
+      "layout": "MULTI_LAYER_COLLAGE",
+      "purpose": "the fair point: the volume is what built the catalogue people collect",
+      "camera": {
+        "keys": [
+          {
+            "at": 0,
+            "cx": 0.5,
+            "cy": 0.44,
+            "zoom": 1.05
+          },
+          {
+            "at": 5.0,
+            "cx": 0.5,
+            "cy": 0.52,
+            "zoom": 1.0,
+            "easing": "inOutSine"
+          }
+        ]
+      },
+      "populations": [
+        {
+          "id": "reach",
+          "library": "fan",
+          "slot": "back",
+          "count": 52,
+          "itemHeight": 0.066,
+          "seed": 113,
+          "minScale": 0.45,
+          "maxScale": 1.0,
+          "jitter": 0.5,
+          "plane": 0.4,
+          "z": 6,
+          "startSec": -2.0,
+          "durSec": 3.4,
+          "itemDurSec": 0.5,
+          "easing": "outBack",
+          "minSourcePx": 26,
+          "orderBy": "outward"
+        }
+      ],
+      "art": [
+        {
+          "id": "currensy",
+          "subject": "currensy",
+          "slot": "mid",
+          "plane": 1.0,
+          "z": 20,
+          "entrance": {
+            "kind": "SETTLE_IN",
+            "startSec": -0.5,
+            "durSec": 1.0,
+            "easing": "spring",
+            "distance": 0.045,
+            "overshoot": 0.07,
+            "rot": -1.1
+          },
+          "sustain": {
+            "kind": "BREATHE",
+            "amp": 1.0
+          }
+        }
+      ],
+      "text": [
+        {
+          "id": "a",
+          "text": "THIS IS NOT\nVOLUME VS SCARCITY",
+          "slot": "kicker",
+          "motion": {
+            "kind": "WRITE",
+            "startSec": 0.25,
+            "durSec": 1.1
+          }
+        },
+        {
+          "id": "b",
+          "text": "THE VOLUME BUILT THE CATALOG",
+          "slot": "lead",
+          "motion": {
+            "kind": "RISE",
+            "startSec": 2.6,
+            "durSec": 0.45
+          }
+        }
+      ]
+    },
+    {
+      "index": 17,
+      "roles": [
+        "IMPLICATION"
+      ],
+      "beat": "explain",
+      "durationSec": 4.6,
+      "layout": "MULTI_LAYER_COLLAGE",
+      "purpose": "the question turned on the viewer",
+      "camera": {
+        "keys": [
+          {
+            "at": 0,
+            "cx": 0.5,
+            "cy": 0.44,
+            "zoom": 1.07
+          },
+          {
+            "at": 4.6,
+            "cx": 0.5,
+            "cy": 0.53,
+            "zoom": 1.0,
+            "easing": "inOutSine"
+          }
+        ]
+      },
+      "art": [
+        {
+          "id": "who",
+          "subject": "collector-3",
+          "slot": "mid",
+          "plane": 1.1,
+          "z": 20,
+          "entrance": {
+            "kind": "SETTLE_IN",
+            "startSec": -0.5,
+            "durSec": 1.0,
+            "easing": "spring",
+            "distance": 0.045,
+            "overshoot": 0.07,
+            "rot": -1.1
+          },
+          "sustain": {
+            "kind": "BREATHE",
+            "amp": 1.0
+          }
+        }
+      ],
+      "text": [
+        {
+          "id": "q",
+          "text": "WHICH OF YOUR PEOPLE\nWOULD PAY $300",
+          "slot": "lead",
+          "motion": {
+            "kind": "WRITE",
+            "startSec": 0.4,
+            "durSec": 1.4
+          }
+        },
+        {
+          "id": "k",
+          "text": "THE ONLY QUESTION",
+          "slot": "kicker",
+          "motion": {
+            "kind": "WRITE",
+            "startSec": 2.6,
+            "durSec": 0.8
+          }
+        }
+      ],
+      "populations": [
+        {
+          "id": "yours",
+          "library": "fan",
+          "slot": "back",
+          "count": 56,
+          "itemHeight": 0.066,
+          "seed": 131,
+          "minScale": 0.45,
+          "maxScale": 1.0,
+          "jitter": 0.5,
+          "plane": 0.4,
+          "z": 6,
+          "startSec": -2.0,
+          "durSec": 3.2,
+          "itemDurSec": 0.5,
+          "easing": "outBack",
+          "minSourcePx": 26,
+          "orderBy": "outward"
+        }
+      ]
+    },
+    {
+      "index": 18,
+      "roles": [
+        "CTA"
+      ],
+      "beat": "cta",
+      "durationSec": 6.0,
+      "layout": "CTA_FULL_FRAME",
+      "purpose": "the free tool and the exact keyword, held still and long enough to act on",
+      "camera": {
+        "keys": [
+          {
+            "at": 0,
+            "cx": 0.5,
+            "cy": 0.52,
+            "zoom": 1.0
+          },
+          {
+            "at": 3.0,
+            "cx": 0.5,
+            "cy": 0.49,
+            "zoom": 1.03,
+            "easing": "inOutSine"
+          },
+          {
+            "at": 6.0,
+            "cx": 0.5,
+            "cy": 0.47,
+            "zoom": 1.055,
+            "easing": "linear"
+          }
+        ]
+      },
+      "populations": [
+        {
+          "id": "top",
+          "library": "collector",
+          "slot": "art",
+          "count": 4,
+          "itemHeight": 0.265,
+          "seed": 7,
+          "minScale": 0.92,
+          "maxScale": 1.0,
+          "jitter": 0.08,
+          "plane": 1.0,
+          "z": 10,
+          "startSec": -0.6,
+          "durSec": 1.4,
+          "itemDurSec": 0.5,
+          "easing": "outBack",
+          "cols": 4
+        }
+      ],
+      "text": [
+        {
+          "id": "a",
+          "text": "FREE VAULT\nREVENUE PLANNER",
+          "slot": "lead",
+          "motion": {
+            "kind": "WRITE",
+            "startSec": 0.3,
+            "durSec": 1.1
+          }
+        },
+        {
+          "id": "k",
+          "text": "COMMENT VAULT",
+          "slot": "keyword",
+          "weight": "heavy",
+          "motion": {
+            "kind": "SETTLE_IN",
+            "startSec": 1.9,
+            "durSec": 0.6
+          },
+          "entrance": {
+            "kind": "SETTLE_IN",
+            "startSec": 1.9,
+            "durSec": 0.6,
+            "overshoot": 0.16,
+            "distance": 0.03,
+            "rot": -1.2,
+            "easing": "spring"
+          },
+          "sustain": {
+            "kind": "BREATHE",
+            "amp": 0.7
+          },
+          "boxed": true
+        },
+        {
+          "id": "b",
+          "text": "I WILL DM YOU THE LINK",
+          "slot": "sub",
+          "motion": {
+            "kind": "RISE",
+            "startSec": 3.5,
+            "durSec": 0.45
+          }
+        }
+      ],
+      "marks": [
+        {
+          "id": "arrow",
+          "shape": "arrow",
+          "slot": "sub",
+          "stroke": 0.006,
+          "motion": {
+            "startSec": 3.0,
+            "durSec": 0.5
+          },
+          "direction": "right"
+        }
+      ],
+      "qa": {
+        "minContentCoverage": 0.44,
+        "allowEmptyBand": true,
+        "reason": "a CTA is deliberately clean: the collectors hold the upper third, the offer and the keyword own the middle, and the space below the keyword is what makes it legible and unhurried. Filling it to satisfy a generic occupancy floor would make the one screen that has to be acted on busier."
+      }
+    },
+    {
+      "index": 19,
+      "roles": [
+        "END_CARD"
+      ],
+      "beat": "card",
+      "durationSec": 1.8,
+      "layout": "HERO_CENTER",
+      "purpose": "the founder's own hand-drawn 128 crown sheet",
+      "camera": {
+        "keys": [
+          {
+            "at": 0,
+            "cx": 0.5,
+            "cy": 0.5,
+            "zoom": 1.0
+          },
+          {
+            "at": 1.8,
+            "cx": 0.5,
+            "cy": 0.5,
+            "zoom": 1.04,
+            "easing": "linear"
+          }
+        ]
+      },
+      "art": [
+        {
+          "id": "card",
+          "subject": "endcard",
+          "slot": "hero",
+          "plane": 1.0,
+          "z": 10,
+          "entrance": {
+            "kind": "FADE",
+            "startSec": -0.2,
+            "durSec": 0.4
+          },
+          "sustain": {
+            "kind": "NONE"
+          }
+        }
+      ],
+      "text": []
+    }
+  ]
+}

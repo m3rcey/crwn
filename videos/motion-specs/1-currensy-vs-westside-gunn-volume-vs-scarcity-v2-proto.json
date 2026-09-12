@@ -1,0 +1,474 @@
+{
+  "slug": "1-currensy-vs-westside-gunn-volume-vs-scarcity-v2-proto",
+  "title": "Curren$y vs Westside Gunn: 90 projects or 400 copies",
+  "sourceScript": "videos/scripts/fan-economy/1-currensy-vs-westside-gunn-volume-vs-scarcity.md",
+  "note": "VISUAL PROTOTYPE for V2, revision 2. Three scenes proving composition, depth, population and the reveal. prototype:true relaxes only story-grammar and duration checks; every fact-lock gate still applies.",
+  "targetDurationSec": 18.5,
+  "durationToleranceSec": 0.06,
+  "requiredFigures": [
+    "90",
+    "1.5M",
+    "400",
+    "187",
+    "300",
+    "120,000",
+    "15,000",
+    "8",
+    "30,000"
+  ],
+  "artwork": [
+    {
+      "id": "sheet",
+      "file": "/mnt/c/Users/Josh/Dropbox/nano banana output/Shortform Posts/Fan Economy/1-currensy-vs-westside-gunn-volume-vs-scarcity.jpg",
+      "provenance": "accepted Fan Economy still, generated 2026-08-18, approved by the founder",
+      "letteredRegionsNote": "Where the accepted sheet carries its own hand-lettering. No isolated subject may include a component touching these.",
+      "letteredRegions": [
+        {
+          "id": "headline",
+          "x": 0.03,
+          "y": 0.03,
+          "w": 0.94,
+          "h": 0.14
+        },
+        {
+          "id": "name-left",
+          "x": 0.12,
+          "y": 0.765,
+          "w": 0.24,
+          "h": 0.05
+        },
+        {
+          "id": "name-right",
+          "x": 0.55,
+          "y": 0.765,
+          "w": 0.38,
+          "h": 0.05
+        },
+        {
+          "id": "notes-left",
+          "x": 0.03,
+          "y": 0.838,
+          "w": 0.3,
+          "h": 0.137
+        },
+        {
+          "id": "notes-right",
+          "x": 0.73,
+          "y": 0.838,
+          "w": 0.26,
+          "h": 0.137
+        },
+        {
+          "id": "centre-verdict",
+          "x": 0.34,
+          "y": 0.852,
+          "w": 0.36,
+          "h": 0.12
+        }
+      ],
+      "excludeRegions": [
+        {
+          "id": "divider-rule",
+          "x": 0.476,
+          "y": 0.15,
+          "w": 0.056,
+          "h": 0.8
+        }
+      ],
+      "excludeRegionsNote": "The sheet's central divider rule touches the vinyl stack, which makes Curren$y and the line one component. Masking the band before labelling separates the two halves; the divider is drawn in the scene instead, where it can draw itself."
+    },
+    {
+      "id": "endcard",
+      "file": "/mnt/c/Users/Josh/Desktop/nano banana references/128-end-card.jpg",
+      "provenance": "existing founder asset: hand-drawn 128 crown sheet"
+    }
+  ],
+  "subjects": [
+    {
+      "id": "currensy",
+      "artwork": "sheet",
+      "mode": "subject",
+      "region": {
+        "x": 0.09,
+        "y": 0.195,
+        "w": 0.42,
+        "h": 0.565
+      },
+      "note": "mode \"subject\": the body component plus every detail ENCLOSED by it, so the inked face comes with the figure. An area threshold dropped his eyes."
+    },
+    {
+      "id": "westside",
+      "artwork": "sheet",
+      "mode": "subject",
+      "region": {
+        "x": 0.54,
+        "y": 0.205,
+        "w": 0.45,
+        "h": 0.36
+      },
+      "note": "mode \"subject\": the body component plus every detail ENCLOSED by it, so the inked face comes with the figure. An area threshold dropped his eyes."
+    },
+    {
+      "id": "collector",
+      "artwork": "sheet",
+      "mode": "each",
+      "region": {
+        "x": 0.52,
+        "y": 0.52,
+        "w": 0.47,
+        "h": 0.24
+      },
+      "minInside": 0.55,
+      "minAreaFrac": 0.004,
+      "maxAspect": 1.1
+    },
+    {
+      "id": "fan",
+      "artwork": "sheet",
+      "mode": "each",
+      "region": {
+        "x": 0.01,
+        "y": 0.245,
+        "w": 0.48,
+        "h": 0.31
+      },
+      "minInside": 0.8,
+      "minAreaFrac": 6e-05,
+      "limit": 40,
+      "padPx": 3,
+      "maxAspect": 0.85,
+      "note": "maxAspect rejects stray horizontal marker strokes that are not figures."
+    }
+  ],
+  "plates": [],
+  "scenes": [
+    {
+      "index": 0,
+      "roles": [
+        "CONTEXT",
+        "BUILD"
+      ],
+      "beat": "compare",
+      "purpose": "volume: Curren$y and his catalogue large, reach already wide and still filling",
+      "durationSec": 6.5,
+      "layout": "MULTI_LAYER_COLLAGE",
+      "camera": {
+        "keys": [
+          {
+            "at": 0.0,
+            "cx": 0.5,
+            "cy": 0.44,
+            "zoom": 1.06
+          },
+          {
+            "at": 6.5,
+            "cx": 0.5,
+            "cy": 0.54,
+            "zoom": 1.0,
+            "easing": "inOutSine"
+          }
+        ]
+      },
+      "populations": [
+        {
+          "id": "reach",
+          "library": "fan",
+          "slot": "back",
+          "count": 52,
+          "itemHeight": 0.068,
+          "seed": 11,
+          "minScale": 0.5,
+          "maxScale": 1.0,
+          "jitter": 0.5,
+          "minSourcePx": 26,
+          "plane": 0.4,
+          "z": 6,
+          "startSec": -2.6,
+          "durSec": 4.6,
+          "itemDurSec": 0.5,
+          "orderBy": "outward",
+          "easing": "outBack"
+        }
+      ],
+      "art": [
+        {
+          "id": "cur",
+          "subject": "currensy",
+          "slot": "mid",
+          "plane": 1.0,
+          "z": 20,
+          "entrance": {
+            "kind": "SETTLE_IN",
+            "startSec": -0.55,
+            "durSec": 1.05,
+            "distance": 0.045,
+            "overshoot": 0.07,
+            "rot": -1.2,
+            "easing": "spring"
+          },
+          "sustain": {
+            "kind": "BREATHE",
+            "amp": 1.0
+          }
+        }
+      ],
+      "text": [
+        {
+          "id": "name",
+          "text": "CURREN$Y",
+          "slot": "kicker",
+          "motion": {
+            "kind": "WRITE",
+            "startSec": 0.35,
+            "durSec": 0.75
+          }
+        },
+        {
+          "id": "stat",
+          "text": "90+ PROJECTS",
+          "slot": "lead",
+          "weight": "heavy",
+          "motion": {
+            "kind": "WRITE",
+            "startSec": 2.7,
+            "durSec": 0.95
+          }
+        }
+      ],
+      "marks": [
+        {
+          "id": "u1",
+          "shape": "underline",
+          "slot": "kicker",
+          "stroke": 0.006,
+          "motion": {
+            "startSec": 1.25,
+            "durSec": 0.45
+          }
+        }
+      ]
+    },
+    {
+      "index": 1,
+      "roles": [
+        "BUILD"
+      ],
+      "beat": "compare",
+      "purpose": "scarcity: one artifact held high, a few buyers already at his waist, camera closing in",
+      "durationSec": 6.0,
+      "layout": "HERO_AND_CLUSTER",
+      "camera": {
+        "keys": [
+          {
+            "at": 0.0,
+            "cx": 0.5,
+            "cy": 0.42,
+            "zoom": 1.0
+          },
+          {
+            "at": 6.0,
+            "cx": 0.5,
+            "cy": 0.33,
+            "zoom": 1.13,
+            "easing": "inOutCubic"
+          }
+        ]
+      },
+      "art": [
+        {
+          "id": "wsg",
+          "subject": "westside",
+          "slot": "hero",
+          "plane": 1.0,
+          "z": 20,
+          "entrance": {
+            "kind": "PUSH_FORWARD",
+            "startSec": -0.5,
+            "durSec": 0.95,
+            "easing": "outCubic"
+          },
+          "sustain": {
+            "kind": "BREATHE",
+            "amp": 0.8
+          }
+        }
+      ],
+      "populations": [
+        {
+          "id": "buyers",
+          "library": "collector",
+          "slot": "cluster",
+          "count": 4,
+          "itemHeight": 0.235,
+          "seed": 5,
+          "minScale": 0.9,
+          "maxScale": 1.0,
+          "jitter": 0.1,
+          "cols": 4,
+          "plane": 1.4,
+          "z": 30,
+          "startSec": -0.9,
+          "durSec": 2.2,
+          "itemDurSec": 0.6,
+          "easing": "outBack"
+        }
+      ],
+      "text": [
+        {
+          "id": "name",
+          "text": "WESTSIDE GUNN",
+          "slot": "sub",
+          "motion": {
+            "kind": "WRITE",
+            "startSec": 0.35,
+            "durSec": 0.8
+          }
+        },
+        {
+          "id": "stat",
+          "text": "400 COPIES",
+          "slot": "lead",
+          "weight": "heavy",
+          "motion": {
+            "kind": "WRITE",
+            "startSec": 3.0,
+            "durSec": 0.85
+          }
+        }
+      ],
+      "marks": [
+        {
+          "id": "ring",
+          "shape": "circle",
+          "slot": "lead",
+          "stroke": 0.0055,
+          "rot": -2,
+          "motion": {
+            "startSec": 4.1,
+            "durSec": 0.8
+          }
+        }
+      ]
+    },
+    {
+      "index": 2,
+      "roles": [
+        "REVEAL"
+      ],
+      "beat": "reveal",
+      "purpose": "the owners already on screen, the multiplication assembling, then the total circled",
+      "durationSec": 6.0,
+      "layout": "EQUATION_REVEAL",
+      "camera": {
+        "keys": [
+          {
+            "at": 0.0,
+            "cx": 0.5,
+            "cy": 0.42,
+            "zoom": 1.05
+          },
+          {
+            "at": 2.4,
+            "cx": 0.5,
+            "cy": 0.47,
+            "zoom": 1.02,
+            "easing": "holdThenGo"
+          },
+          {
+            "at": 6.0,
+            "cx": 0.5,
+            "cy": 0.5,
+            "zoom": 1.0,
+            "easing": "inOutSine"
+          }
+        ]
+      },
+      "populations": [
+        {
+          "id": "owners",
+          "library": "collector",
+          "slot": "evidence",
+          "count": 6,
+          "itemHeight": 0.3,
+          "seed": 21,
+          "minScale": 0.82,
+          "maxScale": 1.0,
+          "jitter": 0.12,
+          "cols": 6,
+          "plane": 0.85,
+          "z": 8,
+          "startSec": -2.0,
+          "durSec": 1.8,
+          "itemDurSec": 0.5,
+          "orderBy": "outward",
+          "easing": "outBack"
+        }
+      ],
+      "text": [
+        {
+          "id": "eq",
+          "text": "400 COPIES × $300",
+          "slot": "row1",
+          "motion": {
+            "kind": "WRITE",
+            "startSec": 0.15,
+            "durSec": 1.15
+          }
+        },
+        {
+          "id": "total",
+          "text": "$120,000",
+          "slot": "row2",
+          "weight": "heavy",
+          "claim": "collector-total",
+          "motion": {
+            "kind": "SETTLE_IN",
+            "startSec": 2.75,
+            "durSec": 0.7
+          },
+          "entrance": {
+            "kind": "SETTLE_IN",
+            "startSec": 2.75,
+            "durSec": 0.7,
+            "overshoot": 0.16,
+            "distance": 0.03,
+            "rot": -1.2,
+            "easing": "spring"
+          },
+          "sustain": {
+            "kind": "BREATHE",
+            "amp": 0.7
+          }
+        },
+        {
+          "id": "cap",
+          "text": "OF FAN MONEY",
+          "slot": "row3",
+          "motion": {
+            "kind": "RISE",
+            "startSec": 4.2,
+            "durSec": 0.5
+          }
+        }
+      ],
+      "marks": [
+        {
+          "id": "ring",
+          "shape": "circle",
+          "slot": "row2",
+          "stroke": 0.0065,
+          "rot": -2.5,
+          "motion": {
+            "startSec": 3.5,
+            "durSec": 0.85
+          }
+        }
+      ],
+      "qa": {
+        "minContentCoverage": 0.45,
+        "reason": "a reveal beat withholds: the frame fills as the maths assembles, which is the point of the beat"
+      }
+    }
+  ],
+  "prototype": true
+}

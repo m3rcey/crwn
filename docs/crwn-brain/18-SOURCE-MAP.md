@@ -109,6 +109,14 @@
   lettered by the repo instead of drawn by a model, so a number cannot come out
   wrong and a rerender is $0. Fact lock `scripts/video/lib/factLock.mjs`, specs in
   `videos/motion-specs/*.json` (version controlled), no generative video provider.
+- Handwritten motion V2 (2026-09-12, same day): V1 was correct and was rejected on
+  LOOK. V2 keeps the correctness system unchanged and rebuilds composition and
+  motion: `scripts/video/lib/composition.mjs` (14 layouts owning the geometry),
+  `lib/isolate.mjs` (whole subjects as connected ink components, not crops),
+  `lib/sceneMotion.mjs` (entrance separated from sustain), `lib/svgFrame.mjs`
+  (per-frame SVG at native size; world space rides the camera, lettering does
+  not), `lib/visualQa.mjs` (occupancy, hero scale, dead-run, sampled every
+  0.25s). Commands `video:v2-plan|v2-render|v2-verify`.
 - VSL slide decks: `scripts/vsl/` (headless Chrome, exact copy, OFL fonts in
   `scripts/vsl/assets/fonts`, reused by the handwritten-motion lettering).
 

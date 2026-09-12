@@ -489,6 +489,50 @@ async function cmdMotionVerify(args) {
   if (!report.ok) process.exitCode = 1;
 }
 
+// ---------------------------------------------------------------------------
+// V2: layout-driven SVG frames. Same slugs, same output tree, same fact lock.
+
+async function cmdV2Plan(args) {
+  const { planMotionV2 } = await import("./lib/motionJobV2.mjs");
+  const { validation, geometry } = await planMotionV2(motionSlug(args[0]), {});
+  if (!validation.ok || (geometry && !geometry.ok)) process.exitCode = 1;
+}
+
+async function cmdV2Render(args) {
+  const { renderMotionV2, motionCostReportV2, verifyMotionV2 } = await import("./lib/motionJobV2.mjs");
+  const slug = motionSlug(args[0]);
+  const sceneIdx = args.indexOf("--scene");
+  const musicIdx = args.indexOf("--music");
+  const onlyScenes =
+    sceneIdx !== -1
+      ? args[sceneIdx + 1].split(",").map((x) => {
+          const v = parseInt(x, 10) - 1;
+          if (Number.isNaN(v) || v < 0) throw new Error(`--scene expects 1-based scene numbers, got "${x}"`);
+          return v;
+        })
+      : undefined;
+  const result = await renderMotionV2(slug, {
+    onlyScenes,
+    musicName: musicIdx !== -1 ? args[musicIdx + 1] : null,
+    repickMusic: args.includes("--repick-music"),
+    noMusic: args.includes("--no-music"),
+    quietPlan: true,
+  });
+  console.log(`
+${motionCostReportV2(result)}`);
+  if (!args.includes("--no-verify")) {
+    console.log("");
+    const report = await verifyMotionV2(slug, { expectAudio: !args.includes("--no-music") });
+    if (!report.ok) process.exitCode = 1;
+  }
+}
+
+async function cmdV2Verify(args) {
+  const { verifyMotionV2 } = await import("./lib/motionJobV2.mjs");
+  const report = await verifyMotionV2(motionSlug(args[0]), { skipFrames: args.includes("--no-frames") });
+  if (!report.ok) process.exitCode = 1;
+}
+
 const [cmd, ...rest] = process.argv.slice(2);
 const commands = {
   dryrun: cmdDryrun,
@@ -501,6 +545,9 @@ const commands = {
   "motion-plan": cmdMotionPlan,
   "motion-render": cmdMotionRender,
   "motion-verify": cmdMotionVerify,
+  "v2-plan": cmdV2Plan,
+  "v2-render": cmdV2Render,
+  "v2-verify": cmdV2Verify,
 };
 
 if (!cmd || !commands[cmd]) {

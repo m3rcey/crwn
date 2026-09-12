@@ -317,3 +317,151 @@ NEW text-free plates, which goes through the existing `imageGen` ledger and the
     lib/verify.mjs        the four levels
     lib/motionJob.mjs     plan / render / repair / verify orchestration
     lib/render.mjs        `encodeFrames`, the ONE ffmpeg path, shared with above
+
+---
+
+# V2: the composition and motion rebuild (2026-09-12)
+
+V1 (above) achieved what it set out to: zero typos, $0 rerenders, scene-level
+repair. The founder then rejected it on sight. The verdict, verbatim: does it feel
+alive, NO. Is the pacing fast enough, TOO FAST, and the story was not explained.
+Are the animations premium, NO, many images were cut off and a lot of screen was
+unused. Does it hold attention, NO. Two answers were YES and are preserved
+without change: it still looks handwritten, and every number is correct.
+
+So the correctness system carried over untouched and the VISUAL system was
+rebuilt. V2 lives at the slug `...-v2`; V1 stays on disk so the two can be played
+back to back.
+
+## The postmortem, measured rather than described
+
+Sampling V1 every 0.5s across its 30 seconds and measuring ink coverage:
+
+    mean ink coverage        10.8%   (the page is ~89% blank on average)
+    mean content bbox        43.4%   of the frame
+    frames under 45% bbox    28 of 60
+    near-empty frames        4, one of them 0.0% ink with no content at all
+
+Code-level causes, each fixed by a different part of V2:
+
+1. **No composition system.** `SLOTS` in `motionSpec.mjs` gave x/y per name and
+   art took a hand-typed `place.w`. Nothing related art, text and the frame, so a
+   subject at 12% of frame height was indistinguishable to the code from one at
+   60%. Whitespace was residue, not intent. → `lib/composition.mjs`: layouts own
+   the geometry and art is fitted to its slot by aspect.
+2. **Motion was intro-only.** Every primitive in `motion.mjs` mapped progress to
+   a final state and held. After ~1.5s each scene was a still with a 5% Ken Burns
+   and text accumulating on it. → `lib/sceneMotion.mjs` separates ENTRANCE from
+   SUSTAIN, so nothing is ever frozen.
+3. **Scenes opened on blank paper.** Plates and text returned `null` before their
+   `startSec`, and every transition was a CUT, so scene boundaries flashed white.
+   → entrances start at NEGATIVE times and the validator refuses a scene where
+   everything starts after t=0.
+4. **`DRAW_ON` was a rectangular extract of finished type.** A hard vertical edge
+   through a glyph reads as cut-off text, not as writing. → `WRITE` uses a
+   gradient mask with a feathered edge.
+5. **Plate crops sliced through artwork.** Rectangles positioned to avoid the
+   sheet's lettering cut the collectors' raised arms off at the wrist. → subjects
+   are isolated connected ink components, so they arrive whole.
+6. **The QA measured the wrong things.** Two frames per scene, sampled at 55% and
+   just before the cut: the two moments a scene looks fullest. Occupancy and hero
+   scale were never checked, and the motion check was satisfied by one line of
+   text appearing. → `lib/visualQa.mjs` samples every 0.25s and measures real
+   pixels.
+
+## Renderer decision, re-evaluated
+
+The brief required re-opening the HyperFrames question on visual grounds. Both
+candidates were probed before choosing.
+
+- **Node 22 has a built-in `WebSocket`** (verified), so driving headless Chrome
+  over CDP without Puppeteer was genuinely available. Per-frame browser capture
+  was therefore feasible, not merely theoretical.
+- **librsvg, already inside `sharp`, does the entire vocabulary** (probed with a
+  single frame containing all of it): nested and matrix transforms for parallax
+  and 2.5D tilt, soft gradient masks, `clipPath`, `stroke-dashoffset` for a line
+  drawing along its own path, `feTurbulence` displacement for marker roughness,
+  per-plane opacity, and `<image>` with alpha.
+- **Cost measured, not guessed:** 500 ms/frame with full-resolution artwork
+  embedded, 207 ms/frame with subjects pre-sized to their on-screen size. About
+  9 minutes for a 90-second video, which the brief explicitly permits.
+
+**Decision: per-frame SVG through librsvg. HyperFrames rejected again, this time
+on capability rather than on speed.** The gap I would have been buying does not
+exist, and the package would have added a Chromium download plus a second
+renderer that bypasses the fact lock, the music rotation, the ledger and the job
+machinery. Chrome is still used, once per job, for lettering sprites.
+
+One consequence worth naming: `file://` hrefs are ignored by sharp's SVG loader,
+so artwork must be embedded as data URIs. That is why pre-sizing matters so much.
+
+## What V2 changed
+
+- **`lib/isolate.mjs`** pulls WHOLE subjects out of the accepted sheet as
+  connected ink components. `mode: "subject"` takes the body plus every component
+  ENCLOSED by it, which is how an inked face survives: Curren$y's eyes are drawn
+  inside his head without touching it, and the first prototype rendered him
+  faceless because an area filter dropped them. `mode: "each"` turns the sheet's
+  crowd into a library of 40 individual figures and its four collectors into four
+  whole figures, arms attached. `excludeRegions` masks a known connector (the
+  sheet's divider rule touches the vinyl stack) before labelling.
+- **`lib/composition.mjs`** holds 14 layouts, each declaring its hero slot, its
+  occupancy contract and WHICH SLOTS HOLD TEXT. Art is fitted to its slot by
+  aspect ratio, so it is as large as the slot allows and cannot be cropped by
+  placement. Two safe areas, deliberately different: words stay out of the
+  caption bar, artwork may run into it.
+- **`lib/sceneMotion.mjs`** is the motion vocabulary: entrances (RISE, SETTLE_IN,
+  SLIDE_IN, GROW_UP, SWING_IN, PUSH_FORWARD), sustains that run for the whole
+  scene (FLOAT, BREATHE, SWAY, CREEP, SPIN), a keyframed camera, parallax by
+  depth plane, population with staggered arrival, fact-locked counters and
+  stroke progress. All pure functions of time; all seeded, never random.
+- **`lib/svgFrame.mjs`** composes each frame at native 1080x1920 with the camera
+  as a transform. **World space rides the camera; screen space does not**, so
+  artwork can push and rack as hard as the scene wants while lettering stays
+  exactly where the layout put it. V1 put text inside the camera, and a 1.10 push
+  threw the top slot to y=0.015.
+- **`lib/visualQa.mjs`** is the QA V1 needed: per-scene occupancy against the
+  layout's declared contract, opening-frame ink, largest blank band, hero scale,
+  text size, multi-frame safe-zone and collision checks, and a dead-run detector
+  that fails a scene which sits visually still for more than 0.6s.
+
+## V2 commands
+
+    npm run video:v2-plan   -- <slug>              validate + isolate + probe, $0
+    npm run video:v2-render -- <slug>              render + verify
+    npm run video:v2-render -- <slug> --scene 7    repair ONE scene
+    npm run video:v2-verify -- <slug>              re-verify what is on disk
+
+## Rules V2 adds to the reusable system
+
+- **A scene names a LAYOUT and binds content to its slots.** Coordinates are not
+  authored. A layout override is allowed and must carry a `reason`.
+- **A hero is large by construction.** The QA floor is 30% of frame height; going
+  under it needs `scene.qa.minHeroHeight` plus a reason.
+- **A scene opens composed.** Entrances start before t=0 so the first frame is
+  already a picture. A scene where everything starts later is a validation error.
+- **Text lives in a declared text slot**, and every text slot is machine-checked
+  to sit inside the platform-safe box. The layout table itself caused 24 of the
+  first storyboard's errors by placing labels at x=0.03 and x=0.97.
+- **Beats have floors, not just ceilings.** `hook` 2.0-4.5s, `explain` 3.0-5.5s,
+  `compare` 4.0-7.5s, `reveal` 5.0-8.5s, `cta` 4.0-7.5s. V1 was rejected for
+  pacing, and a floor is what prevents it.
+- **No layout three scenes in a row.**
+- **The camera must be numbers.** A generator bug once produced
+  `{"at":"at","zoom":"zoom"}` for every key in every scene; it passed validation,
+  passed the geometry probe, and died 20 scenes later inside the rasterizer as a
+  NaN width. Camera keys are now range-checked and required to ascend.
+- **The segment cache is keyed on the RESOLVED LAYOUT**, not the layout's name, so
+  tuning a layout cannot serve frames composed to the old geometry.
+- Everything V1 ruled still applies: silent, instrumental only, source script is
+  semantic truth, no generative video provider, figures trace to the fact lock,
+  plates and subjects carry illustration and never lettering.
+
+## Cost
+
+Unchanged: **$0.00**. Subject isolation is connected-component labelling on a
+sheet already on disk; lettering is local Chrome with OFL fonts already in the
+repo; frames are librsvg and ffmpeg-static. No new artwork was generated for V2,
+because the isolated library covers every beat the script needs. The only route
+to spend is still a NEW text-free illustration through `lib/imageGen.mjs`, its
+ledger and the job ceiling.

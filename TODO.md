@@ -67,22 +67,23 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
-- [ ] **Watch the first handwritten-motion video and tell me yes or no.** Level 4 of the
-      verification is you, not a machine, and this is the whole point of the build: it is the
-      Seedance concept with the numbers made deterministic and the rerender made free.
-      Open: `videos/output/1-currensy-vs-westside-gunn-volume-vs-scarcity/render/final.mp4`
-      (30.0s, 1080x1920, 30fps, silent + instrumental, no narration).
-      Frames across the whole timeline, if you want the fast version:
-      `videos/output/1-currensy-vs-westside-gunn-volume-vs-scarcity/verify/contact-sheet.jpg`
-      Levels 1 to 3 already pass: every figure on screen traces to the script, VAULT is exact,
-      the safe zone holds, no frame is blank, and every scene measurably moves. Actual cost of
-      this video was $0.00 in API spend.
-      **What I need from you is taste, not correctness.** If one beat is wrong, say which scene
-      and what is wrong with it, and the fix costs one scene and about 25 seconds:
-      `npm run video:motion-render -- 1-currensy-vs-westside-gunn-volume-vs-scarcity --scene <n>`
-      If you want a different track: add `--music "Makavhan Zodiae"`.
-      If you approve it, say so and I will wire the second Fan Economy script the same way.
-      Full manual: [docs/VIDEO_PIPELINE.md](docs/VIDEO_PIPELINE.md).
+- [ ] **Watch V2 against V1 and tell me which parts still miss.** You rejected V1 on look:
+      not alive, too fast, images cut off, screen unused, does not hold attention. You said the
+      handwritten style and the numbers were right, and both of those are untouched.
+      Play them back to back:
+      V2, 97.5s: `videos/output/1-currensy-vs-westside-gunn-volume-vs-scarcity-v2/render/final.mp4`
+      V1, 30.0s: `videos/output/1-currensy-vs-westside-gunn-volume-vs-scarcity/render/final.mp4`
+      One frame per scene, if you want the 10-second version:
+      `videos/output/1-currensy-vs-westside-gunn-volume-vs-scarcity-v2/verify/contact-sheet.jpg`
+      What changed, measured rather than claimed: ink on the page went from 10.8% to about
+      double, content now fills roughly 60% of the frame instead of 43%, no scene opens on
+      blank paper (V1 had four, one completely empty), subjects come out whole so nothing is
+      sliced, and the story gets 20 beats over 97s instead of 8 over 30.
+      Still $0.00 of API spend, and every number still traces to the script.
+      **I need taste, not correctness.** Name the scene and what is wrong with it, and the fix
+      costs one scene and about 20 seconds:
+      `npm run video:v2-render -- 1-currensy-vs-westside-gunn-volume-vs-scarcity-v2 --scene <n>`
+      Different track: add `--music "Makavhan Zodiae"`. Manual: [docs/VIDEO_PIPELINE.md](docs/VIDEO_PIPELINE.md).
 
 
 - [ ] **Decide which of the three remaining Astra audit findings I fix.** The first two are DONE
@@ -845,6 +846,19 @@ Things that are never finished. Cadence, then the thing.
 ---
 
 ## On Claude's plate (not yours)
+
+- **V2's motion vocabulary is bigger than the Curren$y video uses.** Parallax planes, 2.5D
+  matrix tilt, GROW_UP, SWING_IN, counters and path-following arrows are all implemented and
+  tested, but this storyboard only exercises about half of them. That is deliberate for a first
+  video (motion has to serve the script, and forcing an effect in to prove it exists is exactly
+  the generic-motion-graphics look you rejected), but it means the second script is where I find
+  out whether the rest hold up. Waiting on your verdict before building one.
+
+- **Render time is now about 12 minutes for 97 seconds**, against 90 seconds for V1. That is the
+  deliberate trade you asked for (premium over speed), and per-scene repair keeps a fix at
+  roughly 20 seconds. If it ever becomes annoying, the lever is pre-sizing artwork harder, not
+  going back to the old compositor.
+
 
 - **The handwritten-motion pipeline covers ONE script so far, and the second one is where I find
   out what is really reusable.** The spec for the Curren$y video is hand-authored data
