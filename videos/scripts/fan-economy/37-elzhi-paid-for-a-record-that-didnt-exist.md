@@ -2,11 +2,8 @@
 
 **SCRIPT:**
 
-In 2013 Elzhi asked his fans to pay for an album he hadn't made yet.
-No song, no tracklist, no release date. How many people sent money for nothing?
-The answer should change what you think you need before you can sell.
-
-Let's break it down.
+How many people paid Elzhi in 2013 for an album he hadn't made yet, with no song, no tracklist and no release date?
+Let's find out.
 
 Every artist thinks the order is fixed. Make the thing, then find out if anybody wants it.
 Record the album, pay for the mixing, press it, and then pray. All the risk sits on you, up front, before one person has said yes.
@@ -53,7 +50,7 @@ Flat scan of a white sheet of paper filling the entire frame. No desk, no surfac
 
 **META:** Artist: Elzhi · Family: I/Evidence · Mechanism: pre-demand funding, and the weight of a promise ·
 Metric: the Lead Poison Kickstarter (announced November 2013) drew more than 700 backers and raised roughly $37,000; the album was released 25 March 2016 through his own label Glow 365, nearly three years later, after publicly attributed depression and addiction; backers publicly voiced frustration during the delay (web-verified 2026-08-20, Fact/Vice/HipHopDX/Kickstarter) ·
-Hook promise: how many people paid for a record that did not exist, answered in people ·
+Hook promise: how many people paid Elzhi in 2013 for an album he hadn't made yet, with no song, no tracklist and no release date ·
 Withheld variable: the backer count and the total · Big Reveal: 700+ backers, about $37,000 ·
 Wow Factor: they funded it and then waited nearly three years for delivery ·
 Lead magnet: proof-of-demand-test-builder + DEMAND · CRWN claim tier: shipped (proof of demand, and the Promise Calendar for the delivery date) ·

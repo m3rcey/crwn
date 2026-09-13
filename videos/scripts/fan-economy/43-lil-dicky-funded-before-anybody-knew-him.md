@@ -2,11 +2,11 @@
 
 **SCRIPT:**
 
-In November 2013 a rapper nobody had heard of asked strangers on the internet to fund his album.
-No label, no hits, no track record. How much did they give him?
-The answer should change when you think you're allowed to ask.
+How much did strangers give Lil Dicky before anybody knew who he was?
+Let's find out.
 
-Let's break it down.
+In November 2013 a rapper nobody had heard of asked strangers on the internet to fund his album.
+No label, no hits, no track record.
 
 Every artist has the same idea of the order. Get famous first, then monetise.
 Build the following, wait until you're big enough, and only then feel entitled to ask anybody for money.
@@ -26,7 +26,7 @@ The permission you're waiting for doesn't come from a follower count, it comes f
 That's what the CRWN app is built around: membership tiers and a vault your top members pay to get into.
 ANYWAY.
 
-So how much did strangers give a rapper nobody knew?
+So how much did strangers give Lil Dicky when nobody knew him?
 A hundred and thirteen thousand and seventeen dollars, from two thousand eight hundred and thirteen people.
 
 And here's the crazy part. That's about forty dollars a person, from people who had no idea whether he'd deliver.
@@ -55,7 +55,7 @@ Flat scan of a white sheet of paper filling the entire frame. No desk, no surfac
 
 **META:** Artist: Lil Dicky · Family: I/Evidence · Mechanism: fans fund the work before there is any track record ·
 Metric: a Kickstarter launched November 2013 raised $113,017 from 2,813 backers before he had a label or a hit (web-verified 2026-08-21, Forbes/Kickstarter coverage) ·
-Hook promise: how much strangers gave him, answered in dollars ·
+Hook promise: how much did strangers give Lil Dicky before anybody knew who he was ·
 Withheld variable: the amount raised · Big Reveal: $113,017 from 2,813 backers ·
 Wow Factor: about $40 a person from people with no evidence he would deliver, and 2,813 people is a small club rather than a stadium ·
 Lead magnet: proof-of-demand-test-builder + DEMAND · CRWN claim tier: shipped ·

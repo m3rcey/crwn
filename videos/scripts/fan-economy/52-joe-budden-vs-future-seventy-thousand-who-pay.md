@@ -18,7 +18,7 @@ And they get paid two completely different ways.
 Hold that thought.
 You dont need to market to fans. You need a market FOR fans.
 Reach and revenue are two different systems and almost nobody has been shown the second one.
-The CRWN app is built for the second one: tiers your fans join, and a vault behind the top one.
+The CRWN app is built for the second one: tiers your fans join, and a vault behind one of them.
 ANYWAY.
 
 So whose fans pay more every month, Future's or Joe Budden's?

@@ -2,10 +2,10 @@
 
 **SCRIPT:**
 
-Cash Cobain built a whole sound other people are making careers off, and how many new paying fans his own listeners would bring him if he just ASKED is a number he has never counted.
+How many new paying fans would Cash Cobain's own listeners bring him if he just ASKED?
+Let's find out.
 
-Let's run it.
-
+Cash Cobain built a whole sound other people are making careers off, and that is a number he has never counted.
 Cash Cobain is from the Bronx and he's the guy behind sexy drill.
 Not a guy in it. The one who made the lane, then watched half of New York start recording in it.
 Fisherrr, Grippy, the Don Toliver record. Producers copy the drums, artists copy the cadence, and the whole scene moves off something he started.
@@ -28,7 +28,7 @@ You dont need to market to fans. You need a market FOR fans.
 On the CRWN app this is a real thing artists run: a fan drive, where your people are pointed at one goal for a set window, and what they earn is access and status, not cash. Non-cash by design, on purpose.
 ANYWAY.
 
-So how many people would one ask actually bring him?
+So how many new paying fans would one ask actually bring him?
 He's got about 213,000 followers on Spotify.
 Say only 1 in 100 of them actually joins the push. That's 2,130 people.
 And say each one only manages to bring in ONE person who pays.
@@ -52,7 +52,7 @@ Comment SHARE and I'll DM you the link.
 
 **META:** Artist: Cash Cobain · Family: C/Existing Fan Behavior · Mechanism: Fan Drives (Virality Engine V1) ·
 Metric: ~213,000 Spotify followers (Music Metrics Vault, web-verified 2026-08), Bronx origin, sexy drill pioneer, producer turned artist with Fisherrr, Grippy and the Don Toliver feature (Wikipedia, HOT 97). His ~4.5M monthly listeners run above the Tier 1 ceiling, so the math deliberately anchors on the follower count instead ·
-Hook promise: how many new paying fans one ask would bring (a count, unit-matched to the reveal) ·
+Hook promise: how many new paying fans would Cash Cobain's own listeners bring him if he just asked (a count, unit-matched to the reveal) ·
 Withheld variable: the participation rate AND the per-recruiter number · Big Reveal: scale (2,130 new paying fans from one push) ·
 Wow Factor: fan identification (the recruiters identify themselves; that list did not exist before the ask) ·
 Lead magnet: share-to-earn-planner + SHARE · CRWN claim tier: shipped (Fan Drives V1, stated accurately as NON-CASH incentives only, which is enforced at the database) ·

@@ -2,11 +2,11 @@
 
 **SCRIPT:**
 
-For about thirty years you could not legally stream De La Soul's classic albums. Not one of them.
-Then in March 2023 the catalog finally landed. How many streams did it do in week one?
-The answer should change what you think an audience actually needs.
+How many streams did De La Soul's classic albums do in their first week on streaming?
+Let's find out.
 
-Let's break it down.
+For about thirty years you could not legally stream De La Soul's classic albums. Not one of them.
+Then in March 2023 the catalog finally landed.
 
 Three Feet High and Rising came out in 1989 and it is one of the most sampled, most loved rap records ever made.
 And for three decades it was not on Spotify, not on Apple, nowhere. Sample clearances and label disputes kept the whole early catalog locked.
@@ -51,7 +51,7 @@ Flat scan of a white sheet of paper filling the entire frame. No desk, no surfac
 
 **META:** Artist: De La Soul · Family: I/Evidence · Mechanism: demand survives with no distribution ·
 Metric: the pre-2004 catalog was absent from streaming until 3 March 2023 owing to sample clearances and label disputes; first week on DSPs drew 12.5 million US streams; 3 Feet High and Rising re-entered the charts at No. 8 on Top R&B/Hip-Hop Albums with 26,000 equivalent album units, No. 4 Top Rap Albums, No. 15 Billboard 200 (web-verified 2026-08-21, HipHopDX/Variety/Washington Post) ·
-Hook promise: how many streams in week one, answered in streams ·
+Hook promise: how many streams did De La Soul's classic albums do in their first week on streaming ·
 Withheld variable: the first-week number · Big Reveal: 12.5 million US streams in seven days ·
 Wow Factor: a 1989 album re-entered the charts at No. 8 with 26,000 equivalent units in 2023 ·
 Lead magnet: own-your-fans-calculator + OWN · CRWN claim tier: shipped ·

@@ -672,6 +672,25 @@ responsible for. Do not work those.
 
 ### P2 — worth doing, nothing breaks if you never do it
 
+- [ ] **Decide the four versus scripts that cannot be two-sided yet: 18, 20, 51, 55.** Every other
+      script after #9 now opens on one question plus "Let's find out.", and every other versus
+      measures both artists. These four have no sourced same-unit number for one side, so each
+      needs one call: a new axis, a new foil, or a rewrite as a single-artist case study (drop
+      the "vs"). Say which per script and I rebuild it.
+      - [videos/scripts/fan-economy/18-akeem-ali-vs-beyonce-earned-distribution.md](videos/scripts/fan-economy/18-akeem-ali-vs-beyonce-earned-distribution.md): Akeem's "3,000 hours" is a model, not a sourced figure. Honest option: fan clips per 1,000 followers, if you open the "Keemy Casanova" sound in the TikTok app and read the video count.
+      - [videos/scripts/fan-economy/20-babytron-vs-lil-wayne-the-four-years.md](videos/scripts/fan-economy/20-babytron-vs-lil-wayne-the-four-years.md): no public "album held back" figure for BabyTron, and his masters claim did not verify (EMPIRE / The Hip Hop Lab).
+      - [videos/scripts/fan-economy/51-little-simz-vs-bad-bunny-eleven-shows.md](videos/scripts/fan-economy/51-little-simz-vs-bad-bunny-eleven-shows.md): Bad Bunny's tour economics are sourced (Pollstar), Little Simz has no number in those units.
+      - [videos/scripts/fan-economy/55-freddie-gibbs-vs-lil-baby-same-shelf.md](videos/scripts/fan-economy/55-freddie-gibbs-vs-lil-baby-same-shelf.md): Lil Baby's deal terms are not public. Its false "same Grammy category" line is already fixed.
+- [ ] **Retire or rebuild [videos/scripts/fan-economy/17-larussell-vs-larry-june-who-sets-the-price.md](videos/scripts/fan-economy/17-larussell-vs-larry-june-who-sets-the-price.md).**
+      Its whole subject is pay-what-you-want, the concept the skill bans. It only got the new opening.
+- [ ] **Say go before I re-render sheets and carousels for the rebuilt versus scripts.** The scripts
+      changed under art that already exists: hook sheets and carousels for 46 to 59 still tell the
+      one-sided story (52's carousel still says VAULT; 48's says his albums were all on his own
+      label, which is false; 49's claims the same buyers came back, which is unsourced; 44's says
+      four countries, it is five). Scripts 19, 48 and 57 are honest but their answer is guessable
+      from the question (Jay-Z waited, Cole has no indie albums, Fahim out-released Carti); flag any
+      you want re-angled before I spend on art.
+
 - [ ] **Look at the 27 new Fan Economy sheets (videos 1 to 9 now have four sheets each).**
       Print file, in filming order (hook, middle, reveal, CTA card) per video:
       `Dropbox/nano banana output/Shortform Posts/Fan Economy/CRWN-Fan-Economy-Sheets-1-9.pdf`

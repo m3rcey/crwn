@@ -2,10 +2,10 @@
 
 **SCRIPT:**
 
-Tink's realest fans do something every drop that most artists completely ignore, and what that one habit is worth in a year is money artists like her (I'm talking to YOU) never even count.
+How much is the one thing Tink's realest fans do every drop worth in a year?
+Let's find out.
 
-Hear me out.
-
+Tink's realest fans do something every drop that most artists completely ignore, and what that one habit is worth is money artists like her (I'm talking to YOU) never even count.
 Tink walked away from her major label situation and went fully independent, releasing through EMPIRE.
 And she kept building Winter's Diary: a diary series her core audience been following for over a decade.
 When Winter's Diary 5 dropped, you could watch it play out.
@@ -33,7 +33,7 @@ On the CRWN app today an artist can gate a drop days early per tier, and keep a 
 The intimacy Tink already write IS the product. It just need a gate.
 ANYWAY.
 
-So what is that one habit worth in a year?
+So how much is that one habit worth in a year?
 Say just 800 of them day-one fans join at $15 a month, for first listen and the diary vault.
 That's $12,000 a month. $144,000 a year.
 Independent money, from the people already in her comments.
@@ -58,7 +58,7 @@ Comment VAULT and I'll DM you the link.
 
 **META:** Artist: Tink · Family: C/Existing Fan Behavior · Mechanism: early-access windows + members-only vault ·
 Metric: behavior-anchored (Uproxx: independent after Timbaland/Mosley split; Rated R&B: WD5 via EMPIRE 2024-07-12; series running 12+ years); day-one cohort illustrative, follower math deliberately avoided (counts unverified) ·
-Hook promise: what the day-one drop ritual is worth in a year (a dollar figure, unit-matched to the reveal) ·
+Hook promise: how much is the one thing Tink's realest fans do every drop worth in a year (a dollar figure, unit-matched to the reveal) ·
 Withheld variable: cohort size AND tier price · Big Reveal: money ($12,000 a month, $144,000 a year) ·
 Wow Factor: compounding (the first room announces the drop) · Lead magnet: vault-revenue-planner + VAULT ·
 CRWN claim tier: shipped (per-tier early access days + vault in the membership ladder)

@@ -2,9 +2,8 @@
 
 **SCRIPT:**
 
-The Weeknd has one of the biggest streaming audiences on the planet and Larry June has something you cant get from any of them, and what that one thing is worth per fan should change what you sell next.
-
-Let's look at it.
+Whose fan is worth more in a year, one of The Weeknd's listeners or one of Larry June's customers?
+Let's find out.
 
 The Weeknd's numbers are almost hard to talk about. Hundreds of millions of people, records that live on every platform at once, one of the biggest streaming artists in history.
 That reach is real and it's the hardest thing in music to build. Nobody is arguing that.
@@ -30,7 +29,7 @@ The move aint choosing between them, it's making sure the reach turns into someb
 Memberships, direct sales, and every buyer and contact in one place in your name: that's what artists run on the CRWN app.
 ANYWAY.
 
-So what is a customer actually worth next to a listener?
+So whose fan is worth more in a year, The Weeknd's listener or Larry June's customer?
 
 Streaming pays out around a penny a month per monthly listener. So one listener is about 12 cents a year.
 One person buying a $60 piece of merch, one time, in a year, is $60.
@@ -55,8 +54,8 @@ Comment OWN and I'll DM you the link.
 **META:** Artist: Larry June vs The Weeknd · Family: G/Comparison · Axis: owned customer vs platform audience ·
 Mechanism: direct sales and the owned fan list ·
 Metric: Larry June independent with the Midnight Organic brand and merch operation, ~1M IG (web-verified 2026-08); The Weeknd characterized only as one of the biggest streaming artists in history, no figures asserted. The $60 merch purchase and the 1 cent per monthly listener rate are stated illustrations ·
-Hook promise: what the one thing is worth PER FAN (a per-fan comparison, unit-matched to the reveal) ·
-Withheld variable: the merch price AND the streaming rate · Big Reveal: equivalence (one customer is worth about 500 listeners for a year) ·
+Hook promise: whose fan is worth more in a year, one of The Weeknd's listeners or one of Larry June's customers ·
+Withheld variable: the merch price AND the streaming rate · Big Reveal: equivalence (about 12 cents a year from one of The Weeknd's listeners against about $60 a year from one of Larry June's customers, so one customer is worth about 500 listeners) ·
 Wow Factor: ownership (an address is the one channel nobody can switch off; reach is rented at every size) ·
 Lead magnet: own-your-fans-calculator + OWN · CRWN claim tier: shipped (direct sales, fan CRM, memberships) ·
 Repost test: Larry June WINS; The Weeknd's reach is credited as the hardest thing in music to build and streaming is credited as doing its job, with the limitation named as structural to platforms rather than personal. Fresh foil, not used elsewhere in the library

@@ -2,10 +2,10 @@
 
 **SCRIPT:**
 
-Skyzoo turned down major label deals his whole career and has fed his family off his music for about 20 years, and what ONE fan who stays that long is actually worth is a number that should change who you chase.
+How much is ONE fan who sticks with Skyzoo for 20 years actually worth?
+Let's find out.
 
-Let's break it down.
-
+Skyzoo turned down major label deals his whole career and has fed his family off his music for about 20 years, and what one fan who stays that long is worth is a number that should change who you chase.
 Skyzoo has been independent since day one. Never signed a major, and by his own account turned deals down more than once.
 His own label, First Generation Rich. Albums with 9th Wonder, Pete Rock, Apollo Brown. Two decades of records that his people call classics.
 And no hit single. No radio smash. No viral moment that made him.
@@ -29,7 +29,7 @@ You already know how to market to fans. Now you need a market FOR fans.
 A fan who stays needs somewhere to keep paying you, which is what the membership ladder on the CRWN app is: a free rung and real rungs above it, so somebody can go deeper instead of just listening again.
 ANYWAY.
 
-So what is one fan who never leaves actually worth?
+So how much is one fan who never leaves actually worth?
 One fan on a $10 a month membership, for twenty years, is $2,400.
 Twenty four hundred dollars. From one person.
 To make that same $2,400 off streaming you would need about 800,000 plays.
@@ -51,7 +51,7 @@ Comment WORTH and I'll DM you the link.
 
 **META:** Artist: Skyzoo · Family: F/Contrarian · Mechanism: retention / LTV on the membership ladder ·
 Metric: independent his entire career having turned down major deals, own label First Generation Rich, catalog with 9th Wonder, Pete Rock and Apollo Brown from 2006 onward, supports his family off his craft (Wikipedia, Hip Hop Golden Age, Medium Q&A, web-verified 2026-08); follower and listener math deliberately avoided, counts unverified. Streaming equivalence uses $0.003 a play, stated as an assumption ·
-Hook promise: what ONE long-staying fan is worth (a dollar figure, unit-matched to the reveal) ·
+Hook promise: how much is ONE fan who sticks with Skyzoo for 20 years actually worth (a dollar figure, unit-matched to the reveal) ·
 Withheld variable: the monthly price AND the number of years · Big Reveal: LTV ($2,400 from one fan, about 800,000 streams) ·
 Wow Factor: reframe (you cannot go find 800,000 streams on purpose, you can go find one person who stays) ·
 Lead magnet: worth + WORTH · CRWN claim tier: shipped (membership ladder) ·

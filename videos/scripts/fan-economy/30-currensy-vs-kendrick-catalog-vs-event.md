@@ -2,11 +2,10 @@
 
 **SCRIPT:**
 
-Kendrick Lamar can take five years between albums and Curren$y has put out over 90 projects, and how much a single superfan can actually spend on each of them is a number nobody runs.
+Whose catalog can one superfan spend more on, Kendrick Lamar's or Curren$y's?
+Let's find out.
 
-Let's break it down.
-
-Kendrick is the event. Years between albums, and when one lands it stops the whole culture. A Pulitzer. Records people study line by line for a decade.
+Kendrick Lamar is the event. He can take five years between albums, and when one lands it stops the whole culture. A Pulitzer. Records people study line by line for a decade.
 That is the most valuable thing an artist can build and almost nobody on earth can do it.
 
 Curren$y built the exact opposite business on purpose.
@@ -28,7 +27,7 @@ A deep catalog with nowhere to buy it is a folder. The same catalog behind a mem
 Tier-gated releases and a vault your top members get into: that's what artists run on the CRWN app.
 ANYWAY.
 
-So what can one superfan spend on each?
+So whose catalog can one superfan spend more on, Kendrick Lamar's or Curren$y's?
 
 Say your most devoted fan wants to own everything, at $10 a project.
 With Kendrick that's maybe five or six things they can buy. Call it $60 and a long wait.
@@ -53,7 +52,7 @@ Comment VAULT and I'll DM you the link.
 **META:** Artist: Curren$y vs Kendrick Lamar · Family: G/Comparison · Axis: catalog as inventory vs the event album ·
 Mechanism: catalog depth monetized through tier-gated releases and the vault ·
 Metric: Curren$y with over 90 mixtapes, EPs and albums since 2009, Jet Life, collaborations with Alchemist, Wiz Khalifa and Freddie Gibbs (AllMusic, The Ringer, web-verified 2026-08); Kendrick characterized by multi-year gaps between albums and his Pulitzer, no sales or streaming figures asserted. The $10 per project is a stated illustration ·
-Hook promise: how much one superfan can spend on each artist (a dollar figure, unit-matched to the reveal) ·
+Hook promise: whose catalog can one superfan spend more on, Kendrick Lamar's or Curren$y's ·
 Withheld variable: the per-project price AND the catalog counts as a purchasable shelf · Big Reveal: equivalence ($60 versus $900 from the same fan) ·
 Wow Factor: honest concession that flips the lesson (Kendrick does not need the 90 and one event out-earns the whole shelf, but almost nobody gets that scale, so supply is the reachable business) ·
 Lead magnet: vault-revenue-planner + VAULT · CRWN claim tier: shipped (tier-gated releases, vault) ·

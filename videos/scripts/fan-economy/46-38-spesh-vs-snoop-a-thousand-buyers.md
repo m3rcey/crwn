@@ -2,13 +2,11 @@
 
 **SCRIPT:**
 
+Which made more money, Snoop Dogg's billion streams or 38 Spesh's thousand records?
+Let's find out.
+
 Snoop Dogg said a billion streams paid him under forty five thousand dollars.
-38 Spesh pressed a thousand records. Which one made more?
-The answer should change what you think a big number is.
-
-Let's break it down.
-
-Snoop said it out loud and threatened court if nobody explained the math. People argued, because there's splits and labels and publishers between an artist and that money, so treat his figure as his claim rather than a receipt.
+He said it out loud and threatened court if nobody explained the math. People argued, because there's splits and labels and publishers between an artist and that money, so treat his figure as his claim rather than a receipt.
 A billion plays. The biggest number in this business. The one everybody is chasing.
 
 38 Spesh runs his own label out of Rochester. He put out a twelve inch limited to a thousand copies, and Griselda-side records like his run about thirty dollars a piece.
@@ -21,10 +19,10 @@ Go do that math before I say it.
 Hold that thought.
 You dont need to market to fans. You need a market FOR fans.
 Reach and revenue are two different systems and almost nobody has been shown the second one.
-The CRWN app is built for the second one: tiers your fans join, and a vault behind the top one.
+The CRWN app is built for the second one: tiers your fans join, and a vault behind one of them.
 ANYWAY.
 
-So which one made more, a billion streams or a thousand records?
+So which made more money, Snoop Dogg's billion streams or 38 Spesh's thousand records?
 A thousand records at about thirty dollars is roughly thirty thousand dollars. Snoop said the billion paid under forty five.
 
 And here's the crazy part. The billion won. Barely.
@@ -53,7 +51,7 @@ Flat scan of a white sheet of paper filling the entire frame. No desk, no surfac
 
 **META:** Artist: 38 Spesh vs Snoop Dogg · Family: G/Comparison · Mechanism: a countable buyer base against streaming scale ·
 Metric: the Benny the Butcher and 38 Spesh 12" single "Stash Box" was limited to 1,000 copies (22 November 2024); Griselda-side vinyl in that catalogue lists at $24.98 to $34.98, so a thousand copies is roughly $30,000; Snoop Dogg publicly claimed under $45,000 for over 1 billion streams and threatened legal action, a claim that is disputed and depends on non-public deal terms (web-verified 2026-08-22) ·
-Hook promise: which made more, a billion streams or a thousand records, answered in money ·
+Hook promise: which made more money, Snoop Dogg's billion streams or 38 Spesh's thousand records ·
 Withheld variable: both totals · Big Reveal: about $30,000 against under $45,000 ·
 Wow Factor: the billion wins by roughly the price of a used car, and 38 Spesh can name every buyer while Snoop cannot name one ·
 Lead magnet: vault-revenue-planner + VAULT · CRWN claim tier: shipped ·

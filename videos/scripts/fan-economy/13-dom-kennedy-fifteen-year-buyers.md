@@ -2,11 +2,10 @@
 
 **SCRIPT:**
 
-Dom Kennedy's most valuable asset is not his 15 years of classics.
-It's something independent artists like you got sitting there too, and what it could be worth in a single year is INSANE.
+How much could Dom Kennedy's most valuable asset be worth in a single year, when it aint even his 15 years of classics?
+Let's find out.
 
-Here's what I mean.
-
+It's something independent artists like you got sitting there too, and what it could be worth is INSANE.
 Dom Kennedy been independent since day one. He's had his own label OPM since 2010.
 Interscope tried to sign him in 2013 and he said no.
 And for 15 years his people showed up anyway: buying the vinyl, buying the merch, filling up an 18-city tour with no major label behind him.
@@ -29,7 +28,7 @@ An audience is something you count. An economy is something you KNOW: who pays, 
 That's what artists use the CRWN app for: every member, buyer and contact in one place, with a ladder for the ones that want to go deeper.
 ANYWAY.
 
-So what is that asset worth in a single year?
+So how much is that asset worth in a single year?
 Say 1 in 4 of them buyers is a repeat customer. That's like 2,400 people that already proved they show up.
 Put just them in a $12 a month membership and that's $28,800 a month. $345,600 a year.
 From people who been saying yes for 15 years.
@@ -51,7 +50,7 @@ Comment WORTH and I'll DM you the link.
 
 **META:** Artist: Dom Kennedy · Family: B/Hidden Asset · Mechanism: repeat-buyer identification / owned relationships ·
 Metric: ~487K IG (@dopeitsdom, web-verified 2026-08); OPM since 2010, declined Interscope 2013 (Wikipedia/Forbes), 18-date 2025 tour (Concertfix) ·
-Hook promise: what his real most-valuable asset could be worth in a single year ·
+Hook promise: how much could Dom Kennedy's most valuable asset be worth in a single year, when it aint even his 15 years of classics ·
 Withheld variable: repeat fraction + membership price · Big Reveal: money ($345,600 a year from repeat buyers) ·
 Wow Factor: asset reframe (the label was buying the relationship) · Lead magnet: worth + WORTH (founder-chosen 2026-08-16; note WORTH routes to the Streaming Loss Calculator, OWN routes to Own Your Fans) ·
 CRWN claim tier: shipped (fan CRM + membership ladder)

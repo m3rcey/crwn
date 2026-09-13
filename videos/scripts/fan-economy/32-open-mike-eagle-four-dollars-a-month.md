@@ -2,11 +2,8 @@
 
 **SCRIPT:**
 
-Open Mike Eagle charges four dollars a month. Just over a thousand people pay it.
-How many monthly listeners would he need to make that same money?
-The answer should change what you think a fan is worth.
-
-Let's break it down.
+How many monthly listeners would Open Mike Eagle need to make what 1,071 people paying him four dollars a month make?
+Let's find out.
 
 Four dollars is nothing. It's a coffee. It's the cheapest thing on any menu in America.
 And 1,071 people pay him that every month, whether he puts out a record or not.
@@ -55,7 +52,7 @@ Flat scan of a white sheet of paper filling the entire frame. No desk, no surfac
 
 **META:** Artist: Open Mike Eagle · Family: I/Evidence · Mechanism: recurring membership priced at a floor, release-independent income ·
 Metric: Patreon shows 1,071 members starting at $4 per month and 656 exclusive posts (web-verified 2026-08-20); streaming compared at the 1 cent per monthly listener per month heuristic, hedged ·
-Hook promise: how many monthly listeners equal 1,071 people at $4, answered in listeners ·
+Hook promise: how many monthly listeners would Open Mike Eagle need to make what 1,071 people paying him four dollars a month make ·
 Withheld variable: the equivalent monthly listener count · Big Reveal: about 428,000 monthly listeners ·
 Wow Factor: 400 times fewer people for the same money, they are nameable, and the money arrives without a release ·
 Lead magnet: own-your-fans-calculator + OWN · CRWN claim tier: shipped (membership tiers + vault) ·

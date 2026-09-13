@@ -2,11 +2,8 @@
 
 **SCRIPT:**
 
-Roc Marciano sold an album on his own site before anybody else could hear it.
-Not the vinyl. The download. So what did he charge just to hear it early?
-The answer should change how you think about a release date.
-
-Let's break it down.
+How much did Roc Marciano charge for a download of his album just to hear it before everybody else?
+Let's find out.
 
 Every artist has the same day circled. Release day. Everybody gets it at once, everybody pays the same, which is nothing.
 Your biggest fan and somebody who never heard your name get the identical thing at the identical second.
@@ -25,7 +22,7 @@ Every artist already has something to sell and gives it away by accident: being 
 That's what the CRWN app is built around: membership tiers and a vault your top members pay to get into, and early access is one of the things you can put in them.
 ANYWAY.
 
-So what did he charge for early access to a download?
+So how much did Roc Marciano charge just to hear that download early?
 Thirty dollars.
 
 And here's the crazy part. Thirty dollars for a file, when the going rate for a digital album was about ten, and free if you waited.
@@ -53,7 +50,7 @@ Flat scan of a white sheet of paper filling the entire frame. No desk, no surfac
 
 **META:** Artist: Roc Marciano · Family: G/Comparison · Mechanism: paid EARLY ACCESS, selling time rather than the file ·
 Metric: early access to RR2: The Bitter Dose was offered as a $30 digital download on his own site ahead of wide release (web-verified 2026-08-20); vinyl of the previous album listed around $29.98, which is the comparison point for a physical object against a file ·
-Hook promise: what he charged just to hear it early, answered in a price ·
+Hook promise: how much did Roc Marciano charge for a download of his album just to hear it before everybody else ·
 Withheld variable: the early access price · Big Reveal: $30 for a digital download ·
 Wow Factor: $30 for a file that was free weeks later, so they paid for three weeks, not for music ·
 Lead magnet: vault-revenue-planner + VAULT · CRWN claim tier: shipped (tiers, vault, and per-tier early access via the release waterfall) ·

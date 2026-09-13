@@ -2,10 +2,10 @@
 
 **SCRIPT:**
 
-Independent artists made less than a tenth of they income from streaming this year, and the number that made up the rest should change what you build next.
+Where did the rest of an independent artist's income come from this year, if streaming paid them under 10 percent?
+Let's find out.
 
-Here's what's being reported.
-
+Here's what's being reported, and where the rest came from should change what you build next.
 Across Spotify, Apple Music and YouTube Music combined, the average independent artist pulled under 10 percent of they total income in 2026.
 Not 10 percent per platform. Ten percent for all three of them put together.
 
@@ -28,9 +28,9 @@ Every line on that list is somebody buying directly from an artist, which means 
 Memberships, a vault, direct sales and your fan list in your name: that's what artists set up on the CRWN app.
 ANYWAY.
 
-So how much of the money is on the direct side?
+So where did the rest of the money come from?
 
-About 90 percent.
+Straight from the people listening.
 Nine out of every ten dollars an independent artist made this year came from somebody paying them directly instead of a platform paying them per play.
 
 And here's the part I want you to actually hear.
@@ -51,7 +51,7 @@ Comment WORTH and I'll DM you the link.
 
 **META:** Artist: none (industry-anchored) · Family: H/Current Event · Mechanism: direct income mix / owned selling surface ·
 Metric: reported 2026 industry figures that the average independent artist took under 10% of total income from Spotify, Apple Music and YouTube Music combined, with roughly 90% from Bandcamp, Patreon, direct subscriptions, vinyl and cassette, sync and live (trade coverage, web-verified 2026-08; hedged in-script as reported, not measured by CRWN) ·
-Hook promise: the number that made up the rest of the income (a percentage, unit-matched to the reveal) ·
+Hook promise: where the rest of an independent artist's income came from this year, if streaming paid them under 10 percent (a source, answered as direct at about 90 percent) ·
 Withheld variable: the size of the direct share · Big Reveal: concentration (about 90 percent from direct) ·
 Wow Factor: reframe (effort follows the public scoreboard, so it stayed on the 10 percent after the money left) ·
 Lead magnet: worth + WORTH · CRWN claim tier: shipped (memberships, vault, direct sales, fan list) ·

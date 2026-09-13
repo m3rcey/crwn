@@ -4,7 +4,7 @@
 
 Lil Baby's records come out of one of the biggest machines in rap and they land at the top every time.
 Freddie Gibbs put Alfredo out on a label he owns himself.
-Both of them ended up in the same Grammy category. How high did the independent one chart?
+Alfredo got nominated for Best Rap Album at the Grammys. How high did the independent one chart?
 
 Let's break it down.
 
@@ -21,7 +21,7 @@ Then you look at where it landed.
 Hold that thought.
 You dont need to market to fans. You need a market FOR fans.
 Reach and revenue are two different systems and almost nobody has been shown the second one.
-The CRWN app is built for the second one: tiers your fans join, and a vault behind the top one.
+The CRWN app is built for the second one: tiers your fans join, and a vault behind one of them.
 ANYWAY.
 
 So where did the self released one chart?

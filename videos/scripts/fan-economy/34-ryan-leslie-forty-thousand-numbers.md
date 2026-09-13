@@ -2,11 +2,8 @@
 
 **SCRIPT:**
 
-Ryan Leslie gave forty thousand fans his actual phone number.
-Then he sold to fifteen thousand of them. How much did that come to?
-The answer should change how you think about a follower.
-
-Let's break it down.
+How much did Ryan Leslie make selling to 15,000 of the 40,000 fans he gave his actual phone number?
+Let's find out.
 
 Most artists have followers. A follower is a number on a screen that a platform lets you rent.
 You dont have their name. You cant reach them without paying somebody. And the day the algorithm changes, they're gone and you never find out where.
@@ -24,7 +21,7 @@ Reach you cant contact is reach you're renting, and most artists are renting all
 That's what the CRWN app is built around: membership tiers and a vault your top members pay to get into.
 ANYWAY.
 
-So what did fifteen thousand people spend with him?
+So how much did Ryan Leslie make from those fifteen thousand people?
 Over two million dollars.
 
 And here's the crazy part. That's about a hundred and thirty three dollars a person.
@@ -53,7 +50,7 @@ Flat scan of a white sheet of paper filling the entire frame. No desk, no surfac
 
 **META:** Artist: Ryan Leslie · Family: I/Evidence · Mechanism: owned relationships, first-party contact instead of rented reach ·
 Metric: over 40,000 fan phone numbers in his personal address book; an SMS campaign generated over $2 million in revenue from sales to roughly 15,000 people (web-verified 2026-08-20, Forbes/CNBC/TechCrunch coverage of SuperPhone) ·
-Hook promise: what 15,000 reachable people spent, answered in dollars ·
+Hook promise: how much did Ryan Leslie make selling to 15,000 of the 40,000 fans he gave his actual phone number ·
 Withheld variable: the revenue total · Big Reveal: over $2 million from about 15,000 buyers ·
 Wow Factor: roughly $133 per person, against the same 15,000 as monthly listeners generating about $150 a month in total ·
 Lead magnet: own-your-fans-calculator + OWN · CRWN claim tier: shipped (membership tiers + vault) ·

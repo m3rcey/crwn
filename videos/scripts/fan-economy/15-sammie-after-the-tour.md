@@ -2,10 +2,11 @@
 
 **SCRIPT:**
 
-If I ran Sammie's fan economy, I would change exactly one thing about how he tours.
-And what that one change could be worth BETWEEN tours is the number artists like him are sleeping on.
+How much could one change to the way Sammie tours be worth BETWEEN tours?
+Let's find out.
 
-Quick backstory.
+If I ran Sammie's fan economy, I would change exactly one thing about how he tours.
+And what that one change could be worth is the number artists like him are sleeping on.
 
 Sammie been famous since 1999. He was 12 years old singing I Like It, and the whole country knew him.
 25 years later he's independent, and by his own words, he didnt MAKE IT until like 6 years ago.
@@ -30,7 +31,7 @@ The room already paid once. The only question is whether they get somewhere to k
 On the CRWN app today that somewhere exist: the membership tiers, the fan list you keep, the imports if they already on your email list.
 ANYWAY.
 
-So what is that one change worth between tours?
+So how much is that one change worth between tours?
 Capture just 1% of them 200,000 people. That's 2,000 fans.
 At $9 a month, that's $18,000 a month. $216,000 a year.
 Between tours. From people the tour already found for you.
@@ -51,7 +52,7 @@ Comment TOUR and I'll DM you the link.
 
 **META:** Artist: Sammie · Family: E/Business Redesign · Mechanism: post-show capture / VIP membership between tours ·
 Metric: behavior-anchored (Wikipedia: I Like It 1999; Bossip interview: "made it 6 years ago", Millennium Tour resurgence); tour reach illustrative and hedged, follower math deliberately avoided (counts unverified) ·
-Hook promise: what the one touring change could be worth between tours ·
+Hook promise: how much could one change to the way Sammie tours be worth between tours ·
 Withheld variable: capture rate + membership price · Big Reveal: money ($216,000 a year between tours) ·
 Wow Factor: loss reframe (the 99% handed back to the ticket company) · Lead magnet: between-tour-calculator + TOUR (paused tool, closest fit) ·
 CRWN claim tier: shipped (membership tiers, fan CRM, email-list import)

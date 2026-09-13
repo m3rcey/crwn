@@ -2,10 +2,10 @@
 
 **SCRIPT:**
 
-The biggest companies in music just put a price on superfans, and the number they landed on is the one independent artists like you should be looking at.
+How much did the biggest companies in music just decide a superfan is worth every month?
+Let's find out.
 
-Here's what's happening.
-
+The number they landed on is the one independent artists like you should be looking at.
 The whole industry been saying the same thing lately. Universal's CEO called the superfan segment massively under-monetized.
 Their finance chief said he thinks 20 to 30 percent of paying subscribers would eventually pay MORE for a superfan tier.
 And Spotify's premium tier, the one that's been widely reported but aint officially confirmed, would sit on top of a regular subscription.
@@ -28,7 +28,7 @@ A fan paying more for closeness is not a new idea, it's just never been YOUR bus
 Memberships you price yourself, early access, a vault, live sessions your people buy a ticket to: that's what artists set up on the CRWN app today, in they own name.
 ANYWAY.
 
-So what number did they actually land on?
+So how much did they decide a superfan is worth every month?
 Reported at about $6 a month on top of a normal subscription. That's the ceiling they picked for a superfan.
 Six dollars. And 20 to 30 percent of subscribers taking it, by they own estimate.
 
@@ -50,7 +50,7 @@ Comment WORTH and I'll DM you the link.
 
 **META:** Artist: none (industry-anchored) · Family: H/Current Event · Mechanism: superfan pricing / artist-owned memberships ·
 Metric: Lucian Grainge "massively under-monetized" and UMG CFO Boyd Muir's 20-30% superfan-tier estimate; Spotify premium tier widely reported at up to $5.99/mo on top of Premium, NOT officially confirmed (hedged in script, sourced 2026-08) ·
-Hook promise: what price the industry put on a superfan ·
+Hook promise: how much did the biggest companies in music just decide a superfan is worth every month ·
 Withheld variable: the reported price and adoption estimate · Big Reveal: money (about $6 a month, 20-30% adoption) ·
 Wow Factor: contrarian (the box contains everything except access to the artist) ·
 Lead magnet: worth + WORTH · CRWN claim tier: shipped (artist-priced memberships, early access, vault, ticketed lives)

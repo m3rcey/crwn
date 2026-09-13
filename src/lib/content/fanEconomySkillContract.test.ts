@@ -297,11 +297,12 @@ describe('FE-SKILL-009 scripts after #9 open on one question, and a versus is ab
   const num = (f: string) => parseInt(f.match(/^(\d+)-/)?.[1] ?? '0', 10);
   const files = (existsSync(SCRIPT_DIR) ? readdirSync(SCRIPT_DIR) : []).filter((f) => f.endsWith('.md') && num(f) >= 10);
 
-  const PENDING_OPENING = new Set(
-    [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35,
-      36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 53, 54, 55, 56, 57, 58, 59, 60]
-  );
-  const PENDING_ONE_SIDED = new Set([18, 19, 20, 28, 48, 49, 51, 53, 54, 55, 56, 57, 58, 59]);
+  // The four left are versus posts where no sourced, same-unit number exists for one side
+  // (2026-09-13 rebuild pass). Each needs a founder call: a new axis, a new foil, or a rewrite as a
+  // single-artist case study. Their openings wait on that decision, because a both-sided question
+  // over a one-sided reveal would promise an answer the script cannot give.
+  const PENDING_OPENING = new Set([18, 20, 51, 55]);
+  const PENDING_ONE_SIDED = new Set([18, 20, 51, 55]);
 
   const scriptLines = (md: string) => {
     const s = md.indexOf('**SCRIPT:**');

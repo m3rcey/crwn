@@ -2,9 +2,8 @@
 
 **SCRIPT:**
 
-I keep a one dollar bill in a frame, and the reason why is the reason I ended up building a music company.
-
-Let me tell you about it.
+Why is the one dollar bill I keep in a frame the reason I ended up building a music company?
+Let's find out.
 
 December 8th is my father's birthday.
 He was an entrepreneur. Built his own thing, from nothing, in a time that wasnt built for him to.
@@ -47,7 +46,7 @@ Comment FREE and I'll DM you the link.
 
 **META:** Artist: founder · Family: J/128 · Mechanism: ownership creates freedom (origin story) ·
 Metric: none (personal facts fixed by the skill: December 8 is the father's birthday, he was an entrepreneur, the founder still owns the first dollar the business earned, he passed in 2022, CRWN founded March 2026) ·
-Hook promise: why a framed dollar led to building a music company (a reason, unit-matched to a reason) ·
+Hook promise: why is the one dollar bill I keep in a frame the reason I ended up building a music company (a reason, unit-matched to a reason) ·
 Withheld variable: n/a (non-numerical; the gap is the why) · Big Reveal: meaning (ownership creates freedom, and what the dollar actually is) ·
 Wow Factor: the turn (artists are told to build on land they do not own) ·
 Lead magnet: opportunity-calculator + FREE · CRWN claim tier: shipped (memberships, direct sales, fan list and money in one place) ·

@@ -2,11 +2,10 @@
 
 **SCRIPT:**
 
-Money Man paid $250,000 to get OUT of his record deal, and what he got offered AFTER he owned everything is the number independent artists like him should be paying attention to.
-Not to sign one. To LEAVE one.
+How much did Money Man get offered AFTER he paid $250,000 to get OUT of his record deal and owned everything?
+Let's find out.
 
-Here's the story.
-
+He paid to LEAVE a deal, not to sign one, and what came after is the number independent artists like him should be paying attention to.
 Money Man was signed to Cash Money. One of the biggest names a rapper could sign to.
 And by his own account, he wrote a check for $250,000 just to walk away.
 People called it crazy. A deal is supposed to be the finish line, right?
@@ -26,7 +25,7 @@ The relationships, the sales, the list of who actually pays you: that half is wh
 Cause owning your music and renting your audience is only half free.
 ANYWAY.
 
-So what did he get offered after he owned everything?
+So how much did he get offered after he owned everything?
 A year after he left, EMPIRE paid Money Man a $1,000,000 advance. In Bitcoin. First artist ever paid like that.
 Let that marinate
 He paid $250,000 to be free. Then a distributor paid HIM a million, while he kept everything.
@@ -48,7 +47,7 @@ Comment FREE and I'll DM you the link.
 
 **META:** Artist: Money Man · Family: F/Contrarian · Mechanism: ownership economics (masters half + fan half) ·
 Metric: reported deal facts ($250K exit self-reported, Digital Music News 2020-11; $1M EMPIRE Bitcoin advance, Billboard/AllHipHop 2021-11; Black Circle Family + 10-album EMPIRE terms, Billboard); follower math deliberately avoided (counts unverified) ·
-Hook promise: what number he got offered AFTER paying to own everything ·
+Hook promise: how much did Money Man get offered AFTER he paid $250,000 to get out of his record deal and owned everything ·
 Withheld variable: what the exit turned into (the $1M advance) · Big Reveal: money (the $1,000,000 Bitcoin advance, reported) ·
 Wow Factor: contrarian (deals chase owners) · Lead magnet: opportunity-calculator + FREE ·
 CRWN claim tier: shipped (fan relationships, sales, list in one place; distribution/masters explicitly NOT claimed)

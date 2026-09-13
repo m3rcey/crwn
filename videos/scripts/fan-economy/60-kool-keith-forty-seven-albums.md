@@ -2,11 +2,11 @@
 
 **SCRIPT:**
 
+How many of the people who bought Kool Keith's 47 albums can he reach today?
+Let's find out.
+
 Kool Keith has forty seven studio albums. Not mixtapes, not features. Studio albums, since the eighties.
 Every one of them was bought by somebody. Somebody paid for it, took it home, played it.
-How many of those buyers can he reach today?
-
-Let's break it down.
 
 Forty seven is not a typo. Twenty four on his own and twenty three with other people. Solo records, records under other names, records with producers, records with other rappers.
 Decade after decade, straight through every change this business has been through. He never stopped.
@@ -21,7 +21,7 @@ Ask where all those hands went.
 Hold that thought.
 You dont need to market to fans. You need a market FOR fans.
 Reach and revenue are two different systems and almost nobody has been shown the second one.
-The CRWN app is built for the second one: tiers your fans join, and a vault behind the top one.
+The CRWN app is built for the second one: tiers your fans join, and a vault behind one of them.
 ANYWAY.
 
 So how many of those buyers can Kool Keith actually reach?
@@ -53,7 +53,7 @@ Flat scan of a white sheet of paper filling the entire frame. No desk, no surfac
 
 **META:** Artist: Kool Keith · Family: C · Mechanism: catalog depth against an unreachable buyer base ·
 Metric: Kool Keith has released 47 studio albums, 24 solo and 23 in collaboration with other artists, with Karpenters (2025) the most recent (web-verified 2026-08-22, Wikipedia discography) ·
-Hook promise: how many of his buyers he can contact today ·
+Hook promise: how many of the people who bought Kool Keith's 47 albums can he reach today ·
 Withheld variable: the reachable count · Big Reveal: not one, because no list exists ·
 Wow Factor: one of the deepest catalogs in rap is worth less than a list of the people who already paid for it ·
 Lead magnet: vault-revenue-planner + VAULT · CRWN claim tier: shipped ·

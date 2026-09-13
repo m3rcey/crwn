@@ -2,17 +2,14 @@
 
 **SCRIPT:**
 
-Stove God Cooks put out one album called Reasonable Drought.
-Then he pressed it again. And again. How many different versions of the same record did people buy?
-The answer should change how you think about selling the same thing twice.
-
-Let's break it down.
+How many different versions of Reasonable Drought did Stove God Cooks get people to buy?
+Let's find out.
 
 Most artists press one vinyl. One colour, one jacket, one run. If it sells out, that's the end of it, and the fans who missed it just missed it.
 Reasonable Drought didn't work like that.
 
 The first press alone wasn't one record. It was five different versions of the same record. Twenty test presses with screen printed jackets. A hundred and twenty in clear with fruit punch. Three hundred and thirty five half pink and half clear with a Japanese obi strip. Three hundred and forty splatter. Four hundred and sixty fruit punch.
-Then more came after that. Two hundred here. Four hundred there. Five hundred. A run of a hundred and fifty with a holographic jacket.
+Then more came after that.
 
 Now here's the thing nobody puts side by side.
 Same songs. Same tracklist. Same everything you can actually hear.
@@ -25,7 +22,7 @@ That's what the CRWN app is built around: membership tiers and a vault your top 
 ANYWAY.
 
 So how many versions of one album is that?
-Nine that we can count, and the first press was five of them by itself.
+Nine that we can count, and the first press was five of them by itself. Then two hundred here, four hundred there, five hundred, and a run of a hundred and fifty with a holographic jacket.
 
 And here's the crazy part. Collectors buy more than one. The same person owns the splatter and the obi strip, of the same album, with the same songs on it.
 He wasn't selling the music nine times. He was selling nine different objects that happen to play the same music.
@@ -52,7 +49,7 @@ Flat scan of a white sheet of paper filling the entire frame. No desk, no surfac
 
 **META:** Artist: Stove God Cooks · Family: G/Comparison · Mechanism: variant scarcity, selling the EDITION rather than the album ·
 Metric: Reasonable Drought first press comprised 20 test presses with screen printed jackets, 120 clear with fruit punch, 335 half pink/half clear with Japanese obi, 340 splatter and 460 fruit punch; later limited editions of 200, 400, 500 and 150 (holographic jacket, obi) followed (web-verified 2026-08-20, Discogs/retail listings) ·
-Hook promise: how many versions of one album, answered in a count ·
+Hook promise: how many different versions of Reasonable Drought did Stove God Cooks get people to buy ·
 Withheld variable: the number of versions · Big Reveal: nine countable versions, five of them in the first press alone ·
 Wow Factor: the same collector buys more than one copy of the same album, so the product was never the music ·
 Lead magnet: proof-of-demand-test-builder + DEMAND · CRWN claim tier: shipped (proof of demand test) ·

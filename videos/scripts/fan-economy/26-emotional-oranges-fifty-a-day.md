@@ -2,10 +2,10 @@
 
 **SCRIPT:**
 
-Emotional Oranges had two songs out and answered 50 fans a day, and how many real conversations that piles up to in a year is why artists like them end up untouchable.
+How many real conversations did Emotional Oranges pile up in a year by answering 50 fans a day with two songs out?
+Let's find out.
 
-Let's look at it.
-
+That total is why artists like them end up untouchable.
 Emotional Oranges is an LA duo, and for years nobody even knew who they were.
 Masks, fog on stage, no faces. On purpose.
 And with almost nothing released, they made a rule for themselves: reply to 40 or 50 people a day, every day, on Twitter and Instagram.
@@ -28,7 +28,7 @@ Talking to people is step one, but a conversation dont pay you by itself. It has
 Memberships, a vault, direct sales and the fan list in your name: that's what artists run on the CRWN app.
 ANYWAY.
 
-So how many conversations does 50 a day actually add up to?
+So how many real conversations does 50 a day actually add up to in a year?
 
 About 18,250 in a single year.
 Eighteen thousand real conversations, off a catalog of two songs.
@@ -51,7 +51,7 @@ Comment OWN and I'll DM you the link.
 
 **META:** Artist: Emotional Oranges · Family: I/Evidence-Proof · Mechanism: owned fan relationship built before the catalog ·
 Metric: LA duo formed 2017, anonymous by design with masks and staged fog, and their own stated early rule of replying to 40 to 50 people a day on Twitter and Instagram when they had two songs out; Coachella and Lollapalooza slots since (Billboard, Vibe, Interview, web-verified 2026-08). The 18,250 is arithmetic on 50 a day, stated as such ·
-Hook promise: how many conversations 50 a day adds up to in a year (a count, unit-matched to the reveal) ·
+Hook promise: how many real conversations did Emotional Oranges pile up in a year by answering 50 fans a day with two songs out (a count, unit-matched to the reveal) ·
 Withheld variable: the annual total · Big Reveal: scale (about 18,250 conversations off two songs) ·
 Wow Factor: compounding (the relationship existed before the product, so nothing later landed on strangers) ·
 Lead magnet: own-your-fans-calculator + OWN · CRWN claim tier: shipped (memberships, vault, direct sales, fan CRM) ·

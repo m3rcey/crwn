@@ -2,12 +2,10 @@
 
 **SCRIPT:**
 
+How many beats did Knxwledge say he's actually made when he was asked?
+Let's find out.
+
 Knxwledge has put out more music than most labels release in a decade.
-He was asked how many beats he's actually made. How many you think he said?
-The answer should change how you think about the hard drive you're sitting on.
-
-Let's break it down.
-
 He's been uploading since before most people had a Bandcamp. Whole series of them. The Hexual Sealings run, the WrapTapes, the karma loops. Dozens of releases on his own page and no label deciding when.
 That's the part people know. Prolific. Fine.
 
@@ -51,7 +49,7 @@ Flat scan of a white sheet of paper filling the entire frame. No desk, no surfac
 
 **META:** Artist: Knxwledge · Family: G/Comparison · Mechanism: unreleased catalog as unpriced inventory ·
 Metric: in an interview he estimated he had made roughly half a million beats; his Bandcamp carried 66 releases as of a 2015 profile and has grown since, across the Hexual Sealings, WrapTapes and karma.loops series (web-verified 2026-08-20) ·
-Hook promise: how many beats he has made, answered in a count ·
+Hook promise: how many beats did Knxwledge say he's actually made when he was asked ·
 Withheld variable: the number · Big Reveal: about half a million, by his own estimate ·
 Wow Factor: he cannot release it, no feed could carry it, and the only model that fits it is paid access rather than distribution ·
 Lead magnet: vault-revenue-planner + VAULT · CRWN claim tier: shipped (membership tiers + vault) ·

@@ -2,11 +2,10 @@
 
 **SCRIPT:**
 
-Before anybody knew his name, Oddisee was booking his own shows across Europe.
-No label, no agent, sleeping on promoters' floors. So what was he getting paid a night?
-The answer should change how you think about a city you've never played.
+How much was Oddisee getting paid a night back when nobody knew his name?
+Let's find out.
 
-Let's break it down.
+Before anybody knew his name, Oddisee was booking his own shows across Europe. No label, no agent.
 
 Most artists wait to be picked. Wait for the booking agent, wait for the support slot, wait for somebody with a spreadsheet to decide your city is worth the risk.
 And while you wait, nothing happens, because nobody is coming.
@@ -25,7 +24,7 @@ A show is not a payday, it's the only place you can meet the people who'll pay y
 That's what the CRWN app is built around: membership tiers and a vault your top members pay to get into.
 ANYWAY.
 
-So what was he getting a night?
+So how much was Oddisee getting paid a night?
 About seven hundred dollars a show.
 
 And here's the crazy part. Seven hundred a night is nothing after you take out the travel, and he did it anyway, for years.
@@ -53,7 +52,7 @@ Flat scan of a white sheet of paper filling the entire frame. No desk, no surfac
 
 **META:** Artist: Oddisee · Family: I/Evidence · Mechanism: touring as audience acquisition, city-by-city owned relationships ·
 Metric: he has described booking his first European tour himself at $700 a show, travelling country to country on a Europass and sleeping on promoters' floors while playing to rooms where nobody knew his name (web-verified 2026-08-20, DJBooth interview) ·
-Hook promise: what he was paid a night, answered in a fee ·
+Hook promise: how much was Oddisee getting paid a night back when nobody knew his name ·
 Withheld variable: the per-show fee · Big Reveal: about $700 a show ·
 Wow Factor: the fee was never the point, the room was, and the audience he built that way is still his ·
 Lead magnet: between-tour-calculator + TOUR · CRWN claim tier: shipped (membership tiers + vault) ·

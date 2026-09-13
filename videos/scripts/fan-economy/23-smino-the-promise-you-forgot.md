@@ -2,10 +2,10 @@
 
 **SCRIPT:**
 
-Smino just went independent, and what his first 100 paying fans actually end up being worth comes down to one thing almost nobody sets up.
+How much could Smino's first 100 paying fans end up being worth, now that he went independent?
+Let's find out.
 
-Let's talk about it.
-
+Smino just went independent, and what them fans actually end up being worth comes down to one thing almost nobody sets up.
 Smino put out Maybe in Nirvana in December of 2024, his first independently released album.
 Zero Fatigue, his own collective. Real touring power, festival runs, and a fanbase that buys tickets and merch instead of just streaming.
 He's in the exact spot a lot of you say you want to be in: nobody above him deciding anything.
@@ -27,7 +27,7 @@ Your problem aint marketing to fans. It's that you need a market FOR fans.
 And a market runs on kept promises, which is why the Promise Calendar on the CRWN app is a real thing: every benefit you attach to a tier becomes a dated obligation with the fans it's owed to, so it stops living in your head.
 ANYWAY.
 
-So how big is the gap between them two versions?
+So how much could them first 100 paying fans actually end up being worth?
 100 members at $10 a month who drift off after three months is $3,000. That's it, that's the whole run.
 The same 100 people, same $10, who stay three years because you kept showing up, is $36,000.
 Thirty three thousand dollars of difference, off the same fans and the same price.
@@ -49,7 +49,7 @@ Comment FREE and I'll DM you the link.
 
 **META:** Artist: Smino · Family: E/Business Redesign · Mechanism: Promise Calendar / fulfillment and retention ·
 Metric: Maybe in Nirvana released December 2024 as his first independently released album, Zero Fatigue collective, touring and festival draw with a ticket and merch buying fanbase (Wikipedia, tour listings, web-verified 2026-08); follower and listener math deliberately avoided, the 4M monthly listener figure found was forum-sourced and unverified. The 100 members at $10 is stated arithmetic, not a benchmark ·
-Hook promise: the dollar gap between two versions of the same 100 fans (unit-matched to the reveal) ·
+Hook promise: how much could Smino's first 100 paying fans end up being worth, now that he went independent (a dollar figure; the reveal answers it as the gap between two versions of the same 100 fans) ·
 Withheld variable: the retention duration on both sides · Big Reveal: money ($3,000 versus $36,000 from the same 100 people) ·
 Wow Factor: reframe (acquisition is the hard part, retention is the easy part everybody loses) ·
 Lead magnet: opportunity-calculator + FREE · CRWN claim tier: shipped (Promise Calendar, dated obligations per tier benefit) ·

@@ -2,10 +2,10 @@
 
 **SCRIPT:**
 
-How much money is Eric Roberson leaving on the table every week he NOT on tour?
-And if you perform for real people, artists like him and like you, this number is yours too.
+How much money is Eric Roberson leaving on the table on the nights he's NOT on tour?
+Let's find out.
 
-If you know, you know.
+If you perform for real people, artists like him and like you, this number is yours too.
 Eric Roberson basically wrote the blueprint for independent R&B.
 His own label, Blue Erro Soul has been around since 2001. He's had Grammy nominations and twenty-plus years of sold-out tours without a major label.
 And his shows is famous for one thing: they not really concerts.
@@ -31,7 +31,7 @@ They show up, they spend, they tell you what they want, in real time.
 Ticketed live sessions, with the replay included for everybody that paid, that's a thing artists can run on the CRWN app today.
 ANYWAY.
 
-So what is one of them nights actually worth?
+So how much is he leaving on the table on one of them nights?
 One night: 450 fans at $20 a ticket.
 That's $9,000 for one evening sitting at a keyboard.
 Run that monthly and that's like $108,000 a year. From shows you dont have to catch a flight to do.
@@ -56,7 +56,7 @@ Comment LIVE and I'll DM you the link.
 
 **META:** Artist: Eric Roberson · Family: A/Missed Money · Mechanism: ticketed live sessions + included replay ·
 Metric: behavior-anchored (Sony Hall bio, Wikipedia: Blue Erro Soul 2001, Grammy noms, sold-out tours; improvised-song shows per Bring Back Soul Music); room size illustrative, no public counts used ·
-Hook promise: how much money he leaves on the table every week he is not on tour ·
+Hook promise: how much money is Eric Roberson leaving on the table on the nights he is not on tour ·
 Withheld variable: attendance AND ticket price · Big Reveal: money ($9,000 a night from 450 tickets at $20, about $108,000 a year) ·
 Wow Factor: ownership (the venue never hands him the names) · Lead magnet: live-experience-calculator + LIVE (paused tool, closest fit) ·
 CRWN claim tier: shipped (live sessions with tickets and the included replay). Tips and tip goals are DELIBERATELY absent: `live_tips` probes OFF in production (2026-08-16), so no tip revenue appears in the math

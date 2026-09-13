@@ -2,17 +2,14 @@
 
 **SCRIPT:**
 
-In 2020 Boldy James put out more albums than most artists manage in five years.
-In one year, with a different producer on every one. How many?
-The answer should change how you think about your back catalog.
+How many albums did Boldy James put out in 2020, with a different producer on every one?
+Let's find out.
 
-Let's break it down.
-
+That one year, he put out more albums than most artists manage in five.
 The industry teaches one album every two years. Build up to it, roll it out, tour it, disappear, come back.
 That schedule wasn't built for the artist. It was built for a supply chain that had to ship plastic to shops.
 
-Boldy ignored it. The Price of Tea in China with Alchemist in February. Manger on McNichols with Sterling Toles in July. The Versace Tape in August. Real Bad Boldy with Real Bad Man to close it out.
-Four projects, four different producers, twelve months.
+Boldy ignored it. A different producer on every one, and not one of them sat waiting on a rollout.
 
 Now here's the thing nobody puts side by side.
 Everybody measures that as output. How much he made. Nobody measures it as inventory.
@@ -25,7 +22,8 @@ That's what the CRWN app is built around: membership tiers and a vault your top 
 ANYWAY.
 
 So how many albums did he put out in that one year?
-Four. Four full projects, four different producers, twelve months.
+Four. The Price of Tea in China with Alchemist in February. Manger on McNichols with Sterling Toles in July. The Versace Tape in August. Real Bad Boldy with Real Bad Man to close it out.
+Four full projects, four different producers, twelve months.
 
 And here's the crazy part. Six years later every one of them is still for sale, and the streaming on all four together is a few thousand a month split between them.
 Four things a fan can still buy, and the only thing anybody ever did with them was upload them.
@@ -53,7 +51,7 @@ Flat scan of a white sheet of paper filling the entire frame. No desk, no surfac
 
 **META:** Artist: Boldy James · Family: G/Comparison · Mechanism: catalog depth as inventory rather than output ·
 Metric: four full-length projects released in 2020: The Price of Tea in China (February, prod. The Alchemist), Manger on McNichols (22 July, with Sterling Toles), The Versace Tape (August), and Real Bad Boldy (with Real Bad Man) (web-verified 2026-08-20, Wikipedia/AllMusic) ·
-Hook promise: how many albums he released in one year, answered in a count ·
+Hook promise: how many albums did Boldy James put out in 2020, with a different producer on every one ·
 Withheld variable: the release count · Big Reveal: four full projects with four different producers in twelve months ·
 Wow Factor: the catalog does not expire, so a 2020 record is still earning inside the vault five years later ·
 Lead magnet: vault-revenue-planner + VAULT · CRWN claim tier: shipped (membership tiers + vault) ·

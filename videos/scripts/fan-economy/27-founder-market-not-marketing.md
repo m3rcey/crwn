@@ -2,10 +2,10 @@
 
 **SCRIPT:**
 
-An artist with a million followers can make less than an artist with ten thousand, and the reason why is the whole reason I built CRWN.
+Why can an artist with a million followers make less than an artist with ten thousand?
+Let's find out.
 
-Let me explain it.
-
+The reason why is the whole reason I built CRWN.
 Everybody in music is measured on the same thing. Reach.
 Followers, listeners, plays, views. That's the scoreboard, that's what gets posted, that's what a deal conversation opens with.
 And reach is real. I aint here to tell you it dont matter, because everything downstream of it scales with it.
@@ -50,7 +50,7 @@ Comment OWN and I'll DM you the link.
 
 **META:** Artist: founder · Family: J/128 · Mechanism: the thesis (a market FOR fans) rather than the origin story ·
 Metric: none (no new biographical claims; the 128 facts are exactly the ratified ones, kept brief because script 18 is the full origin story) ·
-Hook promise: the reason a smaller artist can out-earn a bigger one (a reason, unit-matched to the reveal) ·
+Hook promise: why can an artist with a million followers make less than an artist with ten thousand (a reason, unit-matched to the reveal) ·
 Withheld variable: n/a (non-numerical; the gap is the why) · Big Reveal: the reason (ten thousand with somewhere to spend beats a million with nowhere) ·
 Wow Factor: reframe (it is not talent or effort, one of them built the second half) ·
 Lead magnet: own-your-fans-calculator + OWN · CRWN claim tier: shipped (memberships, direct sales, vault, live sessions, fan list) ·

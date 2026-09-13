@@ -2,11 +2,10 @@
 
 **SCRIPT:**
 
-In 2015 Wu-Tang made an album and pressed exactly one copy of it.
-Not a limited run. One. So what did that single copy sell for?
-The answer should change what you think scarcity is worth.
+How much did the only copy of Wu-Tang's album sell for?
+Let's find out.
 
-Let's break it down.
+In 2015 Wu-Tang made an album and pressed exactly one copy of it. Not a limited run. One.
 
 Once Upon a Time in Shaolin. One album, one physical copy, in a silver box.
 And a legal condition attached: it cannot be released commercially until the year 2103. Not a typo. Twenty one oh three.
@@ -23,7 +22,7 @@ Everybody's fighting to be heard by more people, and almost nobody's asking what
 That's what the CRWN app is built around: membership tiers and a vault your top members pay to get into.
 ANYWAY.
 
-So what did one copy sell for?
+So how much did that one copy sell for?
 Two million dollars, in 2015, through an auction house.
 
 And here's the crazy part. That wasn't the end of it. The US government seized it and resold it for two million, two hundred and thirty eight thousand, four hundred and eighty two dollars and thirty cents.
@@ -52,7 +51,7 @@ Flat scan of a white sheet of paper filling the entire frame. No desk, no surfac
 
 **META:** Artist: Wu-Tang Clan · Family: I/Evidence · Mechanism: scarcity taken to its absolute limit, the artifact as the entire product ·
 Metric: Once Upon a Time in Shaolin, a single physical copy, sold in 2015 via Paddle8 to Martin Shkreli for $2 million; forfeited and resold by the US government for $2,238,482.30; acquired by PleasrDAO for roughly $4 million in 2021; contractually barred from commercial release until 2103 (web-verified 2026-08-21, Billboard/Variety/Rolling Stone) ·
-Hook promise: what one copy sold for, answered in a price ·
+Hook promise: how much did the only copy of Wu-Tang's album sell for ·
 Withheld variable: the sale price · Big Reveal: $2 million in 2015 ·
 Wow Factor: it sold three times, for $2M, then $2,238,482.30, then about $4M, and no owner can legally release it for another seventy odd years ·
 Lead magnet: vault-revenue-planner + VAULT · CRWN claim tier: shipped (membership tiers + vault) ·

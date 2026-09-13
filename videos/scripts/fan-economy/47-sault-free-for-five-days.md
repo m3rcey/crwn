@@ -2,11 +2,10 @@
 
 **SCRIPT:**
 
-In November 2022 SAULT put out five albums on the same day, for free.
-Free, but you needed a password, and it was only up for a few days. How long?
-The answer should change how you think about giving music away.
+How long did SAULT keep five free albums up after dropping them all on the same day?
+Let's find out.
 
-Let's break it down.
+In November 2022 SAULT put out five albums on the same day, for free.
 
 SAULT are anonymous on purpose. No interviews, no photographs, barely a face between them.
 Then one day: five albums at once. God, 11, AIIR, Earth, Today and Tomorrow. Download them all, pay nothing.
@@ -52,7 +51,7 @@ Flat scan of a white sheet of paper filling the entire frame. No desk, no surfac
 
 **META:** Artist: SAULT · Family: G/Comparison · Mechanism: free music made scarce by TIME rather than price ·
 Metric: on 1 November 2022 SAULT released five albums simultaneously ((Untitled) God, 11, AIIR, Earth, Today & Tomorrow) as free password-protected downloads available for five days only; the group is deliberately anonymous, declining interviews and photographs (web-verified 2026-08-21, Variety/NME/Consequence) ·
-Hook promise: how long the free window lasted, answered in a duration ·
+Hook promise: how long did SAULT keep five free albums up after dropping them all on the same day ·
 Withheld variable: the length of the window · Big Reveal: five days ·
 Wow Factor: nothing was sold and people moved anyway, because the cost was attention and timing rather than money, which filters for a different kind of fan ·
 Lead magnet: vault-revenue-planner + VAULT · CRWN claim tier: shipped ·

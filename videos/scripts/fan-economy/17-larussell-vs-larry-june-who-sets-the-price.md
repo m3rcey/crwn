@@ -2,9 +2,8 @@
 
 **SCRIPT:**
 
-Larry June puts a price on it and LaRussell lets the fan pick, and what the exact same album is worth under them two rules is a gap independent artists should see before they price anything else.
-
-Here's the setup.
+Which way of pricing an album makes more from the same fans, Larry June's set price or LaRussell's pay what you want?
+Let's find out.
 
 Larry June runs the model everybody knows, and he runs it clean.
 Independent, his own lane, Midnight Organic, merch, the whole healthy-living brand.
@@ -28,7 +27,7 @@ A market means the ones that want to go deeper have somewhere deeper to go.
 That's the whole point of a tier ladder on the CRWN app: a free rung, then real rungs above it, instead of one price for everybody.
 ANYWAY.
 
-So what did that same album do when the fans set the price?
+So which way makes more from the same fans, Larry June's set price or LaRussell's pay what you want?
 Them thousand fans paid $57,000. In one day.
 Same thousand people. At a fixed ten dollars that's $10,000.
 Letting them choose produced almost six times the same crowd.
@@ -53,7 +52,7 @@ Comment FREE and I'll DM you the link.
 **META:** Artist: LaRussell vs Larry June · Family: G/Comparison · Axis: who sets the price ·
 Mechanism: fan-set pricing / the membership ladder ·
 Metric: LaRussell campaign facts (The Source, KTVU, NBC Bay Area, Jan 2026: $1 floor on EVEN, ~1,000 copies and $57,000 in 24 hours, $11,000 single purchase); Larry June ~1M IG, independent, Midnight Organic (web-verified 2026-08). The $10 fixed-price comparison is a stated illustration ·
-Hook promise: what the same album is worth under a fixed price versus a fan-set price ·
+Hook promise: which way of pricing an album makes more from the same fans, Larry June's set price or LaRussell's pay what you want ·
 Withheld variable: what the thousand fans actually paid ·
 Big Reveal: equivalence ($10,000 fixed versus $57,000 fan-set, same 1,000 people) ·
 Wow Factor: reframe (a fixed price is a ceiling AND a floor; the $11,000 fan proves the ceiling) ·

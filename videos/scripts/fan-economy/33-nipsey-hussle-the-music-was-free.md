@@ -2,11 +2,8 @@
 
 **SCRIPT:**
 
-Nipsey Hussle put Crenshaw out for free. Same day, he sold physical copies of it for a hundred dollars each.
-So how many people paid a hundred dollars for music they could already have for nothing?
-The answer should change what you think you're actually selling.
-
-Let's break it down.
+How many people paid Nipsey Hussle a hundred dollars for a physical copy of Crenshaw when he was giving it away for free?
+Let's find out.
 
 October 2013. He pressed a thousand CDs and priced them at a hundred apiece. Called it Proud2Pay.
 Everybody said it was arrogant. A hundred dollars for a mixtape from an unsigned rapper, when the free version was going up online twelve hours later.
@@ -50,7 +47,7 @@ Flat scan of a white sheet of paper filling the entire frame. No desk, no surfac
 
 **META:** Artist: Nipsey Hussle · Family: I/Evidence · Mechanism: the artifact and the access are the product, not the file ·
 Metric: Crenshaw, October 2013, 1,000 CDs priced at $100 each sold out in 24 hours for $100,000; Jay-Z bought 100 copies for $10,000; a free digital version was released roughly 12 hours after the physical went on sale; buyers also received a concert ticket and an autograph (web-verified 2026-08-20, Billboard/Forbes/Westword) ·
-Hook promise: how many people paid $100 for music that was free, answered in units ·
+Hook promise: how many people paid Nipsey Hussle a hundred dollars for a physical copy of Crenshaw when he was giving it away for free ·
 Withheld variable: the units sold and the total · Big Reveal: all 1,000 sold out in 24 hours, $100,000 in a day ·
 Wow Factor: Jay-Z alone paid $10,000 of it, and the same music was free on the internet the whole time ·
 Lead magnet: vault-revenue-planner + VAULT · CRWN claim tier: shipped (membership tiers + vault) ·

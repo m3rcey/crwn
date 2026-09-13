@@ -1,12 +1,11 @@
-# Noname: a book club in four countries
+# Noname: a book club in five countries
 
 **SCRIPT:**
 
-Noname runs a book club. Not a fan club, a book club, with chapters in four countries.
-So how many chapters does a rapper's reading group actually have?
-The answer should change what you think a fanbase is for.
+How many chapters does Noname's book club have?
+Let's find out.
 
-Let's break it down.
+Noname runs a book club. Not a fan club, a book club, with chapters in five countries.
 
 She's independent. She self-released Sundial in 2023 and it topped Rolling Stone's rap albums list that year.
 And she has said out loud what pays for the records: ticket sales and vinyl. Not streaming.
@@ -25,7 +24,7 @@ The strongest thing you can offer people is often not more music, it's a reason 
 That's what the CRWN app is built around: membership tiers and a vault your top members pay to get into.
 ANYWAY.
 
-So how many chapters does the book club have?
+So how many chapters does Noname's book club actually have?
 Twenty four. Twenty in the United States and four more in London, Lagos, Accra and Nairobi.
 
 And here's the crazy part. Every one of them is free, and they're the reason her audience is an audience rather than a follower count.
@@ -35,7 +34,7 @@ The free thing is what makes the paid thing possible.
 Now to be fair, a book club is hers specifically, and copying it exactly would be nonsense. This aint a template.
 And streaming is how most people found her music in the first place. Discovery did its job.
 
-But if a free reading group in four countries is what holds an audience together, the question aint what else can I sell them.
+But if a free reading group in five countries is what holds an audience together, the question aint what else can I sell them.
 It's what would your people show up for if you never released another song.
 
 I built a free Own Your Fans Calculator that runs that exact number for your audience.
@@ -54,7 +53,7 @@ Flat scan of a white sheet of paper filling the entire frame. No desk, no surfac
 
 **META:** Artist: Noname · Family: I/Evidence · Mechanism: a free non-music community as the thing that holds a paying audience ·
 Metric: Noname Book Club runs 20 chapters across the United States plus 4 international chapters in London, Lagos, Accra and Nairobi, connecting people inside and outside carceral facilities with books, all resources free; Sundial was self-released 11 August 2023 and topped Rolling Stone's rap albums list; she has said ticket and vinyl sales are what fund her albums as an independent (web-verified 2026-08-21, Rolling Stone/nonamebooks.com) ·
-Hook promise: how many chapters, answered in a count ·
+Hook promise: how many chapters does Noname's book club have ·
 Withheld variable: the chapter count · Big Reveal: 24 chapters, 20 US and 4 international ·
 Wow Factor: the free thing is what makes the paid thing possible, and she has said so herself ·
 Lead magnet: own-your-fans-calculator + OWN · CRWN claim tier: shipped ·

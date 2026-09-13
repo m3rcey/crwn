@@ -2,11 +2,8 @@
 
 **SCRIPT:**
 
-Mach-Hommy sold a CD for 300 dollars a copy. Then he put out a record for 999.
-Everybody else was giving music away free. So was he overcharging?
-The answer should change how independent artists price everything they own.
-
-Let's break it down.
+How much is the record Mach-Hommy priced at 999 dollars actually worth?
+Let's find out.
 
 Most artists find out what their music is worth after the fact. You put it out, the market decides, and whatever it decides is what you get.
 Mach-Hommy dont do that. He decides first.
@@ -26,7 +23,7 @@ Most artists have tools for getting heard and nothing at all for pricing what th
 That's what the CRWN app is built around: membership tiers and a vault your top members pay to get into.
 ANYWAY.
 
-So was Mach-Hommy overcharging at 999?
+So what is Mach-Hommy's 999 dollar record actually worth?
 That record sold at auction for 24,400 dollars.
 
 And here's the crazy part. He wasn't overcharging. He undercharged by about 24 times.
@@ -55,7 +52,7 @@ Flat scan of a white sheet of paper filling the entire frame. No desk, no surfac
 
 **META:** Artist: Mach-Hommy · Family: G/Comparison · Mechanism: artist-set premium pricing (primary, not resale) ·
 Metric: 187 copies of H.B.O. (2016) sold at $300 each; The G.A.T. (2017) released as vinyl only priced at $999; that record sold at auction in November 2025 for $24,400 (web-verified 2026-08-20, Wikipedia); streaming compared at the 1 cent per monthly listener heuristic, hedged ·
-Hook promise: was he overcharging at $999, answered in a price ·
+Hook promise: how much is the record Mach-Hommy priced at 999 dollars actually worth ·
 Withheld variable: the auction price · Big Reveal: $24,400, about 24 times his own asking price ·
 Wow Factor: he was not overcharging, he UNDERCHARGED by roughly 24x, and 187 buyers still paid him $56,100 for one release ·
 Lead magnet: vault-revenue-planner + VAULT · CRWN claim tier: shipped (membership tiers + vault) ·
