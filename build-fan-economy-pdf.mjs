@@ -26,12 +26,19 @@ const args = process.argv.slice(2).map((n) => parseInt(n, 10)).filter((n) => !Nu
 const START = args.length ? args[0] : 1;
 const END = args.length > 1 ? args[1] : args.length ? args[0] : Infinity;
 
-const sheets = fs
-  .readdirSync(DIR)
+// A video can carry up to three sheets: `<slug>.jpg` (the hook), then `<slug>-2.jpg` and
+// `<slug>-3.jpg`. They print together in filming order. readdir puts `-2` BEFORE the hook
+// (`-` sorts before `.`), so the sheet number is read explicitly rather than trusted to order.
+const files = fs.readdirSync(DIR);
+const sheets = files
   .filter((f) => /^\d+-.*\.jpg$/i.test(f))
-  .map((f) => ({ num: parseInt(f.match(/^(\d+)-/)[1], 10), file: f }))
+  .map((f) => {
+    const later = f.match(/^(.*)-(\d)\.jpg$/i);
+    const sheet = later && files.includes(`${later[1]}.jpg`) ? parseInt(later[2], 10) : 1;
+    return { num: parseInt(f.match(/^(\d+)-/)[1], 10), sheet, file: f };
+  })
   .filter((s) => s.num >= START && s.num <= END)
-  .sort((a, b) => a.num - b.num); // publish-queue order, not readdir order
+  .sort((a, b) => a.num - b.num || a.sheet - b.sheet); // publish-queue order, not readdir order
 
 if (!sheets.length) {
   console.error(`No sheets found in range ${START}-${END}`);

@@ -199,9 +199,17 @@ for (const entry of files) {
     // no API call, and no chance of the carousel opening on a different drawing
     // than the video it condenses.
     if (slideNo === 1) {
-      const sheet = fs.existsSync(SHEETS_DIR)
-        ? fs.readdirSync(SHEETS_DIR).find((f) => f.startsWith(`${entry.num}-`) && f.endsWith(".jpg"))
-        : null;
+      // Only the HOOK sheet. A video can also carry `<slug>-2.jpg` (the reveal) and `-3.jpg`,
+      // and `1-slug-2.jpg` sorts BEFORE `1-slug.jpg` in readdir, so a prefix match would open a
+      // carousel on its own payoff.
+      const all = fs.existsSync(SHEETS_DIR) ? fs.readdirSync(SHEETS_DIR) : [];
+      const isLaterSheet = (f) => {
+        const m = f.match(/^(.*)-\d\.jpg$/);
+        return !!m && all.includes(`${m[1]}.jpg`);
+      };
+      const sheet = all.includes(`${entry.slug}.jpg`)
+        ? `${entry.slug}.jpg`
+        : all.find((f) => f.startsWith(`${entry.num}-`) && f.endsWith(".jpg") && !isLaterSheet(f)) ?? null;
       if (sheet) {
         fs.copyFileSync(path.join(SHEETS_DIR, sheet), outPath);
         console.log(`  slide-1 COPIED from the video sheet (${sheet})`);

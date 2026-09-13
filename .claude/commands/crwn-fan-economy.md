@@ -680,6 +680,24 @@ ALBUMS while its notes said "4 PROJECTS" and its calendar carried exactly four X
 payoff in digits AND as a word, and never draw a countable number of objects when the reveal is a
 count. Full failure catalogue in `/crwn-image-gen`.
 
+## A video can film three sheets (2026-09-13)
+
+One sheet cannot carry a 60 to 90 second script: the hook sheet withholds the payoff, so the reveal
+and the closing turn have nothing to film. Scripts 1 to 9 now carry two more blocks AFTER the first,
+rendered by the same `generate-fan-economy-images.mjs` run:
+
+- `**NANO BANANA PRO PROMPT:**` -> `<slug>.jpg`, the HOOK sheet (every rule above; carousel slide 1).
+- `**NANO BANANA PRO PROMPT 2:**` -> `<slug>-2.jpg`, the REVEAL: the featured artist acting out the
+  math, the unit and quantity as boxed notes, the totals as the two big bottom lines. Every figure is
+  copied from the script's own reveal sentences with its hedge ("SAY ONLY", "ABOUT", "HE SAYS").
+- `**NANO BANANA PRO PROMPT 3:**` -> `<slug>-3.jpg`, the TURN: a no-portrait metaphor for the Wow
+  Factor, the viewer question, and a boxed `COMMENT <KEYWORD>`.
+
+`<!-- skip-people: all -->` (or a slug list) INSIDE a numbered block applies to that sheet only;
+put one on every sheet that must not attach a reference photo, because the generator scans the
+prompt text for names. Sheets 2 and 3 are not yet a requirement for new scripts: extend this to new
+scripts once the founder has watched the first nine.
+
 ## Social proof (founder decision, 2026-08-20): NEVER in the hook, and never every script
 
 **It does not go near the beginning.** The hook owns the first one to two sentences and its only

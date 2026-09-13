@@ -60,6 +60,15 @@ const ai = new GoogleGenAI({ apiKey: API_KEY });
 // Existing files are skipped, so reruns are safe. Scripts without a
 // **NANO BANANA PRO PROMPT:** block are reported and skipped, which is how a script with no
 // artwork yet behaves rather than an error.
+//
+// THREE SHEETS PER VIDEO (2026-09-13). One sheet could not carry a 60 to 90 second script: the
+// hook sheet deliberately withholds the payoff, so the reveal and the closing turn had no art to
+// film. A script may add `**NANO BANANA PRO PROMPT 2:**` (the reveal) and
+// `**NANO BANANA PRO PROMPT 3:**` (the turn and the viewer question) AFTER the first block. They
+// render to `<slug>-2.jpg` and `<slug>-3.jpg`; sheet 1 keeps its exact name, because the carousel
+// copies it as slide 1 and every other reader keys on `<slug>.jpg`. The first marker is matched
+// exactly, so a numbered block can never be read as sheet 1.
+const MAX_SHEETS = 3;
 const OUTPUT_BASE = "/mnt/c/Users/Josh/Dropbox/nano banana output/Shortform Posts/Fan Economy";
 const REFS_DIR = "/mnt/c/Users/Josh/Desktop/nano banana references";
 const SCRIPTS_DIR = "/home/merce/workspace-crwn/videos/scripts/fan-economy";
@@ -93,8 +102,12 @@ const scriptFiles = fs
   .filter((entry) => entry && entry.num >= START_SCRIPT_NUMBER && entry.num <= END_SCRIPT_NUMBER)
   .sort((a, b) => a.num - b.num);
 
-function extractPrompt(scriptContent) {
-  const marker = "**NANO BANANA PRO PROMPT:**";
+const promptMarker = (sheet) =>
+  sheet === 1 ? "**NANO BANANA PRO PROMPT:**" : `**NANO BANANA PRO PROMPT ${sheet}:**`;
+
+// The raw block, HTML comments included (they carry per-sheet directives).
+function extractBlock(scriptContent, sheet) {
+  const marker = promptMarker(sheet);
   const idx = scriptContent.indexOf(marker);
   if (idx === -1) return null;
   let rest = scriptContent.slice(idx + marker.length);
@@ -103,45 +116,71 @@ function extractPrompt(scriptContent) {
   return rest.trim();
 }
 
-function parseSkipPeople(scriptContent) {
-  const m = scriptContent.match(/<!--\s*skip-people:\s*([^>]+?)\s*-->/i);
+// What the model reads: a directive comment is for this script, never lettering on the page.
+const stripComments = (text) => text.replace(/<!--[\s\S]*?-->/g, "").trim();
+
+function parseSkipPeople(text) {
+  const m = text.match(/<!--\s*skip-people:\s*([^>]+?)\s*-->/i);
   if (!m) return [];
   return m[1].split(",").map((s) => s.trim().toLowerCase()).filter(Boolean);
 }
 
-console.log(`Generating ${scriptFiles.length} images for scripts ${START_SCRIPT_NUMBER}-${END_SCRIPT_NUMBER}`);
+// A script-level skip applies to every sheet; a skip INSIDE a numbered block applies to that
+// sheet only (`all` drops every person ref). The numbered blocks are cut out before reading the
+// script-level one, or a later sheet's skip would leak onto sheet 1.
+function skipPeopleFor(scriptContent, sheet) {
+  let scriptLevel = scriptContent;
+  for (let s = 2; s <= MAX_SHEETS; s++) {
+    const block = extractBlock(scriptContent, s);
+    if (block) scriptLevel = scriptLevel.replace(block, "");
+  }
+  const own = sheet === 1 ? [] : parseSkipPeople(extractBlock(scriptContent, sheet) || "");
+  return [...new Set([...parseSkipPeople(scriptLevel), ...own])];
+}
+
+const jobs = [];
+for (const entry of scriptFiles) {
+  const scriptContent = fs.readFileSync(path.join(SCRIPTS_DIR, entry.filename), "utf-8");
+  if (!extractBlock(scriptContent, 1)) {
+    // Not a failure in this series: most scripts have no artwork written yet.
+    console.log(`${entry.slug} SKIP (no prompt block yet)`);
+    continue;
+  }
+  for (let sheet = 1; sheet <= MAX_SHEETS; sheet++) {
+    const block = extractBlock(scriptContent, sheet);
+    if (!block) continue;
+    const name = sheet === 1 ? entry.slug : `${entry.slug}-${sheet}`;
+    jobs.push({ ...entry, sheet, name, scriptContent, promptText: stripComments(block) });
+  }
+}
+
+console.log(`Generating ${jobs.length} sheets for scripts ${START_SCRIPT_NUMBER}-${END_SCRIPT_NUMBER}`);
 console.log(`Output: ${OUTPUT_BASE}`);
 
 let success = 0;
 let fail = 0;
 const failed = [];
 
-for (let idx = 0; idx < scriptFiles.length; idx++) {
-  const { num, filename, slug } = scriptFiles[idx];
-  const scriptPath = path.join(SCRIPTS_DIR, filename);
-  const outPath = path.join(OUTPUT_BASE, `${slug}.jpg`);
+for (let idx = 0; idx < jobs.length; idx++) {
+  const { slug, sheet, name, scriptContent, promptText } = jobs[idx];
+  const outPath = path.join(OUTPUT_BASE, `${name}.jpg`);
 
   if (fs.existsSync(outPath)) {
-    console.log(`[${idx + 1}/${scriptFiles.length}] ${slug} SKIP (exists)`);
+    console.log(`[${idx + 1}/${jobs.length}] ${name} SKIP (exists)`);
     success++;
     continue;
   }
 
-  const scriptContent = fs.readFileSync(scriptPath, "utf-8");
-  const promptText = extractPrompt(scriptContent);
-  if (!promptText) {
-    // Not a failure in this series: most scripts have no artwork written yet.
-    console.log(`[${idx + 1}/${scriptFiles.length}] ${slug} SKIP (no prompt block yet)`);
-    continue;
-  }
-
-  const skipSlugs = parseSkipPeople(scriptContent);
+  const skipAll = skipPeopleFor(scriptContent, sheet);
+  const skipSlugs = skipAll.filter((s) => s !== "all");
   // Scan the PROMPT BLOCK, not the whole script. The narration names other artists as
   // examples, and scanning it attached their reference photos to a page that never draws
   // them: script 8 mentions Prince and Chance the Rapper, so the sheet came back with
   // Prince drawn as the main figure and labelled PRINCE instead of redveil.
-  const peopleSlugs = findMentionedSlugs(promptText).filter((s) => !skipSlugs.includes(s));
-  console.log(`\n[${idx + 1}/${scriptFiles.length}] ${slug}`);
+  const peopleSlugs = skipAll.includes("all")
+    ? []
+    : findMentionedSlugs(promptText).filter((s) => !skipSlugs.includes(s));
+  console.log(`\n[${idx + 1}/${jobs.length}] ${name}`);
   console.log(`  people: ${peopleSlugs.length ? peopleSlugs.join(", ") : "(none)"}${skipSlugs.length ? `  [skipped: ${skipSlugs.join(", ")}]` : ""}`);
 
   const personRefs = await ensurePersonRefs(peopleSlugs);
@@ -209,7 +248,7 @@ for (let idx = 0; idx < scriptFiles.length; idx++) {
     if (!imageData) {
       console.error(`  FAIL: no image in response`);
       fail++;
-      failed.push(slug);
+      failed.push(name);
     } else {
       fs.writeFileSync(outPath, Buffer.from(imageData, "base64"));
       try {
@@ -230,15 +269,15 @@ for (let idx = 0; idx < scriptFiles.length; idx++) {
   } catch (err) {
     console.error(`  ERROR: ${err.message}`);
     fail++;
-    failed.push(slug);
+    failed.push(name);
   }
 
-  if (idx < scriptFiles.length - 1) {
+  if (idx < jobs.length - 1) {
     await new Promise((r) => setTimeout(r, DELAY_MS));
   }
 }
 
 console.log(`\n=== DONE ===`);
-console.log(`Success: ${success}/${scriptFiles.length}`);
-console.log(`Failed: ${fail}/${scriptFiles.length}`);
+console.log(`Success: ${success}/${jobs.length}`);
+console.log(`Failed: ${fail}/${jobs.length}`);
 if (failed.length) console.log(`Failed: ${failed.join(", ")}`);

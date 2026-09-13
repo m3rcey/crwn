@@ -349,9 +349,11 @@ a SHIPPED script may say it plainly, a CONCEPTUAL one may not imply the feature 
 - **Rendered output:** `Dropbox/nano banana output/Carousel Posts/Fan Economy/[N]-[slug]/`
   containing `caption.md`, `slide-1.jpg`, `slide-2.jpg`, `slide-3.jpg`, `slide-4.jpg`
 
-The carousel file is a sibling of the script, never appended to it. The script file already carries
-one `**NANO BANANA PRO PROMPT:**` block and the sheet generator reads the FIRST such marker, so
-extra prompt blocks in that file would feed the wrong prompt to the video sheet.
+The carousel file is a sibling of the script, never appended to it. The script file carries the
+video's sheet prompts (`**NANO BANANA PRO PROMPT:**`, and optionally `... PROMPT 2:**` and
+`... PROMPT 3:**` for the video's later sheets), and a `SLIDE N PROMPT` block in there would be
+mistaken for one of them. Slide 1 is always copied from the HOOK sheet `<slug>.jpg`, never from a
+`<slug>-2.jpg` or `-3.jpg` sheet.
 
 ### Carousel file format
 
