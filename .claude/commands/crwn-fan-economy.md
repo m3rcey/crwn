@@ -433,21 +433,27 @@ Factor stays unexpected; never tease it up front unless it is genuinely the prim
 Conversational and fluid; the structure is invisible. Never print beat labels in the finished
 script unless the user asks for an annotated version.
 
-**SPEED (founder rule, 2026-08-16): the gap must be OPEN by the end of sentence one.** Two at the
-absolute most, and sentence two may only SHARPEN, never set up. This matches the house standard in
-`/crwn-shortform`, where a setup sentence followed by the question in sentence two or three loses
-points outright. Versus is the hard case, because two names look like they need establishing
-first. They do not. Fuse it into one clause pair: **[the bigger artist's advantage] + [the ICP
-artist's counter] + [the unresolved question]**, for example "Drake can buy any marketing on earth,
-and Akeem Ali is getting the one kind money cant touch, for free." Both names, the contrast and the
-gap in one breath. Everything the viewer needs to follow the setup gets re-established in the body
-anyway, so a standalone scene-setting sentence is pure delay. Before locking a hook, read sentence
-one ALONE and name the question it leaves open. If the answer is "none yet", rewrite.
+**THE OPENING (founder call, 2026-09-13, supersedes the statement hooks below): line one is ONE
+sentence, and it is a QUESTION. Line two is "Let's find out." Everything else comes after.**
+The shape is "which ___ has ___, ___?": "Whose fans pay more every month, Future's 52 million
+listeners or Joe Budden's 70,000 members?" / "How many of the people who bought Kool Keith's 47
+albums can he reach today?" One sentence means one: no setup sentence before it, no second
+sentence folded in after a period, and the facts the question leans on move into the body after
+"Let's find out." The question IS the Hook promise, word for word, and the line after "ANYWAY."
+re-asks it. `FE-SKILL-009` in `fanEconomySkillContract.test.ts` fails any script numbered 10 or
+higher that opens any other way (scripts not yet rebuilt sit on a pending list that can only shrink).
 
-1. **HOOK**: recognizable ICP-fit artist + "and artists like [him/her/them]" + the PRIMARY
-   curiosity promise, which is the question the Big Reveal will answer (see the Hook-Reveal
-   Contract above; write the promise down before drafting). Ideally sentence one carries all
-   three: artist, ICP bridge, promise. Canonical: "How much money could [Artist] and artists like
+**SPEED (founder rule, 2026-08-16): the gap is OPEN at the end of sentence one**, which the
+opening above now guarantees. Versus is no longer a hard case: the question names BOTH artists
+("whose ___, A's or B's?"), and a statement that establishes one of them first is exactly the
+delay this rule exists to remove. Before locking a hook, read sentence one ALONE and name the
+question it leaves open, and check that the Big Reveal answers it for BOTH sides.
+
+1. **HOOK**: ONE question sentence (see THE OPENING above) naming the recognizable ICP-fit artist
+   and the PRIMARY curiosity promise, which is the question the Big Reveal will answer (see the
+   Hook-Reveal Contract above; write the promise down before drafting). The "and artists like
+   [him/her/them]" bridge moves to the first body lines after "Let's find out." when it does not
+   fit inside the question. Canonical: "How much money could [Artist] and artists like
    him be missing because [unrecognized problem]?" Approved alternatives: "What would happen
    if..." / "Which is actually worth more..." / "I think [Artist] has something more valuable
    than..." / "If I ran [Artist]'s Fan Economy..." / "[Artist] just proved something..."
@@ -456,7 +462,8 @@ one ALONE and name the question it leaves open. If the answer is "none yet", rew
    unpromised. Extend it: "[Artist] did [surprising action], but what happened after is the part
    independent artists like him should pay attention to." A non-financial hook still must open a
    concrete unanswered question, and it must be the SAME question the reveal closes.
-2. **ANALYSIS TRANSITION**: "Let's run the numbers." / "Let's break it down." / "Here's why."
+2. **ANALYSIS TRANSITION**: "Let's find out." on its own line, every script (founder call,
+   2026-09-13). It is a fixed series beat like "ANYWAY.", not a bookend to vary.
 3. **ARTIST-SPECIFIC EXISTING BEHAVIOR**: researched, real evidence the artist/fans already do
    something relevant. Viewer thinks: the demand already exists.
 4. **THE HIDDEN PROBLEM**: why the current system fails to capture the value (attention ends in
@@ -632,6 +639,18 @@ recurring format, not an occasional family.
 facts are researched and sourced, the Hook-Reveal Contract governs (the hook promises the
 comparison result, and the equivalence IS the Big Reveal), the math gate holds (withhold the
 variable that resolves the ratio), and the signature line still lands in the sidenote.
+
+**A VERSUS IS ABOUT BOTH ARTISTS (founder call, 2026-09-13).** The hook asks "which ___ has ___,
+A or B?" and the reveal MEASURES BOTH in the same unit: dollars a month against dollars a month,
+spend per fan against spend per fan. A megastar used as a backdrop stat, followed by a question and
+a reveal about the ICP artist alone, is a single-artist case study wearing a "vs" title, and it is
+banned. That is exactly how batch 04 shipped nine of its ten builds: every number was verified for
+the smaller artist and none for the foil, so the reveal had nothing to compare. **Verify the FOIL's
+number on the axis before writing a word**, and if no honest same-unit number exists for the foil,
+the post is not a versus: write it as a single-artist case study instead. Write the Big Reveal META
+as the comparison ("about $520,000 a month from 52 million listeners against about $1.04M a month
+from 70,000 members"); `FE-SKILL-009` checks the hook names both artists in a which/who/whose
+question and that the Big Reveal sets the sides against each other. Reference rebuild: script 52.
 
 ## The signature line (founder decision, 2026-08-16): REQUIRED in every script
 
@@ -1025,8 +1044,8 @@ its own META. End the chat response with clickable markdown links to the saved f
 - [ ] **Repost test:** the named artist (BOTH of them in a versus) would comfortably repost this.
       No verdict verbs, the gap is a door nobody built them, and the gap is named as universal
 - [ ] "and artists like [him/her/them]" (or equivalent) appears early
-- [ ] Hook opens a concrete unresolved question by the END of sentence one (two at the most, and
-      the second only sharpens, never sets up); no throat-clearing; no CRWN at the top
+- [ ] Line one is ONE question sentence; line two is "Let's find out."; no throat-clearing; no CRWN
+      at the top. A versus asks about BOTH artists and its reveal measures both in one unit
 - [ ] **Hook-Reveal Contract:** UNIT MATCH (the hook promises the same unit the reveal delivers:
       a quantity reveal needs a quantity word in sentence one), Test A (reveal answers the hook,
       read alone), Test B (hook makes the KIND of answer predictable), Test C (the reveal question

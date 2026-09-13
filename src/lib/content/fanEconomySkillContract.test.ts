@@ -283,6 +283,81 @@ describe('FE-SKILL-008 a multi-sheet video holds the reveal until sheet 3 and th
   }
 });
 
+describe('FE-SKILL-009 scripts after #9 open on one question, and a versus is about both artists', () => {
+  // Founder calls 2026-09-13. (1) Every script after #9 opens with ONE sentence that is a question
+  // ("which ___ has ___, ___?"), then "Let's find out.", then everything else. (2) A versus is a
+  // question about BOTH artists ("whose fans pay more, A's or B's?"), and its reveal measures both
+  // on one axis. Batch 04 shipped nine versus posts built around one verified number for the
+  // smaller artist, with the bigger artist reduced to a backdrop, because nothing checked it.
+  //
+  // PENDING lists are scripts known to break a rule and not yet rebuilt. They may only shrink: a
+  // listed script that now complies FAILS the suite until it is removed from its list, so a fix can
+  // never be silently undone later.
+  const SCRIPT_DIR = join(ROOT, 'videos', 'scripts', 'fan-economy');
+  const num = (f: string) => parseInt(f.match(/^(\d+)-/)?.[1] ?? '0', 10);
+  const files = (existsSync(SCRIPT_DIR) ? readdirSync(SCRIPT_DIR) : []).filter((f) => f.endsWith('.md') && num(f) >= 10);
+
+  const PENDING_OPENING = new Set(
+    [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35,
+      36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 53, 54, 55, 56, 57, 58, 59, 60]
+  );
+  const PENDING_ONE_SIDED = new Set([18, 19, 20, 28, 48, 49, 51, 53, 54, 55, 56, 57, 58, 59]);
+
+  const scriptLines = (md: string) => {
+    const s = md.indexOf('**SCRIPT:**');
+    const body = md.slice(s + '**SCRIPT:**'.length);
+    return body.slice(0, body.indexOf('\n---')).split('\n').map((l) => l.trim()).filter(Boolean);
+  };
+  const norm = (t: string) => t.toLowerCase().replace(/[^a-z0-9 ]/g, '');
+  const key = (side: string) =>
+    norm(side).split(' ').filter((w) => w !== 'the').sort((a, b) => b.length - a.length)[0] ?? '';
+
+  const opensRight = (md: string) => {
+    const [first = '', second = ''] = scriptLines(md);
+    const oneQuestion = first.endsWith('?') && !/[.!?](\s|$)/.test(first.slice(0, -1));
+    return oneQuestion && /^Let[’']s find out\.$/.test(second);
+  };
+  const versus = (md: string) => {
+    const title = md.split('\n')[0].replace(/^#\s*/, '').split(':')[0];
+    const m = title.match(/^(.+?) vs (.+)$/i);
+    return m ? [m[1], m[2]] : null;
+  };
+  const bothSided = (md: string, sides: string[]) => {
+    const hook = norm(scriptLines(md)[0] ?? '');
+    const asksAboutBoth = sides.every((s) => hook.includes(key(s))) && /\b(which|who|whose)\b/.test(hook) && / or /.test(hook);
+    const reveal = md.match(/Big Reveal:([^·]*)/)?.[1] ?? '';
+    const measuresBoth = /\b(against|versus|vs)\b|≈|=|\bdouble\b|\bhalf\b|\bworth about\b|\btimes\b/i.test(reveal);
+    return asksAboutBoth && measuresBoth;
+  };
+
+  for (const file of files) {
+    const md = readFileSync(join(SCRIPT_DIR, file), 'utf8').replace(/\r\n/g, '\n');
+    const n = num(file);
+
+    it(`${file} opens on one question sentence, then "Let's find out."`, () => {
+      if (PENDING_OPENING.has(n)) {
+        expect(opensRight(md), `${file} now opens correctly: remove ${n} from PENDING_OPENING`).toBe(false);
+        return;
+      }
+      const [first, second] = scriptLines(md);
+      expect(opensRight(md), `${file} opens "${first}" / "${second}"`).toBe(true);
+    });
+
+    const sides = versus(md);
+    if (sides) {
+      it(`${file} is a versus about both artists`, () => {
+        if (PENDING_ONE_SIDED.has(n) || PENDING_OPENING.has(n)) {
+          if (PENDING_ONE_SIDED.has(n)) {
+            expect(bothSided(md, sides), `${file} is now two-sided: remove ${n} from PENDING_ONE_SIDED`).toBe(false);
+          }
+          return;
+        }
+        expect(bothSided(md, sides), `${file}: the hook must ask which/who/whose about ${sides.join(' and ')}, and the Big Reveal must measure both`).toBe(true);
+      });
+    }
+  }
+});
+
 describe('FE-SKILL-004 the artist pool keeps the ICP pivot sane', () => {
   it('every pool entry carries a lane and cautions', () => {
     const entries = pool.split(/^### /m).slice(1);
