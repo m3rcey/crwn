@@ -212,7 +212,7 @@ describe('FE-SKILL-006 every saved script declares its hook promise', () => {
   }
 });
 
-describe('FE-SKILL-008 a multi-sheet video holds the reveal until sheet 3', () => {
+describe('FE-SKILL-008 a multi-sheet video holds the reveal until sheet 3 and the CTA until sheet 4', () => {
   // Founder call 2026-09-13. A video films up to three sheets in order: the hook, the middle,
   // then the reveal. The first multi-sheet pass drew the reveal on sheet 2 and a
   // "COMMENT <KEYWORD>" box on sheet 3, which spent the last third of the video on an answer the
@@ -266,8 +266,19 @@ describe('FE-SKILL-008 a multi-sheet video holds the reveal until sheet 3', () =
       expect(onSheet3.length, `${file} sheet 3 never shows the reveal (${revealOnly.join(', ')})`).toBeGreaterThan(0);
     });
 
-    it(`${file} carries no comment CTA on its later sheets`, () => {
+    it(`${file} carries no comment CTA on sheets 2 and 3`, () => {
       expect(`${sheet2} | ${sheet3}`).not.toMatch(/\bCOMMENT\b/i);
+    });
+
+    it(`${file} ends on a sheet 4 whose CTA keyword is the one the script says`, () => {
+      // Founder call 2026-09-13, second pass: the CTA returns as its own closing sheet. It must
+      // route to the same ManyChat keyword the voiceover asks for, or a viewer comments a word
+      // nothing answers.
+      const sheet4Block = block(md, 4);
+      expect(sheet4Block, `${file} has sheets 2 and 3 but no CTA sheet 4`).not.toBeNull();
+      const spoken = md.match(/Comment ([A-Z]+) and I'll DM/)?.[1];
+      expect(spoken, `${file}: no spoken "Comment X and I'll DM" line to match`).toBeTruthy();
+      expect(lettered(sheet4Block ?? '')).toMatch(new RegExp(`\\bCOMMENT '${spoken}'`));
     });
   }
 });

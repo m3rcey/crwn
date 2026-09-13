@@ -672,15 +672,15 @@ responsible for. Do not work those.
 
 ### P2 — worth doing, nothing breaks if you never do it
 
-- [ ] **Look at the 18 new Fan Economy sheets (videos 1 to 9 now have three sheets each), then
-      say whether new scripts should get three too.** Print file, in filming order (hook,
-      middle, reveal; no CTA on any sheet) per video:
+- [ ] **Look at the 27 new Fan Economy sheets (videos 1 to 9 now have four sheets each).**
+      Print file, in filming order (hook, middle, reveal, CTA card) per video:
       `Dropbox/nano banana output/Shortform Posts/Fan Economy/CRWN-Fan-Economy-Sheets-1-9.pdf`
-      (27 pages). New files are `<slug>-2.jpg` and `<slug>-3.jpg` in that folder. Sheet 3 of
+      (36 pages). New files are `<slug>-2.jpg` to `<slug>-4.jpg` in that folder. Sheet 3 of
       Curren$y is the same reveal slide the carousel already published. Every word and number
-      has been read against its script. A rejected sheet is one deleted jpg plus
-      `node generate-fan-economy-images.mjs <N>`. Until you say yes, the scriptwriter skill still
-      writes only the hook sheet for new scripts.
+      has been read against its script, and each sheet 4 keyword matches its voiceover. A
+      rejected sheet is one deleted jpg plus `node generate-fan-economy-images.mjs <N>`. Scripts
+      10 to 60 still have only their hook sheet; say if you want them backfilled (about 150
+      renders, roughly $23, plus the read-through).
 
 - [ ] **Let artists edit their own offer copy (the first slice of the Offer Builder).**
       Today `tier_offer_experiences` is service-role only with no route and no UI, so

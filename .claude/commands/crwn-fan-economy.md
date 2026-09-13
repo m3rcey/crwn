@@ -680,11 +680,12 @@ ALBUMS while its notes said "4 PROJECTS" and its calendar carried exactly four X
 payoff in digits AND as a word, and never draw a countable number of objects when the reveal is a
 count. Full failure catalogue in `/crwn-image-gen`.
 
-## A video can film three sheets (2026-09-13)
+## Every video films four sheets (2026-09-13)
 
 One sheet cannot carry a 60 to 90 second script: the hook sheet withholds the payoff, so the reveal
-and the closing turn have nothing to film. Scripts 1 to 9 now carry two more blocks AFTER the first,
-rendered by the same `generate-fan-economy-images.mjs` run:
+and the close have nothing to film. Every script that gets artwork carries three more blocks AFTER
+the first, rendered by the same `generate-fan-economy-images.mjs` run (scripts 1 to 9 are done;
+the founder delegated extending it to new scripts, so write all four whenever you write the first):
 
 - `**NANO BANANA PRO PROMPT:**` -> `<slug>.jpg`, the HOOK sheet (every rule above; carousel slide 1).
 - `**NANO BANANA PRO PROMPT 2:**` -> `<slug>-2.jpg`, the MIDDLE: a no-portrait metaphor for the
@@ -693,17 +694,27 @@ rendered by the same `generate-fan-economy-images.mjs` run:
 - `**NANO BANANA PRO PROMPT 3:**` -> `<slug>-3.jpg`, the REVEAL: the featured artist acting out the
   math, the unit and quantity as boxed notes, the totals as the two big bottom lines. Every figure is
   copied from the script's own reveal sentences with its hedge ("SAY ONLY", "ABOUT", "HE SAYS").
+- `**NANO BANANA PRO PROMPT 4:**` -> `<slug>-4.jpg`, the CTA CARD: a loss-framed headline about THIS
+  story, one small no-portrait scene of that loss, one boxed `COMMENT '<KEYWORD>' <loss>` line and
+  `IT'S FREE. I'LL DM YOU THE LINK.` under it. No numbers on it at all.
 
-**The reveal is never before sheet 3, and no sheet carries a `COMMENT <KEYWORD>` CTA** (founder
-call 2026-09-13; the first pass put the reveal on sheet 2 and a CTA box on sheet 3). The CTA is
-spoken, and the 128 end card closes the video. `FE-SKILL-008` in `fanEconomySkillContract.test.ts`
-fails a script whose sheet 2 letters a Big Reveal figure the hook does not already show, whose
-sheet 3 never letters one, or whose later sheets say COMMENT.
+**The reveal is never before sheet 3, and the CTA lives on sheet 4 and nowhere else** (founder
+calls 2026-09-13: the first pass put the reveal on sheet 2 and a CTA on sheet 3; the second removed
+the CTA; the third brought it back as its own closing sheet). `FE-SKILL-008` in
+`fanEconomySkillContract.test.ts` fails a script whose sheet 2 letters a Big Reveal figure the hook
+does not already show, whose sheet 3 never letters one, whose sheets 2 or 3 say COMMENT, or whose
+sheet 4 is missing or names a keyword other than the one the script speaks.
+
+**The sheet 4 box may only name a loss the tool actually measures** (CLAUDE.md CTA rule). Reuse the
+tool's own loss-framed hero button where it exists: VAULT "FOR WHAT YOU'RE LEAVING UNSOLD" (the
+planner prices inventory and computes no total), FREE "FOR WHAT YOU'RE MISSING", PRODUCER "FOR WHAT
+AN EMPTY ROOM COSTS", OWN "FOR HOW MANY FANS YOU CAN'T REACH", WORTH "FOR WHAT YOU'RE NOT COLLECTING
+EACH MONTH". PROOF is a builder with no number, so its box is an action with the loss in it ("BEFORE
+YOU PAY FOR A GUESS") and never "for what a miss costs". The headline carries the per-story loss.
 
 `<!-- skip-people: all -->` (or a slug list) INSIDE a numbered block applies to that sheet only;
 put one on every sheet that must not attach a reference photo, because the generator scans the
-prompt text for names. Sheets 2 and 3 are not yet a requirement for new scripts: extend this to new
-scripts once the founder has watched the first nine.
+prompt text for names.
 
 ## Social proof (founder decision, 2026-08-20): NEVER in the hook, and never every script
 
