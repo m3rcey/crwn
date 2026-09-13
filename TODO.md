@@ -672,34 +672,14 @@ responsible for. Do not work those.
 
 ### P2 — worth doing, nothing breaks if you never do it
 
-- [ ] **Decide the four versus scripts that cannot be two-sided yet: 18, 20, 51, 55.** Every other
-      script after #9 now opens on one question plus "Let's find out.", and every other versus
-      measures both artists. These four have no sourced same-unit number for one side, so each
-      needs one call: a new axis, a new foil, or a rewrite as a single-artist case study (drop
-      the "vs"). Say which per script and I rebuild it.
-      - [videos/scripts/fan-economy/18-akeem-ali-vs-beyonce-earned-distribution.md](videos/scripts/fan-economy/18-akeem-ali-vs-beyonce-earned-distribution.md): Akeem's "3,000 hours" is a model, not a sourced figure. Honest option: fan clips per 1,000 followers, if you open the "Keemy Casanova" sound in the TikTok app and read the video count.
-      - [videos/scripts/fan-economy/20-babytron-vs-lil-wayne-the-four-years.md](videos/scripts/fan-economy/20-babytron-vs-lil-wayne-the-four-years.md): no public "album held back" figure for BabyTron, and his masters claim did not verify (EMPIRE / The Hip Hop Lab).
-      - [videos/scripts/fan-economy/51-little-simz-vs-bad-bunny-eleven-shows.md](videos/scripts/fan-economy/51-little-simz-vs-bad-bunny-eleven-shows.md): Bad Bunny's tour economics are sourced (Pollstar), Little Simz has no number in those units.
-      - [videos/scripts/fan-economy/55-freddie-gibbs-vs-lil-baby-same-shelf.md](videos/scripts/fan-economy/55-freddie-gibbs-vs-lil-baby-same-shelf.md): Lil Baby's deal terms are not public. Its false "same Grammy category" line is already fixed.
-- [ ] **Retire or rebuild [videos/scripts/fan-economy/17-larussell-vs-larry-june-who-sets-the-price.md](videos/scripts/fan-economy/17-larussell-vs-larry-june-who-sets-the-price.md).**
-      Its whole subject is pay-what-you-want, the concept the skill bans. It only got the new opening.
-- [ ] **Say go before I re-render sheets and carousels for the rebuilt versus scripts.** The scripts
-      changed under art that already exists: hook sheets and carousels for 46 to 59 still tell the
-      one-sided story (52's carousel still says VAULT; 48's says his albums were all on his own
-      label, which is false; 49's claims the same buyers came back, which is unsourced; 44's says
-      four countries, it is five). Scripts 19, 48 and 57 are honest but their answer is guessable
-      from the question (Jay-Z waited, Cole has no indie albums, Fahim out-released Carti); flag any
-      you want re-angled before I spend on art.
-
 - [ ] **Look at the 27 new Fan Economy sheets (videos 1 to 9 now have four sheets each).**
       Print file, in filming order (hook, middle, reveal, CTA card) per video:
       `Dropbox/nano banana output/Shortform Posts/Fan Economy/CRWN-Fan-Economy-Sheets-1-9.pdf`
       (36 pages). New files are `<slug>-2.jpg` to `<slug>-4.jpg` in that folder. Sheet 3 of
       Curren$y is the same reveal slide the carousel already published. Every word and number
       has been read against its script, and each sheet 4 keyword matches its voiceover. A
-      rejected sheet is one deleted jpg plus `node generate-fan-economy-images.mjs <N>`. Scripts
-      10 to 60 still have only their hook sheet; say if you want them backfilled (about 150
-      renders, roughly $23, plus the read-through).
+      rejected sheet is one deleted jpg plus `node generate-fan-economy-images.mjs <N>`. When
+      you are ready to film the next batch, say which numbers and I make their four sheets.
 
 - [ ] **Let artists edit their own offer copy (the first slice of the Offer Builder).**
       Today `tier_offer_experiences` is service-role only with no route and no UI, so
@@ -875,6 +855,16 @@ Things that are never finished. Cadence, then the thing.
 ---
 
 ## On Claude's plate (not yours)
+
+- **Fan Economy art is made per filming batch, never backfilled.** Scripts 10 to 60 were rebuilt
+  on 2026-09-13 (one-question openings, two-sided versus posts, 17 and 20 retired, 18/51/55 now
+  single-artist), so art made before then is stale: the hook sheets and carousels for 44 and 46 to
+  59 still carry old claims (48's "all nine on his own label", 49's "same buyers came back", 44's
+  "four countries", 51 and 55 drawing a foil that is no longer in the script, 52's VAULT CTA).
+  None of it is queued to post: `social_posts` has held exactly one row, carousel 32, published
+  2026-08-26 (probed 2026-09-13). Before any of those carousels is queued, or any script from 10 up
+  is filmed, regenerate its four sheets from the current script and rewrite its carousel. 19, 48
+  and 57 stay as honest versus posts even though their answer's direction is guessable.
 
 - **V2's motion vocabulary is bigger than the Curren$y video uses.** Parallax planes, 2.5D
   matrix tilt, GROW_UP, SWING_IN, counters and path-following arrows are all implemented and

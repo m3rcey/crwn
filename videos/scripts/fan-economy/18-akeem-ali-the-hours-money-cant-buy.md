@@ -1,10 +1,9 @@
-# Akeem Ali vs Beyoncé: the hours money cant buy
+# Akeem Ali: the hours money cant buy
 
 **SCRIPT:**
 
-Beyoncé can buy any rollout on earth, and when you find out how much time Akeem Ali's fans spend promoting him, the hours dont look real.
-
-Let's look at it.
+How many hours of free promotion do Akeem Ali's fans put in every year?
+Let's find out.
 
 Akeem Ali turned Keemy Casanova into something the internet cant put down.
 About a million on Instagram, another 533,000 on TikTok.
@@ -12,7 +11,7 @@ But the followers aint the story. Go on TikTok and it's not just his page. It's 
 
 Now think about what that actually is.
 That's production work. Somebody picked the clip, cut it, captioned it, posted it, and put they own name behind it.
-A rollout at Beyoncé's level can buy placement, billboards, playlists, a whole national moment, and it works better than anything else in the business.
+The biggest rollouts in music can buy placement, billboards, playlists, a whole national moment, and it works better than anything else in the business.
 What it cant buy is a stranger vouching for you on they own page for nothing.
 
 And here's the part that should bother you if you got fans doing this.
@@ -28,7 +27,7 @@ On the CRWN app, Share-to-Earn is live today: every fan gets they own share link
 The promotion was already happening. Now it pays the person doing it.
 ANYWAY.
 
-So how much time is his fanbase actually putting in?
+So how many hours of free promotion are his fans putting in every year?
 Say only 500 fans post about him in a month, and each one spends 30 minutes making it.
 That's 250 hours a month. About 3,000 hours a year of content his team never had to make.
 That's more than a full-time employee, working for free, forever.
@@ -49,11 +48,11 @@ Comment SHARE and I'll DM you the link.
 
 ---
 
-**META:** Artist: Akeem Ali vs Beyoncé · Family: G/Comparison · Axis: earned distribution vs bought marketing ·
+**META:** Artist: Akeem Ali · Family: C/Existing Fan Behavior ·
 Mechanism: Share-to-Earn / fan-made content ·
-Metric: Akeem ~1M IG and ~533K TikTok (web-verified 2026-08), fan-clip culture observable on TikTok; the 500 posters x 30 minutes is a stated model, not a measurement. No Beyoncé figures asserted; she is characterized only as operating a top-tier rollout ·
-Hook promise: how many HOURS of free work his fans put in (unit-matched to the reveal) ·
+Metric: Akeem ~1M IG and ~533K TikTok (web-verified 2026-08), fan-clip culture observable on TikTok; the 500 posters x 30 minutes is a stated model, not a measurement. No other artist's figures asserted; top-tier rollouts are characterized only in general ·
+Hook promise: how many hours of free promotion Akeem Ali's fans put in every year (unit-matched to the reveal) ·
 Withheld variable: poster count AND minutes per post · Big Reveal: time/production (about 3,000 hours a year) ·
 Wow Factor: contrarian (it works BECAUSE nobody paid for it; at the top everything looks bought) ·
 Lead magnet: share-to-earn-planner + SHARE · CRWN claim tier: shipped (referral rail, artist-set rate) ·
-Repost test: Akeem Ali WINS and is credited with something unbuyable; Beyoncé's rollout is credited as the best in the business and the limitation is framed as structural to the position, not personal
+Repost test: Akeem Ali WINS and is credited with something unbuyable; big-budget rollouts are credited as the best tool in the business and the limitation is framed as structural. Note: converted 2026-09-13 from a versus to a single-artist case study (founder delegated the call): the reveal was always a model of his fans alone and no sourced figure exists for his side in any unit Beyoncé's could be measured in, so the "vs" promised a comparison the script never made
