@@ -18,7 +18,7 @@ Forty years of people paying for records is forty years of hands going up. Ask w
 
 Go guess before I say it.
 
-Hold that thought. You don't need to market to fans. You need a market FOR fans. An audience and a customer base are different things, and the gap between them is where the money sits. The CRWN app is built for the second one: tiers your fans join, and a vault behind the top one. Free to start, and it only earns when a fan actually pays you.
+Hold that thought. You don't need to market to fans. You need a market FOR fans. An audience and a customer base are different things, and the gap between them is where the money sits. The CRWN app is built for the second one: tiers your fans join, and a vault behind one of them. Free to start, and it only earns when a fan actually pays you.
 
 ANYWAY.
 

@@ -22,7 +22,7 @@ One is reach. One is a customer list.
 
 Go do that math before I say it.
 
-Hold that thought. You don't need to market to fans. You need a market FOR fans. Reach and revenue are two different systems and almost nobody has been shown the second one. The CRWN app is built for the second one: tiers your fans join, and a vault behind the top one. It's free to start, and it only takes a cut when you actually get paid.
+Hold that thought. You don't need to market to fans. You need a market FOR fans. Reach and revenue are two different systems and almost nobody has been shown the second one. The CRWN app is built for the second one: tiers your fans join, and a vault behind one of them. It's free to start, and it only takes a cut when you actually get paid.
 
 ANYWAY.
 

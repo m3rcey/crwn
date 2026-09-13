@@ -219,14 +219,23 @@ for (const entry of files) {
       console.log(`  slide-1 no video sheet yet, rendering from the prompt`);
     }
 
-    const prompt =
+    const rawPrompt =
       slideNo === 4 ? END_CARD_PROMPT : section(md, `**SLIDE ${slideNo} PROMPT:**`);
-    if (!prompt) {
+    if (!rawPrompt) {
       console.warn(`  slide-${slideNo} SKIP (no prompt block)`);
       continue;
     }
+    // Same directive as the sheet generator: `<!-- skip-people: all -->` (or slugs) inside a slide
+    // block stops a name in the prompt from attaching a reference photo, which matters on data
+    // slides that merely NAME an artist (55's slide 2 names Nas as a fellow nominee and would
+    // otherwise pull his face onto the page). The comment never reaches the model.
+    const skipMatch = rawPrompt.match(/<!--\s*skip-people:\s*([^>]+?)\s*-->/i);
+    const skipPeople = skipMatch ? skipMatch[1].split(",").map((s) => s.trim().toLowerCase()) : [];
+    const prompt = rawPrompt.replace(/<!--[\s\S]*?-->/g, "").trim();
 
-    const personSlugs = findMentionedSlugs(prompt);
+    const personSlugs = skipPeople.includes("all")
+      ? []
+      : findMentionedSlugs(prompt).filter((s) => !skipPeople.includes(s));
     const personRefs = await ensurePersonRefs(personSlugs);
     const personRefParts = buildPersonRefParts(personRefs);
     if (personSlugs.length) console.log(`  slide-${slideNo} people: ${personSlugs.join(", ")}`);

@@ -4,39 +4,33 @@
 
 Comment "DEMAND" for what it costs you to make something nobody was going to buy.
 
-Playboi Carti has released three studio albums in his entire career and has tens of millions of people listening every month. Tha God Fahim put out tapes so fast that Bandcamp published a guide to help people keep up.
+Between 2015 and 2018, Playboi Carti made his fans wait for every record. Tha God Fahim never made his fans wait at all.
 
-How many is that?
+Whose fans had more new projects to buy in those three years, Carti's or Fahim's?
 
-Carti's whole model is scarcity. Years between records, no explanation, the wait doing the marketing. Three albums, and it works, because when he shows up the internet stops.
+Carti's model is scarcity: long waits, no explanation, the wait doing the marketing. It works, because when he does show up the whole internet stops.
 
-Fahim went the opposite way. Atlanta, no label, tape after tape, sold straight off his own page.
+Fahim went the other way. Atlanta, no label deal, tape after tape sold straight off his own Bandcamp page, so fast that Bandcamp's own editorial site wrote a guide to help people keep up.
 
-No rollout. No single. Finish it and put it up for sale.
+Here's the thing nobody puts side by side. Count what each one gave a fan to buy in the same three years. I counted both twice before I trusted the gap.
 
-Here's what nobody lines up next to each other.
-
-One released three things. The other released so many that a music site had to draw a map. Only one of them knows who bought anything.
-
-Go guess the count before I say it.
-
-Hold that thought. You don't need to market to fans. You need a market FOR fans. Attention and income run on separate rails, and only one of them has ever been explained to artists. The CRWN app exists for the second one: paid tiers, and the vault your top supporters unlock. It's free to begin with, and it only takes a percentage once you're actually paid.
+Hold that thought. You don't need to market to fans. You need a market FOR fans. A play only tells you somebody listened. The CRWN app is built for the people who would pay: tiers your fans join, and a vault behind one of them. Costs nothing to start, and it only takes a cut when you get paid.
 
 ANYWAY.
 
-So how many tapes did Fahim put out?
+So whose fans had more to buy in those three years, Carti's or Fahim's?
 
-Around seventy. In about three years.
+Carti put out two projects, and Die Lit went top three on the Billboard 200. Fahim was approaching seventy tapes. That's about 35 for every one of Carti's. Carti's two hit a massive audience all at once. Fahim's found their buyers one sale at a time.
 
-And here's what got me. Every one sold direct. That means seventy releases worth of people who typed in an email and a card number. Not plays. BUYERS. Carti reached a hundred times more people and cannot name one of them.
+But that ain't even the wild part. Every one of those tapes was a sale, not a stream, so every buyer paid him directly. Carti's streams don't come with names attached.
 
-Now to be fair, Carti's three albums have shaped more of this decade's sound than seventy tapes will, and scarcity pays enormously when you can hold attention that long. Seventy releases only works if people will already buy the next one unheard.
+To be fair, the attention scarcity needs is the harder thing to build.
 
-But if a man in Atlanta with no label can build a buyer list seventy releases deep, the question ain't how do I get more plays. It's how many would actually buy the next thing, and whether you can ask them.
+But if a man in Atlanta with no label deal can build buyers seventy releases deep, the question ain't how do I get more plays. It's how many people would actually buy the next thing, and whether you have any way to ask them.
 
-I built a free proof of demand test builder that tells you before you spend the money.
+I built a free Proof of Demand Test Builder that sets up a test to find out if fans will pay for it before you make it.
 
-Comment "DEMAND" before you spend on the next one, and I'll DM you the link.
+Comment "DEMAND" before you make the next one without asking, and I'll DM you the link.
 
 ---
 
@@ -48,7 +42,7 @@ Comment "DEMAND" before you spend on the next one, and I'll DM you the link.
 
 **SLIDE 2 PROMPT:**
 
-Flat scan of a white sheet of paper filling the entire frame. No desk, no surface, no edges visible, just white paper. Black sharpie marker handwriting and clean hand-drawn comic line art with heavy solid-black fills, so that roughly a third of the page is solid black for strong contrast, while the paper background stays pure white. Across the top in a compact block taking no more than the top fifth of the page, hand-letter the headline as large black sharpie capitals across two lines (thick uneven hand-drawn marker strokes, NOT a printed or display font), with "AROUND 70 TAPES IN 3 YEARS." on the first line and "EVERY ONE SOLD DIRECT." on the second line. Below the headline, filling the middle of the page, draw two things side by side separated by a heavy vertical hand-drawn line. On the LEFT, one enormous precarious tower of many plain blank cassette tapes stacked one on top of another, running up off the top edge of the page, every tape completely blank with no label and no writing, with a tight cluster of exactly FIVE stick figures drawn filled in solid black standing at its base, each holding out a small plain card. On the RIGHT, exactly THREE plain blank cassette tapes laid in a neat row on a plain surface, and above them an enormous dense field of very many tiny thin outline stick figures left completely unfilled, packed edge to edge and running off the top and right edges of the page. Down the lower left, hand-letter a tidy stack of exactly TWO small notes, one per line, each appearing exactly once, each in a small hand-drawn box: "AN EMAIL AND A CARD", "HE KNOWS EVERY NAME". Down the lower right, hand-letter a tidy stack of exactly TWO small notes, one per line, each appearing exactly once, each in a small hand-drawn box: "A HUNDRED TIMES THE REACH", "NOT ONE NAME". Across the middle of the page, hand-letter exactly ONE line in medium capitals: "BUYERS, NOT PLAYS". Across the very bottom of the page, centered, hand-letter exactly TWO short notes in larger capitals, one above the other, each appearing exactly once: "VOLUME ISNT THE ASSET.", "THE LIST IS.". Render only the exact words given inside quotation marks; never draw any instruction words, labels, or parentheses from this prompt. CRITICAL ANTI-DUPLICATION RULE: each quoted line appears exactly ONCE on the entire page. Never draw the same words a second time in another position, at another size, or anywhere else. No cassette tape, card or object carries any text beyond the quoted notes; every one is left entirely blank and unlettered, with no slogan, no brand mark and no logo. Every word is hand-lettered sharpie, never a printed or typeset font, written horizontally and upright, never rotated or sideways. Spell every word completely and correctly; invent no extra words, no nonsense words, no partial words, no misspellings and no extra numbers beyond the ones quoted. Do NOT draw any human portrait or any recognizable face on this page; the only figures are simple stick figures. Never draw the word CRWN, a crown, or any logo. Solid black fills look hand-colored with visible directional marker streaks and tiny flecks of white paper showing through. The background is pure white (#FFFFFF). The image is shot perfectly straight on, no angle, no shadow, no background elements. Pure white paper fills the entire 3:4 frame edge to edge.
+Flat scan of a white sheet of paper filling the entire frame. No desk, no surface, no edges visible, just white paper. Black sharpie marker handwriting and clean hand-drawn comic line art with heavy solid-black fills, so that roughly a third of the page is solid black for strong contrast, while the paper background stays pure white. Across the top in a compact block taking no more than the top fifth of the page, hand-letter the headline as large black sharpie capitals across two lines (thick uneven hand-drawn marker strokes, NOT a printed or display font), with "FAHIM: ALMOST 70 TAPES." on the first line and "CARTI: 2 PROJECTS." on the second line. Below the headline a single heavy vertical sharpie line runs down the middle of the page, dividing it into a left half and a right half. On the LEFT half, one enormous precarious tower of many plain blank cassette tapes stacked one on top of another, running up toward the headline, every tape completely blank with no label and no writing, with a tight cluster of exactly FIVE stick figures drawn filled in solid black standing at its base, each holding out a small plain card. On the RIGHT half, exactly TWO plain blank cassette tapes laid side by side on a plain surface, and above them an enormous dense field of very many tiny thin outline stick figures left completely unfilled, packed edge to edge and running off the right edge of the page. The tape count on the right is critical: count them as one, two, so that exactly TWO appear and never three. Across the middle of the page, hand-letter exactly ONE line in medium capitals: "SAME 3 YEARS, ABOUT 35 FOR EVERY 1". Down the lower left, hand-letter a tidy stack of exactly TWO small notes, one per line, each appearing exactly once, each in a small hand-drawn box: "EVERY ONE A SALE", "OFF HIS OWN PAGE". Down the lower right, hand-letter a tidy stack of exactly TWO small notes, one per line, each appearing exactly once, each in a small hand-drawn box: "DIE LIT WENT TOP 3", "A MASSIVE AUDIENCE AT ONCE". Across the very bottom of the page, centered, hand-letter exactly TWO short notes in larger capitals, one above the other, each appearing exactly once: "A SALE COMES WITH A NAME.", "A STREAM DOES NOT.". Write those two lines as plain lettering with NO quotation marks around them; the quote marks in this instruction only delimit the text and are never drawn. Render only the exact words given inside quotation marks; never draw any instruction words, labels, or parentheses from this prompt. CRITICAL ANTI-DUPLICATION RULE: each quoted line appears exactly ONCE on the entire page. Never draw the same words a second time in another position, at another size, or anywhere else. No cassette tape, card or object carries any text beyond the quoted notes; every one is left entirely blank and unlettered, with no slogan, no brand mark and no logo. Every word is hand-lettered sharpie, never a printed or typeset font, written horizontally and upright, never rotated or sideways. Spell every word completely and correctly; invent no extra words, no nonsense words, no partial words, no misspellings and no extra numbers beyond the ones quoted. Do NOT draw any dollar amount or currency mark anywhere on this page. Do NOT draw any human portrait or any recognizable face on this page; the only figures are simple stick figures. Never draw the word CRWN, a crown, or any logo. Solid black fills look hand-colored with visible directional marker streaks and tiny flecks of white paper showing through. The background is pure white (#FFFFFF). The image is shot perfectly straight on, no angle, no shadow, no background elements. Pure white paper fills the entire 3:4 frame edge to edge.
 
 ---
 
@@ -62,4 +56,4 @@ Flat scan of a white sheet of paper filling the entire frame. No desk, no surfac
 
 ---
 
-**META:** Source script: 57-tha-god-fahim-vs-playboi-carti-seventy-tapes · Big Reveal: around seventy tapes in about three years, every one sold direct · Wow Factor: the count is buyers rather than plays, while Carti reaches vastly more people and can name none · Lead magnet: proof-of-demand-test-builder + DEMAND · CRWN claim tier: shipped · Polarity: Tha God Fahim is the ICP subject, Playboi Carti is the foil
+**META:** Source script: 57-tha-god-fahim-vs-playboi-carti-seventy-tapes · Big Reveal: equivalence, approaching seventy tapes from Tha God Fahim against two projects from Playboi Carti in the same three years (2015 to 2018), so about 35 Fahim tapes for every Carti project · Wow Factor: every one of Fahim's was a sale, not a stream, so the count is buyers who paid him directly, while Carti's streams come with no names attached · Lead magnet: proof-of-demand-test-builder + DEMAND · CRWN claim tier: shipped

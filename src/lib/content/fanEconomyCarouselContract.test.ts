@@ -132,6 +132,12 @@ describe.runIf(carouselFiles.length > 0)('FE-CAR-003 every carousel file is well
     const known = [...LEAD_MAGNETS, ...EXTERNAL_TOOLS]
       .flatMap((t) => (t as { dmKeywords?: string[] }).dmKeywords ?? [])
       .map((k: string) => k.toUpperCase());
+    // Mirror the LIVE ManyChat table, not just the registry: orchestration.ts builds KEYWORD_TOOLS
+    // from every LEAD_MAGNETS dmKeyword PLUS a hard-coded ['worth', 'worth'], because /worth is an
+    // external tool with no dmKeywords field. Checking the registry alone rejected a real, wired
+    // keyword (2026-09-13). The exemption is tied to the source line, so it dies with the wiring.
+    const orchestration = readFileSync(join(ROOT, 'src', 'lib', 'acquisition', 'orchestration.ts'), 'utf8');
+    if (orchestration.includes("['worth', 'worth']")) known.push('WORTH');
     // The keyword is wired to ManyChat. Inventing one produces a CTA that silently
     // does nothing for every person who comments it.
     expect(known, `${keyword} is not a registered dmKeyword`).toContain(keyword);

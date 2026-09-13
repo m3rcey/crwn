@@ -672,6 +672,13 @@ responsible for. Do not work those.
 
 ### P2 — worth doing, nothing breaks if you never do it
 
+- [ ] **Top up the Gemini API prepayment credits.** Image generation stopped mid-run on 2026-09-13
+      with `429 Your prepayment credits are depleted`, which leaves carousels 55 to 59 without
+      slides 2 and 3 (and four hook sheets plus two slides of 54 waiting on a reroll). Add credit at
+      https://ai.studio/projects for the project behind `GEMINI_API_KEY`, then tell me and I finish
+      the render (the exact list and command are under On Claude's plate). Nothing breaks until a
+      carousel is queued: none of these are.
+
 - [ ] **Look at the 27 new Fan Economy sheets (videos 1 to 9 now have four sheets each).**
       Print file, in filming order (hook, middle, reveal, CTA card) per video:
       `Dropbox/nano banana output/Shortform Posts/Fan Economy/CRWN-Fan-Economy-Sheets-1-9.pdf`
@@ -856,15 +863,18 @@ Things that are never finished. Cadence, then the thing.
 
 ## On Claude's plate (not yours)
 
-- **Fan Economy art is made per filming batch, never backfilled.** Scripts 10 to 60 were rebuilt
-  on 2026-09-13 (one-question openings, two-sided versus posts, 17 and 20 retired, 18/51/55 now
-  single-artist), so art made before then is stale: the hook sheets and carousels for 44 and 46 to
-  59 still carry old claims (48's "all nine on his own label", 49's "same buyers came back", 44's
-  "four countries", 51 and 55 drawing a foil that is no longer in the script, 52's VAULT CTA).
-  None of it is queued to post: `social_posts` has held exactly one row, carousel 32, published
-  2026-08-26 (probed 2026-09-13). Before any of those carousels is queued, or any script from 10 up
-  is filmed, regenerate its four sheets from the current script and rewrite its carousel. 19, 48
-  and 57 stay as honest versus posts even though their answer's direction is guessable.
+- **Finish the carousel re-render the moment Gemini credits are back.** Carousel TEXT for 44 and 46
+  to 59 now matches the rebuilt scripts, and eight other captions lost the false "vault behind the
+  top one" line. Rendered and read clean on 2026-09-13: hook sheets 48, 51, 53, 54, 55, 58, 59;
+  slides 2 and 3 for 48, 49, 51, 52, 53; 44's slide 2 (FIVE countries). Still to render, prompts
+  already fixed: hook sheets 49, 52, 56, 57 (old notes contradicted the scripts, so their carousel
+  slide-1 copies must be refreshed too); 54's slide 2 (circles miscounted) and slide 3 (letter
+  glitch, colour intrusion); slides 2 and 3 for 55 to 59 (never rendered, credits ran out). Move
+  those files aside first (the generators skip anything that exists), then:
+      source ./load-env.sh && node generate-fan-economy-images.mjs 49 49 && node generate-fan-economy-images.mjs 52 52 && node generate-fan-economy-images.mjs 56 57 && node generate-fan-economy-carousel.mjs 49 59
+  Stale art is parked in the session scratchpad, not deleted. Nothing is queued: `social_posts` has
+  only ever held carousel 32 (probed 2026-09-13). Video sheets 2 to 4 for scripts 10 and up wait
+  for the next filming batch, since videos are paused.
 
 - **V2's motion vocabulary is bigger than the Curren$y video uses.** Parallax planes, 2.5D
   matrix tilt, GROW_UP, SWING_IN, counters and path-following arrows are all implemented and
