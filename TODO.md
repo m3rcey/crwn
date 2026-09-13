@@ -674,9 +674,9 @@ responsible for. Do not work those.
 
 - [ ] **Look at the 18 new Fan Economy sheets (videos 1 to 9 now have three sheets each), then
       say whether new scripts should get three too.** Print file, in filming order (hook,
-      reveal, closing question) per video:
+      middle, reveal; no CTA on any sheet) per video:
       `Dropbox/nano banana output/Shortform Posts/Fan Economy/CRWN-Fan-Economy-Sheets-1-9.pdf`
-      (27 pages). New files are `<slug>-2.jpg` and `<slug>-3.jpg` in that folder. Sheet 2 of
+      (27 pages). New files are `<slug>-2.jpg` and `<slug>-3.jpg` in that folder. Sheet 3 of
       Curren$y is the same reveal slide the carousel already published. Every word and number
       has been read against its script. A rejected sheet is one deleted jpg plus
       `node generate-fan-economy-images.mjs <N>`. Until you say yes, the scriptwriter skill still

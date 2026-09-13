@@ -687,11 +687,18 @@ and the closing turn have nothing to film. Scripts 1 to 9 now carry two more blo
 rendered by the same `generate-fan-economy-images.mjs` run:
 
 - `**NANO BANANA PRO PROMPT:**` -> `<slug>.jpg`, the HOOK sheet (every rule above; carousel slide 1).
-- `**NANO BANANA PRO PROMPT 2:**` -> `<slug>-2.jpg`, the REVEAL: the featured artist acting out the
+- `**NANO BANANA PRO PROMPT 2:**` -> `<slug>-2.jpg`, the MIDDLE: a no-portrait metaphor for the
+  mechanism and the sidenote beats, still WITHHOLDING the answer. Its only price mark is a `$?` (or
+  `?%`) tag, exactly like the hook.
+- `**NANO BANANA PRO PROMPT 3:**` -> `<slug>-3.jpg`, the REVEAL: the featured artist acting out the
   math, the unit and quantity as boxed notes, the totals as the two big bottom lines. Every figure is
   copied from the script's own reveal sentences with its hedge ("SAY ONLY", "ABOUT", "HE SAYS").
-- `**NANO BANANA PRO PROMPT 3:**` -> `<slug>-3.jpg`, the TURN: a no-portrait metaphor for the Wow
-  Factor, the viewer question, and a boxed `COMMENT <KEYWORD>`.
+
+**The reveal is never before sheet 3, and no sheet carries a `COMMENT <KEYWORD>` CTA** (founder
+call 2026-09-13; the first pass put the reveal on sheet 2 and a CTA box on sheet 3). The CTA is
+spoken, and the 128 end card closes the video. `FE-SKILL-008` in `fanEconomySkillContract.test.ts`
+fails a script whose sheet 2 letters a Big Reveal figure the hook does not already show, whose
+sheet 3 never letters one, or whose later sheets say COMMENT.
 
 `<!-- skip-people: all -->` (or a slug list) INSIDE a numbered block applies to that sheet only;
 put one on every sheet that must not attach a reference photo, because the generator scans the

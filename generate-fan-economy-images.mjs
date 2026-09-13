@@ -63,8 +63,9 @@ const ai = new GoogleGenAI({ apiKey: API_KEY });
 //
 // THREE SHEETS PER VIDEO (2026-09-13). One sheet could not carry a 60 to 90 second script: the
 // hook sheet deliberately withholds the payoff, so the reveal and the closing turn had no art to
-// film. A script may add `**NANO BANANA PRO PROMPT 2:**` (the reveal) and
-// `**NANO BANANA PRO PROMPT 3:**` (the turn and the viewer question) AFTER the first block. They
+// film. A script may add `**NANO BANANA PRO PROMPT 2:**` (the middle, reveal still withheld) and
+// `**NANO BANANA PRO PROMPT 3:**` (the reveal) AFTER the first block, and no sheet carries a
+// comment CTA (founder call, asserted by FE-SKILL-008). They
 // render to `<slug>-2.jpg` and `<slug>-3.jpg`; sheet 1 keeps its exact name, because the carousel
 // copies it as slide 1 and every other reader keys on `<slug>.jpg`. The first marker is matched
 // exactly, so a numbered block can never be read as sheet 1.

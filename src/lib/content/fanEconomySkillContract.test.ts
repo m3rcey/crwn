@@ -212,6 +212,66 @@ describe('FE-SKILL-006 every saved script declares its hook promise', () => {
   }
 });
 
+describe('FE-SKILL-008 a multi-sheet video holds the reveal until sheet 3', () => {
+  // Founder call 2026-09-13. A video films up to three sheets in order: the hook, the middle,
+  // then the reveal. The first multi-sheet pass drew the reveal on sheet 2 and a
+  // "COMMENT <KEYWORD>" box on sheet 3, which spent the last third of the video on an answer the
+  // viewer already had. The reveal figures come from META's Big Reveal, minus any figure the hook
+  // sheet already shows (the hook may state the inputs, e.g. "1.5M LISTENERS").
+  const SCRIPT_DIR = join(ROOT, 'videos', 'scripts', 'fan-economy');
+  const files = existsSync(SCRIPT_DIR) ? readdirSync(SCRIPT_DIR).filter((f) => f.endsWith('.md')) : [];
+
+  const block = (md: string, sheet: number) => {
+    const marker = sheet === 1 ? '**NANO BANANA PRO PROMPT:**' : `**NANO BANANA PRO PROMPT ${sheet}:**`;
+    const i = md.indexOf(marker);
+    if (i === -1) return null;
+    const rest = md.slice(i + marker.length);
+    const end = rest.indexOf('\n---');
+    return (end === -1 ? rest : rest.slice(0, end)).replace(/<!--[\s\S]*?-->/g, '');
+  };
+  // What the page actually letters: only quoted strings are drawn.
+  const lettered = (text: string) => [...text.matchAll(/"([^"]+)"/g)].map((m) => m[1]).join(' | ');
+  // "$120,000", "1.5M", "90K", "2 million", "8%" and "zero dollars" compare as values.
+  const figures = (text: string) => {
+    const out = new Set<number>();
+    for (const m of text.matchAll(/(\d[\d,]*(?:\.\d+)?)\s*(k|m|thousand|million)?\b/gi)) {
+      let n = parseFloat(m[1].replace(/,/g, ''));
+      const unit = (m[2] ?? '').toLowerCase();
+      if (unit === 'k' || unit === 'thousand') n *= 1e3;
+      if (unit === 'm' || unit === 'million') n *= 1e6;
+      out.add(Math.round(n));
+    }
+    if (/\bzero\b/i.test(text)) out.add(0);
+    return out;
+  };
+
+  const multiSheet = files.filter((f) => readFileSync(join(SCRIPT_DIR, f), 'utf8').includes('**NANO BANANA PRO PROMPT 2:**'));
+
+  for (const file of multiSheet) {
+    const md = readFileSync(join(SCRIPT_DIR, file), 'utf8').replace(/\r\n/g, '\n');
+    const sheet1 = lettered(block(md, 1) ?? '');
+    const sheet2 = lettered(block(md, 2) ?? '');
+    const sheet3Block = block(md, 3);
+    const sheet3 = lettered(sheet3Block ?? '');
+    const revealSegment = md.match(/Big Reveal:([^·]*)/)?.[1] ?? '';
+    const hookFigures = figures(sheet1);
+    const revealOnly = [...figures(revealSegment)].filter((n) => !hookFigures.has(n));
+
+    it(`${file} keeps its reveal figures off sheet 2 and puts them on sheet 3`, () => {
+      expect(sheet3Block, `${file} has a sheet 2 but no sheet 3 to reveal on`).not.toBeNull();
+      expect(revealOnly.length, `${file}: no Big Reveal figure beyond the hook, so this check proves nothing`).toBeGreaterThan(0);
+      const onSheet2 = [...figures(sheet2)].filter((n) => revealOnly.includes(n));
+      expect(onSheet2, `${file} reveals ${onSheet2.join(', ')} on sheet 2`).toEqual([]);
+      const onSheet3 = [...figures(sheet3)].filter((n) => revealOnly.includes(n));
+      expect(onSheet3.length, `${file} sheet 3 never shows the reveal (${revealOnly.join(', ')})`).toBeGreaterThan(0);
+    });
+
+    it(`${file} carries no comment CTA on its later sheets`, () => {
+      expect(`${sheet2} | ${sheet3}`).not.toMatch(/\bCOMMENT\b/i);
+    });
+  }
+});
+
 describe('FE-SKILL-004 the artist pool keeps the ICP pivot sane', () => {
   it('every pool entry carries a lane and cautions', () => {
     const entries = pool.split(/^### /m).slice(1);
