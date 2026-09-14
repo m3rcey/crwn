@@ -23,12 +23,30 @@ export const dynamic = 'force-dynamic';
 /**
  * A private link must never be indexed, previewed with its token in a crawler cache, or
  * leak its URL to another site through the Referer header.
+ *
+ * The title is only set AFTER the token verifies. A static title rendered "Live results" on
+ * the 404 for a wrong token too, which quietly confirmed the route exists. With a valid
+ * token it matters for the opposite reason: when this page is added to a home screen, the
+ * icon is labelled from it, so it has to be short and obvious ("Live Results" fits under
+ * an iPhone icon without truncating).
  */
-export const metadata: Metadata = {
-  title: 'Live results',
+const PRIVATE: Metadata = {
   robots: { index: false, follow: false, nocache: true },
   referrer: 'no-referrer',
 };
+
+export async function generateMetadata({ params }: ScoreboardPageProps): Promise<Metadata> {
+  const { slug, token } = await params;
+  const artist = await songLabArtistBySlug(supabaseAdmin, (slug || '').toLowerCase());
+  if (!artist || !verifyScoreboardToken(artist.artistId, token, process.env.SUPABASE_SERVICE_ROLE_KEY)) {
+    return PRIVATE;
+  }
+  return {
+    ...PRIVATE,
+    title: 'Live Results',
+    appleWebApp: { capable: true, title: 'Live Results', statusBarStyle: 'black-translucent' },
+  };
+}
 
 /**
  * The artist's no-sign-in live scoreboard. Built for an artist who is not comfortable with
