@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { participantKey, mergedResults } from './publicParticipant';
+import { participantKey, mergedResults, perShowResults } from './publicParticipant';
 
 const SECRET = 'test-service-role-key';
 const OPTIONS = [
@@ -87,5 +87,75 @@ describe('mergedResults', () => {
   it('keeps ballot order, so the screen matches the buttons the fan just tapped', () => {
     const r = mergedResults(OPTIONS, [{ option_id: 'b' }], []);
     expect(r.options.map((o) => o.id)).toEqual(['a', 'b']);
+  });
+});
+
+describe("perShowResults (the artist live view)", () => {
+  const show1 = {
+    id: "s1", project_id: "night", stage_label: "Show 1", status: "open",
+    options: OPTIONS, closes_at: "2026-09-27T00:00:00.000Z",
+  };
+  const show2 = {
+    id: "s2", project_id: "night", stage_label: "Show 2", status: "open",
+    options: [{ id: "a", label: "Bad Boy" }, { id: "b", label: "Never Too Much" }],
+    opens_at: "2026-09-27T00:30:00.000Z", closes_at: "2026-09-27T03:00:00.000Z",
+  };
+
+  it("counts PUBLIC votes too, so the artist and the fan see the same room", () => {
+    // The bug this exists to fix: the artist view read only account votes.
+    const r = perShowResults(
+      [show1],
+      [{ decision_id: "s1", option_id: "a" }, { decision_id: "s1", option_id: "a" }],
+      [{ decision_id: "s1", option_id: "b" }],
+    );
+    expect(r[0].votes).toBe(3);
+    expect(r[0].options.find((o) => o.id === "a")).toMatchObject({ votes: 2, percent: 67 });
+    expect(r[0].options.find((o) => o.id === "b")).toMatchObject({ votes: 1, percent: 33 });
+  });
+
+  it("matches the fan success screen exactly, because it IS the same merge", () => {
+    const account = [{ option_id: "a" }, { option_id: "b" }, { option_id: "b" }];
+    const pub = [{ option_id: "a" }];
+    const fanScreen = mergedResults(OPTIONS, account, pub);
+    const artistView = perShowResults(
+      [show1],
+      account.map((v) => ({ ...v, decision_id: "s1" })),
+      pub.map((v) => ({ ...v, decision_id: "s1" })),
+    )[0];
+    expect(artistView.votes).toBe(fanScreen.total);
+    expect(artistView.options).toEqual(fanScreen.options);
+  });
+
+  it("never lets a Show 1 vote leak into Show 2", () => {
+    const r = perShowResults(
+      [show1, show2],
+      [{ decision_id: "s1", option_id: "a" }, { decision_id: "s1", option_id: "a" }],
+      [{ decision_id: "s2", option_id: "b" }],
+    );
+    const s1 = r.find((x) => x.id === "s1")!;
+    const s2 = r.find((x) => x.id === "s2")!;
+    expect(s1.votes).toBe(2);
+    expect(s2.votes).toBe(1);
+    expect(s2.options.find((o) => o.id === "a")!.votes).toBe(0);
+  });
+
+  it("orders shows by scheduled close, so Show 1 reads before Show 2", () => {
+    const r = perShowResults([show2, show1], [], []);
+    expect(r.map((x) => x.stageLabel)).toEqual(["Show 1", "Show 2"]);
+  });
+
+  it("a show nobody has voted in is zeroes, never a divide by zero", () => {
+    const r = perShowResults([show2], [], []);
+    expect(r[0].votes).toBe(0);
+    expect(r[0].options.every((o) => o.votes === 0 && o.percent === 0)).toBe(true);
+  });
+
+  it("percentages still sum to 100 per show", () => {
+    const r = perShowResults(
+      [show1],
+      Array.from({ length: 7 }, () => ({ decision_id: "s1", option_id: "a" })),
+      Array.from({ length: 6 }, () => ({ decision_id: "s1", option_id: "b" })),
+    );
+    expect(r[0].options.reduce((s, o) => s + o.percent, 0)).toBe(100);
   });
 });

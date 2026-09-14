@@ -1,11 +1,17 @@
-// Song Lab analytics — GB's experiment results, derived on read from the canonical tables.
-// COUNTS ONLY, never rates: the sample is small and a percentage would lie with a
-// confident face (same rule as the admin scorecard). Nothing here is stored; delete the
-// experiment and this route has nothing to say.
+// Song Lab analytics, derived on read from the canonical tables. Nothing here is stored.
+//
+// TWO KINDS OF NUMBER, AND ONLY ONE MAY BE A PERCENTAGE:
+//   * ATTRIBUTION and PARTICIPATION (which magnet produced which fan, who is now paid) stay
+//     COUNTS ONLY. A conversion rate over a small sample lies with a confident face
+//     (07-BUSINESS-RULES section 16, rule 6).
+//   * A SHOW'S VOTE SHARE is not a rate of anything: it is how one room split between songs,
+//     and every vote in it is counted. The artist sees counts AND percentages there
+//     (founder decision 2026-09-13), computed by the same merge the fan's success screen uses.
 
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { requireSongLabArtist } from '@/lib/songLab/server';
+import { perShowResults } from '@/lib/songLab/publicParticipant';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -63,8 +69,14 @@ export async function GET() {
   const participants = votesByFan.size;
   const repeatParticipants = [...votesByFan.values()].filter((n) => n >= 2).length;
 
-  const votesByDecision = new Map<string, number>();
-  for (const v of votes || []) votesByDecision.set(v.decision_id, (votesByDecision.get(v.decision_id) ?? 0) + 1);
+  // Votes from people whose email already belonged to an account. No fan attached, so they
+  // feed the per-show song tallies and nothing fan-keyed. Fail soft: an unreadable table
+  // shows account votes rather than breaking the artist's whole Results tab.
+  const publicVotes: Array<{ decision_id: string; option_id: string }> = await supabaseAdmin
+    .from('song_lab_public_votes')
+    .select('decision_id, option_id')
+    .eq('artist_id', artistId)
+    .then((r) => (r.error ? [] : r.data ?? []), () => []);
 
   // Which projects each fan touched
   const projectByDecision = new Map((decisions || []).map((d) => [d.id, d.project_id]));
@@ -123,36 +135,18 @@ export async function GET() {
     // One row per SHOW, with its own tally. Never summed across shows: two sets on one
     // night are two separate questions, and merging them would invent a result nobody
     // voted for.
-    decisions: (decisions || []).map((d) => {
-      const perOption = new Map<string, number>();
-      for (const v of votes || []) {
-        if (v.decision_id !== d.id) continue;
-        perOption.set(v.option_id, (perOption.get(v.option_id) ?? 0) + 1);
-      }
-      const total = votesByDecision.get(d.id) ?? 0;
-      return {
-        id: d.id,
-        projectId: d.project_id,
-        stageLabel: d.stage_label,
-        status: d.status,
-        opensAt: d.opens_at ?? null,
-        closesAt: d.closes_at ?? null,
-        votes: total,
-        winningOptionId: d.winning_option_id ?? null,
-        options: ((d.options || []) as Array<{ id: string; label: string }>).map((o) => ({
-          id: o.id,
-          label: o.label,
-          votes: perOption.get(o.id) ?? 0,
-          // A share is only meaningful against this show's own total.
-          share: total > 0 ? Math.round(((perOption.get(o.id) ?? 0) / total) * 100) : null,
-        })),
-      };
-    }),
+    // Built by the SAME merge the fan's success screen uses, so the artist and the room
+    // can never read two different results. Includes public votes (an email that already
+    // had an account), which this route silently dropped before 2026-09-13.
+    decisions: perShowResults(decisions || [], votes || [], publicVotes),
     participation: {
       participants,
       repeatParticipants,
       multiProjectParticipants,
+      // Account-linked votes only: everything in this block is keyed by fan, and a public
+      // vote has no fan. The per-show totals above are the complete count.
       totalVotes: (votes || []).length,
+      publicVotes: publicVotes.length,
       tierBreakdown,
     },
   });

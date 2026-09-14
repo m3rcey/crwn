@@ -107,3 +107,69 @@ export function mergedResults(
     total,
   };
 }
+
+/** One show's standing, as the artist's Results tab renders it. */
+export interface ShowResult {
+  id: string;
+  projectId: string | null;
+  stageLabel: string;
+  status: string;
+  opensAt: string | null;
+  closesAt: string | null;
+  winningOptionId: string | null;
+  /** Every counted vote in this show, account and public together. */
+  votes: number;
+  options: OptionResult[];
+}
+
+interface DecisionRow {
+  id: string;
+  project_id?: string | null;
+  stage_label: string;
+  status: string;
+  options?: unknown;
+  opens_at?: string | null;
+  closes_at?: string | null;
+  winning_option_id?: string | null;
+}
+
+/**
+ * Every show's standing for the artist, built with the SAME merge the fan's success screen
+ * uses. That is the whole point: before this, the artist's Results counted only account
+ * votes while a fan saw account and public votes together, so the two screens disagreed
+ * about the same room the moment anyone voted with an email that already had an account.
+ *
+ * One tally per show, never summed across shows: two sets on one night are two separate
+ * questions. Shows are ordered by their scheduled close so Show 1 reads before Show 2; a
+ * show with no close time keeps its original place after the scheduled ones.
+ */
+export function perShowResults(
+  decisions: DecisionRow[],
+  accountVotes: Array<{ decision_id: string; option_id: string }>,
+  publicVotes: Array<{ decision_id: string; option_id: string }>,
+): ShowResult[] {
+  const closeMs = (d: DecisionRow) => {
+    const t = d.closes_at ? new Date(d.closes_at).getTime() : NaN;
+    return Number.isNaN(t) ? Number.POSITIVE_INFINITY : t;
+  };
+  return [...(decisions || [])]
+    .sort((a, b) => closeMs(a) - closeMs(b))
+    .map((d) => {
+      const merged = mergedResults(
+        (Array.isArray(d.options) ? d.options : []) as DecisionOption[],
+        (accountVotes || []).filter((v) => v.decision_id === d.id),
+        (publicVotes || []).filter((v) => v.decision_id === d.id),
+      );
+      return {
+        id: d.id,
+        projectId: d.project_id ?? null,
+        stageLabel: d.stage_label,
+        status: d.status,
+        opensAt: d.opens_at ?? null,
+        closesAt: d.closes_at ?? null,
+        winningOptionId: d.winning_option_id ?? null,
+        votes: merged.total,
+        options: merged.options,
+      };
+    });
+}

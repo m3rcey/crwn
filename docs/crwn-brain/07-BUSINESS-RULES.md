@@ -407,6 +407,16 @@ through `src/lib/songLab/access.ts`; there is deliberately no slug check anywher
    `song_lab_votes` to `subscriptions` on `(artist_id, fan_id)`. "Now paid" is a count of current
    paid members among a magnet's claimers, not a causal claim, and it never redefines
    `first_paid_conversion` (MEASURE-001).
+7. **A show's vote share is shown as counts AND percentages** (founder decision 2026-09-13). It is
+   not a rate in rule 6's sense: it is how one room split between songs, with every vote counted,
+   so it cannot overstate a conversion. The artist's Results tab and the fan's success screen are
+   built by the SAME merge (`perShowResults` over `mergedResults` in
+   `src/lib/songLab/publicParticipant.ts`), which counts account votes AND `song_lab_public_votes`
+   and uses largest-remainder percentages, so the two screens can never disagree about a room.
+   One tally per show, never summed across shows. Fan-keyed participation figures (participants,
+   repeat voters, tier breakdown) still exclude public votes, because a public vote has no fan.
+   The open Results tab re-reads every 15 seconds while visible; the public Lab page still hides an
+   open vote's tally until the reveal.
 
 ## 17. Fan Drive rules (Virality Engine V1, 2026-08-11)
 

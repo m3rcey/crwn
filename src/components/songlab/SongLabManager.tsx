@@ -8,7 +8,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { readBenefitPointer } from '@/lib/benefitRegistry';
 import { expandFromTier } from '@/lib/tierLadder';
-import { Copy, Check, Plus, Loader2, QrCode, Trash2, Pencil } from 'lucide-react';
+import { Copy, Check, Plus, Loader2, QrCode, Trash2, Pencil, RefreshCw } from 'lucide-react';
 import { OptionSelect } from '@/components/ui/OptionSelect';
 import { TierAccessSelect } from '@/components/shared/TierAccessSelect';
 import { RECOGNITION_DISCLAIMER } from '@/lib/songLab/core';
@@ -17,6 +17,10 @@ import { liveShowDefaults, validateShowWindows, DEFAULT_SHOW_TIMES } from '@/lib
 import { claimSourceLabel } from '@/lib/songLab/claimSource';
 
 /** The zones a US touring artist actually plays. Any IANA id works server-side. */
+/** How often the open Results tab re-reads the standings during a show. One artist, one
+ *  cheap derived read; frequent enough to watch a room move, rare enough to never matter. */
+const RESULTS_REFRESH_MS = 15_000;
+
 const COMMON_TIMEZONES = [
   { id: 'America/New_York', label: 'Eastern' },
   { id: 'America/Chicago', label: 'Central' },
@@ -81,8 +85,10 @@ interface AnalyticsPayload {
   offers: Array<{ id: string; name: string; views: number; claims: number; freeJoins: number; freshSignups: number; participated: number; nowPaid: number; isActive: boolean; sources?: Record<string, number> }>;
   decisions: Array<{
     id: string; stageLabel: string; status: string; votes: number;
-    options?: Array<{ id: string; label: string; votes: number; share: number | null }>;
+    options?: Array<{ id: string; label: string; votes: number; percent: number }>;
     winningOptionId?: string | null;
+    opensAt?: string | null;
+    closesAt?: string | null;
   }>;
   participation: { participants: number; repeatParticipants: number; multiProjectParticipants: number; totalVotes: number; tierBreakdown: Record<string, number> };
 }
@@ -125,11 +131,41 @@ export function SongLabManager() {
     })();
   }, [loadAll]);
 
-  useEffect(() => {
-    if (panel === 'results' && status === 'on') {
-      fetch('/api/song-lab/analytics').then((r) => (r.ok ? r.json() : null)).then((a) => a && setAnalytics(a));
+  // LIVE RESULTS. While the Results tab is open the standings refresh on their own, so
+  // whoever is holding the phone at the show watches the room move between songs without
+  // touching anything. Paused while the tab is hidden (a phone in a pocket should not keep
+  // polling), and refreshed the moment it comes back.
+  const [analyticsUpdatedAt, setAnalyticsUpdatedAt] = useState<Date | null>(null);
+  const [analyticsRefreshing, setAnalyticsRefreshing] = useState(false);
+  const loadAnalytics = useCallback(async () => {
+    setAnalyticsRefreshing(true);
+    try {
+      const res = await fetch('/api/song-lab/analytics', { cache: 'no-store' });
+      const a = res.ok ? await res.json() : null;
+      if (a) {
+        setAnalytics(a);
+        setAnalyticsUpdatedAt(new Date());
+      }
+    } catch {
+      // Keep the last good numbers on screen; the next tick tries again.
+    } finally {
+      setAnalyticsRefreshing(false);
     }
-  }, [panel, status]);
+  }, []);
+
+  useEffect(() => {
+    if (panel !== 'results' || status !== 'on') return;
+    loadAnalytics();
+    const timer = window.setInterval(() => {
+      if (document.visibilityState === 'visible') loadAnalytics();
+    }, RESULTS_REFRESH_MS);
+    const onVisible = () => { if (document.visibilityState === 'visible') loadAnalytics(); };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => {
+      window.clearInterval(timer);
+      document.removeEventListener('visibilitychange', onVisible);
+    };
+  }, [panel, status, loadAnalytics]);
 
   const call = async (url: string, body: Record<string, unknown>, method = 'POST') => {
     setBusy(true);
@@ -236,7 +272,14 @@ export function SongLabManager() {
         />
       ) : null}
 
-      {panel === 'results' ? <ResultsPanel analytics={analytics} /> : null}
+      {panel === 'results' ? (
+        <ResultsPanel
+          analytics={analytics}
+          updatedAt={analyticsUpdatedAt}
+          refreshing={analyticsRefreshing}
+          onRefresh={loadAnalytics}
+        />
+      ) : null}
 
       <p className="text-[11px] text-crwn-text-secondary/70 mt-10">{RECOGNITION_DISCLAIMER}</p>
     </div>
@@ -1106,19 +1149,98 @@ function OfferEditor({ offer, busy, call }: {
 
 /* ── Results ──────────────────────────────────────────────────────────────── */
 
-function ResultsPanel({ analytics }: { analytics: AnalyticsPayload | null }) {
+function ResultsPanel({ analytics, updatedAt, refreshing, onRefresh }: {
+  analytics: AnalyticsPayload | null;
+  updatedAt: Date | null;
+  refreshing: boolean;
+  onRefresh: () => void;
+}) {
   if (!analytics) {
     return <div className="flex justify-center py-10"><Loader2 className="w-6 h-6 text-crwn-gold animate-spin" /></div>;
   }
   const p = analytics.participation;
+  // Every counted vote, account and public together. participation.totalVotes is fan-keyed
+  // and leaves out anyone who voted with an email that already had an account.
+  const allVotes = analytics.decisions.reduce((sum, d) => sum + d.votes, 0);
+  const shows = analytics.decisions.filter((d) => d.status !== 'draft');
   return (
     <div className="space-y-6">
+      {/* LIVE STANDINGS. First on the tab, because at a show this is the only thing anyone
+          opens it for. Counts AND percentages: a song's share of one room is not a
+          conversion rate, so the counts-only rule for attribution does not apply here. */}
+      <div className="rounded-2xl bg-crwn-surface p-4">
+        <div className="flex items-center justify-between gap-3 mb-4">
+          <p className="text-base font-semibold text-crwn-text">Live results</p>
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-crwn-text-secondary" aria-live="polite">
+              {updatedAt
+                ? `Updated ${updatedAt.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', second: '2-digit' })}`
+                : ''}
+            </span>
+            <button
+              onClick={onRefresh}
+              disabled={refreshing}
+              aria-label="Refresh results now"
+              className="p-2 rounded-full bg-crwn-surface-solid ring-1 ring-white/10 text-crwn-text disabled:opacity-50"
+            >
+              <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+            </button>
+          </div>
+        </div>
+
+        {shows.length === 0 ? (
+          <p className="text-sm text-crwn-text-secondary">No votes are published yet.</p>
+        ) : (
+          <div className="space-y-6">
+            {shows.map((d) => (
+              <div key={d.id}>
+                <div className="flex items-baseline justify-between gap-3 mb-2">
+                  <p className="text-lg font-bold text-crwn-text">
+                    {d.stageLabel}
+                    <span className={`ml-2 align-middle text-xs px-2 py-0.5 rounded-full ${
+                      d.status === 'open' ? 'bg-crwn-gold/20 text-crwn-gold' : 'bg-white/10 text-crwn-text-secondary'
+                    }`}>{d.status}</span>
+                  </p>
+                  <p className="text-sm text-crwn-text-secondary tabular-nums">
+                    {d.votes === 1 ? '1 vote' : `${d.votes} votes`}
+                  </p>
+                </div>
+                <div className="space-y-3">
+                  {(d.options || []).map((o) => {
+                    const leading = d.votes > 0 && (d.options || []).every((x) => x.votes <= o.votes);
+                    return (
+                      <div key={o.id}>
+                        <div className="flex items-baseline justify-between gap-3 mb-1">
+                          <span className={`text-base ${leading ? 'font-bold text-crwn-text' : 'text-crwn-text'}`}>
+                            {o.label}
+                          </span>
+                          <span className="text-base tabular-nums whitespace-nowrap">
+                            <span className="font-bold text-crwn-gold">{o.percent}%</span>
+                            <span className="text-crwn-text-secondary">{` · ${o.votes}`}</span>
+                          </span>
+                        </div>
+                        <div className="h-3 rounded-full bg-crwn-surface-solid overflow-hidden" role="presentation">
+                          <div className="h-full rounded-full bg-crwn-gold transition-all" style={{ width: `${o.percent}%` }} />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+        <p className="text-[11px] text-crwn-text-secondary/70 mt-4">
+          Refreshes on its own every 15 seconds while this tab is open. Each show is counted separately.
+        </p>
+      </div>
+
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
           ['Participants', p.participants],
           ['Repeat voters', p.repeatParticipants],
           ['Multi-project', p.multiProjectParticipants],
-          ['Total votes', p.totalVotes],
+          ['Total votes', allVotes],
         ].map(([label, n]) => (
           <div key={label as string} className="rounded-xl bg-crwn-surface p-3 text-center">
             <p className="text-2xl font-bold text-crwn-text">{n as number}</p>
@@ -1162,16 +1284,6 @@ function ResultsPanel({ analytics }: { analytics: AnalyticsPayload | null }) {
             ) : null}
           </tbody>
         </table>
-      </div>
-
-      <div className="rounded-2xl bg-crwn-surface p-4">
-        <p className="text-sm font-semibold text-crwn-text mb-2">Votes per decision</p>
-        {analytics.decisions.map((d) => (
-          <div key={d.id} className="flex items-center justify-between py-1.5 border-t border-white/5 text-sm">
-            <span className="text-crwn-text-secondary">{d.stageLabel} <span className="text-xs">({d.status})</span></span>
-            <span className="text-crwn-text font-semibold">{d.votes}</span>
-          </div>
-        ))}
       </div>
 
       {Object.keys(p.tierBreakdown).length ? (
