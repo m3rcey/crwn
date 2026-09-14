@@ -417,6 +417,16 @@ through `src/lib/songLab/access.ts`; there is deliberately no slug check anywher
    repeat voters, tier breakdown) still exclude public votes, because a public vote has no fan.
    The open Results tab re-reads every 15 seconds while visible; the public Lab page still hides an
    open vote's tally until the reveal.
+8. **The artist scoreboard is a private READ-ONLY link, never a public slug page** (2026-09-13).
+   `/[slug]/results/[token]` shows the same standings with no sign-in, for an artist who is not
+   comfortable with technology. The token (`src/lib/songLab/scoreboardToken.ts`) is an HMAC of the
+   artist id under a purpose-bound subkey, issued ONLY by `/api/song-lab/artist` to a session
+   proven to be that artist, and verified in constant time. It exposes aggregate counts only (no
+   fan, email, id or control), which every fan already sees after voting. It is a token and not
+   the slug because a slug scoreboard would break the reveal rule for every Song Lab artist.
+   Stateless, so revoking one artist alone is not possible: bump `SCOREBOARD_TOKEN_VERSION` to
+   kill every link. Show status on both screens is the EFFECTIVE status from the server clock,
+   never the stored flag, so a show past its scheduled close never reads "open".
 
 ## 17. Fan Drive rules (Virality Engine V1, 2026-08-11)
 

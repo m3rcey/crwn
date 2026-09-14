@@ -370,6 +370,22 @@ responsible for. Do not work those.
       is a small change: the label lives in `fan_badges` plus the award call in
       [`src/lib/songLab/server.ts`](src/lib/songLab/server.ts).
 
+- [ ] **Put Julius's live scoreboard on HIS phone's home screen before Sept 26 (2 minutes,
+      once).** No sign-in, no menus, nothing he can break. His private link:
+        https://thecrwn.app/julius-williams/results/1c89b4dacf02e7f200a57bb994da7495
+      (Also in /studio/lab, Results tab, "Scoreboard link (no sign-in)", Copy link.)
+      On his phone:
+        1. Text him that link and open it in Safari (iPhone) or Chrome (Android). It must be
+           the real browser, not the preview inside the Messages app.
+        2. iPhone: tap Share (the square with the up arrow), scroll, tap **Add to Home Screen**,
+           then Add. Android: tap the three dots, **Add to Home screen**.
+        3. He now has a "Live Results" icon. Tap it once to check it opens on the big screen.
+      It refreshes itself and asks the phone to stay awake. If his screen still goes dark
+      during the show, set Settings > Display & Brightness > Auto-Lock to **Never** for the
+      night and back afterward. Keep the link private: anyone with it can watch the counts
+      (never change them). If it ever gets shared around, tell Claude and every old link
+      stops working.
+
 - [ ] **Julius's Sept 26 night is configured. Two shows, one QR, and it runs itself.**
       (The email problem is fixed in the app, so there is **no Supabase setting to change**.
       An attendee taps CAST MY VOTE and the vote is counted immediately; the email that
