@@ -6,6 +6,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { requireSongLabArtist } from '@/lib/songLab/server';
 import { isPresentableArtistName } from '@/lib/publicName';
+import { scoreboardToken, scoreboardPath } from '@/lib/songLab/scoreboardToken';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -36,11 +37,16 @@ export async function GET() {
     ? (profile!.display_name as string)
     : auth.slug;
 
+  // The no-sign-in scoreboard link. Handed out ONLY here, to a session already proven to be
+  // this artist with Song Lab on, which is what keeps the scoreboard opt-in per artist.
+  const token = scoreboardToken(auth.artistId, process.env.SUPABASE_SERVICE_ROLE_KEY);
+
   return NextResponse.json({
     enabled: true,
     artistId: auth.artistId,
     slug: auth.slug,
     displayName,
     tiers: tiers || [],
+    scoreboardPath: token ? scoreboardPath(auth.slug, token) : null,
   });
 }

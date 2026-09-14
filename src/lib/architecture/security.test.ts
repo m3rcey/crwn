@@ -856,6 +856,12 @@ describe('SEC-SERVICE — service-role routes are the only authorization boundar
     // It refuses outright when the email belongs to a VERIFIED account, so it can never
     // act in a real person's name. Rate limited per IP and per email.
     'src/app/api/song-lab/live-claim/route.ts',
+    // The artist's no-sign-in scoreboard refresh. Authority is a per-artist HMAC token
+    // (src/lib/songLab/scoreboardToken.ts), verified in constant time against the artist the
+    // slug resolves to, and only ever issued to a session proven to be that artist. READ-ONLY
+    // and aggregate-only: show and song names, counts and percentages for that artist's own
+    // polls, no fan, no email, no control. Every refusal is the same 404. Rate limited.
+    'src/app/api/song-lab/scoreboard/route.ts',
     // Fan Automation drop claim. A fan arriving from an Instagram/Facebook DM with no CRWN
     // account IS the intended caller, exactly like live-claim above, and it follows the same
     // captured-contact boundary: it uses the session when one exists (auth.getUser), otherwise

@@ -158,4 +158,25 @@ describe("perShowResults (the artist live view)", () => {
     );
     expect(r[0].options.reduce((s, o) => s + o.percent, 0)).toBe(100);
   });
+
+  it("reports what a show is ACTUALLY doing when given the clock, so 8:01 PM never says open", () => {
+    // Show 1 is stored as open with an 8:00 PM ET close (00:00Z). At 8:01 PM ET it is closed.
+    const at801 = new Date("2026-09-27T00:01:00.000Z");
+    const r = perShowResults([show1, show2], [], [], at801);
+    expect(r.find((x) => x.id === "s1")!.status).toBe("closed");
+    // Show 2 opens 8:30 PM ET, so at 8:01 it is scheduled, not open.
+    expect(r.find((x) => x.id === "s2")!.status).toBe("scheduled");
+    // At 9:00 PM ET, Show 2 is open.
+    const at900 = new Date("2026-09-27T01:00:00.000Z");
+    expect(perShowResults([show2], [], [], at900)[0].status).toBe("open");
+  });
+
+  it("a hand-closed show stays closed whatever the clock says", () => {
+    const r = perShowResults([{ ...show1, status: "closed" }], [], [], new Date("2026-09-26T20:00:00.000Z"));
+    expect(r[0].status).toBe("closed");
+  });
+
+  it("without a clock it returns the stored status unchanged", () => {
+    expect(perShowResults([show1], [], [])[0].status).toBe("open");
+  });
 });

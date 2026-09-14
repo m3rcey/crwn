@@ -16,6 +16,7 @@ import {
   type ShowPhase,
   type ShowPoll,
 } from './schedule';
+import { perShowResults, type ShowResult } from './publicParticipant';
 
 export type SongLabArtistAuth =
   | { ok: true; userId: string; artistId: string; slug: string }
@@ -207,4 +208,46 @@ export async function recordLabVote(
     notifyArtist: false,
   }).catch(() => {});
   return true;
+}
+
+/**
+ * The artist scoreboard: every published show in the artist's active nights, with its live
+ * standings. ONE loader shared by the no-sign-in scoreboard page (first paint) and its
+ * refresh endpoint, built by perShowResults, the same merge the Studio Results tab and the
+ * fan success screen use, so no screen can ever show a different room.
+ *
+ * Drafts and archived nights are left out: a draft never reaches anyone, and an archived
+ * night is history the artist put away. Returns aggregate counts ONLY. The caller must have
+ * already authorized the artist (a session, or a verified scoreboard token).
+ */
+export async function loadScoreboard(admin: any, artistId: string): Promise<ShowResult[]> {
+  const { data: projects } = await admin
+    .from('song_lab_projects')
+    .select('id')
+    .eq('artist_id', artistId)
+    .neq('status', 'archived');
+  const projectIds = (projects || []).map((p: { id: string }) => p.id);
+  if (!projectIds.length) return [];
+
+  const { data: decisions } = await admin
+    .from('song_lab_decisions')
+    .select('id, project_id, stage_label, status, options, opens_at, closes_at, winning_option_id')
+    .eq('artist_id', artistId)
+    .in('project_id', projectIds)
+    .neq('status', 'draft');
+  const ids = (decisions || []).map((d: { id: string }) => d.id);
+  if (!ids.length) return [];
+
+  const [{ data: accountVotes }, publicVotes] = await Promise.all([
+    admin.from('song_lab_votes').select('decision_id, option_id').in('decision_id', ids),
+    admin.from('song_lab_public_votes').select('decision_id, option_id').in('decision_id', ids)
+      .then((r: { data: unknown[] | null; error: unknown }) => (r.error ? [] : r.data ?? []), () => []),
+  ]);
+
+  return perShowResults(
+    decisions || [],
+    accountVotes || [],
+    publicVotes as Array<{ decision_id: string; option_id: string }>,
+    new Date(),
+  );
 }

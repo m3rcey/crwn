@@ -28,7 +28,7 @@
 
 import { createHmac } from 'crypto';
 import { normalizeEmail } from './liveClaim';
-import type { DecisionOption } from './core';
+import { effectiveStatus, type DecisionOption, type SongLabDecisionCore } from './core';
 
 /**
  * Derive the participant key. Purpose-bound: the service key is never used directly as an
@@ -147,6 +147,13 @@ export function perShowResults(
   decisions: DecisionRow[],
   accountVotes: Array<{ decision_id: string; option_id: string }>,
   publicVotes: Array<{ decision_id: string; option_id: string }>,
+  /**
+   * When given, `status` is what the show is ACTUALLY doing at this moment (its schedule
+   * applied), not the stored flag. Without it, a show whose 8:00 PM close has passed still
+   * reads "open" at 8:01, which on a live scoreboard is simply wrong. Always pass the
+   * server's clock from a screen that displays status.
+   */
+  now?: Date,
 ): ShowResult[] {
   const closeMs = (d: DecisionRow) => {
     const t = d.closes_at ? new Date(d.closes_at).getTime() : NaN;
@@ -164,7 +171,17 @@ export function perShowResults(
         id: d.id,
         projectId: d.project_id ?? null,
         stageLabel: d.stage_label,
-        status: d.status,
+        status: now
+          ? effectiveStatus({
+            status: d.status as SongLabDecisionCore['status'],
+            options: [],
+            is_free: true,
+            allowed_tier_ids: [],
+            opens_at: d.opens_at ?? null,
+            closes_at: d.closes_at ?? null,
+            winning_option_id: null,
+          }, now)
+          : d.status,
         opensAt: d.opens_at ?? null,
         closesAt: d.closes_at ?? null,
         winningOptionId: d.winning_option_id ?? null,

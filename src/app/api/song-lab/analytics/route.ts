@@ -138,7 +138,7 @@ export async function GET() {
     // Built by the SAME merge the fan's success screen uses, so the artist and the room
     // can never read two different results. Includes public votes (an email that already
     // had an account), which this route silently dropped before 2026-09-13.
-    decisions: perShowResults(decisions || [], votes || [], publicVotes),
+    decisions: perShowResults(decisions || [], votes || [], publicVotes, new Date()),
     participation: {
       participants,
       repeatParticipants,

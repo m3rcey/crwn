@@ -99,6 +99,7 @@ export function SongLabManager() {
   const [status, setStatus] = useState<'loading' | 'off' | 'on'>('loading');
   const [slug, setSlug] = useState('');
   const [displayName, setDisplayName] = useState('');
+  const [scoreboardPath, setScoreboardPath] = useState<string | null>(null);
   const [tiers, setTiers] = useState<Tier[]>([]);
   const [panel, setPanel] = useState<Panel>('projects');
   const [projects, setProjects] = useState<Project[]>([]);
@@ -125,6 +126,7 @@ export function SongLabManager() {
       if (!data.enabled) { setStatus('off'); return; }
       setSlug(data.slug);
       setDisplayName(data.displayName || data.slug);
+      setScoreboardPath(typeof data.scoreboardPath === 'string' ? data.scoreboardPath : null);
       setTiers(data.tiers || []);
       setStatus('on');
       loadAll();
@@ -278,6 +280,7 @@ export function SongLabManager() {
           updatedAt={analyticsUpdatedAt}
           refreshing={analyticsRefreshing}
           onRefresh={loadAnalytics}
+          scoreboardPath={scoreboardPath}
         />
       ) : null}
 
@@ -1149,12 +1152,14 @@ function OfferEditor({ offer, busy, call }: {
 
 /* ── Results ──────────────────────────────────────────────────────────────── */
 
-function ResultsPanel({ analytics, updatedAt, refreshing, onRefresh }: {
+function ResultsPanel({ analytics, updatedAt, refreshing, onRefresh, scoreboardPath }: {
   analytics: AnalyticsPayload | null;
   updatedAt: Date | null;
   refreshing: boolean;
   onRefresh: () => void;
+  scoreboardPath: string | null;
 }) {
+  const [linkCopied, setLinkCopied] = useState(false);
   if (!analytics) {
     return <div className="flex justify-center py-10"><Loader2 className="w-6 h-6 text-crwn-gold animate-spin" /></div>;
   }
@@ -1234,6 +1239,42 @@ function ResultsPanel({ analytics, updatedAt, refreshing, onRefresh }: {
           Refreshes on its own every 15 seconds while this tab is open. Each show is counted separately.
         </p>
       </div>
+
+      {/* The easy door for an artist who should never have to sign in to watch his own
+          room: one private link, read-only, big type, nothing to press by accident. */}
+      {scoreboardPath ? (
+        <div className="rounded-2xl bg-crwn-surface p-4">
+          <p className="text-base font-semibold text-crwn-text mb-1">Scoreboard link (no sign-in)</p>
+          <p className="text-sm text-crwn-text-secondary mb-3">
+            The same live results on one big, simple screen that updates by itself and keeps the
+            phone awake. Nothing on it can be changed. Open it on the artist&apos;s phone, then
+            use the browser&apos;s Share button and choose <span className="text-crwn-text">Add to Home Screen</span>,
+            so it is one tap from then on. Keep the link private.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText(`${window.location.origin}${scoreboardPath}`).then(() => {
+                  setLinkCopied(true);
+                  window.setTimeout(() => setLinkCopied(false), 1500);
+                });
+              }}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-crwn-gold text-crwn-bg text-sm font-semibold"
+            >
+              {linkCopied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+              {linkCopied ? 'Copied' : 'Copy link'}
+            </button>
+            <a
+              href={scoreboardPath}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-crwn-surface-solid ring-1 ring-white/10 text-crwn-text text-sm font-semibold"
+            >
+              Open scoreboard
+            </a>
+          </div>
+        </div>
+      ) : null}
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
