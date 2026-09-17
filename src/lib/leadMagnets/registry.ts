@@ -817,7 +817,14 @@ const UNIFIED_OPPORTUNITY: LeadMagnetConfig = {
     // dismissed here, because every number in the model scales with it. The subheadline
     // adds the fragmentation beat: the buyers exist, they are just split across tools
     // that cannot see the same person.
-    headline: 'The fans who would pay you most are the ones you cannot see.',
+    //
+    // The headline NAMES THE PRODUCT (founder call, 2026-09-17), because `/` is a first
+    // impression and a visitor who cannot name what they are looking at has nothing to
+    // come back to. It still opens on the cost of not acting rather than on the product:
+    // "Without The CRWN App" is the loss frame the copy rule asks for, and the name rides
+    // inside it instead of turning the sentence into "CRWN helps you...", which is the
+    // gain frame the rule exists to prevent.
+    headline: 'Without The CRWN App, the fans who would pay you most stay invisible.',
     subheadline:
       'Your buyers, members and contacts sit in tools that cannot see the same person. See what that group is worth.',
     primaryCta: 'See what I am missing',

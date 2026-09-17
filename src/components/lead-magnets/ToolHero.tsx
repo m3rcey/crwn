@@ -39,6 +39,14 @@ import Image from 'next/image';
 // On desktop the reclaimed height goes straight to the photo with no other adjustment, because the
 // image is the flexible element. Mobile has no such slack, so its aspect ratio was opened up by
 // hand instead; see the image block below.
+//
+// `brandMark` (optional) prints the product name large over the bottom of the artwork. Only the
+// homepage passes it, because `/` is where a stranger meets CRWN for the first time and has to be
+// able to name what they are looking at. It is an OVERLAY rather than a line of its own, and that
+// is load-bearing: a stacked wordmark would add roughly 40px to the copy column, which on a
+// 375x667 phone is exactly the budget the CTA has left. An absolutely positioned mark costs zero
+// layout height, so the button stays above the fold on both breakpoints by construction, the same
+// guarantee the rest of this component is built on. Do not convert it into a flow element.
 export function ToolHero({
   headline,
   subheadline,
@@ -46,6 +54,7 @@ export function ToolHero({
   imageAlt,
   ctaLabel,
   onStart,
+  brandMark,
 }: {
   headline: string;
   subheadline: string;
@@ -53,6 +62,7 @@ export function ToolHero({
   imageAlt: string;
   ctaLabel: string;
   onStart: () => void;
+  brandMark?: string;
 }) {
   return (
     <div
@@ -78,6 +88,18 @@ export function ToolHero({
       <div className="relative w-full aspect-[16/9] [@media(min-height:700px)]:aspect-[4/3] md:aspect-auto md:flex-1 md:min-h-0 rounded-2xl overflow-hidden border border-crwn-elevated">
         <Image src={image} alt={imageAlt} fill priority sizes="(max-width: 768px) 100vw, 672px" className="object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-crwn-bg/70 via-transparent to-transparent" />
+        {brandMark && (
+          <>
+            {/* A deeper scrim under the name only. The shared gradient above is tuned for artwork,
+                not for type, and the name has to stay readable over whichever illustration the
+                surface is carrying. It is drawn only when a mark is passed, so every other hero
+                renders exactly as before. */}
+            <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-crwn-bg via-crwn-bg/70 to-transparent" />
+            <span className="absolute inset-x-0 bottom-3 md:bottom-6 px-4 text-3xl md:text-5xl font-bold tracking-tight text-crwn-gold">
+              {brandMark}
+            </span>
+          </>
+        )}
       </div>
 
       {/* `shrink-0`: the copy takes the height it needs and the image yields, never the reverse. */}

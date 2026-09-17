@@ -383,6 +383,11 @@ export function PublicToolClient({
             imageAlt={config.hero.imageAlt}
             ctaLabel={config.hero.primaryCta}
             onStart={scrollToWizard}
+            // The homepage is the one surface a stranger reaches without already knowing what
+            // CRWN is, so `/` names the product large over the artwork. A tool route is arrived
+            // at from a link that already said where it was going, and the mark there would be
+            // a second brand statement on a page whose only job is to start the wizard.
+            brandMark={surface === 'homepage' ? 'The CRWN App' : undefined}
           />
 
           {/* The wizard lives on the SAME page, directly below the hero. The CTA scrolls

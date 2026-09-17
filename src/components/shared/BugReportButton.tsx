@@ -30,21 +30,49 @@ export function BugReportButton() {
     setMounted(true);
   }, []);
 
-  // Hide where it would be noise: auth screens, the setup wizard's focused flow, and
-  // behind the full-screen player (which owns the whole viewport at z-100).
+  // Hide where it would be noise: auth screens, the setup wizard's focused flow, the
+  // homepage, and behind the full-screen player (which owns the whole viewport at z-100).
+  //
+  // `/` is the one page a stranger reaches before they have any reason to trust CRWN
+  // (founder call, 2026-09-17). A bug flag in the corner of a first impression argues
+  // against the product before the visitor has used it, and a prospect who has not
+  // signed up has no bug to report yet. It stays everywhere they actually work.
+  //
+  // `/drop` is a fan's paid offer page, the same kind of focused single-action flow as
+  // login and signup, and it owns the bottom of the viewport with its own sticky CTA
+  // bar. It is the only other full-width `fixed bottom-0` element in the app besides
+  // the mini player, so excluding the page is also what keeps the desktop flag off it.
   const hidden =
     !pathname ||
+    pathname === '/' ||
     pathname === '/login' ||
     pathname === '/signup' ||
     pathname.startsWith('/setup') ||
     pathname.startsWith('/verify') ||
+    pathname.startsWith('/drop') ||
     isExpanded;
 
   // The mini player is fixed full-width at bottom-16 on mobile / bottom-0 on desktop
   // and stands ~72px tall. This button sits ABOVE it in the stacking order, so any
   // overlap silently eats taps on the player's own controls (that is exactly how it
   // blocked expanding the player). Ride above the player whenever a track is loaded.
-  const offset = currentTrack ? 'bottom-36 md:bottom-24' : 'bottom-24 md:bottom-6';
+  //
+  // DESKTOP ONLY, and that is the fix rather than another offset (2026-09-17). The old
+  // mobile value was `bottom-24`: 96px, chosen to clear the logged-in bottom tab bar.
+  // On a public page there is no tab bar, so those 96px put the flag in the middle of
+  // the content column, where a phone has no gutter for it to sit in. On a calculator
+  // that is exactly where the wizard's own sticky footer lives, so the flag landed on
+  // the progress bar beside `Close` and ate taps meant for it.
+  //
+  // A phone has no reliably empty corner: the bottom of the viewport belongs to the tab
+  // bar, the mini player, or a sticky wizard footer on essentially every surface, and a
+  // fixed element over a full-width column will always cover something. Nudging the
+  // offset again only moves which control it covers, which is how it already broke the
+  // player once. So mobile has no floating flag at all, and the overlap is impossible by
+  // construction rather than avoided by arithmetic. Reporting on a phone goes through
+  // Support in the hamburger. On desktop the flag sits in the page gutter beside the
+  // centred column, which is genuinely empty, and it still steps over the mini player.
+  const offset = currentTrack ? 'bottom-24' : 'bottom-6';
 
   if (!mounted || hidden) return null;
 
@@ -88,7 +116,7 @@ export function BugReportButton() {
         onClick={() => setOpen(true)}
         aria-label="Report a bug"
         title="Report a bug"
-        className={`fixed ${offset} right-3 z-[90] w-9 h-9 rounded-full bg-crwn-surface-solid border border-crwn-elevated flex items-center justify-center text-crwn-text-secondary opacity-40 hover:opacity-100 hover:text-crwn-gold focus:opacity-100 transition-all`}
+        className={`fixed ${offset} right-3 z-[90] w-9 h-9 rounded-full bg-crwn-surface-solid border border-crwn-elevated hidden md:flex items-center justify-center text-crwn-text-secondary opacity-40 hover:opacity-100 hover:text-crwn-gold focus:opacity-100 transition-all`}
       >
         <Flag className="w-4 h-4" />
       </button>
