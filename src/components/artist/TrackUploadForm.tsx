@@ -111,6 +111,18 @@ export function TrackUploadForm() {
   const [showQuickPlaylistModal, setShowQuickPlaylistModal] = useState(false);
   const [confirmDeleteTrack, setConfirmDeleteTrack] = useState<Track | null>(null);
   const [confirmDeleteBulk, setConfirmDeleteBulk] = useState(false);
+  // Bulk access editing. The draft is a CONTENT CLASS plus its tiers and window, exactly
+  // what the single-track editor collects, because the same `fieldsForClass` writer turns
+  // it into stored fields. Moving a catalog from one rung to another was otherwise a
+  // per-track edit, which is why tracks uploaded before a ladder existed tended to stay
+  // wherever they landed.
+  const [showBulkAccess, setShowBulkAccess] = useState(false);
+  const [bulkAccess, setBulkAccess] = useState<{
+    contentClass: ContentClass;
+    allowedTierIds: string[];
+    earlyAccessDays: number;
+  }>({ contentClass: 'member_only', allowedTierIds: [], earlyAccessDays: 7 });
+  const [isApplyingAccess, setIsApplyingAccess] = useState(false);
 
   // Fetch tracks when component mounts
   useEffect(() => {
@@ -718,6 +730,71 @@ export function TrackUploadForm() {
     showToast(`Added ${selectedTrackIds.size} tracks to playlist`, "success");
   };
 
+  /**
+   * Move every selected track to one content class.
+   *
+   * The stored fields are DERIVED from the class through `fieldsForClass`, never written
+   * directly, for the same reason the single-track editor does it: setting
+   * is_free / allowed_tier_ids / public_release_date independently can produce a future
+   * date with an empty tier list, which the gate reads as locked for EVERYONE, paying
+   * members included. Doing that to one track is a bug; doing it to a whole selection in
+   * one press is a catalog outage.
+   *
+   * Per track, one carry-over: a members-first track still inside its window keeps its own
+   * existing public date. Re-deriving it would hand every selected track a fresh window
+   * starting today, which quietly extends an exclusivity promise the artist never changed.
+   * That is the same rule as the single-track edit path, applied row by row because each
+   * track has its own date.
+   */
+  const applyBulkAccess = async () => {
+    const ids = Array.from(selectedTrackIds);
+    if (ids.length === 0) return;
+    if (bulkAccess.contentClass !== 'free_forever' && bulkAccess.allowedTierIds.length === 0) {
+      showToast('Pick which tiers get it', 'error');
+      return;
+    }
+    setIsApplyingAccess(true);
+    const now = new Date();
+    const access = fieldsForClass(bulkAccess.contentClass, {
+      tierIds: bulkAccess.allowedTierIds,
+      windowDays: bulkAccess.earlyAccessDays,
+      now,
+    });
+
+    let failed = 0;
+    const updated = new Map<string, { is_free: boolean; allowed_tier_ids: string[]; public_release_date: string | null; price: number | null }>();
+    for (const id of ids) {
+      const track = tracks.find((t) => t.id === id);
+      const keepExistingWindow =
+        bulkAccess.contentClass === 'paid_first' &&
+        !!track?.public_release_date &&
+        new Date(track.public_release_date) > now;
+      const row = {
+        is_free: access.is_free,
+        allowed_tier_ids: access.allowed_tier_ids,
+        public_release_date: keepExistingWindow ? track!.public_release_date! : access.public_release_date,
+        // A one-time price only means anything on the members-only archive, which is how
+        // the single-track editor treats it. Leaving a stale price on a track that just
+        // became free would offer a purchase for something already public.
+        price: bulkAccess.contentClass === 'member_only' ? (track?.price ?? null) : null,
+      };
+      const { error } = await supabase.from('tracks').update(row).eq('id', id);
+      if (error) failed += 1;
+      else updated.set(id, row);
+    }
+
+    setTracks((prev) => prev.map((t) => (updated.has(t.id) ? { ...t, ...updated.get(t.id)! } : t)));
+    setIsApplyingAccess(false);
+    setShowBulkAccess(false);
+    if (failed === 0) {
+      setSelectedTrackIds(new Set());
+      showToast(`${ids.length} ${ids.length === 1 ? 'track' : 'tracks'} updated`, 'success');
+    } else {
+      // The selection stays so the artist can retry the ones that did not land.
+      showToast(`${ids.length - failed} updated, ${failed} could not be changed`, 'error');
+    }
+  };
+
   return (
     <div className="space-y-8">
       {/* Track Limit Check */}
@@ -1101,13 +1178,17 @@ export function TrackUploadForm() {
         </div>
       ) : tracks.length > 0 ? (
         <div data-tour="music-tracklist">
-          <div className="flex items-center justify-between mb-4">
+          {/* Wraps, because this row holds four actions once a selection exists and a phone
+              cannot fit them on one line. Without it the last control is pushed off the
+              right edge and another one silently covers it: that is how the album picker
+              came to intercept taps meant for `Change access`. */}
+          <div className="flex flex-wrap items-center justify-between gap-y-2 mb-4">
             <div className="flex items-center gap-3">
               <input type="checkbox" checked={selectedTrackIds.size === tracks.length && tracks.length > 0} onChange={selectAllTracks} className="w-4 h-4 accent-crwn-gold" />
               <h2 className="text-lg font-semibold text-crwn-text">{selectedTrackIds.size > 0 ? `${selectedTrackIds.size} selected` : "Your Tracks"}</h2>
             </div>
             {selectedTrackIds.size > 0 && (
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <select 
                   onChange={(e) => { 
                     if (e.target.value === 'new') {
@@ -1140,6 +1221,29 @@ export function TrackUploadForm() {
                   <option value="new" className="font-medium text-crwn-gold">+ Create New Playlist</option>
                   {artistPlaylists.map(p => <option key={p.id} value={p.id}>{p.title}</option>)}
                 </select>
+                {/* Opens on what the selection ALREADY is when they agree, so the artist
+                    edits their catalog's current state instead of a blank default that
+                    would silently move tracks they only meant to look at. */}
+                <button
+                  onClick={() => {
+                    const selected = tracks.filter((t) => selectedTrackIds.has(t.id));
+                    const classes = new Set(selected.map((t) => classifyTrack(t)));
+                    const common = classes.size === 1 ? [...classes][0] : null;
+                    const sharedTiers =
+                      common && new Set(selected.map((t) => (t.allowed_tier_ids ?? []).slice().sort().join(','))).size === 1
+                        ? (selected[0]?.allowed_tier_ids ?? [])
+                        : [];
+                    setBulkAccess({
+                      contentClass: common ?? 'member_only',
+                      allowedTierIds: sharedTiers,
+                      earlyAccessDays: 7,
+                    });
+                    setShowBulkAccess(true);
+                  }}
+                  className="text-sm text-crwn-gold hover:underline px-2 py-1"
+                >
+                  Change access
+                </button>
                 <button onClick={handleBulkDelete} className="text-sm text-red-500 hover:text-red-400 px-2 py-1">Delete</button>
               </div>
             )}
@@ -1272,6 +1376,96 @@ export function TrackUploadForm() {
           onConfirm={executeBulkDelete}
           onCancel={() => setConfirmDeleteBulk(false)}
         />
+      )}
+
+      {/* Bulk access editor. Deliberately the SAME three controls as the single-track
+          editor (class, then who, then how long), so an artist who has set access on one
+          track already knows this screen. */}
+      {showBulkAccess && (
+        <div
+          className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/60 p-0 sm:p-4"
+          onClick={() => !isApplyingAccess && setShowBulkAccess(false)}
+        >
+          <div
+            className="w-full sm:max-w-md bg-crwn-surface-solid border border-crwn-elevated rounded-t-2xl sm:rounded-2xl p-5 max-h-[85vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-1">
+              <h3 className="font-semibold text-crwn-text">
+                Change access for {selectedTrackIds.size} {selectedTrackIds.size === 1 ? 'track' : 'tracks'}
+              </h3>
+              <button
+                onClick={() => setShowBulkAccess(false)}
+                aria-label="Close"
+                className="p-1 text-crwn-text-secondary hover:text-crwn-text"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <p className="text-xs text-crwn-text-secondary mb-4">
+              This replaces who can play them. Nothing else about the tracks changes.
+            </p>
+
+            <label className="block text-sm font-medium text-crwn-text-secondary mb-2">How they are released</label>
+            <OptionSelect
+              options={(Object.keys(CONTENT_CLASS_LABELS) as ContentClass[]).map((c) => ({
+                value: c,
+                label: CONTENT_CLASS_LABELS[c].label,
+                hint: CONTENT_CLASS_LABELS[c].hint,
+              }))}
+              value={bulkAccess.contentClass}
+              onChange={(v) => setBulkAccess((p) => ({ ...p, contentClass: v as ContentClass }))}
+            />
+
+            {bulkAccess.contentClass !== 'free_forever' && (
+              <div className="mt-4">
+                <label className="block text-sm font-medium text-crwn-text-secondary mb-2">
+                  {bulkAccess.contentClass === 'paid_first' ? 'Who hears them early' : 'Which tiers unlock them'}
+                </label>
+                {/* Paid rungs only on the early-access path: a free rung with early access
+                    is just a public release. Cumulative either way, so the rungs above the
+                    one chosen never lose what they pay more for. */}
+                <TierAccessSelect
+                  tiers={bulkAccess.contentClass === 'paid_first' ? tiers.filter((t) => t.price > 0) : tiers}
+                  isFree={false}
+                  allowedTierIds={bulkAccess.allowedTierIds}
+                  allowEveryone={false}
+                  onChange={({ allowedTierIds }) => setBulkAccess((p) => ({ ...p, allowedTierIds }))}
+                />
+              </div>
+            )}
+
+            {bulkAccess.contentClass === 'paid_first' && (
+              <div className="mt-4">
+                <label className="block text-sm font-medium text-crwn-text-secondary mb-2">How long they stay members-only</label>
+                <OptionSelect
+                  options={PAID_FIRST_WINDOWS.map((d) => ({ value: String(d), label: `${d} days` }))}
+                  value={String(bulkAccess.earlyAccessDays)}
+                  onChange={(v) => setBulkAccess((p) => ({ ...p, earlyAccessDays: Number(v) }))}
+                />
+                <p className="text-xs text-crwn-text-secondary mt-2">
+                  A track already inside a window keeps its own opening date, so this never extends a promise you already made.
+                </p>
+              </div>
+            )}
+
+            <div className="flex gap-3 mt-5">
+              <button
+                onClick={() => setShowBulkAccess(false)}
+                className="flex-1 py-3 rounded-full border border-crwn-elevated text-crwn-text-secondary font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={applyBulkAccess}
+                disabled={isApplyingAccess}
+                className="flex-1 flex items-center justify-center gap-2 bg-crwn-gold text-crwn-bg font-semibold py-3 rounded-full disabled:opacity-40"
+              >
+                {isApplyingAccess ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Apply'}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
