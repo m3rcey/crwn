@@ -690,11 +690,12 @@ responsible for. Do not work those.
 
 - [ ] **Run the GPT-6 calculator bottleneck audit.** The package is
       [docs/GPT6_CALCULATOR_BOTTLENECK_AUDIT.md](docs/GPT6_CALCULATOR_BOTTLENECK_AUDIT.md): section 2 is your
-      six-step setup (mailbox, two switches, the real bio link, start time), section 3 is the paste-ready
-      prompt with the first five shortform scripts and the first fifty carousel captions embedded, section 5
+      seven-step setup (DM path yes or no, mailbox, three switches, the bio link, start time), section 3 is the paste-ready
+      prompt with the first five Fan Economy scripts and all 31 Fan Economy carousel captions embedded, section 5
       lists the design decisions the tester will flag that are not bugs. Afterwards run
-      [supabase/calculator-audit-cleanup.sql](supabase/calculator-audit-cleanup.sql) with the mailbox prefix
-      and the run window from the report. If the bio link is not thecrwn.app, tell me before the run.
+      [supabase/calculator-audit-cleanup.sql](supabase/calculator-audit-cleanup.sql)
+      with the mailbox prefix, the Instagram test handle and the run window from the report. Before a YES
+      on the DM path, confirm every ManyChat automation reads Live.
 
 
 - [ ] **Look at the 27 new Fan Economy sheets (videos 1 to 9 now have four sheets each).**

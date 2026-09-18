@@ -16,11 +16,27 @@
 --   1. Replace 'crwn.audit.mailbox+test' in EVERY step with the mailbox prefix
 --      you gave GPT-6 (it matches +test-p1 through +test-p4). The founder
 --      address joshn.wms@gmail.com never matches, and neither does any real artist.
---   2. Replace the two timestamps in STEP 4 with the exact start and end
+--   2. Replace 'ig_test_handle' in STEP 0 with the throwaway Instagram handle,
+--      lowercase, no @. Skip STEP 0 entirely if DM_PATH_ALLOWED was NO.
+--   3. Replace the two timestamps in STEP 4 with the exact start and end
 --      wall-clock times from section 1 of the report, in UTC.
 --
 -- Stripe is never touched: the audit stops before Stripe.
 -- ============================================================================
+
+-- ---------------------------------------------------------------------------
+-- STEP 0: the DM path (only if DM_PATH_ALLOWED was YES). The keyword comment
+-- created a lead_identities row under the test handle; sessions, answers, the
+-- lead profile and acquisition events all cascade from it. The crwn_dnt cookie
+-- never covered this path (ManyChat calls the server directly), so this is the
+-- only way those rows go away. Preview, then delete.
+-- ---------------------------------------------------------------------------
+SELECT id, instagram_username, manychat_contact_id, created_at
+  FROM public.lead_identities
+ WHERE instagram_username = lower('ig_test_handle');
+
+DELETE FROM public.lead_identities
+ WHERE instagram_username = lower('ig_test_handle');
 
 -- ---------------------------------------------------------------------------
 -- STEP 1: PREVIEW the identified rows. Run ALONE first and eyeball the counts.
