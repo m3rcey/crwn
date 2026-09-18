@@ -25,48 +25,61 @@ export default function MainShell({
   const { user, profile, isLoading } = useAuth();
   const router = useRouter();
 
-  // A new signup that hasn't saved their identity (the wizard's name/link screens,
-  // which replaced /welcome) yet. Admins are exempt so the founder is never trapped
-  // by the onboarding gate.
-  const needsOnboarding =
-    !!user && !!profile && profile.role !== 'admin' && !profile.onboarding_completed;
-
-  // Second gate: an artist who saved their identity but hasn't completed the focused
-  // setup wizard (/setup) is held there — the rest of the app is unreachable until
-  // Profile + Music are done and they reach the share screen. `null` = not yet
-  // resolved (block the shell to avoid a flash-then-redirect), true/false = answer.
+  // BOTH gates read the DATABASE, never the useAuth context. `null` = not yet
+  // resolved, which is an anti-flash state and never a reason to redirect.
   //
-  // Gate on the artist_profiles ROW, not profile.role. The useAuth context lags —
-  // right after /welcome flips fan→artist, profile.role is still 'fan' until the
-  // next token refresh — so a role check would wrongly wave a brand-new artist
-  // straight into the app, bypassing setup. The row is the fresh source of truth.
-  const [needsSetup, setNeedsSetup] = useState<boolean | null>(null);
+  // The setup gate always did (see below). The onboarding gate used to read
+  // `profile.onboarding_completed` off the context, and that was an infinite
+  // redirect loop for every brand-new signup who pressed "Continue as a supporter"
+  // on the wizard's first screen:
+  //
+  //   /api/onboarding/identity sets onboarding_completed = true with the service-role
+  //   client, so the ROW is true, but the context profile was fetched at login and
+  //   still says false until the next token refresh. The wizard sends them to /home;
+  //   this shell read the stale false and pushed them back to /setup; /setup re-read
+  //   the row, saw onboarding done with no artist row, and replaced back to /home.
+  //   Neither side was wrong about its own source. They just had different ones.
+  //
+  // The context lag is already documented right here for `role`, and the same lag
+  // applies to every column on that profile. So the rule is now the whole rule: this
+  // shell redirects on what the database says, and on nothing else.
+  const [gate, setGate] = useState<{ needsOnboarding: boolean; needsSetup: boolean } | null>(null);
 
   useEffect(() => {
     let active = true;
-    async function checkSetup() {
+    async function checkGates() {
       if (isLoading || !user || !profile) return;
       // Admins (the founder) are never gated.
       if (profile.role === 'admin') {
-        setNeedsSetup(false);
+        setGate({ needsOnboarding: false, needsSetup: false });
         return;
       }
       const supabase = createBrowserSupabaseClient();
-      const { data } = await supabase
-        .from('artist_profiles')
-        .select('setup_completed')
-        .eq('user_id', user.id)
-        .maybeSingle();
+      // Explicit single columns on both: `profiles` carries columns whose SELECT is
+      // revoked from the browser roles, and one revoked column fails the WHOLE
+      // statement, which would read as "no row" and gate a legitimate user forever.
+      const [prof, artist] = await Promise.all([
+        supabase.from('profiles').select('onboarding_completed').eq('id', user.id).maybeSingle(),
+        supabase.from('artist_profiles').select('setup_completed').eq('user_id', user.id).maybeSingle(),
+      ]);
       if (!active) return;
-      // No artist_profiles row → a fan, nothing to gate. Row with setup_completed
-      // false → an artist mid-setup, hold them in the wizard.
-      setNeedsSetup(!!data && data.setup_completed === false);
+      setGate({
+        // Only an explicit false gates. A failed read answers null, and holding
+        // somebody in a wizard because a query failed is worse than letting them in.
+        needsOnboarding: prof.data?.onboarding_completed === false,
+        // No artist_profiles row → a fan, nothing to gate. Row with setup_completed
+        // false → an artist mid-setup, hold them in the wizard.
+        needsSetup: !!artist.data && artist.data.setup_completed === false,
+      });
     }
-    checkSetup();
+    checkGates();
     return () => {
       active = false;
     };
   }, [user, profile, isLoading]);
+
+  const needsOnboarding = gate?.needsOnboarding === true;
+  const needsSetup = gate?.needsSetup === true;
 
   useEffect(() => {
     if (isLoading) return;
@@ -94,20 +107,18 @@ export default function MainShell({
     return null;
   }
 
-  // Avoid flashing the app shell while we redirect an unonboarded user to /setup.
-  if (needsOnboarding) {
+  // Anti-flash only, and it is the ONE place the context is still read. Hold the
+  // shell while the gates are unresolved for somebody the context suggests might be
+  // gated: an artist (who may be mid-setup) or anyone whose cached profile says
+  // onboarding is unfinished. An established fan is never delayed by this, and no
+  // redirect is ever decided here, so a stale hint can only cost a frame, never a
+  // wrong destination.
+  const mightBeGated =
+    !!profile && profile.role !== 'admin' && (profile.role === 'artist' || !profile.onboarding_completed);
+  if (gate === null && mightBeGated) {
     return null;
   }
-
-  // Anti-flash only: hold the shell for a known artist while the setup check is
-  // pending (null), and for anyone we're actively redirecting to /setup (true).
-  // Uses the context role purely to avoid delaying fans on every page load — the
-  // actual redirect decision above is driven by the DB row, not this flag.
-  const isArtistByRole = !!profile && profile.role === 'artist';
-  if (isArtistByRole && needsSetup === null) {
-    return null;
-  }
-  if (needsSetup) {
+  if (needsOnboarding || needsSetup) {
     return null;
   }
 

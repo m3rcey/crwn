@@ -1,6 +1,7 @@
 'use client';
 
 import { Track } from '@/types';
+import { useRouter } from 'next/navigation';
 import { usePlayer } from '@/hooks/usePlayer';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useArtistPreview } from '@/hooks/useArtistPreview';
@@ -21,6 +22,7 @@ interface GatedTrackPlayerProps {
 }
 
 export function GatedTrackPlayer({ track, artistId, artistSlug, trackList }: GatedTrackPlayerProps) {
+  const router = useRouter();
   const { play, pause, currentTrack, isPlaying } = usePlayer();
   const { isSubscribed, tierId, isLoading } = useSubscription(artistId);
   const { previewing } = useArtistPreview();
@@ -52,9 +54,13 @@ export function GatedTrackPlayer({ track, artistId, artistSlug, trackList }: Gat
   const handlePlay = () => {
     hapticMedium();
     if (isLocked) {
-      // Navigate to subscribe — use track page if we have a slug, otherwise artist profile
+      // The locked row IS the subscribe control: it opens the track's own page, where
+      // the tiers and the price are. `router.push`, never `window.location.href`: a
+      // full page load tears down the audio player, so a fan listening to a free track
+      // while browsing the catalog would have the music stop just for tapping a locked
+      // one.
       if (artistSlug) {
-        window.location.href = `/${artistSlug}/track/${track.id}`;
+        router.push(`/${artistSlug}/track/${track.id}`);
       }
       return;
     }
@@ -176,17 +182,15 @@ export function GatedTrackPlayer({ track, artistId, artistSlug, trackList }: Gat
           </div>
         </div>
 
-        {/* CTA Button */}
-        {isLocked && artistSlug && (
-          <a
-            href={`/${artistSlug}/track/${track.id}`}
-            onClick={(e) => e.stopPropagation()}
-            className="px-4 py-1.5 neu-button-accent text-crwn-bg text-sm font-medium rounded-full"
-          >
-            {track.price ? 'Buy' : 'Subscribe'}
-          </a>
-        )}
-
+        {/* There is no per-row Subscribe button, and there should not be one.
+            It navigated to `/{slug}/track/{id}`, which is EXACTLY where tapping the
+            row already goes for a locked track (see handlePlay). So it was a second
+            copy of the row's own tap target, and on a phone it cost about 110px of a
+            390px row: the title truncated to "Potho..." while a gold pill repeated
+            down the whole catalog. The row still says "Subscribe to listen" in gold
+            under the title, which is the instruction; the row is the button.
+            If a locked row ever needs its own control again, give the title its line
+            first, because the title is the thing a fan is choosing between. */}
         {/* Track Action Buttons (Like & Add to Playlist) */}
         <div onClick={(e) => e.stopPropagation()}>
         <TrackActionButtons 

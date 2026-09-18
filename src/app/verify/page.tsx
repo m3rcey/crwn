@@ -27,6 +27,11 @@ export default function VerifyEmailPage() {
     href: '/login?verified=true',
     label: 'Continue to login',
   });
+  // A password reset borrows this page to spend its token, but it is not an email
+  // verification and must not say it was one. "Email verified. Welcome to CRWN."
+  // in front of somebody who came to change their password is the page telling them
+  // their problem is solved when it is not.
+  const [recovery, setRecovery] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -42,6 +47,7 @@ export default function VerifyEmailPage() {
         const tokenHash = params.get('token_hash');
         const rawType = params.get('type') || 'magiclink';
         const otpType = OTP_TYPES.includes(rawType) ? rawType : 'magiclink';
+        if (otpType === 'recovery' && active) setRecovery(true);
 
         if (tokenHash) {
           const { error: otpError } = await supabase.auth.verifyOtp({
@@ -70,6 +76,28 @@ export default function VerifyEmailPage() {
         }
 
         if (session) {
+          // A PASSWORD RESET ends at the password form, and nowhere else.
+          //
+          // This page already accepted `recovery` in OTP_TYPES, so a reset link
+          // verified fine and produced a session. It then fell through to the
+          // onboarding router below and offered "Finish setting up" (/setup) or
+          // "Go to CRWN" (/home). The person who asked to reset their password was
+          // handed the signup wizard and never saw a password field, so the reset
+          // was impossible to complete: the one thing they came to do was the one
+          // thing this page did not offer.
+          //
+          // The session the recovery token just minted is exactly what
+          // /reset-password waits for, so it can update the password immediately.
+          // This branch comes FIRST, ahead of the preserved destination: a reset is
+          // an explicit, time-boxed request, and sending them anywhere else leaves
+          // the account still locked behind a password they cannot remember.
+          if (otpType === 'recovery') {
+            if (active) {
+              setNext({ href: '/reset-password', label: 'Set a new password' });
+              setStatus('success');
+            }
+            return;
+          }
           // A preserved destination (a fan claiming an artist offer) wins: it rode
           // user_metadata through verification exactly like pending_result_token, and
           // it is re-validated here before use.
@@ -93,7 +121,13 @@ export default function VerifyEmailPage() {
             );
           }
         }
-        // No session: keep the default (login) next. Email is verified regardless.
+        // No session. Email is verified regardless, so the default (login) next is
+        // right for every other type. A RESET cannot proceed without one, though:
+        // /reset-password would sit there with no session and no way to save, so the
+        // honest answer is a fresh link rather than a form that cannot work.
+        if (!session && otpType === 'recovery' && active) {
+          setNext({ href: '/forgot-password', label: 'Send me a new link' });
+        }
         if (active) setStatus('success');
       } catch {
         if (active) setStatus('error');
@@ -119,9 +153,13 @@ export default function VerifyEmailPage() {
             <div className="w-16 h-16 bg-crwn-gold/20 rounded-full flex items-center justify-center mx-auto mb-4">
               <CheckCircle className="w-8 h-8 text-crwn-gold" />
             </div>
-            <h1 className="text-2xl font-bold text-crwn-text mb-2">Email verified</h1>
+            <h1 className="text-2xl font-bold text-crwn-text mb-2">
+              {recovery ? 'Link confirmed' : 'Email verified'}
+            </h1>
             <p className="text-crwn-text-secondary mb-6">
-              You&apos;re all set. Welcome to CRWN.
+              {recovery
+                ? 'Choose a new password and you are back in.'
+                : 'You’re all set. Welcome to CRWN.'}
             </p>
             <button
               onClick={() => router.push(next.href)}
