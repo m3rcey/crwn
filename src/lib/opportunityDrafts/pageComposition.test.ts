@@ -158,23 +158,34 @@ describe('PublicToolClient page order (shared template for 16 tools + OYF)', () 
     expect(fullPhase).toMatch(/conversionPayload[\s\S]{0,120}ladder/);
   });
 
-  it('puts the calculator explainer with the ladder, above the builder', () => {
-    // The video answers "is this number real", which is the same job the ladder does, so it sits in
-    // the evidence zone. Above the builder because everything below the builder is behind its
-    // sticky-footer exit, which is the same reason the email ask cannot go there.
+  // THE EXPLAINER VIDEO sits DIRECTLY UNDER THE EMAIL ASK (founder decision 2026-09-18, revising
+  // 2026-09-01's "with the ladder"). Under the ladder it rendered below every result section, so on
+  // most calculators it was screens down and nobody reached it. It must FOLLOW the ask, never
+  // precede it, or it pushes the ask off the first screen; and it must precede the ladder.
+  it('puts the calculator explainer directly under the email ask, inside the hero, before the ladder', () => {
     const explainer = fullPhase.indexOf('<ExplainerVideoCard');
+    const capture = fullPhase.indexOf('LeadCaptureForm');
     const ladder = fullPhase.indexOf('<LadderSection');
     const builder = fullPhase.indexOf('ref={builderRef}');
     expect(explainer, 'calculator explainer missing from the result surface').toBeGreaterThan(-1);
-    expect(ladder).toBeLessThan(explainer);
+    expect(capture, 'the video must follow the email ask, never precede it').toBeLessThan(explainer);
+    expect(explainer, 'the video must sit above the ladder, not under it').toBeLessThan(ladder);
     expect(explainer).toBeLessThan(builder);
+    expect(fullPhase, 'the video left the afterHero slot').toMatch(
+      /afterHero=\{[\s\S]*?LeadCaptureForm[\s\S]*?<ExplainerVideoCard[\s\S]*?\}\s*\/>/,
+    );
+    expect((fullPhase.match(/<ExplainerVideoCard/g) ?? []).length, 'rendered twice').toBe(1);
   });
 
-  it('hands the explainer the artist own calculator, never a hardcoded one', () => {
-    // The watch page it links to continues the viewer into whichever calculator they actually ran.
-    // Passing a literal slug here would send every viewer of every tool into the same one.
-    expect(fullPhase).toMatch(/<ExplainerVideoCard[\s\S]{0,160}toolSlug=\{config\.slug\}/);
-    expect(fullPhase).toMatch(/<ExplainerVideoCard[\s\S]{0,160}resultToken=/);
+  it('plays the explainer in place, full width, instead of linking out to a thumbnail', () => {
+    const card = readFileSync(join(root, 'src/components/lead-magnets/ExplainerVideoCard.tsx'), 'utf-8');
+    expect(card).toMatch(/<video[\s\S]*?controls/);
+    // iOS would otherwise take it full screen on play.
+    expect(card).toMatch(/playsInline/);
+    // A visitor who never presses play downloads the poster, not a sixteen minute MP4.
+    expect(card).toMatch(/preload="none"/);
+    expect(card).toMatch(/w-full/);
+    expect(card, 'back to a link-out poster').not.toMatch(/<Link|href=/);
   });
 
   it('renders the email ask inside the hero card, above the supporting metric tiles', () => {
@@ -213,13 +224,23 @@ describe('PublicToolClient page order (shared template for 16 tools + OYF)', () 
     for (const [label, file] of surfaces) {
       const src = readFileSync(join(root, file), 'utf-8');
       expect(src.indexOf('<ExplainerVideoCard'), `explainer missing from ${label}`).toBeGreaterThan(-1);
-      // Never a hardcoded slug except on /worth, which IS the worth calculator.
-      if (!file.includes('worth')) {
-        expect(src, `${label} hardcodes a calculator for the explainer`).not.toMatch(
-          /<ExplainerVideoCard[\s\S]{0,80}toolSlug="(?!worth")/,
-        );
-      }
+      expect((src.match(/<ExplainerVideoCard/g) ?? []).length, `${label} renders the video twice`).toBe(1);
     }
+    // And in the same position everywhere: directly after that surface's own email ask.
+    const worthSrc = readFileSync(join(root, 'src/app/(public)/worth/WorthExperience.tsx'), 'utf-8');
+    const worthCard = worthSrc.slice(worthSrc.indexOf('const resultCard'));
+    expect(worthCard.indexOf('{emailCaptureCard}'), '/worth: video must follow the email ask').toBeLessThan(
+      worthCard.indexOf('<ExplainerVideoCard'),
+    );
+    expect(worthCard.indexOf('<ExplainerVideoCard'), '/worth: video must precede the stats').toBeLessThan(
+      worthCard.indexOf('{statsGrid}'),
+    );
+    const dm = readFileSync(join(root, 'src/app/(public)/tools/[slug]/result/[token]/page.tsx'), 'utf-8');
+    const dmBody = dm.slice(dm.indexOf('<LeadEmailCta claimed'));
+    expect(dmBody.indexOf('<ExplainerVideoCard'), 'DM page: video must follow the email ask').toBeGreaterThan(0);
+    expect(dmBody.indexOf('<ExplainerVideoCard'), 'DM page: video must precede the ladder').toBeLessThan(
+      dmBody.indexOf('<LadderSection'),
+    );
   });
 
   // /worth is the ONE calculator that does not go through PublicToolClient, so every assertion

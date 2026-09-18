@@ -495,6 +495,17 @@ primitive, never 19 copies. `src/lib/leadMagnets/conversionContract.test.ts` pin
   refuses. The tokenized ManyChat result page renders the same ladder and call sections from the
   STORED result, so a DM arrival reads the same page a direct visitor reads. Ordering is pinned
   and mutation-tested in `pageComposition.test.ts`.
+- **The email SUBMIT BUTTON is above the fold on a phone, and the explainer video sits directly
+  under the email ask** (founder decision 2026-09-18, all three result surfaces: the shared page,
+  `/worth`, the DM page). "The ask is in the hero" was true while "Email my result" sat 146 to
+  239px below a 390x745 fold on every calculator measured, so the rule is now about the BUTTON and
+  it is MEASURED, not reasoned: `node scripts/probe-result-fold.mjs <tool url with a prefill
+  query> --port=<cdp>` prints the verdict per tool. On a phone the gold card and the email card are
+  compact (one-line headings, one-line sentences, name and email on ONE row: nothing dropped). The
+  video (`ExplainerVideoCard`) is a full-width native `<video>` that plays in place
+  (`playsInline`, `preload="none"`), never a thumbnail linking out, and it must FOLLOW the ask so it
+  can never push the ask down. Known gap: the Opportunity Calculator's two-line range plus five-line
+  summary still leaves its button ~78px below an iPhone SE (375x667) fold.
 - **A re-run after a correction is NOT a new completion.** It emits only
   `opportunity_estimate_recalculated`; the wizard remounts with `trackStart={false}`. Never let a
   correction add a second `calculator_started` / `calculator_completed`, or every ratio measured

@@ -1,5 +1,23 @@
 # CRWN Brain — Changelog
 
+## 2026-09-18 - Calculator results: the email button fits the first phone screen, the video plays under it
+
+**Measured before and after** with a new headless probe (`scripts/probe-result-fold.mjs`, 390x745,
+the iPhone 12-15 Safari viewport). Before, on production, "Email my result" sat below the fold on
+every calculator tested: Own Your Fans 149px, Founder Window 146px, Live Experience 149px,
+Opportunity Calculator 239px. The capture card's own comment said "say the thing in one line"
+while it rendered a two-line heading and a three-line sentence. After (built app): Own Your Fans
+658 (fold 745), Opportunity Calculator 725, and 706 on a 440x795 Pro Max. The gold card and the
+capture card are compact on a phone only (desktop unchanged); name and email share one row, so no
+field was dropped.
+
+**The Calculator VSL moved and became a player.** It was a 64px poster thumbnail linking to
+`/watch/vsl-calculator`, placed under the ladder, which on the loss tools meant below every result
+section. It now renders directly under the email ask on the shared page, `/worth` and the DM result
+page, as a full-width native `<video>` with `playsInline` and `preload="none"` (no MP4 bytes until
+play). `/watch/vsl-calculator` still resolves. Remaining gap: iPhone SE (375x667) on the
+Opportunity Calculator, ~78px.
+
 ## 2026-09-09 - The two fan-conversion defects the Astra audit found, fixed
 
 **A supporter's intent now survives account creation.** A signed-out fan pressing Join Free on an

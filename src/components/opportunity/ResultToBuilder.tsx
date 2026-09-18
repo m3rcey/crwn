@@ -34,14 +34,14 @@ export function ResultToBuilder({
   };
 
   return (
-    <div className="rounded-2xl border border-crwn-gold/30 bg-crwn-gold/[0.06] p-5 text-center">
-      <h3 className="text-lg font-bold text-crwn-text">{transition}</h3>
-      <p className="text-sm text-crwn-text-secondary mt-1">
-        We prefilled it from your numbers. Edit anything below. Nothing is live yet.
-      </p>
+    // Compact on a phone: the email ask renders directly under this card and has to fit on the
+    // same first screen (measured by scripts/probe-result-fold.mjs). Desktop keeps the roomier sizes.
+    <div className="rounded-2xl border border-crwn-gold/30 bg-crwn-gold/[0.06] p-4 sm:p-5 text-center">
+      <h3 className="text-base sm:text-lg font-bold text-crwn-text">{transition}</h3>
+      <p className="text-xs sm:text-sm text-crwn-text-secondary mt-0.5 sm:mt-1">Prefilled from your numbers. Nothing is live yet.</p>
       <button
         onClick={go}
-        className="mt-4 w-full sm:w-auto sm:px-10 py-3.5 rounded-full bg-crwn-gold text-crwn-bg font-semibold inline-flex items-center justify-center gap-2"
+        className="mt-3 sm:mt-4 w-full sm:w-auto sm:px-10 py-3 sm:py-3.5 rounded-full bg-crwn-gold text-crwn-bg font-semibold inline-flex items-center justify-center gap-2"
       >
         {buildCta}
         <ArrowDown className="w-4 h-4" />

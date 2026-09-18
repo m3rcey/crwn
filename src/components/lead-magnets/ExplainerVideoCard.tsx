@@ -1,58 +1,39 @@
-// The Calculator VSL, offered on the result page as a POSTER LINK.
+// The Calculator VSL, played IN PLACE on the result page, full width, directly under the email ask.
 //
-// Not an inline player, deliberately. The video is sixteen minutes and the page's job is to move
-// the artist into the builder; an embedded player sitting between the result and the builder
-// competes with that for attention and adds a lot of height in front of the one action that
-// matters. A poster is roughly one row tall, reads as an offer rather than an interruption, and
-// the artist who wants the long answer opts in.
+// Founder decision 2026-09-18, replacing the 2026-09-01 poster link. The link was a 64px thumbnail
+// with a caption beside it, parked in the evidence zone under the ladder, so on most calculators it
+// sat below several screens of sections and nobody reached it. It now renders right after the email
+// ask (the first thing below the fold), at the full width of the result, and plays where it is.
 //
-// It carries the same calculator context every other continuation carries, so the watch page's own
-// CTA sends them back into THEIR calculator rather than a different one.
-import Link from 'next/link';
+// Why this cannot push the ask off the first screen: it renders AFTER the email ask, never before
+// it, and the page's gold CTA still scrolls straight past it to the builder. `preload="none"` means
+// a visitor who never presses play downloads the poster and nothing else of a sixteen minute MP4.
+// Native controls, same reason as the watch page: a custom player is one more thing that can fail
+// on a phone browser. `playsInline` keeps iOS from forcing it full screen on play.
+//
+// A plain element with no client state, so the server-rendered DM result page can mount it too.
 import { CALCULATOR_VSL, isVslLive } from '@/lib/vsl/catalog';
-import { watchUrlFor } from '@/lib/vsl/continuation';
 
-export function ExplainerVideoCard({
-  toolSlug,
-  resultToken,
-}: {
-  toolSlug: string | null;
-  resultToken?: string | null;
-}) {
+export function ExplainerVideoCard() {
   // Nothing renders while the video has no hosted URL, same rule the email block follows.
   if (!isVslLive(CALCULATOR_VSL)) return null;
-  const href = watchUrlFor(CALCULATOR_VSL.slug, { tool: toolSlug, resultToken });
 
   return (
-    <div className="mx-auto mt-8 w-full max-w-2xl px-4">
-      <Link
-        href={href}
-        className="group flex items-center gap-4 rounded-2xl border border-white/10 bg-white/5 p-3 transition hover:border-[#D4AF37]/50 hover:bg-white/10"
-      >
-        <span className="relative flex-none">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={CALCULATOR_VSL.poster}
-            alt=""
-            className="h-16 w-28 rounded-lg object-cover"
-            loading="lazy"
-          />
-          <span
-            aria-hidden="true"
-            className="absolute inset-0 flex items-center justify-center text-lg text-white drop-shadow"
-          >
-            &#9654;
-          </span>
-        </span>
-        <span className="min-w-0">
-          <span className="block text-sm font-semibold text-white group-hover:text-[#D4AF37]">
-            Not sure the number is real?
-          </span>
-          <span className="mt-0.5 block text-xs text-white/50">
-            {CALCULATOR_VSL.title} · {CALCULATOR_VSL.minutes} min
-          </span>
-        </span>
-      </Link>
-    </div>
+    <section aria-label={CALCULATOR_VSL.title} className="w-full text-left">
+      <p className="mb-2 text-sm font-semibold text-crwn-text">
+        Not sure the number is real?{' '}
+        <span className="font-normal text-crwn-text-secondary">Watch how it is built ({CALCULATOR_VSL.minutes} min).</span>
+      </p>
+      <div className="overflow-hidden rounded-2xl border border-white/10 bg-black">
+        <video
+          className="block aspect-video w-full"
+          controls
+          playsInline
+          preload="none"
+          poster={CALCULATOR_VSL.poster}
+          src={CALCULATOR_VSL.url ?? undefined}
+        />
+      </div>
+    </section>
   );
 }

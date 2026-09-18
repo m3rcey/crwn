@@ -471,7 +471,12 @@ export function PublicToolClient({
               // the result is already rendered above this, and `ResultToBuilder` still scrolls
               // straight past to `builderRef`. The card remains skippable, and it is still not
               // gold, because the gold primary is the CTA immediately above it.
-              <div className="space-y-4">
+              //
+              // THEN THE EXPLAINER VIDEO (founder decision 2026-09-18): directly under the email
+              // ask, full width, playing in place. It used to be a small poster link under the
+              // ladder, below every result section, where nobody reached it. It comes AFTER the
+              // ask, so it can never push the ask off the first screen.
+              <div className="space-y-3">
                 <ResultToBuilder
                   toolSlug={config.slug}
                   transition={config.slug === OYF_TOOL_KEY ? 'Turn this into a fan page you actually own.' : transitionFor(config.slug)}
@@ -481,10 +486,13 @@ export function PublicToolClient({
                 {resultId ? (
                   <ResultActions config={config} result={result} context="public" publicToken={publicToken} resultId={resultId} />
                 ) : (
-                  <div ref={captureRef} className="scroll-mt-4 rounded-2xl bg-crwn-bg/40 border border-crwn-elevated p-4">
+                  <div ref={captureRef} className="scroll-mt-4 rounded-2xl bg-crwn-bg/40 border border-crwn-elevated p-3.5 sm:p-4">
                     <LeadCaptureForm config={config} submitting={submitting} onSubmit={submitCapture} />
                   </div>
                 )}
+                <div className="pt-3">
+                  <ExplainerVideoCard />
+                </div>
               </div>
             }
           />
@@ -517,15 +525,6 @@ export function PublicToolClient({
             if (!Array.isArray(ladder) || ladder.length === 0) return null;
             return <LadderSection modeled={ladder as ModeledLadderRung[]} />;
           })()}
-
-          {/* THE CALCULATOR EXPLAINER, after the result and its CTAs (founder decision 2026-09-01).
-              It sits with the LADDER, in the evidence zone: both answer "is this number real",
-              which is the question a skeptical artist has at exactly this point. It stays ABOVE the
-              builder because anything below the builder sits behind its sticky footer exit, and it
-              is a poster LINK rather than an embedded player so a sixteen minute video cannot push
-              the one action that matters off the screen. Order is pinned by pageComposition:
-              result, ask, ladder, THIS, builder, call. */}
-          <ExplainerVideoCard toolSlug={config.slug} resultToken={publicToken ?? null} />
 
           {/* The email ask used to sit HERE, below the ladder. It now renders inside the hero,
               directly under the primary CTA (see the `afterHero` block above). The rule it has to

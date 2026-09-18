@@ -36,7 +36,7 @@ export function LeadMagnetResult({
   return (
     <div className="space-y-4">
       {result.heroValue ? (
-        <div className="bg-gradient-to-b from-crwn-gold/10 to-crwn-surface border border-crwn-gold/30 rounded-2xl p-6 sm:p-8">
+        <div className="bg-gradient-to-b from-crwn-gold/10 to-crwn-surface border border-crwn-gold/30 rounded-2xl p-4 sm:p-8">
           <div className="text-center">
             {result.heroEyebrow && (
               <div className="text-xs uppercase tracking-wide text-crwn-text-secondary mb-2">{result.heroEyebrow}</div>
@@ -46,13 +46,13 @@ export function LeadMagnetResult({
               <span className="text-2xl sm:text-3xl font-bold">{result.heroSuffix}</span>
             </div>
             {result.summary && (
-              <p className="text-sm text-crwn-text-secondary mt-3 leading-relaxed max-w-md mx-auto">{result.summary}</p>
+              <p className="text-sm text-crwn-text-secondary mt-3 leading-snug sm:leading-relaxed max-w-md mx-auto">{result.summary}</p>
             )}
           </div>
 
           {/* PRIMARY CTA, inside the hero: holy-grail number, one sentence, then the action. The
               supporting metric tiles come AFTER it so the CTA stays in the first viewport. */}
-          {afterHero && <div className="mt-5">{afterHero}</div>}
+          {afterHero && <div className="mt-4 sm:mt-5">{afterHero}</div>}
 
           {heroTiles?.metrics && (
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-6">

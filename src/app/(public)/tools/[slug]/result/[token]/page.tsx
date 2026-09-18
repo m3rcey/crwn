@@ -208,15 +208,17 @@ export default async function ResultPage({
             already moved the supporting tiles below it. */}
         <LeadEmailCta claimed={claimed} claimHref={claimHref} toolSlug={result.toolSlug || slug} ctaLabel={continueLabel} />
 
+        {/* The calculator explainer, directly under the email ask and full width, the same
+            position a direct visitor gets (founder decision 2026-09-18). */}
+        <div className="mt-6 sm:mt-10">
+          <ExplainerVideoCard />
+        </div>
+
         {modeledLadder.length > 0 && (
           <div className="mt-6 sm:mt-10">
             <LadderSection modeled={modeledLadder} />
           </div>
         )}
-
-        {/* The calculator explainer. This page is where a DM arrival lands, so it shows the
-            same evidence a direct visitor gets, in the same position. */}
-        <ExplainerVideoCard toolSlug={result.toolSlug || slug} resultToken={token} />
 
         {/* The supporting tiles sit BELOW the ask, not inside the hero card above it. On a phone
             that 2x2 grid was roughly 230px of detail wedged between the number and the only

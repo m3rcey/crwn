@@ -331,7 +331,7 @@ export function WorthExperience({
   ) : null;
 
   const emailCaptureCard = (
-    <div ref={captureExposureRef} className="bg-crwn-surface border border-crwn-elevated rounded-2xl p-6 mb-14">
+    <div ref={captureExposureRef} className="bg-crwn-surface border border-crwn-elevated rounded-2xl p-5 sm:p-6 mb-4">
       {captureState === 'done' ? (
         <div className="flex items-center gap-2 text-crwn-gold justify-center py-2">
           <Check className="w-5 h-5" /> On its way. Check your inbox for the full breakdown.
@@ -670,6 +670,12 @@ export function WorthExperience({
           Nothing about gating changes: the number and its sentence are both above this, the card
           is skippable, and `resultCta` still scrolls straight past it to the builder. */}
       {emailCaptureCard}
+      {/* The explainer video, directly under the email ask and full width (founder decision
+          2026-09-18), same position as every registry calculator. It follows the ask, so it can
+          never push the ask off the first screen. */}
+      <div className="mb-6">
+        <ExplainerVideoCard />
+      </div>
       {statsGrid}
     </div>
   );
@@ -769,10 +775,6 @@ export function WorthExperience({
                 }
               />
             </div>
-            {/* The calculator explainer, in the evidence zone with the ladder and above the
-                builder. /worth does not go through PublicToolClient, which is exactly how the
-                email capture drifted here once, so it is added deliberately, not inherited. */}
-            <ExplainerVideoCard toolSlug="worth" resultToken={resultToken ?? null} />
             {/* The email ask used to render HERE. It now sits inside `resultCard`, directly under
                 the primary CTA and above the stats grid, for the same reason it moved into the
                 hero on the registry calculators: everything between the number and the ask was

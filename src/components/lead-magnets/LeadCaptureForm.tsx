@@ -17,7 +17,7 @@ export interface LeadCaptureValues {
 }
 
 const INPUT =
-  'w-full bg-crwn-surface border border-crwn-elevated rounded-xl px-4 py-3.5 text-base text-crwn-text placeholder-crwn-text-secondary/50 focus:outline-none focus:border-crwn-gold';
+  'w-full min-w-0 bg-crwn-surface border border-crwn-elevated rounded-xl px-3 sm:px-4 py-3 sm:py-3.5 text-base text-crwn-text placeholder-crwn-text-secondary/50 focus:outline-none focus:border-crwn-gold';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -65,7 +65,7 @@ export function LeadCaptureForm({ config, submitting, onSubmit }: { config: Lead
   };
 
   return (
-    <div ref={exposureRef} className="space-y-3">
+    <div ref={exposureRef} className="space-y-2.5 sm:space-y-3">
       {/* NOT a gate. The result is already visible above. This is the optional "send me a
           copy" ask, the same way /worth does it.
 
@@ -73,22 +73,23 @@ export function LeadCaptureForm({ config, submitting, onSubmit }: { config: Lead
           have later. That is a weak reason to hand over an email, and production agreed (zero leads
           ever captured). It now names what actually arrives, because the follow-up IS the value and
           the sequence genuinely delivers these three things. */}
-      {/* Kept SHORT on purpose. Measured on a 375x667 phone, the three-line version pushed the card
-          to 511px, so barely any of it cleared the fold and the primary CTA scrolled past what was
-          left. Height here is not cosmetic: it decides whether the offer is ever seen on a small
-          screen. Say the thing in one line. */}
+      {/* Kept SHORT on purpose, and MEASURED (scripts/probe-result-fold.mjs, 390x745, 2026-09-18).
+          The previous version said "one line" here while rendering a two-line heading and a
+          three-line sentence, and put "Email my result" 146 to 239px below the fold on every
+          calculator tested. Height here is not cosmetic: it decides whether the ask is ever seen.
+          One-line heading, one-line sentence on a phone. */}
       <div>
-        <h2 className="text-xl font-bold text-crwn-text">Want the plan behind this number?</h2>
-        <p className="text-sm text-crwn-text-secondary mt-1">
-          Your result, then the first move, the order to invite fans, and how to run it alongside the tools you already use.
-        </p>
+        <h2 className="text-base sm:text-xl font-bold text-crwn-text">Want the plan behind this number?</h2>
+        <p className="text-sm text-crwn-text-secondary mt-0.5 sm:mt-1">Your result and your first move, by email.</p>
       </div>
 
-      {/* Two fields. Genre, social handle and phone were collected here for months and read by
-          nothing in the codebase, so they were pure friction on an optional ask. The capture API
-          still accepts them, so nothing server-side changed. */}
-      <input className={INPUT} type="text" placeholder="Artist name" value={v.artistName} onChange={(e) => set('artistName', e.target.value)} />
-      <input className={INPUT} type="email" placeholder="Email *" value={v.email} onChange={(e) => set('email', e.target.value)} />
+      {/* Two fields, ONE ROW. Same two questions as before (nothing dropped), side by side, which is
+          a whole field's height back on a phone. Genre, social handle and phone were collected here
+          for months and read by nothing, so they were removed earlier; the API still accepts them. */}
+      <div className="grid grid-cols-2 gap-2">
+        <input className={INPUT} type="text" placeholder="Artist name" value={v.artistName} onChange={(e) => set('artistName', e.target.value)} />
+        <input className={INPUT} type="email" placeholder="Email *" value={v.email} onChange={(e) => set('email', e.target.value)} />
+      </div>
 
       <label className="flex gap-3 items-start cursor-pointer">
         <input type="checkbox" className="mt-1 accent-[#D4AF37] w-4 h-4" checked={v.emailConsent} onChange={(e) => set('emailConsent', e.target.checked)} />
@@ -105,7 +106,7 @@ export function LeadCaptureForm({ config, submitting, onSubmit }: { config: Lead
         type="button"
         onClick={submit}
         disabled={submitting}
-        className="w-full py-3.5 rounded-full bg-crwn-elevated text-crwn-text font-semibold border border-crwn-elevated hover:border-crwn-gold/40 transition-colors disabled:opacity-40"
+        className="w-full py-3 sm:py-3.5 rounded-full bg-crwn-elevated text-crwn-text font-semibold border border-crwn-elevated hover:border-crwn-gold/40 transition-colors disabled:opacity-40"
       >
         {/* Never "unlock": the result is already on the screen above this form. The button says
             what the email actually does, in the tool's own words. */}
