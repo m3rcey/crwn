@@ -29,6 +29,7 @@ import { OnboardingAvatarStep } from '@/components/onboarding/OnboardingAvatarSt
 import { BulkUploadForm } from '@/components/artist/BulkUploadForm';
 import { OnboardingProjectUpload } from '@/components/onboarding/OnboardingProjectUpload';
 import { LivePagePreview } from '@/components/onboarding/LivePagePreview';
+import { SetupAccountBar } from '@/components/onboarding/SetupAccountBar';
 import { previewSignature } from '@/lib/onboardingPreview';
 import { PROJECT_TYPE_OPTIONS } from '@/lib/projectUpload';
 import { FanImportModal } from '@/components/artist/FanImportModal';
@@ -385,8 +386,13 @@ function SetupWizard() {
 
   if (loading || authLoading || !current) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-crwn-gold" />
+      <div className="min-h-screen flex flex-col">
+        <div className="w-full max-w-2xl mx-auto px-4 sm:px-6 pt-4">
+          <SetupAccountBar />
+        </div>
+        <div className="flex-1 flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-crwn-gold" />
+        </div>
       </div>
     );
   }
@@ -728,7 +734,9 @@ function SetupWizard() {
     <div className="min-h-screen flex flex-col">
       {/* Progress header */}
       <header className="sticky top-0 z-20 bg-crwn-bg/80 backdrop-blur-md border-b border-crwn-elevated">
-        <div className="max-w-2xl mx-auto px-4 sm:px-6 pt-5 pb-4">
+        <div className="max-w-2xl mx-auto px-4 sm:px-6 pt-3 pb-4">
+          <SetupAccountBar className="mb-3 pb-2.5 border-b border-crwn-elevated/60" />
+
           <div className="flex items-center justify-between mb-3">
             <span className="text-crwn-gold font-bold tracking-tight">CRWN setup</span>
             <span className="text-xs text-crwn-text-secondary">
@@ -1756,7 +1764,11 @@ function PlanIntro({
     ),
   );
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-10">
+    <div className="min-h-screen flex flex-col px-4 py-6">
+      <div className="w-full max-w-lg mx-auto">
+        <SetupAccountBar />
+      </div>
+      <div className="flex-1 flex items-center justify-center py-6">
       <div className="w-full max-w-lg text-center page-fade-in">
         <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-crwn-gold/15 flex items-center justify-center">
           <span className="text-4xl">👑</span>
@@ -1840,6 +1852,7 @@ function PlanIntro({
         <p className="text-xs text-crwn-text-secondary mt-4">
           A few quick steps: your name, your link, your photo. Your plan does the rest.
         </p>
+      </div>
       </div>
     </div>
   );
@@ -1976,7 +1989,11 @@ function LaunchReview({
   ];
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-10">
+    <div className="min-h-screen flex flex-col px-4 py-6">
+      <div className="w-full max-w-lg mx-auto">
+        <SetupAccountBar />
+      </div>
+      <div className="flex-1 flex items-center justify-center py-6">
       <div className="w-full max-w-lg page-fade-in">
         <div className="text-center">
           <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-crwn-gold/15 flex items-center justify-center">
@@ -2161,6 +2178,7 @@ function LaunchReview({
             your numbers. The roadmap there walks you to your first paid member.
           </p>
         </div>
+      </div>
       </div>
 
       {artistId && (
