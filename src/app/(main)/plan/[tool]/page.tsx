@@ -13,6 +13,7 @@ import {
   sanitizeDeliverableValues,
   type DraftValues,
 } from '@/lib/opportunityDrafts/deliverableSpecs';
+import { artifactLabel } from '@/lib/opportunityDrafts/artifactLabel';
 
 // Authenticated resume of the deliverable an artist built BEFORE signup, for any tool.
 //
@@ -119,8 +120,13 @@ export default function DeliverablePlanPage() {
 
       {state === 'ready' && values && (
         <>
+          {/* The same name the signup card, the verified screen and the setup intro used, from the
+              same function, so this reads as the SAME object arriving, not a new generic draft. */}
           <div className="mb-4">
-            <h1 className="text-xl font-bold text-crwn-text">Your draft is saved</h1>
+            <h1 className="text-xl font-bold text-crwn-text">{artifactLabel(spec, values)?.savedLine ?? 'Your draft is saved'}</h1>
+            {artifactLabel(spec, values)?.detail && (
+              <p className="text-sm text-crwn-gold mt-0.5">{artifactLabel(spec, values)?.detail}</p>
+            )}
             <p className="text-sm text-crwn-text-secondary mt-1">
               Pick up exactly where you left off. Publishing happens in the next step.
             </p>

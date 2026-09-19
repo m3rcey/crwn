@@ -241,20 +241,44 @@ Full spec: `docs/UNIFIED_OPPORTUNITY.md`. `Confirmed`.
 - **A fan may hold several roles; a person is counted once.**
   `uniquePromoters = sharers + clippers - both`.
 - **Financial presentation:** recurring and one-time are tracked separately and only added at the
-  gross line; gross is never mixed with net; the platform fee is applied once at the Pro rate;
-  contributor commission is artist-funded on the **attributed slice only** and capped at
-  `gross - platformFee` (matching how `checkout/route.ts` charges an `attributedCut`); revenue the
-  artist already earns is **subtracted**, never added; annualization is x12 and nothing longer.
+  gross line; gross is never mixed with net; contributor commission is artist-funded on the
+  **attributed slice only** and capped at `gross - platformFee` (matching how `checkout/route.ts`
+  charges an `attributedCut`); revenue the artist already earns is **subtracted**, never added;
+  annualization is x12 and nothing longer.
+- **Recurring means membership SUBSCRIPTIONS.** Member extras are one-off spend, so they are
+  one-time money even though members pay them: `recurringGrossCents` is subscriptions only, and no
+  heading, tile or sentence may put one-off money under the word recurring. "All of it is
+  recurring" may only be said when there is no one-off money in the gross (2026-09-19; a test had
+  pinned the false sentence, and was rewritten rather than kept).
+- **A number "after CRWN costs" pays the modeled plan's WHOLE cost.** The unified result is modeled
+  on ONE plan (`MODELED_PLAN`, Pro), and its net subtracts that plan's percentage fee AND its
+  monthly subscription, both read from `platformTier.ts` through
+  `monthlyPlanCostCents()`. Applying Pro's 8% while forgetting Pro's $49 is what the 2026-09-19
+  audit caught. The plan is named wherever the figure appears (the tile label, the derivation, the
+  assumptions, the headline, the builder's recalculated line), and every surface reads the same
+  basis off the result, so no surface can show one plan's rate beside another plan's price. If the
+  basis ever becomes Launch or Scale, the same identity holds: that plan's rate, that plan's price.
+  **Open founder decision:** every account starts on Launch, which is cheaper than Pro below
+  $1,225/mo, so a small artist's estimate leans cautious and the assumptions block tells them so.
+  Whether to model the cheapest plan at each artist's size instead is not decided; do not change
+  `MODELED_PLAN` without that decision. (`/worth` and its DM adapter still net at the Pro RATE
+  with no subscription and label it "after the 8% Pro fee": the same class, deliberately left for
+  the same founder decision because that number is quoted in shipped content.)
 - **Language:** a planning estimate of what the artist *could build*. Never owed, never guaranteed,
   never described as current revenue. Ranges where precision is unsupported.
-- **The headline NAMES its own deductions.** `netNewMonthlyCents` is gross minus the CRWN fee,
-  minus the commissions the artist funds, minus what they already earn direct, so it may not be
-  called "direct-to-fan revenue": it is what the artist would ADD, and the copy says all three
-  (fixed 2026-08-14). The last deduction is the model being deliberately conservative, so leaving
+- **Total, current and additional are three named things.** `netMonthlyCents` is the artist's whole
+  modeled direct-to-fan income after CRWN costs; `currentDirectRevenueCents` already exists and is
+  never presented as money CRWN created; `netNewMonthlyCents` is what they would ADD and is the
+  headline. An artist who already earns direct sees all three side by side, and the scenario
+  columns say they hold what would be ADDED.
+- **The headline NAMES its own deductions and its plan.** `netNewMonthlyCents` is gross minus
+  CRWN's Pro plan costs, minus the commissions the artist funds, minus what they already earn
+  direct, so it may not be called "direct-to-fan revenue": it is what the artist would ADD, and the
+  copy says all of it. The last deduction is the model being deliberately conservative, so leaving
   it unstated gave away the honesty for nothing.
-- **A "/mo" figure states how much of itself is recurring.** Between 7% and 48% of the total can be
-  one-off ticket, tip and seat money depending on the answers, and a reader hears "/mo" as MRR
-  unless the split sits beside the number rather than in a tile further down the page.
+- **A "/mo" figure states how much of itself is recurring.** A share of every total is one-off
+  money (member extras always; ticket, tip and seat money when those exist), and a reader hears
+  "/mo" as MRR unless the split sits beside the number rather than in a tile further down the page.
 - **Every rate that moves the artist's money is disclosed, and no rate that does not is asserted at
   them.** Member extras, the live cadence and the session seat rate all carried real money with no
   stated rate until 2026-08-14; the seat line alone is about 40% of gross at arena scale.
@@ -265,6 +289,50 @@ Full spec: `docs/UNIFIED_OPPORTUNITY.md`. `Confirmed`.
 - **If the artist edits the plan, re-derive the number.** `recalcUnified.ts` re-runs the model on the
   edited structure. Keeping a headline the artist's own edits invalidated is the same dishonesty as
   double-counting, pointed at a stale number instead of an inflated one.
+
+## 14a. Pre-signup builder drafts: one result, one artifact, one name (2026-09-19)
+
+Four rules, each pinned by a test, that make the thing an artist builds before signing up survive
+the account boundary as ONE object.
+
+- **A local draft is restored only into the result it was built from.** The browser copy
+  (`crwn_deliverable_<slug>`, `crwn_oyf_draft`) was keyed by tool only, never cleared, and beat the
+  fresh result's prefill, so in one browser a new result silently opened whatever was last typed
+  into that tool. It also carried the draft's SERVER TOKEN, so the new artist's edits were written
+  over the earlier unclaimed row and their signup claimed it. `src/lib/opportunityDrafts/localDraft.ts`
+  binds each stored draft to a fingerprint of its originating result; a draft from any other result
+  (or from before origins were recorded) is set aside and OFFERED by name ("Continue the plan I just
+  created" / "Resume my earlier saved draft"), and the new result starts with no token, so it gets
+  its own row. Local drafts are cleared on sign-out and after a real claim. This is browser state,
+  never an authorization boundary: server ownership is unchanged (every draft write guards on
+  `user_id IS NULL`; a claimed row is invisible to the draft API). Investigated 2026-09-19: no
+  cross-account server access existed. The token-bearer read at `/api/lead-magnets/results/[id]?token=`
+  is the documented capability design that emailed result links depend on, and was left as is.
+- **A dead draft token falls back to a new draft.** A token whose row was claimed or expired
+  answers 404 forever; the builders now drop it and POST a fresh draft instead of PUTting into the
+  void, which had silently discarded everything typed after that point.
+- **An edit never drops the draft's campaign attribution.** `PUT /api/opportunity-drafts/[token]`
+  rebuilds `input_data`, and used to rebuild it without `_attribution`, so the first debounced
+  keystroke erased which video produced the artist. It is now carried exactly as stored.
+- **The artifact keeps its own name at every boundary.** `artifactLabel()`
+  (`src/lib/opportunityDrafts/artifactLabel.ts`) is the ONE derivation, read off the spec's existing
+  `preview` keys over the draft's own values: the signup card, the "check your email" screen,
+  `/verify`, the setup intro and `/plan/<tool>` all say "Marcus Private Vault is saved" and
+  "Continue Marcus Private Vault". After signup the label is resolved SERVER-SIDE from the session
+  user's own rows (`findSavedArtifact`, returned by `/api/lead-results/auto-claim`, which still
+  reads nothing from the request); no artist prose rides a query string or auth metadata. It never
+  invents a name, labels only from STORED work (never from generated defaults), and when a signup
+  carried a draft that did not land on the account, `/verify` says so and links back to the
+  calculator instead of claiming a save. The label names the row `post-setup-destination` restores.
+- **Vault: what the artist entered is fact.** `src/lib/leadMagnets/vaultPlan.ts` is shared by the
+  planner's generator and the builder's prefill. Inventory and cadence ride the `conversionPayload`;
+  a content type the artist did not enter never appears in a drop, a schedule row or a prefilled
+  list (other types are offered only as unselected help text); the chosen cadence is never swapped
+  for a "recommended" one (a short runway is SAID, not acted on); the drop plan follows a cadence
+  change unless the artist rewrote it; non-drop weeks under a slower cadence are labeled optional
+  promotion; "First five drops" is five only when five can be formed from entered inventory, else
+  the heading states the real count; and the score is "content readiness", because it measures
+  content depth and runway and nothing about demand, price or launch. The scoring is unchanged.
 
 ## 15a. Constraint diagnosis rules (Constraint Engine, 2026-08-03)
 

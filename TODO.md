@@ -67,6 +67,34 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **Decide which plan the calculators model: Pro (today), or the cheapest plan at each artist's
+      size.** The Opportunity Calculator has always modeled Pro. Since 2026-09-19 its net subtracts
+      Pro's whole cost ($49 plus 8%), which is correct for Pro and makes a small artist's number
+      lean LOW: every account starts on Launch, and Launch is cheaper below $1,225 a month. A $550
+      artist is shown about $457 left over on Pro where Launch would leave about $484. The page now
+      tells them that in the assumptions block, so nothing is hidden, but the headline still uses
+      Pro. Two choices, and only you can pick:
+      (a) keep Pro: one basis for every artist, simplest to explain, the ICP is well above $1,225;
+      (b) model the cheapest plan at their size: a bigger, truer number for small artists, but the
+      plan basis then changes between two artists' results and the content has to say so.
+      Tell me (a) or (b). If (b), it is one constant and one function in
+      [src/lib/opportunity/unifiedModel.ts](src/lib/opportunity/unifiedModel.ts) (`MODELED_PLAN`).
+      Rule and background: [docs/UNIFIED_OPPORTUNITY.md](docs/UNIFIED_OPPORTUNITY.md) section 4.
+- [ ] **Decide whether `/worth` gets the same honest net.** It has the identical defect the audit
+      caught on the Opportunity Calculator: it takes 8% off and never subtracts the $49 Pro
+      subscription ([src/lib/leadCalculator.ts](src/lib/leadCalculator.ts), and the DM copy in
+      [src/lib/acquisition/toolAdapters.ts](src/lib/acquisition/toolAdapters.ts) says "after the 8%
+      Pro plan fee"). I left it alone on purpose: the fix moves every `/worth` headline down by $49
+      a month, and that number is quoted in content you have already shipped and in ManyChat
+      replies. Say "fix /worth too" and I will, with the same tests. Until then its label is
+      accurate about what it subtracts (the fee) and silent about the subscription.
+- [ ] **Re-run the Tier 1 calculator audit against production once this is deployed.** The six P1s
+      from `crwn-calculator-audit-1` are fixed and browser-verified locally (Opportunity economics,
+      old-draft collisions, artifact identity through signup, Vault inventory and cadence, "first
+      five drops", "100% ready"). Keep the second audit narrow: the same ten journeys, in one shared
+      browser AND in a fresh profile, since fresh-profile incidence was never tested. One thing to
+      look for that I could not test without creating production accounts: the named artifact on
+      the real "check your email" screen, the real `/verify` screen and the setup intro.
 - [ ] **Watch V2 against V1 and tell me which parts still miss.** You rejected V1 on look:
       not alive, too fast, images cut off, screen unused, does not hold attention. You said the
       handwritten style and the numbers were right, and both of those are untouched.

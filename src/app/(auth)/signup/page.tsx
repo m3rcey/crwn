@@ -39,6 +39,8 @@ export default function SignupPage() {
   }, [recruiterCode, inviteCode]);
   const { user, isLoading } = useAuth();
   const [justSignedUp, setJustSignedUp] = useState(false);
+  // The saved artifact's own name, so "check your email" goes on naming the thing they built.
+  const [savedArtifactLine, setSavedArtifactLine] = useState<string | null>(null);
 
   useEffect(() => {
     if (user && !isLoading && !justSignedUp) {
@@ -68,7 +70,7 @@ export default function SignupPage() {
           </div>
 
           {pendingResultToken ? (
-            <DraftContinuation token={pendingResultToken} />
+            <DraftContinuation token={pendingResultToken} onArtifact={(l) => setSavedArtifactLine(l?.savedLine ?? null)} />
           ) : (
             signupContext && (
               <div className="mb-6 rounded-2xl border border-crwn-gold/30 bg-crwn-gold/[0.06] p-4 text-center">
@@ -80,7 +82,7 @@ export default function SignupPage() {
 
           <div className={`neu-raised ${signupContext ? 'p-5' : 'p-8'}`}>
             <h2 className={`text-xl font-semibold text-crwn-text text-center ${signupContext ? 'mb-4' : 'mb-6'}`}>Sign Up</h2>
-            <AuthForm mode="signup" pendingResultToken={pendingResultToken} pendingNext={nextPath || undefined} onSignupComplete={() => setJustSignedUp(true)} onSuccess={() => {
+            <AuthForm mode="signup" pendingResultToken={pendingResultToken} pendingNext={nextPath || undefined} savedArtifactLine={savedArtifactLine || undefined} onSignupComplete={() => setJustSignedUp(true)} onSuccess={() => {
               // New signups go into the setup wizard (identity screens first), not the
               // feed, UNLESS they arrived with a preserved destination (a fan claiming an
               // artist offer goes back to finish the claim). (Only reached when email

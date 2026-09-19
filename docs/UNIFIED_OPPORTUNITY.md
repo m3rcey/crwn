@@ -7,7 +7,9 @@ the same dollar can only be counted once.
 - **Model:** `src/lib/opportunity/unifiedModel.ts` (pure, versioned `unifiedOpportunity@1`)
 - **Presentation:** `src/lib/opportunity/unifiedAdapter.ts`
 - **Re-derivation on edit:** `src/lib/opportunity/recalcUnified.ts`
-- **Tests:** `src/lib/opportunity/unifiedModel.test.ts` (40 invariants), `unifiedFunnel.test.ts` (42)
+- **Tests:** `src/lib/opportunity/unifiedModel.test.ts` (40 invariants), `unifiedFunnel.test.ts` (42),
+  `unifiedEconomics.test.ts` (the economic contract: one plan and its whole cost, recurring vs
+  one-off, total vs current vs additional; mutation-tested 2026-09-19)
 - **No migration. No feature flag.** It is an 18th entry in the existing lead-magnet registry, so it
   inherits the tool page, wizard, lead capture, tokenized result, email, prospect nurture, draft
   claiming and the post-signup journey resolver with no new infrastructure.
@@ -105,7 +107,9 @@ person is in both sets, so no person can pay twice.
 | `promoterDualRate` | 0.5 | **new.** Documented default, overridden by the artist's answer |
 | ticket $15, tip $5, tipRate 0.25, ticketRate 0.01 | | Live Experience adapter |
 | `seatRate` 0.003, seat price bands | | Executive Producer adapter |
-| `platformFeePercent` | 8 | sourced from `TIER_LIMITS.pro.platformFeePercent` (the Pro plan rate in `platformTier.ts`) |
+| `planKey` | `pro` | `MODELED_PLAN` in `unifiedModel.ts`. The ONE plan the whole result is modeled on. Changing it is a founder decision: it moves every headline |
+| `platformFeePercent` | 8 | `TIER_LIMITS[planKey].platformFeePercent` in `platformTier.ts` |
+| `planMonthlyCents` | 4900 | that same plan's subscription, read through `monthlyPlanCostCents(planKey, 0)` in `planRecommendation.ts` (so `TIER_PRICING`), never retyped |
 
 The two new rates are the only numbers not lifted from existing repo models. Both are conservative
 and both are stated in the artist-facing assumptions block.
@@ -148,23 +152,57 @@ repository-backed overlap rule, so the model asks, and falls back to a documente
 
 ## 4. Financial normalization
 
-- **Recurring** (`recurringGrossCents`) and **one-time** (`oneTimeGrossCents`) are tracked
-  separately and only added at the gross line. Both are already monthly-normalized.
-- Gross is never mixed with net. `net = gross - platformFee - contributorCommission`.
-- Platform fee is applied **once**, to total gross, at the Pro plan rate read from `TIER_LIMITS.pro.platformFeePercent` in `platformTier.ts` (still 8).
+- **Recurring means membership SUBSCRIPTIONS, and nothing else.** `recurringGrossCents` is
+  `core.subscriptionGrossCents`. **One-time** (`oneTimeGrossCents`) is every one-off dollar: member
+  extras (`core.memberAlacarteGrossCents`) plus the non-member incremental lines
+  (`incrementalGrossCents`: tickets, tips, seats). The two are only added at the gross line, and
+  both are already monthly-normalized. Member extras stay in the CORE layer for the
+  disjoint-population rule (they are spend BY MEMBERS), but they are never inside a figure labeled
+  recurring: no heading, tile or sentence may call one-off money recurring, and "all of it is
+  recurring" may only be said when `oneTimeGrossCents` is zero.
+- Gross is never mixed with net.
+  `net = max(0, gross - platformFee - planSubscription - contributorCommission)`.
+- **The result is modeled on ONE plan, and pays that plan's WHOLE cost.** The plan is
+  `MODELED_PLAN` (`pro`). The platform fee is applied **once**, to total gross, at that plan's rate
+  (`TIER_LIMITS[planKey]`, still 8), AND that plan's monthly subscription (`TIER_PRICING`, $49) is
+  subtracted with it. Together they are `crwnCostCents`, which equals
+  `monthlyPlanCostCents(planKey, totalGross)`, the same function every savings claim in
+  `planRecommendation.ts` uses. A net that applies a plan's rate without its price is not a net:
+  the 2026-09-19 audit found `$550` gross beside "Your net `$506`" (550 x 92%) on a page whose own
+  pricing said Pro is $49 **plus** 8%. The subscription is only charged when there is gross to
+  model, and net is floored at zero, so a tiny gross meeting a fixed price reads as nothing left
+  over, never as negative income.
+- **The plan basis is visible wherever the after-costs figure is.** The hero tile's LABEL carries
+  it (`After CRWN Pro costs (8% + $49/mo)`), because the hero grid renders a tile's value and label
+  and drops its note. The derivation row states the fee dollars and the plan dollars, the
+  assumptions block states the plan, and the builder's recalculated line and the saved
+  `conversionPayload` (`planKey`, `platformFeeCents`, `planSubscriptionCents`) carry the same
+  basis, so no surface picks its own. All wording comes from `planBasisFor()`; no plan price or
+  rate is retyped in the model, the adapter or the recalc (source-scanned by test).
+- **Every account starts on Launch, and the page says which way Pro leans.** Below the Pro
+  break-even (`proBreakEvenGmvCents()`, $1,225/mo) Launch costs less than Pro, so an artist under
+  it is told so in the assumptions block, with the dollar difference at their size, and that the
+  estimate therefore leans cautious. Whether the calculator should instead model the cheapest
+  plan at each artist's size is an OPEN founder decision; until it is made the basis stays Pro.
 - Contributor commission is artist-funded on the **attributed slice only**, capped at
   `gross - platformFee`, matching how `checkout/route.ts` charges an `attributedCut`.
-- `currentDirectRevenueCents` is **subtracted**, never added. The headline is what the artist would
-  ADD, floored at zero.
-- **The headline sentence names all three deductions.** `netNewMonthlyCents` is gross minus the
-  CRWN fee, minus artist-funded commissions, minus existing direct revenue, so it is not
-  "direct-to-fan revenue". It reads: *"You could build an estimated $X to $Y a month on top of what
-  you already earn direct, after CRWN's fee and any commissions you pay."* The verb stays *could
-  build* (the ratified language rule in `07-BUSINESS-RULES.md`); what changed is that the
-  qualifiers are now present.
-- **The summary states the recurring share** beside the number, because the hero says `/mo` and
-  between 7% and 48% of it is one-off event and seat money depending on the answers. An artist with
-  no event revenue is told that plainly instead of being read a split of nothing.
+- **Total, current and additional revenue are three named things.** `netMonthlyCents` is the
+  artist's WHOLE modeled direct-to-fan income after CRWN costs. `currentDirectRevenueCents` (their
+  own answer) already exists, so it is **subtracted**, never added, and never presented as money
+  CRWN created. `netNewMonthlyCents` is the difference: what they would ADD, floored at zero, and
+  THE headline. An artist who already earns direct sees all three as separate hero tiles
+  (`After CRWN Pro costs`, `You already earn direct`, `What you would add`), the derivation walks
+  the money in the order it is subtracted down to the headline's expected case, and the scenario
+  columns are titled as what they hold ("What you would add..."), since `Expected` sitting
+  unlabeled beside a larger after-costs figure is what the audit could not reconcile.
+- **The headline sentence names its deductions AND its plan.** It reads: *"You could build an
+  estimated $X to $Y a month on top of what you already earn direct, after CRWN's Pro plan costs
+  and any commissions you pay."* The verb stays *could build* (the ratified language rule in
+  `07-BUSINESS-RULES.md`).
+- **The summary states the recurring share** beside the number, because the hero says `/mo` and a
+  share of it is one-off money: member extras always, plus event and seat money when those exist.
+  The sentence is kept no longer than the one it replaced, because the summary renders in the hero
+  ABOVE the email ask and that button is measured against the phone fold.
 - The headline is a **range** (conservative to high) run off one set of inputs, so the three
   scenarios stay internally consistent across every layer.
 - Annualization is `x12` and nothing longer.

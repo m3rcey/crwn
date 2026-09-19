@@ -14,6 +14,8 @@ import {
   type OwnYourFansDraft,
   type OyfCaptureType,
 } from '@/lib/opportunityDrafts/ownYourFansDraft';
+import { OYF_DRAFT_KEY, openLocalDraft, resultFingerprint, resumeEarlierDraft, writeLocalDraft } from '@/lib/opportunityDrafts/localDraft';
+import { fanPageArtifactLabel } from '@/lib/opportunityDrafts/artifactLabel';
 
 // The Own Your Fans pre-signup builder: an anonymous artist configures a fan-capture page (planning
 // copy only, no fan data, no publishing) and previews it. The SAME component runs after signup on
@@ -42,7 +44,7 @@ const DEFAULT_DRAFT: OwnYourFansDraft = {
   step: 0,
 };
 
-const LS_KEY = 'crwn_oyf_draft';
+const LS_KEY = OYF_DRAFT_KEY;
 
 export interface FanCaptureBuilderProps {
   mode: 'anonymous' | 'authenticated';
@@ -79,6 +81,13 @@ export function FanCaptureBuilder({
     Math.min(initialDraft?.step ?? 0, visibleSteps(mode === 'authenticated' ? 'save' : signupBoundary).length - 1),
   );
   const tokenRef = useRef<string | null>(initialToken);
+  // The result this fan page was built from: the artist's name and the number they entered. A local
+  // draft is restored only into that result (see localDraft.ts).
+  const origin = useMemo(
+    () => resultFingerprint('own-your-fans', { artistName: artistName ?? '', inputs }),
+    [artistName, inputs],
+  );
+  const [earlier, setEarlier] = useState<{ name: string | null } | null>(null);
   const startedRef = useRef(false);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -89,24 +98,47 @@ export function FanCaptureBuilder({
 
   // Anonymous: hydrate instantly from localStorage (survives a refresh even before the server round
   // trip returns). The server row remains the durable truth that survives auth and device changes.
+  //
+  // ONLY INTO THE RESULT IT WAS BUILT FROM. This key was one global slot with no scoping at all, so
+  // in a shared browser a new artist's fan page opened on the previous artist's headline, button
+  // and step, and (because the stored SERVER TOKEN came back too) their edits were written over the
+  // previous artist's draft row. A draft from another result is now set aside and offered by name.
   useEffect(() => {
     if (mode !== 'anonymous' || initialDraft) return;
     try {
-      const raw = localStorage.getItem(LS_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw) as { token?: string; draft?: unknown };
-        if (parsed.token) tokenRef.current = parsed.token;
-        if (parsed.draft) {
-          const d = sanitizeOwnYourFansDraft(parsed.draft);
+      const opened = openLocalDraft(localStorage, LS_KEY, origin);
+      if (opened.restore) {
+        if (opened.restore.token) tokenRef.current = opened.restore.token;
+        if (opened.restore.draft) {
+          const d = sanitizeOwnYourFansDraft(opened.restore.draft);
           setDraft(d);
           setIndex(Math.min(d.step, STEPS.length - 1));
         }
       }
+      if (opened.earlier?.draft) {
+        const label = fanPageArtifactLabel(sanitizeOwnYourFansDraft(opened.earlier.draft));
+        setEarlier({ name: label?.name ?? null });
+      }
     } catch {
-      /* ignore malformed local draft */
+      /* ignore malformed or blocked local storage */
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const resumeEarlier = () => {
+    try {
+      const resumed = resumeEarlierDraft(localStorage, LS_KEY, origin, { token: tokenRef.current, payload: { draft } });
+      if (resumed?.draft) {
+        const d = sanitizeOwnYourFansDraft(resumed.draft);
+        tokenRef.current = resumed.token;
+        setDraft(d);
+        setIndex(Math.min(d.step, STEPS.length - 1));
+      }
+    } catch {
+      /* storage may be blocked; the current draft simply stays */
+    }
+    setEarlier(null);
+  };
 
   useEffect(() => {
     if (!startedRef.current) {
@@ -120,7 +152,7 @@ export function FanCaptureBuilder({
   const persist = (next: OwnYourFansDraft) => {
     if (mode !== 'anonymous') return;
     try {
-      localStorage.setItem(LS_KEY, JSON.stringify({ token: tokenRef.current, draft: next }));
+      writeLocalDraft(localStorage, LS_KEY, origin, tokenRef.current, { draft: next });
     } catch {
       /* storage may be full/blocked */
     }
@@ -130,6 +162,17 @@ export function FanCaptureBuilder({
 
   const syncToServer = async (next: OwnYourFansDraft) => {
     try {
+      // A token whose row is gone (claimed, or expired) answers 404 forever; drop it and create a
+      // fresh draft, or nothing typed after that point is ever saved. Same rule as DeliverableBuilder.
+      if (tokenRef.current) {
+        const res = await fetch(`/api/opportunity-drafts/${encodeURIComponent(tokenRef.current)}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ draft: next }),
+        });
+        if (res.status !== 404) return;
+        tokenRef.current = null;
+      }
       if (!tokenRef.current) {
         const res = await fetch('/api/opportunity-drafts', {
           method: 'POST',
@@ -142,17 +185,11 @@ export function FanCaptureBuilder({
         if (res.ok && data.token) {
           tokenRef.current = data.token;
           try {
-            localStorage.setItem(LS_KEY, JSON.stringify({ token: data.token, draft: next }));
+            writeLocalDraft(localStorage, LS_KEY, origin, data.token, { draft: next });
           } catch {
             /* ignore */
           }
         }
-      } else {
-        await fetch(`/api/opportunity-drafts/${encodeURIComponent(tokenRef.current)}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ draft: next }),
-        });
       }
     } catch {
       /* analytics/persistence must never break the builder */
@@ -199,6 +236,34 @@ export function FanCaptureBuilder({
 
   return (
     <div className="space-y-5">
+      {/* Same explicit choice as DeliverableBuilder: an earlier draft from a different result is
+          offered by name, never opened or overwritten on its own. */}
+      {earlier && (
+        <div className="rounded-2xl border border-crwn-elevated bg-crwn-surface p-4">
+          <p className="text-sm text-crwn-text">
+            This is the fan page you just created.{' '}
+            {earlier.name
+              ? `This browser also has an earlier saved draft: "${earlier.name}".`
+              : 'This browser also has an earlier saved fan page draft.'}
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => setEarlier(null)}
+              className="px-4 py-2 rounded-full bg-crwn-gold text-crwn-bg text-sm font-semibold"
+            >
+              Continue the page I just created
+            </button>
+            <button
+              type="button"
+              onClick={resumeEarlier}
+              className="px-4 py-2 rounded-full border border-crwn-elevated text-sm text-crwn-text"
+            >
+              Resume my earlier saved draft
+            </button>
+          </div>
+        </div>
+      )}
       <Wizard
         steps={STEPS}
         currentIndex={index}

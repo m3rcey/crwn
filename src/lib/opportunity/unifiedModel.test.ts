@@ -229,15 +229,26 @@ describe('a member is never also counted as a ticket or seat buyer', () => {
 describe('financial normalization', () => {
   it('keeps recurring and one-time revenue separate and reconciled', () => {
     const r = calculateUnifiedOpportunity(FULL);
-    expect(r.recurringGrossCents).toBe(r.core.grossCents);
-    expect(r.oneTimeGrossCents).toBe(r.incremental.reduce((s, i) => s + i.grossCents, 0));
+    // Recurring is SUBSCRIPTIONS ONLY. It used to equal `core.grossCents`, which folded one-off
+    // member extras into a figure every surface labeled recurring (2026-09-19 audit).
+    expect(r.recurringGrossCents).toBe(r.core.subscriptionGrossCents);
+    expect(r.core.memberAlacarteGrossCents).toBeGreaterThan(0);
+    expect(r.recurringGrossCents).toBe(r.core.grossCents - r.core.memberAlacarteGrossCents);
+    // One-off is member extras PLUS the non-member incremental lines, and nothing else.
+    const incremental = r.incremental.reduce((s, i) => s + i.grossCents, 0);
+    expect(r.incrementalGrossCents).toBe(incremental);
+    expect(r.oneTimeGrossCents).toBe(r.core.memberAlacarteGrossCents + incremental);
     expect(r.totalGrossCents).toBe(r.recurringGrossCents + r.oneTimeGrossCents);
+    // Reclassifying a dollar must not create or destroy one.
+    expect(r.totalGrossCents).toBe(r.core.grossCents + incremental);
     expect(r.recurringGrossCents).toBeGreaterThan(0);
   });
 
   it('never mixes a gross figure with a net one', () => {
     const r = calculateUnifiedOpportunity(FULL);
-    expect(r.netMonthlyCents).toBe(r.totalGrossCents - r.platformFeeCents - r.contributorCommissionCents);
+    expect(r.netMonthlyCents).toBe(
+      r.totalGrossCents - r.platformFeeCents - r.planSubscriptionCents - r.contributorCommissionCents,
+    );
     expect(r.netMonthlyCents).toBeLessThan(r.totalGrossCents);
     expect(r.platformFeeCents).toBe(Math.round(r.totalGrossCents * (r.assumptions.platformFeePercent / 100)));
   });
@@ -290,7 +301,9 @@ describe('optional opportunities do not appear for ineligible artists', () => {
   it('gives a no-live artist no ticket, tip or seat revenue', () => {
     const r = calculateUnifiedOpportunity({ ...FULL, liveWilling: 'no', sessionStructure: 'ticketed' });
     expect(r.incremental).toHaveLength(0);
-    expect(r.oneTimeGrossCents).toBe(0);
+    expect(r.incrementalGrossCents).toBe(0);
+    // Member extras are still one-off money, so the one-off line is exactly them and no more.
+    expect(r.oneTimeGrossCents).toBe(r.core.memberAlacarteGrossCents);
     expect(r.recommendations.find((x) => x.key === 'live')?.placement).toBe('not_yet');
     // No "you said live is not for you" line: the unified calculator no longer asks, so the model
     // may not quote an answer the artist never gave (2026-08-28).

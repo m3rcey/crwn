@@ -15,6 +15,7 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { autoClaimForUser } from '@/lib/leadResults/resultAccess';
 import { checkRateLimit } from '@/lib/rateLimit';
 import { getLeadMagnetSeed } from '@/lib/leadResults/handoffSeed';
+import { findSavedArtifact } from '@/lib/leadResults/savedArtifact';
 import { buildLadderPrefill } from '@/lib/leadResults/ladderPrefill';
 import { entryOfferFor } from '@/lib/leadResults/entryOffer';
 import { ALLOWED_RECURRENCES } from '@/lib/promisePlan';
@@ -132,11 +133,29 @@ export async function POST() {
     }
   }
 
+  // The artifact the artist SAVED, by its own name, so the verified screen and the setup intro can
+  // say "Marcus Private Vault is saved" instead of naming a calculator. Resolved from the caller's
+  // own rows by the session user id: nothing here is read from the request, and only a display
+  // label leaves the server (type, name, one identifying choice), never the draft itself.
+  const saved = await findSavedArtifact(supabaseAdmin, user.id);
+
+  // Honesty at the boundary: a signup that CARRIED a draft token but ended with nothing of the
+  // artist's on the account did not save what they built, and the screens after it must say so
+  // instead of "everything is saved". The token is burned on the FIRST call (useAuth fires one on
+  // every session event, before /verify or /setup make their own), so the outcome is noted at burn
+  // time or no screen would ever see it. It is a display hint in user-editable metadata: it decides
+  // a sentence, never access, and it stops applying the moment any saved work exists.
+  const nothingRestored = !saved && !seed;
+  const notedUnrestored = meta?.pending_result_outcome === 'unrestored';
+  const draftUnrestored = nothingRestored && (!!token || notedUnrestored);
+
   // Burn the one-shot token so it does not re-run forever. Best-effort: the email match still
   // covers the same result on a later load if this write fails.
   if (token) {
     try {
-      await supabase.auth.updateUser({ data: { pending_result_token: null } });
+      await supabase.auth.updateUser({
+        data: { pending_result_token: null, pending_result_outcome: nothingRestored ? 'unrestored' : 'restored' },
+      });
     } catch {
       /* non-fatal */
     }
@@ -242,5 +261,9 @@ export async function POST() {
       }
     : null;
 
-  return NextResponse.json({ ok: true, claimed, seed: planSeed });
+  const artifact = saved?.label
+    ? { toolSlug: saved.toolSlug, kind: saved.kind, ...saved.label }
+    : null;
+
+  return NextResponse.json({ ok: true, claimed, seed: planSeed, artifact, draftUnrestored });
 }

@@ -301,10 +301,19 @@ const vault: AcquisitionTool = {
       emailInsights: [
         {
           title: 'Your first drop plan',
-          body: 'Open the Vault with a welcome voice note, drop one unreleased track in week one, and a demo or alternate version in week two. About two pieces a month keeps it sustainable.',
+          // Only what they told us they have: unreleased tracks. It used to promise a voice note, a
+          // demo and an alternate version the DM never asked about.
+          body: 'Open the Vault with one unreleased track in week one, then keep dropping from the unreleased music you already have. About two pieces a month keeps it sustainable.',
         },
       ],
-      conversionPayload: { tierName: 'Gold', priceCents: PRICE_CENTS },
+      // The one inventory fact the DM collects ("how many unreleased songs are in your vault") rides
+      // to the builder, so a DM arrival opens on THEIR count. The builder takes nothing else as
+      // given: the DM never asks for a cadence, so none is carried and the artist picks one there.
+      conversionPayload: {
+        tierName: 'Gold',
+        priceCents: PRICE_CENTS,
+        inventory: unreleased > 0 ? [{ key: 'unreleasedSongs', count: unreleased }] : [],
+      },
       shareSummary: `Turns out my vault could be worth about ${fmtDollars(monthlyExpected)} a month.`,
     });
   },

@@ -1,5 +1,50 @@
 # CRWN Brain — Changelog
 
+## 2026-09-19 - The calculators are trustworthy enough to re-audit: honest net, one artifact, the artist's own Vault
+
+Six P1 fixes from the 2026-09-19 GPT-6 calculator audit (10 journeys, 4 signups, no P0). Narrow on
+purpose: no change to the ICP, the common Opportunity front door, any price, any fee, any conversion
+assumption, or any Stripe behavior.
+
+**The "net" now pays for the plan it is modeled on.** The Opportunity Calculator applied Pro's 8%
+and never subtracted Pro's $49, so a $550 gross showed "Your net $506" on a page whose own pricing
+said $49 PLUS 8%. The basis was already Pro everywhere (the model, the assumptions line, the doc),
+so nothing was decided: the subscription was simply missing. `MODELED_PLAN` now names the one plan,
+and both the rate and the price follow it through `monthlyPlanCostCents()`. The plan and its cost
+sit in the hero tile LABEL (the hero grid drops a tile's note, found by reading the renderer).
+**Recurring is subscriptions only:** the model itself had `recurringGrossCents = core.grossCents`,
+which folded one-off member extras into every "recurring" figure, and a test had pinned the false
+sentence "All of it is recurring membership". **Total, current and additional are separate tiles**
+for an artist who already earns direct, and the scenario columns are titled as what they hold.
+Verified in a browser: $6,842 membership + $1,001 one-off = $7,843 gross, minus $676 Pro costs
+($627 + $49) = $7,167, minus $400 already earned = $6,767 added. Email button still 725px (fold 745).
+
+**A new result never opens somebody's older artifact.** Root cause was browser state, not server
+state: a local draft keyed by tool only, never cleared, restored over the fresh prefill WITH its
+server token. `localDraft.ts` binds a draft to the result it was built from; anything else is set
+aside and offered by name. Cleared on sign-out and after a real claim. Ownership boundaries were
+investigated and no cross-account server access was found. Two real defects found on the way and
+fixed: a dead token (claimed row) made the builder PUT into a 404 forever and save nothing, and
+`PUT /api/opportunity-drafts/[token]` erased the draft's campaign `_attribution` on first edit.
+
+**The artifact keeps its name through signup and verification.** One pure `artifactLabel()` over
+the spec's existing `preview` keys; the signup card, the email screen, `/verify`, the setup intro
+and `/plan/<tool>` all read it. After signup it is resolved server-side from the session user's own
+rows. The Own Your Fans identity loss had a specific cause: the signup card read `values`, the draft
+API returns `draft` for that tool, and the card fell back to the spec's generic defaults.
+
+**The Vault is the artist's own.** The builder prefill was three literals (four content types,
+"every two weeks", a week-by-week plan), and that hardcoded cadence rode auto-claim into the setup
+wizard as the Gold tier's real Promise Calendar recurrence. `vaultPlan.ts` is now shared by the
+generator and the prefill. "First five drops" was one line per content TYPE (two types, two
+"drops"); it is now up to five drops formed from entered inventory, relabeled when fewer exist.
+"100% ready" is "content is 100% ready": the score measures content and runway, and is unchanged.
+
+**Left open, for the founder:** whether the calculator should model the cheapest plan at each
+artist's size instead of Pro (Launch is cheaper below $1,225/mo; the page now says so), and
+`/worth`, which has the same rate-without-price net but whose number is quoted in shipped content.
+Results saved before this date render their stored labels on the tokenized DM page.
+
 ## 2026-09-18 - Calculator results: the email button fits the first phone screen, the video plays under it
 
 **Measured before and after** with a new headless probe (`scripts/probe-result-fold.mjs`, 390x745,

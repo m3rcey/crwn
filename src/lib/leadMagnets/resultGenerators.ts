@@ -11,6 +11,20 @@
 // Bump GENERATOR_VERSION when logic changes so saved rows keep their historical output.
 
 import type { GeneratedResult, LeadMagnetInputValues, ResultSection } from './types';
+import {
+  VAULT_INVENTORY_TYPES,
+  VAULT_ITEMS_PER_DROP,
+  buildVaultSchedule,
+  normalizeVaultCadence,
+  planVaultDrops,
+  readVaultInventory,
+  vaultDropPlanLines,
+  vaultDropsPerMonth,
+  vaultDropsPhrase,
+  vaultDropsTitle,
+  vaultInventoryLines,
+  type VaultCadence,
+} from './vaultPlan';
 
 export const GENERATOR_VERSION = '1.0.0';
 
@@ -36,20 +50,16 @@ const clamp = (n: number, lo: number, hi: number): number => Math.min(Math.max(n
 function vaultRevenuePlan(v: LeadMagnetInputValues): GeneratedResult {
   const artist = str(v.artistName, 'You');
   const genre = str(v.genre);
-  const inventory: { label: string; count: number }[] = [
-    { label: 'Unreleased songs', count: int(v.unreleasedSongs) },
-    { label: 'Demos', count: int(v.demos) },
-    { label: 'Voice memos', count: int(v.voiceMemos) },
-    { label: 'Studio clips', count: int(v.studioClips) },
-    { label: 'Behind-the-scenes videos', count: int(v.btsVideos) },
-    { label: 'Lyric sheets or notes', count: int(v.lyricSheets) },
-    { label: 'Alternate versions', count: int(v.altVersions) },
-    { label: 'Archived photos', count: int(v.archivedPhotos) },
-  ];
-  const totalItems = inventory.reduce((s, i) => s + i.count, 0);
-  const cadence = str(v.dropFrequency, 'weekly'); // weekly | biweekly | monthly
-  const perMonth = cadence === 'weekly' ? 4 : cadence === 'biweekly' ? 2 : 1;
-  const itemsPerDrop = 2;
+  // Only what the artist entered. Every list, drop and schedule row below is built from this, so a
+  // content type they never typed a count for cannot appear anywhere in their plan.
+  const nonZero = readVaultInventory(v as Record<string, unknown>);
+  const totalItems = nonZero.reduce((s, i) => s + i.count, 0);
+  // The cadence the artist picked IS the cadence (the question is required). It used to be
+  // silently swapped for a "recommended" one when the runway was short, so the plan the artist
+  // read was not the plan they chose. A short runway is now SAID, never acted on for them.
+  const cadence: VaultCadence = normalizeVaultCadence(v.dropFrequency) ?? 'weekly';
+  const perMonth = vaultDropsPerMonth(cadence);
+  const itemsPerDrop = VAULT_ITEMS_PER_DROP;
   const runwayDrops = Math.floor(totalItems / itemsPerDrop);
   const runwayMonths = perMonth > 0 ? Math.floor(runwayDrops / perMonth) : 0;
   const priceDollars = clamp(num(v.monthlyPrice, 0), 0, 500);
@@ -64,32 +74,38 @@ function vaultRevenuePlan(v: LeadMagnetInputValues): GeneratedResult {
   readiness = clamp(Math.round(readiness), 0, 100);
 
   const notReady = totalItems === 0;
-  const recommendCadence =
-    runwayMonths < 1 && cadence === 'weekly' ? 'monthly' : runwayMonths < 2 && cadence === 'weekly' ? 'biweekly' : cadence;
+  const cadenceWord = CADENCE_WORDS[cadence];
+  // Said, not acted on: the artist keeps the cadence they chose and sees what it costs them.
+  const shortRunway = !notReady && cadence !== 'monthly' && cadence !== 'quarterly' && runwayMonths < 2;
 
   // Price band is a planning suggestion, never a guarantee.
   const lowP = priceDollars > 0 ? Math.max(1, Math.round(priceDollars * 0.7)) : 5;
   const highP = priceDollars > 0 ? Math.round(priceDollars * 1.3) : 15;
 
-  const nonZero = inventory.filter((i) => i.count > 0);
-  const firstFive = notReady
-    ? ['Record one voice memo introducing the Vault', 'Share one unreleased snippet', 'Post one lyric or note', 'Add one behind-the-scenes clip', 'Preview your next song idea']
-    : nonZero.slice(0, 5).map((i, idx) => `Drop ${idx + 1}: a ${i.label.toLowerCase().replace(/s$/, '')}`);
+  // The first drops the ENTERED inventory can fill, five at most. This was one line per content
+  // TYPE, so an artist with 42 pieces in two types was shown "First five drops" over two lines.
+  const drops = planVaultDrops(nonZero);
+  const inventoryLines = vaultInventoryLines(nonZero);
+  const contentPhrase = nonZero.length
+    ? joinWords(nonZero.map((i) => VAULT_INVENTORY_TYPES.find((t) => t.key === i.key)?.plural ?? i.label.toLowerCase()))
+    : 'private content';
 
   const sections: ResultSection[] = [
     {
+      // The score is content depth, runway and willingness. It knows nothing about demand, price
+      // or a published page, so it is named for what it measures and never for a launch.
       key: 'readiness',
-      title: 'Your Vault readiness',
+      title: 'Your Vault content readiness',
       kind: 'score',
       score: readiness,
       scoreMax: 100,
-      scoreLabel: notReady ? 'Not ready yet: add content first' : readiness >= 60 ? 'Ready to launch' : 'Nearly ready',
+      scoreLabel: notReady ? 'Not ready yet: add content first' : readiness >= 60 ? 'Enough content to start' : 'Nearly enough content',
     },
     {
       key: 'inventory',
       title: 'What is already in your Vault',
       kind: 'list',
-      items: nonZero.length ? nonZero.map((i) => `${i.count} ${i.label.toLowerCase()}`) : ['No private content entered yet'],
+      items: inventoryLines.length ? inventoryLines : ['No private content entered yet'],
     },
     {
       key: 'offer',
@@ -97,27 +113,45 @@ function vaultRevenuePlan(v: LeadMagnetInputValues): GeneratedResult {
       kind: 'summary',
       text: notReady
         ? 'Start by capturing a few pieces of private content, then launch a simple monthly Vault. A Vault with zero content is not ready to charge for.'
-        : `A ${recommendCadence} Vault${genre ? ` for your ${genre} supporters` : ''}. Planning price range: ${usd(lowP)} to ${usd(highP)} per month. You have about ${runwayDrops} drops (${runwayMonths} month${runwayMonths === 1 ? '' : 's'}) of runway at a ${recommendCadence} cadence.`,
+        : `A ${cadenceWord} Vault${genre ? ` for your ${genre} supporters` : ''}, the cadence you chose. Planning price range: ${usd(lowP)} to ${usd(highP)} per month. You have about ${runwayDrops} drops (${runwayMonths} month${runwayMonths === 1 ? '' : 's'}) of runway at that cadence.${
+            shortRunway ? ' That is under two months of content, so a slower cadence would stretch it. The choice stays yours.' : ''
+          }`,
     },
     {
       key: 'schedule',
       title: '30-day release plan',
       kind: 'schedule',
-      rows: buildDropSchedule(recommendCadence),
+      rows: notReady
+        ? [{ when: 'First', what: 'Capture a few pieces of private content. There is nothing to schedule until you have some.' }]
+        : buildVaultSchedule(cadence, drops),
     },
-    { key: 'firstFive', title: 'First five drops', kind: 'list', items: firstFive },
+    notReady
+      ? {
+          key: 'firstFive',
+          title: 'Five things you could capture first',
+          kind: 'list',
+          items: ['Record one voice memo introducing the Vault', 'Share one unreleased snippet', 'Post one lyric or note', 'Add one behind-the-scenes clip', 'Preview your next song idea'],
+        }
+      : {
+          key: 'firstFive',
+          title: vaultDropsTitle(drops.length),
+          kind: 'list',
+          items: drops.map((d, idx) => `Drop ${idx + 1}: ${d}`),
+        },
     {
       key: 'pitch',
       title: 'Pitch to your fans',
       kind: 'copy',
-      text: `${artist} is opening a private Vault. Unreleased music, demos, and moments you will not find anywhere else, dropped ${recommendCadence}. Join for ${priceDollars > 0 ? usd(priceDollars) : usd(lowP)} a month and hear it first.`,
+      text: `${artist} is opening a private Vault. ${contentPhrase.charAt(0).toUpperCase()}${contentPhrase.slice(1)} you will not find anywhere else, dropped ${cadenceWord}. Join for ${priceDollars > 0 ? usd(priceDollars) : usd(lowP)} a month and hear it first.`,
     },
     {
       key: 'assumptions',
       title: 'Assumptions',
       kind: 'assumptions',
       items: [
-        `Runway assumes about ${itemsPerDrop} items per drop at a ${recommendCadence} cadence.`,
+        `Runway assumes about ${itemsPerDrop} items per drop at the ${cadenceWord} cadence you chose.`,
+        'The readiness score measures your content and your runway only. It does not measure demand, your price, or whether your page and payouts are set up.',
+        'Every drop in this plan uses only the content you entered. Nothing here assumes material you did not list.',
         'Price range is a planning suggestion based on your comfort input, not a demand measurement.',
         supporters > 0 ? `You have ${supporters} current supporters as context only.` : 'No current supporter count provided.',
       ],
@@ -132,46 +166,38 @@ function vaultRevenuePlan(v: LeadMagnetInputValues): GeneratedResult {
 
   return {
     generatorVersion: GENERATOR_VERSION,
-    headline: notReady ? 'Your Vault needs a little content first' : `${artist}, your Vault is ${readiness}% ready`,
+    // "Your Vault is 100% ready" read as launch readiness and was re-shown after signup to an
+    // artist with no live offer. The score is about CONTENT, so the headline says content.
+    headline: notReady ? 'Your Vault needs a little content first' : `${artist}, your Vault content is ${readiness}% ready`,
     summary: notReady
       ? 'You have not entered private content yet. Capture a few pieces and you can launch a recurring supporter Vault.'
-      : `You have enough for about ${runwayDrops} drops. Here is a ${recommendCadence} Vault plan and your first five drops.`,
+      : `You have enough for about ${runwayDrops} drops. Here is your ${cadenceWord} Vault plan and ${vaultDropsPhrase(drops.length)}.`,
     sections,
     conversionPayload: {
       tierName: 'Gold',
       priceCents: cents(priceDollars > 0 ? priceDollars : lowP),
-      cadence: recommendCadence,
-      description: `Private Vault: unreleased music, demos and moments dropped ${recommendCadence}.`,
+      // The artist's OWN answers, carried so the builder opens on them instead of on a template:
+      // the cadence they picked, the inventory they counted, and the plan derived from both.
+      cadence,
+      inventory: nonZero.map((i) => ({ key: i.key, count: i.count })),
+      dropPlan: notReady ? [] : vaultDropPlanLines(cadence, drops),
+      description: `Private Vault: ${contentPhrase} dropped ${cadenceWord}.`,
     },
     shareSummary: notReady
       ? 'I just planned my private fan Vault with CRWN.'
-      : `I just planned a ${recommendCadence} fan Vault: ${runwayDrops} drops ready to go.`,
+      : `I just planned a ${cadenceWord} fan Vault: ${runwayDrops} drops ready to go.`,
   };
 }
 
-function buildDropSchedule(cadence: string): { when: string; what: string }[] {
-  if (cadence === 'monthly') {
-    return [
-      { when: 'Week 1', what: 'Launch: open the Vault + welcome voice note' },
-      { when: 'Week 2', what: 'Promote: tease one locked drop publicly' },
-      { when: 'Week 4', what: 'First monthly drop: unreleased track or demo' },
-    ];
-  }
-  if (cadence === 'biweekly') {
-    return [
-      { when: 'Week 1', what: 'Launch drop: unreleased track or demo' },
-      { when: 'Week 2', what: 'Behind-the-scenes or lyric note' },
-      { when: 'Week 3', what: 'Second drop: alternate version or voice memo' },
-      { when: 'Week 4', what: 'Supporter-only update + preview of next month' },
-    ];
-  }
-  return [
-    { when: 'Week 1', what: 'Launch drop: unreleased track or demo' },
-    { when: 'Week 2', what: 'Studio clip or behind-the-scenes' },
-    { when: 'Week 3', what: 'Voice memo or lyric note' },
-    { when: 'Week 4', what: 'Alternate version + preview of next month' },
-  ];
-}
+const CADENCE_WORDS: Record<VaultCadence, string> = {
+  weekly: 'weekly',
+  biweekly: 'biweekly',
+  monthly: 'monthly',
+  quarterly: 'quarterly',
+};
+
+const joinWords = (words: string[]): string =>
+  words.length <= 1 ? words.join('') : `${words.slice(0, -1).join(', ')} and ${words[words.length - 1]}`;
 
 // ============================================================
 // 2. Proof of Demand Test Builder

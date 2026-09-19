@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Check } from 'lucide-react';
 import { getDeliverableSpec, type DraftValues } from '@/lib/opportunityDrafts/deliverableSpecs';
+import { artifactLabel, fanPageArtifactLabel, type ArtifactLabel } from '@/lib/opportunityDrafts/artifactLabel';
 
 // The signup-boundary continuation: what they uncovered, then what they already built, then the
 // form. Turns "create an account" into "save what you built".
@@ -14,10 +15,19 @@ import { getDeliverableSpec, type DraftValues } from '@/lib/opportunityDrafts/de
 interface DraftPayload {
   toolSlug?: string;
   values?: DraftValues;
+  /** Own Your Fans keeps its own draft shape: a fan page with a headline, not spec values. */
+  draft?: { headline?: unknown; ctaLabel?: unknown } | null;
   opportunitySummary?: string | null;
 }
 
-export function DraftContinuation({ token }: { token: string }) {
+export function DraftContinuation({
+  token,
+  onArtifact,
+}: {
+  token: string;
+  /** The saved artifact's own name, lifted so the "check your email" screen can keep saying it. */
+  onArtifact?: (label: ArtifactLabel | null) => void;
+}) {
   const [draft, setDraft] = useState<DraftPayload | null>(null);
 
   useEffect(() => {
@@ -37,7 +47,39 @@ export function DraftContinuation({ token }: { token: string }) {
     };
   }, [token]);
 
+  // The artifact's own name, from the artist's STORED work only (never from generated defaults:
+  // a label that names a template would claim a save of something they did not write).
+  const label: ArtifactLabel | null = !draft?.toolSlug
+    ? null
+    : draft.draft
+      ? fanPageArtifactLabel(draft.draft)
+      : (() => {
+          const s = getDeliverableSpec(draft.toolSlug!);
+          return s ? artifactLabel(s, draft.values) : null;
+        })();
+  const labelKey = label ? `${label.savedLine}|${label.detail ?? ''}` : '';
+  useEffect(() => {
+    onArtifact?.(label);
+    // `label` is derived from the fetched draft; its text is the only thing that can change.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [labelKey]);
+
   if (!draft?.toolSlug) return null;
+
+  // Own Your Fans: the draft is a fan page, not spec values. This card used to look for `values`,
+  // find none, and print the spec's generic defaults, so the headline the artist had just written
+  // was replaced by a template at the moment they were asked to create an account.
+  if (draft.draft) {
+    if (!label) return null;
+    return (
+      <div className="mb-5 rounded-2xl border border-crwn-gold/30 bg-crwn-gold/[0.08] px-4 py-4 text-center">
+        <p className="text-base font-semibold text-crwn-text leading-snug">{label.savedLine}</p>
+        {label.detail && <p className="text-xs text-crwn-text-secondary mt-1">{label.detail}</p>}
+        <p className="text-sm text-crwn-text mt-2 leading-snug">Create your account to keep it and publish it to your fans.</p>
+      </div>
+    );
+  }
+
   const spec = getDeliverableSpec(draft.toolSlug);
   if (!spec) return null;
 
@@ -93,11 +135,20 @@ export function DraftContinuation({ token }: { token: string }) {
         </div>
       )}
       <p className="text-sm text-crwn-text mt-2 leading-snug">{claim}</p>
-      {items.length > 0 && (
-        <p className="text-xs text-crwn-text-secondary mt-2">
-          {items.length} {items.length === 1 ? 'item' : 'items'} already built and waiting:{' '}
-          {items.map((i) => i.title).filter(Boolean).slice(0, 4).join(', ')}
+      {/* A NAMED artifact is named ("Marcus Private Vault is saved"), in place of the item count so
+          the card stays the same height and the form stays above the fold. */}
+      {label?.name ? (
+        <p className="text-xs text-crwn-text mt-2">
+          <span className="font-semibold">{label.savedLine}</span>
+          {label.detail ? ` (${label.detail})` : ''}
         </p>
+      ) : (
+        items.length > 0 && (
+          <p className="text-xs text-crwn-text-secondary mt-2">
+            {items.length} {items.length === 1 ? 'item' : 'items'} already built and waiting:{' '}
+            {items.map((i) => i.title).filter(Boolean).slice(0, 4).join(', ')}
+          </p>
+        )
       )}
       {/* Only shown by a tool that models several opportunities at once, so the artist can see the
           number is smaller than a pile of separate calculators on purpose. */}

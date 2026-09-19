@@ -14,6 +14,14 @@ import {
   type DeliverableField,
   type DraftValues,
 } from '@/lib/opportunityDrafts/deliverableSpecs';
+import {
+  deliverableDraftKey,
+  openLocalDraft,
+  resultFingerprint,
+  resumeEarlierDraft,
+  writeLocalDraft,
+} from '@/lib/opportunityDrafts/localDraft';
+import { artifactLabel } from '@/lib/opportunityDrafts/artifactLabel';
 
 // The UNIVERSAL pre-signup deliverable builder.
 //
@@ -22,7 +30,7 @@ import {
 // no publish, no payment, no upload, no contact import, no fan data. Signup is requested only at the
 // save boundary, and the draft is persisted server-side first so the work survives authentication.
 
-const lsKey = (slug: string) => `crwn_deliverable_${slug}`;
+const lsKey = deliverableDraftKey;
 
 /**
  * Merge a stored draft over this spec's generated defaults.
@@ -83,6 +91,11 @@ export function DeliverableBuilder({
   const [index, setIndex] = useState(0);
   const [saving, setSaving] = useState(false);
   const tokenRef = useRef<string | null>(initialToken);
+  // The identity of the result this builder was opened from. A local draft is restored only into
+  // the result it was built from, so a new result never silently opens somebody's older artifact.
+  const origin = useMemo(() => resultFingerprint(toolSlug, conversionPayload), [toolSlug, conversionPayload]);
+  // A draft from a DIFFERENT result, set aside and offered by name. Never restored on its own.
+  const [earlier, setEarlier] = useState<{ savedLine: string; name: string | null } | null>(null);
   const startedRef = useRef(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -95,20 +108,47 @@ export function DeliverableBuilder({
   // emptied the builder (a pre-rewrite Streaming Loss draft wiped all four tiers). So a restored
   // draft is MERGED OVER the prefill: unknown/missing fields fall back to the generated defaults,
   // and the artist's own edits still win. Never replace, always merge.
+  //
+  // ONLY INTO THE RESULT IT WAS BUILT FROM. The local copy is keyed by tool, and it used to be
+  // restored into whatever result was on screen, token included. In one browser that opened a new
+  // artist's Vault on the previous artist's Vault, wrote the new artist's edits over the previous
+  // artist's server row, and sent that row's token into the new artist's signup. A draft from any
+  // other result is now set aside and OFFERED by name (below); this result starts clean, with no
+  // token, so it gets a server row of its own. See localDraft.ts.
   useEffect(() => {
     if (mode !== 'anonymous' || initialValues || !spec) return;
     try {
-      const raw = localStorage.getItem(lsKey(toolSlug));
-      if (raw) {
-        const parsed = JSON.parse(raw) as { token?: string; values?: unknown };
-        if (parsed.token) tokenRef.current = parsed.token;
-        if (parsed.values) setValues(mergeOverPrefill(spec, conversionPayload, parsed.values));
+      const opened = openLocalDraft(localStorage, lsKey(toolSlug), origin);
+      if (opened.restore) {
+        if (opened.restore.token) tokenRef.current = opened.restore.token;
+        if (opened.restore.values) setValues(mergeOverPrefill(spec, conversionPayload, opened.restore.values));
+      }
+      if (opened.earlier?.values) {
+        setEarlier(artifactLabel(spec, sanitizeDeliverableValues(spec, opened.earlier.values)) ?? { savedLine: 'An earlier draft', name: null });
       }
     } catch {
-      /* ignore malformed local draft */
+      /* ignore malformed or blocked local storage */
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const resumeEarlier = () => {
+    if (!spec) return;
+    try {
+      const resumed = resumeEarlierDraft(localStorage, lsKey(toolSlug), origin, {
+        token: tokenRef.current,
+        payload: { values },
+      });
+      if (resumed) {
+        tokenRef.current = resumed.token;
+        setValues(mergeOverPrefill(spec, conversionPayload, resumed.values));
+        setIndex(0);
+      }
+    } catch {
+      /* storage may be blocked; the current draft simply stays */
+    }
+    setEarlier(null);
+  };
 
   useEffect(() => {
     if (!startedRef.current && spec) {
@@ -130,7 +170,7 @@ export function DeliverableBuilder({
   const persist = (next: DraftValues) => {
     if (mode !== 'anonymous') return;
     try {
-      localStorage.setItem(lsKey(toolSlug), JSON.stringify({ token: tokenRef.current, values: next }));
+      writeLocalDraft(localStorage, lsKey(toolSlug), origin, tokenRef.current, { values: next });
     } catch {
       /* storage may be blocked */
     }
@@ -140,6 +180,18 @@ export function DeliverableBuilder({
 
   const sync = async (next: DraftValues) => {
     try {
+      // A token whose row is gone (claimed into an account, or expired) answers 404 forever. The
+      // builder used to keep PUTting into that void, so nothing the artist typed was ever saved
+      // and the signup boundary carried a dead token. Drop it and create a fresh draft instead.
+      if (tokenRef.current) {
+        const res = await fetch(`/api/opportunity-drafts/${encodeURIComponent(tokenRef.current)}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ toolSlug, values: next, opportunitySummary }),
+        });
+        if (res.status !== 404) return;
+        tokenRef.current = null;
+      }
       if (!tokenRef.current) {
         const res = await fetch('/api/opportunity-drafts', {
           method: 'POST',
@@ -152,17 +204,11 @@ export function DeliverableBuilder({
         if (res.ok && data.token) {
           tokenRef.current = data.token;
           try {
-            localStorage.setItem(lsKey(toolSlug), JSON.stringify({ token: data.token, values: next }));
+            writeLocalDraft(localStorage, lsKey(toolSlug), origin, data.token, { values: next });
           } catch {
             /* ignore */
           }
         }
-      } else {
-        await fetch(`/api/opportunity-drafts/${encodeURIComponent(tokenRef.current)}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ toolSlug, values: next, opportunitySummary }),
-        });
       }
     } catch {
       /* persistence must never break the builder */
@@ -171,7 +217,11 @@ export function DeliverableBuilder({
 
   const update = (key: string, v: string | number | string[]) => {
     setValues((cur) => {
-      const next = { ...cur, [key]: v };
+      const edited = { ...cur, [key]: v };
+      // Fields that FOLLOW this one (a Vault's drop plan follows its cadence), so a generated
+      // schedule never goes on describing a choice the artist has just changed.
+      const derived = spec.derive?.(key, cur, edited, conversionPayload);
+      const next = derived ? ({ ...edited, ...derived } as DraftValues) : edited;
       persist(next);
       return next;
     });
@@ -205,6 +255,35 @@ export function DeliverableBuilder({
 
   return (
     <div className="space-y-4">
+      {/* An older draft for this tool exists in this browser, built from a DIFFERENT result. It is
+          never opened on its own and never overwritten on its own: the artist chooses, by name.
+          Two options, so two buttons (the dropdown rule is for three or more). */}
+      {earlier && (
+        <div className="rounded-2xl border border-crwn-elevated bg-crwn-surface p-4">
+          <p className="text-sm text-crwn-text">
+            This is the plan you just created.{' '}
+            {earlier.name
+              ? `This browser also has an earlier saved draft: ${earlier.name}.`
+              : 'This browser also has an earlier saved draft for this tool.'}
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => setEarlier(null)}
+              className="px-4 py-2 rounded-full bg-crwn-gold text-crwn-bg text-sm font-semibold"
+            >
+              Continue the plan I just created
+            </button>
+            <button
+              type="button"
+              onClick={resumeEarlier}
+              className="px-4 py-2 rounded-full border border-crwn-elevated text-sm text-crwn-text"
+            >
+              Resume my earlier saved draft
+            </button>
+          </div>
+        </div>
+      )}
       <Wizard
         steps={spec.steps.map((s) => ({ id: s.id, group: s.group, label: s.label }))}
         currentIndex={index}

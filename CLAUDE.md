@@ -529,6 +529,43 @@ primitive, never 19 copies. `src/lib/leadMagnets/conversionContract.test.ts` pin
   `conversionContract.test.ts` scans every non-feature calculator's questions for that vocabulary
   (mutation-tested), so re-adding one fails `npm test`. Do not re-add the `fans`/`live` screens or
   the builder's share/clip/session/live steps without a new founder decision.
+- **A number "after CRWN costs" pays the modeled plan's WHOLE cost, and recurring means
+  subscriptions** (2026-09-19 audit). The Opportunity Calculator applied Pro's 8% and forgot Pro's
+  $49, so $550 gross showed "Your net $506" beside pricing that said $49 PLUS 8%. `MODELED_PLAN` in
+  `unifiedModel.ts` is the ONE plan a result is modeled on; the rate AND the price follow it through
+  `monthlyPlanCostCents()`, and `planBasisFor()` is the only place plan wording comes from (no plan
+  price or rate may be retyped in the model, the adapter or the recalc: source-scanned).
+  `recurringGrossCents` is SUBSCRIPTIONS only; member extras are one-time money even though members
+  pay them, and no heading, tile or sentence may call one-off money recurring. Total, current and
+  additional revenue are three separate named things. **The hero grid renders a tile's value and
+  LABEL and drops its note**, so anything the artist must see goes in the label; and the summary
+  renders in the hero ABOVE the email ask, so it may not grow (length-pinned by test). Changing
+  `MODELED_PLAN` (Launch is cheaper below $1,225/mo, and the page says so) is an open founder
+  decision, as is `/worth`, which still nets at the Pro rate with no subscription.
+  `unifiedEconomics.test.ts` pins all of it, mutation-tested.
+- **A local builder draft is restored only into the result it was built from, and the artifact
+  keeps its own name at every boundary** (2026-09-19). The browser copy was keyed by tool only,
+  never cleared, and restored over a fresh result WITH its server token, so in one browser a new
+  artist's Vault opened on the previous artist's, their edits overwrote that unclaimed row, and
+  their signup claimed it. `src/lib/opportunityDrafts/localDraft.ts` is the one rule (origin
+  fingerprint, set-aside-and-offer, cleared on sign-out and after a real claim): both builders go
+  through it and **neither may touch `localStorage` directly** (source-scanned). It is browser
+  state, never an authorization boundary; no cross-account server access existed.
+  `artifactLabel()` is the ONE name for a saved artifact, read by the signup card, the email screen,
+  `/verify`, the setup intro and `/plan/<tool>`; after signup it is resolved server-side from the
+  session user's own rows, labels only from STORED work, and `/verify` says so when a draft did not
+  land. `PUT /api/opportunity-drafts/[token]` must keep carrying `_attribution`: it rebuilds
+  `input_data`, and rebuilding it without that key erased which video produced the artist.
+- **Vault: what the artist entered is fact** (2026-09-19). `src/lib/leadMagnets/vaultPlan.ts` is
+  shared by the planner's generator and the builder's prefill, so they cannot describe two Vaults.
+  The prefill was three literals (four content types, "every two weeks", a weekly plan), and that
+  invented cadence rode auto-claim into the setup wizard as the Gold tier's real Promise Calendar
+  recurrence. Never prefill a content type the artist did not count (offer others only as
+  unselected help text), never swap the cadence they chose for a recommended one (say the runway is
+  short, do not act on it), label non-drop weeks as optional promotion, promise "five drops" only
+  when five can be formed from entered inventory, and call the score what it measures ("content
+  readiness"). A spec field that follows another uses `derive`. When a test demands a non-blank
+  prefill, feed it a REAL result payload: an empty payload is how the literals came to exist.
 
 ## Interruptions are governed — one engine, one cap
 

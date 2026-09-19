@@ -18,6 +18,15 @@
 
 import { RECOMMENDED_LADDER, benefitLabels } from '@/lib/tierTemplate';
 import { recalcUnified } from '@/lib/opportunity/recalcUnified';
+import {
+  normalizeVaultCadence,
+  parseVaultInventory,
+  parseVaultInventoryLines,
+  planVaultDrops,
+  replanOnCadenceChange,
+  vaultDropPlanLines,
+  vaultInventoryLines,
+} from '@/lib/leadMagnets/vaultPlan';
 
 export type DeliverableFieldType =
   | 'text'
@@ -124,6 +133,17 @@ export interface DeliverableSpec {
    * pointed at a stale number instead of an inflated one. Returns null when it cannot recompute.
    */
   recalc?: (v: DraftValues, cp: Record<string, unknown>) => RecalcSummary | null;
+  /**
+   * Fields that FOLLOW another field. Called after the artist edits `key`, with the values before
+   * and after that edit; returns the dependent fields to update, or null. Pure. It exists so a
+   * generated schedule cannot go on describing a cadence the artist has just changed.
+   */
+  derive?: (
+    key: string,
+    prev: DraftValues,
+    next: DraftValues,
+    cp: Record<string, unknown>,
+  ) => Partial<DraftValues> | null;
 }
 
 /** A recomputed headline the builder shows in place of the calculator's original figure. */
@@ -267,7 +287,7 @@ const SPECS: DeliverableSpec[] = [
       },
       {
         id: 'content', group: 'Vault', label: 'What goes in', fields: [
-          { key: 'categories', type: 'lines', label: 'Content you already have', max: 600, help: 'One per line. Demos, voice notes, alternate takes, session video, photos.' },
+          { key: 'categories', type: 'lines', label: 'Content you already have', max: 600, help: 'One per line, starting from what you told the planner. Add a line only for something you really have. Other things artists put in a Vault: demos, voice notes, alternate takes, session video, photos.' },
           { key: 'cadence', type: 'option', label: 'How often you drop', options: CADENCE, help: 'Pick what you can sustain. Release timing is set per track in Music; there is no auto-scheduler.' },
         ],
       },
@@ -278,13 +298,33 @@ const SPECS: DeliverableSpec[] = [
       },
     ],
     preview: { kind: 'offer', titleKey: 'tierName', priceKey: 'price', benefitsKey: 'categories', note: 'Preview only. Nothing is released and no fan is charged until you publish.' },
-    prefill: (cp) => ({
-      tierName: str(cp.tierName, 'The Vault'),
-      price: dollars(cp.priceCents),
-      categories: ['Unreleased demos', 'Voice notes and ideas', 'Alternate versions', 'Session photos'],
-      cadence: 'biweekly',
-      dropPlan: ['Week 1: a welcome voice note plus one unreleased track', 'Week 2: a demo or alternate version', 'Week 3: session photos or video', 'Week 4: one unreleased track'],
-    }),
+    // Everything here is the artist's OWN answer, read off the planner's payload. This used to be
+    // three literals (four content types, "every two weeks", a week-by-week plan), so an artist who
+    // entered 12 songs, 30 voice memos and a monthly cadence opened a builder describing someone
+    // else's Vault, and that cadence then seeded a real Promise Calendar recurrence after signup.
+    // A content type the artist did not count is never listed (the field's help text offers ideas,
+    // unselected), and a payload with no cadence leaves the choice EMPTY rather than picking one.
+    prefill: (cp) => {
+      const inventory = parseVaultInventory(cp.inventory);
+      const cadence = normalizeVaultCadence(cp.cadence);
+      return {
+        tierName: str(cp.tierName, 'The Vault'),
+        price: dollars(cp.priceCents),
+        categories: vaultInventoryLines(inventory),
+        cadence: cadence ?? '',
+        dropPlan: cadence ? vaultDropPlanLines(cadence, planVaultDrops(inventory)) : [],
+      };
+    },
+    // The drop plan follows the cadence. It is only regenerated while it is still the generated
+    // plan; one the artist rewrote is theirs and is left alone.
+    // The inventory is read from the draft's OWN content lines, not the calculator payload, so the
+    // plan also follows the cadence after signup (the claimed builder opens with no payload).
+    derive: (key, prev, next) => {
+      if (key !== 'cadence') return null;
+      const current = Array.isArray(prev.dropPlan) ? prev.dropPlan.map(String) : [];
+      const replanned = replanOnCadenceChange(parseVaultInventoryLines(prev.categories), prev.cadence, next.cadence, current);
+      return replanned ? { dropPlan: replanned } : null;
+    },
   },
 
   // 3. Founder Window -> a real limited founding offer (cap + dates are the artist's, never faked).

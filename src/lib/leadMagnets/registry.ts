@@ -73,11 +73,12 @@ const VAULT_REVENUE_PLANNER: LeadMagnetConfig = {
   ],
   resultGeneratorKey: 'vaultRevenuePlan',
   resultSections: [
-    { key: 'readiness', title: 'Your Vault readiness', preview: true },
+    { key: 'readiness', title: 'Your Vault content readiness', preview: true },
     { key: 'inventory', title: 'What is already in your Vault', preview: true },
     { key: 'offer', title: 'Recommended offer' },
     { key: 'schedule', title: '30-day release plan' },
-    { key: 'firstFive', title: 'First five drops' },
+    // The generated section carries the real heading: "First five drops" only when five exist.
+    { key: 'firstFive', title: 'Your first drops' },
     { key: 'pitch', title: 'Pitch to your fans' },
     { key: 'assumptions', title: 'Assumptions' },
     { key: 'nextSteps', title: 'Build it in CRWN' },

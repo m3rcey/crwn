@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import { checkRateLimit } from '@/lib/rateLimit';
 import { OYF_TOOL_KEY, isDraftToken, sanitizeOwnYourFansDraft } from '@/lib/opportunityDrafts/ownYourFansDraft';
 import { getDeliverableSpec, sanitizeDeliverableValues } from '@/lib/opportunityDrafts/deliverableSpecs';
+import { ATTRIBUTION_INPUT_KEY } from '@/lib/analytics/campaignAttribution';
 
 // PUBLIC continuation of an anonymous draft via its capability token (the high-entropy public_token).
 // GET restores the draft after a browser refresh; PUT saves edits. BOTH act ONLY on an UNCLAIMED,
@@ -87,15 +88,24 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ toke
   const row = await loadUnclaimed(token);
   if (!row) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
+  // The campaign attribution stamped when the draft was CREATED must survive every edit. This
+  // object is rebuilt from scratch below, and it used to be rebuilt without it, so the first
+  // debounced keystroke in a builder erased which video produced the artist. It is carried exactly
+  // as stored (it was normalized on the way in): an edit may never add, change or drop it.
+  const stored = row.input_data?.[ATTRIBUTION_INPUT_KEY];
+  const keepAttribution = stored && typeof stored === 'object' ? { [ATTRIBUTION_INPUT_KEY]: stored } : {};
+
   let nextInput: Record<string, unknown>;
   if (row.tool_slug === OYF_TOOL_KEY) {
     nextInput = {
+      ...keepAttribution,
       social_followers: (row.input_data?.social_followers as number) ?? 0,
       builderDraft: sanitizeOwnYourFansDraft(body.draft),
     };
   } else {
     const spec = getDeliverableSpec(row.tool_slug)!;
     nextInput = {
+      ...keepAttribution,
       deliverableType: spec.deliverableType,
       deliverableValues: sanitizeDeliverableValues(spec, body.values),
       opportunitySummary:

@@ -19,6 +19,8 @@
 //    deliberately conservative, so leaving it unsaid gave away the honesty for nothing.
 
 import type { GeneratedResult, ResultSection } from '@/lib/leadMagnets/types';
+import { TIER_LIMITS, formatTierName } from '@/lib/platformTier';
+import { monthlyPlanCostCents, proBreakEvenGmvCents } from '@/lib/planRecommendation';
 import {
   calculateUnifiedOpportunity,
   calculateScenarioBand,
@@ -74,7 +76,31 @@ export function toUnifiedInputs(raw: Record<string, unknown>): Partial<UnifiedIn
   };
 }
 
-function headlineFor(low: number, high: number, expected: number): { headline: string; hero: string; eyebrow: string } {
+/**
+ * The plan basis, in words, from the model's own assumptions. Every surface that states a cost
+ * reads it from here, so the rate and the price can never come from two different plans and no
+ * plan number is retyped in copy.
+ */
+export function planBasisFor(r: UnifiedResult): { name: string; costLine: string; shortCost: string } {
+  const a = r.assumptions;
+  const name = formatTierName(a.planKey);
+  const costLine =
+    a.planMonthlyCents > 0
+      ? `${a.platformFeePercent}% fee plus ${usd(a.planMonthlyCents)}/mo plan`
+      : `${a.platformFeePercent}% fee, no monthly plan cost`;
+  // For a tile LABEL. The hero grid renders a tile's value and label and drops its note, so the
+  // plan's cost has to live in the label or it is not on the screen at all.
+  const shortCost =
+    a.planMonthlyCents > 0 ? `${a.platformFeePercent}% + ${usd(a.planMonthlyCents)}/mo` : `${a.platformFeePercent}%`;
+  return { name, costLine, shortCost };
+}
+
+function headlineFor(
+  low: number,
+  high: number,
+  expected: number,
+  planName: string,
+): { headline: string; hero: string; eyebrow: string } {
   if (expected <= 0) {
     return {
       headline: 'Tell us about your audience and we will model what you could build',
@@ -85,7 +111,7 @@ function headlineFor(low: number, high: number, expected: number): { headline: s
   return {
     headline: `You could build an estimated ${usd(low)} to ${usd(
       high,
-    )} a month on top of what you already earn direct, after CRWN's fee and any commissions you pay`,
+    )} a month on top of what you already earn direct, after CRWN's ${planName} plan costs and any commissions you pay`,
     hero: `${usd(low)} to ${usd(high)}`,
     eyebrow: 'You could build an estimated',
   };
@@ -121,15 +147,59 @@ function derivationFor(r: UnifiedResult): ResultSection {
     value: count(r.segments.payingSupporters),
     note: 'One number. Everything recurring is built on these people',
   });
-  rows.push({ label: 'Across your membership ladder', value: `${usd(r.recurringGrossCents)}/mo` });
-  if (r.oneTimeGrossCents > 0) {
+  // From here down every row is one line of the money, in the order it is subtracted, so nobody
+  // has to reverse-engineer why the gross, the after-costs figure and the headline differ.
+  rows.push({
+    label: 'Membership subscriptions',
+    value: `${usd(r.recurringGrossCents)}/mo`,
+    note: 'Recurring. The only line here that renews every month',
+  });
+  if (r.core.memberAlacarteGrossCents > 0) {
     rows.push({
-      label: 'Plus events and seats, sold to non-members',
-      value: `${usd(r.oneTimeGrossCents)}/mo`,
-      note: 'Members already have access, so they are not counted here',
+      label: 'Plus one-off purchases by members',
+      value: `${usd(r.core.memberAlacarteGrossCents)}/mo`,
+      note: 'Not recurring. An average month of one-off member spend',
     });
   }
-  rows.push({ label: 'After the platform fee and commissions', value: `${usd(r.netMonthlyCents)}/mo` });
+  if (r.incrementalGrossCents > 0) {
+    rows.push({
+      label: 'Plus events and seats, sold to non-members',
+      value: `${usd(r.incrementalGrossCents)}/mo`,
+      note: 'Not recurring. Members already have access, so they are not counted here',
+    });
+  }
+  rows.push({ label: 'Total modeled gross', value: `${usd(r.totalGrossCents)}/mo` });
+  const plan = planBasisFor(r);
+  rows.push({
+    label: `Minus CRWN ${plan.name} plan costs`,
+    value: `${usd(r.crwnCostCents)}/mo`,
+    note: `${plan.costLine}: ${usd(r.platformFeeCents)} in fees plus ${usd(r.planSubscriptionCents)} for the plan`,
+  });
+  if (r.contributorCommissionCents > 0) {
+    rows.push({
+      label: 'Minus commissions you pay fans',
+      value: `${usd(r.contributorCommissionCents)}/mo`,
+      note: 'Only on supporters a fan brought you',
+    });
+  }
+  rows.push({
+    label: `Left after CRWN ${plan.name} costs`,
+    value: `${usd(r.netMonthlyCents)}/mo`,
+    note: 'Your whole modeled direct-to-fan income, including what you already earn',
+  });
+  const current = r.inputs.currentDirectRevenueCents > 0 ? r.inputs.currentDirectRevenueCents : 0;
+  if (current > 0) {
+    rows.push({
+      label: 'Minus what you already earn direct',
+      value: `${usd(current)}/mo`,
+      note: 'Your own answer. This money already exists, so it is not counted as new',
+    });
+  }
+  rows.push({
+    label: 'What you would add',
+    value: `${usd(r.netNewMonthlyCents)}/mo`,
+    note: 'The expected case of the estimate at the top',
+  });
   return { key: 'derivation', title: 'How we get to the number', kind: 'derivation', metrics: rows };
 }
 
@@ -169,20 +239,38 @@ export function buildUnifiedResult(raw: Record<string, unknown>): GeneratedResul
   const r = band.expected;
   const low = band.conservative.netNewMonthlyCents;
   const high = band.high.netNewMonthlyCents;
-  const { headline, hero, eyebrow } = headlineFor(low, high, r.netNewMonthlyCents);
+  const plan = planBasisFor(r);
+  const { headline, hero, eyebrow } = headlineFor(low, high, r.netNewMonthlyCents, plan.name);
+  const currentDirectCents = r.inputs.currentDirectRevenueCents > 0 ? r.inputs.currentDirectRevenueCents : 0;
 
   const sections: ResultSection[] = [];
 
   // 1. The headline tiles. The renderer hoists the FIRST projection into the hero card, so these
-  //    four are the ones that sit next to the big number.
+  //    are the ones that sit next to the big number. Each tile is ONE kind of money: recurring is
+  //    subscriptions only, one-off is never inside it, the after-costs tile names its plan, and an
+  //    artist who already earns direct sees that money apart from what they would add.
   sections.push({
     key: 'headline',
     title: 'What it adds up to',
     kind: 'projection',
     metrics: [
-      { label: 'Recurring, every month', value: `${usd(r.recurringGrossCents)}`, note: 'membership, gross' },
-      { label: 'Events and seats', value: `${usd(r.oneTimeGrossCents)}`, note: 'per month, non-members only' },
-      { label: 'Your net, monthly', value: `${usd(r.netMonthlyCents)}`, note: 'after fee and commissions' },
+      { label: 'Membership, every month', value: `${usd(r.recurringGrossCents)}`, note: 'recurring subscriptions, gross' },
+      {
+        label: 'One-off purchases',
+        value: `${usd(r.oneTimeGrossCents)}`,
+        note: r.incrementalGrossCents > 0 ? 'member extras, events and seats. Not recurring' : 'member extras. Not recurring',
+      },
+      {
+        label: `After CRWN ${plan.name} costs (${plan.shortCost})`,
+        value: `${usd(r.netMonthlyCents)}`,
+        note: `${plan.costLine}${r.contributorCommissionCents > 0 ? ', and commissions' : ''}`,
+      },
+      ...(currentDirectCents > 0
+        ? [
+            { label: 'You already earn direct', value: `${usd(currentDirectCents)}`, note: 'your answer. Not new money' },
+            { label: 'What you would add', value: `${usd(r.netNewMonthlyCents)}`, note: 'after costs, minus what you already earn' },
+          ]
+        : []),
       { label: 'Paying supporters', value: count(r.segments.payingSupporters), note: 'unique people' },
     ],
   });
@@ -191,9 +279,12 @@ export function buildUnifiedResult(raw: Record<string, unknown>): GeneratedResul
   sections.push(derivationFor(r));
 
   // 3. The range, run off one set of inputs so the columns stay consistent.
+  // The three columns are what the artist would ADD (after plan costs, minus what they already
+  // earn direct). Untitled as such, "Expected" sat beside a larger after-costs figure and the
+  // artist had to work out the difference themselves.
   sections.push({
     key: 'scenarios',
-    title: 'Conservative to high',
+    title: currentDirectCents > 0 ? 'What you would add on top of what you earn now' : 'What you would add, conservative to high',
     kind: 'scenarios',
     metrics: [
       { label: 'Conservative', value: `${usd(low)}/mo`, note: `${count(band.conservative.segments.payingSupporters)} supporters` },
@@ -202,19 +293,18 @@ export function buildUnifiedResult(raw: Record<string, unknown>): GeneratedResul
     ],
   });
 
-  // 4. Core recurring revenue: the one ladder.
+  // 4. Core recurring revenue: the one ladder, and ONLY the ladder. Member extras used to be a
+  //    tile in this section, which put one-off spend under a heading that says recurring. They
+  //    are their own line in the hero and in the derivation instead.
   sections.push({
     key: 'core',
     title: 'Core recurring revenue',
     kind: 'projection',
-    metrics: [
-      ...r.core.tiers.map((t) => ({
-        label: `${t.name}, $${Math.round(t.priceCents / 100)}/mo`,
-        value: `${usd(t.monthlyCents)}`,
-        note: `${count(t.supporters)} supporters`,
-      })),
-      { label: 'Member extras', value: `${usd(r.core.memberAlacarteGrossCents)}`, note: 'one-off member spend, already counted here' },
-    ],
+    metrics: r.core.tiers.map((t) => ({
+      label: `${t.name}, $${Math.round(t.priceCents / 100)}/mo`,
+      value: `${usd(t.monthlyCents)}`,
+      note: `${count(t.supporters)} supporters`,
+    })),
   });
 
   // 5. Incremental, and only what is genuinely incremental.
@@ -368,12 +458,26 @@ export function buildUnifiedResult(raw: Record<string, unknown>): GeneratedResul
   }
   // The disjoint-population rule only needs stating to an artist who actually has a second
   // population. The fee applies to everybody, so it stands on its own line.
-  if (r.oneTimeGrossCents > 0) {
+  if (r.incrementalGrossCents > 0) {
     assumptions.push('Tickets and seats are sold only to reachable fans who are not members, so no member is counted again as a buyer.');
   }
   assumptions.push(
-    `Platform fee of ${a.platformFeePercent}% on the CRWN Pro plan, and you fund any referral or clipper commission on top of it.`,
-    'Recurring and one-off revenue are reported separately and only added at the gross line.',
+    `CRWN costs are modeled on the ${plan.name} plan, all of it: ${plan.costLine}. You fund any referral or clipper commission on top of that.`,
+  );
+  // Every account starts on Launch, and below the break-even Launch is the cheaper plan. Both
+  // numbers come from the plan recommender's own math, so this line says which way the modeled
+  // plan leans at THIS artist's size instead of leaving them to compare a pricing table.
+  if (a.planKey !== 'starter' && r.totalGrossCents > 0 && r.totalGrossCents < proBreakEvenGmvCents()) {
+    const launch = TIER_LIMITS.starter;
+    const savedCents = r.crwnCostCents - monthlyPlanCostCents('starter', r.totalGrossCents);
+    assumptions.push(
+      `Every account starts on ${formatTierName('starter')} (${launch.platformFeePercent}% fee, no monthly plan cost). Below about ${usd(
+        proBreakEvenGmvCents(),
+      )} a month in sales that plan costs less than ${plan.name}, about ${usd(savedCents)} a month less at your size, so this estimate leans cautious.`,
+    );
+  }
+  assumptions.push(
+    'Recurring means membership subscriptions only. One-off purchases are reported on their own line and only added at the gross line.',
     'The headline subtracts what you already earn direct, so it is what you would ADD. It is a planning estimate for what you could build, not money you are owed, not current revenue, and not a guarantee.',
   );
   sections.push({ key: 'assumptions', title: 'Assumptions', kind: 'assumptions', items: assumptions });
@@ -385,15 +489,22 @@ export function buildUnifiedResult(raw: Record<string, unknown>): GeneratedResul
   // a thing they do not have. "About 100% of that is recurring, and the rest is events" is the kind
   // of sentence that quietly tells a careful reader the page is generated and unread.
   const recurringShare = r.totalGrossCents > 0 ? Math.round((r.recurringGrossCents / r.totalGrossCents) * 100) : 100;
+  // "All of it is recurring" may only be said when it is true. Member extras are one-off, so an
+  // artist with any modeled supporters has a one-off share, and the sentence says what it is.
   const hasOneTime = r.oneTimeGrossCents > 0;
+  const hasEvents = r.incrementalGrossCents > 0;
   const summary =
     r.netNewMonthlyCents > 0
       ? `Built from one audience of about ${count(r.audience.primaryReach)}, ${count(
           r.segments.payingSupporters,
-        )} paying supporters across one membership ladder${hasOneTime ? ', plus what non-members would pay for events' : ''}. ${
+        )} paying supporters across one membership ladder${hasEvents ? ', plus what non-members would pay for events' : ''}. ${
           hasOneTime
-            ? `About ${recurringShare}% of that is recurring membership and the rest is one-off event and seat purchases.`
-            : 'All of it is recurring membership, so nothing in your total depends on a one-off event.'
+            ? // Kept no longer than the sentence it replaced: the summary renders in the hero ABOVE
+              // the email ask, and that button is measured against the phone fold.
+              `About ${recurringShare}% of the gross is recurring membership. The rest is one-off ${
+                hasEvents ? 'member purchases, events and seats' : 'member purchases'
+              }.`
+            : 'All of it is recurring membership, so nothing in your total depends on a one-off purchase.'
         } Nothing is counted twice.`
       : 'Add your audience numbers and we will model one coordinated system rather than a pile of separate ideas.';
 
@@ -468,6 +579,12 @@ function buildConversionPayload(r: UnifiedResult): Record<string, unknown> {
     netNewMonthlyCents: r.netNewMonthlyCents,
     recurringGrossCents: r.recurringGrossCents,
     oneTimeGrossCents: r.oneTimeGrossCents,
+    // The plan basis travels WITH the money, so the builder and the signup summary state the same
+    // plan the result did instead of each picking their own.
+    planKey: r.assumptions.planKey,
+    platformFeeCents: r.platformFeeCents,
+    planSubscriptionCents: r.planSubscriptionCents,
+    currentDirectRevenueCents: Math.max(0, r.inputs.currentDirectRevenueCents || 0),
     payingSupporters: Math.floor(r.segments.payingSupporters),
     uniquePromoters: Math.floor(r.segments.uniquePromoters),
     vaultPlacement: r.inputs.vaultPlacement ?? 'tier',

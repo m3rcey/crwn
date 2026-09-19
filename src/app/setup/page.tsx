@@ -284,6 +284,7 @@ function SetupWizard() {
     declaredStack?: { covered: string[]; stays: string[] } | null;
   } | null>(null);
   const [planIntroSeen, setPlanIntroSeen] = useState(false);
+  const [savedArtifact, setSavedArtifact] = useState<SavedArtifactLabel | null>(null);
   // Once the artist edits the ladder draft, their edits win over any prefill.
   const ladderTouchedRef = useRef(false);
   useEffect(() => {
@@ -293,6 +294,9 @@ function SetupWizard() {
       .then((j) => {
         const s = j?.seed ?? null;
         setPlan(s);
+        // The artifact they saved before signing up, by its own name (server-resolved from their
+        // own rows), so this screen continues THAT thing instead of naming a calculator.
+        setSavedArtifact(j?.artifact?.savedLine ? j.artifact : null);
         // Restore the ladder THEY designed pre-signup (names + prices), unless
         // they already started editing the stock draft in this session.
         if (s?.ladderPrefill && !ladderTouchedRef.current) {
@@ -698,7 +702,7 @@ function SetupWizard() {
   // "Welcome them back to their plan": a claimed calculator result greets the
   // brand-new signup with the number THEY calculated before the first ask.
   if (!artistId && plan && !planIntroSeen && stepIndex === 0 && identityDraft.name === '') {
-    return <PlanIntro plan={plan} onContinue={() => setPlanIntroSeen(true)} />;
+    return <PlanIntro plan={plan} artifact={savedArtifact} onContinue={() => setPlanIntroSeen(true)} />;
   }
 
   const Icon = current.icon;
@@ -1728,10 +1732,23 @@ function PromisesReview({
   );
 }
 
+/** The display label `/api/lead-results/auto-claim` returns for the artifact saved before signup. */
+interface SavedArtifactLabel {
+  kind: 'deliverable' | 'fan_page';
+  noun: string;
+  name: string | null;
+  detail: string | null;
+  savedLine: string;
+  continueLabel: string;
+}
+
 function PlanIntro({
   plan,
+  artifact,
   onContinue,
 }: {
+  /** What they BUILT before signing up. When present it is the subject of this screen. */
+  artifact?: SavedArtifactLabel | null;
   plan: {
     toolName: string;
     headline: string;
@@ -1773,7 +1790,11 @@ function PlanIntro({
         <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-crwn-gold/15 flex items-center justify-center">
           <span className="text-4xl">👑</span>
         </div>
-        <h1 className="text-3xl font-bold text-crwn-text mb-2">Your CRWN plan is saved</h1>
+        {/* The thing they BUILT, by the name they gave it. "Your CRWN plan is saved" named nothing,
+            and the card below it named the calculator, so an artist who had just saved "Marcus
+            Private Vault" landed on a screen that never mentioned it. */}
+        <h1 className="text-3xl font-bold text-crwn-text mb-2">{artifact?.savedLine ?? 'Your CRWN plan is saved'}</h1>
+        {artifact?.detail && <p className="text-sm text-crwn-gold mb-2">{artifact.detail}</p>}
         <p className="text-crwn-text-secondary mb-8">
           {plan.subAvatar?.promise
             ? `${plan.subAvatar.promise} Every answer carried over. Now let's get it ready to launch.`
@@ -1795,10 +1816,13 @@ function PlanIntro({
           {plan.headline && <p className="text-sm text-crwn-text">{plan.headline}</p>}
           {/* A claimed draft with no number and no summary still deserves substance,
               not a bare label: say what the saved plan actually contains. */}
+          {/* Only a plan that IS a ladder may be described as one. A saved mission, demand test or
+              fan page used to be told here that its "tier ladder and growth systems" were saved. */}
           {!plan.heroValue && !monthly && !plan.headline && (
             <p className="text-sm text-crwn-text">
-              Your tier ladder, your growth systems, and your launch order, saved exactly as you set them. The
-              next steps make them real.
+              {artifact
+                ? `Your ${artifact.noun} is saved exactly as you set it. The next steps make it real.`
+                : 'Your tier ladder, your growth systems, and your launch order, saved exactly as you set them. The next steps make them real.'}
             </p>
           )}
           {monthly && plan.heroValue && (
@@ -1850,7 +1874,9 @@ function PlanIntro({
           <ArrowRight className="w-4 h-4" />
         </button>
         <p className="text-xs text-crwn-text-secondary mt-4">
-          A few quick steps: your name, your link, your photo. Your plan does the rest.
+          {artifact
+            ? `A few quick steps: your name, your link, your photo. Then: ${artifact.continueLabel}.`
+            : 'A few quick steps: your name, your link, your photo. Your plan does the rest.'}
         </p>
       </div>
       </div>

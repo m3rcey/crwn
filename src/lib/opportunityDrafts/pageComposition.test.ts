@@ -3,6 +3,7 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import { DELIVERABLE_SPECS, buildCtaFor, transitionFor, DELIVERABLE_TOOL_SLUGS } from './deliverableSpecs';
 import { LEAD_MAGNETS } from '@/lib/leadMagnets/registry';
+import { generateResult } from '@/lib/leadMagnets/resultGenerators';
 import { CALL_HAND_RAISER_TOOLS } from '@/lib/acquisition/callRequest';
 
 // Structural tests for the universal Opportunity Funnel page composition:
@@ -493,11 +494,30 @@ describe('artists are not shown blank boxes', () => {
   it('no spec leaves a required-feeling text field empty without a reason', () => {
     // Financial fields may be blank on purpose (never invent a price), and Team Splits is
     // deliberately blank end to end: pre-filling someone's split percentage would be dishonest.
+    //
+    // The Vault is prefilled from a REAL planner result, not an empty payload. It used to pass
+    // this with four invented content types and an invented cadence, which is exactly what the
+    // 2026-09-19 audit caught: the artist entered 12 songs, 30 voice memos and monthly, and the
+    // builder opened on demos, alternate versions, photos and "every two weeks". Its fields are
+    // now the artist's own answers, so with no answers there is honestly nothing to put in them.
+    // An empty payload cannot reach that builder (its cadence question is required), so the
+    // no-blank-boxes guarantee is asserted where it is real: given a result, the builder is full.
+    const realPayload: Record<string, Record<string, unknown>> = {
+      'vault-revenue-planner': generateResult('vaultRevenuePlan', {
+        artistName: 'Jaylen', unreleasedSongs: 12, voiceMemos: 30, dropFrequency: 'monthly', monthlyPrice: 10,
+      }).conversionPayload as Record<string, unknown>,
+    };
     for (const spec of DELIVERABLE_SPECS.filter((s) => s.toolSlug !== 'team-split-deal-builder')) {
-      const v = spec.prefill({});
+      const v = spec.prefill(realPayload[spec.toolSlug] ?? {});
       const filled = Object.values(v).filter((x) => (Array.isArray(x) ? x.length : String(x ?? '').length)).length;
       expect(filled, `${spec.toolSlug} prefilled fields`).toBeGreaterThan(1);
     }
+    // And for the Vault, every field is filled, from what the artist entered.
+    const vault = DELIVERABLE_SPECS.find((s) => s.toolSlug === 'vault-revenue-planner')!.prefill(realPayload['vault-revenue-planner']);
+    expect(vault.categories).toEqual(['12 unreleased songs', '30 voice memos']);
+    expect(vault.cadence).toBe('monthly');
+    expect((vault.dropPlan as string[]).length).toBeGreaterThan(0);
+    expect(vault.price).toBe(10);
   });
 });
 

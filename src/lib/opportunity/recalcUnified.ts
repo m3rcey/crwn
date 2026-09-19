@@ -16,6 +16,7 @@
 // spec types that import it back.
 
 import { calculateScenarioBand, type UnifiedInputs } from './unifiedModel';
+import { planBasisFor } from './unifiedAdapter';
 
 type DraftLike = Record<string, string | number | string[] | undefined>;
 
@@ -56,9 +57,10 @@ export function recalcUnified(v: DraftLike, cp: Record<string, unknown>): Recalc
 
   return {
     value: `${usd(band.conservative.netNewMonthlyCents)} to ${usd(band.high.netNewMonthlyCents)}`,
-    // Same figure as the headline, so it names the same three deductions. A builder that described
-    // the number differently from the result page would reopen the question the page just closed.
-    label: 'a month on top of what you already earn direct, after the platform fee and any commissions you pay',
+    // Same figure as the headline, so it names the same deductions AND the same plan. A builder
+    // that described the number differently from the result page would reopen the question the
+    // page just closed.
+    label: `a month on top of what you already earn direct, after CRWN's ${planBasisFor(band.expected).name} plan costs and any commissions you pay`,
     note: changed
       ? after < before
         ? `Your edits lowered this from about ${usd(before)} to about ${usd(after)} a month. Fewer moving parts, a smaller number, and a plan you will actually run.`

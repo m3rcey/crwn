@@ -32,6 +32,11 @@ export default function VerifyEmailPage() {
   // in front of somebody who came to change their password is the page telling them
   // their problem is solved when it is not.
   const [recovery, setRecovery] = useState(false);
+  // The artifact they saved before signing up ("Marcus Private Vault is saved"), so the first
+  // verified screen continues the thing they built instead of welcoming them to a blank product.
+  const [artifact, setArtifact] = useState<{ savedLine: string; detail: string | null } | null>(null);
+  // A signup that carried a draft which did NOT land on the account. Said plainly, with a way back.
+  const [unrestored, setUnrestored] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -120,6 +125,26 @@ export default function VerifyEmailPage() {
                 : { href: '/setup', label: 'Finish setting up' }
             );
           }
+          // What they built before signing up, by its own name. The same session-authorized route
+          // useAuth already calls (it reads nothing from the request and is idempotent), so this is
+          // a display read, never a second claim path. It changes words on this screen only: where
+          // Continue goes is still decided above. A failure here leaves the generic screen.
+          try {
+            const res = await fetch('/api/lead-results/auto-claim', { method: 'POST' });
+            if (res.ok && active) {
+              const data = (await res.json()) as {
+                artifact?: { savedLine?: string; detail?: string | null } | null;
+                draftUnrestored?: boolean;
+              };
+              if (data.artifact?.savedLine) {
+                setArtifact({ savedLine: data.artifact.savedLine, detail: data.artifact.detail ?? null });
+              } else if (data.draftUnrestored) {
+                setUnrestored(true);
+              }
+            }
+          } catch {
+            /* naming the artifact must never block verification */
+          }
         }
         // No session. Email is verified regardless, so the default (login) next is
         // right for every other type. A RESET cannot proceed without one, though:
@@ -154,12 +179,16 @@ export default function VerifyEmailPage() {
               <CheckCircle className="w-8 h-8 text-crwn-gold" />
             </div>
             <h1 className="text-2xl font-bold text-crwn-text mb-2">
-              {recovery ? 'Link confirmed' : 'Email verified'}
+              {recovery ? 'Link confirmed' : artifact ? artifact.savedLine : 'Email verified'}
             </h1>
             <p className="text-crwn-text-secondary mb-6">
               {recovery
                 ? 'Choose a new password and you are back in.'
-                : 'You’re all set. Welcome to CRWN.'}
+                : artifact
+                  ? `Your email is verified.${artifact.detail ? ` ${artifact.detail}.` : ''} A few quick setup steps, then you pick it up exactly where you left off.`
+                  : unrestored
+                    ? 'Your email is verified, but the draft you built before signing up could not be restored to this account. Your account is fine. Run the calculator again and your plan rebuilds in about a minute.'
+                    : 'You’re all set. Welcome to CRWN.'}
             </p>
             <button
               onClick={() => router.push(next.href)}
@@ -167,6 +196,16 @@ export default function VerifyEmailPage() {
             >
               {next.label}
             </button>
+            {unrestored && !recovery && !artifact && (
+              <div className="mt-4">
+                <button
+                  onClick={() => router.push('/tools/opportunity-calculator')}
+                  className="text-sm text-crwn-gold underline underline-offset-2"
+                >
+                  Run the calculator again
+                </button>
+              </div>
+            )}
           </>
         ) : (
           <>

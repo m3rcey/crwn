@@ -38,6 +38,15 @@
 
 import { RECOMMENDED_TIER_PRICES } from '@/lib/leadCalculator';
 import { TIER_LIMITS } from '@/lib/platformTier';
+import { monthlyPlanCostCents, type PlatformPlan } from '@/lib/planRecommendation';
+
+/**
+ * The plan every unified result is modeled on. Pro has been the modeled basis since the model
+ * shipped (the fee rate and the assumptions line both already said so); what was missing was
+ * Pro's subscription, so "net" applied Pro's 8% and forgot Pro's price. Changing this constant
+ * is a founder decision: it moves every headline. Both the rate and the price follow it.
+ */
+export const MODELED_PLAN: PlatformPlan = 'pro';
 
 export const UNIFIED_MODEL_VERSION = 'unifiedOpportunity@1';
 export const UNIFIED_ASSUMPTIONS_VERSION = 'unifiedAssumptions@1';
@@ -160,8 +169,15 @@ export interface UnifiedAssumptions {
   /** Extra ticketed seats a hybrid session sells beyond the included top-tier members. */
   hybridSeatShare: number;
 
-  /** CRWN platform fee on the recommended plan. Pro = 8. Sourced from platformTier semantics. */
+  /**
+   * The ONE plan the whole result is modeled on. The fee rate and the subscription below both
+   * belong to it, so a surface can never show one plan's rate beside another plan's price.
+   */
+  planKey: 'starter' | 'pro' | 'scale';
+  /** CRWN platform fee on that plan. Pro = 8. Sourced from `TIER_LIMITS`. */
   platformFeePercent: number;
+  /** That plan's monthly subscription, in cents. Sourced from `TIER_PRICING`, never retyped. */
+  planMonthlyCents: number;
 }
 
 /** Seat price bands, lifted verbatim from the Executive Producer Session adapter. */
@@ -206,7 +222,11 @@ export function getUnifiedAssumptions(scenario: Scenario = 'expected'): UnifiedA
     tipCents: 500,
     seatRate: 0.003,
     hybridSeatShare: 0.4,
-    platformFeePercent: TIER_LIMITS.pro.platformFeePercent,
+    planKey: MODELED_PLAN,
+    platformFeePercent: TIER_LIMITS[MODELED_PLAN].platformFeePercent,
+    // A plan's cost at zero GMV is exactly its subscription, so the price is read through the
+    // canonical cost helper instead of being branched on (or retyped) here.
+    planMonthlyCents: monthlyPlanCostCents(MODELED_PLAN, 0),
   };
 }
 
@@ -329,14 +349,30 @@ export interface UnifiedResult {
   incrementalGrossCents: number;
   attribution: AcquisitionAttribution;
 
-  /** Recurring monthly gross (core). Kept separate from one-time on purpose. */
+  /**
+   * Recurring monthly gross: membership SUBSCRIPTIONS only. Member one-off spend is spend by
+   * members, but it is not recurring, so it never sits inside this figure.
+   */
   recurringGrossCents: number;
-  /** One-time / per-event monthly gross (incremental). Never merged into the recurring line. */
+  /**
+   * Every one-off dollar, monthly-normalized: member extras plus non-member tickets, tips and
+   * seats. Never merged into the recurring line.
+   */
   oneTimeGrossCents: number;
   totalGrossCents: number;
   platformFeeCents: number;
+  /**
+   * The monthly subscription of the plan the fee rate belongs to (`assumptions.planKey`). A net
+   * that applies a plan's fee rate without that plan's price is not a net.
+   */
+  planSubscriptionCents: number;
+  /** platformFeeCents + planSubscriptionCents: everything CRWN costs on the modeled plan. */
+  crwnCostCents: number;
   contributorCommissionCents: number;
-  /** Modeled monthly net to the artist, after platform fee and contributor commissions. */
+  /**
+   * Modeled monthly amount left after every CRWN cost on the modeled plan (percentage fee AND
+   * subscription) and contributor commissions. Never negative.
+   */
   netMonthlyCents: number;
   /** Net minus what the artist already earns directly. THE headline. Never negative. */
   netNewMonthlyCents: number;
@@ -875,18 +911,28 @@ export function calculateUnifiedOpportunity(
   const incremental = buildIncremental(audience, segments, inputs, a, eligible);
   const attribution = buildAttribution(segments, core, a, eligible);
 
-  const recurringGrossCents = core.grossCents;
-  const oneTimeGrossCents = incremental.reduce((sum, i) => sum + i.grossCents, 0);
+  // Recurring means SUBSCRIPTIONS. Member extras are paid by members, which is why they live in
+  // the core layer for the disjoint-population rule, but they are one-off purchases: reporting
+  // them inside a figure labeled recurring told an artist that a stem pack renews every month.
+  const recurringGrossCents = core.subscriptionGrossCents;
+  const incrementalGrossCents = incremental.reduce((sum, i) => sum + i.grossCents, 0);
+  const oneTimeGrossCents = core.memberAlacarteGrossCents + incrementalGrossCents;
   const totalGrossCents = recurringGrossCents + oneTimeGrossCents;
 
   // Fee once, on the whole gross. Commission is artist-funded on top of the fee and only on the
   // attributed slice, matching how checkout actually charges an attributedCut.
   const platformFeeCents = round(totalGrossCents * (a.platformFeePercent / 100));
+  // The modeled plan's subscription belongs to the same net as its fee rate. It is only owed by
+  // an artist with something to model: a result with no gross has no plan cost to show either.
+  const planSubscriptionCents = totalGrossCents > 0 ? a.planMonthlyCents : 0;
+  const crwnCostCents = platformFeeCents + planSubscriptionCents;
   const contributorCommissionCents = Math.min(
     attribution.totalCommissionCents,
     Math.max(0, totalGrossCents - platformFeeCents),
   );
-  const netMonthlyCents = totalGrossCents - platformFeeCents - contributorCommissionCents;
+  // Floored: a tiny gross minus a fixed subscription is "this plan costs more than it earns yet",
+  // which the page states as zero left over, never as a negative income.
+  const netMonthlyCents = Math.max(0, totalGrossCents - crwnCostCents - contributorCommissionCents);
   const netNewMonthlyCents = Math.max(0, netMonthlyCents - num(inputs.currentDirectRevenueCents));
 
   return {
@@ -899,12 +945,14 @@ export function calculateUnifiedOpportunity(
     segments,
     core,
     incremental,
-    incrementalGrossCents: oneTimeGrossCents,
+    incrementalGrossCents,
     attribution,
     recurringGrossCents,
     oneTimeGrossCents,
     totalGrossCents,
     platformFeeCents,
+    planSubscriptionCents,
+    crwnCostCents,
     contributorCommissionCents,
     netMonthlyCents,
     netNewMonthlyCents,

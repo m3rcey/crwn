@@ -224,8 +224,10 @@ describe('the presented result', () => {
   it('keeps recurring and one-time apart in the headline tiles', () => {
     const headline = result.sections.find((s) => s.key === 'headline');
     const labels = (headline?.metrics || []).map((m) => m.label).join(' | ');
-    expect(labels).toMatch(/Recurring/);
-    expect(labels).toMatch(/Events and seats/);
+    // Two tiles, two kinds of money. The recurring one is membership; the other is every one-off
+    // dollar, member extras included, which used to hide inside the recurring tile.
+    expect(labels).toMatch(/Membership, every month/);
+    expect(labels).toMatch(/One-off purchases/);
   });
 
   it('shows the launch order and the recommended system', () => {
@@ -259,14 +261,19 @@ describe('the presented result', () => {
     // MINUS what they already earn direct. "in direct-to-fan revenue" described none of that, and
     // an ICP that reads carefully treats a number whose label is loose as a number that is loose.
     expect(result.headline).toMatch(/on top of what you already earn direct/);
-    expect(result.headline).toMatch(/after CRWN's fee and any commissions you pay/);
+    // The plan is NAMED, because "CRWN's fee" hid which plan's rate was used and let the net
+    // forget that plan's subscription (2026-09-19 audit).
+    expect(result.headline).toMatch(/after CRWN's Pro plan costs and any commissions you pay/);
   });
 
-  it('is all recurring membership, and says so instead of reading a split of event money', () => {
-    // "About 100% of that is recurring, and the rest is events" is the sentence that tells a
-    // careful reader the page is generated and nobody read it.
-    expect(result.summary).toMatch(/All of it is recurring membership/);
-    expect(result.summary).not.toMatch(/the rest is/);
+  it('never calls one-off member spend recurring, and reads no split of event money it does not have', () => {
+    // This test used to pin "All of it is recurring membership", which was false: the total
+    // carried one-off member extras the same page described as one-off. The sentence may only
+    // claim "all recurring" when there is no one-off money in the gross.
+    expect(result.summary).not.toMatch(/All of it is recurring/);
+    expect(result.summary).toMatch(/The rest is one-off member purchases\./);
+    // And no event money is implied for an artist who has none.
+    expect(result.summary).not.toMatch(/events and seats/);
     expect(result.sections.find((s) => s.key === 'assumptions')?.items?.join(' ')).not.toMatch(/Tickets and seats are sold/);
   });
 

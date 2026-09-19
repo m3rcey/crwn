@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useState, useCallback } from 'rea
 import { User, AuthError } from '@supabase/supabase-js';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { markDeviceDnt } from '@/lib/analytics/doNotTrack';
+import { clearLocalDrafts } from '@/lib/opportunityDrafts/localDraft';
 
 type UserRole = 'fan' | 'artist' | 'admin';
 
@@ -49,9 +50,28 @@ async function redeemPendingInvite(): Promise<void> {
 // Fire-and-forget and fully idempotent: it must never delay profile load or block auth.
 function redeemPendingClaims(): void {
   if (typeof window === 'undefined') return;
-  fetch('/api/lead-results/auto-claim', { method: 'POST' }).catch(() => {
-    // A failed claim is inert — the email match re-runs on the next load.
-  });
+  fetch('/api/lead-results/auto-claim', { method: 'POST' })
+    .then((r) => (r.ok ? r.json() : null))
+    .then((j: { claimed?: number } | null) => {
+      // A draft that was just CLAIMED now lives on this account (read back under RLS at
+      // /plan/<tool>), so the browser's anonymous copy is finished. Left behind, it is what the
+      // next person to use this browser opens. Only on a real claim: a signed-in artist trying
+      // another calculator must not lose an in-progress local draft on every page load.
+      if (j && (j.claimed ?? 0) > 0) forgetLocalDrafts();
+    })
+    .catch(() => {
+      // A failed claim is inert — the email match re-runs on the next load.
+    });
+}
+
+/** Browser-side builder drafts never cross the account boundary (see localDraft.ts). */
+function forgetLocalDrafts(): void {
+  if (typeof window === 'undefined') return;
+  try {
+    clearLocalDrafts(localStorage);
+  } catch {
+    /* storage may be blocked */
+  }
 }
 
 interface AuthContextType {
@@ -242,6 +262,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();
+    // Signing out hands the browser to whoever uses it next. Their calculator must not open on
+    // this account's builder drafts, and their edits must not reach this account's draft tokens.
+    if (!error) forgetLocalDrafts();
     return { error };
   };
 

@@ -13,9 +13,14 @@ interface AuthFormProps {
   pendingResultToken?: string;
   /** A validated internal return path, carried through user_metadata so it survives email verification. */
   pendingNext?: string;
+  /**
+   * "Marcus Private Vault is saved": the artifact built before signup, by its own name. Display
+   * text only, so the email-confirmation screen keeps naming what the verification is FOR.
+   */
+  savedArtifactLine?: string;
 }
 
-export function AuthForm({ mode, onSuccess, onSignupComplete, pendingResultToken, pendingNext }: AuthFormProps) {
+export function AuthForm({ mode, onSuccess, onSignupComplete, pendingResultToken, pendingNext, savedArtifactLine }: AuthFormProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
@@ -158,7 +163,9 @@ export function AuthForm({ mode, onSuccess, onSignupComplete, pendingResultToken
           We sent a verification link to <span className="text-crwn-gold">{email}</span>
         </p>
         <p className="text-sm text-crwn-text-secondary">
-          Please check your inbox and click the link to verify your account.
+          {savedArtifactLine
+            ? `${savedArtifactLine}. Click the link in that email and you pick it up exactly where you left off.`
+            : 'Please check your inbox and click the link to verify your account.'}
         </p>
       </div>
     );
