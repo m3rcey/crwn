@@ -1,5 +1,39 @@
 # CRWN Brain — Changelog
 
+## 2026-09-20 - An artist who already has paying fans is no longer told to "launch the membership"
+
+The Tier 1 ICP validation audit passed the production funnel (3 of 3 personas end to end, P0 0,
+P1 0) and left two P2s. Both are fixed; the audited economics, continuity and draft safety are
+untouched, and a test asserts every money figure is identical whatever the new branch reads.
+
+**The first move is worded for where the artist is starting from.** An operator with 1,200 paying
+supporters and $35,000 a month was shown "Your membership ladder: build this now" and "1. Launch
+the membership". The membership-first strategy was right; the framing read as though CRWN had not
+understood the business just described. `directStateFor` (one classifier, two answers already
+asked, no new question) gives three wordings of the SAME phase 1: a recurring operator
+consolidates what they run and invites their existing supporters first; a proven seller with no
+recurring fans turns the BUYERS they already have into members, and is never told they already run
+a membership; everyone else keeps the launch framing exactly. `placement` stays `build_now`; the
+words ride an optional `placementText`. The builder's launch order and the result email read the
+same sequence. Nothing promises a migration CRWN does not perform. This is the Opportunity result
+catching up with First Revenue Launch (Consolidate before Build), not a new strategy.
+
+**The paying-fan question has one meaning.** Traced end to end first: three consumers (the unified
+model, the sub-avatar assignment, the revenue-model scorer), all agreeing on "fans already paying
+today", the model counting them as a subset of modeled MEMBERS, and every threshold OR'd with the
+revenue answer. So the meaning was recurring all along and only the label was loose. It now reads
+"Fans paying you every month right now", says one-time buyers do not count, and points them at the
+next answer. That exposed a coupled defect: the next label was "What **that** earns you a month",
+which would have told a one-time seller to enter $0 while the model subtracts ALL direct revenue.
+It now stands alone. Copy only: keys, adapter and thresholds unchanged.
+
+**Two credibility lines.** The builder's "Your plan is worth" sat above a dollar range the result
+page calls an estimate; both now read one constant, `ESTIMATE_EYEBROW`. The setup intro's
+"Recurring workload: about an hour a month, from content you already have" turned out to be
+DERIVED (the stock ladder's monthly Gold unlock plus quarterly Platinum session through
+`estimateMonthlyWorkload`), so the number stays; it is now labeled an estimate for the recommended
+promises, and the clause about content CRWN cannot know is gone.
+
 ## 2026-09-19 - The calculators are trustworthy enough to re-audit: honest net, one artifact, the artist's own Vault
 
 Six P1 fixes from the 2026-09-19 GPT-6 calculator audit (10 journeys, 4 signups, no P0). Narrow on

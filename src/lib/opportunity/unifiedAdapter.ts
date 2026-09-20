@@ -95,6 +95,14 @@ export function planBasisFor(r: UnifiedResult): { name: string; costLine: string
   return { name, costLine, shortCost };
 }
 
+/**
+ * The words that sit directly above the dollar range, on the result hero AND on the builder's
+ * recalculated figure. One constant, because the builder used to say "Your plan is worth" over the
+ * same range the result page called an estimate: a valuation claim about a model whose rates are
+ * not externally validated (docs/UNIFIED_OPPORTUNITY.md). The ratified verb is "could build".
+ */
+export const ESTIMATE_EYEBROW = 'You could build an estimated';
+
 function headlineFor(
   low: number,
   high: number,
@@ -113,7 +121,7 @@ function headlineFor(
       high,
     )} a month on top of what you already earn direct, after CRWN's ${planName} plan costs and any commissions you pay`,
     hero: `${usd(low)} to ${usd(high)}`,
-    eyebrow: 'You could build an estimated',
+    eyebrow: ESTIMATE_EYEBROW,
   };
 }
 
@@ -383,7 +391,9 @@ export function buildUnifiedResult(raw: Record<string, unknown>): GeneratedResul
     kind: 'nextSteps',
     items: r.recommendations
       .filter((rec) => rec.placement !== 'not_yet')
-      .map((rec) => `${rec.label}: ${placementLabel(rec.placement)}. ${rec.reason}`),
+      // `placementText` wins where the generic phrase would misdescribe this artist: "build this
+      // now" told an operator with 1,200 paying supporters to start something they already run.
+      .map((rec) => `${rec.label}: ${rec.placementText ?? placementLabel(rec.placement)}. ${rec.reason}`),
   });
 
   // 10. Launch order.

@@ -1841,8 +1841,13 @@ function PlanIntro({
                 <span className="text-crwn-text">Where yours lands:</span> {plan.entryOffer.anchorLine}
               </p>
             )}
+            {/* An ESTIMATE, for the RECOMMENDED promises: `workload` is derived above from the stock
+                ladder's own cadences through `estimateMonthlyWorkload`, before the artist has chosen
+                which rungs or cadences to keep. It used to read as a fact about their plan, and
+                added "from content you already have", which CRWN cannot know. The promises screen
+                recomputes it from what they actually pick. */}
             <p className="text-xs text-crwn-text-secondary">
-              <span className="text-crwn-text">Recurring workload:</span> {workload}, from content you already have
+              <span className="text-crwn-text">Estimated workload:</span> {workload} for the recommended promises. You choose which to keep, and how often, in a moment
             </p>
             <p className="text-xs text-crwn-text-secondary">
               <span className="text-crwn-text">Timeline:</span> launch-ready in about ten minutes, right here

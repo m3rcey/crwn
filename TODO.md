@@ -88,13 +88,14 @@ responsible for. Do not work those.
       a month, and that number is quoted in content you have already shipped and in ManyChat
       replies. Say "fix /worth too" and I will, with the same tests. Until then its label is
       accurate about what it subtracts (the fee) and silent about the subscription.
-- [ ] **Re-run the Tier 1 calculator audit against production once this is deployed.** The six P1s
-      from `crwn-calculator-audit-1` are fixed and browser-verified locally (Opportunity economics,
-      old-draft collisions, artifact identity through signup, Vault inventory and cadence, "first
-      five drops", "100% ready"). Keep the second audit narrow: the same ten journeys, in one shared
-      browser AND in a fresh profile, since fresh-profile incidence was never tested. One thing to
-      look for that I could not test without creating production accounts: the named artifact on
-      the real "check your email" screen, the real `/verify` screen and the setup intro.
+- [ ] **Approve the cleanup of the Tier 1 audit's production accounts and results.** The validation
+      audit created three real accounts (the Kairo, Andre and Maya personas), their calculator
+      results and their builder drafts, and those rows now sit in production beside real artists.
+      Deleting them is destructive, so it is yours to approve and was deliberately kept out of the
+      2026-09-20 fix. Send me the three signup emails (or the shared prefix they used) and the
+      audit's date window, and I will write one runnable `supabase/*.sql` file that lists exactly
+      what it will delete before it deletes anything, the way
+      [supabase/cleanup-founder-analytics.sql](supabase/cleanup-founder-analytics.sql) does.
 - [ ] **Watch V2 against V1 and tell me which parts still miss.** You rejected V1 on look:
       not alive, too fast, images cut off, screen unused, does not hold attention. You said the
       handwritten style and the numbers were right, and both of those are untouched.

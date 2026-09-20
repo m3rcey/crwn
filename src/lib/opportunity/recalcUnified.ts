@@ -16,11 +16,13 @@
 // spec types that import it back.
 
 import { calculateScenarioBand, type UnifiedInputs } from './unifiedModel';
-import { planBasisFor } from './unifiedAdapter';
+import { ESTIMATE_EYEBROW, planBasisFor } from './unifiedAdapter';
 
 type DraftLike = Record<string, string | number | string[] | undefined>;
 
 export interface RecalcResult {
+  /** The words above the figure. Always estimate-qualified: never "is worth". */
+  eyebrow: string;
   value: string;
   label: string;
   note?: string;
@@ -56,6 +58,9 @@ export function recalcUnified(v: DraftLike, cp: Record<string, unknown>): Recalc
   const changed = after !== before;
 
   return {
+    // The same words the result hero puts above the same range. The builder used to say "Your plan
+    // is worth" here, a valuation claim over a planning estimate.
+    eyebrow: changed ? 'Your estimate, updated for your edits' : ESTIMATE_EYEBROW,
     value: `${usd(band.conservative.netNewMonthlyCents)} to ${usd(band.high.netNewMonthlyCents)}`,
     // Same figure as the headline, so it names the same deductions AND the same plan. A builder
     // that described the number differently from the result page would reopen the question the

@@ -70,7 +70,12 @@ export interface UnifiedInputs {
   monthlyListeners: number;
   /** Email + SMS contacts the artist actually owns. Treated as a SUBSET of the following. */
   ownedContacts: number;
-  /** Fans already paying this artist directly today, anywhere. */
+  /**
+   * Fans paying this artist on a RECURRING basis today, anywhere (Patreon, a paid Discord, a
+   * membership). One-time buyers are not supporters; their money is in the revenue input below.
+   * Moves no money: it feeds `netNewSupporters` and decides how the first move is worded
+   * (`directStateFor`).
+   */
   currentPayingSupporters: number;
   /** Direct-to-fan revenue the artist already earns per month, in cents. Subtracted, never added. */
   currentDirectRevenueCents: number;
@@ -321,6 +326,12 @@ export interface Recommendation {
   key: string;
   label: string;
   placement: Placement;
+  /**
+   * The placement in words, when the generic phrase for `placement` would misdescribe this artist.
+   * "Build this now" is wrong for someone who already runs a membership. Display only: `placement`
+   * stays the machine value every other reader uses.
+   */
+  placementText?: string;
   /** Does this produce revenue directly, support acquisition, or neither? */
   role: 'revenue' | 'acquisition' | 'validation' | 'retention';
   reason: string;
@@ -667,6 +678,34 @@ export function buildAttribution(
   };
 }
 
+/**
+ * Where the artist is starting from, read off two answers the calculator already collects. It
+ * decides how the FIRST MOVE is worded and nothing else: not a rate, not a price, not the ladder,
+ * not the order of the phases.
+ *
+ * It exists because the primary ICP is a proven seller with a fragmented stack (docs/ICP.md), and
+ * the Tier 1 validation audit (2026-09-20) found the personalized result telling an artist with
+ * 1,200 paying supporters and $35,000 a month to "Launch the membership". The strategy was right
+ * (membership first); the framing read as though CRWN had not understood the business they had
+ * just described. First Revenue Launch already names the move: Consolidate comes before Build.
+ *
+ *  - `recurring_operator`: fans pay them on a recurring basis today (`currentPayingSupporters`).
+ *    They are consolidating something that works, not launching from zero.
+ *  - `direct_seller`: real direct revenue, but no recurring supporters. They have BUYERS, not
+ *    members, so they are never told they already run a membership.
+ *  - `new`: neither. The original launch framing is the honest one and is unchanged.
+ */
+export type DirectState = 'recurring_operator' | 'direct_seller' | 'new';
+
+export function directStateFor(inputs: Pick<UnifiedInputs, 'currentPayingSupporters' | 'currentDirectRevenueCents'>): DirectState {
+  if (num(inputs.currentPayingSupporters) > 0) return 'recurring_operator';
+  if (num(inputs.currentDirectRevenueCents) > 0) return 'direct_seller';
+  return 'new';
+}
+
+const wholeDollars = (cents: number): string => '$' + Math.round(cents / 100).toLocaleString('en-US');
+const people = (n: number): string => Math.floor(n).toLocaleString('en-US');
+
 function buildRecommendations(
   inputs: UnifiedInputs,
   eligible: Eligibility,
@@ -677,13 +716,26 @@ function buildRecommendations(
   const recs: Recommendation[] = [];
   const lowCapacity = inputs.timeCapacity === 'low';
   const placement = inputs.vaultPlacement ?? 'tier';
+  const state = directStateFor(inputs);
 
+  // Same recommendation for everyone (the ladder, built first). What changes is whether CRWN
+  // talks to the artist as someone starting, or as someone who already has paying fans.
   recs.push({
     key: 'membership_ladder',
     label: 'Your membership ladder',
     placement: 'build_now',
+    ...(state === 'recurring_operator'
+      ? { placementText: 'consolidate what you already run, first' }
+      : state === 'direct_seller'
+        ? { placementText: 'build this around the buyers you already have' }
+        : {}),
     role: 'revenue',
-    reason: 'One coordinated ladder is the whole recurring business. Everything else hangs off it.',
+    reason:
+      state === 'recurring_operator'
+        ? `You already have ${people(inputs.currentPayingSupporters)} fans paying you, so this is not a launch from zero. Map what they pay for today onto one ladder, keep what is working, and invite them over before anyone new. Everything else hangs off it.`
+        : state === 'direct_seller'
+          ? `Fans already pay you about ${wholeDollars(inputs.currentDirectRevenueCents)} a month, one purchase at a time. The ladder gives those same buyers a reason to pay every month. Everything else hangs off it.`
+          : 'One coordinated ladder is the whole recurring business. Everything else hangs off it.',
     monthlyGrossCents: core.grossCents,
   });
 
@@ -789,11 +841,29 @@ function buildRecommendations(
 }
 
 function buildLaunchSequence(eligible: Eligibility, inputs: UnifiedInputs): LaunchPhase[] {
+  // Phase 1 is the membership for every artist. Its WORDING follows where they are starting from
+  // (see `directStateFor`). Nothing here promises a migration CRWN does not perform: fans are
+  // invited and choose to join, and an import brings in contacts, never memberships.
+  const state = directStateFor(inputs);
+  const first =
+    state === 'recurring_operator'
+      ? {
+          title: 'Bring your existing membership into CRWN',
+          detail: `Map your current tiers and benefits onto the ladder and keep what already works. Then invite your ${people(inputs.currentPayingSupporters)} paying supporters first. Nothing moves on its own: you invite them and they choose to join. Expand the ladder once they are in.`,
+        }
+      : state === 'direct_seller'
+        ? {
+            title: 'Turn the buyers you already have into members',
+            detail: 'Import the buyers you already have, build the ladder around what they have proven they will pay for, and open it to them before your wider audience.',
+          }
+        : {
+            title: 'Launch the membership',
+            detail: 'Publish the ladder with your free front door and your paid tiers. Nothing else works until fans have somewhere to pay.',
+          };
   const phases: LaunchPhase[] = [
     {
       phase: 1,
-      title: 'Launch the membership',
-      detail: 'Publish the ladder with your free front door and your paid tiers. Nothing else works until fans have somewhere to pay.',
+      ...first,
       keys: ['membership_ladder', ...(eligible.vault ? ['vault'] : [])],
     },
   ];

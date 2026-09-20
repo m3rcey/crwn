@@ -148,6 +148,8 @@ export interface DeliverableSpec {
 
 /** A recomputed headline the builder shows in place of the calculator's original figure. */
 export interface RecalcSummary {
+  /** The words above the figure. Estimate-qualified ("You could build an estimated"), never "is worth". */
+  eyebrow: string;
   /** The new figure, already formatted, e.g. "$4,120". */
   value: string;
   /** What the figure is, e.g. "a month, net". */

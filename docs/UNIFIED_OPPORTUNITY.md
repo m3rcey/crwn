@@ -231,6 +231,23 @@ directly to fans before?", one tap), added 2026-07-30. Every loss tool already a
 biggest dimension for the primary funnel candidate. It feeds ONLY qualification (the hand-raiser
 below and lead scoring), never the money model.
 
+The same step asks two numbers, and each has ONE meaning:
+
+- `current_supporters`, "Fans paying you every month right now": fans paying on a **recurring**
+  basis today, anywhere (Patreon, a paid Discord, a membership, a fan club). One-time buyers do not
+  count here. That is the meaning the logic always had (`currentPayingSupporters`, "already paying
+  today", a subset of the modeled MEMBERS); the old label, "Fans already paying you directly" with
+  "VIP" among its examples, let a proven one-time seller read it as buyers ever, buyers this month
+  or members, and leave it blank (Tier 1 audit, 2026-09-20). Copy only: the key, the adapter and
+  every scoring threshold are unchanged, and each threshold is OR'd with the revenue answer, so a
+  seller with no recurring fans is still scored on their money.
+- `direct_fan_revenue_cents`, "What fans pay you directly in a typical month": ALL direct revenue
+  (memberships, merch, tickets, VIP, downloads), which is what the model subtracts. It no longer
+  reads "What **that** earns you a month", which tied it to the fans counted above.
+
+Both stay optional. A blank and a real zero read the same (the adapter has never distinguished
+them for these two).
+
 ### Entry context
 
 A campaign link carries `?from=<tool-slug>` and the wizard leads with that opportunity's questions.
@@ -266,6 +283,26 @@ number instead of an inflated one.
 Phase 1 is always the membership (nothing else can launch before fans have somewhere to pay), then
 Proof of Demand. The share, clip and premium-experience phases still exist in the model but are
 never eligible from this calculator, so they are omitted entirely, not greyed out.
+
+**Phase 1 is WORDED for where the artist is starting from** (`directStateFor`, 2026-09-20). The
+primary ICP already sells direct, and the Tier 1 audit found an operator with 1,200 paying
+supporters being told to "Launch the membership". The strategy was right and is unchanged; the
+framing now follows First Revenue Launch, where Consolidate comes before Build. One classifier
+over two answers already asked, no new question, and it touches wording only: never a rate, a
+price, the ladder, the phase order or any machine value (`placement` stays `build_now`; the words
+ride an optional `placementText`).
+
+| State | Evidence | Phase 1 | In the system list |
+|---|---|---|---|
+| `recurring_operator` | `currentPayingSupporters > 0` | Bring your existing membership into CRWN: map current tiers and benefits, keep what works, invite the N paying supporters first, expand after | consolidate what you already run, first |
+| `direct_seller` | no recurring supporters, `currentDirectRevenueCents > 0` | Turn the buyers you already have into members: import them, build around what they have proven they will pay for, open to them before the wider audience | build this around the buyers you already have |
+| `new` | neither | Launch the membership (unchanged) | build this now (unchanged) |
+
+A `direct_seller` is never told they already run a membership: they have buyers, not members.
+Nothing here promises a migration CRWN does not perform ("Nothing moves on its own: you invite
+them and they choose to join"); an import brings in contacts, never memberships. The builder's
+launch order and the result email read the same sequence, so all three agree.
+`monetization_status` deliberately does NOT feed this: it stays qualification-only.
 
 ---
 
@@ -367,7 +404,9 @@ mislabelling the royalty overlay exists to prevent.
   and was explicitly out of scope for the 2026-08-14 fix pass.
 - **`maxConversion` (0.10) can never bind** at the current knobs (max is 0.05 x 1.25 = 0.0625). The
   copy now describes it as a guard rather than a limit the artist would reach.
-- **`currentPayingSupporters` does not move the money.** Only the dollar input is subtracted; the
-  supporter count feeds `netNewSupporters` for display.
+- **`currentPayingSupporters` does not move the money.** Only the dollar input is subtracted. The
+  supporter count feeds `netNewSupporters` (which no surface renders today) and decides how the
+  first move is worded (`directStateFor`). A test asserts every money figure is identical whatever
+  this answer is.
 - **The DM path collects one number**, so a DM-run result is membership-only and conservative. The
   result page is where the artist corrects it.

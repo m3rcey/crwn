@@ -286,6 +286,22 @@ Full spec: `docs/UNIFIED_OPPORTUNITY.md`. `Confirmed`.
   with a reason: Proof of Demand (free by design), retention/churn (no input for it), fan missions
   (their effect is already inside acquisition), royalties (money earned elsewhere, a different
   tool), sponsorship and replay sales (**not built in CRWN**, so absent from the math and the copy).
+- **The first move is worded for where the artist is starting from** (2026-09-20).
+  `directStateFor` reads two answers already asked: recurring supporters today
+  (`recurring_operator`: consolidate what they run, invite existing supporters first, expand
+  after), direct revenue with no recurring supporters (`direct_seller`: turn existing BUYERS into
+  members, and never tell them they already run a membership), or neither (`new`: the launch
+  framing, unchanged). It is the Opportunity result catching up with First Revenue Launch
+  (Consolidate before Build), not a new strategy. Wording only: no rate, price, rung, phase order
+  or machine value may branch on it, and no copy may promise a migration CRWN does not perform.
+- **Each of the two "proof" numbers has ONE meaning.** `current_supporters` is fans paying on a
+  RECURRING basis today; `direct_fan_revenue_cents` is ALL direct revenue in a typical month. The
+  labels say so. Do not reword either without re-tracing the consumers (the unified model, the
+  sub-avatar assignment, the revenue-model scorer): a label can redefine a scoring input.
+- **The words above a dollar range are estimate-qualified, everywhere.** `ESTIMATE_EYEBROW` ("You
+  could build an estimated") sits above the range on the result hero AND on the builder's
+  recalculated figure, which used to say "Your plan is worth": a valuation claim over a model whose
+  rates are not externally validated.
 - **If the artist edits the plan, re-derive the number.** `recalcUnified.ts` re-runs the model on the
   edited structure. Keeping a headline the artist's own edits invalidated is the same dishonesty as
   double-counting, pointed at a stale number instead of an inflated one.

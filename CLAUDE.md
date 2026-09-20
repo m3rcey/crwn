@@ -543,6 +543,18 @@ primitive, never 19 copies. `src/lib/leadMagnets/conversionContract.test.ts` pin
   `MODELED_PLAN` (Launch is cheaper below $1,225/mo, and the page says so) is an open founder
   decision, as is `/worth`, which still nets at the Pro rate with no subscription.
   `unifiedEconomics.test.ts` pins all of it, mutation-tested.
+- **The first move is worded for where the artist is starting from** (Tier 1 audit, 2026-09-20).
+  The primary ICP already sells direct, and an operator with 1,200 paying supporters was told to
+  "Launch the membership". `directStateFor` in `unifiedModel.ts` reads two answers already asked:
+  `recurring_operator` (consolidate, invite existing supporters first, expand after),
+  `direct_seller` (turn existing BUYERS into members; never tell them they run a membership), `new`
+  (launch framing, unchanged). **Wording only**: no rate, price, rung, phase order or machine value
+  may branch on it (`placement` stays `build_now`; the words ride `placementText`), and no copy may
+  promise a migration CRWN does not perform. `current_supporters` means fans paying on a RECURRING
+  basis today and `direct_fan_revenue_cents` means ALL direct revenue: a label can redefine a
+  scoring input, so re-trace the three consumers before rewording either. The words above a dollar
+  range come from `ESTIMATE_EYEBROW`, never "is worth". `unifiedNextMove.test.ts` pins all of it,
+  including that every money figure is identical whatever the supporter answer is.
 - **A local builder draft is restored only into the result it was built from, and the artifact
   keeps its own name at every boundary** (2026-09-19). The browser copy was keyed by tool only,
   never cleared, and restored over a fresh result WITH its server token, so in one browser a new

@@ -312,7 +312,7 @@ export function DeliverableBuilder({
           }`}
         >
           <div className="text-xs uppercase tracking-wide text-crwn-text-secondary mb-1">
-            {recalc.changed ? 'Updated for your edits' : 'Your plan is worth'}
+            {recalc.eyebrow}
           </div>
           <div className="text-2xl font-bold text-crwn-gold leading-tight">{recalc.value}</div>
           <p className="text-xs text-crwn-text-secondary mt-1">{recalc.label}</p>

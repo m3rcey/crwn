@@ -902,19 +902,32 @@ const UNIFIED_OPPORTUNITY: LeadMagnetConfig = {
       ],
     },
     {
+      // ONE meaning, and it is the one the business logic already had: fans paying this artist on
+      // an ongoing basis TODAY (`currentPayingSupporters`: "already paying ... today", counted as
+      // a subset of the modeled MEMBERS). The old label, "Fans already paying you directly", with
+      // "VIP" among its examples, let a proven one-time seller read it as buyers ever, buyers this
+      // month or members, so a $22k-a-month merch operator left it blank (Tier 1 audit,
+      // 2026-09-20). Copy only: the key, the adapter, the model and every scoring threshold are
+      // unchanged, and each threshold is OR'd with the revenue answer below, so a seller with no
+      // recurring fans is still scored on their money. This answer also decides whether the first
+      // move is worded as a consolidation or a launch (`directStateFor`).
       key: 'current_supporters',
       type: 'number',
-      label: 'Fans already paying you directly',
-      help: 'Anywhere: Patreon, a Discord, a membership, VIP. Zero is a perfectly normal answer.',
+      label: 'Fans paying you every month right now',
+      help: 'Recurring only: Patreon, a paid Discord, a membership, a fan club. One-time buyers (merch, tickets, VIP, downloads) do not count here, and their money goes in the next answer. Zero is a perfectly normal answer.',
       min: 0,
       step: 'proof',
       placeholder: '40',
     },
     {
+      // Stands on its own. It used to read "What that earns you a month", which tied it to the
+      // fans counted above, while the model has always meant ALL direct revenue
+      // (`currentDirectRevenueCents`). With the question above now plainly recurring-only, "that"
+      // would have told a one-time seller to enter $0 and had their real revenue counted as new.
       key: 'direct_fan_revenue_cents',
       type: 'currency',
-      label: 'What that earns you a month',
-      help: 'We subtract this, so the number you see is what you would ADD, not what you already have.',
+      label: 'What fans pay you directly in a typical month',
+      help: 'All of it: memberships, merch, tickets, VIP, downloads. We subtract this, so the number you see is what you would ADD, not what you already have.',
       min: 0,
       step: 'proof',
       placeholder: '0',
