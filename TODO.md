@@ -890,6 +890,15 @@ Things that are never finished. Cadence, then the thing.
 
 ## On Claude's plate (not yours)
 
+- **Check whether `/worth?listeners=` prefill links still land on the artist's own number.**
+  Observed 2026-09-20 in a headless production probe, three runs: `/worth?listeners=4000` produced
+  the result for the 150,000 default ($14,870), and only entering the number in the wizard field
+  gave the 4,000 result. Likely cause, NOT yet root-caused: the prefill effect in
+  [src/app/(public)/worth/WorthExperience.tsx](src/app/(public)/worth/WorthExperience.tsx) sets page
+  state after the wizard has mounted with its own initial values, so the wizard submits the default.
+  It predates the plan-basis change and was left alone. If confirmed it matters: outreach links are
+  the reason that prefill exists.
+
 - **Make the revenue ramp invert the recommended-plan cost exactly.** Since 2026-09-20 the
   calculators price CRWN on the plan recommended for the modeled gross (a rate AND a fixed
   subscription), so after-cost revenue is no longer a fixed multiple of headcount. The ramp in
