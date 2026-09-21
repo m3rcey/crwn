@@ -2,9 +2,11 @@
 
 **CAPTION:**
 
-Comment "VAULT" for what your back catalog stops earning the week after release.
+Comment "VAULT" for whether the work you already finished is enough to run a vault, before another year of it sits there.
 
-In 2020 Boldy James put out more albums than most artists manage in five years. In one year, with a different producer on every one. How many?
+How many albums did Boldy James put out in 2020, with a different producer on every one?
+
+Let's find out.
 
 The industry teaches one album every two years. Build up to it, roll it out, tour it, disappear, come back. That schedule wasn't built for the artist, it was built for a supply chain that had to ship plastic to shops.
 
@@ -12,7 +14,7 @@ Boldy ignored it completely. Different producer every time, months apart, no rol
 
 Everybody measures that as output, as how much he made. Almost nobody measures it as inventory, and every one of them is still a thing a fan can buy today, years later.
 
-Hold that thought. You don't need to market to fans. You need a market FOR fans. Most artists have a catalog sitting there doing nothing, because the only thing they ever did with it was upload it. That's what we built the CRWN app around: tiers people subscribe to, and a vault for the ones who go deepest. Costs nothing to start, and it only takes a cut when you get paid.
+Hold that thought. You don't need to market to fans. You need a market FOR fans. Most artists got a catalog doing nothing because the only thing they ever did with it was upload it, and the few pieces they did sell went through a store that kept the buyer. On the CRWN app the shelf and the people shopping it sit in the same place.
 
 ANYWAY.
 
@@ -20,15 +22,15 @@ So how many albums did he put out in that one year?
 
 Four. The Price of Tea in China with Alchemist in February. Manger on McNichols with Sterling Toles in July. The Versace Tape in August. Real Bad Boldy to close it.
 
-And here's what got me. Six years later every one of them is still for sale, and the streaming on all four together is a few thousand a month split between them. Four things a fan can still buy, and the only thing anybody ever did with them was upload them.
+And here's what got me. Six years later every one of them is still for sale, and the streaming on all four together is a few thousand a month split between them. A release cycle ends. A catalog don't.
 
 Before anybody copies this, most artists can't work that fast and shouldn't try. Four rushed projects is worse than one finished one. And streaming carried those records to people who'd never have found them.
 
-But if you already have a catalog nobody's paying for, what's already sitting there, and why is none of it behind a door?
+But if you already got a catalog and real buyers for some of it, the question ain't when do I drop next. It's which of them buyers came back for a second one, and why there's still no door above the one they already paid for.
 
-I built a free Vault Revenue Planner that shows what your older work stopped earning.
+I built a free Vault Revenue Planner that shows whether the work you already finished is enough to run a vault, and what to charge, before the next one goes quiet too.
 
-Comment "VAULT" before the next one goes quiet too, and I'll DM you the link.
+Comment "VAULT" before another finished record goes straight to nowhere, and I'll DM you the link.
 
 ---
 

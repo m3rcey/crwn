@@ -2,9 +2,11 @@
 
 **CAPTION:**
 
-Comment "DEMAND" for what it costs to fund a project your fans were never asked about.
+Comment "DEMAND" for whether your buyers would fund it, before you pay for the next one alone.
 
-In 2013 Elzhi asked his fans to pay for an album he hadn't made yet. No song, no tracklist, no release date. How many people sent money for nothing?
+How many people paid Elzhi in 2013 for a record that didn't exist yet?
+
+Let's find out.
 
 Every artist thinks the order is fixed. Make the thing, then find out if anybody wants it. Record it, pay for the mixing, press it, and then pray. All the risk sits on you, up front, before one person has said yes.
 
@@ -12,7 +14,7 @@ Elzhi flipped it. He put up a Kickstarter for an album that did not exist and as
 
 And this wasn't label money or an advance he'd owe back forever. It was his own people, one at a time, paying in advance for a record they could not hear yet. A loan is money you pay back. This they were never getting back, and they sent it anyway. Go guess how many before I say it.
 
-Hold that thought. You don't need to market to fans. You need a market FOR fans. Most artists carry all the risk themselves and find out at the end whether anybody cared. The CRWN app exists for that, membership tiers your people pay into and a vault they get access to. Free to start, and it only takes a cut once the money actually comes in.
+Hold that thought. You don't need to market to fans. You need a market FOR fans. Money up front is a promise, and most artists write the delivery date in a caption and never see it again. On the CRWN app a promise becomes a dated thing you owe named people.
 
 ANYWAY.
 
@@ -24,11 +26,11 @@ And it gets worse. That record took nearly three years. Lead Poison finally arri
 
 The honest part is that the wait was hard on people and some were angry, and that's the other half of this. Money up front is a promise, and a promise you can't keep on time costs more than the money was worth. Take the pre-orders, then put the delivery date somewhere you can't lose it.
 
-But if seven hundred people will pay for something that doesn't exist, how many of yours would fund it right now, and have you ever asked?
+But if seven hundred people will pay for something that doesn't exist, your past buyers already answered this. Could you pull that list today, and could you keep the date you'd be promising them?
 
 I built a free Proof of Demand Test Builder that tells you before you spend a dollar.
 
-Comment "DEMAND" before you fund the next one alone, and I'll DM you the link.
+Comment "DEMAND" before you carry the cost of the next one by yourself, and I'll DM you the link.
 
 ---
 

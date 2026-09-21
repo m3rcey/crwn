@@ -2,15 +2,17 @@
 
 **CAPTION:**
 
-Comment "OWN" for how many of your people you would lose if your catalog vanished tomorrow.
+Comment "OWN" for how much of your audience you could still reach without the shelf you sell on.
 
-For about thirty years you could not legally stream De La Soul's classic albums. Not one of them. Then in March 2023 the catalog finally landed, so how many streams did it do in week one?
+How many streams did De La Soul's classic albums do in their first week on streaming, after thirty years locked off it?
+
+Let's find out.
 
 3 Feet High and Rising came out in 1989 and is one of the most loved rap records ever made. And for three decades it was not on Spotify, not on Apple, nowhere. Sample clearances and label disputes kept the early catalog locked, and a whole generation had no legal way to press play.
 
 Every artist alive is told the same thing: if you're not on the platforms you don't exist, you'll be forgotten, the algorithm is the audience. De La Soul ran that experiment for thirty years by accident. Go guess what week one did before I say it.
 
-Hold that thought. You don't need to market to fans. You need a market FOR fans. Most artists confuse the shelf with the demand, and the shelf is the part somebody else owns. That's the whole idea behind the CRWN app: membership tiers, and a vault only your top members get into. It's free to start, and it only takes a cut when you actually get paid.
+Hold that thought. You don't need to market to fans. You need a market FOR fans. Most artists confuse the shelf with the demand, and the shelf is the part somebody else owns. Same goes for the store, the ticket site and the membership tool you rent right now. On the CRWN app the demand has an address you control.
 
 ANYWAY.
 
@@ -22,11 +24,11 @@ And here's what got me. 3 Feet High and Rising went straight back onto the Billb
 
 Worth saying plainly: thirty years off streaming cost them enormous money and reach, and nobody should copy that. It happened to them, they didn't choose it. And streaming is exactly what let that stored demand cash out in a week.
 
-But if an audience can wait thirty years, could you reach anybody at all if the shelf disappeared?
+But if an audience can wait thirty years, the question ain't how do I stay in the algorithm. It's whether you could reach the people who already paid you if every shelf you sell on shut down tomorrow.
 
-I built a free Own Your Fans Calculator that shows how many you would lose with it.
+I built a free Own Your Fans Calculator that shows how much of your audience is unreachable, and what that relationship is worth once it ain't.
 
-Comment "OWN" before somebody else decides what happens to it, and I'll DM you the link.
+Comment "OWN" before somebody else decides what happens to the shelf, and I'll DM you the link.
 
 ---
 

@@ -2,9 +2,11 @@
 
 **CAPTION:**
 
-Comment "DEMAND" for what a pressing run costs you when nobody wanted it.
+Comment "DEMAND" for whether your people will actually buy it, before you pay for stock nobody wanted.
 
-Stove God Cooks put out one album called Reasonable Drought. Then he pressed it again. And again. How many versions of the same record did people buy?
+How many different versions of the same album did Stove God Cooks get people to buy?
+
+Let's find out.
 
 Most artists press one vinyl. One colour, one jacket, one run. If it sells out that's the end of it, and the fans who missed it just missed it.
 
@@ -12,7 +14,7 @@ Reasonable Drought didn't work like that. The first press alone was five version
 
 Same songs, same tracklist, same everything you can actually hear. One album, many objects. Go count how many that is before I say it.
 
-Hold that thought. You don't need to market to fans. You need a market FOR fans. Most artists sell one thing one time and wonder why the same fan never spends again. It's what the CRWN app does: membership tiers, with a vault sitting behind one of them. It's free to start, and it only takes a cut when you actually get paid.
+Hold that thought. You don't need to market to fans. You need a market FOR fans. Most artists sell one thing one time, and even the ones with real sales can't say which buyer came back, because every order landed in a different checkout. On the CRWN app the repeat buyer is visible, so there's something worth a third purchase.
 
 ANYWAY.
 
@@ -24,11 +26,11 @@ And here's the crazy part. Collectors buy more than one. The same person owns th
 
 This only works because the record is good and people wanted it. Scarcity on something nobody wants is unsold stock in your closet. And streaming is how most people heard it at all.
 
-But if your real fans will own the same record twice, what could you make that the same person would buy again?
+But if your real fans will own the same record twice, the question ain't whether somebody will buy. It's whether you can name the buyers who already did it twice.
 
-I built a free Proof of Demand Test Builder that tells you before you press anything.
+I built a free Proof of Demand Test Builder that sets up a test your own people answer, before you press anything.
 
-Comment "DEMAND" before you pay for stock that sits, and I'll DM you the link.
+Comment "DEMAND" before you pay for a run nobody asked for, and I'll DM you the link.
 
 ---
 

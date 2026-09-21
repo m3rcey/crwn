@@ -2,15 +2,17 @@
 
 **CAPTION:**
 
-Comment "VAULT" for what you lose by having nothing only one person can own.
+Comment "VAULT" for what the top of your catalog could be priced at, before your biggest fan pays the same as everybody else.
 
-In 2015 Wu-Tang made an album and pressed exactly one copy. Not a limited run. One. So what did that single copy sell for?
+How much did the only copy of Wu-Tang's album sell for?
+
+Let's find out.
 
 Once Upon a Time in Shaolin. One album, one physical copy, in a silver box. And a legal condition attached: it cannot be released commercially until the year 2103. Not a typo. So whoever owns it owns the only way to hear it, and they can't sell you a copy even if they wanted to.
 
 Every other album ever made was priced by dividing it. Press a hundred thousand, charge ten each. This one couldn't be divided, because there was nothing to divide. I still can't get over what happened to it after.
 
-Hold that thought. You don't need to market to fans. You need a market FOR fans. Everybody's fighting to be heard by more people, and almost nobody asks what one person would pay for something nobody else has. That's the shape of the CRWN app, a ladder of membership tiers with a vault at the top. Costs nothing to start, and it only takes a cut when you get paid.
+Hold that thought. You don't need to market to fans. You need a market FOR fans. Everybody's fighting to be heard by more people, and almost nobody asks what ONE person would pay for something nobody else has. On the CRWN app you set the top rung yourself, so the ceiling on what your biggest fan can spend ain't the price of your most expensive shirt.
 
 ANYWAY.
 
@@ -22,9 +24,9 @@ And that ain't even the wild part. The US government seized it and resold it for
 
 None of this works in a vacuum. It only worked because Wu-Tang spent twenty years making people care first. Every free listen built the name that made one box worth millions. Scarcity on something nobody wants is a box in a closet.
 
-But if one object can be worth that, have you ever made a single thing only one person can own?
+But if one object can be worth that, the question ain't how many people can I reach. It's whether anybody in your buyer list has ever been offered anything above the cheapest thing you sell.
 
-I built a free Vault Revenue Planner that shows what having no top rung costs you.
+I built a free Vault Revenue Planner that shows whether you got enough unreleased work to run a vault and what to charge for it, before your top rung stays empty another year.
 
 Comment "VAULT" before your biggest fan pays the same as everyone else, and I'll DM you the link.
 

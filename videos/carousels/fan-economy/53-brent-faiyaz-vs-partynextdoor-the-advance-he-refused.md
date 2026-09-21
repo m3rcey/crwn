@@ -2,33 +2,33 @@
 
 **CAPTION:**
 
-Comment "OWN" for how many of your own listeners you still can't reach without a label in the middle.
+Comment "OWN" for how much of your audience you can't reach without somebody in the middle.
 
-PARTYNEXTDOOR was the first artist signed to Drake's OVO, with Warner behind it. Brent Faiyaz turned the majors down and started his own label.
+Who got a top ten album faster, Brent Faiyaz without a major deal or PARTYNEXTDOOR with one?
 
-Who got a top ten album faster?
+Let's find out.
 
-A major deal is what every new R&B singer waits for, the machine and the rooms you can't get into alone, and PARTYNEXTDOOR's built a career most singers never touch.
+PARTYNEXTDOOR was the first artist signed to Drake's OVO, with Warner behind it. A major deal is what every new R&B singer waits for, and he built a career most never touch.
 
-Brent was unsigned, uploading records. The offers reportedly reached a quarter of a million up front, and his manager says one carried an 11 percent royalty. He said no and started Lost Kids.
+Brent was unsigned, uploading records. Offers reportedly reached a quarter of a million up front, and his manager says one carried an 11 percent royalty. He said no and started Lost Kids.
 
-Here's the thing nobody puts side by side. Saying no as a nobody sounds insane until you work out what a deal really sells. Time. I lined the dates up and counted twice.
+Here's the thing nobody puts side by side. Saying no as a nobody sounds insane until you work out what a deal really sells. Time. I counted the dates twice.
 
-Hold that thought. Your problem ain't marketing to fans. It's that you need a market FOR fans. The CRWN app is built for that: tiers your fans join, and a vault behind one of them. It's free to start, and it only takes a cut when you actually get paid.
+Hold that thought. Your problem ain't marketing to fans. It's that you need a market FOR fans. An advance is somebody betting on money your fans will spend. Most artists can't make that bet on themselves, because they can't see what their own people already spend. On the CRWN app that's the number you get.
 
 ANYWAY.
 
 So how long did each of them take to get a top ten album?
 
-PARTYNEXTDOOR signed in 2013, and PARTYNEXTDOOR 3 went to number 3 in 2016. About three years. Brent started Lost Kids in 2016, and Wasteland went to number 2 in 2022. About six. The deal got PARTYNEXTDOOR there in half the time, which is what a deal is for. And Brent got there at number 2, on his own label.
+PARTYNEXTDOOR signed in 2013 and PARTYNEXTDOOR 3 went to number 3 in 2016. About three years. Brent started Lost Kids in 2016 and Wasteland went to number 2 in 2022. About six. The deal got him there in half the time, which is what a deal is for. Brent got there at number 2, on his own label.
 
-Now here's what got me. That quarter of a million was a loan against his own royalties, and on the deals he was offered the label kept the recordings even after it was paid back. The three years a deal saves you are real. So is the price.
+Now here's what got me. That quarter of a million was a loan against his own royalties, and on the deals he was offered the label kept the recordings even after it was paid back. The three years a deal saves are real. So is the price.
 
 To be fair, that deal put PARTYNEXTDOOR in front of the world, and six years only work if you can survive them without the cheque.
 
-If the biggest offer is your own money handed over early, the question ain't how do I get signed. It's how many of the people already listening you could reach yourself.
+If the biggest offer is your own money handed over early, the question ain't how do I get signed. It's whether you could put a number on what your own fans already pay you, and how many logins that would take.
 
-I built a free Own Your Fans Calculator that shows how much of your audience you can't reach without somebody in between.
+I built a free Own Your Fans Calculator that shows how much of your audience is unreachable, and what it's worth once it ain't.
 
 Comment "OWN" before you take anybody's cheque, and I'll DM you the link.
 

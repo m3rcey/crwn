@@ -2,11 +2,13 @@
 
 **CAPTION:**
 
-Comment "VAULT" for the months you lose sitting on finished music with no drop schedule.
+Comment "VAULT" for whether you got enough finished music to drop on a schedule, before another month goes by with nothing new.
 
-In 2021 DJ Khaled had a major label building behind him. DJ Muggs had his own studio and nobody to ask.
+Which DJ gave his fans more albums in 2021, DJ Khaled or DJ Muggs?
 
-Which DJ gave his fans more albums that year, Khaled or Muggs?
+Let's find out.
+
+Khaled had a major label building behind him. Muggs had his own studio and nobody to ask.
 
 Khaled runs the biggest version of the normal model: radio, features, a rollout, a date agreed months ago. That is what a major label machine is FOR, and he's very good at it.
 
@@ -14,7 +16,7 @@ Muggs came out of Cypress Hill and built Soul Assassins into his own label. A ra
 
 Here's the comparison nobody bothers to make. One needs a building to say yes. The other needs an afternoon. I checked the release dates twice before I believed the count.
 
-Hold that thought. You don't need to market to fans. You need a market FOR fans. Getting heard and getting paid are different systems, and almost nobody shows artists the second. The CRWN app is built for the second one: tiers your fans join, and a vault behind one of them. Free to start, and it only takes a cut once the money actually comes in.
+Hold that thought. You don't need to market to fans. You need a market FOR fans. Being able to release whenever is worth nothing if the people who'd buy it are spread across a store, a mailing list and a group chat that never agree on who a fan is. On the CRWN app the cadence and the buyers live together.
 
 ANYWAY.
 
@@ -26,7 +28,7 @@ And here's what got me. Not one of the seven needed a building to say yes. He wa
 
 To be fair, Khaled's reach is the harder thing to build, and Muggs spent thirty years earning fans who show up unprompted.
 
-But if the whole difference is whether somebody has to approve you, the question ain't how do I get in the building. It's how often you could drop something new for the people who already buy from you, and whether you have enough finished.
+But if the whole difference is whether somebody has to approve you, the question ain't how do I get in the building. It's whether you could reach the people who already buy from you tomorrow, on purpose, without paying anybody for the privilege.
 
 I built a free Vault Revenue Planner that shows whether you have enough music to drop on a schedule and what to charge, without waiting on anybody's yes.
 

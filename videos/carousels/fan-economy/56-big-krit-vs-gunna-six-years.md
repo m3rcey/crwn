@@ -2,31 +2,33 @@
 
 **CAPTION:**
 
-Comment "OWN" for how many of your fans you can't reach on release day without asking anybody.
+Comment "OWN" for how much of your audience you can't reach on release day without asking anybody.
 
-In 2016 Gunna signed to Young Thug's YSL Records, through 300 Entertainment. That same year Big K.R.I.T. walked away from Def Jam after six years.
+Whose fans have gotten more albums since 2016, Gunna's on a big label or Big K.R.I.T.'s on his own?
 
-Whose fans have gotten more albums since, Gunna's or K.R.I.T.'s?
+Let's find out.
 
-Before Def Jam, K.R.I.T. was one of the most prolific rappers in the south, free projects back to back, many on his own beats. They signed a man who could not stop working. Six years there gave him two albums, both Top Five. Then he started Multi Alumni and took on everything a building used to do.
+Gunna signed to Young Thug's YSL, through 300 Entertainment. That same year K.R.I.T. walked away from Def Jam after six years.
 
-Here's the thing nobody puts side by side. One has a label that picks the date and pushes every record. The other picks his own date and pushes it himself. I counted what each one put out, then counted again.
+Before Def Jam, K.R.I.T. was one of the most prolific rappers in the south, free projects back to back on his own beats. Six years there gave him two albums, both Top Five. Then he started Multi Alumni.
 
-Hold that thought. You don't need to market to fans. You need a market FOR fans. The CRWN app is built for that: tiers your fans join, and a vault behind one of them. It's free to start, and it only takes a cut when you actually get paid.
+Here's the thing nobody puts side by side. One has a label that picks the date and pushes every record. The other picks his own and pushes it himself. I counted what each put out, then counted again.
+
+Hold that thought. You don't need to market to fans. You need a market FOR fans. Owning your release date is half of it. The other half is telling your own buyers, without renting the reach back. On the CRWN app the people who bought before are reachable the day you finish something.
 
 ANYWAY.
 
 So whose fans got more albums since 2016?
 
-Gunna has put out six studio albums, every one top three, two of them number one. Big K.R.I.T. put out four, on his own label, on nobody's schedule but his. For every three of Gunna's, K.R.I.T. made two while building the machine himself.
+Gunna put out six studio albums, every one top three, two of them number one. K.R.I.T. put out four, on his own label, on nobody's schedule but his. For every three of Gunna's, K.R.I.T. made two while building the machine himself.
 
-That's not even the part that got me. Two albums in six years on Def Jam. Four since he left. And the first one back was a double album, 22 tracks, eight produced by him. It was never a shortage of songs.
+That's not even the part that got me. Two albums in six years on Def Jam. Four since he left. The first one back was a double album, 22 tracks, eight produced by him. It was never a shortage of songs.
 
-To be fair, Gunna's pace is a label working exactly as it should, and those number ones reach an audience four independent albums never would. And a roster means somebody decides who gets pushed when, a real constraint, not a conspiracy.
+To be fair, Gunna's pace is a label working exactly as it should, and those number ones reach an audience four independent albums never would. A roster means somebody decides who gets pushed when, a real constraint, not a conspiracy.
 
-If you're on K.R.I.T.'s level, the question ain't how do I get on a roster. It's whether you can reach your own people the day you finish something, without asking anybody.
+If you already put records out and people already buy them, the question ain't how do I get on a roster. It's whether you can reach the ones who bought the last one the day you finish the next.
 
-I built a free Own Your Fans Calculator that shows how much of your audience you can't reach without going through somebody else.
+I built a free Own Your Fans Calculator that shows how much of your audience is unreachable, and what that relationship is worth once it ain't.
 
 Comment "OWN" before another finished record waits on permission, and I'll DM you the link.
 

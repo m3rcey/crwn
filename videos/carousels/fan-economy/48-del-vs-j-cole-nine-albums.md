@@ -2,17 +2,19 @@
 
 **CAPTION:**
 
-Comment "ROYALTY" for the money your songs already earned that nobody is collecting.
+Comment "ROYALTY" for which royalty streams your songs already earned from that nobody is collecting.
 
-Del the Funky Homosapien walked away from a major label. J. Cole built his own label inside one. Who has more albums out with no major label behind them?
+Who has more albums out with no major label behind them, Del the Funky Homosapien or J. Cole?
+
+Let's find out.
 
 Del put out two albums on Elektra, in 1991 and 1993, then left. Since 1997 it's been Hieroglyphics Imperium, the label he and his people built, and a lot of it straight self-released.
 
 J. Cole pulls around thirty seven million listeners a month, and he built Dreamville too. He just built it inside the major system.
 
-Here's the thing nobody puts side by side. Monthly listeners are rented, and they can drop next month without you doing anything wrong. A record on your own label is still under your name thirty years later. These two made opposite bets on that, and I promise you'll guess at least one of the numbers wrong.
+Here's the thing nobody puts side by side. Monthly listeners are rented and can drop next month without you doing anything wrong. A record on your own label is still under your name thirty years later. These two made opposite bets, and I promise you'll guess at least one number wrong.
 
-Hold that thought. You don't need to market to fans. You need a market FOR fans. That's the whole idea behind the CRWN app: tiers your fans join, and a vault behind one of them. It's free to start, and it only takes a cut when you actually get paid.
+Hold that thought. You don't need to market to fans. You need a market FOR fans. Most artists are building the number somebody else keeps score of, and the parts they do own, the records and the buyers, sit in companies that each hold one piece. That's the whole idea behind the CRWN app: the catalog, the members and the money in one account with your name on it.
 
 ANYWAY.
 
@@ -22,9 +24,9 @@ Nine of Del's eleven studio albums came out on his own label, self-released, or 
 
 That's not even the part that got me. Two of Del's albums belong to a deal he signed as a teenager. The nine that came after are still out on his terms thirty years later.
 
-So the question ain't how do I grow the number. It's how much of what you've made is really yours, and whether anybody is collecting what it earns.
+So the question ain't how do I grow the number. If you been releasing and selling for years, nobody is watching the back end. How much of what you already made is really yours, and who is collecting what it earns?
 
-I built a free Royalty Readiness Check that shows which royalty streams your songs have earned that nobody is collecting.
+I built a free Royalty Readiness Check that shows which royalty streams your songs earned from that nobody is collecting.
 
 Comment "ROYALTY" before another year of it goes uncollected, and I'll DM you the link.
 

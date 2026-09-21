@@ -2,19 +2,19 @@
 
 **CAPTION:**
 
-Comment "VAULT" for what you lose leaving your best material unreleased.
+Comment "VAULT" for whether you got enough unreleased work to run a vault, before another year of it earns nothing.
 
-Curren$y put out 90+ projects. Westside Gunn put out 400 copies of one project. Which one's fans are actually worth more, and by how much?
+Whose fans are worth more, Curren$y's 1.5 million listeners or the 400 people who bought one Westside Gunn pressing?
+
+Let's find out.
 
 Before the math: Snoop reposted one of these when I broke down his own catalog. Lyfe Jennings, LL Cool J, Jagged Edge and Carl Thomas follow the CRWN app. Artists who lived through the label era are watching this shift closely.
 
-Curren$y might be the most prolific rapper alive, around 1.5 million monthly listeners, and his model is volume. Westside Gunn runs the opposite play: he releases artifacts instead of records, pressings as small as 400 copies, one signed edition out of 187.
+Curren$y might be the most prolific rapper alive, around 1.5 million monthly listeners, and his model is volume. Westside Gunn runs the opposite play: artifacts instead of records, pressings as small as 400 copies, one signed edition out of 187.
 
-Nobody puts these two next to each other, so here goes. Streaming pays about a penny a month per listener, which is the discovery engine doing its job. But them 400 copies? Go look at what they trade for now.
+Nobody puts these two next to each other. Streaming pays about a penny a month per listener, the discovery engine doing its job. But them 400 copies? Go look at what they trade for. One is wide, one is deep, and when I priced them side by side I had to look again.
 
-One is wide. One is deep. So I priced them against each other, and when the numbers landed side by side I had to look again.
-
-Hold that thought. You don't need to market to fans. You need a market FOR fans. Reach and depth ain't the same job, and most artists only got tools for the first. That's what the CRWN app is built around: membership tiers and a vault your top members get into. It's free to start, and it only takes a cut when you actually get paid.
+Hold that thought. You don't need to market to fans. You need a market FOR fans. Reach and depth ain't the same job, and the artist already selling both has them in two systems that never compared notes. On the CRWN app the collector and the casual are rungs on one ladder, so you can see which is which.
 
 ANYWAY.
 
@@ -24,11 +24,11 @@ Them records go for around $300 a copy, about $120,000 on one pressing. 1.5 mill
 
 And here's the crazy part. One collector paying $300 is 30,000 people listening for a month, except the 30,000 are anonymous and the 400 got names and addresses.
 
-You know how many people hear you. Do you know which ones would pay $300 for what nobody else got?
+If you already move vinyl, tickets and merch, some of your buyers already proved they pay a premium. You just can't point at them: them orders sit in three different stores.
 
-I built a free Vault Revenue Planner that shows what sitting on it is costing you.
+I built a free Vault Revenue Planner that shows whether you got enough unreleased work to run a vault and what to charge, before another year of it earns nothing.
 
-Comment "VAULT" before another year of it earns you nothing, and I'll DM you the link.
+Comment "VAULT" before your best material spends another year with nowhere premium to live, and I'll DM you the link.
 
 ---
 

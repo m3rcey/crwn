@@ -2,31 +2,35 @@
 
 **CAPTION:**
 
-Comment "WORTH" for what the paying fans inside your audience are worth every month nobody asks them.
+Comment "WORTH" for what the paying group inside your audience is worth, before another month goes by without counting them.
 
-Future has about 52 million monthly listeners. Joe Budden has about 70,000 members. Whose fans pay more every month?
+Whose fans pay more every month, Future's 52 million listeners or Joe Budden's 70,000 members?
+
+Let's find out.
 
 Future is one of the most streamed rappers alive, and that reach took twenty years to build.
 
-Joe Budden stopped rapping, built a show, put it behind a paywall, and asked the people already listening to pay him directly. About seventy thousand of them said yes.
+Joe Budden stopped rapping, built a show, put it behind a paywall, and asked the people already listening to pay him directly. Seventy thousand said yes.
 
-Here's the part that never gets compared. One number is in the millions and the other is in the tens of thousands, and they get paid two completely different ways.
+Here's the part that never gets compared. One number is in the millions, the other in the tens of thousands, and they get paid two completely different ways.
 
-Hold that thought. You don't need to market to fans. You need a market FOR fans. Reach and revenue are two different systems, and the CRWN app is built for the second one: tiers your fans join, and a vault behind one of them. Free to start, and it only takes a cut once the money actually comes in.
+Hold that thought. You don't need to market to fans. You need a market FOR fans. The part that actually pays is the small group you can count, and most artists can't count theirs because their payers are split between a store, a ticket site and a membership tool. On the CRWN app that group is one list.
 
 ANYWAY.
 
 So whose fans pay more every month, Future's or Joe Budden's?
 
-Streaming pays about a penny a month per monthly listener, so 52 million listeners is roughly $520,000 a month. Joe Budden's network averages about $1.04 million a month from its members. That means 70,000 people pay about double what 52 million do. But Future's half shows up without him asking anybody, and Joe has to earn his back every month.
+Streaming pays about a penny a month per listener, so 52 million is roughly $520,000 a month. Joe Budden's network averages about $1.04 million a month from its members. That means 70,000 people pay about double what 52 million do. But Future's half shows up without him asking, and Joe has to earn his back every month.
 
-And here's the crazy part. One of Joe's members is worth about 1,500 of Future's listeners, with no album, no tour and no label behind it. And he can name every one of them, because they gave him their details to pay him.
+And here's the crazy part. One of Joe's members is worth about 1,500 of Future's listeners, with no album, no tour and no label. And he can name every one, because they gave him their details to pay him.
 
-To be fair, that penny is a rough number, and Future's catalog earns in ways a subscription never will. But the question ain't how do I get more listeners. It's how many of yours would pay you something small every month, and whether you've ever asked them.
+To be fair, that penny is a rough number, and Future's catalog earns in ways a subscription never will.
+
+If nobody has ever paid you directly, that's the thing to go fix and this ain't the system for it yet. But if people already pay you, the question ain't how do I get more listeners. It's how many pay you MORE THAN ONCE, and whether you could produce that list this afternoon.
 
 I built a free calculator that shows what the paying group inside your audience is worth every month, and what it costs you to never ask.
 
-Comment "WORTH" before another month goes by without asking, and I'll DM you the link.
+Comment "WORTH" before another month goes by without counting them, and I'll DM you the link.
 
 ---
 

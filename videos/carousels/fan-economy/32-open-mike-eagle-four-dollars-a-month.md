@@ -2,9 +2,11 @@
 
 **CAPTION:**
 
-Comment "OWN" for how many of your listeners will never pay you a cent as things stand.
+Comment "OWN" for how much of your audience you can't reach without asking a platform first.
 
-Open Mike Eagle charges $4 a month. Just over a thousand people pay it. How many monthly listeners would he need to make that same money?
+How many monthly listeners would Open Mike Eagle need to match what 1,071 people paying him $4 a month already send him?
+
+Let's find out.
 
 $4 is nothing, it's a coffee, and 1,071 people pay it every month whether he puts out a record or not.
 
@@ -12,7 +14,7 @@ That last part is the whole thing. Most artists only get paid when they release:
 
 Now set that against the other number. Streaming pays about a penny a month per listener, which is the discovery engine doing its job. So a thousand people at $4 is worth how many of them? Go do that division before I say it.
 
-Hold that thought. You don't need to market to fans. You need a market FOR fans. Most artists are growing the top number when the bottom one is what pays rent. That's the shape of the CRWN app, a ladder of membership tiers with a vault at the top. Costs nothing to start, and it only takes a cut when you get paid.
+Hold that thought. You don't need to market to fans. You need a market FOR fans. Most artists are growing the top number while the bottom one pays rent, and the ones already selling only sell one-time things, so the bottom resets to zero every month. On the CRWN app the rungs recur, so a buyer can turn into somebody who pays you on the first.
 
 ANYWAY.
 
@@ -24,11 +26,11 @@ And here's what got me. That's 400 times fewer people for the same money. A thou
 
 To be fair, $4 is his floor and not his average, so the real number is higher than my math. And streaming is how most of them found him.
 
-So how many of the listeners you already got would pay $4, and why have you never asked?
+So which of the people who already bought something off you once would pay $4 every month, and could you even pull that list to ask them?
 
-I built a free Own Your Fans Calculator that shows how many of yours are unreachable.
+I built a free Own Your Fans Calculator that shows how much of your audience is unreachable, and what the relationship is worth once it ain't.
 
-Comment "OWN" before another month of listens pays you nothing, and I'll DM you the link.
+Comment "OWN" before another month of listens leaves you nobody you can name, and I'll DM you the link.
 
 ---
 

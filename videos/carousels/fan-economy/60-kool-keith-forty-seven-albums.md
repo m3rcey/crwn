@@ -2,23 +2,19 @@
 
 **CAPTION:**
 
-Comment "VAULT" for what you lose every month your best fans have nothing to buy.
+Comment "VAULT" for whether what you already got is enough to run a vault, before another month with nothing for them to buy.
 
-Kool Keith has forty seven studio albums. Not mixtapes, not features. Studio albums, since the eighties. Every one bought by somebody who paid for it and took it home.
+How many of the people who bought Kool Keith's 47 albums can he reach today?
 
-How many of those buyers can he reach today?
+Let's find out.
 
-Forty seven is not a typo. Twenty four on his own and twenty three with other people.
+Forty seven studio albums since the eighties. Not mixtapes, not features. Every one bought by somebody who paid and took it home. Twenty four on his own and twenty three with other people.
 
-Decade after decade, through every format this business went through: cassettes, then CDs, then vinyl, then downloads. He never stopped, and the whole time people were buying. Nobody made them.
+Decade after decade, through every format: cassettes, CDs, vinyl, downloads. He never stopped, and the whole time people were buying. Nobody made them.
 
-Here's the thing nobody stops to work out.
+Here's the thing nobody stops to work out. Forty years of people paying for records is forty years of hands going up. Ask where those hands went, and go guess before I say it.
 
-Forty years of people paying for records is forty years of hands going up. Ask where those hands went.
-
-Go guess before I say it.
-
-Hold that thought. You don't need to market to fans. You need a market FOR fans. An audience and a customer base are different things, and the gap between them is where the money sits. The CRWN app is built for the second one: tiers your fans join, and a vault behind one of them. Free to start, and it only earns when a fan actually pays you.
+Hold that thought. You don't need to market to fans. You need a market FOR fans. Forty years of sales went through stores, labels and platforms, and every one kept the buyer and handed back a payment. On the CRWN app the buyer comes with the sale.
 
 ANYWAY.
 
@@ -26,13 +22,15 @@ So how many of those buyers can Kool Keith actually reach?
 
 Not one. There is no list. Forty seven albums and he cannot message a single person who bought one.
 
-And it gets worse. That is one of the deepest catalogs in rap, and it is worth less than a list of the people who already paid for it. The records are an asset he owns. The buyers were never his. The store kept them, then the label, then the platform. Every one of those people would probably buy again, and he has no way to ask.
+And it gets worse. That is one of the deepest catalogs in rap, and it is worth less than a list of the people who already paid for it. The records are an asset he owns. The buyers were never his. Every one would probably buy again, and he has no way to ask.
 
-Now to be fair, streaming is the reason a forty year catalog is still findable at all. A kid can hear a 1996 record tonight without knowing one thing about him, and that is genuinely new.
+To be fair, streaming is why a forty year catalog is still findable at all. A kid can hear a 1996 record tonight knowing nothing about him, and that is genuinely new.
 
-But if forty seven albums can be worth less than the list of people who bought them, the question ain't how do I make more. It's whether anyone who already paid you has a way to hear from you again.
+If you've never sold anything direct, you got nothing to lose yet. But if people been paying you for years across a store, a ticket site and a distributor, you are building Kool Keith's problem right now, one receipt at a time.
 
-I built a free vault revenue planner that shows what you're leaving on the table every month.
+So the question ain't how do I make more. It's how many of your buyers could you name today.
+
+I built a free Vault Revenue Planner that shows whether the work you already got is enough to run a vault and what to charge, before another month passes with nothing new.
 
 Comment "VAULT" before another month goes by with nothing for them to buy, and I'll DM you the link.
 

@@ -2,33 +2,33 @@
 
 **CAPTION:**
 
-Comment "OWN" for how much of the audience you already earned is still out of reach without somebody in the middle.
+Comment "OWN" for how much of the audience you earned is out of reach without somebody in the middle.
 
-H.E.R. signed a major label deal at fourteen. Ledisi spent about ten years on Verve, then left and started her own label.
+Whose first Grammy took more nominations to win, Ledisi's or H.E.R.'s?
 
-Whose first Grammy took more nominations to win?
+Let's find out.
 
-Ledisi's Verve years were album after album, respect from everybody in the building, and nomination after nomination.
+H.E.R. signed a major label deal at fourteen. Ledisi spent about ten years on Verve: album after album, respect from everybody in the building, and nomination after nomination.
 
 In January 2019 she left and started Listen Back Entertainment, her name on the paperwork.
 
-Here's the thing nobody puts side by side. Everybody assumes the label is what gets you the trophy, and for one of these two women that turned out to be true. I counted the other one's nominations twice.
+Here's the thing nobody puts side by side. Everybody assumes the label gets you the trophy, and for one of these two that turned out true. I counted the other's nominations twice.
 
-Hold that thought. You already know how to market to fans. Now you need a market FOR fans. The CRWN app is built for that: tiers your fans join, and a vault behind one of them. It's free to start, and it only takes a cut when you actually get paid.
+Hold that thought. You already know how to market to fans. Now you need a market FOR fans. Leaving a label gets the records back. It doesn't get you the people, because those were never in your hands either. On the CRWN app the fan side is the part you own: the members, the buyers and the money in one account.
 
 ANYWAY.
 
 So how many nominations did each need before one won?
 
-H.E.R. was nominated five times her first year nominated, and won two that night. Ledisi was nominated twelve times across ten years on Verve and lost every one. Her thirteenth won, thirteen years after her first. H.E.R. got the fastest yes the Grammys give anybody, and Ledisi's yes came on a record that belongs to her.
+H.E.R. was nominated five times her first year and won two that night. Ledisi was nominated twelve times across ten years on Verve and lost every one. Her thirteenth won, thirteen years after her first. H.E.R. got the fastest yes the Grammys give. Ledisi's came on a record that belongs to her.
 
-But that ain't even the wild part. Twelve nominations means the room already knew who Ledisi was. The one that won, Anything for You, came out on the label she started after she left. Same voice, same woman, and the only thing that changed was who the record belonged to.
+But that ain't even the wild part. Twelve nominations means the room already knew who Ledisi was. The one that won, Anything for You, came out on the label she started after she left. Same voice, same woman, and all that changed was who the record belonged to.
 
-To be fair, Verve put Ledisi in front of audiences she'd have taken years to reach alone, and H.E.R.'s label is doing exactly what a label is for.
+To be fair, Verve put Ledisi in front of audiences she'd have taken years to reach alone, and H.E.R.'s label is doing what a label is for.
 
-But if the trophy showed up two years after she left, the question ain't how do I get somebody to back me. It's what you already own, and whether the people who love it can pay you directly.
+But if the trophy showed up two years after she left, the question ain't how do I get somebody to back me. It's what you already own, who already paid you for it, and whether that sits somewhere you control.
 
-I built a free Own Your Fans Calculator that shows how much of your audience you still can't reach without a label or platform in between.
+I built a free Own Your Fans Calculator that shows how much of your audience is unreachable, and what that relationship is worth once it ain't.
 
 Comment "OWN" before another record goes out to fans you can't reach, and I'll DM you the link.
 

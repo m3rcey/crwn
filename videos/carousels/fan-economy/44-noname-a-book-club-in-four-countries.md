@@ -2,9 +2,11 @@
 
 **CAPTION:**
 
-Comment "OWN" for what you lose by never giving your people somewhere to show up.
+Comment "OWN" for how much of your audience you can actually reach without asking a platform first.
 
-Noname runs a book club. Not a fan club, a book club, with chapters in five countries. So how many chapters does a rapper's reading group actually have?
+How many chapters does Noname's book club have?
+
+Let's find out.
 
 She's independent. She self-released Sundial in 2023 and it topped Rolling Stone's rap albums list that year, and she's said out loud what pays for the records: ticket sales and vinyl.
 
@@ -12,7 +14,7 @@ The book club connects people inside and outside prisons with radical books, and
 
 Every artist is told to build a community, and what they usually build is a group chat that goes quiet in a month. Hers meets in actual cities whether or not she puts a record out. Go guess how many chapters before I say it.
 
-Hold that thought. You don't need to market to fans. You need a market FOR fans. The strongest thing you can offer is often not more music, it's a reason to be in a room with each other. The CRWN app exists for that, membership tiers your people pay into and a vault they get access to. Costs nothing to start, and it only takes a cut when you get paid.
+Hold that thought. You don't need to market to fans. You need a market FOR fans. The strongest thing you can offer is often not more music, it's a reason to be in a room with each other. For most artists that room is a Discord, the buyers are in a store, and neither one knows about the other. On the CRWN app they're one account.
 
 ANYWAY.
 
@@ -24,11 +26,11 @@ That's not even the part that got me. Every one is free, and they're why her aud
 
 One caveat: a book club is hers specifically and copying it exactly would be nonsense. This ain't a template. And streaming is how most people found the music first.
 
-But if a free reading group in five countries is what holds an audience together, what would your people show up for if you never released another song?
+But if a free reading group in five countries is what holds an audience together, here's the question for you: are the people in your free room and the people on your receipts the same people, and could you ever prove it?
 
-I built a free Own Your Fans Calculator that shows what having no room costs you.
+I built a free Own Your Fans Calculator that shows how much of your audience is unreachable, and what that relationship is worth once it ain't.
 
-Comment "OWN" before another year with nowhere for them to gather, and I'll DM you the link.
+Comment "OWN" before another year of them gathering somewhere you don't control, and I'll DM you the link.
 
 ---
 

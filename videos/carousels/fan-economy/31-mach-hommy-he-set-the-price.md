@@ -2,9 +2,11 @@
 
 **CAPTION:**
 
-Comment "VAULT" for what you give up every time somebody else sets your price.
+Comment "VAULT" for what the unreleased work you already got could be priced at, before you give the number away again.
 
-Mach-Hommy sold a CD for $300 a copy. Then he put out a record for $999. Was he overcharging?
+How much was the $999 record everybody thought Mach-Hommy was overcharging for actually worth?
+
+Let's find out.
 
 Most artists find out what their music is worth after the fact. You put it out, the market decides, and that's what you get.
 
@@ -14,7 +16,7 @@ People said he was crazy. A thousand dollars for a record when the industry trai
 
 Now put that against what happened next. That same record came up for auction in November 2025, so go look at what it went for. He wasn't guessing at that price, but he was wrong about it.
 
-Hold that thought. You don't need to market to fans. You need a market FOR fans. Most artists got tools for getting heard and nothing for pricing what they own. The CRWN app is built for exactly that: tiers your fans join, and a vault behind one of them. Free to start, and it only takes a cut once the money actually comes in.
+Hold that thought. You don't need to market to fans. You need a market FOR fans. If you already sell, some of your buyers have proved they pay a premium, and nothing you run can tell you which ones. On the CRWN app the top rung is a number you set, so the ceiling on what your best fan can spend ain't the price of your cheapest shirt.
 
 ANYWAY.
 
@@ -26,11 +28,11 @@ And it gets worse. He undercharged by about 24 times. The man they called crazy 
 
 To be fair, streaming is how most of us found Mach at all. Discovery did its job.
 
-But if you own something nobody else can sell, the real question is whether you ever asked for enough.
+But if people already buy from you, the real question ain't whether they'll pay. It's whether the price you set was the market's or just the one you guessed.
 
-I built a free Vault Revenue Planner that shows what underpricing is costing you.
+I built a free Vault Revenue Planner that shows whether you got enough unreleased work to run a vault and what to charge for it, before you guess the number again.
 
-Comment "VAULT" before you price the next one too low, and I'll DM you the link.
+Comment "VAULT" before you price the next one off a feeling, and I'll DM you the link.
 
 ---
 

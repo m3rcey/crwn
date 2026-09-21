@@ -2,9 +2,11 @@
 
 **CAPTION:**
 
-Comment "VAULT" for what an unpriced drive costs you every single month.
+Comment "VAULT" for whether what's already on your drive is enough to run a vault, before another year of it sits unheard.
 
-Knxwledge has put out more music than most labels release in a decade. Somebody asked him how many beats he's actually made. How many you think he said?
+How many beats did Knxwledge say he's actually made when somebody asked him?
+
+Let's find out.
 
 Why me on this: Snoop put his name on the last breakdown I did about him. Four artists who were selling records before streaming existed follow the CRWN app. Not because of me, because of where the money is moving in 2026.
 
@@ -12,7 +14,7 @@ He's been uploading since before most people had a Bandcamp. The Hexual Sealings
 
 But released is not the same as made. Everything on that page is what he decided to put out, and behind it is the drive. One is a shop window. One is the warehouse. Go guess the number before I say it.
 
-Hold that thought. You don't need to market to fans. You need a market FOR fans. Almost every artist has the same thing sitting there and treats it like a graveyard instead of a shelf. That's what the CRWN app is built around: membership tiers and a vault your top members pay to get into. It's free to start, and it only takes a cut when you actually get paid.
+Hold that thought. You don't need to market to fans. You need a market FOR fans. Almost every artist got the same drive and treats it like a graveyard instead of a shelf. On the CRWN app it becomes a vault behind a rung, and the people you'd open it to are the ones already paying, named, in one place.
 
 ANYWAY.
 
@@ -24,11 +26,11 @@ And here's the crazy part. He can't release half a million beats. No feed on ear
 
 I should say, most of that is loops and sketches rather than finished songs, and half a million of anything is an estimate rather than a receipt. A beat with no home isn't automatically worth money, it's worth money to the people who already care.
 
-But if what you already made is bigger than what you'll ever release, who would pay to see what's already on the drive?
+But if what you already made is bigger than what you'll ever release, could you name the twenty people who bought from you most? That's exactly who the drive is for.
 
-I built a free Vault Revenue Planner that shows what leaving it unpriced costs.
+I built a free Vault Revenue Planner that shows whether what's on your drive is enough to run a vault and what to charge, before another year of it sits there.
 
-Comment "VAULT" before another year of it sits there, and I'll DM you the link.
+Comment "VAULT" before another year of it stays unheard by the people who'd pay for it, and I'll DM you the link.
 
 ---
 

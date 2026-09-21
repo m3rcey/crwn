@@ -2,19 +2,21 @@
 
 **CAPTION:**
 
-Comment "ROYALTY" for the royalty streams your records have already earned that nobody is collecting.
+Comment "ROYALTY" for which royalty streams your records already earned from that nobody is collecting.
 
-Freddie Gibbs made Alfredo with Alchemist and put it out on ESGN, a label he owns himself. No major behind it.
+How high did Freddie Gibbs's Alfredo chart when he put it out on a label he owns himself?
 
-How high did it chart?
+Let's find out.
 
 A major label album gets radio, marketing, playlist relationships, a release date the whole industry moves around. Nobody is pretending that isn't an advantage.
 
-Gibbs still needed distribution and used Empire for that, but the record belonged to him. No machine. A rapper and a producer with a release date.
+Gibbs made Alfredo with Alchemist and put it out on ESGN, his own label.
+
+He still needed distribution and used Empire for that, but the record belonged to him. No machine. A rapper and a producer with a release date.
 
 Here's the thing nobody puts side by side. Everybody assumes independent means smaller rooms and lower shelves. Then you look at where it landed, and I had to read the chart twice.
 
-Hold that thought. You don't need to market to fans. You need a market FOR fans. Reach and revenue are two different systems, and almost nobody has been shown the second one. The CRWN app is built for the second one: tiers your fans join, and a vault behind one of them. It's free to start, and it only takes a cut when you actually get paid.
+Hold that thought. You don't need to market to fans. You need a market FOR fans. Reaching the same shelf is one thing. Keeping the split, and keeping the buyer, is the part nobody checks. On the CRWN app the sale and the person who made it stay together, so what you keep includes the customer.
 
 ANYWAY.
 
@@ -26,9 +28,9 @@ And here's the crazy part. It got nominated for Best Rap Album. It sat in the sa
 
 Now to be fair, a number fifteen peak is not a number one, and a major can move a record in ways an independent simply cannot. Gibbs also had fifteen years of records behind him before Alfredo, which is why anybody was waiting for it.
 
-But if you can reach the same shelf on your own imprint, the question ain't how do I get somebody to put me there. It's what you keep when you arrive, and whether the people who bought it are yours or theirs.
+But if you can reach the same shelf on your own imprint, the question ain't how do I get somebody to put me there. It's whether you can name a single person who bought your last record, or whether the store kept all of them.
 
-I built a free Royalty Readiness Check that shows which royalty streams your music has earned from that nobody is collecting for you.
+I built a free Royalty Readiness Check that shows which royalty streams your music earned from that nobody is collecting for you.
 
 Comment "ROYALTY" before another record earns money nobody collects, and I'll DM you the link.
 

@@ -2,9 +2,11 @@
 
 **CAPTION:**
 
-Comment "LIVE" for what every year without one real night costs you.
+Comment "LIVE" for what one real ticketed night a month is worth, and what a year of free promo streams costs you instead.
 
-In October 2016 Murs stood in front of a camera and rapped without stopping for over twenty four hours. A Guinness World Record, live on Twitch. So why would anybody do that?
+How long did Murs rap without stopping, live on Twitch, going for a Guinness World Record?
+
+Let's find out.
 
 Not a song, not an album. A record attempt, streamed live, that you either watched happen or you missed.
 
@@ -12,7 +14,7 @@ Roughly twenty songs an hour for over a day straight, about 480 songs worth of r
 
 Every artist thinks the catalogue is what they sell and everything else is promotion for it. This was the other way round, and there was nothing to take home. Go think about why anybody sat and watched before I say it.
 
-Hold that thought. You don't need to market to fans. You need a market FOR fans. The most valuable thing you have is often the thing that can only happen once and only with you. It's what the CRWN app does: membership tiers, with a vault sitting behind one of them. Costs nothing to start, and it only takes a cut when you get paid.
+Hold that thought. You don't need to market to fans. You need a market FOR fans. The most valuable thing you have is often the thing that can only happen once and only with you, and it's the one thing nothing in your stack sells. On the CRWN app that's a ticketed live with the replay included, and the people who bought a seat are yours afterwards.
 
 ANYWAY.
 
@@ -24,9 +26,9 @@ And that ain't even the wild part. Nobody watched all of it and it didn't matter
 
 A stunt is not a business, though, and doing something exhausting isn't automatically valuable. Plenty of people have done hard things nobody cared about. It worked because he already had people who wanted to be in the room.
 
-But if being there is the thing that can't be copied, what could you do once, that only you could do, that your people would clear their evening for?
+But if being there is the thing that can't be copied, what could you do once that only you could do, and which of your existing buyers would you even be able to invite?
 
-I built a free Live Experience Calculator that shows what never doing one costs.
+I built a free Live Experience Calculator that shows what one real ticketed live a month is worth, and what never doing one costs.
 
 Comment "LIVE" before another year goes by without one, and I'll DM you the link.
 

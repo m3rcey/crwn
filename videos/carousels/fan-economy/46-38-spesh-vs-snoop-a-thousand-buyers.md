@@ -2,27 +2,19 @@
 
 **CAPTION:**
 
-Comment "VAULT" for what you lose counting plays instead of buyers.
+Comment "VAULT" for whether you got enough unreleased work to run a vault, before another year of counting plays.
 
-Snoop Dogg said a billion streams paid him under forty five thousand dollars. 38 Spesh pressed a thousand records.
+Which made more money, Snoop Dogg's billion streams or 38 Spesh's thousand records?
 
-Which one made more?
+Let's find out.
 
-Snoop said it publicly and threatened court if nobody explained the math. There's splits and labels and publishers between an artist and that money, so treat his figure as his claim, not a receipt.
-
-A billion plays. The biggest number in this business, the one everybody is chasing.
+Snoop said it publicly and threatened court if nobody explained the math. There's splits and labels between an artist and that money, so treat his figure as his claim, not a receipt.
 
 38 Spesh runs his own label out of Rochester. He put out a twelve inch limited to a thousand copies, and records in that catalogue run about thirty dollars.
 
-Here's the thing nobody puts side by side.
+Here's the thing nobody puts side by side. One of those numbers is a million times bigger. One is reach, one is a customer list. Go do that math before I say it.
 
-One of those numbers is a million times bigger than the other one.
-
-One is reach. One is a customer list.
-
-Go do that math before I say it.
-
-Hold that thought. You don't need to market to fans. You need a market FOR fans. Reach and revenue are two different systems and almost nobody has been shown the second one. The CRWN app is built for the second one: tiers your fans join, and a vault behind one of them. It's free to start, and it only takes a cut when you actually get paid.
+Hold that thought. You don't need to market to fans. You need a market FOR fans. A thousand buyers is a thousand names, if anybody kept them. Most artists sell out a run and end up with a payout and no list. On the CRWN app the sale and the buyer are one record.
 
 ANYWAY.
 
@@ -32,11 +24,13 @@ A thousand records at about thirty dollars is roughly $30,000. Snoop said the bi
 
 And here's the crazy part. The billion won, barely. It took a thousand million plays to beat a thousand people, by about the price of a used car. And 38 Spesh knows where all thousand of his went. Snoop can't name one of the billion.
 
-Now to be fair, Snoop's catalog earns in ways a twelve inch never will, and streaming put him in front of more people than any format in history. And a thousand-copy run only works if a thousand people already care.
+To be fair, Snoop's catalog earns in ways a twelve inch never will, and streaming put him in front of more people than any format in history.
 
-But if a thousand buyers can go toe to toe with a billion plays, the question ain't how do I get more streams. It's how many would buy the thing, and whether you've made one.
+People ask how big you need to be before a system like this is worth it. It ain't a follower count. It's a thousand records.
 
-I built a free Vault Revenue Planner that shows what having no buyers costs you.
+If nobody's ever bought anything off you, that's the problem to solve first and no system fixes it. But once people already buy your merch, tickets or music, you're 38 Spesh, not Snoop: a countable group of proven buyers that most artists still can't name.
+
+I built a free Vault Revenue Planner that shows whether you got enough unreleased work to run a vault and what to charge, before another year earns nothing.
 
 Comment "VAULT" before you chase another million plays, and I'll DM you the link.
 

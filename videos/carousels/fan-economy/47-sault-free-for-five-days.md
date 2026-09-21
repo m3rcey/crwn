@@ -2,9 +2,11 @@
 
 **CAPTION:**
 
-Comment "VAULT" for what you lose when nothing you make ever runs out.
+Comment "VAULT" for whether you got enough unreleased work to give your buyers something first, before the next one sits there forever.
 
-In November 2022 SAULT put out five albums on the same day, for free. Free, but you needed a password, and it was only up for a few days. How long?
+How long did SAULT keep five free albums up after dropping them all on the same day?
+
+Let's find out.
 
 SAULT are anonymous on purpose. No interviews, no photographs, barely a face between them.
 
@@ -12,7 +14,7 @@ Then one day: five albums at once, download them all, pay nothing. Except you ne
 
 Free usually means always available and worth nothing. That's the deal everybody made with the internet. This one didn't cost money, it cost attention. Go guess how long the window was before I say it.
 
-Hold that thought. You don't need to market to fans. You need a market FOR fans. Price is only one lever. Time is another one, and hardly anybody touches it. The CRWN app is built for exactly that: tiers your fans join, and a vault behind one of them. Costs nothing to start, and it only takes a cut when you get paid.
+Hold that thought. You don't need to market to fans. You need a market FOR fans. Price is only one lever. Time is another one, and hardly anybody touches it. On the CRWN app a drop opens per rung on a schedule you set, so being early is a thing your paying people get and everybody else waits for.
 
 ANYWAY.
 
@@ -24,11 +26,11 @@ And here's what got me. Nothing was sold and everybody moved anyway. You had to 
 
 This only works in context. They can do it because people were already watching closely. A five day window on music nobody's waiting for is just five quiet days. And the rest of their catalog lives on streaming, which is how most people found them.
 
-But if free can still be scarce, has anything you put out ever had a reason to act now attached to it?
+But if free can still be scarce, here's the one for you: have the people who already buy from you ever once gotten something before everybody else?
 
-I built a free Vault Revenue Planner that shows what permanent availability costs.
+I built a free Vault Revenue Planner that shows whether you got enough unreleased work to run a vault and what to charge, before the next one sits there forever.
 
-Comment "VAULT" before the next one sits there forever, and I'll DM you the link.
+Comment "VAULT" before another drop lands for everybody at the same second, and I'll DM you the link.
 
 ---
 

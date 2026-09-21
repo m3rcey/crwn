@@ -4,9 +4,11 @@
 
 Comment "OWN" for how much of your audience you can't reach without a platform in the middle.
 
-Ella Mai and Jorja Smith both put out debut albums in 2018. One signed with a major label. The other never signed a record deal.
+Who has put out more albums since 2018, Ella Mai with a major label or Jorja Smith on her own?
 
-Who has put out more albums since then, Ella Mai or Jorja Smith?
+Let's find out.
+
+Both put out debut albums in 2018. One signed with a major. The other never signed a record deal.
 
 Ella Mai signed to Mustard's 10 Summers through Interscope and got the machine: the record that went everywhere, the Grammy. That is the path working exactly as advertised.
 
@@ -14,7 +16,7 @@ Jorja came up off the same wave of British R&B, started her own label, FAMM, and
 
 Here's the thing nobody puts side by side. The assumption is that no deal means fewer releases. I went album by album on both before I trusted my count.
 
-Hold that thought. You don't need to market to fans. You need a market FOR fans. Reach and revenue are two different systems and almost nobody has been shown the second one. The CRWN app is built for the second one: tiers your fans join, and a vault behind one of them. It's free to start, and it only takes a cut when you actually get paid.
+Hold that thought. You don't need to market to fans. You need a market FOR fans. Keeping your masters and keeping your customers are two different jobs, and most artists who won the first never started the second. On the CRWN app the customers come with the catalog, under your own label.
 
 ANYWAY.
 
@@ -26,9 +28,9 @@ And here's the crazy part. Going without a deal did not cost Jorja Smith a singl
 
 To be fair, the major got Boo'd Up to top five in America, and that reach is the harder thing to build.
 
-But if you can build all of that and keep every record on your own label, the question ain't who is going to sign me. It's what you already own, and whether you have a direct way to sell it to the people who want it.
+But if you can build all of that and keep every record on your own label, the question ain't who is going to sign me. It's whether the buyers who bought all three are on a list you own, or three lists you rent.
 
-I built a free Own Your Fans Calculator that shows how much of your audience you can actually reach yourself, without a label or a platform in between.
+I built a free Own Your Fans Calculator that shows how much of your audience is unreachable, and what that relationship is worth once it ain't.
 
 Comment "OWN" before another release goes out to people you have no way to reach, and I'll DM you the link.
 

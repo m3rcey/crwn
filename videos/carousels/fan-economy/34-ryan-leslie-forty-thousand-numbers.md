@@ -2,17 +2,19 @@
 
 **CAPTION:**
 
-Comment "OWN" for how many of your fans you could never contact without the platform.
+Comment "OWN" for how much of your audience you could never contact without somebody in between.
 
-Ryan Leslie gave forty thousand fans his actual phone number. Then he sold to fifteen thousand of them. How much did that come to?
+How much did Ryan Leslie make from the 15,000 fans he could actually reach himself?
 
-Quick context: when I did the numbers on Snoop, he reposted it. Four artists who were selling records before streaming existed follow the CRWN app. The people who survived three versions of this business are paying attention to the fourth.
+Let's find out.
 
-Most artists have followers, and a follower is a number on a screen that a platform lets you rent. You don't have their name, you can't reach them without paying somebody, and the day the algorithm changes they're gone.
+Quick context: when I did the numbers on Snoop, he reposted it. Four artists who were selling records before streaming existed follow the CRWN app. The ones who survived three versions of this business are watching the fourth.
 
-Ryan went the other way and collected phone numbers, real ones, about forty thousand of them in a real address book. Fifteen thousand of them bought something. Not fifteen million, fifteen thousand. One number you rent, one you own, so go guess what that came to before I say it.
+A follower is a number on a screen that a platform lets you rent. No name, no way to reach them without paying somebody, and the day the algorithm changes they're gone.
 
-Hold that thought. You don't need to market to fans. You need a market FOR fans. Reach you can't contact is reach you're renting, and most artists are renting all of it. That's what the CRWN app is built around: membership tiers and a vault your top members pay to get into. Free to start, and it only takes a cut once the money actually comes in.
+Ryan went the other way and collected phone numbers, about forty thousand of them in a real address book. Fifteen thousand of them bought something. Not fifteen million, fifteen thousand. One number you rent, one you own, so go guess what that came to before I say it.
+
+Hold that thought. You don't need to market to fans. You need a market FOR fans. Having the address ain't the same as operating the relationship: which contact bought, what they bought, whether they came back. On the CRWN app every member, buyer and contact sits in one place with what each one actually spent.
 
 ANYWAY.
 
@@ -24,11 +26,11 @@ And here's what got me. That's about a hundred and thirty three dollars a person
 
 In fairness to the platforms, he found a lot of them on the same platforms everybody else uses. Discovery did its job. The difference is he didn't leave them there.
 
-But if fifteen thousand people you can reach is worth two million, how many could you text right now, and why is that number zero?
+If nobody has ever bought from you direct, you got no list to lose yet, so this ain't your problem this month. But if people already pay you, how many of them buyers could you contact today without asking a platform, and how many sit in two of your systems as two strangers?
 
-I built a free Own Your Fans Calculator that shows how many you would lose overnight.
+I built a free Own Your Fans Calculator that shows how much of your audience is unreachable, and what that relationship is worth once it ain't.
 
-Comment "OWN" before the next algorithm change takes them, and I'll DM you the link.
+Comment "OWN" before another buyer disappears back into somebody else's database, and I'll DM you the link.
 
 ---
 

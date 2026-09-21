@@ -2,9 +2,11 @@
 
 **CAPTION:**
 
-Comment "VAULT" for what you lose every time your day ones hear it at the same time as strangers.
+Comment "VAULT" for whether you got enough unreleased work to give your buyers something first, before the next drop lands for everybody at once.
 
-Roc Marciano sold an album on his own site before anybody else could hear it. Not the vinyl, the download. So what did he charge just to hear it early?
+How much did Roc Marciano charge just to hear the album before everybody else?
+
+Let's find out.
 
 Every artist has the same day circled. Release day, everybody gets it at once, everybody pays the same, which is nothing. Your biggest fan and somebody who never heard your name get the identical thing at the identical second.
 
@@ -12,7 +14,7 @@ Roc runs it different. RR2 went up on his own site first, direct, no store in be
 
 And he wasn't selling a rare object. No numbered vinyl, no signed jacket, no box. It was a file, the same file everybody else would get free on streaming a few weeks later. He was selling the date. Go guess the number before I say it.
 
-Hold that thought. You don't need to market to fans. You need a market FOR fans. Every artist already has something to sell and gives it away by accident: being first. That's what the CRWN app is built around: membership tiers and a vault your top members pay to get into, and early access is one of the things you can put in them. Costs nothing to start, and it only takes a cut when you get paid.
+Hold that thought. You don't need to market to fans. You need a market FOR fans. Every artist already has something to sell and gives it away by accident: being first. And the people who earned it already bought from you at least once. On the CRWN app a release opens per rung, days early, staggered down the ladder on its own.
 
 ANYWAY.
 
@@ -24,11 +26,11 @@ And that ain't even the wild part. Thirty dollars for a file, when a digital alb
 
 One thing worth saying: the wide release is what pays the rest of the year, and streaming is how most people ever found Roc Marciano. Discovery did its job. He just stopped giving the first day away.
 
-But if your day ones would pay to hear it before anybody, what is being first worth, and why does everybody get it at the same second?
+So if you already sell direct, why does the person who bought six things off you get the same release day as somebody who found you this morning?
 
-I built a free Vault Revenue Planner that shows what treating them all the same costs.
+I built a free Vault Revenue Planner that shows whether you got enough unreleased work to run a vault and what to charge, before the next one lands for everybody at once.
 
-Comment "VAULT" before your next release lands for everyone at once, and I'll DM you the link.
+Comment "VAULT" before your day ones get handed the same thing as strangers again, and I'll DM you the link.
 
 ---
 

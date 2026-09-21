@@ -2,15 +2,17 @@
 
 **CAPTION:**
 
-Comment "TOUR" for what every month off the road takes out of your pocket.
+Comment "TOUR" for what the months off the road are worth before the next gap pays you nothing.
 
-Interscope came for Atmosphere. So did Sony. So did Warner Brothers. They said no to all three. So what did they do instead?
+What did Atmosphere do instead, after they said no to Interscope, Sony and Warner Brothers?
+
+Let's find out.
 
 By 2002 God Loves Ugly had done its work and the majors noticed. Three of the biggest in the business came knocking, and for most artists that call is the whole dream. Slug and Ant turned it down and kept building Rhymesayers, their own label.
 
 Saying no to a major is easy to say and expensive to do. An advance is money somebody hands you. The other road is a bill you pick up yourself, and nobody is coming to save it. Go guess what they did instead before I say it.
 
-Hold that thought. You don't need to market to fans. You need a market FOR fans. An offer is only worth what you'd give up to take it, and most artists have never priced the other side. That's what we built the CRWN app around: tiers people subscribe to, and a vault for the ones who go deepest. It's free to start, and it only takes a cut when you actually get paid.
+Hold that thought. You don't need to market to fans. You need a market FOR fans. An offer is only worth what you'd give up to take it, and most artists never priced the other side because that side is spread across a store, a ticket platform and an email tool nobody ever totalled up. On the CRWN app it reconciles in one place.
 
 ANYWAY.
 
@@ -22,11 +24,11 @@ And here's the crazy part. Early on they drove Minneapolis to Dallas, about a th
 
 There's a catch. Turning down three majors is a decision you can only make if you already have something they want, and plenty of artists never get that call. And this was brutal. 60 shows in 71 days is not a lifestyle, it's a price.
 
-But if the alternative to signing is that much work, what would you be handing over, and is it an audience you could have kept?
+But if the alternative to signing is that much work, here's the uncomfortable part: you probably can't say what your own direct business earned last year without opening four tabs. How would you price a deal against a number you can't see?
 
-I built a free Between-Tour Revenue Calculator that shows what the months off cost.
+I built a free Between-Tour Revenue Calculator that shows what the off-months are worth once VIP buyers become members, instead of the gap paying you nothing.
 
-Comment "TOUR" before your next stretch at home, and I'll DM you the link.
+Comment "TOUR" before your next stretch at home earns you nothing again, and I'll DM you the link.
 
 ---
 

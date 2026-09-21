@@ -2,15 +2,17 @@
 
 **CAPTION:**
 
-Comment "TOUR" for what you lose on every night you're not on stage.
+Comment "TOUR" for what the nights you're not on stage are worth, before the next gap pays you nothing.
 
-In 2022 Little Simz had just won a BRIT and had eleven American dates on sale, Portland first. Then nothing. Why did she cancel all eleven?
+Why did Little Simz cancel eleven American shows weeks after winning a BRIT?
+
+Let's find out.
 
 Simz was not a small artist that year. Her album was on every list in the country, and millions of people were listening to her every month.
 
 Here's the thing everybody assumes and gets wrong. When a tour gets pulled you think illness, or visas, or nobody bought a ticket. None of those. When I read the real reason I had to go back and read it again.
 
-Hold that thought. You don't need to market to fans. You need a market FOR fans. Reach and revenue are two different systems and almost nobody has been shown the second one. The CRWN app is built for the second one: tiers your fans join, and a vault behind one of them. Free to start, and it only takes a cut once the money actually comes in.
+Hold that thought. You don't need to market to fans. You need a market FOR fans. A tour is the most expensive way there is to meet your own customers, and at the end of it the ticket company keeps the names. On the CRWN app the people who show up become members you hold.
 
 ANYWAY.
 
@@ -22,9 +24,9 @@ And it gets worse. The tickets were selling. The award was weeks old, the album 
 
 To be fair, streaming is how she got those listeners, and she went back out the following year and played the rooms.
 
-But if a BRIT winner can be one tour away from losing money, the question ain't how do I get bigger. It's how many of your listeners have ever paid you anything, and whether you could reach them if you had to.
+But if a BRIT winner can be one tour away from losing money, the question ain't how do I get bigger. You have probably already sold thousands of tickets and can't reach one of them buyers today. What would a run look like if you could?
 
-I built a free Between Tour Calculator that shows what the nights you're not on stage are costing you.
+I built a free Between-Tour Revenue Calculator that shows what the off-months are worth once VIP buyers become members, instead of the gap paying you nothing.
 
 Comment "TOUR" before you plan another run that loses money, and I'll DM you the link.
 

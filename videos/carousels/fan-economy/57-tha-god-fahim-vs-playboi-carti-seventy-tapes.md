@@ -2,11 +2,11 @@
 
 **CAPTION:**
 
-Comment "DEMAND" for what it costs you to make something nobody was going to buy.
+Comment "DEMAND" for whether your own buyers want the next one, before you pay to make something nobody was going to buy.
 
-Between 2015 and 2018, Playboi Carti made his fans wait for every record. Tha God Fahim never made his fans wait at all.
+Whose fans had more new projects to buy between 2015 and 2018, Playboi Carti's or Tha God Fahim's?
 
-Whose fans had more new projects to buy in those three years, Carti's or Fahim's?
+Let's find out.
 
 Carti's model is scarcity: long waits, no explanation, the wait doing the marketing. It works, because when he does show up the whole internet stops.
 
@@ -14,7 +14,7 @@ Fahim went the other way. Atlanta, no label deal, tape after tape sold straight 
 
 Here's the thing nobody puts side by side. Count what each one gave a fan to buy in the same three years. I counted both twice before I trusted the gap.
 
-Hold that thought. You don't need to market to fans. You need a market FOR fans. A play only tells you somebody listened. The CRWN app is built for the people who would pay: tiers your fans join, and a vault behind one of them. Costs nothing to start, and it only takes a cut when you get paid.
+Hold that thought. You don't need to market to fans. You need a market FOR fans. Seventy releases is seventy chances to learn who your repeat buyers are, and a page of sales tells you almost none of it. On the CRWN app the buyer is the record, so you can see who came back for the fourth one.
 
 ANYWAY.
 
@@ -26,9 +26,9 @@ But that ain't even the wild part. Every one of those tapes was a sale, not a st
 
 To be fair, the attention scarcity needs is the harder thing to build.
 
-But if a man in Atlanta with no label deal can build buyers seventy releases deep, the question ain't how do I get more plays. It's how many people would actually buy the next thing, and whether you have any way to ask them.
+But if a man in Atlanta with no label deal can build buyers seventy releases deep, the question ain't how do I get more plays. It's how many of your own buyers have bought more than once, and whether anything you use could even tell you.
 
-I built a free Proof of Demand Test Builder that sets up a test to find out if fans will pay for it before you make it.
+I built a free Proof of Demand Test Builder that sets up a test your own people answer, before you make something nobody asked for.
 
 Comment "DEMAND" before you make the next one without asking, and I'll DM you the link.
 

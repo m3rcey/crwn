@@ -2,15 +2,19 @@
 
 **CAPTION:**
 
-Comment "VAULT" for what to charge the fans who never get offered anything above a regular copy.
+Comment "VAULT" for what to charge the buyers who never get offered anything above a regular copy.
 
-Post Malone has more than sixty million monthly listeners and sells records off his own store. Benny the Butcher's first Stabbed & Shot with 38 Spesh sold out, and the sequel came in a stack of versions. Whose fans pay more for one copy of a record?
+Whose fans pay more for one copy of a record, Post Malone's or Benny the Butcher's?
 
-Sixty million a month is an audience the size of a country. Benny's sequel didn't come cheaper, and some of its versions were a lot rarer than others.
+Let's find out.
+
+Post Malone has more than sixty million monthly listeners and sells records off his own store. Sixty million a month is an audience the size of a country.
+
+Benny's first Stabbed & Shot with 38 Spesh sold out, and the sequel didn't come cheaper. It came in a stack of versions, some a lot rarer than others.
 
 Here's the thing nobody puts side by side. You'd think the price follows the size of the crowd. I did too.
 
-Hold that thought. You don't need to market to fans. You need a market FOR fans. A buyer can buy again, and buy up. The CRWN app is built for exactly that: tiers your fans join, and a vault behind one of them. It's free to start, and it only takes a cut when you actually get paid.
+Hold that thought. You don't need to market to fans. You need a market FOR fans. A listener can only listen. A buyer can buy again, and buy UP, and almost no artist has anything above the first price a fan paid. On the CRWN app the rungs go up, and you can see which buyer climbed.
 
 ANYWAY.
 
@@ -20,9 +24,9 @@ Post's F-1 Trillion is $45.99 on his store, a double record, and nothing on his 
 
 Now here's what got me. The first one sold out at $24.98. The sequel went to $34.98 on a regular copy and $250 on the rarest, and people kept buying. Nobody raises the price on people who barely wanted it the first time.
 
-To be fair, five test pressings is five people. But the question ain't how many people heard it. It's whether anybody in your world has ever been given a second thing to buy, at a higher price.
+To be fair, five test pressings is five people. But the question ain't how many people heard it. It's whether the people already buying from you have ever been offered a second thing at a higher price, and whether you'd even know which of them took it.
 
-I built a free Vault Revenue Planner that shows whether the unreleased songs nobody has heard are enough to run a Vault, and what to charge for it.
+I built a free Vault Revenue Planner that shows whether the unreleased songs nobody has heard are enough to run a vault, and what to charge, before another buyer leaves with nothing higher to reach for.
 
 Comment "VAULT" before another fan leaves with nothing higher to buy, and I'll DM you the link.
 

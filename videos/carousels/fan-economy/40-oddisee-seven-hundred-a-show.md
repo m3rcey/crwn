@@ -2,9 +2,11 @@
 
 **CAPTION:**
 
-Comment "TOUR" for what the months between shows cost you right now.
+Comment "TOUR" for what the months between shows are worth once your VIP buyers become members, instead of costing you a whole year.
 
-Before anybody knew his name, Oddisee was booking his own shows across Europe. No label, no agent, sleeping on promoters' floors. So what was he getting paid a night?
+How much was Oddisee getting paid a night back when nobody knew his name?
+
+Let's find out.
 
 Most artists wait to be picked. Wait for the booking agent, the support slot, somebody with a spreadsheet deciding your city is worth the risk. And while you wait nothing happens, because nobody is coming.
 
@@ -12,7 +14,7 @@ Oddisee didn't wait. He got a rail pass and went country to country, playing roo
 
 That reads like paying dues, like a hard-luck story, and it wasn't. Every one of them rooms was him buying something, and it wasn't the fee. Go guess what a night was paying before I say it.
 
-Hold that thought. You don't need to market to fans. You need a market FOR fans. A show isn't a payday, it's the only place you meet the people who'll pay you for the next twenty years. The CRWN app is built for exactly that: tiers your fans join, and a vault behind one of them. Free to start, and it only takes a cut once the money actually comes in.
+Hold that thought. You don't need to market to fans. You need a market FOR fans. A show isn't a payday, it's the only place you meet the people who'll pay you for the next twenty years, and right now the ticket company keeps every one of them names. On the CRWN app the room turns into members you hold.
 
 ANYWAY.
 
@@ -24,11 +26,11 @@ That's not even the part that got me. Seven hundred is nothing once you take out
 
 It cuts both ways. Seven hundred with somebody else covering travel is a different job to seven hundred with you covering it, and plenty of artists can't afford that trade. This ain't a suggestion to go lose money on tour.
 
-But if the room is worth more than the fee, did you leave with any way to reach the people who came?
+But if the room is worth more than the fee, here's the part that stings: you already sold them tickets and still can't reach one of them. How many rooms have you left that way?
 
-I built a free Between-Tour Revenue Calculator that shows what the gap is costing you.
+I built a free Between-Tour Revenue Calculator that shows what the off-months are worth once VIP buyers become year-round members, instead of the gap paying you nothing.
 
-Comment "TOUR" before the next long gap, and I'll DM you the link.
+Comment "TOUR" before the next long gap pays you nothing again, and I'll DM you the link.
 
 ---
 
