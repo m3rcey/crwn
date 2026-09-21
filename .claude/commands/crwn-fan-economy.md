@@ -699,32 +699,59 @@ ALBUMS while its notes said "4 PROJECTS" and its calendar carried exactly four X
 payoff in digits AND as a word, and never draw a countable number of objects when the reveal is a
 count. Full failure catalogue in `/crwn-image-gen`.
 
-## Every video films four sheets (2026-09-13)
+## Every video films five sheets (2026-09-13, CRWN plug added 2026-09-21)
 
 One sheet cannot carry a 60 to 90 second script: the hook sheet withholds the payoff, so the reveal
-and the close have nothing to film. Every script that gets artwork carries three more blocks AFTER
-the first, rendered by the same `generate-fan-economy-images.mjs` run (scripts 1 to 9 are done;
-the founder delegated extending it to new scripts, so write all four whenever you write the first):
+and the close have nothing to film. Every script that gets artwork carries four more blocks AFTER
+the first, rendered by the same `generate-fan-economy-images.mjs` run (write all five whenever you
+write the first):
 
 - `**NANO BANANA PRO PROMPT:**` -> `<slug>.jpg`, the HOOK sheet (every rule above; carousel slide 1).
 - `**NANO BANANA PRO PROMPT 2:**` -> `<slug>-2.jpg`, the MIDDLE: a no-portrait metaphor for the
   mechanism and the sidenote beats, still WITHHOLDING the answer. Its only price mark is a `$?` (or
   `?%`) tag, exactly like the hook.
-- `**NANO BANANA PRO PROMPT 3:**` -> `<slug>-3.jpg`, the REVEAL: the featured artist acting out the
+- `**NANO BANANA PRO PROMPT 3:**` -> `<slug>-3.jpg`, the CRWN PLUG: the sheet that films the CRWN
+  sidenote. No portrait, no numbers, still withholding. It letters the signature line ("YOUR PROBLEM
+  AINT MARKETING TO FANS." / "YOU NEED A MARKET FOR FANS.") and names the ONE capability that
+  script's bridge claims, as a no-portrait diagram of the fix. See the rules below.
+- `**NANO BANANA PRO PROMPT 4:**` -> `<slug>-4.jpg`, the REVEAL: the featured artist acting out the
   math, the unit and quantity as boxed notes, the totals as the two big bottom lines. Every figure is
   copied from the script's own reveal sentences with its hedge ("SAY ONLY", "ABOUT", "HE SAYS").
-- `**NANO BANANA PRO PROMPT 4:**` -> `<slug>-4.jpg`, the CTA CARD: a loss-framed headline about THIS
+- `**NANO BANANA PRO PROMPT 5:**` -> `<slug>-5.jpg`, the CTA CARD: a loss-framed headline about THIS
   story, one small no-portrait scene of that loss, one boxed `COMMENT '<KEYWORD>' <loss>` line and
   `IT'S FREE. I'LL DM YOU THE LINK.` under it. No numbers on it at all.
 
-**The reveal is never before sheet 3, and the CTA lives on sheet 4 and nowhere else** (founder
-calls 2026-09-13: the first pass put the reveal on sheet 2 and a CTA on sheet 3; the second removed
-the CTA; the third brought it back as its own closing sheet). `FE-SKILL-008` in
-`fanEconomySkillContract.test.ts` fails a script whose sheet 2 letters a Big Reveal figure the hook
-does not already show, whose sheet 3 never letters one, whose sheets 2 or 3 say COMMENT, or whose
-sheet 4 is missing or names a keyword other than the one the script speaks.
+**The reveal is the LAST-BUT-ONE sheet and the CTA is the LAST** (founder calls 2026-09-13: the
+first pass put the reveal on sheet 2 and a CTA on sheet 3; the second removed the CTA; the third
+brought it back as its own closing sheet. 2026-09-21: the CRWN sidenote got its own sheet at
+position 3, which pushed the reveal to 4 and the CTA to 5). `FE-SKILL-008` in
+`fanEconomySkillContract.test.ts` states the rule by POSITION FROM THE END, so it gates the
+five-sheet shape and the four-sheet one videos 1 to 9 were already generated in: it fails a script
+whose sheet count is not 4 or 5, whose numbering has a gap, which letters a Big Reveal figure the
+hook does not already show on ANY sheet before the reveal, whose reveal sheet never letters one,
+which says COMMENT anywhere but the last sheet, or whose last sheet names a keyword other than the
+one the script speaks.
 
-**The sheet 4 box may only name a loss the tool actually measures** (CLAUDE.md CTA rule). Reuse the
+### The plug sheet is the only sheet that letters CRWN
+
+The word CRWN is banned on every other sheet (the hook trades its curiosity gap for an ad the
+moment a brand mark appears, and the spoken CTA plus the 128 end card already close the video).
+Sheet 3 is the exception, and FE-SKILL-008 asserts BOTH halves: CRWN appears on sheet 3, and on no
+other sheet. Rules for building it:
+
+- **Draw the word, never the mark.** Hand-lettered sharpie capitals "CRWN". No crown symbol, no
+  logo, no app icon: the model renders marks badly and an invented glyph reads as a fake brand.
+- **Name only what that script's bridge names.** The 2026-09-21 rewrite gave each script ONE
+  capability (the release waterfall, the Promise Calendar, the fan CRM, the rung ceiling,
+  Share-to-Earn, Live). Letter the capability that script actually claims, in its own words, and
+  never a second one. A sheet that lists the whole product is an ad break.
+- **It withholds like the middle does.** No dollar total, no member count, no reveal figure. Its
+  only currency mark is a `$?` tag if it needs one at all.
+- **It is a diagram of the fix, not a screenshot.** The scattered-to-one-place picture (separate
+  boxes of the same fan's purchases collapsing into one member card, a drop opening by rung, a
+  promise landing on a dated square). No phone frames, no UI, no text on any object.
+
+**The CTA sheet's box may only name a loss the tool actually measures** (CLAUDE.md CTA rule). Reuse the
 tool's own loss-framed hero button where it exists: VAULT "FOR WHAT YOU'RE LEAVING UNSOLD" (the
 planner prices inventory and computes no total), FREE "FOR WHAT YOU'RE MISSING", PRODUCER "FOR WHAT
 AN EMPTY ROOM COSTS", OWN "FOR HOW MANY FANS YOU CAN'T REACH", WORTH "FOR WHAT YOU'RE NOT COLLECTING

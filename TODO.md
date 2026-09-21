@@ -746,6 +746,27 @@ responsible for. Do not work those.
       rejected sheet is one deleted jpg plus `node generate-fan-economy-images.mjs <N>`. When
       you are ready to film the next batch, say which numbers and I make their four sheets.
 
+- [ ] **Generate the FIVE sheets for the 17 videos on your filming list.**
+      The prompts are written and in the scripts. One command per video, from the repo root:
+
+        node generate-fan-economy-images.mjs 12 14 23 28 29 30 33 34 42 44 46 52 53 54 55 56 59
+
+      That is 85 sheets, so it will take a while and existing files are skipped (videos 33 to 59
+      already have their hook sheet from the last run and it will not be redrawn). Output lands in
+      `Dropbox/nano banana output/Shortform Posts/Fan Economy` as `<slug>.jpg` and `<slug>-2.jpg`
+      to `<slug>-5.jpg`. Filming order per video is hook, middle, CRWN plug, reveal, CTA card.
+      **Look at every one before filming**, per the imagery rule: the plug sheet is the only sheet
+      that letters CRWN and it must be the WORD in sharpie, never a crown or a logo, and count any
+      object a reveal makes countable. A rejected sheet is one deleted jpg plus that same command
+      with just its number.
+
+- [ ] **Decide whether videos 6 to 9 get a CRWN plug sheet too.**
+      They are the only multi-sheet videos still on the old four-sheet shape (hook, middle,
+      reveal, CTA), because their sheets are already generated and in the 1-to-9 print PDF and you
+      scoped this batch to the list you wrote down. Both shapes pass `FE-SKILL-008`, so nothing is
+      broken either way. Saying yes is four new sheets and a reprint of those four videos; saying
+      no means videos 6 to 9 never name CRWN on a sheet. Tell me which and I do it.
+
 - [ ] **Let artists edit their own offer copy (the first slice of the Offer Builder).**
       Today `tier_offer_experiences` is service-role only with no route and no UI, so
       changing GB's promise, description, CTA, preview copy, FAQs or ordering is a
@@ -929,9 +950,12 @@ Things that are never finished. Cadence, then the thing.
   estimate, not a cost display, its behavior is unchanged, and a test bounds the drift under 5%.
   The exact fix is to solve for the plan whose recommended gross yields the target net.
 
-- **Video sheets 2 to 4 for scripts 10 and up wait for the next filming batch.** Videos are paused;
-  carousels 31 to 60 already match the rebuilt scripts (re-rendered and read 2026-09-13). When a
-  script from 10 up is filmed, generate its four sheets from the current script first.
+- **The 17 scripts on your filming list now carry all five sheets; the rest of 10 to 60 do not.**
+  Written 2026-09-21 from the proven-seller scripts, so each middle and plug sheet says what its
+  rewritten script says. The remaining scripts from 10 up still have a hook sheet at most, and
+  wait for the batch after this one. Carousels 31 to 60 already match the rebuilt scripts
+  (re-rendered and read 2026-09-13) and slide 1 is the untouched hook sheet, so nothing there
+  moved.
 
 - **V2's motion vocabulary is bigger than the Curren$y video uses.** Parallax planes, 2.5D
   matrix tilt, GROW_UP, SWING_IN, counters and path-following arrows are all implemented and

@@ -54,30 +54,53 @@ const ai = new GoogleGenAI({ apiKey: API_KEY });
 // Fan Economy series runner. Same pipeline as generate-images.mjs (style refs, auto person
 // refs, 4K print resolution, white-flatten); only the source folder, the output folder and the
 // number range differ. Pick which scripts to render on the command line:
-//   node generate-fan-economy-images.mjs 1        one script
-//   node generate-fan-economy-images.mjs 1 5      an inclusive range
-//   node generate-fan-economy-images.mjs          every script that has a prompt block
+//   node generate-fan-economy-images.mjs 1            one script
+//   node generate-fan-economy-images.mjs 12 14 23     exactly those three, not 12 through 23
+//   node generate-fan-economy-images.mjs 1-5          an inclusive range
+//   node generate-fan-economy-images.mjs              every script that has a prompt block
 // Existing files are skipped, so reruns are safe. Scripts without a
 // **NANO BANANA PRO PROMPT:** block are reported and skipped, which is how a script with no
 // artwork yet behaves rather than an error.
 //
-// THREE SHEETS PER VIDEO (2026-09-13). One sheet could not carry a 60 to 90 second script: the
-// hook sheet deliberately withholds the payoff, so the reveal and the closing turn had no art to
-// film. A script may add `**NANO BANANA PRO PROMPT 2:**` (the middle, reveal still withheld),
-// `**NANO BANANA PRO PROMPT 3:**` (the reveal) and `**NANO BANANA PRO PROMPT 4:**` (the comment
-// CTA and the loss-framed lead magnet, the ONLY sheet allowed to carry it) AFTER the first block
-// (founder calls, asserted by FE-SKILL-008). They
-// render to `<slug>-2.jpg` .. `<slug>-4.jpg`; sheet 1 keeps its exact name, because the carousel
-// copies it as slide 1 and every other reader keys on `<slug>.jpg`. The first marker is matched
-// exactly, so a numbered block can never be read as sheet 1.
-const MAX_SHEETS = 4;
+// FIVE SHEETS PER VIDEO (2026-09-13, extended 2026-09-21). One sheet could not carry a 60 to 90
+// second script: the hook sheet deliberately withholds the payoff, so the reveal and the closing
+// turn had no art to film. A script adds numbered blocks AFTER the first (founder calls, asserted
+// by FE-SKILL-008):
+//   2 = the middle, reveal still withheld
+//   3 = the CRWN plug, the sheet that films the sidenote (the ONE sheet that letters CRWN)
+//   4 = the reveal
+//   5 = the comment CTA and the loss-framed lead magnet (the ONLY sheet allowed to carry it)
+// Videos 1 to 9 were generated before the plug sheet existed and run 2=middle, 3=reveal, 4=CTA.
+// Both shapes are legal: FE-SKILL-008 reads the reveal as the last-but-one sheet and the CTA as
+// the last, so nothing here has to know which shape a script is in. They render to
+// `<slug>-2.jpg` .. `<slug>-5.jpg`; sheet 1 keeps its exact name, because the carousel copies it
+// as slide 1 and every other reader keys on `<slug>.jpg`. The first marker is matched exactly, so
+// a numbered block can never be read as sheet 1.
+const MAX_SHEETS = 5;
 const OUTPUT_BASE = "/mnt/c/Users/Josh/Dropbox/nano banana output/Shortform Posts/Fan Economy";
 const REFS_DIR = "/mnt/c/Users/Josh/Desktop/nano banana references";
 const SCRIPTS_DIR = "/home/merce/workspace-crwn/videos/scripts/fan-economy";
 const DELAY_MS = 8000;
-const argNums = process.argv.slice(2).map((n) => parseInt(n, 10)).filter((n) => !Number.isNaN(n));
-const START_SCRIPT_NUMBER = argNums.length ? argNums[0] : 1;
-const END_SCRIPT_NUMBER = argNums.length > 1 ? argNums[1] : (argNums.length ? argNums[0] : 9999);
+// Script selection. A bare number is THAT script, so several bare numbers are an explicit LIST
+// ("12 14 23" is three scripts, not scripts 12 through 23). A range is written with a dash
+// ("31-60"). This used to read two bare numbers as a range, which meant a filming list quietly
+// generated the first two entries and everything between them. No arguments means every script.
+const SELECTED = new Set();
+let SELECT_ALL = true;
+for (const raw of process.argv.slice(2)) {
+  const range = raw.match(/^(\d+)\s*(?:-|\.\.)\s*(\d+)$/);
+  if (range) {
+    SELECT_ALL = false;
+    for (let i = parseInt(range[1], 10); i <= parseInt(range[2], 10); i += 1) SELECTED.add(i);
+    continue;
+  }
+  const one = parseInt(raw, 10);
+  if (!Number.isNaN(one)) {
+    SELECT_ALL = false;
+    SELECTED.add(one);
+  }
+}
+const wanted = (num) => SELECT_ALL || SELECTED.has(num);
 
 const STYLE_REFS = [
   "openart-image_1775581308623_d7e64984_1775581308661_33c1d1ba.png",
@@ -101,7 +124,7 @@ const scriptFiles = fs
     const match = f.match(/^(\d+)-/);
     return match ? { num: parseInt(match[1], 10), filename: f, slug: f.replace(/\.md$/, "") } : null;
   })
-  .filter((entry) => entry && entry.num >= START_SCRIPT_NUMBER && entry.num <= END_SCRIPT_NUMBER)
+  .filter((entry) => entry && wanted(entry.num))
   .sort((a, b) => a.num - b.num);
 
 const promptMarker = (sheet) =>
@@ -156,7 +179,8 @@ for (const entry of scriptFiles) {
   }
 }
 
-console.log(`Generating ${jobs.length} sheets for scripts ${START_SCRIPT_NUMBER}-${END_SCRIPT_NUMBER}`);
+const selectedNums = [...new Set(jobs.map((j) => j.num))].sort((a, b) => a - b);
+console.log(`Generating ${jobs.length} sheets for scripts ${selectedNums.join(", ") || "(none matched)"}`);
 console.log(`Output: ${OUTPUT_BASE}`);
 
 let success = 0;

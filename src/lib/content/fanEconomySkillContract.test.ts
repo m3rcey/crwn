@@ -212,12 +212,19 @@ describe('FE-SKILL-006 every saved script declares its hook promise', () => {
   }
 });
 
-describe('FE-SKILL-008 a multi-sheet video holds the reveal until sheet 3 and the CTA until sheet 4', () => {
-  // Founder call 2026-09-13. A video films up to three sheets in order: the hook, the middle,
-  // then the reveal. The first multi-sheet pass drew the reveal on sheet 2 and a
-  // "COMMENT <KEYWORD>" box on sheet 3, which spent the last third of the video on an answer the
-  // viewer already had. The reveal figures come from META's Big Reveal, minus any figure the hook
-  // sheet already shows (the hook may state the inputs, e.g. "1.5M LISTENERS").
+describe('FE-SKILL-008 a multi-sheet video holds the reveal until the last-but-one sheet and the CTA until the last', () => {
+  // Founder call 2026-09-13. A video films its sheets IN ORDER, so the reveal may not appear
+  // before the viewer has heard the setup, and the CTA may not appear before the reveal. The
+  // first multi-sheet pass drew the reveal on sheet 2 and a "COMMENT <KEYWORD>" box on sheet 3,
+  // which spent the last third of the video on an answer the viewer already had.
+  //
+  // Founder call 2026-09-21: the CRWN sidenote gets its own sheet, inserted AFTER the middle, so
+  // the filming batch from #12 on runs FIVE sheets (hook, middle, CRWN plug, reveal, CTA) while
+  // videos 1 to 9 keep the four already generated. The rule is therefore written by POSITION FROM
+  // THE END, not by sheet number: the reveal is the last-but-one sheet and the CTA is the last,
+  // so one rule gates both shapes and would gate a sixth sheet too.
+  // The reveal figures come from META's Big Reveal, minus any figure the hook sheet already shows
+  // (the hook may state the inputs, e.g. "1.5M LISTENERS").
   const SCRIPT_DIR = join(ROOT, 'videos', 'scripts', 'fan-economy');
   const files = existsSync(SCRIPT_DIR) ? readdirSync(SCRIPT_DIR).filter((f) => f.endsWith('.md')) : [];
 
@@ -249,37 +256,64 @@ describe('FE-SKILL-008 a multi-sheet video holds the reveal until sheet 3 and th
 
   for (const file of multiSheet) {
     const md = readFileSync(join(SCRIPT_DIR, file), 'utf8').replace(/\r\n/g, '\n');
-    const sheet1 = lettered(block(md, 1) ?? '');
-    const sheet2 = lettered(block(md, 2) ?? '');
-    const sheet3Block = block(md, 3);
-    const sheet3 = lettered(sheet3Block ?? '');
+    // The sheets are the contiguous run from 1; a gap would silently drop a filmed page.
+    const sheets: string[] = [];
+    for (let s = 1; ; s += 1) {
+      const b = block(md, s);
+      if (b === null) break;
+      sheets.push(b);
+    }
+    const count = sheets.length;
+    const revealIndex = count - 2; // 0-based: the last-but-one sheet
+    const ctaIndex = count - 1;
     const revealSegment = md.match(/Big Reveal:([^·]*)/)?.[1] ?? '';
-    const hookFigures = figures(sheet1);
+    const hookFigures = figures(lettered(sheets[0] ?? ''));
     const revealOnly = [...figures(revealSegment)].filter((n) => !hookFigures.has(n));
 
-    it(`${file} keeps its reveal figures off sheet 2 and puts them on sheet 3`, () => {
-      expect(sheet3Block, `${file} has a sheet 2 but no sheet 3 to reveal on`).not.toBeNull();
+    it(`${file} films four or five sheets with no gap in the numbering`, () => {
+      expect(
+        count,
+        `${file} has ${count} sheet(s); a multi-sheet video films 4 (hook, middle, reveal, CTA) or 5 (CRWN plug at 3)`,
+      ).toBeGreaterThanOrEqual(4);
+      expect(count).toBeLessThanOrEqual(5);
+    });
+
+    it(`${file} keeps its reveal figures off every sheet before the reveal, and letters them on it`, () => {
       expect(revealOnly.length, `${file}: no Big Reveal figure beyond the hook, so this check proves nothing`).toBeGreaterThan(0);
-      const onSheet2 = [...figures(sheet2)].filter((n) => revealOnly.includes(n));
-      expect(onSheet2, `${file} reveals ${onSheet2.join(', ')} on sheet 2`).toEqual([]);
-      const onSheet3 = [...figures(sheet3)].filter((n) => revealOnly.includes(n));
-      expect(onSheet3.length, `${file} sheet 3 never shows the reveal (${revealOnly.join(', ')})`).toBeGreaterThan(0);
+      for (let i = 1; i < revealIndex; i += 1) {
+        const leaked = [...figures(lettered(sheets[i]))].filter((n) => revealOnly.includes(n));
+        expect(leaked, `${file} reveals ${leaked.join(', ')} on sheet ${i + 1}, before the reveal sheet ${revealIndex + 1}`).toEqual([]);
+      }
+      const onReveal = [...figures(lettered(sheets[revealIndex] ?? ''))].filter((n) => revealOnly.includes(n));
+      expect(onReveal.length, `${file} sheet ${revealIndex + 1} never shows the reveal (${revealOnly.join(', ')})`).toBeGreaterThan(0);
     });
 
-    it(`${file} carries no comment CTA on sheets 2 and 3`, () => {
-      expect(`${sheet2} | ${sheet3}`).not.toMatch(/\bCOMMENT\b/i);
+    it(`${file} carries no comment CTA on any sheet but the last`, () => {
+      for (let i = 0; i < ctaIndex; i += 1) {
+        expect(lettered(sheets[i]), `${file} sheet ${i + 1} asks for a comment before the CTA sheet`).not.toMatch(/\bCOMMENT\b/i);
+      }
     });
 
-    it(`${file} ends on a sheet 4 whose CTA keyword is the one the script says`, () => {
+    it(`${file} ends on a CTA sheet whose keyword is the one the script says`, () => {
       // Founder call 2026-09-13, second pass: the CTA returns as its own closing sheet. It must
       // route to the same ManyChat keyword the voiceover asks for, or a viewer comments a word
       // nothing answers.
-      const sheet4Block = block(md, 4);
-      expect(sheet4Block, `${file} has sheets 2 and 3 but no CTA sheet 4`).not.toBeNull();
       const spoken = md.match(/Comment ([A-Z]+) and I'll DM/)?.[1];
       expect(spoken, `${file}: no spoken "Comment X and I'll DM" line to match`).toBeTruthy();
-      expect(lettered(sheet4Block ?? '')).toMatch(new RegExp(`\\bCOMMENT '${spoken}'`));
+      expect(lettered(sheets[ctaIndex] ?? '')).toMatch(new RegExp(`\\bCOMMENT '${spoken}'`));
     });
+
+    if (count === 5) {
+      it(`${file} names CRWN on its plug sheet and on no other`, () => {
+        // Founder call 2026-09-21. Sheet 3 films the script's CRWN sidenote, so it is the ONE
+        // sheet that letters the product name. Every other sheet still bans it: a brand mark on
+        // the hook trades the curiosity gap for an ad, and the 128 end card already closes.
+        expect(lettered(sheets[2]), `${file} sheet 3 is the CRWN plug but never letters CRWN`).toMatch(/\bCRWN\b/);
+        for (const i of [0, 1, 3, 4]) {
+          expect(lettered(sheets[i]), `${file} sheet ${i + 1} letters CRWN; only the plug sheet may`).not.toMatch(/\bCRWN\b/);
+        }
+      });
+    }
   }
 });
 
