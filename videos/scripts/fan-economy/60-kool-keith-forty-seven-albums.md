@@ -39,7 +39,7 @@ If you've never sold anything direct, you got nothing to lose yet, so this aint 
 But if people been paying you for years across a store, a ticket site and a distributor, you are building Kool Keith's problem right now, one receipt at a time.
 So the question aint how do I make more. It's how many of your buyers could you name today.
 
-I built a free Vault Revenue Planner that prices exactly that for your catalog.
+I built a free Vault Revenue Planner that prices what your unreleased work could be worth.
 
 Comment VAULT and I'll DM you the link.
 

@@ -36,7 +36,7 @@ If nobody's ever bought nothing off you, you got no list to lose yet, so this ai
 But if people already pay you, the question aint how do I get more followers.
 It's how many of them buyers you could contact today without asking a platform, and how many sit in two systems as two strangers.
 
-I built a free Own Your Fans Calculator that runs that exact number for your audience.
+I built a free Own Your Fans Calculator that shows how much of your audience you can actually reach.
 
 Comment OWN and I'll DM you the link.
 

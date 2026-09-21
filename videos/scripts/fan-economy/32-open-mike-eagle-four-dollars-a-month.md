@@ -36,7 +36,7 @@ And streaming is how most of them found him in the first place. Nobody's saying 
 But if a thousand people at coffee money beats four hundred thousand listeners, the question aint how do I get more listeners.
 It's which of the people who already bought something from you once would pay you every month, and whether you could even pull that list to ask them.
 
-I built a free Own Your Fans Calculator that runs that exact number for your audience.
+I built a free Own Your Fans Calculator that shows how much of your audience you can actually reach.
 
 Comment OWN and I'll DM you the link.
 

@@ -8,9 +8,9 @@ Which made more money, Snoop Dogg's billion streams or 38 Spesh's thousand recor
 
 Let's find out.
 
-Snoop said it publicly and threatened court if nobody explained the math. There's splits and labels between an artist and that money, so treat his figure as his claim, not a receipt.
+Snoop said it publicly and threatened court if nobody explained the math. There's splits and labels between an artist and that money, so treat it as his claim, not a receipt.
 
-38 Spesh runs his own label out of Rochester. He put out a twelve inch limited to a thousand copies, and records in that catalogue run about thirty dollars.
+38 Spesh runs his own label out of Rochester. He put out a twelve inch limited to a thousand copies, and records in that catalogue run about $30.
 
 Here's the thing nobody puts side by side. One of those numbers is a million times bigger. One is reach, one is a customer list. Go do that math before I say it.
 
@@ -20,15 +20,15 @@ ANYWAY.
 
 So which made more, a billion streams or a thousand records?
 
-A thousand records at about thirty dollars is roughly $30,000. Snoop said the billion paid under $45,000.
+A thousand records at about $30 is roughly $30,000. Snoop said the billion paid under $45,000.
 
-And here's the crazy part. The billion won, barely. It took a thousand million plays to beat a thousand people, by about the price of a used car. And 38 Spesh knows where all thousand of his went. Snoop can't name one of the billion.
+And here's the crazy part. The billion won, barely. It took a thousand million plays to beat a thousand people, by about the price of a used car. 38 Spesh knows where all thousand of his went. Snoop can't name one of the billion.
 
 To be fair, Snoop's catalog earns in ways a twelve inch never will, and streaming put him in front of more people than any format in history.
 
-People ask how big you need to be before a system like this is worth it. It ain't a follower count. It's a thousand records.
+People ask how big you need to be before a system like this is worth it. It ain't a follower count, and it ain't a thousand records either. That's just what 38 Spesh pressed.
 
-If nobody's ever bought anything off you, that's the problem to solve first and no system fixes it. But once people already buy your merch, tickets or music, you're 38 Spesh, not Snoop: a countable group of proven buyers that most artists still can't name.
+The line is whether anybody ever paid you direct. If nobody has, solve that first, no system fixes it. But if people already buy your merch, tickets or music, you're on the buyer side, with a countable group most artists still can't name.
 
 I built a free Vault Revenue Planner that shows whether you got enough unreleased work to run a vault and what to charge, before another year earns nothing.
 

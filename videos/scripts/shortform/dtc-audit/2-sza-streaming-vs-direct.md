@@ -6,7 +6,7 @@
 
 SZA Is Losing $12M A Year
 
-Comment WORTH and I'll send you the free calculator that shows exactly how much you're leaving on the table, plus the setup that gets it back. Free to start at thecrwn.app.
+Comment WORTH and I'll send you the free calculator that shows what the direct side of your audience could be worth, plus the setup that gets it back. Free to start at thecrwn.app.
 
 ---
 

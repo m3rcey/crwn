@@ -26,6 +26,7 @@ import * as copy from '../emails/acquisitionFollowUp';
 import { resend, FROM_EMAIL } from '../resend';
 import { buildResultUrl, mintToken, expiresAt, RESULT_TTL_SECONDS } from '../leadResults/resultToken';
 import { LEAD_MAGNETS, getLeadMagnet } from '../leadMagnets/registry';
+import { capabilityForSlug } from '../content/ctaCapability';
 import { getField } from './fieldRegistry';
 import type { LeadIdentity } from './types';
 
@@ -397,7 +398,11 @@ async function handleAbandoned(row: OutboxRow, identity: LeadIdentity | null): P
   // land on /worth, which is where a worth lead belongs anyway.
   const route = getLeadMagnet(session?.lead_magnet_id ?? '')?.publicRoute ?? '/worth';
   const question = session?.current_question_key ? getField(session.current_question_key)?.question : null;
-  const c = copy.sessionAbandoned({ question, toolUrl: `${APP_URL}${route}` });
+  // ...and with THEIR tool's actual answer. The body used to promise "the number" and "what your
+  // fanbase is worth" whatever she had been running, which is wrong for the two tools that return
+  // no figure and, for Royalty, wrong about whose money it even is.
+  const promise = capabilityForSlug(session?.lead_magnet_id ?? '')?.promise ?? null;
+  const c = copy.sessionAbandoned({ question, toolUrl: `${APP_URL}${route}`, promise });
   return dispatchToBestChannel(identity, c, `abandoned:${row.session_id}`);
 }
 

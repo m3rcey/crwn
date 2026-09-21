@@ -35,7 +35,7 @@ And streaming is exactly what let all that stored-up demand cash out in one week
 But if an audience can wait thirty years, the question aint how do I stay in the algorithm.
 It's whether you could reach the people who already paid you if every shelf you sell on shut down tomorrow.
 
-I built a free Own Your Fans Calculator that runs that exact number for your audience.
+I built a free Own Your Fans Calculator that shows how much of your audience you can actually reach.
 
 Comment OWN and I'll DM you the link.
 

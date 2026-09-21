@@ -35,7 +35,7 @@ And streaming is what carried those records to people who'd never have found the
 But if you already got a catalog and real buyers for some of it, the question aint when do I drop next.
 It's which of them buyers came back for a second one, and why there is still no door above the one they already paid for.
 
-I built a free Vault Revenue Planner that prices exactly that for your catalog.
+I built a free Vault Revenue Planner that prices what your unreleased work could be worth.
 
 Comment VAULT and I'll DM you the link.
 

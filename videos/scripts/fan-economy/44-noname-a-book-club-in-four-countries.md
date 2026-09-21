@@ -37,7 +37,7 @@ And streaming is how most people found her music in the first place. Discovery d
 But if a free reading group in five countries is what holds an audience together, the question aint what else can I sell them.
 It's whether the people in your free room and the people on your receipts are the same people, and whether you could ever prove it.
 
-I built a free Own Your Fans Calculator that runs that exact number for your audience.
+I built a free Own Your Fans Calculator that shows how much of your audience you can actually reach.
 
 Comment OWN and I'll DM you the link.
 

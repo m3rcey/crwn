@@ -688,19 +688,22 @@ responsible for. Do not work those.
 
 ### P2 — worth doing, nothing breaks if you never do it
 
-- [ ] **Decide whether the paused VAULT carousels need re-checking against the planner.**
-      While rewriting the carousel captions I found 13 of 31 were promising a figure the
-      destination calculator does not compute. The Vault Revenue Planner returns a readiness
-      score, an inventory, a price band and a 30-day plan, and computes NO revenue total on
-      purpose (the reason is written in its config in
-      [src/lib/leadMagnets/registry.ts](src/lib/leadMagnets/registry.ts)). Ten VAULT captions
-      were selling "what underpricing is costing you" and similar. All 31 captions are fixed
-      in commit `1a7e793a`. What is NOT checked is every other surface that promotes VAULT:
-      the lead-magnet shortform scripts in
-      [videos/scripts/lead-magnets/](videos/scripts/lead-magnets/), the nurture emails, and any
-      ManyChat DM copy. Worth one pass with the same question: does this promise a number the
-      tool returns? `FE-CAR-003` only checks that a loss WORD is present, never that the claim
-      is true, so nothing will catch this for you.
+- [ ] **Two FILMED videos say a CTA line the Vault planner cannot fully back. Your call.**
+      Scripts 1 (Curren$y vs Westside Gunn) and 5 (Rapsody) are locked and already shot, and both
+      say the planner "prices exactly that". It does produce a price band, so the claim is not
+      invented, but it ships an estimate disclaimer, so "exactly" is the part it cannot back.
+      Carousel 1's caption is editable and already says the accurate thing, so that one is
+      covered. Rapsody has no carousel, so nothing covers it. Options: leave it (the smallest
+      real risk on this list), or re-record two lines next time you film. Everything from script
+      6 forward is corrected, and the new `CTA-002` guard exempts exactly these two by number
+      and cannot be extended past 5.
+
+- [ ] **The ManyChat "See My Numbers" button label is wrong for ROYALTY only.**
+      [docs/acquisition/manychat-setup-guide.md](docs/acquisition/manychat-setup-guide.md) uses
+      that label across automations. Royalty returns a readiness score out of 100 and no dollar,
+      so the label is defensible (a score is a number) but reads like money. Only you can edit
+      the live ManyChat flow; the repo change alone would not move it. Rename that one button to
+      "See my score" next time you are in there.
 
 - [ ] **Review the proven-seller rewrite of Fan Economy carousel captions before any of them post.**
       Commit `1a7e793a`, 31 files in [videos/carousels/fan-economy/](videos/carousels/fan-economy/).

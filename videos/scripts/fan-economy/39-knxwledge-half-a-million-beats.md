@@ -33,7 +33,7 @@ And a beat with no home is not automatically worth money. It's worth money to th
 But if what you already made is bigger than what you'll ever release, the question aint what do I put out next.
 It's whether you could name the twenty people who already bought from you most, because that is exactly who the drive is for.
 
-I built a free Vault Revenue Planner that prices exactly that for your catalog.
+I built a free Vault Revenue Planner that prices what your unreleased work could be worth.
 
 Comment VAULT and I'll DM you the link.
 

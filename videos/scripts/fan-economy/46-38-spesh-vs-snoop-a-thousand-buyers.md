@@ -35,7 +35,7 @@ And a thousand-copy run only works if a thousand people already care.
 But if a thousand buyers can go toe to toe with a billion plays, the question aint how do I get more streams.
 It's how many of your own buyers you could name right now, and whether that number is anywhere near how many you've actually had.
 
-I built a free Vault Revenue Planner that prices exactly that for your catalog.
+I built a free Vault Revenue Planner that prices what your unreleased work could be worth.
 
 Comment VAULT and I'll DM you the link.
 

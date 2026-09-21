@@ -35,7 +35,7 @@ Scarcity on something nobody wants is just a box in a closet.
 But if one object can be worth that, the question aint how many people can I reach.
 It's whether anybody in your buyer list has ever been offered anything above the cheapest thing you sell.
 
-I built a free Vault Revenue Planner that prices exactly that for your catalog.
+I built a free Vault Revenue Planner that prices what your unreleased work could be worth.
 
 Comment VAULT and I'll DM you the link.
 

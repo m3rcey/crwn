@@ -179,21 +179,34 @@ Which one sounds more like you?`,
  * It also claimed she stopped "one answer short". Only the caller knows how many were left, and
  * since 2026-08-26 every tool has at least two, so the count is not the copy's to assert. Rule 1
  * still holds: this ends on a real question, which is what reopens the 24-hour window.
+ *
+ * The same fix had to happen a THIRD time (2026-09-21), for the body rather than the question or
+ * the link. It still said "the number", "money you are not collecting" and "what your fanbase is
+ * actually worth" for every tool, and two of them answer neither: Royalty returns a readiness
+ * score and is explicitly not about fans at all, and the Vault planner returns a plan and a price
+ * band with no revenue total. `promise` comes from CTA_CAPABILITIES, so the copy names what the
+ * abandoned tool would actually have shown.
  */
-export function sessionAbandoned(opts?: { question?: string | null; toolUrl?: string | null }): FollowUpCopy {
+export function sessionAbandoned(opts?: {
+  question?: string | null;
+  toolUrl?: string | null;
+  promise?: string | null;
+}): FollowUpCopy {
   const question = opts?.question?.trim() || 'Want me to pick it back up where you left it?';
   const ctaUrl = opts?.toolUrl?.trim() || 'https://thecrwn.app/worth';
+  // Falls back to the Worth framing, which is where an unknown slug already routes.
+  const promise = opts?.promise?.trim() || 'what the direct side of your audience could be worth next to your streaming';
   return {
-    dm: `You stopped before I could show you the number. It does not go away because you did not look at it, it just keeps being money you are not collecting.
+    dm: `You stopped before I could show you ${promise}. It does not go away because you did not look at it. It just keeps sitting there.
 
 ${question}`,
 
-    subject: 'You stopped before the number',
+    subject: 'You stopped before the answer',
     html: shell({
-      heading: 'You stopped before the number',
+      heading: 'You stopped before the answer',
       body: `
-        <p style="${P}">We were nearly at the point of showing you what your fanbase is actually worth, and then you went quiet.</p>
-        <p style="${P}">That number does not go away because you did not look at it. It just keeps being money you are not collecting.</p>
+        <p style="${P}">We were nearly at the point of showing you ${promise}, and then you went quiet.</p>
+        <p style="${P}">That does not go away because you did not look at it. It just keeps sitting there.</p>
         <p style="${P}"><strong style="color:#FFF;">${question}</strong></p>
       `,
       cta: 'Finish it',

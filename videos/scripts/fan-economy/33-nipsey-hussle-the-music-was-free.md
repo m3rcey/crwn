@@ -31,7 +31,7 @@ That's the part people skip when they tell this story.
 But if the music was free and they still paid, the question aint how do I stop people getting my music for nothing.
 It's what you got that ONLY the people already buying from you can get, and whether there's a rung above the one they're standing on.
 
-I built a free Vault Revenue Planner that prices exactly that for your catalog.
+I built a free Vault Revenue Planner that prices what your unreleased work could be worth.
 
 Comment VAULT and I'll DM you the link.
 

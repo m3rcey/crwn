@@ -35,7 +35,7 @@ And the rest of their catalog lives on streaming, which is how most people found
 But if free can still be scarce, the question aint what do I charge.
 It's whether the people who already buy from you have ever once gotten something before everybody else.
 
-I built a free Vault Revenue Planner that prices exactly that for your catalog.
+I built a free Vault Revenue Planner that prices what your unreleased work could be worth.
 
 Comment VAULT and I'll DM you the link.
 

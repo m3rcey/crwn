@@ -42,7 +42,7 @@ Them are illustrative prices, not anybody's real sales.
 So if you been selling your catalog for years:
 count what you got finished. That number is your shelf. Now the harder one: which fan has bought the most off that shelf, and can you actually find out?
 
-I built a free Vault Revenue Planner that prices your catalog.
+I built a free Vault Revenue Planner that prices what your unreleased work could be worth.
 Comment VAULT and I'll DM you the link.
 
 128 👑  (visual end-card, not spoken)

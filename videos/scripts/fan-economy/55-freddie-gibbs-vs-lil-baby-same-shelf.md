@@ -34,7 +34,7 @@ And Gibbs had fifteen years of records behind him before Alfredo, which is why a
 But if you can reach the same shelf on your own imprint, the question aint how do I get somebody to put me there.
 It's whether you can name a single person who bought your last record, or whether the store kept all of them.
 
-I built a free Royalty Readiness Check that shows what you're actually owed and what you're leaving behind.
+I built a free Royalty Readiness Check that shows which royalty streams your music earned from that nobody is collecting.
 
 Comment ROYALTY and I'll DM you the link.
 

@@ -36,7 +36,7 @@ Now to be fair, streaming is what got most of us to Mach in the first place, and
 But if people already buy your records, the question aint how many people hear it.
 It's what your existing buyers would have paid, and whether the price you set was the market's or just the one you guessed.
 
-I built a free Vault Revenue Planner that prices exactly that for your catalog.
+I built a free Vault Revenue Planner that prices what your unreleased work could be worth.
 
 Comment VAULT and I'll DM you the link.
 

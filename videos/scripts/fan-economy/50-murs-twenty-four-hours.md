@@ -33,7 +33,7 @@ It worked because he already had people who wanted to be in the room, and becaus
 But if being there is the thing that cant be copied, the question aint how do I get more plays.
 It's what you could do once that only you could do, and which of your existing buyers you'd even be able to invite.
 
-I built a free Live Experience Calculator that prices exactly that.
+I built a free Live Experience Calculator that prices what one ticketed night a month could be worth.
 
 Comment LIVE and I'll DM you the link.
 

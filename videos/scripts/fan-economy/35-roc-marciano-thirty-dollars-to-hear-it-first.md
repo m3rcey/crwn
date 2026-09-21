@@ -34,7 +34,7 @@ He just stopped giving the first day away for nothing.
 But if your day ones would pay to hear it before anybody, the question aint what do I charge for the album.
 It's why the person who has bought six things off you gets the same release day as somebody who found you this morning.
 
-I built a free Vault Revenue Planner that prices exactly that for your catalog.
+I built a free Vault Revenue Planner that prices what your unreleased work could be worth.
 
 Comment VAULT and I'll DM you the link.
 
