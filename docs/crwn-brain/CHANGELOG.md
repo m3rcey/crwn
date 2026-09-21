@@ -1,5 +1,40 @@
 # CRWN Brain — Changelog
 
+## 2026-09-20 - /worth?listeners=N lands on N again
+
+Every prefilled outreach link was ignored: `/worth?listeners=4000` showed the generic 150,000
+default in the box and computed the result from it. Reproduced in a browser at `2cacf8f4` for
+4,000, 20,000 and 250,000, all three rendering "1 Your audience 150,000 listeners".
+
+**The cause was ordering, not parsing.** The query was read in a client `useEffect`, which runs
+after the first render, while the entry wizard seeds its answers from `initialValues` in a
+`useState` lazy initializer that snapshots the FIRST render and ignores every later prop. The URL
+read worked; it arrived one render too late, so the wizard kept the default, showed it, and handed
+it back on submit. It was harmless until the one-question-per-screen entry wizard was added:
+before that, `/worth` rendered straight from page state.
+
+**The fix is to know the value on the first render.** `/worth/page.tsx` now reads the query on the
+SERVER and passes it through the `prefill` prop the component already documented ("seeds the inputs
+server-side"), which is also how the tokenized result page has always seeded it. The broken effect
+is deleted, so there is one mechanism, not two. The questions moved to
+`src/lib/leadMagnets/worthEntry.ts` so the server validates a prefilled value against the very same
+field definitions the wizard enforces, through the canonical `prefillFromQuery` every registry tool
+uses. The public names `?listeners=` / `?followers=` / `?streaming=` are FROZEN and mapped onto the
+config keys, never renamed.
+
+Validation got strictly safer by reusing the canonical allowlist: `-5` used to become 5 and `1e9`
+used to become 19, and both are now rejected, falling back to the normal no-parameter behavior.
+
+**No other surface had this bug.** `PublicToolClient` and `ArtistToolClient` both batch the prefill
+with the state change that first renders the wizard, so its snapshot is already correct. `/worth`
+was the only one that mounted the wizard before its prefill was known.
+
+**Tradeoff, taken deliberately:** reading `searchParams` makes `/worth` render per request rather
+than prerender (`○` to `ƒ`). It is one route whose entire stated job is prefilled outreach links,
+and the alternative (a loading phase before the wizard, as the registry tools have) would put a
+spinner in front of every visitor to fix a minority path. Economics are untouched: 4,000 / 20,000 /
+250,000 produce the same $372 Launch, $1,897 Pro and $24,917 Scale figures as `crwn-v512`.
+
 ## 2026-09-20 - The calculators price CRWN on the plan CRWN would recommend, not always on Pro
 
 **Founder decision.** *When a CRWN calculator models platform costs, it uses the canonical

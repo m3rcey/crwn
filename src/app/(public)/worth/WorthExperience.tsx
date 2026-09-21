@@ -8,6 +8,7 @@ import { LeadMagnetWizard } from '@/components/lead-magnets/LeadMagnetWizard';
 import { ToolHero } from '@/components/lead-magnets/ToolHero';
 import { WIZARD_ANCHOR_ID } from '@/components/lead-magnets/PublicToolClient';
 import type { LeadMagnetConfig } from '@/lib/leadMagnets/types';
+import { WORTH_ENTRY_INPUTS } from '@/lib/leadMagnets/worthEntry';
 import Link from 'next/link';
 import { buildContinueUrl } from '@/lib/leadMagnets/continuationCta';
 import { flagshipBridgeFor } from '@/lib/leadMagnets/flagshipBridge';
@@ -156,17 +157,12 @@ export function WorthExperience({
   const captureExposureRef = useRef<HTMLDivElement>(null);
   const [captureState, setCaptureState] = useState<'idle' | 'sending' | 'done' | 'error'>('idle');
 
-  // Prefill inputs from URL query params so outreach links land on the artist's
-  // own number, e.g. /worth?listeners=50000&followers=20000 (followers optional).
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const l = params.get('listeners');
-    const f = params.get('followers');
-    const s = params.get('streaming');
-    if (l && /\d/.test(l)) setListeners(l.replace(/\D/g, ''));
-    if (f && /\d/.test(f)) setFollowers(f.replace(/\D/g, ''));
-    if (s && /[\d.]/.test(s)) setStreaming(s.replace(/[^\d.]/g, ''));
-  }, []);
+  // The URL prefill (`/worth?listeners=50000&followers=20000`) is read on the SERVER, in
+  // `page.tsx`, and arrives as `prefill` above. It used to be read here in an effect, which runs
+  // AFTER the first render: the entry wizard below snapshots `initialValues` on its first render
+  // and ignores later props, so it kept the 150,000 default, showed it in the box and handed it
+  // back on submit. The value has to exist on the FIRST render, which is what the server read
+  // gives it. See `src/lib/leadMagnets/worthEntry.ts`.
 
   const assumptions: CalcAssumptions = {
     ...base,
@@ -507,54 +503,10 @@ export function WorthExperience({
           { id: 'proof', group: 'Proof', title: 'Have your fans ever paid you directly?', subtitle: 'Streaming is exposure. A sale is proof.' },
           { id: 'review', group: 'Review', title: 'Review', subtitle: 'Check your answers, then see what you are worth.' },
         ],
-        inputs: [
-          {
-            key: 'monthly_listeners',
-            type: 'number',
-            label: 'Roughly how many monthly listeners do you have?',
-            required: true,
-            min: 0,
-            max: 100000000,
-            step: 'listeners',
-          },
-          {
-            key: 'followers',
-            type: 'number',
-            label: 'Roughly how many followers do you have across your socials?',
-            help: 'Leave blank if you are not sure.',
-            min: 0,
-            max: 100000000,
-            step: 'followers',
-          },
-          {
-            key: 'streaming_revenue',
-            type: 'currency',
-            label: 'What do you make from streaming each month?',
-            help: 'Optional. We estimate it from your listeners if you leave it blank.',
-            min: 0,
-            max: 1000000,
-            step: 'streaming',
-          },
-          {
-            // The 40% question, matching DIRECT_SALES_INPUT on every registry loss tool.
-            // /worth was the one hand-raiser calculator that never asked it, so its call card
-            // could not qualify anyone: `scoreLead` caps the fit at 60 while monetization is
-            // unknown, which puts the ceiling under the `sales_priority` threshold no matter
-            // how large the audience is. It does not touch the number, only who gets a call.
-            key: 'monetization_status',
-            type: 'option',
-            label: 'Have you ever sold anything directly to your fans?',
-            help: 'This shapes what we recommend. It does not change the number.',
-            required: true,
-            step: 'proof',
-            options: [
-              { value: 'direct_established', label: 'Yes, regularly (memberships, drops, VIP)', icon: '👑' },
-              { value: 'direct_some', label: 'Yes, a few times', icon: '💸' },
-              { value: 'merch_only', label: 'Merch or tickets only', icon: '👕' },
-              { value: 'streaming_only', label: 'No, streaming and socials only', icon: '🎧' },
-            ],
-          },
-        ],
+        // The questions live in `worthEntry.ts` so the SERVER-side URL prefill validates against
+        // the very same field definitions this wizard enforces. One declaration, so a prefilled
+        // value can never be one the field itself would refuse.
+        inputs: WORTH_ENTRY_INPUTS,
       }) as unknown as LeadMagnetConfig,
     [],
   );
