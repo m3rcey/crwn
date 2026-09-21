@@ -688,6 +688,19 @@ responsible for. Do not work those.
 
 ### P2 — worth doing, nothing breaks if you never do it
 
+- [ ] **Review the proven-seller rewrite of Fan Economy scripts 6 to 60 before any of them film.**
+      Commit `9ecc8401`, 53 files in [videos/scripts/fan-economy/](videos/scripts/fan-economy/).
+      Scripts 1 to 5 are untouched. To read only what changed:
+        git show 9ecc8401 -- videos/scripts/fan-economy
+      Every hook, CTA keyword, reveal figure and Nano Banana sheet prompt is unchanged, so no image
+      or video needs regenerating whatever you decide. What changed is the diagnosis and the CRWN
+      bridge in each one. Three calls worth your eyes specifically:
+        1. Script 16 is now the dedicated qualification video (the threshold is proof of direct
+           sales, explicitly not a follower count).
+        2. Script 26 was the one beginner-native script and is the biggest rewrite.
+        3. Seven scripts (13, 16, 25, 26, 34, 43, 60) now say out loud that this is not a beginner's
+           problem. That is market qualification only; nothing closes the app to anybody.
+
 - [ ] **Run the GPT-6 calculator bottleneck audit.** The package is
       [docs/GPT6_CALCULATOR_BOTTLENECK_AUDIT.md](docs/GPT6_CALCULATOR_BOTTLENECK_AUDIT.md): section 2 is your
       seven-step setup (DM path yes or no, mailbox, three switches, the bio link, start time), section 3 is the paste-ready
