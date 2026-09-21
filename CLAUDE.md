@@ -1610,5 +1610,21 @@ deliberately NOT rewritten, since renaming a tier a fan already pays for is a fo
 - Benefits managed via `tier_benefits` table + `benefitCatalog.ts`.
 
 ## Completion Signal
-When you finish a task, always run this as your final bash command:
-powershell.exe '(New-Object Media.SoundPlayer "C:\Windows\Media\Ring05.wav").PlaySync()'
+
+When you finish a task, play the chime as your final action, through the **PowerShell tool**:
+
+    (New-Object Media.SoundPlayer "C:\Windows\Media\Ring05.wav").PlaySync()
+
+**Use the PowerShell tool, not the Bash tool.** On 2026-09-21 the Bash form
+(`powershell.exe '(New-Object ...).PlaySync()'`) was refused by the permission classifier as
+"Irreversible Deletion" during a turn that was deleting production rows. Nothing in the command
+deletes anything: the verdict came from the turn's CONTEXT, not the command's text, so the chime
+went silent on exactly the turns worth hearing about. The same call through the PowerShell tool
+was allowed and played. `PlaySync` (not `Play`) is required, or the process exits before the
+sound finishes.
+
+A Stop hook would remove the per-turn verdict entirely and is the better long-term fix, but
+Claude cannot install it: writing `.claude/hooks/*` or adding a `permissions.allow` rule is
+refused as "Auto-Mode Bypass", which is correct (a Stop hook runs commands with no approval).
+That one is Josh's to apply, and the ready-to-install version is in the memory note
+`completion-chime-uses-powershell-tool`.

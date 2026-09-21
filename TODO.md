@@ -67,14 +67,6 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
-- [ ] **Approve the cleanup of the Tier 1 audit's production accounts and results.** The validation
-      audit created three real accounts (the Kairo, Andre and Maya personas), their calculator
-      results and their builder drafts, and those rows now sit in production beside real artists.
-      Deleting them is destructive, so it is yours to approve and was deliberately kept out of the
-      2026-09-20 fix. Send me the three signup emails (or the shared prefix they used) and the
-      audit's date window, and I will write one runnable `supabase/*.sql` file that lists exactly
-      what it will delete before it deletes anything, the way
-      [supabase/cleanup-founder-analytics.sql](supabase/cleanup-founder-analytics.sql) does.
 - [ ] **Watch V2 against V1 and tell me which parts still miss.** You rejected V1 on look:
       not alive, too fast, images cut off, screen unused, does not hold attention. You said the
       handwritten style and the numbers were right, and both of those are untouched.
