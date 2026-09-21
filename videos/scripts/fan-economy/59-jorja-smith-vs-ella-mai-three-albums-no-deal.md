@@ -18,8 +18,8 @@ Count what each of them actually put out.
 
 Hold that thought.
 You dont need to market to fans. You need a market FOR fans.
-Reach and revenue are two different systems and almost nobody has been shown the second one.
-The CRWN app is built for the second one: tiers your fans join, and a vault behind one of them.
+Keeping your masters and keeping your customers are two different jobs, and most artists who won the first one never started the second.
+On the CRWN app the customers come with the catalog: the members, the buyers and the sales, all under your own label.
 ANYWAY.
 
 So who has put out more albums since 2018, Ella Mai or Jorja Smith?
@@ -36,7 +36,7 @@ Now to be fair, a major moved Ella Mai's music onto radio in a way an independen
 And Jorja had a huge cosign early, which is not nothing and not repeatable on demand.
 
 But if you can build all of that and keep every record on your own label, the question aint who is going to sign me.
-It's what you already own, and whether you have any direct way to sell it to the people who want it.
+It's whether the people who bought all three records are on a list you own, or three lists you rent.
 
 I built a free Own Your Fans Calculator that shows how much of your audience you can actually reach yourself.
 

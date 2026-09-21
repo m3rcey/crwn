@@ -17,8 +17,8 @@ You would think the price follows the size of the crowd. I did too.
 
 Hold that thought.
 You dont need to market to fans. You need a market FOR fans.
-A listener can only listen. A buyer can buy again, and buy up.
-The CRWN app is built for exactly that: tiers your fans join, and a vault behind one of them.
+A listener can only listen. A buyer can buy again, and buy UP, and almost no artist has anything above the first price a fan paid.
+On the CRWN app the rungs go up, and you can see which buyer climbed, so the second sale isnt a coincidence.
 ANYWAY.
 
 So whose fans really pay more for one copy, Post Malone's or Benny the Butcher's?
@@ -36,7 +36,7 @@ Now to be fair, five test pressings is five people, and a collector's item aint 
 And a price ladder only works when the record is good enough that missing it hurts.
 
 But if five people paid $250 for a record anybody can stream, the question aint how many people heard it.
-It's whether anybody in your world has ever been given a second thing to buy, at a higher price.
+It's whether the people already buying from you have ever been offered a second thing, at a higher price, and whether you'd even know which of them took it.
 
 I built a free Vault Revenue Planner that shows whether your unreleased songs are enough to run a Vault, and what to charge for it.
 

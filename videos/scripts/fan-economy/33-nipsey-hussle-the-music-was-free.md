@@ -16,7 +16,7 @@ They was buying the physical copy, a ticket to the show, and his signature on it
 Hold that thought.
 You dont need to market to fans. You need a market FOR fans.
 Most artists put the music behind the paywall and got nothing else to sell, so when the music leaks the business is over.
-That's what the CRWN app is built around: membership tiers and a vault your top members pay to get into.
+On the CRWN app the music can stay free and the ACCESS is what's priced: rungs a fan joins, and a vault behind the top one.
 ANYWAY.
 
 So how many people paid a hundred dollars for free music?
@@ -29,7 +29,7 @@ Now to be fair, the free version is what made the paid one worth buying. Everybo
 That's the part people skip when they tell this story.
 
 But if the music was free and they still paid, the question aint how do I stop people getting my music for nothing.
-It's what do I have that only my people can get, and have I ever put a price on it.
+It's what you got that ONLY the people already buying from you can get, and whether there's a rung above the one they're standing on.
 
 I built a free Vault Revenue Planner that prices exactly that for your catalog.
 

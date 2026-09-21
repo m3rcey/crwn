@@ -18,14 +18,15 @@ It's where the other side of an artist's income is actually coming from, and how
 
 And the answer aint one big thing. It's a stack.
 Bandcamp. Patreon. Direct subscriptions. Vinyl and cassettes. Sync. Live shows.
-Every one of them has the same thing in common, and it aint the format.
+Every one of them has the same thing in common, and it aint the format. It's that a person handed money to an artist.
+Which also means the 90 percent is spread across six logins that never agreed on who a fan is.
 
 And the size of that side is the part that reframed the whole year for me.
 
 Quick sidenote.
 You dont need to market to fans. You need a market FOR fans.
-Every line on that list is somebody buying directly from an artist, which means the whole thing runs on having somewhere to sell.
-Memberships, a vault, direct sales and your fan list in your name: that's what artists set up on the CRWN app.
+Six tools each know one transaction. None of them knows the whole fan, so nobody can say who bought twice or what to sell next.
+Memberships, direct sales, and every buyer and contact reconciling in one place under your name: that's what artists set up on the CRWN app.
 ANYWAY.
 
 So where did the rest of the money come from?
@@ -39,8 +40,9 @@ Almost all of the effort goes into the 10 percent, because that's the part with 
 The money moved and the attention never followed it.
 
 Them figures is reported industry numbers, not my measurement, and every artist's mix is different.
-But if you're an independent artist planning your next six months:
-what percent of your effort is going at the 10 percent side, and when was the last time you built anything on the other one?
+And if you aint got a single line on that 90 percent side yet, this aint your fight yet. Go make one thing somebody can buy.
+But if you already got three or four of them lines running:
+you still cant answer the basic question: how many people appear on more than one? When was the last time you looked at the 90 percent as one business instead of six tabs?
 
 I built a free calculator that shows what the direct side of your audience could be worth next to your streaming.
 Comment WORTH and I'll DM you the link.

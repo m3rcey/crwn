@@ -18,8 +18,8 @@ Go do that math before I say it.
 
 Hold that thought.
 You dont need to market to fans. You need a market FOR fans.
-Reach and revenue are two different systems and almost nobody has been shown the second one.
-The CRWN app is built for the second one: tiers your fans join, and a vault behind one of them.
+A thousand buyers is a thousand names, if anybody kept them. Most artists sell out a run and walk away with a payout and no list.
+On the CRWN app the sale and the buyer are one record, so you know who bought and what to put in front of them next.
 ANYWAY.
 
 So which made more money, Snoop Dogg's billion streams or 38 Spesh's thousand records?
@@ -33,7 +33,7 @@ Now to be fair, Snoop's catalog earns in ways a twelve inch never will, and stre
 And a thousand-copy run only works if a thousand people already care.
 
 But if a thousand buyers can go toe to toe with a billion plays, the question aint how do I get more streams.
-It's how many people would buy the thing, and whether you've ever made one.
+It's how many of your own buyers you could name right now, and whether that number is anywhere near how many you've actually had.
 
 I built a free Vault Revenue Planner that prices exactly that for your catalog.
 

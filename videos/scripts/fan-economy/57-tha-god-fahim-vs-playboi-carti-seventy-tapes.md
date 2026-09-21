@@ -18,8 +18,8 @@ Count what each one gave a fan to buy in the same three years.
 
 Hold that thought.
 You dont need to market to fans. You need a market FOR fans.
-Reach and revenue are two different systems and almost nobody has been shown the second one.
-The CRWN app is built for the second one: tiers your fans join, and a vault behind one of them.
+Seventy releases is seventy chances to learn who your repeat buyers are, and a page of sales tells you almost none of it.
+On the CRWN app the buyer is the record: you can see who came back for the fourth one, and sell them a fifth on purpose.
 ANYWAY.
 
 So whose fans had more to buy in those three years, Carti's or Tha God Fahim's?
@@ -36,7 +36,7 @@ Now to be fair, Carti's records have shaped more of this era's sound than sevent
 And seventy releases only works if you already have people who will buy the next one without hearing it first.
 
 But if a man in Atlanta with no label deal can build a buyer base seventy releases deep, the question aint how do I get more plays.
-It's how many people would actually buy the next thing, and whether you have any way to ask them.
+It's how many of your own buyers have bought more than once, and whether anything you use could even tell you.
 
 I built a free Proof of Demand Test Builder that sets up a test to find out if fans will pay for it before you make it.
 

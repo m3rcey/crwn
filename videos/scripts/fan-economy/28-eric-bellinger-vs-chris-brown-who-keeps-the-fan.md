@@ -23,8 +23,8 @@ I put the two price tags next to each other and I had to read them twice.
 
 Quick sidenote.
 You dont need to market to fans. You need a market FOR fans.
-The people who follow a writer are the deepest listeners in music. They already care how the thing got made.
-Memberships, a vault, direct sales and the fan list in your name: that's what artists run on the CRWN app.
+The people who follow a writer are the deepest listeners in music, and most artists sell them one thing at one price and stop.
+On the CRWN app the ladder goes UP: a rung at ten dollars and a rung at a thousand, so the fan who would pay five grand isnt capped by the cheapest thing you ever made.
 ANYWAY.
 
 So whose fans pay more for that one personal thing, Chris Brown's or Eric Bellinger's?
@@ -39,8 +39,8 @@ And every song Eric Bellinger ever wrote for somebody else is still out there ad
 
 To be fair, them prices come from a 2024 tour and a launch announcement, not anybody's books.
 And selling out a meet and greet in every city is the harder thing to build. Chris Brown built it.
-So if you write, produce, or feature on other people's records:
-your catalog is already promoting you in rooms you will never stand in. What would your best fan pay to be part of the next one?
+So if you already sell to your own people and your top price is a thirty dollar shirt:
+your catalog is already promoting you in rooms you will never stand in, and you have never once found out what the top of your own fanbase would pay. What would your best buyer spend to be part of the next record?
 
 I built a free calculator that shows what the highest-value end of your fanbase would pay for a real part in the work.
 Comment PRODUCER and I'll DM you the link.

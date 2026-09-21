@@ -22,8 +22,8 @@ Go guess the number before I say it.
 
 Hold that thought.
 You dont need to market to fans. You need a market FOR fans.
-The permission you're waiting for doesn't come from a follower count, it comes from asking.
-That's what the CRWN app is built around: membership tiers and a vault your top members pay to get into.
+The permission you're waiting for doesn't come from a follower count. It comes from asking, and from knowing who to ask.
+On the CRWN app the people who already paid you are the list you ask, sitting in one place with what each one has spent.
 ANYWAY.
 
 So how much did strangers give Lil Dicky when nobody knew him?
@@ -36,8 +36,10 @@ And it was enough to fund the thing that started the whole career.
 Now to be fair, he had real attention first. The videos did the work, and the internet is what put him in front of those people. Discovery did its job.
 Crowdfunding is not a substitute for anybody caring.
 
-But if two thousand eight hundred strangers will fund somebody with no track record, the question aint when am I big enough to ask.
-It's how many people already care, and why you've never asked a single one of them for anything.
+But if two thousand eight hundred strangers will fund somebody with no track record, it cuts two ways.
+If nobody's bought nothing off you yet, this is the one story here you can run tomorrow. Just ask.
+And if you already got buyers, your version is harder, not easier. You got years of people who paid you sitting in four different systems.
+So the question aint when am I big enough to ask. It's which of your own buyers would fund the next thing, and why you have to guess.
 
 I built a free Proof of Demand Test Builder that finds out before you spend a dollar.
 

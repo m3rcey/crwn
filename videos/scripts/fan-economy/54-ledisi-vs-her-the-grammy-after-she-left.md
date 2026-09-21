@@ -18,8 +18,8 @@ For one of these two women, that turned out to be true.
 
 Hold that thought.
 You already know how to market to fans. Now you need a market FOR fans.
-Reach and revenue are two different systems and almost nobody has been shown the second one.
-The CRWN app is built for the second one: tiers your fans join, and a vault behind one of them.
+Leaving a label gets you the records back. It does not get you the people, because those were never in your hands either.
+On the CRWN app the fan side is the part you own outright: the members, the buyers and the money, in one account with your name on it.
 ANYWAY.
 
 So how many nominations did each of them need before one actually won?
@@ -36,7 +36,7 @@ Now to be fair, those Verve years put Ledisi in front of audiences she would hav
 And H.E.R.'s deal is genuinely working for her. She has five Grammys now, and a label that got her in the room that fast is doing exactly what a label is for.
 
 But if the trophy showed up two years after she left the label, the question aint how do I get somebody to back me.
-It's what you already own, and whether the people who love it can pay you directly for it.
+It's what you already own, who has already paid you for it, and whether any of that lives somewhere you control.
 
 I built a free Own Your Fans Calculator that shows how much of your audience you can actually reach yourself, and what that relationship is worth once you can.
 

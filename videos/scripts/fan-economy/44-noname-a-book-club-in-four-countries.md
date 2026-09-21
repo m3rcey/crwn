@@ -20,8 +20,8 @@ Go guess how many before I say it.
 
 Hold that thought.
 You dont need to market to fans. You need a market FOR fans.
-The strongest thing you can offer people is often not more music, it's a reason to be in a room with each other.
-That's what the CRWN app is built around: membership tiers and a vault your top members pay to get into.
+The strongest thing you can offer people is often not more music, it's a reason to be in a room with each other. And for most artists the room is a Discord, the buyers are in a store, and neither one knows about the other.
+On the CRWN app the free room and the paid rungs are the same account, so the person in the group chat and the person who bought the vinyl are one fan.
 ANYWAY.
 
 So how many chapters does Noname's book club actually have?
@@ -35,7 +35,7 @@ Now to be fair, a book club is hers specifically, and copying it exactly would b
 And streaming is how most people found her music in the first place. Discovery did its job.
 
 But if a free reading group in five countries is what holds an audience together, the question aint what else can I sell them.
-It's what would your people show up for if you never released another song.
+It's whether the people in your free room and the people on your receipts are the same people, and whether you could ever prove it.
 
 I built a free Own Your Fans Calculator that runs that exact number for your audience.
 

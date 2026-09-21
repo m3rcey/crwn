@@ -24,8 +24,8 @@ The total is the whole reason this worked.
 
 One more thing before I give it to you.
 You already know how to market to fans. Now you need a market FOR fans.
-Talking to people is step one, but a conversation dont pay you by itself. It has to land somewhere they can actually buy.
-Memberships, a vault, direct sales and the fan list in your name: that's what artists run on the CRWN app.
+Talking to people is step one. Step two is the part that gets skipped: the conversation has to leave a RECORD, attached to a person, that survives you getting busy.
+Every member, buyer and contact in one place, with what each one has actually spent: that's what artists run on the CRWN app.
 ANYWAY.
 
 So how many real conversations does 50 a day actually add up to in a year?
@@ -39,8 +39,9 @@ So by the time there was an EP, a tour, a Coachella slot, none of it was landing
 Most artists do it in the opposite order, then wonder why a release lands quiet.
 
 They had a head start on the anonymity angle and every fanbase moves different.
-But if you're an independent artist reading this with a small audience:
-you have the one thing they had, and it expires. How many of your people could you actually talk to today, before you get too big to?
+And if you're two songs in with nobody buying yet, honestly, go do exactly what they did. Fifty a day. The rest of this aint your problem yet.
+But if you been selling for years, you already HAD that window and you spent it. Thousands of replies, orders, DMs and ticket buyers went through your hands.
+So the question aint can I talk to fifty people today. It's whether one single conversation out of the last ten thousand left a record you could open right now.
 
 I built a free calculator that shows what the audience you already own could be worth.
 Comment OWN and I'll DM you the link.

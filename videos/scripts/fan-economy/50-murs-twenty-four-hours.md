@@ -16,8 +16,8 @@ Go guess how long he lasted before I say it.
 
 Hold that thought.
 You dont need to market to fans. You need a market FOR fans.
-The most valuable thing you have is often the thing that can only happen once and only with you.
-That's what the CRWN app is built around: membership tiers and a vault your top members pay to get into.
+The most valuable thing you have is often the thing that can only happen once and only with you, and it's the one thing nobody in your stack sells.
+On the CRWN app that's a ticketed live session with the replay included, and the people who bought a seat are yours afterwards.
 ANYWAY.
 
 So how long did Murs actually rap without stopping?
@@ -31,7 +31,7 @@ Now to be fair, a stunt is not a business and doing something exhausting is not 
 It worked because he already had people who wanted to be in the room, and because the idea was clear enough to explain in one sentence.
 
 But if being there is the thing that cant be copied, the question aint how do I get more plays.
-It's what could you do once, that only you could do, that your people would clear their evening for.
+It's what you could do once that only you could do, and which of your existing buyers you'd even be able to invite.
 
 I built a free Live Experience Calculator that prices exactly that.
 

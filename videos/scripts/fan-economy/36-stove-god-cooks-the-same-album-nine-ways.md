@@ -17,8 +17,8 @@ Go count how many versions that is before I say it.
 
 Hold that thought.
 You dont need to market to fans. You need a market FOR fans.
-Most artists sell one thing one time and then wonder why the same fan never spends again.
-That's what the CRWN app is built around: membership tiers and a vault your top members pay to get into.
+Most artists sell one thing one time, and even the ones with real sales cant tell you which buyer came back, because every order landed in a different checkout.
+On the CRWN app the repeat buyer is visible: you can see who bought twice, and put something above them worth buying a third time.
 ANYWAY.
 
 So how many versions of one album is that?
@@ -31,7 +31,7 @@ Now to be fair, this only works because the record is good and people actually w
 And the streaming version is how most people heard it at all.
 
 But if your real fans will own the same record twice, the question aint how many people can I reach.
-It's what could I make that the same person would buy again, and have I ever made one.
+It's whether you can even name the buyers who already did, and what you ever built for them.
 
 I built a free Proof of Demand Test Builder that finds out before you press anything.
 

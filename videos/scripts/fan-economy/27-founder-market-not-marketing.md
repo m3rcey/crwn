@@ -18,8 +18,9 @@ Artists are incredible at marketing to fans. That is the skill this generation a
 You can make somebody care in fifteen seconds. You can build a whole world in a caption. You can get 40,000 people to watch a snippet.
 And then that's it. The attention arrives, and there is nowhere for it to go.
 
-There's no membership. No door. No level for the person who wants more than a stream.
-The most passionate fan you have and a person who scrolled past you have the exact same options: play the song again.
+There's no door. Or, if you been at this a while, there's five doors.
+A store over here, a Patreon over there, a Discord, an email tool, a ticket link. Five doors, and not one of them knows who walked through the others.
+So the fan who has spent four hundred dollars with you and a person who scrolled past you look identical in every system you own.
 That is not a marketing problem. Marketing worked.
 
 You dont need to market to fans. You need a market FOR fans.
@@ -29,9 +30,9 @@ ANYWAY.
 
 So why does an artist with ten thousand people out-earn one with a million?
 
-Because ten thousand people with somewhere to spend beats a million with nowhere.
+Because ten thousand people with ONE place to spend beats a million with nowhere, and it beats a million spread across six places that dont talk.
 The bigger artist has more reach and no market. The smaller one has less reach and an actual economy.
-That gap has nothing to do with talent, and it aint about how hard anybody works. One of them built the second half.
+That gap has nothing to do with talent, and it aint about how hard anybody works. One of them built the second half and kept it in one piece.
 
 And that is why I keep the number 128 on everything I make.
 December 8th is my father's birthday. He built his own thing, and I still have the first dollar his business ever earned, framed.
@@ -39,7 +40,7 @@ It aint money, it's proof: something you own can make value out of nothing.
 Ownership creates freedom. Financial freedom first, because that's what buys creative freedom.
 
 So here's the only question that matters for your next year.
-You already know how to get people to care. Where exactly do they go when they do?
+You already know how to get people to care, and some of them already pay you. Where exactly does that person live, and can you find them in under a minute?
 
 I built a free calculator that shows what the audience you already own could be worth.
 Comment OWN and I'll DM you the link.

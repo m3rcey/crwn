@@ -19,8 +19,8 @@ Go do that division before I say it.
 
 Hold that thought.
 You dont need to market to fans. You need a market FOR fans.
-Most artists are trying to grow the top number when the bottom one is the one that pays rent.
-That's what the CRWN app is built around: membership tiers and a vault your top members pay to get into.
+Most artists are growing the top number while the bottom one pays the rent, and the ones already selling only sell one-time things, so the bottom number resets to zero every month.
+On the CRWN app the rungs are recurring: a free one, and real ones above it, so a buyer can turn into somebody who pays you on the first.
 ANYWAY.
 
 So how many monthly listeners does 1,071 people at four dollars equal?
@@ -34,7 +34,7 @@ Now to be fair, four dollars is a floor, not a ceiling. That's just where his me
 And streaming is how most of them found him in the first place. Nobody's saying turn it off.
 
 But if a thousand people at coffee money beats four hundred thousand listeners, the question aint how do I get more listeners.
-It's how many of the ones I already got would pay four dollars, and why have I never asked.
+It's which of the people who already bought something from you once would pay you every month, and whether you could even pull that list to ask them.
 
 I built a free Own Your Fans Calculator that runs that exact number for your audience.
 

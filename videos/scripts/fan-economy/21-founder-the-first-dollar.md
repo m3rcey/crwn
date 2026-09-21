@@ -23,7 +23,8 @@ It means one thing: ownership creates freedom.
 So here's how that turned into a music company.
 Artists today get told to build everything on land they dont own.
 The followers live on the apps. The listeners live on the platforms. The money routes through everybody else before it gets to you.
-You can be huge and own almost none of it.
+And the ones already selling aint exempt. Your merch buyers live in the store's database. Your ticket buyers in the ticket company's. Your members somewhere else again. You rent every one of them back.
+You can be huge, you can be profitable, and still own almost none of it.
 
 And that's the whole thing I keep saying: you dont need to market to fans. You need a market FOR fans.
 You already know how to get people to pay attention. What you aint got is somewhere they can actually spend, that belongs to you.
@@ -35,7 +36,7 @@ That's what we built so far and we aint close to done.
 
 So, artist to artist, one question.
 Twenty years from now, what's in YOUR frame?
-What's the first dollar you'll point at and say that came from something I own?
+Not the biggest cheque. The first dollar you can point at and say that came from something I own, from somebody whose name I still got.
 
 If you want to see what the business you already own could look like, I built a free calculator for it.
 Comment FREE and I'll DM you the link.

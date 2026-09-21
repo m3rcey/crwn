@@ -19,7 +19,7 @@ Go guess how long the window was before I say it.
 Hold that thought.
 You dont need to market to fans. You need a market FOR fans.
 Price is only one lever. Time is another one, and hardly anybody touches it.
-That's what the CRWN app is built around: membership tiers and a vault your top members pay to get into.
+On the CRWN app a drop can open per rung on a schedule you set, so being early is a thing your paying people get and everybody else waits for.
 ANYWAY.
 
 So how long was five albums of free music available for?
@@ -33,7 +33,7 @@ Now to be fair, they can do this because they already had people watching closel
 And the rest of their catalog lives on streaming, which is how most people found them at all. Discovery did its job.
 
 But if free can still be scarce, the question aint what do I charge.
-It's whether anything you put out has ever had a reason to act now attached to it.
+It's whether the people who already buy from you have ever once gotten something before everybody else.
 
 I built a free Vault Revenue Planner that prices exactly that for your catalog.
 

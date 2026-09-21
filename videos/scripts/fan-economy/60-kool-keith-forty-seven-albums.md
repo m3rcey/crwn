@@ -20,8 +20,8 @@ Ask where all those hands went.
 
 Hold that thought.
 You dont need to market to fans. You need a market FOR fans.
-Reach and revenue are two different systems and almost nobody has been shown the second one.
-The CRWN app is built for the second one: tiers your fans join, and a vault behind one of them.
+Forty years of sales went through stores, labels and platforms, and every single one of them kept the buyer and handed back a payment.
+On the CRWN app the buyer comes with the sale. Who bought, what they bought, how many times, on your own account.
 ANYWAY.
 
 So how many of those buyers can Kool Keith actually reach?
@@ -34,8 +34,10 @@ Every single one of those people would probably buy again. He has no way to ask.
 Now to be fair, streaming is the reason a forty year catalog is still findable at all. A kid can hear a 1996 record tonight without knowing a single thing about him, and that is genuinely new. Discovery did its job.
 And a catalog that deep earns quietly in ways a new artist's does not.
 
-But if forty seven albums can be worth less than the list of people who bought them, the question aint how do I make more.
-It's whether the people who already paid you once have any way to hear from you again.
+But if forty seven albums can be worth less than the list of people who bought them, here's the read.
+If you've never sold anything direct, you got nothing to lose yet, so this aint the thing to fix first.
+But if people been paying you for years across a store, a ticket site and a distributor, you are building Kool Keith's problem right now, one receipt at a time.
+So the question aint how do I make more. It's how many of your buyers could you name today.
 
 I built a free Vault Revenue Planner that prices exactly that for your catalog.
 

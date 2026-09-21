@@ -23,8 +23,8 @@ Depth is not just output. Depth is INVENTORY.
 So how much can one superfan actually spend on each of them in a year?
 
 Your problem aint marketing to fans. It's that you need a market FOR fans.
-A deep catalog with nowhere to buy it is a folder. The same catalog behind a membership is a store.
-Tier-gated releases and a vault your top members get into: that's what artists run on the CRWN app.
+A deep catalog with nowhere to buy it is a folder. The same catalog behind a membership is a store, and a store knows who came back.
+Tier-gated releases and a vault your top rung gets into: that's what artists run on the CRWN app.
 ANYWAY.
 
 So whose catalog can one superfan spend more on, Kendrick Lamar's or Curren$y's?
@@ -39,8 +39,8 @@ But almost nobody gets that scale. If you cant be the event, you can absolutely 
 The artist with 400 listeners and 40 projects has a business the artist with 400 listeners and one album does not.
 
 Them are illustrative prices, not anybody's real sales.
-So if you been recording for years:
-count what you actually got finished. That number is your shelf. What can your realest fan buy from you today?
+So if you been selling your catalog for years:
+count what you got finished. That number is your shelf. Now the harder one: which fan has bought the most off that shelf, and can you actually find out?
 
 I built a free Vault Revenue Planner that prices your catalog.
 Comment VAULT and I'll DM you the link.

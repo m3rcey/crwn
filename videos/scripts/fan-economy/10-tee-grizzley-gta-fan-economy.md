@@ -16,8 +16,9 @@ They play characters and run they own businesses in there. Even NBA players be p
 
 Now here what that exposes about the rest of us.
 Most artists treat they fans like an audience. Something that just watches.
-Tee Grizzley treat his fans like residents. People that DO things in his world.
-And watching is free everywhere. Participating is what people pay for.
+And even the ones moving real money treat a fan like a transaction. Sell the shirt, sell the ticket, and the person goes back to anonymous the second the order ships.
+Tee Grizzley treat his fans like residents. People that DO things in his world, every month, in one place where he can see all of it.
+Watching is free everywhere. Participating is what people pay for, and it's the only kind of paying that comes back on its own.
 
 So the mechanism is bigger than gaming.
 Give ya fans somewhere that being a fan is something you DO:
@@ -42,8 +43,8 @@ A world is a PLACE. People pay to be there every month, whether you got a projec
 
 Those are his reported numbers and his world. Yours gon be yours.
 
-So if you're an independent artist who knows how to market to fans but hasnt created A market for them then I have a question for you.
-What would ya realest fans pay monthly to be part of something, instead of just watching you?
+So if you already got people buying merch, tickets and music off you, and every one of them sales lands in a different place, then I got a question for you.
+What would them same buyers pay MONTHLY to be somebody in your world, instead of one order you never see again?
 
 I built a free calculator that map out what your whole fan business could look like.
 Comment FREE and I'll DM you the link.

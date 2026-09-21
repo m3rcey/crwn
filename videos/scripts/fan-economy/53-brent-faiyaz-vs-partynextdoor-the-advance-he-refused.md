@@ -19,8 +19,8 @@ It was selling time.
 
 Hold that thought.
 Your problem aint marketing to fans. It's that you need a market FOR fans.
-Reach and revenue are two different systems and almost nobody has been shown the second one.
-The CRWN app is built for the second one: tiers your fans join, and a vault behind one of them.
+An advance is somebody betting on money your fans will spend. Most artists cant make that same bet on themselves, because they cant see what their own people already spend.
+On the CRWN app that's the number you get: what your paying fans are actually worth, month over month, under your own name.
 ANYWAY.
 
 So how long did each of them actually take to get a top ten album?
@@ -37,7 +37,7 @@ Now to be fair, a major can do things an independent cannot. Radio, sync, intern
 And Brent Faiyaz's six years only work if you can survive them without the cheque.
 
 But if the biggest offer in the building is really your own money handed to you early, the question aint how do I get signed.
-It's how many of the people already listening you could reach yourself, and whether you've ever asked them to pay you directly.
+It's whether you could put a number on what your own fans already pay you, and how many logins you'd have to open to do it.
 
 I built a free Own Your Fans Calculator that shows how much of your audience you can actually reach yourself, and what that relationship is worth once you can.
 

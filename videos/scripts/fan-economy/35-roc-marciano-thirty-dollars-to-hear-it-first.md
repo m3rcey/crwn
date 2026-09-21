@@ -18,8 +18,8 @@ Go guess the number before I say it.
 
 Hold that thought.
 You dont need to market to fans. You need a market FOR fans.
-Every artist already has something to sell and gives it away by accident: being first.
-That's what the CRWN app is built around: membership tiers and a vault your top members pay to get into, and early access is one of the things you can put in them.
+Every artist already has something to sell and gives it away by accident: being first. And the people who most deserve it are the ones who already bought from you, who you probably cant even list.
+On the CRWN app a release opens per rung, days early, staggered down the ladder automatically. You set who hears it when, once.
 ANYWAY.
 
 So how much did Roc Marciano charge just to hear that download early?
@@ -32,7 +32,7 @@ Now to be fair, the wide release is what pays the rest of the year, and streamin
 He just stopped giving the first day away for nothing.
 
 But if your day ones would pay to hear it before anybody, the question aint what do I charge for the album.
-It's what is being first actually worth, and why does everybody in your world get it at the same second.
+It's why the person who has bought six things off you gets the same release day as somebody who found you this morning.
 
 I built a free Vault Revenue Planner that prices exactly that for your catalog.
 

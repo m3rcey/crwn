@@ -14,8 +14,8 @@ None of those.
 
 Hold that thought.
 You dont need to market to fans. You need a market FOR fans.
-Reach and revenue are two different systems and almost nobody has been shown the second one.
-The CRWN app is built for the second one: tiers your fans join, and a vault behind one of them.
+A tour is the most expensive way there is to meet your own customers, and at the end of it the ticket company keeps the names.
+On the CRWN app the people who show up become members you hold, so the room pays you on the nights you're not in it.
 ANYWAY.
 
 So why did Little Simz cancel eleven shows weeks after winning a BRIT?
@@ -29,7 +29,7 @@ Now to be fair, Simz got that award and those listeners because streaming put he
 And she went back out the following year and played the rooms.
 
 But if a BRIT winner with millions of listeners can be one tour away from losing money, the question aint how do I get bigger.
-It's how many of those listeners have ever paid you anything, and whether you could reach them if you had to.
+It's that you have probably already sold thousands of tickets and cant reach one of them buyers today. What would a tour look like if you could?
 
 I built a free Between Tour Calculator that shows what your audience is worth on the nights you're not on stage.
 

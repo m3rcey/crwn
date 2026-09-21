@@ -17,8 +17,8 @@ Go guess what that came to before I say it.
 
 Hold that thought.
 You dont need to market to fans. You need a market FOR fans.
-Reach you cant contact is reach you're renting, and most artists are renting all of it.
-That's what the CRWN app is built around: membership tiers and a vault your top members pay to get into.
+Reach you cant contact is reach you're renting. And if you already sell, you aint renting one list, you're renting four: the store's, the ticket company's, the email tool's, the platform's.
+On the CRWN app every member, buyer and contact sits in one place under your name, with what each one has actually spent.
 ANYWAY.
 
 So how much did Ryan Leslie make from those fifteen thousand people?
@@ -31,8 +31,10 @@ Same fifteen thousand people. One number is two million. The other one buys lunc
 Now to be fair, he found a lot of them through the same platforms everybody else uses. Discovery did its job.
 The difference is he didn't leave them there. He moved them somewhere he owned.
 
-But if fifteen thousand people you can actually reach is worth two million dollars, the question aint how do I get more followers.
-It's how many of the people already following you could you text right now, and why is that number zero.
+But if fifteen thousand people you can actually reach is worth two million dollars, here's where you sit.
+If nobody's ever bought nothing off you, you got no list to lose yet, so this aint your problem this month.
+But if people already pay you, the question aint how do I get more followers.
+It's how many of them buyers you could contact today without asking a platform, and how many sit in two systems as two strangers.
 
 I built a free Own Your Fans Calculator that runs that exact number for your audience.
 

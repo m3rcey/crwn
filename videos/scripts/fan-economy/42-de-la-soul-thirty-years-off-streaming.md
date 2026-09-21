@@ -19,8 +19,8 @@ Go guess what happened in week one before I say it.
 
 Hold that thought.
 You dont need to market to fans. You need a market FOR fans.
-Most artists confuse the shelf with the demand, and the shelf is the part somebody else owns.
-That's what the CRWN app is built around: membership tiers and a vault your top members pay to get into.
+Most artists confuse the shelf with the demand, and the shelf is the part somebody else owns. Same goes for the store, the ticket site and the membership tool you're renting right now.
+On the CRWN app the demand has an address you control: the members, the buyers and the list, all under your name.
 ANYWAY.
 
 So how many streams did thirty years of pent-up demand do in seven days?
@@ -33,7 +33,7 @@ Now to be fair, thirty years off streaming cost them enormous money and reach, a
 And streaming is exactly what let all that stored-up demand cash out in one week. Discovery did its job the second it was allowed to.
 
 But if an audience can wait thirty years, the question aint how do I stay in the algorithm.
-It's whether anybody would notice if you disappeared, and whether you've got any way to reach them if the shelf goes away.
+It's whether you could reach the people who already paid you if every shelf you sell on shut down tomorrow.
 
 I built a free Own Your Fans Calculator that runs that exact number for your audience.
 

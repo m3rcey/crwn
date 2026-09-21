@@ -18,8 +18,8 @@ These two made opposite bets on that, and I promise you'll guess at least one of
 
 Hold that thought.
 You dont need to market to fans. You need a market FOR fans.
-Most artists are building the number somebody else keeps score of.
-That's the whole idea behind the CRWN app: membership tiers, and a vault only your top members get into.
+Most artists are building the number somebody else keeps score of, and the parts they DO own, the records and the buyers, are scattered across companies that each hold one piece.
+That's the whole idea behind the CRWN app: the catalog, the members and the money reconciling in one account with your name on it.
 ANYWAY.
 
 So who really has more albums out with no major label behind them, Del or J. Cole?
@@ -36,7 +36,7 @@ Now to be fair, J. Cole's reach is real and enormous and it pays in ways nine in
 And Del has never had to carry the costs Cole carries either.
 
 But if the thing you keep is the thing you put out yourself, the question aint how do I grow the number.
-It's how much of what you've already made is really yours, and whether anybody is collecting what it earns.
+It's that you been releasing and selling for years and nobody is watching the back end. How much of what you already made is really yours, and who is collecting what it earns?
 
 I built a free Royalty Readiness Check that shows which royalty streams your songs have earned that nobody is collecting.
 

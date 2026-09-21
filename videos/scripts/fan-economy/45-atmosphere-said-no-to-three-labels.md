@@ -16,8 +16,8 @@ Go guess what they did instead before I say it.
 
 Hold that thought.
 You dont need to market to fans. You need a market FOR fans.
-An offer from somebody else is only worth what you'd have to give up to take it, and most artists have never priced the other side.
-That's what the CRWN app is built around: membership tiers and a vault your top members pay to get into.
+An offer from somebody else is only worth what you'd have to give up, and most artists have never priced the other side, because the other side is spread across a store, a ticket platform and an email tool nobody ever totalled up.
+On the CRWN app that side reconciles in one place, so you can actually see what independence is already paying you.
 ANYWAY.
 
 So how much work did Atmosphere take on instead of signing?
@@ -31,7 +31,7 @@ Now to be fair, turning down three majors is a decision you can only make if you
 And this was brutal. Sixty shows in seventy one days is not a lifestyle, it is a price.
 
 But if the alternative to signing is that much work, the question aint how do I get a deal.
-It's what would you be handing over, and whether the audience you'd be handing over is one you could have kept.
+It's that you probably cant say what your own direct business earned last year without opening four tabs. How would you price a deal against a number you cant see?
 
 I built a free Between-Tour Revenue Calculator that prices the months in between.
 

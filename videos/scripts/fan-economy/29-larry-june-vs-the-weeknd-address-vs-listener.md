@@ -14,7 +14,8 @@ His people dont just stream Larry June. They check out. They put in a card, a na
 
 And that right there is the difference nobody prices.
 A streaming listener is a number. A customer is a NAME and an ADDRESS.
-One of them exists inside somebody else's app. The other one exists in a spreadsheet the artist owns.
+But there's a level under that, and it's the one that actually pays. It aint that somebody bought once. It's whether the same person grabbed the juice, then a shirt, then came back six months later for a record, and whether anything anywhere knows them four orders belong to one human being.
+For most artists selling right now the answer is no. Four orders, three platforms, one fan nobody can see.
 
 Now be clear about what that aint. That aint a knock on streaming, and it aint about who's bigger.
 Streaming is doing its job, which is putting an artist in front of people who never heard them. That job is enormous and it's the reason any of this starts.
@@ -42,7 +43,7 @@ The Weeknd's reach is a miracle. It's just rented, at every size. An address is 
 
 Them are illustrative numbers on a public streaming rate, not anybody's books.
 So if you sell anything at all, even a couple shirts a month:
-you already got names and addresses somewhere. When was the last time you treated that list like it was worth 500 times a follower?
+you already got names and addresses, sitting in two or three different places. When was the last time you put them side by side and looked at who shows up more than once?
 
 I built a free calculator that shows what the audience you already own could be worth.
 Comment OWN and I'll DM you the link.

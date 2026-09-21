@@ -20,8 +20,8 @@ Count what each one actually put out.
 
 Hold that thought.
 You dont need to market to fans. You need a market FOR fans.
-Reach and revenue are two different systems and almost nobody has been shown the second one.
-The CRWN app is built for the second one: tiers your fans join, and a vault behind one of them.
+Owning your release date is only half of it. The other half is being able to tell your own buyers about it without renting the reach back.
+On the CRWN app the people who bought from you before are reachable the day you finish something, because they're on your list and not somebody else's.
 ANYWAY.
 
 So whose fans got more albums since 2016, Gunna's or Big K.R.I.T.'s?
@@ -37,8 +37,8 @@ It was never a shortage of songs.
 Now to be fair, Gunna's pace is a label working exactly how it is supposed to, and those number ones put him in front of an audience four independent albums were never going to reach. That reach is real and it is hard to build.
 And a label with a whole roster has to decide who gets pushed and when, which is a real constraint and not a conspiracy.
 
-But if you're an artist on a level similar to Big K.R.I.T., the question aint how do I get on a roster.
-It's whether you can reach your own people the day you finish something, without asking anybody.
+But if you already put records out on your own and people already buy them, the question aint how do I get on a roster.
+It's whether you can reach the ones who bought the last one the day you finish the next one, without asking anybody.
 
 I built a free Own Your Fans Calculator that shows how much of your audience you can actually reach yourself.
 

@@ -19,14 +19,14 @@ They're there because they're part of something, on a date they already know, wh
 That is a fanbase with a REASON, and a reason works when a release schedule doesnt.
 
 Now here's the miss, and it aint just Saba's, it's everybody with a thing like this.
-That relationship gets collected once a year, for one night, in one city.
-The other 364 days there's nowhere for it to go, even though the loyalty is running the whole time.
+Everybody in that building bought a ticket. That's a room full of proven buyers getting identified once a year, by the ticket company, and handed back to the artist as a payout instead of a list.
+The other 364 days that loyalty is still running and there is nowhere for it to go, and no way to even name who was in the room.
 
 So what happens if a fanbase like that had somewhere to go year round?
 
 Your problem aint marketing to fans. It's that you need a market FOR fans.
-An annual room proves the demand. A membership is where that demand lives the rest of the year.
-Tiers, a vault, private posts, first word on everything: that's what artists run on the CRWN app.
+The night already proved the demand. What it never did is leave him with the people.
+On the CRWN app that room turns into rungs a fan joins under your own name, so the person who bought the ticket is somebody you can still reach in March.
 ANYWAY.
 
 So what is a fanbase like that actually worth on a monthly basis?
@@ -41,8 +41,8 @@ Traditions dont churn. Nobody skips it because the last single underperformed, a
 Most artists spend years trying to build what a tradition gives you by default, and the ones that already have one usually dont know it counts.
 
 That's a model, not a promise, and a night like that is bigger than money anyway.
-But if you're an independent artist with anything your people show up for on repeat:
-what's the thing your fans would come to even if you never dropped again, and where do they go the rest of the year?
+But if you already got something your people buy tickets to every year:
+you sell that room out and cant name one person in it. Where do them buyers go the other eleven months?
 
 I built a free calculator that maps out what your whole fan business could look like.
 Comment FREE and I'll DM you the link.

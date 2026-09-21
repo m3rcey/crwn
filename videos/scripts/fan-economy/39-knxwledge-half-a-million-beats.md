@@ -16,8 +16,8 @@ Go guess the number before I say it.
 
 Hold that thought.
 You dont need to market to fans. You need a market FOR fans.
-Almost every artist has got the same thing sitting there and treats it like a graveyard instead of a shelf.
-That's what the CRWN app is built around: membership tiers and a vault your top members pay to get into.
+Almost every artist got the same drive sitting there and treats it like a graveyard instead of a shelf.
+On the CRWN app that drive becomes a vault behind a rung, and the people you'd open it to are the ones already paying, named, in one place.
 ANYWAY.
 
 So how many beats has he made?
@@ -31,7 +31,7 @@ Now to be fair, most of that is loops and sketches and not finished songs, and h
 And a beat with no home is not automatically worth money. It's worth money to the specific people who already care.
 
 But if what you already made is bigger than what you'll ever release, the question aint what do I put out next.
-It's who would pay to see what's already on the drive, and why have you never opened it.
+It's whether you could name the twenty people who already bought from you most, because that is exactly who the drive is for.
 
 I built a free Vault Revenue Planner that prices exactly that for your catalog.
 

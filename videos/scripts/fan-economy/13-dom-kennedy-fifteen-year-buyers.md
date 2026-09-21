@@ -13,8 +13,9 @@ Dom Kennedy fans dont just listen, they BUY.
 
 Now here's the problem, and it aint just his. It's everybody's.
 Them purchases live in different systems. The ticket company got the ticket buyers. The store got the orders. Streaming got the plays.
-So the fan that bought from him 10 times over 15 years look exactly like somebody who pressed play once.
-The receipts exist. The relationships aint connected to nothing.
+And the interesting part aint that somebody bought once. It's whether the SAME person grabbed the vinyl, then a ticket, then a shirt eight months later. Three purchases, three systems, and not one of them knows it's one fan.
+So the person who spent money with him ten times over 15 years look exactly like somebody who pressed play once.
+The receipts exist. The relationship aint connected to nothing.
 
 So the move is not more reach. It's knowing WHO keeps coming back, and giving them somewhere to go.
 
@@ -38,8 +39,9 @@ The way I see it, when Interscope came up to Dom Kennedy in 2013, they wasnt jus
 They was trying to buy his RELATIONSHIP with his fans.
 He kept it. Most artists give that away for free and dont even know it.
 
-These numbers are just an estimate, but if you been dropping and selling for a few years, your version of that list already exists.
-How many people bought from you more than once... and could you name a single one of them?
+These numbers are just an estimate. And straight up, if nobody has ever bought nothing from you direct, this aint your problem yet. Go get that first sale, that's a different video.
+But if people already buy your merch, your tickets and your music, and all of it lands in a different app:
+how many of them bought from you more than once... and could you name a single one of them?
 
 I built a free calculator that shows what the audience you already own could be worth.
 Comment WORTH and I'll DM you the link.

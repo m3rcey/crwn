@@ -16,6 +16,7 @@ That's recruiting. It's been happening for free for years.
 
 But here's the thing about free recruiting.
 It's random. It happens when somebody feels like it, to whoever happens to be around, with nothing keeping score.
+And when one of them recruits actually buys something, that sale lands in a store that has no idea which fan sent them. The best salespeople he got are anonymous inside his own numbers.
 Nobody ever pointed it at a goal, put a deadline on it, or gave the people doing it a reason to go harder than usual.
 It's a fanbase full of recruiters and no recruitment drive.
 
@@ -40,8 +41,8 @@ Before the drive they were anonymous listeners. After it, he knows exactly who h
 That list is worth more than the members they brought, and it didnt exist an hour before he asked.
 
 That's a model with round numbers, not a promise.
-But if you're an artist whose fans already explain your music to people:
-they been recruiting for you for free this whole time. What happens the first time you actually ask them to?
+But if you already sell something and your fans already explain your music to people:
+they been bringing you buyers for free this whole time and you cant name one of them. What happens the first time you actually ask, and actually keep score?
 
 I built a free planner that runs this on your audience.
 Comment SHARE and I'll DM you the link.

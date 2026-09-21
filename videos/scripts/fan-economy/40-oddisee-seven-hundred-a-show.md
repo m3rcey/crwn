@@ -20,8 +20,8 @@ Go guess what a night was paying before I say it.
 
 Hold that thought.
 You dont need to market to fans. You need a market FOR fans.
-A show is not a payday, it's the only place you can meet the people who'll pay you for the next twenty years.
-That's what the CRWN app is built around: membership tiers and a vault your top members pay to get into.
+A show is not a payday, it's the only place you meet the people who'll pay you for the next twenty years. And right now the ticket company keeps every one of them names.
+On the CRWN app the room turns into something you hold: contacts and rungs under your own account, not a settlement sheet.
 ANYWAY.
 
 So how much was Oddisee getting paid a night?
@@ -34,7 +34,7 @@ Now to be fair, seven hundred a night with somebody else covering the travel is 
 This aint a suggestion to go lose money on tour.
 
 But if the room is worth more than the fee, the question aint how much does this show pay.
-It's whether you left with any way to reach the people who came, or you gave them a night and then let them go.
+It's that you already sold them tickets and still cant reach one of them. How many rooms have you left that way?
 
 I built a free Between-Tour Revenue Calculator that prices the months in between.
 

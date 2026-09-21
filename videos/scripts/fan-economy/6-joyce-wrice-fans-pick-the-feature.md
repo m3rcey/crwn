@@ -12,8 +12,9 @@ And her fan are specific. They dont casually like her, they study her.
 
 Now here's what's happening every time she picks a feature.
 That decision gets made in a room with her and maybe three other people.
-The fans who will actually BUY the record, the ones showing up to the shows and grabbing the vinyl, they find out when everybody else does.
-The most interesting creative call she makes all year is free, private, and invisible.
+The fans who already BOUGHT, the ones with a vinyl order and a ticket stub, find out when everybody else does.
+And she couldnt pull that room together if she wanted to, because the vinyl orders sit in one system and the tickets sit in another and neither one knows it's the same person.
+The most interesting creative call she makes all year is free, private, and invisible to the exact people who already paid.
 
 So imagine turning the room into the product.
 Members hear the options. They weigh in on who fits the record. They watch the choice get made and hear the thing get built.
@@ -37,8 +38,8 @@ The money aint the valuable part though.
 500 paying fans telling her which feature they'd actually buy is a market test no label meeting on earth can run.
 She'd stop guessing which record to push, because the people who pay already voted with money before it came out.
 
-Obviously that's a model and not a promise, but if you're an artist on Joyce Wrice's level, making creative calls alone every week:
-which room do YOU sit in that your realest fans would pay to be in?
+Obviously that's a model and not a promise, but if you already sell records, tickets or merch direct, and you still make every creative call in a room none of them buyers can get into:
+which room do YOU sit in that the people already paying you would pay again to be inside?
 
 I built a free calculator that prices what fans joining YOUR creative process could be worth.
 Comment PRODUCER and I'll DM you the link.

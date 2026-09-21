@@ -15,7 +15,7 @@ For them a Tink drop is not content. It's an event they waited years for.
 And here what nobody pricing.
 The FIRST ones got value. The ones INSIDE got value.
 But right now her biggest fan and a total stranger get the exact same thing, at the exact same second.
-The fans rushing to be first aint got no lane to actually BE first in.
+Them day-ones been buying for a decade. Tickets, merch, physical copies. And because every one of them purchases landed somewhere else, there is no rung for a person who spent ten years proving it.
 The diary is intimate by design... and the closest fans cant get no closer.
 
 So the solution is to build the closer room.
@@ -44,9 +44,9 @@ The first room dont just fund the drop. It announces it too.
 
 These are obviously estimates btw, but
 
-if you're an artist on a level similar to Tink then your version of this already exist.
-Somebody streaming you at midnight on your release date.
-What would the people that refuse to wait pay to never have to?
+if you already got years of drops and people who buy every one of them, your version of this already exist.
+Somebody streaming you at midnight on your release date, who also bought the vinyl and the tour shirt, and you cant prove it's the same person.
+What would the ones that refuse to wait pay to never have to?
 And what's sitting on your hard drive that belong inside and not everywhere else?
 
 I built a free Vault Revenue Planner that prices your version of it.

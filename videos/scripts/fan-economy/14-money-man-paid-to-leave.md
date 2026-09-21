@@ -20,9 +20,10 @@ What did paying $250,000 to walk away actually get him? Cause that's the part pe
 
 Real quick.
 You already know how to market to fans. Now you need a market FOR fans.
-Masters is one half of owning your business. The FAN half is the other one.
-The relationships, the sales, the list of who actually pays you: that half is what artists run on the CRWN app today, all in your name.
-Cause owning your music and renting your audience is only half free.
+Masters is one half of owning your business. The FAN half is the other one, and most artists who won the first half never even audited the second.
+Your buyers are scattered across a store, a ticket platform and an email tool, and not one of them belongs to you.
+On the CRWN app that half comes back under your name: the members, the sales and the list of who actually pays you, in one place.
+Cause owning your music and renting your customers is only half free.
 ANYWAY.
 
 So how much did he get offered after he owned everything?
@@ -35,8 +36,8 @@ When you dont own your music, you chase the deal.
 When you DO own it, the deals chase you. The leverage flipped the day he owned the asset.
 
 Them is reported numbers from his own interviews, but the lesson dont depend on the exact check.
-So if you're an artist that already think like an owner about your music, the real question is this:
-do you own your fan side the same way? The list, the relationships, the money trail?
+So if you already think like an owner about your masters, and you already got people paying you direct, the real question is this:
+do you own the fan side the same way? Or is your customer list actually four customer lists, sitting in four companies, none of them yours?
 
 I built a free calculator that map out what your whole fan business could look like when it's yours.
 Comment FREE and I'll DM you the link.

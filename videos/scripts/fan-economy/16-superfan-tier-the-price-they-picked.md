@@ -11,15 +11,15 @@ Their finance chief said he thinks 20 to 30 percent of paying subscribers would 
 And Spotify's premium tier, the one that's been widely reported but aint officially confirmed, would sit on top of a regular subscription.
 
 So read what they just admitted.
-The people running the biggest catalogs on earth looked at they own business and said the same thing I been saying: the real money aint in more listeners, it's in the small group that already loves you.
-They dont think casual listeners are the growth. They think superfans are.
+The people running the biggest catalogs on earth looked at they own business and said the same thing I been saying: the real money aint in more listeners, it's in the small group that already pays.
+They dont think casual listeners are the growth. They think superfans are. And notice they didnt say a word about follower counts, because that aint the qualifier.
 
 But here's the part that matters for you.
 When a platform builds a superfan tier, the superfan is a subscriber to the PLATFORM.
 They pay the app. The app decides what they get. Your name is on the music, not on the relationship.
 Same fan. Somebody else's customer.
 
-So what's the number they picked? What does the industry think a superfan is worth on top of what they already pay?
+So what's the number they picked?
 When I saw it next to what a fan will pay an artist directly, it stopped being about Spotify entirely.
 
 Before I give you the number, one thing.
@@ -38,8 +38,11 @@ Not one thing on that list is access to the ARTIST.
 They priced the appetite correctly and then filled the box with everything except the only thing a superfan actually wants, cause a platform structurally cannot sell you closeness to a person it dont represent.
 
 Them figures is reported and not confirmed, so treat the number as the shape of it.
-But if you're an independent artist with a real base, the read is simple.
-The industry just published what it thinks your superfans will pay. What would yours pay if the closeness came straight from you?
+Now here's what decides whether this is your problem yet, and it still aint a follower count.
+It's whether anybody ever paid you DIRECTLY. A shirt, a ticket, a vinyl, a beat pack, a Patreon. One transaction that wasnt a stream.
+If that's zero, a bigger following wont fix it. Go get the first one.
+But if people already buy from you in three or four different places, you dont have a superfan problem. You got superfans you cant SEE, split across four checkouts that never compared notes.
+So what would yours pay if the closeness came straight from you?
 
 I built a free calculator that shows what the direct-support side of your audience could be worth next to your streaming.
 Comment WORTH and I'll DM you the link.

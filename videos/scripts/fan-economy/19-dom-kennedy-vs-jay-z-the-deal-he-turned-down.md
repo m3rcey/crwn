@@ -24,7 +24,8 @@ Them two numbers dont even look like they came from the same business.
 
 Real quick.
 You already know how to market to fans. Now you need a market FOR fans.
-The relationships, the sales, the list of who actually pays you, all in your name: that's what artists run on the CRWN app.
+A deal is one way to lose the relationship. Running it across six platforms that never talk is the slower way, and way more artists do that one.
+The members, the buyers and the list of who actually pays you, in one place with your name on it: that's what artists run on the CRWN app.
 ANYWAY.
 
 So who waited longer to own his own records, Jay-Z or Dom Kennedy, and by how much?
@@ -41,8 +42,8 @@ He aint have to build an empire to get to ownership. He just started there.
 
 Now to be fair, Jay-Z got every one of them masters back AND built a business independence cant buy, and most artists who sign never get either one. That fight was the harder thing to win.
 And this is one clock, how long until you own your records. It says nothing about who made more.
-But if you're an independent artist waiting to get picked:
-what would you still own in 15 years, and whose name would be on it?
+But if you already own your masters and you already got people buying from you:
+you won the loud half. In 15 years, who's holding the names of everybody who ever paid you, and is it you?
 
 I built a free calculator that shows how much of your audience you can actually reach, and what that relationship is worth.
 Comment OWN and I'll DM you the link.

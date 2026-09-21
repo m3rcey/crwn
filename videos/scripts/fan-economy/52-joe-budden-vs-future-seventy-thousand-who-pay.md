@@ -17,8 +17,8 @@ And they get paid two completely different ways.
 
 Hold that thought.
 You dont need to market to fans. You need a market FOR fans.
-Reach and revenue are two different systems and almost nobody has been shown the second one.
-The CRWN app is built for the second one: tiers your fans join, and a vault behind one of them.
+The part that actually pays is the small group you can count, and most artists cant count theirs because their payers are split between a store, a ticket site and a membership tool.
+On the CRWN app that group is one list: who pays, how much, how long, in your name.
 ANYWAY.
 
 So whose fans pay more every month, Future's or Joe Budden's?
@@ -36,7 +36,7 @@ Streaming put him in front of more people in a month than a paywall reaches in a
 And Joe Budden built his audience on the radio and on records for twenty years first.
 
 But if seventy thousand people can do that, the question aint how do I get more listeners.
-It's how many of your listeners would pay you something small every month, and whether you've ever asked them.
+It's how many people already pay you something, how many of them pay you MORE THAN ONCE, and whether you could produce that list this afternoon.
 
 I built a free calculator that shows what the paying group inside your audience is worth every month.
 Comment WORTH and I'll DM you the link.

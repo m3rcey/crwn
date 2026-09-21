@@ -19,6 +19,7 @@ Not a wave that came and went. A group that never left.
 
 And that is a completely different math problem than the one everybody is trying to solve.
 Reach asks how many people heard it once. Loyalty asks how long somebody stays.
+And here's the sick part for an artist who already sells: the staying is happening right now and it's invisible. The person on album nine also bought album two, and there is nothing anywhere that knows that.
 Nobody ever taught us to price the second one, so we chase the first one forever.
 
 So I priced it. What is one fan who sticks around for a 20 year career actually worth?
@@ -39,8 +40,8 @@ And here is the part that reorganizes everything: you can NOT go find 800,000 st
 You absolutely can go find one person who would stay, and then another one, and then another one. That is a job you can actually do on a Tuesday.
 
 Them numbers assume a fan who stays the whole time, and real life is messier than that.
-But if you're an independent artist who has been grinding for years without the hit:
-you might not need the hit. How many of your people would still be here in ten years, and what have you ever offered them to stay?
+But if you already been selling for years without the hit:
+you might not need the hit. Somewhere in your orders is a person who has bought from you six times. What have you ever offered them that a first-time buyer cant get?
 
 I built a free calculator that shows what the direct-support side of your audience could be worth next to your streaming.
 Comment WORTH and I'll DM you the link.

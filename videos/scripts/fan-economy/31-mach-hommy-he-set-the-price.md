@@ -19,8 +19,8 @@ He wasn't guessing at that price. But he was wrong about it.
 
 Hold that thought.
 You dont need to market to fans. You need a market FOR fans.
-Most artists have tools for getting heard and nothing at all for pricing what they own.
-That's what the CRWN app is built around: membership tiers and a vault your top members pay to get into.
+Most artists have five tools for getting heard and not one that tells them what the top of their own fanbase would pay.
+On the CRWN app you set the rungs yourself and the top one is a vault, so your ceiling is a number you chose instead of one a store picked for you.
 ANYWAY.
 
 So what is Mach-Hommy's 999 dollar record actually worth?
@@ -33,8 +33,8 @@ Go back to them 187 CDs too. 187 people times 300 dollars is 56,100 dollars from
 At the penny a month per listener that streaming pays, you'd need a million monthly listeners for about five and a half months to see that.
 
 Now to be fair, streaming is what got most of us to Mach in the first place, and Pray for Haiti being up there is part of why anybody was bidding at all. Discovery did its job.
-But if you own something nobody else can sell, the question aint how many people hear it.
-It's what the ones who already love it would pay, and whether you asked for enough.
+But if people already buy your records, the question aint how many people hear it.
+It's what your existing buyers would have paid, and whether the price you set was the market's or just the one you guessed.
 
 I built a free Vault Revenue Planner that prices exactly that for your catalog.
 

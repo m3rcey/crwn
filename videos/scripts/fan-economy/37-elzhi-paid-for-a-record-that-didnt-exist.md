@@ -17,8 +17,8 @@ Go guess how many before I say it.
 
 Hold that thought.
 You dont need to market to fans. You need a market FOR fans.
-Most artists take on all the risk themselves and then find out at the end whether anybody cared.
-That's what the CRWN app is built around: membership tiers and a vault your top members pay to get into.
+Most artists carry all the risk and find out at the end whether anybody cared. And the ones who DO take money up front end up owing a delivery date they wrote in a caption and never looked at again.
+On the CRWN app a promise becomes a dated thing you owe named people, so what you swore to deliver stops living in your head.
 ANYWAY.
 
 So how many people paid for a record that didn't exist?
@@ -32,7 +32,7 @@ Now to be fair, that wait was hard on people and some of them were angry about i
 Money up front is a promise, and a promise you cant keep on time costs you more than the money was worth. Take the pre-orders and put the delivery date somewhere you cant lose it.
 
 But if seven hundred people will pay for something that does not exist yet, the question aint can I afford to make it.
-It's how many of my people would fund it right now, and have I ever asked.
+It's that your past buyers already answered it. Could you pull that list today, and could you keep the date you'd be promising them?
 
 I built a free Proof of Demand Test Builder that finds out before you spend a dollar.
 

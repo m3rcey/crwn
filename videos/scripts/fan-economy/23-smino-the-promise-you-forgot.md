@@ -17,7 +17,7 @@ And the day you forget one, they dont argue with you. They just quietly stop pay
 
 That's the part nobody plans for.
 Everybody builds the offer. Almost nobody builds the calendar that keeps it.
-You announced a monthly thing in a caption six weeks ago and you already cant remember what you promised or who you promised it to.
+And if you already run a Patreon, a Discord, a paid community, you got this problem TODAY. You announced a monthly thing in a caption six weeks ago, the people owed it are in one app, the thing you owe them is in another, and you already cant remember which tier it was for.
 
 So I ran the two versions of the same fanbase. Same 100 people, same price, one difference.
 The gap between them aint small.
@@ -37,8 +37,8 @@ Getting the 100 to join is the hard part. That's the ads, the rollout, the year 
 Keeping them is the EASY part, and it's the part everybody loses, because a forgotten promise doesnt feel like a mistake in the moment. It just feels like a busy week.
 
 That's arithmetic, not a forecast, and real fanbases move in and out.
-But if you're an independent artist about to ask people for money every month:
-what exactly did you promise them, and where is it written down?
+But if you already got people paying you every month:
+what exactly did you promise them, which ones are owed it, and where is any of that written down outside your head?
 
 I built a free calculator that maps out what your whole fan business could look like.
 Comment FREE and I'll DM you the link.

@@ -19,8 +19,8 @@ Count what that difference turns into over one calendar year.
 
 Hold that thought.
 You dont need to market to fans. You need a market FOR fans.
-Reach and revenue are two different systems and almost nobody has been shown the second one.
-The CRWN app is built for the second one: tiers your fans join, and a vault behind one of them.
+Being able to release whenever is worth nothing if the people who'd buy it are spread across a store, a mailing list and a group chat that never agree on who a fan is.
+On the CRWN app the cadence and the buyers live together: you drop to rungs, and the rungs know who's in them.
 ANYWAY.
 
 So which one gave his fans more albums in 2021, Khaled or Muggs?
@@ -37,7 +37,7 @@ Now to be fair, one Khaled record reaches more people in a week than Muggs's alb
 And seven albums a year only works because Muggs spent thirty years earning an audience that shows up without being told.
 
 But if the whole difference is whether somebody has to approve you, the question aint how do I get in the building.
-It's how often you could put something new in front of the people who already buy from you, and whether you have enough finished to do it.
+It's whether you could reach the people who already buy from you tomorrow, on purpose, without paying anybody for the privilege.
 
 I built a free Vault Revenue Planner that shows whether you have enough music to drop on a schedule, and what to charge for it.
 

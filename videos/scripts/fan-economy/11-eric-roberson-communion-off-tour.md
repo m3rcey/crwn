@@ -13,9 +13,9 @@ He improvs his songs on the spot. He takes a word from the crowd and turns it in
 People dont attend a Erro show they're IN it.
 
 Now let's look at the math problem hiding inside that.
-That experience only exist on tour nights. One city at a time that's capped by the size of the room.
+That experience only exist on tour nights. One city at a time, capped by the size of the room.
 Most nights of the year, the thing his fans love MOST is not for sale.
-Sold out dont mean the demand ran out. It mean the room did.
+Sold out dont mean the demand ran out. It mean the room did. And every one of them sold out nights is hundreds of people who already proved they pay for exactly this, walking back out as strangers.
 
 So let's think about an off-tour version.
 A ticketed live session, online. Small and intimate. Him, a keyboard, maybe 20 people tops and the room.
@@ -44,8 +44,7 @@ That list dont exist at the venue. The venue sell him the room. It dont never ha
 That's a rough estimate given on purpose. His real lives can be even bigger than that.
 
 Now let's talk about you.
-How many nights a year is YOUR best thing not for sale?
-And who would show up if it was?
+If you already sell out rooms you already got the proof. How many nights a year is YOUR best thing not for sale, and could you name ten people from the last show who would buy it tonight?
 
 I got a free Live Experience Calculator that price this for ya audience.
 Comment LIVE and I'll DM you the link.
@@ -58,5 +57,5 @@ Comment LIVE and I'll DM you the link.
 Metric: behavior-anchored (Sony Hall bio, Wikipedia: Blue Erro Soul 2001, Grammy noms, sold-out tours; improvised-song shows per Bring Back Soul Music); room size illustrative, no public counts used ·
 Hook promise: how much money is Eric Roberson leaving on the table on the nights he is not on tour ·
 Withheld variable: attendance AND ticket price · Big Reveal: money ($9,000 a night from 450 tickets at $20, about $108,000 a year) ·
-Wow Factor: ownership (the venue never hands him the names) · Lead magnet: live-experience-calculator + LIVE (paused tool, closest fit) ·
+Wow Factor: ownership (the venue never hands him the names) · Lead magnet: live-experience-calculator + LIVE (re-promoted 2026-08-16, active in PROMOTED_TOOL_KEYS) ·
 CRWN claim tier: shipped (live sessions with tickets and the included replay). Tips and tip goals are DELIBERATELY absent: `live_tips` probes OFF in production (2026-08-16), so no tip revenue appears in the math

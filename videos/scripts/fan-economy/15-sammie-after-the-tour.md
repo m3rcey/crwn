@@ -13,10 +13,10 @@ Sammie been famous since 1999. He was 12 years old singing I Like It, and the wh
 What changed? The Millennium Tour. Arenas full of grown folks singing songs they grew up on. That run changed his whole career.
 
 Now here's the one thing I'd change.
-Every night of a tour like that, thousands of people prove they'll pay to be in the room with you.
+Every night of a tour like that, thousands of people prove they'll pay to be in the room with you. Card, name, email, the whole thing.
 Then the lights come up... and they walk out the door as strangers.
-The venue keeps the ticket record. The artist keeps a memory.
-A tour aint just a payday. It's the biggest fan identification event you will ever run. And almost nobody runs it like one.
+The venue keeps the ticket record. The artist keeps a memory and a settlement sheet.
+A tour aint just a payday. It's the biggest buyer identification event you will ever run, and the one night a year where thousands of people volunteer proof that they spend. Almost nobody runs it like one.
 
 So the redesign is simple.
 Every person at them shows should land somewhere the artist owns before they leave:
@@ -40,8 +40,8 @@ And the cold part is what happens to everybody else.
 The other 99% aint gone. They just unclaimed.
 Every tour that ends without a capture plan is a list of proven buyers handed right back to the ticket company.
 
-Obviously that's a planning number, but if youre an artist who consistently has shows then your version of this walks out the door every time you do.
-Who from your last show could you still reach today?
+Obviously that's a planning number, but if you already sell tickets consistently, your version of this walks out the door every time you play.
+You got proof that thousands of people pay you. Who from your last show could you actually reach today, without asking a ticket company for permission?
 
 I got a free calculator that shows what your audience could be worth BETWEEN tours.
 Comment TOUR and I'll DM you the link.

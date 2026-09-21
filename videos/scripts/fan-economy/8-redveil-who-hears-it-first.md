@@ -16,8 +16,9 @@ And like almost everybody who has it, he uses it to do the same thing a label wo
 Pick a Friday. Push the button. Everybody on earth gets it at the exact same second.
 
 Now think about what that throws away.
-Your day one fan, the one who has been there since a project nobody streamed, gets the song at the same moment as somebody who found you off a playlist that morning.
-You had the one thing you can actually give a real fan that costs you nothing, and you gave it to everybody at once.
+Your day one fan, the one who bought the first project when nobody was streaming it, gets the song at the same second as somebody who found you off a playlist that morning.
+You know that person is out there. You just cant point at them, because the only proof they ever paid you is a receipt sitting in somebody else's store.
+So you had the one thing you can hand a proven buyer that costs you nothing, and you gave it to everybody at once.
 
 So run it the other way.
 Your top rung hears it Monday. The next rung Wednesday. Everybody else Friday.
@@ -44,8 +45,8 @@ A vinyl costs money to press. A show costs money to put on. A shirt has to get m
 Hearing it Monday instead of Friday costs him zero, and to the person who has been there since the beginning it's worth more than the merch.
 
 Them numbers is a model on a public follower count, not his books.
-But if you self release anything at all:
-you already control the one thing you never charged for. Who hears your next song first, and what did that access ever get them?
+But if you already sell your own records direct:
+you control the one thing you never charged for, and the people who earned it have paid you at least once already. Who hears your next song first, and has buying from you ever moved anybody up the line?
 
 I built a free calculator that maps out what your whole fan business could look like.
 Comment FREE and I'll DM you the link.

@@ -18,8 +18,8 @@ Go guess what it went for before I say it.
 
 Hold that thought.
 You dont need to market to fans. You need a market FOR fans.
-Everybody's fighting to be heard by more people, and almost nobody's asking what one person would pay to have something nobody else has.
-That's what the CRWN app is built around: membership tiers and a vault your top members pay to get into.
+Everybody's fighting to be heard by more people, and almost nobody's asking what ONE person would pay for something nobody else has.
+On the CRWN app you set the top rung yourself, so the ceiling on what your biggest fan can spend is a number you picked, not the price of your most expensive shirt.
 ANYWAY.
 
 So how much did that one copy sell for?
@@ -33,7 +33,7 @@ Now to be fair, this only worked because Wu-Tang spent twenty years making peopl
 Scarcity on something nobody wants is just a box in a closet.
 
 But if one object can be worth that, the question aint how many people can I reach.
-It's whether you've ever made a single thing that only one person can own.
+It's whether anybody in your buyer list has ever been offered anything above the cheapest thing you sell.
 
 I built a free Vault Revenue Planner that prices exactly that for your catalog.
 

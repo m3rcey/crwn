@@ -17,8 +17,8 @@ Then you look at where it landed.
 
 Hold that thought.
 You dont need to market to fans. You need a market FOR fans.
-Reach and revenue are two different systems and almost nobody has been shown the second one.
-The CRWN app is built for the second one: tiers your fans join, and a vault behind one of them.
+Reaching the same shelf is one thing. Keeping the split, and keeping the buyer, is the part nobody checks.
+On the CRWN app the sale and the person who made it stay together, so what you keep includes the customer.
 ANYWAY.
 
 So how high did Alfredo chart on his own label?
@@ -32,7 +32,7 @@ Now to be fair, a number fifteen peak is not a number one, and a major can move 
 And Gibbs had fifteen years of records behind him before Alfredo, which is why anybody was waiting for it.
 
 But if you can reach the same shelf on your own imprint, the question aint how do I get somebody to put me there.
-It's what you keep when you arrive, and whether the people who bought it are yours or theirs.
+It's whether you can name a single person who bought your last record, or whether the store kept all of them.
 
 I built a free Royalty Readiness Check that shows what you're actually owed and what you're leaving behind.
 

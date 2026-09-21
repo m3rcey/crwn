@@ -17,8 +17,8 @@ Every one of them is a thing a fan can still buy today, years later. Not a strea
 
 Hold that thought.
 You dont need to market to fans. You need a market FOR fans.
-Most artists have got a catalog sitting there doing nothing because the only thing they ever did with it was upload it.
-That's what the CRWN app is built around: membership tiers and a vault your top members pay to get into.
+Most artists got a catalog doing nothing because the only thing they ever did with it was upload it, and the few pieces they DID sell went out through a store that kept the buyer.
+On the CRWN app the catalog sits behind rungs you own, so the shelf and the people shopping it are in the same place.
 ANYWAY.
 
 So how many albums did he put out in that one year?
@@ -32,8 +32,8 @@ A release cycle ends. A catalog dont.
 Now to be fair, most artists cant work that fast and shouldn't try. Four rushed projects is worse than one finished one.
 And streaming is what carried those records to people who'd never have found them otherwise.
 
-But if you already got a catalog nobody's paying for, the question aint when do I drop next.
-It's what's already sitting there, and why is none of it behind a door your top fans would pay to walk through.
+But if you already got a catalog and real buyers for some of it, the question aint when do I drop next.
+It's which of them buyers came back for a second one, and why there is still no door above the one they already paid for.
 
 I built a free Vault Revenue Planner that prices exactly that for your catalog.
 

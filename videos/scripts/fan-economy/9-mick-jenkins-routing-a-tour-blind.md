@@ -15,7 +15,8 @@ Now ask the question nobody asks about a tour: how does anybody decide WHICH 40?
 Some streaming heat map. Which markets a promoter can get. What worked last time. A feeling.
 
 That's the whole industry, and it's a bet made with real money.
-You book the room, you pay the deposit, you buy the routing, and THEN you find out if that city wanted you.
+And it's worse for an artist who already sells. He has the answer and cant read it. He has sold tickets in them cities. He has shipped merch to them zip codes. The evidence of which markets pay him is split between a ticket platform, a store and a distributor, and none of them was built to say where his buyers live.
+So you book the room, you pay the deposit, you buy the routing, and THEN you find out if that city wanted you.
 Some nights are religious experiences. Some nights are 60 people in a 900 cap room, and the artist eats that.
 
 So flip the order.
@@ -42,8 +43,8 @@ Right now the risk sits entirely on the artist, and the information sits with th
 Flip that and the guess disappears, along with the 60-people night.
 
 That's a model of a thing that mostly doesnt exist yet, so treat it as the idea, not a plan.
-But if you're an independent artist about to book anything:
-which of your cities could actually fill a room, and would you bet a deposit on your answer?
+But if you already sold tickets and shipped merch to real addresses:
+you been collecting that answer for years without reading it once. Which of your cities could actually fill a room, and would you bet a deposit on your answer?
 
 I built a free Proof of Demand builder that tests an idea against your real fans before you spend.
 Comment PROOF and I'll DM you the link.
@@ -87,6 +88,6 @@ Metric: Chicago, catalog including The Water[s], Wave[s], The Healing Component,
 Hook promise: what fans could put down before a venue is booked (a dollar figure, unit-matched to the reveal) ·
 Withheld variable: the pledge size AND the city count · Big Reveal: money committed pre-booking ($60,000 across 10 cities) ·
 Wow Factor: market-signal (the risk sits with the artist while the information sits with the fans) ·
-Lead magnet: proof-of-demand-test-builder + PROOF (paused tool, closest honest continuation) ·
+Lead magnet: proof-of-demand-test-builder + PROOF (re-promoted 2026-08-20, active in PROMOTED_TOOL_KEYS) ·
 CRWN claim tier: CONCEPTUAL, stated outright in-script that CRWN does not route tours off fan deposits today, with only the demand-testing front half claimed ·
 Repost test: Mick Jenkins WINS; guessing at routing is named as the whole industry's method, never his failure

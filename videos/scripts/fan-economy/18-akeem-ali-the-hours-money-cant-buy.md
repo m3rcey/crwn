@@ -17,6 +17,7 @@ What it cant buy is a stranger vouching for you on they own page for nothing.
 And here's the part that should bother you if you got fans doing this.
 That work already exists and it aint attached to no economics at all.
 The fan that sends 50 new people to Akeem Ali earns nothing, and Akeem cant even see that it happened.
+Worse, if some of them 50 turn around and buy something, that sale shows up in a store with no idea which fan caused it. The best salesperson he got is anonymous to his own books.
 
 So put a clock on it. How much work is his fanbase actually doing in a year?
 When the number came back I had to check it twice.
@@ -38,8 +39,8 @@ That's the trap at the very top: once you can buy anything, everything you touch
 Fan-made is the one channel that gets more powerful the less it looks like marketing, and a new artist has the most of it.
 
 Them hours is a model of a real habit, not a measurement.
-So if you got people posting you for free right now:
-how many hours a year is your fanbase working for you, and what happens the day that work finally pays them back?
+So if you already sell something and you got people posting you for free right now:
+how many hours a year is your fanbase working for you, which of them ever produced an actual sale, and what happens the day that work finally pays them back?
 
 I built a free Share-to-Earn planner that runs this on your audience.
 Comment SHARE and I'll DM you the link.
