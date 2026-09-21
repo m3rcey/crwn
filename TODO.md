@@ -688,6 +688,29 @@ responsible for. Do not work those.
 
 ### P2 — worth doing, nothing breaks if you never do it
 
+- [ ] **Decide whether the paused VAULT carousels need re-checking against the planner.**
+      While rewriting the carousel captions I found 13 of 31 were promising a figure the
+      destination calculator does not compute. The Vault Revenue Planner returns a readiness
+      score, an inventory, a price band and a 30-day plan, and computes NO revenue total on
+      purpose (the reason is written in its config in
+      [src/lib/leadMagnets/registry.ts](src/lib/leadMagnets/registry.ts)). Ten VAULT captions
+      were selling "what underpricing is costing you" and similar. All 31 captions are fixed
+      in commit `1a7e793a`. What is NOT checked is every other surface that promotes VAULT:
+      the lead-magnet shortform scripts in
+      [videos/scripts/lead-magnets/](videos/scripts/lead-magnets/), the nurture emails, and any
+      ManyChat DM copy. Worth one pass with the same question: does this promise a number the
+      tool returns? `FE-CAR-003` only checks that a loss WORD is present, never that the claim
+      is true, so nothing will catch this for you.
+
+- [ ] **Review the proven-seller rewrite of Fan Economy carousel captions before any of them post.**
+      Commit `1a7e793a`, 31 files in [videos/carousels/fan-economy/](videos/carousels/fan-economy/).
+      Caption copy only: no slide prompt, image or video changed, so nothing needs regenerating
+      whatever you decide. To read only what changed:
+        git show 1a7e793a -- videos/carousels/fan-economy
+      Every hook is now a question plus "Let's find out.", matching the videos. Carousel 46 became
+      the dedicated qualification piece. Six captions (33, 34, 43, 46, 52, 60) now say out loud
+      who this is not built first for.
+
 - [ ] **Review the proven-seller rewrite of Fan Economy scripts 6 to 60 before any of them film.**
       Commit `9ecc8401`, 53 files in [videos/scripts/fan-economy/](videos/scripts/fan-economy/).
       Scripts 1 to 5 are untouched. To read only what changed:
