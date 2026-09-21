@@ -1,5 +1,46 @@
 # CRWN Brain — Changelog
 
+## 2026-09-20 - The calculators price CRWN on the plan CRWN would recommend, not always on Pro
+
+**Founder decision.** *When a CRWN calculator models platform costs, it uses the canonical
+revenue-based plan recommendation for the modeled gross GMV rather than assuming a fixed plan.*
+`/worth` follows the same rule, and the auto-claim GMV defect is fixed in the same change. No price,
+fee, break-even, signup behavior or Stripe path changed.
+
+**Why Pro was there.** Not a rule: an inheritance. `/worth` (2026-07-01) modeled Pro as "the plan
+the recommended 3-tier setup requires" when Pro was $9.99 a month. The 2026-07-31 reprice made Pro
+$49 and put the ladder on every plan, which removed both reasons, and the unified model had copied
+the constant. Every audited ICP artist grosses far above the Scale break-even, so the fixed basis
+priced them $1,400 to $4,600 a month above the plan CRWN's own recommender gives them, and named a
+plan that onboarding then contradicted. The pricing strategy's real rule was always "start on
+Launch, recommend Launch, Pro or Scale from projected revenue".
+
+**What changed.** One helper, `modeledPlanCost()`, composes the existing `recommendPlan()` and
+`monthlyPlanCostCents()`; it holds no threshold, rate or price. In the unified model each
+scenario's gross is summed with no plan in scope, then priced on its own recommended plan (the
+revenue builders are typed on `UnifiedRates`, so the compiler forbids a plan reaching revenue).
+Scenarios may sit on different plans; the expected case's plan is the one named; a range names none.
+`/worth` and its WORTH DM result now take the same path, so the 8% that named Pro and left out
+Pro's $49 is gone, and for an input where both tools model the same gross they agree to the cent.
+Kairo, Maya and Andre all model Scale: additional revenue rises 3.6%, 4.1% and 4.2%, and nothing on
+the revenue side moved.
+
+**Auto-claim.** `recommendPlan()` and `projected_monthly_gmv` were fed `estimatedMonthlyCents`,
+which for the Opportunity Calculator is NET-NEW revenue (after CRWN's costs, minus what the artist
+already earns). The bigger the existing business, the smaller CRWN sized it; an estimate that added
+nothing new stored no recommendation at all. `projectedGmvCents()` is now the one definition of
+projected GMV (modeled gross, read off the payload, cents), used by auto-claim AND by the
+launch-review plan panel, which had the same defect through the roadmap goal.
+
+**Versioning and history.** `UNIFIED_ASSUMPTIONS_VERSION` is `@2`; `UNIFIED_MODEL_VERSION` stays
+`@1` (it is the `resultVersion` analytics dimension). Saved results are immutable and were not
+rewritten. Production held ONE row with a stored GMV (recommended Scale, on Launch); it refreshes
+on that artist's next session, so no backfill was run or needed.
+
+**Left as a flagged follow-up.** `revenueRamp.ts` still converts a money target to a supporter
+count at one fixed marginal rate. It is an internal milestone estimate, its behavior is unchanged,
+and a test bounds the drift under 5%.
+
 ## 2026-09-20 - An artist who already has paying fans is no longer told to "launch the membership"
 
 The Tier 1 ICP validation audit passed the production funnel (3 of 3 personas end to end, P0 0,

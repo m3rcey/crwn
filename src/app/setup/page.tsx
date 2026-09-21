@@ -1925,6 +1925,10 @@ function LaunchReview({
   const [contactCount, setContactCount] = useState(0);
   const [campaignCount, setCampaignCount] = useState(0);
   const [roadmapNext, setRoadmapNext] = useState<string | null>(null);
+  // Modeled GROSS GMV (cents), the only thing a plan may be sized by. This held the roadmap GOAL,
+  // which for the Opportunity Calculator is net-new revenue (after CRWN's costs, minus what the
+  // artist already earns), so the panel priced plans "at your projected $X" on a figure that was
+  // not sales and recommended too small a plan to an established seller.
   const [goalCents, setGoalCents] = useState<number | null>(null);
   // The fan import hub, right here in the review: the modal is route-independent,
   // so the audience does not have to wait for the post-launch Fan CRM.
@@ -1968,8 +1972,8 @@ function LaunchReview({
       .then((r) => (r.ok ? r.json() : null))
       .then((j) => {
         if (active && j?.roadmap?.nextStep?.label) setRoadmapNext(j.roadmap.nextStep.label);
-        if (active && typeof j?.stats?.goalMonthlyCents === 'number' && j.stats.goalMonthlyCents > 0) {
-          setGoalCents(j.stats.goalMonthlyCents);
+        if (active && typeof j?.stats?.projectedGmvCents === 'number' && j.stats.projectedGmvCents > 0) {
+          setGoalCents(j.stats.projectedGmvCents);
         }
       })
       .catch(() => {});
@@ -2148,7 +2152,7 @@ function LaunchReview({
                 ))}
               </ul>
               <p className="text-xs text-crwn-text-secondary">
-                {`Costs shown at your projected $${Math.round(goalCents / 100).toLocaleString()} a month. You launch on Launch (free) today. Upgrading later in Billing changes your fee, never your work.`}
+                {`Costs shown at your modeled $${Math.round(goalCents / 100).toLocaleString()} a month in sales. You launch on Launch (free) today. Upgrading later in Billing changes your fee, never your work.`}
               </p>
             </>
           ) : (

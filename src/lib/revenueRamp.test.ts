@@ -17,12 +17,22 @@ describe('revenue ramp (the calculator number, dated)', () => {
     // assumptions, every milestone headcount on every artist's calendar is wrong.
     const a = getAssumptions('conservative');
     const result = calculate({ monthlyListeners: 0, engagedFollowers: 250_000, currentStreamingCents: 0 }, a);
-    const ramp = buildRamp({ targetMonthlyCents: result.netMrrCents, startedAt: START });
+    // The ramp turns money into headcount at ITS OWN per-supporter value, so the target that
+    // reconciles exactly is that value times the calculator's population. It used to be the
+    // calculator's net, which was the same number while /worth took a flat rate. Since 2026-09-20
+    // /worth prices CRWN on the recommended plan (a rate AND a fixed subscription), so its net is no
+    // longer a fixed multiple of headcount and the ramp is an approximation of it, by design and
+    // flagged as a follow-up in revenueRamp.ts. The population and the rounding are what this pins.
+    const target = Math.round(result.payers * netCentsPerPayer());
+    const ramp = buildRamp({ targetMonthlyCents: target, startedAt: START });
     const finalPhase = ramp.phases[ramp.phases.length - 1];
 
     // Same population the calculator computed, reached from the money instead of the audience.
     expect(finalPhase.targetPayers).toBe(Math.round(result.payers));
-    expect(finalPhase.targetMonthlyCents).toBe(result.netMrrCents);
+    expect(finalPhase.targetMonthlyCents).toBe(target);
+    // And the approximation stays close to the calculator's real after-cost figure.
+    const drift = Math.abs(buildRamp({ targetMonthlyCents: result.netMrrCents, startedAt: START }).phases.at(-1)!.targetPayers! - result.payers) / result.payers;
+    expect(drift).toBeLessThan(0.05);
   });
 
   it('derives per-payer value from the calculator, never a second price map', () => {

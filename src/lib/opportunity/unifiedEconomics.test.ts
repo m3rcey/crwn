@@ -12,12 +12,14 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { TIER_LIMITS, TIER_PRICING, formatTierName } from '@/lib/platformTier';
-import { monthlyPlanCostCents, proBreakEvenGmvCents } from '@/lib/planRecommendation';
-import { MODELED_PLAN, calculateScenarioBand, calculateUnifiedOpportunity } from './unifiedModel';
-import { buildUnifiedResult, planBasisFor } from './unifiedAdapter';
+import { monthlyPlanCostCents, proBreakEvenGmvCents, recommendPlan, scaleBreakEvenGmvCents } from '@/lib/planRecommendation';
+import { calculateScenarioBand, calculateUnifiedOpportunity } from './unifiedModel';
+import { RANGE_COST_PHRASE, buildUnifiedResult, planBasisFor } from './unifiedAdapter';
 import { recalcUnified } from './recalcUnified';
 
 const usd = (cents: number): string => '$' + Math.round(cents / 100).toLocaleString('en-US');
+/** Source with comments removed: the comments explain the wording and constants that were removed. */
+const codeOnly = (src: string): string => src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:])\/\/.*$/gm, '$1');
 
 // A small artist (the audit's Jaylen shape) and a proven seller with real direct income today.
 const SMALL = { socialFollowers: 5_000 };
@@ -32,12 +34,57 @@ const SELLER_ANSWERS = {
 const planSubscription = (plan: 'starter' | 'pro' | 'scale'): number =>
   plan === 'starter' ? 0 : TIER_PRICING[plan].monthly;
 
-describe('plan basis: one plan, its whole cost, from the canonical source', () => {
-  it('takes the rate AND the price from the same plan in platformTier', () => {
-    const a = calculateUnifiedOpportunity(SELLER).assumptions;
-    expect(a.planKey).toBe(MODELED_PLAN);
-    expect(a.platformFeePercent).toBe(TIER_LIMITS[a.planKey].platformFeePercent);
-    expect(a.planMonthlyCents).toBe(planSubscription(a.planKey));
+describe('plan basis: the recommender picks the plan from the gross, and its whole cost is paid', () => {
+  // FOUNDER DECISION, 2026-09-20. The calculators no longer assume Pro. Each scenario's own gross
+  // goes to the canonical `recommendPlan`, and that plan is priced in full. The calculator follows
+  // the recommender; the recommender never follows the calculator.
+  it('prices every scenario on the plan recommendPlan returns for THAT scenario\'s gross', () => {
+    for (const inputs of [SMALL, SELLER, { socialFollowers: 20_000 }, { socialFollowers: 1_250_000 }]) {
+      for (const r of Object.values(calculateScenarioBand(inputs))) {
+        const expected = recommendPlan({ projectedMonthlyGmvCents: r.totalGrossCents }).plan;
+        expect(r.assumptions.planKey).toBe(expected);
+        expect(r.assumptions.platformFeePercent).toBe(TIER_LIMITS[expected].platformFeePercent);
+        expect(r.assumptions.planMonthlyCents).toBe(planSubscription(expected));
+        expect(r.crwnCostCents).toBe(monthlyPlanCostCents(expected, r.totalGrossCents));
+      }
+    }
+  });
+
+  it('no longer assumes Pro: a small gross models Launch and a large one models Scale', () => {
+    const small = calculateUnifiedOpportunity(SMALL);
+    expect(small.totalGrossCents).toBeLessThan(proBreakEvenGmvCents());
+    expect(small.assumptions.planKey).toBe('starter');
+    expect(small.planSubscriptionCents).toBe(0);
+    expect(small.platformFeeCents).toBe(Math.round(small.totalGrossCents * (TIER_LIMITS.starter.platformFeePercent / 100)));
+
+    const big = calculateUnifiedOpportunity({ socialFollowers: 1_250_000 });
+    expect(big.totalGrossCents).toBeGreaterThan(scaleBreakEvenGmvCents());
+    expect(big.assumptions.planKey).toBe('scale');
+    expect(big.planSubscriptionCents).toBe(TIER_PRICING.scale.monthly);
+  });
+
+  it('lets conservative, expected and high sit on different plans when the recommender says so', () => {
+    // 20,000 followers spans a breakpoint: the conservative gross is below the Pro break-even and
+    // the expected one is above it. Forcing one plan onto all three would misprice an end.
+    const band = calculateScenarioBand({ socialFollowers: 20_000 });
+    const plans = [band.conservative, band.expected, band.high].map((r) => r.assumptions.planKey);
+    expect(new Set(plans).size).toBeGreaterThan(1);
+    expect(plans[0]).toBe('starter');
+  });
+
+  it('never lets the plan touch the revenue side: gross is identical whatever plan results', () => {
+    // No circularity. The revenue builders are typed on `UnifiedRates`, which has no plan fields,
+    // so this is enforced by the compiler; this asserts the observable consequence.
+    const src = readFileSync(join(__dirname, 'unifiedModel.ts'), 'utf8');
+    const grossAt = src.indexOf('const totalGrossCents =');
+    const planAt = src.indexOf('modeledPlanCost(totalGrossCents)');
+    expect(grossAt).toBeGreaterThan(-1);
+    expect(planAt).toBeGreaterThan(grossAt);
+    // Every revenue builder takes the plan-free rates; the full assumptions are assembled ONCE,
+    // after the gross, inside calculateUnifiedOpportunity.
+    expect(src.match(/a: UnifiedRates/g)!.length).toBeGreaterThanOrEqual(5);
+    expect(src.match(/a: UnifiedAssumptions/g)!.length).toBe(1);
+    expect(src.indexOf('const a: UnifiedAssumptions')).toBeGreaterThan(planAt);
   });
 
   it('charges exactly what the plan recommender says that plan costs at this gross', () => {
@@ -58,9 +105,8 @@ describe('plan basis: one plan, its whole cost, from the canonical source', () =
     expect(r.netMonthlyCents).not.toBe(feeOnly);
   });
 
-  it('would cost a Launch-basis model no subscription and a Scale-basis model its own', () => {
-    // The model has ONE basis, but the identity it uses must hold for every plan, so flipping
-    // MODELED_PLAN can never produce a rate from one plan and a price from another.
+  it('costs a Launch result no subscription and a Pro or Scale result its own', () => {
+    // Whatever plan the recommender returns, its rate and its price come from the same plan.
     const gross = 550_00;
     expect(monthlyPlanCostCents('starter', gross)).toBe(Math.round(gross * (TIER_LIMITS.starter.platformFeePercent / 100)));
     expect(monthlyPlanCostCents('pro', gross)).toBe(
@@ -81,11 +127,39 @@ describe('plan basis: one plan, its whole cost, from the canonical source', () =
     expect(none.crwnCostCents).toBe(0);
   });
 
-  it('retypes no plan price or plan rate in the model, the adapter or the recalc', () => {
-    for (const file of ['unifiedModel.ts', 'unifiedAdapter.ts', 'recalcUnified.ts']) {
-      const src = readFileSync(join(__dirname, file), 'utf8');
-      expect(src, file).not.toMatch(/\b4900\b|\b19900\b|\$49\b|\$199\b/);
-      expect(src, file).not.toMatch(/TIER_LIMITS\.pro\b|TIER_PRICING\.pro\b/);
+  it('retypes no plan price, rate or breakpoint in either calculator, and pins no plan', () => {
+    const files = [
+      join(__dirname, 'unifiedModel.ts'),
+      join(__dirname, 'unifiedAdapter.ts'),
+      join(__dirname, 'recalcUnified.ts'),
+      join(__dirname, '..', 'leadCalculator.ts'),
+    ];
+    for (const file of files) {
+      const src = codeOnly(readFileSync(file, 'utf8'));
+      expect(src, file).not.toMatch(/\b4900\b|\b19900\b|\$49\b|\$199\b|\b122500\b|\b500000\b|\$1,225|\$5,000/);
+      // No plan is named as a constant anywhere: not a key, not a TIER_LIMITS / TIER_PRICING read.
+      expect(src, file).not.toMatch(/TIER_LIMITS|TIER_PRICING|MODELED_PLAN/);
+    }
+    // The two MODELS never name a plan at all. (The adapter names Launch once, in copy, as the
+    // plan every account starts on. That is a fact about signup, not a cost basis.)
+    for (const file of [files[0], files[3]]) {
+      expect(codeOnly(readFileSync(file, 'utf8')), file).not.toMatch(/['"](starter|pro|scale)['"]/);
+    }
+    // Both calculators reach the plan through the ONE shared helper.
+    expect(readFileSync(files[0], 'utf8')).toContain('modeledPlanCost(totalGrossCents)');
+    expect(readFileSync(files[3], 'utf8')).toContain('modeledPlanCost(grossMrrCents)');
+  });
+
+  it('leaves no hardcoded Pro or 8% wording on a surface whose plan is now dynamic', () => {
+    const surfaces = [
+      join(__dirname, 'unifiedAdapter.ts'),
+      join(__dirname, 'recalcUnified.ts'),
+      join(__dirname, '..', 'acquisition', 'toolAdapters.ts'),
+      join(__dirname, '..', '..', 'app', '(public)', 'worth', 'WorthExperience.tsx'),
+    ];
+    for (const file of surfaces) {
+      const code = codeOnly(readFileSync(file, 'utf8'));
+      expect(code, file).not.toMatch(/8% Pro|Pro fee|Pro plan fee|Fee 8%|After CRWN Pro|CRWN's Pro plan/);
     }
   });
 });
@@ -158,7 +232,8 @@ describe('total, current and additional revenue are three named things', () => {
   it('names the plan and its whole cost on the after-costs tile and in the derivation', () => {
     const r = calculateUnifiedOpportunity(SELLER);
     const plan = planBasisFor(r);
-    expect(plan.name).toBe(formatTierName(MODELED_PLAN));
+    // The EXPECTED scenario's recommended plan is the primary plan context on the page.
+    expect(plan.name).toBe(formatTierName(recommendPlan({ projectedMonthlyGmvCents: r.totalGrossCents }).plan));
     expect(plan.costLine).toContain(`${r.assumptions.platformFeePercent}% fee`);
     expect(plan.costLine).toContain(usd(r.assumptions.planMonthlyCents));
 
@@ -170,6 +245,13 @@ describe('total, current and additional revenue are three named things', () => {
     expect(tile.label).toContain(plan.shortCost);
     expect(plan.shortCost).toContain(usd(r.assumptions.planMonthlyCents));
     expect(tile.note).toContain(plan.costLine);
+    // An estimate basis, never a plan they hold: "Modeled using", in the derivation and the assumptions.
+    const costRow = result.sections.find((s) => s.key === 'derivation')!.metrics!.find((m) => /Minus CRWN/.test(m.label))!;
+    expect(costRow.note).toContain('Modeled using CRWN ' + plan.name);
+    const assumed = result.sections.find((s) => s.key === 'assumptions')!.items!.join(' ');
+    expect(assumed).toContain('modeled using CRWN ' + plan.name);
+    expect(assumed).toMatch(/Every account starts free on Launch/);
+    expect(assumed).toMatch(/Nothing here signs you up for one/);
 
     const rows = result.sections.find((s) => s.key === 'derivation')!.metrics!;
     const labels = rows.map((m) => m.label);
@@ -203,18 +285,30 @@ describe('total, current and additional revenue are three named things', () => {
     expect(scenarios.metrics!.find((m) => m.label === 'Expected')!.value).toBe(`${usd(band.expected.netNewMonthlyCents)}/mo`);
   });
 
-  it('tells a below-break-even artist that Launch is cheaper, from the recommender math, and nobody else', () => {
-    const small = buildUnifiedResult({ social_followers: 5_000 });
+  it('names Launch, with no plan price, for an artist whose gross the recommender puts on Launch', () => {
+    // This replaced a footnote admitting that the fixed Pro basis overcharged small artists. With
+    // the recommender choosing, a small artist is simply modeled on Launch.
     const smallModel = calculateUnifiedOpportunity(SMALL);
-    expect(smallModel.totalGrossCents).toBeLessThan(proBreakEvenGmvCents());
-    const smallText = small.sections.find((s) => s.key === 'assumptions')!.items!.join(' ');
-    expect(smallText).toContain(`${TIER_LIMITS.starter.platformFeePercent}% fee, no monthly plan cost`);
-    expect(smallText).toContain(usd(smallModel.crwnCostCents - monthlyPlanCostCents('starter', smallModel.totalGrossCents)));
+    expect(smallModel.assumptions.planKey).toBe('starter');
+    const small = buildUnifiedResult({ social_followers: 5_000 });
+    const tile = small.sections.find((s) => s.key === 'headline')!.metrics!.find((m) => /After CRWN/.test(m.label))!;
+    expect(tile.label).toBe('After CRWN Launch costs (' + TIER_LIMITS.starter.platformFeePercent + '%, $0/mo)');
+    expect(tile.value).toBe(usd(smallModel.totalGrossCents - monthlyPlanCostCents('starter', smallModel.totalGrossCents)));
+    const text = small.sections.find((s) => s.key === 'assumptions')!.items!.join(' ');
+    expect(text).toContain(TIER_LIMITS.starter.platformFeePercent + '% fee, no monthly plan cost');
+    expect(text).not.toMatch(/leans cautious|costs less than/);
+  });
 
-    const bigModel = calculateUnifiedOpportunity({ socialFollowers: 500_000 });
-    expect(bigModel.totalGrossCents).toBeGreaterThan(proBreakEvenGmvCents());
-    const bigText = buildUnifiedResult({ social_followers: 500_000 }).sections.find((s) => s.key === 'assumptions')!.items!.join(' ');
-    expect(bigText).not.toMatch(/Every account starts on/);
+  it('says which plan each scenario is on only when they differ', () => {
+    const mixed = buildUnifiedResult({ social_followers: 20_000 }).sections;
+    const notes = mixed.find((s) => s.key === 'scenarios')!.metrics!.map((m) => m.note ?? '');
+    expect(notes[0]).toMatch(/, on Launch$/);
+    expect(notes.every((n) => /, on (Launch|Pro|Scale)$/.test(n))).toBe(true);
+    expect(mixed.find((s) => s.key === 'assumptions')!.items!.join(' ')).toMatch(/each priced on the plan recommended at that size/);
+
+    const uniform = buildUnifiedResult({ social_followers: 1_250_000 }).sections;
+    expect(uniform.find((s) => s.key === 'scenarios')!.metrics!.every((m) => !/ on /.test(m.note ?? ''))).toBe(true);
+    expect(uniform.find((s) => s.key === 'assumptions')!.items!.join(' ')).not.toMatch(/each priced on the plan/);
   });
 });
 
@@ -223,8 +317,11 @@ describe('the same definitions survive a builder recalculation and the saved pay
     const result = buildUnifiedResult(SELLER_ANSWERS);
     const cp = result.conversionPayload as Record<string, unknown>;
     const recalc = recalcUnified({ vaultPlacement: 'none' }, cp)!;
-    expect(recalc.label).toContain(`CRWN's ${formatTierName(MODELED_PLAN)} plan costs`);
-    expect(result.headline).toContain(`CRWN's ${formatTierName(MODELED_PLAN)} plan costs`);
+    // A RANGE can span plans, so its wording names no single plan, and the builder says exactly
+    // what the result said.
+    expect(recalc.label).toContain(RANGE_COST_PHRASE);
+    expect(result.headline).toContain(RANGE_COST_PHRASE);
+    expect(RANGE_COST_PHRASE).not.toMatch(/Launch|Pro|Scale/);
     const band = calculateScenarioBand({ ...(cp.modelInputs as object), vaultPlacement: 'none' });
     expect(recalc.value).toBe(`${usd(band.conservative.netNewMonthlyCents)} to ${usd(band.high.netNewMonthlyCents)}`);
   });
@@ -232,7 +329,11 @@ describe('the same definitions survive a builder recalculation and the saved pay
   it('carries the plan basis and the current-revenue answer on the payload the signup reads', () => {
     const r = calculateUnifiedOpportunity(SELLER);
     const cp = buildUnifiedResult(SELLER_ANSWERS).conversionPayload as Record<string, number | string>;
-    expect(cp.planKey).toBe(MODELED_PLAN);
+    expect(cp.planKey).toBe(r.assumptions.planKey);
+    // Modeled GROSS travels on the payload: it is the only figure the recommender may be fed.
+    expect(cp.totalGrossCents).toBe(r.totalGrossCents);
+    expect(cp.totalGrossCents).toBeGreaterThan(cp.netNewMonthlyCents as number);
+    expect(cp.assumptionsVersion).toBe('unifiedAssumptions@2');
     expect(cp.planSubscriptionCents).toBe(r.planSubscriptionCents);
     expect(cp.platformFeeCents).toBe(r.platformFeeCents);
     expect(cp.currentDirectRevenueCents).toBe(SELLER.currentDirectRevenueCents);

@@ -11,7 +11,7 @@
 //   - The artist currently captures ~$0 of DIRECT fan revenue, so the CRWN net IS the
 //     money left on the table. Streaming continues alongside it (additive, honest).
 
-import { TIER_LIMITS } from './platformTier';
+import { modeledPlanCost, type PlatformPlan } from './planRecommendation';
 
 export interface CalcInputs {
   /** Required — the number every artist knows by heart. */
@@ -34,7 +34,8 @@ export interface CalcAssumptions {
   alacarteArpuCents: number;   // extra one-off spend per payer/mo (stems, sessions, custom work)
   streamsPerListener: number;  // avg streams per monthly listener
   perStreamCents: number;      // payout per stream, in cents (0.35 = $0.0035)
-  platformFeePercent: number;  // CRWN fee on the recommended plan (Pro = 8)
+  // No plan lives here. The CRWN cost basis is NOT an assumption of this model: it follows from the
+  // gross this model produces (see calculate). It used to be a fixed Pro rate.
 }
 
 // Recommended tier prices — the "ideal setup" the whole pitch rests on.
@@ -67,7 +68,6 @@ export function getAssumptions(preset: AggressivenessPreset = 'conservative'): C
     ...RECOMMENDED_TIER_PRICES,
     ...TIER_SPLIT,
     ...STREAMING,
-    platformFeePercent: TIER_LIMITS.pro.platformFeePercent, // Pro, the recommended operating plan
   };
 }
 
@@ -80,8 +80,20 @@ export interface CalcResult {
   subsMrrCents: number;
   alacarteMrrCents: number;
   grossMrrCents: number;
+  /** The plan the canonical recommender picks for THIS gross. An estimate basis, never billing state. */
+  planKey: PlatformPlan;
+  /** That plan's percentage fee. */
+  platformFeePercent: number;
+  /** That plan's percentage fee at this gross, in cents. */
   feeCents: number;
-  /** THE number: net monthly direct-fan revenue CRWN unlocks (currently $0 captured). */
+  /** That plan's monthly subscription, in cents. 0 on Launch. */
+  planSubscriptionCents: number;
+  /** feeCents + planSubscriptionCents: everything CRWN costs on that plan at this gross. */
+  crwnCostCents: number;
+  /**
+   * THE number: monthly direct-fan revenue left after EVERYTHING CRWN costs on the recommended
+   * plan (currently $0 captured). Never negative.
+   */
   netMrrCents: number;
   netAnnualCents: number;
   streamingMrrCents: number;
@@ -113,8 +125,14 @@ export function calculate(inputs: CalcInputs, a: CalcAssumptions): CalcResult {
   );
   const alacarteMrrCents = Math.round(payers * a.alacarteArpuCents);
   const grossMrrCents = subsMrrCents + alacarteMrrCents;
-  const feeCents = Math.round(grossMrrCents * (a.platformFeePercent / 100));
-  const netMrrCents = grossMrrCents - feeCents;
+  // PLAN BASIS (founder decision, 2026-09-20), identical to the Opportunity Calculator's: the gross
+  // above is handed to the canonical recommender and that plan is priced in FULL, percentage fee
+  // plus subscription. This used to take a fixed 8% "Pro fee" and stop, so the page called a figure
+  // "net" and named Pro while leaving out Pro's monthly price. For the same gross the two tools now
+  // agree to the cent. The gross model above is untouched.
+  const planCost = modeledPlanCost(grossMrrCents);
+  const feeCents = planCost.feeCents;
+  const netMrrCents = Math.max(0, grossMrrCents - planCost.totalCents);
 
   const streamingMrrCents = inputs.currentStreamingCents > 0
     ? inputs.currentStreamingCents
@@ -129,7 +147,11 @@ export function calculate(inputs: CalcInputs, a: CalcAssumptions): CalcResult {
     subsMrrCents,
     alacarteMrrCents,
     grossMrrCents,
+    planKey: planCost.plan,
+    platformFeePercent: planCost.feePercent,
     feeCents,
+    planSubscriptionCents: planCost.subscriptionCents,
+    crwnCostCents: planCost.totalCents,
     netMrrCents,
     netAnnualCents: netMrrCents * 12,
     streamingMrrCents,

@@ -67,27 +67,6 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
-- [ ] **Decide which plan the calculators model: Pro (today), or the cheapest plan at each artist's
-      size.** The Opportunity Calculator has always modeled Pro. Since 2026-09-19 its net subtracts
-      Pro's whole cost ($49 plus 8%), which is correct for Pro and makes a small artist's number
-      lean LOW: every account starts on Launch, and Launch is cheaper below $1,225 a month. A $550
-      artist is shown about $457 left over on Pro where Launch would leave about $484. The page now
-      tells them that in the assumptions block, so nothing is hidden, but the headline still uses
-      Pro. Two choices, and only you can pick:
-      (a) keep Pro: one basis for every artist, simplest to explain, the ICP is well above $1,225;
-      (b) model the cheapest plan at their size: a bigger, truer number for small artists, but the
-      plan basis then changes between two artists' results and the content has to say so.
-      Tell me (a) or (b). If (b), it is one constant and one function in
-      [src/lib/opportunity/unifiedModel.ts](src/lib/opportunity/unifiedModel.ts) (`MODELED_PLAN`).
-      Rule and background: [docs/UNIFIED_OPPORTUNITY.md](docs/UNIFIED_OPPORTUNITY.md) section 4.
-- [ ] **Decide whether `/worth` gets the same honest net.** It has the identical defect the audit
-      caught on the Opportunity Calculator: it takes 8% off and never subtracts the $49 Pro
-      subscription ([src/lib/leadCalculator.ts](src/lib/leadCalculator.ts), and the DM copy in
-      [src/lib/acquisition/toolAdapters.ts](src/lib/acquisition/toolAdapters.ts) says "after the 8%
-      Pro plan fee"). I left it alone on purpose: the fix moves every `/worth` headline down by $49
-      a month, and that number is quoted in content you have already shipped and in ManyChat
-      replies. Say "fix /worth too" and I will, with the same tests. Until then its label is
-      accurate about what it subtracts (the fee) and silent about the subscription.
 - [ ] **Approve the cleanup of the Tier 1 audit's production accounts and results.** The validation
       audit created three real accounts (the Kairo, Andre and Maya personas), their calculator
       results and their builder drafts, and those rows now sit in production beside real artists.
@@ -910,6 +889,14 @@ Things that are never finished. Cadence, then the thing.
 ---
 
 ## On Claude's plate (not yours)
+
+- **Make the revenue ramp invert the recommended-plan cost exactly.** Since 2026-09-20 the
+  calculators price CRWN on the plan recommended for the modeled gross (a rate AND a fixed
+  subscription), so after-cost revenue is no longer a fixed multiple of headcount. The ramp in
+  [src/lib/revenueRamp.ts](src/lib/revenueRamp.ts) still turns a money target into a supporter
+  count at one fixed marginal rate (`RAMP_MARGINAL_FEE_PERCENT`). It is an internal milestone
+  estimate, not a cost display, its behavior is unchanged, and a test bounds the drift under 5%.
+  The exact fix is to solve for the plan whose recommended gross yields the target net.
 
 - **Video sheets 2 to 4 for scripts 10 and up wait for the next filming batch.** Videos are paused;
   carousels 31 to 60 already match the rebuilt scripts (re-rendered and read 2026-09-13). When a

@@ -14,7 +14,8 @@ import { createClient } from '@supabase/supabase-js';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { autoClaimForUser } from '@/lib/leadResults/resultAccess';
 import { checkRateLimit } from '@/lib/rateLimit';
-import { getLeadMagnetSeed } from '@/lib/leadResults/handoffSeed';
+import { getClaimedResults, getLeadMagnetSeed } from '@/lib/leadResults/handoffSeed';
+import { projectedGmvCents } from '@/lib/leadResults/projectedGmv';
 import { findSavedArtifact } from '@/lib/leadResults/savedArtifact';
 import { buildLadderPrefill } from '@/lib/leadResults/ladderPrefill';
 import { entryOfferFor } from '@/lib/leadResults/entryOffer';
@@ -117,15 +118,24 @@ export async function POST() {
   // purpose: the artist_profiles row may not exist yet (this route also fires before the
   // identity screen), and the columns land with schema-phase2-platform-plan-recommendation.sql.
   // Auto-claim re-fires inside the app, so a later hit backfills once the row exists.
-  if (seed?.estimatedMonthlyCents) {
+  //
+  // The recommender is fed modeled GROSS GMV, and that is what is stored (cents). It used to be fed
+  // `seed.estimatedMonthlyCents`, which for the Opportunity Calculator is NET-NEW revenue (after
+  // CRWN's costs and after subtracting what the artist already earns), so an established seller was
+  // sized smaller the bigger their business was, and one whose estimate added nothing new got no
+  // recommendation at all. `projectedGmvCents` is the one definition; it scans the account's
+  // results newest first because the newest row is often a builder draft with no numbers on it.
+  // Advisory only: this never touches `platform_tier`, which is what a charge reads.
+  const projectedGmv = projectedGmvCents(await getClaimedResults(supabaseAdmin, { userId: user.id }));
+  if (projectedGmv) {
     try {
-      const rec = recommendPlan({ projectedMonthlyGmvCents: seed.estimatedMonthlyCents });
+      const rec = recommendPlan({ projectedMonthlyGmvCents: projectedGmv });
       await supabaseAdmin
         .from('artist_profiles')
         .update({
           recommended_plan: rec.plan,
           recommendation_reason: rec.reason,
-          projected_monthly_gmv: seed.estimatedMonthlyCents,
+          projected_monthly_gmv: projectedGmv,
         })
         .eq('user_id', user.id);
     } catch {

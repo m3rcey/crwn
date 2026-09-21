@@ -9,7 +9,9 @@ the same dollar can only be counted once.
 - **Re-derivation on edit:** `src/lib/opportunity/recalcUnified.ts`
 - **Tests:** `src/lib/opportunity/unifiedModel.test.ts` (40 invariants), `unifiedFunnel.test.ts` (42),
   `unifiedEconomics.test.ts` (the economic contract: one plan and its whole cost, recurring vs
-  one-off, total vs current vs additional; mutation-tested 2026-09-19)
+  one-off, total vs current vs additional; mutation-tested 2026-09-19), `src/lib/planBasis.test.ts`
+  (the recommender-based cost basis: break-evens and ties, the ICP fixtures, `/worth` parity to the
+  cent, and the billing separation; mutation-tested 2026-09-20)
 - **No migration. No feature flag.** It is an 18th entry in the existing lead-magnet registry, so it
   inherits the tool page, wizard, lead capture, tokenized result, email, prospect nurture, draft
   claiming and the post-signup journey resolver with no new infrastructure.
@@ -107,9 +109,9 @@ person is in both sets, so no person can pay twice.
 | `promoterDualRate` | 0.5 | **new.** Documented default, overridden by the artist's answer |
 | ticket $15, tip $5, tipRate 0.25, ticketRate 0.01 | | Live Experience adapter |
 | `seatRate` 0.003, seat price bands | | Executive Producer adapter |
-| `planKey` | `pro` | `MODELED_PLAN` in `unifiedModel.ts`. The ONE plan the whole result is modeled on. Changing it is a founder decision: it moves every headline |
-| `platformFeePercent` | 8 | `TIER_LIMITS[planKey].platformFeePercent` in `platformTier.ts` |
-| `planMonthlyCents` | 4900 | that same plan's subscription, read through `monthlyPlanCostCents(planKey, 0)` in `planRecommendation.ts` (so `TIER_PRICING`), never retyped |
+| `planKey` | derived | NOT a rate. The plan `recommendPlan()` returns for THIS scenario's gross, through `modeledPlanCost()` in `planRecommendation.ts`. Set after the gross is summed |
+| `platformFeePercent` | derived | that plan's rate, from `TIER_LIMITS` |
+| `planMonthlyCents` | derived | that plan's subscription, from `TIER_PRICING` (0 on Launch), never retyped |
 
 The two new rates are the only numbers not lifted from existing repo models. Both are conservative
 and both are stated in the artist-facing assumptions block.
@@ -162,28 +164,58 @@ repository-backed overlap rule, so the model asks, and falls back to a documente
   recurring" may only be said when `oneTimeGrossCents` is zero.
 - Gross is never mixed with net.
   `net = max(0, gross - platformFee - planSubscription - contributorCommission)`.
-- **The result is modeled on ONE plan, and pays that plan's WHOLE cost.** The plan is
-  `MODELED_PLAN` (`pro`). The platform fee is applied **once**, to total gross, at that plan's rate
-  (`TIER_LIMITS[planKey]`, still 8), AND that plan's monthly subscription (`TIER_PRICING`, $49) is
-  subtracted with it. Together they are `crwnCostCents`, which equals
-  `monthlyPlanCostCents(planKey, totalGross)`, the same function every savings claim in
-  `planRecommendation.ts` uses. A net that applies a plan's rate without its price is not a net:
-  the 2026-09-19 audit found `$550` gross beside "Your net `$506`" (550 x 92%) on a page whose own
-  pricing said Pro is $49 **plus** 8%. The subscription is only charged when there is gross to
-  model, and net is floored at zero, so a tiny gross meeting a fixed price reads as nothing left
-  over, never as negative income.
+- **PUBLIC CALCULATOR COST BASIS (founder decision, 2026-09-20).** *When a CRWN calculator models
+  platform costs, it uses the canonical revenue-based plan recommendation for the modeled gross GMV
+  rather than assuming a fixed plan.* There is no modeled plan constant. For EACH scenario:
+  the gross is summed with no plan in scope; that gross goes to `modeledPlanCost()`, which asks the
+  existing `recommendPlan()` for the plan and prices it with the existing `monthlyPlanCostCents()`;
+  the scenario pays that plan's percentage fee (once, on the whole gross) AND its monthly
+  subscription, together `crwnCostCents`. **Gross determines the plan; the plan determines cost and
+  what is left after it, and nothing else.** There is no circularity, and the compiler enforces it:
+  every revenue builder is typed on `UnifiedRates`, which has no plan fields. The calculator holds
+  no threshold, rate or price (source-scanned by test), so it follows the recommender and cannot
+  disagree with it, ties at the break-evens included.
+  - *Why it changed.* Pro was an inherited convention, not a founder rule. `/worth` (2026-07-01)
+    modeled Pro as "the plan the recommended 3-tier setup requires" when Pro was $9.99; the
+    2026-07-31 reprice made Pro $49 and put the ladder on every plan, removing both reasons. Every
+    audited ICP artist grosses far above the Scale break-even, so the fixed Pro basis priced them
+    $1,400 to $4,600 a month above the plan CRWN's own recommender gives them, and named a plan
+    onboarding then contradicted. The pricing strategy's actual rule was always "start on Launch,
+    recommend Launch, Pro or Scale from projected revenue".
+  - **Each scenario can sit on a different plan.** Conservative, expected and high are each priced
+    on the plan recommended at their own size. Forcing one plan onto all three would misprice an
+    end of the range. For every audited ICP artist all three are Scale.
+  - **The EXPECTED case's plan is the primary plan shown**: the after-costs tile, the derivation row
+    and the assumptions line name it. The scenario columns say which plan each is on ONLY when they
+    differ. The range sentence (headline, builder) names no single plan (`RANGE_COST_PHRASE`),
+    because a range can span plans. No three-plan comparison table is shown.
+  - **It is an estimate's basis, never billing state.** Every account still starts on Launch, the
+    artist chooses a plan themselves, later, and a charge always uses their ACTUAL plan
+    (`getArtistFeePercent` reads `platform_tier`). The copy says "Modeled using CRWN Scale" and
+    "Nothing here signs you up for one". A test asserts no checkout, webhook or fee lookup reads a
+    recommendation.
+  - Net is floored at zero, and a zero gross recommends Launch, whose subscription is zero, so an
+    empty result shows no plan cost. (The 2026-09-19 audit's `$550` gross beside "Your net `$506`",
+    Pro's rate without Pro's price, is now `$550` on Launch: 12%, no monthly cost.)
 - **The plan basis is visible wherever the after-costs figure is.** The hero tile's LABEL carries
-  it (`After CRWN Pro costs (8% + $49/mo)`), because the hero grid renders a tile's value and label
-  and drops its note. The derivation row states the fee dollars and the plan dollars, the
-  assumptions block states the plan, and the builder's recalculated line and the saved
-  `conversionPayload` (`planKey`, `platformFeeCents`, `planSubscriptionCents`) carry the same
-  basis, so no surface picks its own. All wording comes from `planBasisFor()`; no plan price or
-  rate is retyped in the model, the adapter or the recalc (source-scanned by test).
-- **Every account starts on Launch, and the page says which way Pro leans.** Below the Pro
-  break-even (`proBreakEvenGmvCents()`, $1,225/mo) Launch costs less than Pro, so an artist under
-  it is told so in the assumptions block, with the dollar difference at their size, and that the
-  estimate therefore leans cautious. Whether the calculator should instead model the cheapest
-  plan at each artist's size is an OPEN founder decision; until it is made the basis stays Pro.
+  it (`After CRWN Scale costs (5% + $199/mo)`), because the hero grid renders a tile's value and
+  label and drops its note. The derivation row states the fee dollars and the plan dollars, and the
+  saved `conversionPayload` carries `planKey`, `platformFeeCents`, `planSubscriptionCents` and
+  `totalGrossCents`. All plan wording comes from `describePlanBasis()` in `planRecommendation.ts`,
+  the same words `/worth` uses.
+- **`/worth` uses the identical basis.** `leadCalculator.ts` hands its gross to the same
+  `modeledPlanCost()`. It used to take a fixed 8%, name Pro, call the result net, and leave out
+  Pro's $49. Its gross model is untouched. For an input where the two tools model the same gross
+  (listeners only, five or more unreleased pieces), their plan, rate, subscription, cost and
+  after-cost agree **to the cent** (`planBasis.test.ts`). The WORTH keyword DM result uses the same
+  numbers and words.
+- **Versioning.** `UNIFIED_ASSUMPTIONS_VERSION` is `unifiedAssumptions@2`: the cost basis is an
+  assumption and it changed. `UNIFIED_MODEL_VERSION` stays `unifiedOpportunity@1`, because it is the
+  `resultVersion` analytics dimension and the DM `formulaVersion` that historical funnel rows are
+  keyed to, and the revenue side is identical. **Saved results are immutable**: the tokenized page
+  renders stored `result_data`, so a result generated before this date keeps the economics it was
+  generated with and is never rewritten. (A builder opened from such a result recalculates on the
+  current basis from its stored answers; that was already true of every earlier model change.)
 - Contributor commission is artist-funded on the **attributed slice only**, capped at
   `gross - platformFee`, matching how `checkout/route.ts` charges an `attributedCut`.
 - **Total, current and additional revenue are three named things.** `netMonthlyCents` is the
@@ -191,14 +223,24 @@ repository-backed overlap rule, so the model asks, and falls back to a documente
   own answer) already exists, so it is **subtracted**, never added, and never presented as money
   CRWN created. `netNewMonthlyCents` is the difference: what they would ADD, floored at zero, and
   THE headline. An artist who already earns direct sees all three as separate hero tiles
-  (`After CRWN Pro costs`, `You already earn direct`, `What you would add`), the derivation walks
+  (`After CRWN <plan> costs`, `You already earn direct`, `What you would add`), the derivation walks
   the money in the order it is subtracted down to the headline's expected case, and the scenario
   columns are titled as what they hold ("What you would add..."), since `Expected` sitting
   unlabeled beside a larger after-costs figure is what the audit could not reconcile.
-- **The headline sentence names its deductions AND its plan.** It reads: *"You could build an
-  estimated $X to $Y a month on top of what you already earn direct, after CRWN's Pro plan costs
-  and any commissions you pay."* The verb stays *could build* (the ratified language rule in
+- **The headline sentence names its deductions.** It reads: *"You could build an estimated $X to
+  $Y a month on top of what you already earn direct, after CRWN's plan costs and any commissions
+  you pay."* It says plan COSTS (fee and subscription), never "fee", and names no single plan
+  because the range can span plans. The verb stays *could build* (the ratified language rule in
   `07-BUSINESS-RULES.md`).
+- **After signup, a plan is sized by modeled GROSS, never by the estimate.**
+  `projectedGmvCents()` (`src/lib/leadResults/projectedGmv.ts`) is the ONE definition: what
+  `recommendPlan()` is fed by auto-claim, what `artist_profiles.projected_monthly_gmv` stores
+  (cents), and what the launch-review plan panel prices. They used to be fed
+  `estimatedMonthlyCents`, which for this tool is `netNewMonthlyCents` (after CRWN's costs AND
+  minus current direct revenue): the bigger an artist's existing business, the smaller CRWN sized
+  them, and one whose estimate added nothing new got no recommendation at all. Gross is READ
+  (`conversionPayload.totalGrossCents`), never backed out of a net. It scans the account's results
+  newest first, because the newest row is often a builder draft, which carries no numbers.
 - **The summary states the recurring share** beside the number, because the hero says `/mo` and a
   share of it is one-off money: member extras always, plus event and seat money when those exist.
   The sentence is kept no longer than the one it replaced, because the summary renders in the hero

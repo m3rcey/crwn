@@ -23,6 +23,7 @@ import { generateResult, GENERATOR_VERSION } from '../leadMagnets/resultGenerato
 import type { GeneratedResult, LeadMagnetInputValues } from '../leadMagnets/types';
 import { calculate, getAssumptions } from '../leadCalculator';
 import { fmtDollars } from '../leadCalculator';
+import { describePlanBasis } from '../planRecommendation';
 import { buildLossResult } from './lossResult';
 import { scoreReadiness, sanitizeAnswers } from '../royalty/readiness';
 import { buildUnifiedResult } from '../opportunity/unifiedAdapter';
@@ -130,6 +131,7 @@ const worth: AcquisitionTool = {
     );
 
     const net = fmtDollars(result.netMrrCents);
+    const planWords = describePlanBasis(result.planKey);
     const streaming = fmtDollars(result.streamingMrrCents);
     const artist = s(profile.artist_name);
 
@@ -151,8 +153,16 @@ const worth: AcquisitionTool = {
           title: 'What you could be earning direct',
           kind: 'projection',
           metrics: [
-            { label: 'Net monthly (direct to fan)', value: net, note: 'after the 8% Pro plan fee' },
-            { label: 'Net per year', value: fmtDollars(result.netAnnualCents) },
+            // Same economics and the same words as /worth on the web: the plan CRWN's revenue-based
+            // recommendation picks for THIS gross, priced in full. The cost sits in the LABEL because
+            // the hero grid renders a tile's value and label and drops its note. This used to read
+            // "after the 8% Pro plan fee" and leave Pro's monthly price out of a figure called net.
+            {
+              label: `Monthly, after CRWN ${planWords.name} costs (${planWords.shortCost})`,
+              value: net,
+              note: `modeled using CRWN ${planWords.name}: ${planWords.costLine}`,
+            },
+            { label: 'A year of it', value: fmtDollars(result.netAnnualCents) },
             { label: 'What streaming pays you now', value: streaming },
             ...(result.multipleVsStreaming
               ? [{ label: 'Multiple vs streaming', value: `${result.multipleVsStreaming.toFixed(1)}x` }]
@@ -176,16 +186,22 @@ const worth: AcquisitionTool = {
             `${Math.round(assumptions.reachRate * 100)}% of your audience is realistically reachable.`,
             `${Math.round(assumptions.superfanRate * 100)}% of that reachable audience ever pays.`,
             'Tier prices of $10, $25 and $100, split across a typical supporter curve.',
+            `CRWN's costs are modeled using CRWN ${planWords.name}, the plan CRWN's revenue-based recommendation picks at about ${fmtDollars(
+              result.grossMrrCents,
+            )} a month in sales: ${planWords.costLine}, all of it counted. Every account starts free on ${describePlanBasis('starter').name}, and nothing here signs you up for a plan.`,
             'This is an estimate for planning, not a prediction or a guarantee.',
           ],
         },
       ],
       conversionPayload: {
+        // Modeled GROSS GMV: the only figure the plan recommender may be fed after signup.
+        totalGrossCents: result.grossMrrCents,
+        planKey: result.planKey,
         netMrrCents: result.netMrrCents,
         payers: Math.floor(result.payers),
         // The full suggested membership ladder the calculator modeled: price + projected
         // supporters per tier (70/22/8 whale curve). The Membership builder pre-fills the entry
-        // tier from this and surfaces the rest as the suggested ladder to grow into (Pro).
+        // tier from this and surfaces the rest as the suggested ladder to grow into.
         ladder: [
           { name: 'Silver', priceCents: assumptions.tier1PriceCents, projectedSubs: Math.floor(result.tier1Subs) },
           { name: 'Gold', priceCents: assumptions.tier2PriceCents, projectedSubs: Math.floor(result.tier2Subs) },

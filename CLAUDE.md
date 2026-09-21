@@ -529,20 +529,33 @@ primitive, never 19 copies. `src/lib/leadMagnets/conversionContract.test.ts` pin
   `conversionContract.test.ts` scans every non-feature calculator's questions for that vocabulary
   (mutation-tested), so re-adding one fails `npm test`. Do not re-add the `fans`/`live` screens or
   the builder's share/clip/session/live steps without a new founder decision.
-- **A number "after CRWN costs" pays the modeled plan's WHOLE cost, and recurring means
-  subscriptions** (2026-09-19 audit). The Opportunity Calculator applied Pro's 8% and forgot Pro's
-  $49, so $550 gross showed "Your net $506" beside pricing that said $49 PLUS 8%. `MODELED_PLAN` in
-  `unifiedModel.ts` is the ONE plan a result is modeled on; the rate AND the price follow it through
-  `monthlyPlanCostCents()`, and `planBasisFor()` is the only place plan wording comes from (no plan
-  price or rate may be retyped in the model, the adapter or the recalc: source-scanned).
+- **PUBLIC CALCULATOR COST BASIS: the plan follows the recommender, never a constant** (founder
+  decision, 2026-09-20). *When a CRWN calculator models platform costs, it uses the canonical
+  revenue-based plan recommendation for the modeled gross GMV rather than assuming a fixed plan.*
+  Two calculators model a CRWN cost, Opportunity and `/worth` (plus the WORTH DM result), and both
+  go through ONE helper, `modeledPlanCost()` in `planRecommendation.ts` (`recommendPlan()` for the
+  plan, `monthlyPlanCostCents()` for its WHOLE cost: percentage fee AND subscription). **Gross
+  determines the plan; the plan determines cost and nothing else.** The revenue builders are typed
+  on `UnifiedRates`, which has no plan fields, so the compiler forbids the circle. Each scenario
+  can sit on a different plan; the EXPECTED case's plan is the one named on the page; a range names
+  none (`RANGE_COST_PHRASE`). All plan wording comes from `describePlanBasis()`. **Never re-pin a
+  plan, and never retype a price, rate or break-even in a calculator** (source-scanned). Pro was an
+  inherited convention from `/worth` (2026-07-01, Pro at $9.99 and required for the ladder; the
+  2026-07-31 reprice removed both reasons), and it priced every audited ICP artist $1,400 to $4,600
+  a month above the plan CRWN recommends them. **It is never billing state**: every account starts
+  on Launch, a charge reads `platform_tier` through `getArtistFeePercent`, and no checkout or
+  webhook may read a recommendation (asserted). After signup a plan is sized by modeled GROSS
+  (`projectedGmvCents()`: what `recommendPlan()` is fed and what `projected_monthly_gmv` stores,
+  cents), never by `estimatedMonthlyCents`, which for Opportunity is NET-NEW and told an established
+  seller they were small. Saved results are immutable; `UNIFIED_ASSUMPTIONS_VERSION` is `@2`, and
+  `UNIFIED_MODEL_VERSION` stays `@1` because it is an analytics dimension. `planBasis.test.ts`,
+  `projectedGmv.test.ts` and `unifiedEconomics.test.ts` pin it, mutation-tested.
+- **Recurring means subscriptions, and the hero has two layout traps** (2026-09-19 audit).
   `recurringGrossCents` is SUBSCRIPTIONS only; member extras are one-time money even though members
   pay them, and no heading, tile or sentence may call one-off money recurring. Total, current and
   additional revenue are three separate named things. **The hero grid renders a tile's value and
   LABEL and drops its note**, so anything the artist must see goes in the label; and the summary
-  renders in the hero ABOVE the email ask, so it may not grow (length-pinned by test). Changing
-  `MODELED_PLAN` (Launch is cheaper below $1,225/mo, and the page says so) is an open founder
-  decision, as is `/worth`, which still nets at the Pro rate with no subscription.
-  `unifiedEconomics.test.ts` pins all of it, mutation-tested.
+  renders in the hero ABOVE the email ask, so it may not grow (length-pinned by test).
 - **The first move is worded for where the artist is starting from** (Tier 1 audit, 2026-09-20).
   The primary ICP already sells direct, and an operator with 1,200 paying supporters was told to
   "Launch the membership". `directStateFor` in `unifiedModel.ts` reads two answers already asked:

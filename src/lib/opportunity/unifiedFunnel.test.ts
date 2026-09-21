@@ -261,9 +261,11 @@ describe('the presented result', () => {
     // MINUS what they already earn direct. "in direct-to-fan revenue" described none of that, and
     // an ICP that reads carefully treats a number whose label is loose as a number that is loose.
     expect(result.headline).toMatch(/on top of what you already earn direct/);
-    // The plan is NAMED, because "CRWN's fee" hid which plan's rate was used and let the net
-    // forget that plan's subscription (2026-09-19 audit).
-    expect(result.headline).toMatch(/after CRWN's Pro plan costs and any commissions you pay/);
+    // It says plan COSTS (fee and subscription), not "fee": "CRWN's fee" is what let the net forget
+    // the subscription (2026-09-19 audit). It names no single plan, because since 2026-09-20 each
+    // end of the range is priced on the plan recommended at its own size and a range can span
+    // plans. The expected-case plan is named on the tile and in the derivation.
+    expect(result.headline).toMatch(/after CRWN's plan costs and any commissions you pay/);
   });
 
   it('never calls one-off member spend recurring, and reads no split of event money it does not have', () => {

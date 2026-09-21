@@ -26,6 +26,7 @@ import {
   type AggressivenessPreset,
   type CalcAssumptions,
 } from '@/lib/leadCalculator';
+import { describePlanBasis } from '@/lib/planRecommendation';
 
 import { ToolMarketing } from '@/components/lead-magnets/ToolMarketing';
 import { LadderSection } from '@/components/lead-magnets/LadderSection';
@@ -300,7 +301,8 @@ export function WorthExperience({
             Reach: {Math.round(assumptions.reachRate * 100)}% of your audience counted as engaged · Tier prices: $
             {RECOMMENDED_TIER_PRICES.tier1PriceCents / 100} / $
             {RECOMMENDED_TIER_PRICES.tier2PriceCents / 100} / $
-            {RECOMMENDED_TIER_PRICES.tier3PriceCents / 100} · Whale split 70 / 22 / 8 · Fee 8% (Pro)
+            {RECOMMENDED_TIER_PRICES.tier3PriceCents / 100} · Whale split 70 / 22 / 8 · Modeled using CRWN{' '}
+            {describePlanBasis(result.planKey).name}: {describePlanBasis(result.planKey).costLine}
           </p>
         </div>
       )}
@@ -696,7 +698,16 @@ export function WorthExperience({
         <DerivRow n="2" label={`Reachable (~${Math.round(assumptions.reachRate * 100)}%)`} value={`~${fmtCount(result.addressable)} fans`} />
         <DerivRow n="3" label={`Ever pay (~${Math.round(assumptions.superfanRate * 1000) / 10}%)`} value={`~${fmtCount(result.payers)} superfans`} />
         <DerivRow n="4" label="Memberships + à la carte" value={`${fmtDollars(result.subsMrrCents)} + ${fmtDollars(result.alacarteMrrCents)}/mo`} />
-        <DerivRow n="5" label="After the 8% Pro fee" value={`${fmtDollars(result.netMrrCents)}/mo net`} highlight />
+        {/* The plan is the one CRWN's revenue-based recommendation picks for THIS gross, priced in
+            full: its percentage fee AND its monthly price. This row used to read "After the 8% Pro
+            fee" and leave Pro's subscription out of a figure it called net. "Modeled using" because
+            it is an estimate's basis: every account starts free on Launch. */}
+        <DerivRow
+          n="5"
+          label={`CRWN costs, modeled using CRWN ${describePlanBasis(result.planKey).name} (${describePlanBasis(result.planKey).shortCost})`}
+          value={`${fmtDollars(result.crwnCostCents)}/mo`}
+        />
+        <DerivRow n="6" label="Left after CRWN's costs" value={`${fmtDollars(result.netMrrCents)}/mo`} highlight />
       </div>
       <p className="text-[11px] text-crwn-text-secondary/70 mt-4">
         Change your numbers below, or flip the presets, and every step recalculates.

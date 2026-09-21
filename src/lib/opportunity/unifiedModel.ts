@@ -37,19 +37,25 @@
 // added.
 
 import { RECOMMENDED_TIER_PRICES } from '@/lib/leadCalculator';
-import { TIER_LIMITS } from '@/lib/platformTier';
-import { monthlyPlanCostCents, type PlatformPlan } from '@/lib/planRecommendation';
+import { modeledPlanCost, type PlatformPlan } from '@/lib/planRecommendation';
 
-/**
- * The plan every unified result is modeled on. Pro has been the modeled basis since the model
- * shipped (the fee rate and the assumptions line both already said so); what was missing was
- * Pro's subscription, so "net" applied Pro's 8% and forgot Pro's price. Changing this constant
- * is a founder decision: it moves every headline. Both the rate and the price follow it.
- */
-export const MODELED_PLAN: PlatformPlan = 'pro';
+// PLAN BASIS (founder decision, 2026-09-20): there is no fixed modeled plan. Each scenario's own
+// GROSS is handed to the canonical recommender (`modeledPlanCost`), and that plan's full cost
+// (percentage fee plus subscription) is what the scenario pays. Gross decides the plan; the plan
+// only ever touches cost and what is left after it. This file holds no threshold, rate or price.
+// Until this date every result was pinned to Pro, a convention inherited from `/worth`.
 
 export const UNIFIED_MODEL_VERSION = 'unifiedOpportunity@1';
-export const UNIFIED_ASSUMPTIONS_VERSION = 'unifiedAssumptions@1';
+/**
+ * Bumped to @2 on 2026-09-20: the COST BASIS is an assumption, and it changed from "always Pro" to
+ * "the plan recommended for this gross". The revenue side is identical to @1, so a saved result
+ * differs from a fresh one only in its CRWN cost and the figures after it. `UNIFIED_MODEL_VERSION`
+ * is deliberately NOT bumped: it is the `resultVersion` analytics dimension and the DM
+ * `formulaVersion`, which every historical funnel row is keyed to. Saved results are immutable
+ * (the tokenized page renders stored `result_data`), so an @1 row keeps the economics it was
+ * generated with and is never rewritten.
+ */
+export const UNIFIED_ASSUMPTIONS_VERSION = 'unifiedAssumptions@2';
 
 // ---------------------------------------------------------------------------
 // Inputs
@@ -175,15 +181,20 @@ export interface UnifiedAssumptions {
   hybridSeatShare: number;
 
   /**
-   * The ONE plan the whole result is modeled on. The fee rate and the subscription below both
-   * belong to it, so a surface can never show one plan's rate beside another plan's price.
+   * The plan THIS scenario is priced on: the one the canonical recommender returns for this
+   * scenario's own gross. The rate and the subscription below both belong to it, so a surface can
+   * never show one plan's rate beside another plan's price. Set by `calculateUnifiedOpportunity`
+   * AFTER the gross is known; it is never an input to the revenue side.
    */
-  planKey: 'starter' | 'pro' | 'scale';
-  /** CRWN platform fee on that plan. Pro = 8. Sourced from `TIER_LIMITS`. */
+  planKey: PlatformPlan;
+  /** CRWN platform fee on that plan. Sourced from `TIER_LIMITS` through `modeledPlanCost`. */
   platformFeePercent: number;
-  /** That plan's monthly subscription, in cents. Sourced from `TIER_PRICING`, never retyped. */
+  /** That plan's monthly subscription, in cents. 0 on Launch. Never retyped. */
   planMonthlyCents: number;
 }
+
+/** Everything that drives REVENUE. The plan basis is not among them: it follows from the gross. */
+export type UnifiedRates = Omit<UnifiedAssumptions, 'planKey' | 'platformFeePercent' | 'planMonthlyCents'>;
 
 /** Seat price bands, lifted verbatim from the Executive Producer Session adapter. */
 export function seatPriceForAudience(audience: number): number {
@@ -203,7 +214,7 @@ const SCENARIO_KNOBS: Record<Scenario, Pick<UnifiedAssumptions, 'reachRate' | 's
   high: { reachRate: 0.20, superfanRate: 0.05, referredConversion: 0.03 },
 };
 
-export function getUnifiedAssumptions(scenario: Scenario = 'expected'): UnifiedAssumptions {
+export function getUnifiedAssumptions(scenario: Scenario = 'expected'): UnifiedRates {
   return {
     ...SCENARIO_KNOBS[scenario],
     maxConversion: 0.10,
@@ -227,11 +238,6 @@ export function getUnifiedAssumptions(scenario: Scenario = 'expected'): UnifiedA
     tipCents: 500,
     seatRate: 0.003,
     hybridSeatShare: 0.4,
-    planKey: MODELED_PLAN,
-    platformFeePercent: TIER_LIMITS[MODELED_PLAN].platformFeePercent,
-    // A plan's cost at zero GMV is exactly its subscription, so the price is read through the
-    // canonical cost helper instead of being branched on (or retyped) here.
-    planMonthlyCents: monthlyPlanCostCents(MODELED_PLAN, 0),
   };
 }
 
@@ -417,7 +423,7 @@ function dualRateFor(answer: UnifiedInputs['promoterOverlap'], fallback: number)
 }
 
 /** Layer 1. One audience base. Platform counts are never summed. */
-export function normalizeAudience(inputs: UnifiedInputs, a: UnifiedAssumptions): AudienceLayer {
+export function normalizeAudience(inputs: UnifiedInputs, a: UnifiedRates): AudienceLayer {
   const followers = num(inputs.socialFollowers);
   const listeners = num(inputs.monthlyListeners);
   const ownedRaw = num(inputs.ownedContacts);
@@ -479,7 +485,7 @@ export function evaluateEligibility(inputs: UnifiedInputs): Eligibility {
 export function buildSegments(
   audience: AudienceLayer,
   inputs: UnifiedInputs,
-  a: UnifiedAssumptions,
+  a: UnifiedRates,
   eligible: Eligibility,
 ): FanSegments {
   const addressable = audience.addressable;
@@ -533,7 +539,7 @@ export function buildSegments(
 export function buildCoreOffer(
   segments: FanSegments,
   inputs: UnifiedInputs,
-  a: UnifiedAssumptions,
+  a: UnifiedRates,
   eligible: Eligibility,
 ): CoreOffer {
   const payers = segments.payingSupporters;
@@ -573,7 +579,7 @@ export function buildIncremental(
   audience: AudienceLayer,
   segments: FanSegments,
   inputs: UnifiedInputs,
-  a: UnifiedAssumptions,
+  a: UnifiedRates,
   eligible: Eligibility,
 ): IncrementalItem[] {
   const items: IncrementalItem[] = [];
@@ -644,7 +650,7 @@ export function buildIncremental(
 export function buildAttribution(
   segments: FanSegments,
   core: CoreOffer,
-  a: UnifiedAssumptions,
+  a: UnifiedRates,
   eligible: Eligibility,
 ): AcquisitionAttribution {
   const total = segments.payingSupporters;
@@ -972,14 +978,16 @@ export function calculateUnifiedOpportunity(
   scenario: Scenario = 'expected',
 ): UnifiedResult {
   const inputs: UnifiedInputs = { ...DEFAULT_INPUTS, ...raw };
-  const a = getUnifiedAssumptions(scenario);
+  // REVENUE rates only. No plan is known yet, and nothing below this line until the gross is
+  // summed may depend on one: that ordering is what rules out a circular plan/gross dependency.
+  const rates = getUnifiedAssumptions(scenario);
 
   const eligible = evaluateEligibility(inputs);
-  const audience = normalizeAudience(inputs, a);
-  const segments = buildSegments(audience, inputs, a, eligible);
-  const core = buildCoreOffer(segments, inputs, a, eligible);
-  const incremental = buildIncremental(audience, segments, inputs, a, eligible);
-  const attribution = buildAttribution(segments, core, a, eligible);
+  const audience = normalizeAudience(inputs, rates);
+  const segments = buildSegments(audience, inputs, rates, eligible);
+  const core = buildCoreOffer(segments, inputs, rates, eligible);
+  const incremental = buildIncremental(audience, segments, inputs, rates, eligible);
+  const attribution = buildAttribution(segments, core, rates, eligible);
 
   // Recurring means SUBSCRIPTIONS. Member extras are paid by members, which is why they live in
   // the core layer for the disjoint-population rule, but they are one-off purchases: reporting
@@ -989,13 +997,23 @@ export function calculateUnifiedOpportunity(
   const oneTimeGrossCents = core.memberAlacarteGrossCents + incrementalGrossCents;
   const totalGrossCents = recurringGrossCents + oneTimeGrossCents;
 
-  // Fee once, on the whole gross. Commission is artist-funded on top of the fee and only on the
-  // attributed slice, matching how checkout actually charges an attributedCut.
-  const platformFeeCents = round(totalGrossCents * (a.platformFeePercent / 100));
-  // The modeled plan's subscription belongs to the same net as its fee rate. It is only owed by
-  // an artist with something to model: a result with no gross has no plan cost to show either.
-  const planSubscriptionCents = totalGrossCents > 0 ? a.planMonthlyCents : 0;
-  const crwnCostCents = platformFeeCents + planSubscriptionCents;
+  // THE PLAN FOLLOWS THE GROSS. This scenario's own gross goes to the canonical recommender, and
+  // the plan it returns is priced in full: its percentage fee, once, on the whole gross, plus its
+  // monthly subscription. Conservative, expected and high can therefore sit on different plans,
+  // which is correct: each is what CRWN would recommend at that size. A zero gross recommends
+  // Launch, whose subscription is zero, so an empty result still has no plan cost to show.
+  const planCost = modeledPlanCost(totalGrossCents);
+  const a: UnifiedAssumptions = {
+    ...rates,
+    planKey: planCost.plan,
+    platformFeePercent: planCost.feePercent,
+    planMonthlyCents: planCost.subscriptionCents,
+  };
+  const platformFeeCents = planCost.feeCents;
+  const planSubscriptionCents = planCost.subscriptionCents;
+  const crwnCostCents = planCost.totalCents;
+  // Commission is artist-funded on top of the fee and only on the attributed slice, matching how
+  // checkout actually charges an attributedCut.
   const contributorCommissionCents = Math.min(
     attribution.totalCommissionCents,
     Math.max(0, totalGrossCents - platformFeeCents),

@@ -32,6 +32,10 @@
 // roadmap. Live tips and Executive Producer sessions belong here the day their flags flip.
 
 import { getAssumptions } from './leadCalculator';
+import { TIER_LIMITS } from './platformTier';
+
+/** The marginal CRWN rate the ramp's headcount approximation assumes. Unchanged by the 2026-09-20 plan-basis change. */
+const RAMP_MARGINAL_FEE_PERCENT = TIER_LIMITS.pro.platformFeePercent;
 
 export type RampPhaseKey =
   | 'foundation'
@@ -497,6 +501,13 @@ export interface Ramp {
  * Derived from the calculator's OWN assumptions, never a second copy of the prices: a
  * duplicated price map that feeds arithmetic is how CRWN once overpaid a commission by 5x.
  * If the ladder or the fee changes, this moves with it.
+ *
+ * THE RATE IS THE RAMP'S OWN, AND IT IS AN APPROXIMATION (2026-09-20). This used to read the
+ * `/worth` model's fixed Pro fee. The calculators no longer have one: they price CRWN on the plan
+ * recommended for the modeled gross (`modeledPlanCost`), so after-cost revenue is no longer a fixed
+ * multiple of headcount. The ramp converts a money target into a rough supporter count for
+ * milestones; it is not a public cost display, and its behavior is deliberately unchanged here.
+ * Making it invert the recommended-plan cost exactly is a separate, flagged follow-up.
  */
 export function netCentsPerPayer(): number {
   const a = getAssumptions('conservative');
@@ -505,7 +516,7 @@ export function netCentsPerPayer(): number {
     a.tier2Share * a.tier2PriceCents +
     a.tier3Share * a.tier3PriceCents +
     a.alacarteArpuCents;
-  return gross * (1 - a.platformFeePercent / 100);
+  return gross * (1 - RAMP_MARGINAL_FEE_PERCENT / 100);
 }
 
 const DAY_MS = 86_400_000;

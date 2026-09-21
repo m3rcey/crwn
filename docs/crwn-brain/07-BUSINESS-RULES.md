@@ -250,20 +250,34 @@ Full spec: `docs/UNIFIED_OPPORTUNITY.md`. `Confirmed`.
   heading, tile or sentence may put one-off money under the word recurring. "All of it is
   recurring" may only be said when there is no one-off money in the gross (2026-09-19; a test had
   pinned the false sentence, and was rewritten rather than kept).
-- **A number "after CRWN costs" pays the modeled plan's WHOLE cost.** The unified result is modeled
-  on ONE plan (`MODELED_PLAN`, Pro), and its net subtracts that plan's percentage fee AND its
-  monthly subscription, both read from `platformTier.ts` through
-  `monthlyPlanCostCents()`. Applying Pro's 8% while forgetting Pro's $49 is what the 2026-09-19
-  audit caught. The plan is named wherever the figure appears (the tile label, the derivation, the
-  assumptions, the headline, the builder's recalculated line), and every surface reads the same
-  basis off the result, so no surface can show one plan's rate beside another plan's price. If the
-  basis ever becomes Launch or Scale, the same identity holds: that plan's rate, that plan's price.
-  **Open founder decision:** every account starts on Launch, which is cheaper than Pro below
-  $1,225/mo, so a small artist's estimate leans cautious and the assumptions block tells them so.
-  Whether to model the cheapest plan at each artist's size instead is not decided; do not change
-  `MODELED_PLAN` without that decision. (`/worth` and its DM adapter still net at the Pro RATE
-  with no subscription and label it "after the 8% Pro fee": the same class, deliberately left for
-  the same founder decision because that number is quoted in shipped content.)
+- **PUBLIC CALCULATOR COST BASIS (founder decision, 2026-09-20).** When a CRWN calculator models
+  platform costs, it uses the canonical revenue-based plan recommendation for the modeled gross GMV
+  rather than assuming a fixed plan. Exactly two calculators model a CRWN cost, the Opportunity
+  Calculator and `/worth` (plus its WORTH DM result), and both go through ONE helper,
+  `modeledPlanCost()` in `planRecommendation.ts`, which composes the existing `recommendPlan()`
+  (GMV only) with the existing `monthlyPlanCostCents()`:
+  - **Gross determines the plan. The plan determines the percentage fee plus the subscription.**
+    Never the reverse: the revenue side is computed with no plan in scope.
+  - The cost is the plan's WHOLE cost. A figure "after CRWN costs" that applies a plan's rate and
+    forgets its price is what the 2026-09-19 audit caught (Pro's 8% without Pro's $49).
+  - **Each scenario can use a different recommended plan.** The EXPECTED case's plan is the primary
+    plan displayed; other scenarios are labeled only when they differ; a range names no single plan.
+  - The calculators hold no threshold, rate or price, so they follow the recommender (break-even
+    ties included) and cannot disagree with it. Never re-pin a plan in a calculator.
+  - **Every actual account still begins on Launch, and a calculator's plan is never billing state.**
+    The artist picks a plan themselves, later. A charge always uses the ACTUAL plan
+    (`getArtistFeePercent` reads `platform_tier`); no checkout, webhook or fee lookup reads a
+    recommendation, and a test asserts it. Copy says "Modeled using CRWN <plan>", never that they
+    are on it or will be put on it.
+  - **After signup a plan is sized by modeled GROSS** (`projectedGmvCents()`), which is what
+    `recommendPlan()` is fed by auto-claim and the launch-review panel and what
+    `projected_monthly_gmv` stores, in cents. Never the net-new estimate, never current revenue,
+    never a gross backed out of a net.
+  - Pro had been an inherited convention, not a rule: `/worth` modeled it on 2026-07-01 as the plan
+    the paid ladder required, when Pro was $9.99, and the 2026-07-31 reprice removed both reasons.
+  - Known approximation, left deliberately: `revenueRamp.ts` still converts a money target into a
+    rough supporter count at a fixed marginal rate. It is an internal milestone estimate, not a
+    cost display, and is a flagged follow-up.
 - **Language:** a planning estimate of what the artist *could build*. Never owed, never guaranteed,
   never described as current revenue. Ranges where precision is unsupported.
 - **Total, current and additional are three named things.** `netMonthlyCents` is the artist's whole

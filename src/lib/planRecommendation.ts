@@ -7,7 +7,7 @@
 // Plan ladder: Launch $0 / 12% -> Pro $49 / 8% -> Scale $199 / 5%. A true multi-artist
 // Label tier is custom-priced and does not exist until org accounts ship.
 
-import { EMAIL_LIMITS, TIER_LIMITS, TIER_PRICING } from './platformTier';
+import { EMAIL_LIMITS, TIER_LIMITS, TIER_PRICING, formatTierName } from './platformTier';
 
 /**
  * Contact-list size above which one email campaign a month stops being enough.
@@ -76,6 +76,68 @@ export function monthlyPlanCostCents(plan: PlatformPlan, gmvCents: number): numb
   const sub = plan === 'pro' ? TIER_PRICING.pro.monthly : plan === 'scale' ? TIER_PRICING.scale.monthly : 0;
   const feePct = TIER_LIMITS[plan].platformFeePercent;
   return sub + Math.round(gmvCents * (feePct / 100));
+}
+
+/**
+ * What CRWN costs at a modeled monthly GROSS, on the plan the recommender picks for that gross.
+ *
+ * PUBLIC CALCULATOR COST BASIS (founder decision, 2026-09-20): when a CRWN calculator models
+ * platform costs, it uses the canonical revenue-based plan recommendation for the modeled gross
+ * GMV rather than assuming a fixed plan. The calculators used to pin Pro, a convention inherited
+ * from `/worth` when Pro was $9.99 and was the plan the paid ladder required; both reasons went in
+ * the 2026-07-31 reprice, and every audited ICP artist was being priced $1,400 to $4,600 a month
+ * above the plan CRWN would itself recommend them.
+ *
+ * Gross decides the plan; the plan decides the cost. Never the other way round, so there is no
+ * circularity. This composes `recommendPlan` (GMV only: the calculators know no feature intent)
+ * with `monthlyPlanCostCents`. It holds NO threshold and NO price of its own, so the calculator
+ * follows the recommender and can never disagree with it.
+ *
+ * It is an ESTIMATE's basis, never billing state: every account still starts on Launch, and a
+ * charge always uses the artist's ACTUAL plan (`getArtistFeePercent`).
+ */
+export interface ModeledPlanCost {
+  plan: PlatformPlan;
+  feePercent: number;
+  /** The percentage fee at this gross, in cents. */
+  feeCents: number;
+  /** The plan's monthly subscription, in cents. 0 on Launch. */
+  subscriptionCents: number;
+  /** feeCents + subscriptionCents: everything CRWN costs on that plan at this gross. */
+  totalCents: number;
+}
+
+export function modeledPlanCost(grossCents: number): ModeledPlanCost {
+  const gross = Number.isFinite(grossCents) && grossCents > 0 ? grossCents : 0;
+  const plan = recommendPlan({ projectedMonthlyGmvCents: gross }).plan;
+  // A plan's cost at zero GMV is exactly its subscription, so neither number is retyped here.
+  const subscriptionCents = monthlyPlanCostCents(plan, 0);
+  const totalCents = monthlyPlanCostCents(plan, gross);
+  return {
+    plan,
+    feePercent: TIER_LIMITS[plan].platformFeePercent,
+    feeCents: totalCents - subscriptionCents,
+    subscriptionCents,
+    totalCents,
+  };
+}
+
+const planUsd = (cents: number): string => '$' + Math.round(cents / 100).toLocaleString('en-US');
+
+/**
+ * A plan's cost, in words. The ONE place calculator copy gets a plan name, a rate or a price, so
+ * no surface can print one plan's rate beside another plan's price, or a plan the math did not use.
+ */
+export function describePlanBasis(plan: PlatformPlan): { name: string; costLine: string; shortCost: string } {
+  const name = formatTierName(plan);
+  const pct = TIER_LIMITS[plan].platformFeePercent;
+  const monthly = monthlyPlanCostCents(plan, 0);
+  return {
+    name,
+    costLine: monthly > 0 ? `${pct}% fee plus ${planUsd(monthly)}/mo plan` : `${pct}% fee, no monthly plan cost`,
+    // For a tile LABEL: the hero grid renders a tile's value and label and drops its note.
+    shortCost: monthly > 0 ? `${pct}% + ${planUsd(monthly)}/mo` : `${pct}%, $0/mo`,
+  };
 }
 
 export function recommendPlan(input: PlanRecommendationInput): PlanRecommendation {

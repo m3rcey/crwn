@@ -19,8 +19,7 @@
 //    deliberately conservative, so leaving it unsaid gave away the honesty for nothing.
 
 import type { GeneratedResult, ResultSection } from '@/lib/leadMagnets/types';
-import { TIER_LIMITS, formatTierName } from '@/lib/platformTier';
-import { monthlyPlanCostCents, proBreakEvenGmvCents } from '@/lib/planRecommendation';
+import { describePlanBasis } from '@/lib/planRecommendation';
 import {
   calculateUnifiedOpportunity,
   calculateScenarioBand,
@@ -82,18 +81,17 @@ export function toUnifiedInputs(raw: Record<string, unknown>): Partial<UnifiedIn
  * plan number is retyped in copy.
  */
 export function planBasisFor(r: UnifiedResult): { name: string; costLine: string; shortCost: string } {
-  const a = r.assumptions;
-  const name = formatTierName(a.planKey);
-  const costLine =
-    a.planMonthlyCents > 0
-      ? `${a.platformFeePercent}% fee plus ${usd(a.planMonthlyCents)}/mo plan`
-      : `${a.platformFeePercent}% fee, no monthly plan cost`;
-  // For a tile LABEL. The hero grid renders a tile's value and label and drops its note, so the
-  // plan's cost has to live in the label or it is not on the screen at all.
-  const shortCost =
-    a.planMonthlyCents > 0 ? `${a.platformFeePercent}% + ${usd(a.planMonthlyCents)}/mo` : `${a.platformFeePercent}%`;
-  return { name, costLine, shortCost };
+  // The plan THIS result was priced on (the recommender's pick for its gross), in the shared words
+  // `/worth` uses too, so the two tools can never describe the same plan two ways.
+  return describePlanBasis(r.assumptions.planKey);
 }
+
+/**
+ * The cost words for a RANGE. The low and high ends are each priced on the plan recommended at
+ * their own size, so a range may span plans and naming one would misdescribe an end of it. The
+ * expected-case plan is named where the expected case is shown (the tile, the derivation).
+ */
+export const RANGE_COST_PHRASE = "after CRWN's plan costs and any commissions you pay";
 
 /**
  * The words that sit directly above the dollar range, on the result hero AND on the builder's
@@ -107,7 +105,6 @@ function headlineFor(
   low: number,
   high: number,
   expected: number,
-  planName: string,
 ): { headline: string; hero: string; eyebrow: string } {
   if (expected <= 0) {
     return {
@@ -119,7 +116,7 @@ function headlineFor(
   return {
     headline: `You could build an estimated ${usd(low)} to ${usd(
       high,
-    )} a month on top of what you already earn direct, after CRWN's ${planName} plan costs and any commissions you pay`,
+    )} a month on top of what you already earn direct, ${RANGE_COST_PHRASE}`,
     hero: `${usd(low)} to ${usd(high)}`,
     eyebrow: ESTIMATE_EYEBROW,
   };
@@ -181,7 +178,11 @@ function derivationFor(r: UnifiedResult): ResultSection {
   rows.push({
     label: `Minus CRWN ${plan.name} plan costs`,
     value: `${usd(r.crwnCostCents)}/mo`,
-    note: `${plan.costLine}: ${usd(r.platformFeeCents)} in fees plus ${usd(r.planSubscriptionCents)} for the plan`,
+    // "Modeled using": an estimate's basis, never a plan they hold or are being signed up for.
+    note:
+      r.planSubscriptionCents > 0
+        ? `Modeled using CRWN ${plan.name}, ${plan.costLine}: ${usd(r.platformFeeCents)} in fees plus ${usd(r.planSubscriptionCents)} for the plan`
+        : `Modeled using CRWN ${plan.name}, ${plan.costLine}: ${usd(r.platformFeeCents)} in fees`,
   });
   if (r.contributorCommissionCents > 0) {
     rows.push({
@@ -248,7 +249,11 @@ export function buildUnifiedResult(raw: Record<string, unknown>): GeneratedResul
   const low = band.conservative.netNewMonthlyCents;
   const high = band.high.netNewMonthlyCents;
   const plan = planBasisFor(r);
-  const { headline, hero, eyebrow } = headlineFor(low, high, r.netNewMonthlyCents, plan.name);
+  const { headline, hero, eyebrow } = headlineFor(low, high, r.netNewMonthlyCents);
+  // The expected case is the PRIMARY plan context (`plan`). The other two scenarios may sit on a
+  // different recommended plan; that is only mentioned when it is actually true.
+  const plansDiffer =
+    band.conservative.assumptions.planKey !== r.assumptions.planKey || band.high.assumptions.planKey !== r.assumptions.planKey;
   const currentDirectCents = r.inputs.currentDirectRevenueCents > 0 ? r.inputs.currentDirectRevenueCents : 0;
 
   const sections: ResultSection[] = [];
@@ -294,11 +299,20 @@ export function buildUnifiedResult(raw: Record<string, unknown>): GeneratedResul
     key: 'scenarios',
     title: currentDirectCents > 0 ? 'What you would add on top of what you earn now' : 'What you would add, conservative to high',
     kind: 'scenarios',
-    metrics: [
-      { label: 'Conservative', value: `${usd(low)}/mo`, note: `${count(band.conservative.segments.payingSupporters)} supporters` },
-      { label: 'Expected', value: `${usd(r.netNewMonthlyCents)}/mo`, note: `${count(r.segments.payingSupporters)} supporters` },
-      { label: 'High', value: `${usd(high)}/mo`, note: `${count(band.high.segments.payingSupporters)} supporters` },
-    ],
+    // Each column is priced on the plan recommended at ITS size. When all three land on one plan
+    // (every audited ICP artist does) the columns stay as clean as before; when they differ, each
+    // says which plan it is on, so a range that spans plans is never silently mixed.
+    metrics: (
+      [
+        ['Conservative', band.conservative, low],
+        ['Expected', r, r.netNewMonthlyCents],
+        ['High', band.high, high],
+      ] as const
+    ).map(([label, s, added]) => ({
+      label,
+      value: `${usd(added)}/mo`,
+      note: `${count(s.segments.payingSupporters)} supporters${plansDiffer ? `, on ${planBasisFor(s).name}` : ''}`,
+    })),
   });
 
   // 4. Core recurring revenue: the one ladder, and ONLY the ladder. Member extras used to be a
@@ -471,21 +485,18 @@ export function buildUnifiedResult(raw: Record<string, unknown>): GeneratedResul
   if (r.incrementalGrossCents > 0) {
     assumptions.push('Tickets and seats are sold only to reachable fans who are not members, so no member is counted again as a buyer.');
   }
+  // The plan basis, stated as what it is: CRWN's own revenue-based recommendation at this size,
+  // used to price an estimate. Not a plan they hold, not a plan signup puts them on. (This replaced
+  // a fixed "modeled on Pro" line plus a footnote admitting Launch was cheaper for small artists:
+  // with the recommender choosing, that footnote has nothing left to apologize for.)
   assumptions.push(
-    `CRWN costs are modeled on the ${plan.name} plan, all of it: ${plan.costLine}. You fund any referral or clipper commission on top of that.`,
+    `CRWN's costs are modeled using CRWN ${plan.name}, the plan CRWN's revenue-based recommendation picks at about ${usd(
+      r.totalGrossCents,
+    )} a month in sales: ${plan.costLine}, all of it counted. You fund any referral or clipper commission on top of that.`,
+    `Every account starts free on ${describePlanBasis('starter').name}, and you choose a plan yourself, later. Nothing here signs you up for one.${
+      plansDiffer ? ' The low and high ends of the range are each priced on the plan recommended at that size.' : ''
+    }`,
   );
-  // Every account starts on Launch, and below the break-even Launch is the cheaper plan. Both
-  // numbers come from the plan recommender's own math, so this line says which way the modeled
-  // plan leans at THIS artist's size instead of leaving them to compare a pricing table.
-  if (a.planKey !== 'starter' && r.totalGrossCents > 0 && r.totalGrossCents < proBreakEvenGmvCents()) {
-    const launch = TIER_LIMITS.starter;
-    const savedCents = r.crwnCostCents - monthlyPlanCostCents('starter', r.totalGrossCents);
-    assumptions.push(
-      `Every account starts on ${formatTierName('starter')} (${launch.platformFeePercent}% fee, no monthly plan cost). Below about ${usd(
-        proBreakEvenGmvCents(),
-      )} a month in sales that plan costs less than ${plan.name}, about ${usd(savedCents)} a month less at your size, so this estimate leans cautious.`,
-    );
-  }
   assumptions.push(
     'Recurring means membership subscriptions only. One-off purchases are reported on their own line and only added at the gross line.',
     'The headline subtracts what you already earn direct, so it is what you would ADD. It is a planning estimate for what you could build, not money you are owed, not current revenue, and not a guarantee.',
@@ -589,6 +600,11 @@ function buildConversionPayload(r: UnifiedResult): Record<string, unknown> {
     netNewMonthlyCents: r.netNewMonthlyCents,
     recurringGrossCents: r.recurringGrossCents,
     oneTimeGrossCents: r.oneTimeGrossCents,
+    // Modeled GROSS GMV, expected case. This is the ONLY figure the plan recommender may be fed
+    // after signup (`projectedGmvCentsFromSeed`). `netNewMonthlyCents` is what is left after CRWN
+    // costs AND after subtracting what the artist already earns, so handing it to a recommender
+    // that wants GMV told an established seller they were smaller than they are.
+    totalGrossCents: r.totalGrossCents,
     // The plan basis travels WITH the money, so the builder and the signup summary state the same
     // plan the result did instead of each picking their own.
     planKey: r.assumptions.planKey,

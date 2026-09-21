@@ -16,7 +16,8 @@ import { createClient } from '@supabase/supabase-js';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { evaluateCondition } from '@/lib/quests/evaluator';
 import type { QuestInstance } from '@/lib/quests/types';
-import { getLeadMagnetSeed } from '@/lib/leadResults/handoffSeed';
+import { getClaimedResults, getLeadMagnetSeed } from '@/lib/leadResults/handoffSeed';
+import { projectedGmvCents } from '@/lib/leadResults/projectedGmv';
 import { reconcileStripeConnect } from '@/lib/stripe/connectReconcile';
 import { assessFunnel } from '@/lib/funnelReadiness';
 import { loadFunnelFacts } from '@/lib/funnelReadinessFacts';
@@ -266,6 +267,11 @@ export async function GET() {
   // The monthly goal THEIR calculator modeled personalizes the Expand milestone.
   const seed = await getLeadMagnetSeed(supabaseAdmin, { userId: user.id, artistId: artist.id });
   const goalMonthlyCents = seed?.estimatedMonthlyCents ?? null;
+  // The GOAL above is what the artist would ADD (a net-new figure for the Opportunity Calculator),
+  // which is the right thing to aim at and the wrong thing to size a plan by. The launch-review
+  // plan panel prices plans on modeled GROSS GMV, the same definition auto-claim stores, so the
+  // calculator, the stored recommendation and this panel all name the same plan.
+  const projectedGmv = projectedGmvCents(await getClaimedResults(supabaseAdmin, { userId: user.id, artistId: artist.id }));
 
   const defs = buildRoadmapDefs({ slug: artist.slug, goalMonthlyCents });
   const steps = defs.flatMap((s) => s.steps);
@@ -362,6 +368,7 @@ export async function GET() {
       paidMembers,
       mrrCents,
       goalMonthlyCents: roadmap.goalMonthlyCents,
+      projectedGmvCents: projectedGmv,
     },
   });
 }
