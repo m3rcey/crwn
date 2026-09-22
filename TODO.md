@@ -746,19 +746,23 @@ responsible for. Do not work those.
       rejected sheet is one deleted jpg plus `node generate-fan-economy-images.mjs <N>`. When
       you are ready to film the next batch, say which numbers and I make their four sheets.
 
-- [ ] **Generate the FIVE sheets for the 17 videos on your filming list.**
-      The prompts are written and in the scripts. One command per video, from the repo root:
+- [ ] **Drop a photo of Money Man into the reference folder, then I render video 14.**
+      Save any clear photo of his face as
+      `C:\Users\Josh\Desktop\nano banana references\people\money-man.jpg` and tell me.
+      Video 14 is the ONLY one of the 17 not rendered: he has no Wikipedia image, and Brave
+      answered with a generic stock photo of a man with locs under a bridge that the vision gate
+      approved, so his hook and reveal sheets would have shipped somebody else's face. He is
+      registered in `known-people.json` now, so the moment a real photo is sitting at that path,
+      `node generate-fan-economy-images.mjs 14` draws all five of his sheets.
 
-        node generate-fan-economy-images.mjs 12 14 23 28 29 30 33 34 42 44 46 52 53 54 55 56 59
-
-      That is 85 sheets, so it will take a while and existing files are skipped (videos 33 to 59
-      already have their hook sheet from the last run and it will not be redrawn). Output lands in
-      `Dropbox/nano banana output/Shortform Posts/Fan Economy` as `<slug>.jpg` and `<slug>-2.jpg`
-      to `<slug>-5.jpg`. Filming order per video is hook, middle, CRWN plug, reveal, CTA card.
-      **Look at every one before filming**, per the imagery rule: the plug sheet is the only sheet
-      that letters CRWN and it must be the WORD in sharpie, never a crown or a logo, and count any
-      object a reveal makes countable. A rejected sheet is one deleted jpg plus that same command
-      with just its number.
+- [ ] **Look at the 80 sheets for the other 16 videos before filming any of them.**
+      They are in `Dropbox/nano banana output/Shortform Posts/Fan Economy` as `<slug>.jpg` and
+      `<slug>-2.jpg` to `<slug>-5.jpg`. Filming order per video is hook, middle, CRWN plug,
+      reveal, CTA card. What looking catches and the checks cannot: a face that is not the artist
+      (five of them had no reference photo at all until this run), a miscounted object on a reveal
+      sheet, and a crown or logo drawn on the plug sheet, which may carry the WORD CRWN in sharpie
+      and nothing else. A rejected sheet is one deleted jpg plus
+      `node generate-fan-economy-images.mjs <N>` for that video.
 
 - [ ] **Decide whether videos 6 to 9 get a CRWN plug sheet too.**
       They are the only multi-sheet videos still on the old four-sheet shape (hook, middle,
