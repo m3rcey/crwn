@@ -309,6 +309,15 @@ describe('FE-SKILL-008 a multi-sheet video holds the reveal until the last-but-o
         // sheet that letters the product name. Every other sheet still bans it: a brand mark on
         // the hook trades the curiosity gap for an ad, and the 128 end card already closes.
         expect(lettered(sheets[2]), `${file} sheet 3 is the CRWN plug but never letters CRWN`).toMatch(/\bCRWN\b/);
+        // The plug sheet cannot also carry the blanket ban. It shipped with BOTH for a day:
+        // the body said hand-letter CRWN and the boilerplate said never draw the word CRWN,
+        // because the sheet was assembled without the plug flag. It rendered correctly only
+        // because the model followed the explicit instruction over the boilerplate, and a
+        // reroll obeying the ban would have dropped the plug with every test still green.
+        expect(
+          sheets[2],
+          `${file} sheet 3 both letters CRWN and forbids it`,
+        ).not.toMatch(/Never draw the word CRWN/);
         for (const i of [0, 1, 3, 4]) {
           expect(lettered(sheets[i]), `${file} sheet ${i + 1} letters CRWN; only the plug sheet may`).not.toMatch(/\bCRWN\b/);
         }

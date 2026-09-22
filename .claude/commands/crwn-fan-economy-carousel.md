@@ -26,16 +26,21 @@ determined input (an existing script). Do NOT route Fan Economy posts through `/
 generator hardcodes 1:1 in the style instruction and uses the older API shape with no
 `aspectRatio` or `imageSize`, so it cannot produce a 3:4 4K slide at all.
 
-## The four slides
+## The five slides
 
 | Slide | Job | Source | Reveals the number? |
 |---|---|---|---|
 | 1 | The HOOK sheet, identical to the video's | **Copied** from the video sheet | **No.** The gap stays open |
-| 2 | The REVEAL: the withheld variable and the math | Rendered | **Yes.** This is the payoff |
-| 3 | The TAKEAWAY: the quotable line plus the benefit CTA | Rendered | No. No numbers at all |
-| 4 | The `128` end card | **Copied** from a shared asset | No content |
+| 2 | The CRWN PLUG: the one capability this post's bridge names | Rendered | **No.** Still withheld |
+| 3 | The REVEAL: the withheld variable and the math | Rendered | **Yes.** This is the payoff |
+| 4 | The TAKEAWAY: the quotable line plus the benefit CTA | Rendered | No. No numbers at all |
+| 5 | The `128` end card | **Copied** from a shared asset | No content |
 
-Only slides 2 and 3 cost an API call. The other two are file copies.
+Only slides 2, 3 and 4 cost an API call. The other two are file copies.
+
+**The plug sits BEFORE the reveal** (founder call 2026-09-22). The viewer meets what CRWN does
+while the payoff is still withheld, which is the order the video films it in: hook, middle, plug,
+reveal, CTA. A plug placed after the payoff is read as an ad tacked onto a finished story.
 
 **Slide 1 is COPIED, not written.** The video sheets are already 3:4 at 4K, so the generator copies
 `Shortform Posts/Fan Economy/[N]-*.jpg` straight into the carousel folder. That costs nothing, and
@@ -43,16 +48,26 @@ it guarantees the carousel opens on the exact drawing the video opens on. Only w
 `**SLIDE 1 PROMPT:**` when the script has no sheet yet, and when you do, follow the sheet rules in
 `/crwn-image-gen` (headline names the artist, asks in the reveal's unit, withholds the payoff).
 
-**Slide 2 INVERTS slide 1's withholding rule.** Every sheet prompt ends with "do NOT reveal any
-dollar amount, that is the video's payoff". A carousel is not a video: nobody swipes to slide 2 for
-a teaser, and an unpaid carousel is a carousel people leave. So slide 2 states the withheld
+**Slide 2 is the CRWN PLUG, and it withholds like slide 1 does.** It carries no dollar amount,
+no count and no result, because the payoff is still one swipe away. Build it from the caption's own
+bridge sentence, which names exactly ONE capability for that post (the release waterfall, the
+Promise Calendar, the fan CRM, the rung ceiling, the vault behind a rung, the buyer and the sale in
+one row). Draw that one thing as a no-portrait diagram of the fix, letter `CRWN` once in plain
+sharpie capitals, and draw no crown, no logo and no app screen. Where the source video is a
+five-sheet script, its sheet 3 IS this page: reuse that prompt verbatim so the carousel and the
+video show the same art, exactly as slide 1 already does. Never reuse sheet 3 from a four-sheet
+script (1 to 9), where sheet 3 is the REVEAL.
+
+**Slide 3 INVERTS slide 1's withholding rule.** Every sheet prompt ends with "do NOT reveal any
+dollar amount, that is the video's payoff". A carousel is not a video: nobody swipes to slide 3 for
+a teaser, and an unpaid carousel is a carousel people leave. So slide 3 states the withheld
 variable, shows the arithmetic, and lands the Wow Factor from the script's `META:` line. Take the
 numbers verbatim from that line; never recompute them here.
 
-**Slide 3 is the TAKEAWAY and carries no numbers.** One quotable statement, large, across two
+**Slide 4 is the TAKEAWAY and carries no numbers.** One quotable statement, large, across two
 lines, with a heavy hand-drawn underline, and the Fan Economy belief the case study earned in
 smaller type beneath it. It has to survive being screenshotted alone, with no slide 1 and no
-caption around it, so it states a principle rather than a result. Slide 2 already owns the math;
+caption around it, so it states a principle rather than a result. Slide 3 already owns the math;
 repeating a figure here makes the pair read as one slide split in half.
 
 Vary the statement per carousel. "You don't need to market to fans. You need a market FOR fans"
@@ -172,21 +187,23 @@ $199 whether they earn anything or not (`TIER_PRICING`). The unqualified form is
 2026-08-21, piloted on three carousels first): `THAT'S WHAT THE CRWN APP IS BUILT FOR.` in small
 capitals, between the small scene and the boxed CTA.
 
-It goes on slide 3 and never on slide 2. Slide 2 is the payoff, and a plug there interrupts the
-reveal. Slide 3 is the slide most likely to be screenshotted alone, so the plug travels with the
-screenshot, which is the same reason the CTA already lives there. Before this, no SLIDE in any
+It goes on slide 4 and never on slide 3. Slide 3 is the payoff, and a plug there interrupts the
+reveal. Slide 4 is the slide most likely to be screenshotted alone, so the plug travels with the
+screenshot, which is the same reason the CTA already lives there. It is a SMALL echo of slide 2's
+dedicated plug page, not a repeat of it: slide 2 shows the mechanism, slide 4 names the app in one
+line under a quotable statement. Before this, no SLIDE in any
 carousel named the app: the plug existed only in the caption's sidenote and the 128 card is
 deliberately silent, so the product was invisible in the imagery.
 
 Keep it SMALL. The quotable statement has to stay dominant or the slide stops being a takeaway and
-starts being an ad. Slide 3 now runs five text zones (statement, two belief lines, plug, CTA box),
+starts being an ad. Slide 4 now runs five text zones (statement, two belief lines, plug, CTA box),
 which is the ceiling; do not add a sixth.
 
 **The plug names the app, never draws the mark.** The letters CRWN appear in that one line and
 nowhere else on the page, and no crown symbol is drawn on any rendered slide. The logo belongs to
 the 128 end card alone.
 
-**Slide 3 also carries the CTA, and it is the BENEFIT form.** One line, in its own hand-drawn box
+**Slide 4 also carries the CTA, and it is the BENEFIT form.** One line, in its own hand-drawn box
 across the bottom: `COMMENT 'KEYWORD' FOR [what the artist gets]`. Same rule as the caption's
 opening CTA, so never the tool's `name`, and the same ManyChat keyword the caption uses. Shorten
 the benefit to fit the page ("FOR WHAT YOUR CATALOG IS WORTH") while keeping the same promise; a
@@ -195,7 +212,7 @@ long CTA competes with the quotable line and both lose.
 This is the slide most likely to be screenshotted and reposted on its own, which is exactly why the
 ask belongs here: it travels with the screenshot. The box is what keeps it readable as a separate
 element rather than a third sentence of the takeaway. The CTA is still not allowed to carry a
-number, so the no-numbers rule above is unchanged, and slide 4 stays silent: the 128 card has no
+number, so the no-numbers rule above is unchanged, and slide 5 stays silent: the 128 card has no
 CTA on it, ever.
 
 **Slide 4 is a fixed asset you never write a prompt for.** It is the same `128` end card on every
@@ -286,7 +303,7 @@ Write these beats, in this order:
 9. **The RE-ASK.** Ask the hook question again, near verbatim, immediately before the payoff. This
    beat is a founder correction carried over from `/crwn-fan-economy` and it is not optional. A
    reader who scrolled past the top needs the question back in front of them to feel the answer.
-10. **The reveal.** The math, in the same numbers as slide 2 and the script's `Big Reveal:`.
+10. **The reveal.** The math, in the same numbers as slide 3 and the script's `Big Reveal:`.
 11. **The Wow Factor, and it needs an ENTRY PHRASE.** A turn line first, then the reframe from the
     `META:` line. Without the turn, the wow reads as one more number in the reveal and the single
     most repostable line in the post gets buried in arithmetic. The script does this too ("And the
@@ -347,13 +364,14 @@ a SHIPPED script may say it plainly, a CONCEPTUAL one may not imply the feature 
 - **Source script (you read this):** `videos/scripts/fan-economy/[N]-[slug].md`
 - **Shared end card:** `/mnt/c/Users/Josh/Desktop/nano banana references/128-end-card.jpg`
 - **Rendered output:** `Dropbox/nano banana output/Carousel Posts/Fan Economy/[N]-[slug]/`
-  containing `caption.md`, `slide-1.jpg`, `slide-2.jpg`, `slide-3.jpg`, `slide-4.jpg`
+  containing `caption.md`, `slide-1.jpg`, `slide-2.jpg`, `slide-3.jpg`, `slide-4.jpg`,
+  `slide-5.jpg`
 
 The carousel file is a sibling of the script, never appended to it. The script file carries the
-video's sheet prompts (`**NANO BANANA PRO PROMPT:**`, then `... PROMPT 2:**` to `... PROMPT 4:**`
+video's sheet prompts (`**NANO BANANA PRO PROMPT:**`, then `... PROMPT 2:**` to `... PROMPT 5:**`
 for the video's later sheets), and a `SLIDE N PROMPT` block in there would be mistaken for one of
 them. Slide 1 is always copied from the HOOK sheet `<slug>.jpg`, never from a `<slug>-2.jpg`,
-`-3.jpg` or `-4.jpg` sheet.
+`-3.jpg`, `-4.jpg` or `-5.jpg` sheet.
 
 ### Carousel file format
 
@@ -375,17 +393,23 @@ them. Slide 1 is always copied from the HOOK sheet `<slug>.jpg`, never from a `<
 
     **SLIDE 2 PROMPT:**
 
-    [the reveal sheet]
+    (the CRWN plug, before the reveal)
 
     ---
 
     **SLIDE 3 PROMPT:**
 
+    [the reveal sheet]
+
+    ---
+
+    **SLIDE 4 PROMPT:**
+
     [the takeaway card]
 
     ---
 
-    **SLIDE 4:** the shared 128 end card. Not a prompt: the generator copies it.
+    **SLIDE 5:** the shared 128 end card. Not a prompt: the generator copies it.
 
     ---
 
@@ -404,14 +428,14 @@ warns on any colour intrusion (a correct slide scores **0** non-greyscale pixels
 1. Resolve the argument to a script number. Read the whole script, including its `META:` line.
 2. Confirm the video sheet exists in `Shortform Posts/Fan Economy/`. If it does, write no slide-1
    prompt.
-3. Write the carousel file: caption, then the slide 2 and slide 3 prompts. Never write a slide 4
+3. Write the carousel file: caption, then the slide 2, slide 3 and slide 4 prompts. Never write a slide 5
    prompt.
 4. Render, then **open every slide and look at it.** The generator prints `OK` for a slide that drew
    the wrong person, the wrong number, a duplicated line or a typeset headline. Duplicated note
    boxes and misspelled long words ("1.5 MLLION") have both shipped from this pipeline already, so
    read every word on the page. See `/crwn-image-gen` for the failure catalogue.
-5. Check slide 2's numbers against the script's `Big Reveal:` character by character, and confirm
-   slide 3 carries no number at all. A carousel that contradicts its own video is worse than no
+5. Check slide 3's numbers against the script's `Big Reveal:` character by character, and confirm
+   slide 2 and slide 4 carry no number at all. A carousel that contradicts its own video is worse than no
    carousel.
 6. Report the folder path, the caption word count AND its character count (which must be 2,200
    or under), and anything you had to reroll.

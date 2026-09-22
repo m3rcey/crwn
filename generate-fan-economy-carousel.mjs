@@ -1,12 +1,15 @@
-// Fan Economy CAROUSEL runner: four 3:4 slides per post, from a carousel file that
+// Fan Economy CAROUSEL runner: five 3:4 slides per post, from a carousel file that
 // sits beside the video script it condenses.
 //
 //   slide 1  the hook sheet      COPIED from the video sheet
-//   slide 2  the reveal          rendered
-//   slide 3  the takeaway        rendered
-//   slide 4  the 128 end card    COPIED from a shared asset
+//   slide 2  the CRWN plug       rendered
+//   slide 3  the reveal          rendered
+//   slide 4  the takeaway        rendered
+//   slide 5  the 128 end card    COPIED from a shared asset
 //
-// Only two of the four cost an API call.
+// Only three of the five cost an API call. The plug sits BEFORE the reveal (founder call
+// 2026-09-22) so the viewer meets what CRWN does while the payoff is still withheld, which
+// is the same order the video films it in.
 //
 // This deliberately reuses generate-fan-economy-images.mjs's pipeline (style refs,
 // auto person refs, 4K, white-flatten, colour check) instead of generate-carousel.mjs,
@@ -177,22 +180,22 @@ for (const entry of files) {
     console.warn(`  no **CAPTION:** block`);
   }
 
-  for (const slideNo of [1, 2, 3, 4]) {
+  for (const slideNo of [1, 2, 3, 4, 5]) {
     const outPath = path.join(outDir, `slide-${slideNo}.jpg`);
     if (fs.existsSync(outPath)) {
       console.log(`  slide-${slideNo} SKIP (exists)`);
       continue;
     }
 
-    // Slide 4 is the fixed 128 end card, shared by every carousel in the series.
-    if (slideNo === 4) {
+    // Slide 5 is the fixed 128 end card, shared by every carousel in the series.
+    if (slideNo === 5) {
       if (fs.existsSync(END_CARD)) {
         fs.copyFileSync(END_CARD, outPath);
-        console.log(`  slide-4 COPIED from the shared 128 end card`);
+        console.log(`  slide-5 COPIED from the shared 128 end card`);
         copied++;
         continue;
       }
-      console.log(`  slide-4 end-card asset missing, rendering it once to rebuild it`);
+      console.log(`  slide-5 end-card asset missing, rendering it once to rebuild it`);
     }
 
     // Slide 1 is the video sheet. Copy it rather than re-rendering: identical art,
@@ -220,7 +223,7 @@ for (const entry of files) {
     }
 
     const rawPrompt =
-      slideNo === 4 ? END_CARD_PROMPT : section(md, `**SLIDE ${slideNo} PROMPT:**`);
+      slideNo === 5 ? END_CARD_PROMPT : section(md, `**SLIDE ${slideNo} PROMPT:**`);
     if (!rawPrompt) {
       console.warn(`  slide-${slideNo} SKIP (no prompt block)`);
       continue;
@@ -295,9 +298,9 @@ for (const entry of files) {
             + `These slides are black ink on white paper. Look at it and reroll.`
           );
         }
-        if (slideNo === 4) {
+        if (slideNo === 5) {
           fs.copyFileSync(outPath, END_CARD);
-          console.log(`  slide-4 saved as the shared end card for every later carousel`);
+          console.log(`  slide-5 saved as the shared end card for every later carousel`);
         }
         rendered++;
       }

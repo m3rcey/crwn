@@ -5,8 +5,9 @@
 //   - a caption's DM keyword stops matching the registry, so ManyChat never fires,
 //   - a carousel's numbers stop matching the video script it condenses, so the two surfaces
 //     tell one viewer two different stories,
-//   - slide 2 stops revealing (a carousel nobody gets paid off by),
-//   - slide 3 stops being a numberless takeaway and turns back into a second reveal,
+//   - slide 3 stops revealing (a carousel nobody gets paid off by),
+//   - slide 4 stops being a numberless takeaway and turns back into a second reveal,
+//   - slide 2 stops being the CRWN plug, which is the only slide that names the app,
 //   - the shared 128 end card starts getting re-rendered per carousel instead of copied,
 //   - an em dash lands in a caption that gets pasted straight into Instagram.
 import { describe, it, expect } from 'vitest';
@@ -79,19 +80,20 @@ describe('FE-CAR-002 the generator renders what the skill promises', () => {
     expect(gen).toContain('countColouredPixels');
   });
 
-  it('renders four slides and copies the shared end card rather than redrawing it', () => {
-    expect(gen).toContain('[1, 2, 3, 4]');
+  it('renders five slides and copies the shared end card rather than redrawing it', () => {
+    expect(gen).toContain('[1, 2, 3, 4, 5]');
     expect(gen).toContain('END_CARD');
     expect(gen).toMatch(/copyFileSync\(END_CARD, outPath\)/);
   });
 });
 
 describe.runIf(carouselFiles.length > 0)('FE-CAR-003 every carousel file is well formed', () => {
-  it.each(carouselFiles)('%s has a caption and slide 2 and slide 3 prompts', (file) => {
+  it.each(carouselFiles)('%s has a caption and slide 2, 3 and 4 prompts', (file) => {
     const md = readFileSync(join(CAROUSELS_DIR, file), 'utf8');
     expect(section(md, '**CAPTION:**')).toBeTruthy();
     expect(section(md, '**SLIDE 2 PROMPT:**')).toBeTruthy();
     expect(section(md, '**SLIDE 3 PROMPT:**')).toBeTruthy();
+    expect(section(md, '**SLIDE 4 PROMPT:**')).toBeTruthy();
   });
 
   it.each(carouselFiles)('%s condenses a video script that exists', (file) => {
@@ -345,8 +347,8 @@ describe.runIf(carouselFiles.length > 0)('FE-CAR-003 every carousel file is well
     expect(after, 're-ask beat must follow ANYWAY and precede the reveal').toMatch(/\?/);
   });
 
-  it.each(carouselFiles)('%s slide 2 actually reveals a number', (file) => {
-    const slide2 = section(readFileSync(join(CAROUSELS_DIR, file), 'utf8'), '**SLIDE 2 PROMPT:**') ?? '';
+  it.each(carouselFiles)('%s slide 3 actually reveals a number', (file) => {
+    const slide2 = section(readFileSync(join(CAROUSELS_DIR, file), 'utf8'), '**SLIDE 3 PROMPT:**') ?? '';
     // The sheets withhold the payoff on purpose; slide 2 is where it lands. The payoff is
     // not always money and not always large: Rapsody's was 328 songs, SAULT's is 5 days,
     // Noname's is 24 chapters. A digit floor of any size was the wrong rule. What actually
@@ -354,13 +356,13 @@ describe.runIf(carouselFiles.length > 0)('FE-CAR-003 every carousel file is well
     // a figure at all.
     const quoted = slide2.match(/"[^"]*"/g) ?? [];
     const withNumber = quoted.filter((q) => /\d/.test(q));
-    expect(withNumber, 'slide 2 must state its number in a line that actually gets drawn')
+    expect(withNumber, 'slide 3 must state its number in a line that actually gets drawn')
       .not.toHaveLength(0);
   });
 
-  it.each(carouselFiles)('%s slide 3 is a takeaway carrying no number', (file) => {
+  it.each(carouselFiles)('%s slide 4 is a takeaway carrying no number', (file) => {
     const md = readFileSync(join(CAROUSELS_DIR, file), 'utf8');
-    const slide3 = section(md, '**SLIDE 3 PROMPT:**') ?? '';
+    const slide3 = section(md, '**SLIDE 4 PROMPT:**') ?? '';
     expect(slide3).toMatch(/TAKEAWAY/);
     // Slide 2 owns the math. A figure repeated here makes the two slides read as one
     // slide split in half, and the takeaway stops surviving a lone screenshot.
@@ -370,26 +372,26 @@ describe.runIf(carouselFiles.length > 0)('FE-CAR-003 every carousel file is well
       .toHaveLength(0);
   });
 
-  it.each(carouselFiles)('%s slide 3 carries the benefit CTA on one keyword', (file) => {
+  it.each(carouselFiles)('%s slide 4 carries the benefit CTA on one keyword', (file) => {
     const md = readFileSync(join(CAROUSELS_DIR, file), 'utf8');
-    const slide3 = section(md, '**SLIDE 3 PROMPT:**') ?? '';
+    const slide3 = section(md, '**SLIDE 4 PROMPT:**') ?? '';
     const caption = section(md, '**CAPTION:**') ?? '';
     // Slide 3 is the slide most likely to be screenshotted alone, so the ask has to
     // travel with it.
     const onSlide = slide3.match(/COMMENT ['"]?([A-Z][A-Z0-9]{2,})['"]?/i);
-    expect(onSlide, 'slide 3 must carry a COMMENT KEYWORD CTA').toBeTruthy();
+    expect(onSlide, 'slide 4 must carry a COMMENT KEYWORD CTA').toBeTruthy();
     const inCaption = caption.match(/Comment "?([A-Z][A-Z0-9]{2,})"?/);
-    expect(onSlide![1].toUpperCase(), 'slide 3 and the caption must use ONE keyword')
+    expect(onSlide![1].toUpperCase(), 'slide 4 and the caption must use ONE keyword')
       .toBe(inCaption![1].toUpperCase());
     // Same rule as the caption's opening CTA: promise an outcome, never a product name.
     const productNames = [...LEAD_MAGNETS, ...EXTERNAL_TOOLS]
       .map((t: { name?: string }) => t.name)
       .filter((n): n is string => Boolean(n && n.length > 4));
     const named = productNames.filter((n) => slide3.toUpperCase().includes(n.toUpperCase()));
-    expect(named, `slide 3's CTA must name a benefit, not the product (found ${named.join(', ')})`)
+    expect(named, `slide 4's CTA must name a benefit, not the product (found ${named.join(', ')})`)
       .toHaveLength(0);
     // Slide 4 stays silent: the 128 card never carries an ask.
-    const slide4Text = md.slice(md.indexOf('**SLIDE 4'));
+    const slide4Text = md.slice(md.indexOf('**SLIDE 5'));
     expect(slide4Text).not.toMatch(/COMMENT ['"]/i);
   });
 
@@ -423,26 +425,39 @@ describe.runIf(carouselFiles.length > 0)('FE-CAR-003 every carousel file is well
     ).toBe(true);
   });
 
-  it.each(carouselFiles)('%s never writes its own slide 4 prompt', (file) => {
+  it.each(carouselFiles)('%s never writes its own slide 5 prompt', (file) => {
     const md = readFileSync(join(CAROUSELS_DIR, file), 'utf8');
     // The end card is one shared asset copied by the generator.
-    expect(md).not.toContain('**SLIDE 4 PROMPT:**');
+    expect(md).not.toContain('**SLIDE 5 PROMPT:**');
   });
 
   it.each(carouselFiles)('%s draws no CRWN mark on any rendered slide', (file) => {
     const md = readFileSync(join(CAROUSELS_DIR, file), 'utf8');
-    // Slide 2 is the payoff and never names the product: a plug there interrupts the reveal.
-    const slide2 = section(md, '**SLIDE 2 PROMPT:**') ?? '';
-    expect(slide2, 'slide 2 must forbid the CRWN mark').toMatch(/[Nn]ever draw the word CRWN/);
+    // Slide 2 IS the plug (founder call 2026-09-22): it sits BEFORE the reveal so the viewer
+    // meets what CRWN does while the payoff is still withheld, the same order the video films.
+    // It names the app, carries no figure, and never asks for a comment.
+    const plug = section(md, '**SLIDE 2 PROMPT:**') ?? '';
+    expect(plug, 'slide 2 must name CRWN').toMatch(/\bCRWN\b/);
+    expect(plug, 'slide 2 must ban the crown mark').toMatch(/no crown symbol|Do NOT draw a crown|NO crown symbol/);
+    expect(plug, 'slide 2 must not ask for a comment before the reveal').not.toMatch(/\bCOMMENT\b/);
+    const plugQuoted = plug.match(/"[^"]*"/g) ?? [];
+    expect(
+      plugQuoted.filter((q) => /\$\s?\d/.test(q)),
+      'slide 2 sits before the reveal and must quote no dollar figure',
+    ).toHaveLength(0);
 
-    // Slide 3 NAMES the app (ratified 2026-08-21 after a three-carousel pilot). Required,
-    // not optional: before this, no slide in any carousel named the app at all, because
-    // the plug lived only in the caption and the 128 card is silent.
-    const slide3 = section(md, '**SLIDE 3 PROMPT:**') ?? '';
-    expect(slide3, 'slide 3 must carry the CRWN plug line')
+    // Slide 3 is the payoff and never names the product: a plug there interrupts the reveal.
+    const slide2 = section(md, '**SLIDE 3 PROMPT:**') ?? '';
+    expect(slide2, 'slide 3 must forbid the CRWN mark').toMatch(/[Nn]ever draw the word CRWN/);
+
+    // Slide 4 also NAMES the app (ratified 2026-08-21 after a three-carousel pilot). It is
+    // the slide most likely to be screenshotted alone, so it still carries the plug line even
+    // now that slide 2 is a dedicated plug page.
+    const slide3 = section(md, '**SLIDE 4 PROMPT:**') ?? '';
+    expect(slide3, 'slide 4 must carry the CRWN plug line')
       .toMatch(/THAT'S WHAT THE CRWN APP IS BUILT FOR\./);
     // The plug names the app; the crown MARK stays exclusive to the 128 end card.
-    expect(slide3, 'slide 3 must still ban the crown symbol')
+    expect(slide3, 'slide 4 must still ban the crown symbol')
       .toMatch(/Do NOT draw a crown symbol/);
     expect(slide3, 'the plug must be the ONLY place the letters CRWN appear')
       .toMatch(/ONLY inside the one quoted plug line/);
