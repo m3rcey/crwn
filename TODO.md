@@ -770,6 +770,15 @@ responsible for. Do not work those.
       path. After that command finishes, delete `slide-1.jpg` from the carousel folders for 42 and
       46 so the carousel re-copies the new hook sheet.
 
+      And the 18 carousel takeaway slides that are now stale. Every carousel said "you don't need
+      to market to fans, you need a market FOR fans" TWICE, on the new plug slide and again on the
+      takeaway; it is now the plug slide's alone, so the 18 already-rendered `slide-4.jpg` files
+      still show the old duplicate. I have deliberately NOT deleted them, because deleting art I
+      cannot re-render is how videos 12, 42 and 46 ended up with holes. When the credits are back:
+
+        find "/mnt/c/Users/Josh/Dropbox/nano banana output/Carousel Posts/Fan Economy" -name 'slide-4.jpg' -delete
+        source ./load-env.sh && node generate-fan-economy-carousel.mjs
+
 - [ ] **Drop a photo of Money Man into the reference folder, then I render video 14.**
       Save any clear photo of his face as
       `C:\Users\Josh\Desktop\nano banana references\people\money-man.jpg` and tell me.

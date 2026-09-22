@@ -431,6 +431,21 @@ describe.runIf(carouselFiles.length > 0)('FE-CAR-003 every carousel file is well
     expect(md).not.toContain('**SLIDE 5 PROMPT:**');
   });
 
+  it.each(carouselFiles)('%s says the signature line on the plug slide and nowhere else', (file) => {
+    // Founder call 2026-09-22. Adding the plug slide put "you don't need to market to fans, you
+    // need a market FOR fans" on slide 2 as a headline while slide 4 still carried it as its two
+    // smaller lines, so all 31 carousels said it twice. It belongs to the plug slide alone.
+    const md = readFileSync(join(CAROUSELS_DIR, file), 'utf8');
+    const lettered = (marker: string) =>
+      ((section(md, marker) ?? '').match(/"[^"]+"/g) ?? []).join(' | ').toUpperCase();
+    expect(lettered('**SLIDE 2 PROMPT:**'), 'slide 2 must carry the signature line')
+      .toMatch(/MARKET FOR FANS/);
+    for (const marker of ['**SLIDE 3 PROMPT:**', '**SLIDE 4 PROMPT:**']) {
+      expect(lettered(marker), `${marker} repeats the signature line; it belongs to slide 2 alone`)
+        .not.toMatch(/MARKET FOR FANS/);
+    }
+  });
+
   it.each(carouselFiles)('%s draws no CRWN mark on any rendered slide', (file) => {
     const md = readFileSync(join(CAROUSELS_DIR, file), 'utf8');
     // Slide 2 IS the plug (founder call 2026-09-22): it sits BEFORE the reveal so the viewer

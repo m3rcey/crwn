@@ -70,8 +70,10 @@ smaller type beneath it. It has to survive being screenshotted alone, with no sl
 caption around it, so it states a principle rather than a result. Slide 3 already owns the math;
 repeating a figure here makes the pair read as one slide split in half.
 
-Vary the statement per carousel. "You don't need to market to fans. You need a market FOR fans"
-appears in every script and belongs on this slide as the SMALLER second line, but if the big line
+Vary the statement per carousel. The signature line, "You don't need to market to fans. You need
+a market FOR fans", does NOT belong on this slide: it is the headline of the CRWN plug on slide 2
+and appears nowhere else in the post (founder call 2026-09-22, after the plug slide put it on
+slide 2 while slide 4 still carried it and all 31 carousels said it twice). If the big line here
 is also the same every time then all 30 carousels end identically. Derive the big line from that
 script's own Wow Factor (carousel 1: "REACH GETS YOU HEARD. DEPTH GETS YOU PAID.").
 
@@ -196,8 +198,8 @@ carousel named the app: the plug existed only in the caption's sidenote and the 
 deliberately silent, so the product was invisible in the imagery.
 
 Keep it SMALL. The quotable statement has to stay dominant or the slide stops being a takeaway and
-starts being an ad. Slide 4 now runs five text zones (statement, two belief lines, plug, CTA box),
-which is the ceiling; do not add a sixth.
+starts being an ad. Slide 4 runs three text zones (statement, plug line, CTA box), which is the
+ceiling; do not add a fourth.
 
 **The plug names the app, never draws the mark.** The letters CRWN appear in that one line and
 nowhere else on the page, and no crown symbol is drawn on any rendered slide. The logo belongs to
