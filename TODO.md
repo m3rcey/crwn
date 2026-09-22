@@ -758,6 +758,18 @@ responsible for. Do not work those.
       That is 27 slides. Nothing else waits on this: the carousel files, the generator, the
       contract and the skill are all committed and green.
 
+      Then the six video sheets that depend on the same credits:
+
+        source ./load-env.sh && node generate-fan-economy-images.mjs 12 42 46
+
+      Videos 12, 42 and 46 are each missing their hook sheet and their reveal sheet. I deleted
+      those six to re-render them against sharper reference-photo instructions and the render hit
+      the same 402, so they are currently absent rather than present and imperfect. Dropbox's
+      Deleted files can restore the old ones if you want something in place sooner, but they are
+      the versions that did not match the photos closely enough, so regenerating is the better
+      path. After that command finishes, delete `slide-1.jpg` from the carousel folders for 42 and
+      46 so the carousel re-copies the new hook sheet.
+
 - [ ] **Drop a photo of Money Man into the reference folder, then I render video 14.**
       Save any clear photo of his face as
       `C:\Users\Josh\Desktop\nano banana references\people\money-man.jpg` and tell me.
