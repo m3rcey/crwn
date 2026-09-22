@@ -755,14 +755,20 @@ responsible for. Do not work those.
       registered in `known-people.json` now, so the moment a real photo is sitting at that path,
       `node generate-fan-economy-images.mjs 14` draws all five of his sheets.
 
-- [ ] **Look at the 80 sheets for the other 16 videos before filming any of them.**
+- [ ] **Look at the 80 sheets for the 16 rendered videos before filming any of them.**
       They are in `Dropbox/nano banana output/Shortform Posts/Fan Economy` as `<slug>.jpg` and
       `<slug>-2.jpg` to `<slug>-5.jpg`. Filming order per video is hook, middle, CRWN plug,
-      reveal, CTA card. What looking catches and the checks cannot: a face that is not the artist
-      (five of them had no reference photo at all until this run), a miscounted object on a reveal
-      sheet, and a crown or logo drawn on the plug sheet, which may carry the WORD CRWN in sharpie
-      and nothing else. A rejected sheet is one deleted jpg plus
+      reveal, CTA card. **I reviewed 32 of the 80 myself**, including every reveal sheet and all
+      nine that I rejected and re-rendered, so the other 48 have had no human or model eye on them
+      yet. What looking catches and no check can: a face that is not the artist, a word doubled at
+      a line wrap, text lettered onto an object, and a crown or logo on the plug sheet, which may
+      carry the WORD CRWN in sharpie and nothing else. A rejected sheet is one deleted jpg plus
       `node generate-fan-economy-images.mjs <N>` for that video.
+      Nine were rejected and replaced on this pass: unfilled hair reading as blonde, a durag and a
+      bandana lettered with branding copied off the reference photos, a lyric sheet covered in
+      invented words, crates lettered DEAL, a full record rack on a sheet that says SOLD OUT, a
+      garbled CTA line, and two doubled words. Every one of those now has a rule in the generator
+      behind it, so the same defect should not come back.
 
 - [ ] **Decide whether videos 6 to 9 get a CRWN plug sheet too.**
       They are the only multi-sheet videos still on the old four-sheet shape (hook, middle,
