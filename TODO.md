@@ -746,6 +746,18 @@ responsible for. Do not work those.
       rejected sheet is one deleted jpg plus `node generate-fan-economy-images.mjs <N>`. When
       you are ready to film the next batch, say which numbers and I make their four sheets.
 
+- [ ] **Top up the Gemini prepayment credits, then finish 14 carousels.**
+      The carousel render stopped on HTTP 402: `Your prepayment credits are depleted`, at
+      https://ai.studio/projects under billing. 34 slides rendered, 27 failed. Carousels 1 to 46
+      are complete at five slides each; 47 to 60 are missing their new CRWN plug slide, and all
+      but 55 are also missing the redrawn takeaway. Existing files are skipped, so one command
+      fills only the gaps, from the repo root:
+
+        source ./load-env.sh && node generate-fan-economy-carousel.mjs 47 60
+
+      That is 27 slides. Nothing else waits on this: the carousel files, the generator, the
+      contract and the skill are all committed and green.
+
 - [ ] **Drop a photo of Money Man into the reference folder, then I render video 14.**
       Save any clear photo of his face as
       `C:\Users\Josh\Desktop\nano banana references\people\money-man.jpg` and tell me.
