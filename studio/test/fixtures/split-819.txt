@@ -1,0 +1,15 @@
+Audio duration: 234.55s
+Detecting silences (threshold=-30.0dB, min_dur=0.32s)...
+  Found 61 silence regions
+  Derived 46 speech regions
+Loaded 46 segment(s) from transcript, 46 word-level timestamps
+Built 46 phrases from word-level timing
+
+--- Dropping short fragments ---
+  Dropped 0 short fragment(s)
+
+Total phrase duration: 163.94s
+Target tracks: A3 / A4
+
+Timeline duration: 151.04s  |  Saved: 12.90s
+Wrote: C:\Users\Josh\AppData\Local\Temp\crwn-studio-regression\New Recording 819 joyce wrice_overlap_phrases.jsx

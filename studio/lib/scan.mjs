@@ -31,7 +31,7 @@ const readOrNull = (p) => {
 // ffprobe is the slow part (it reads the wav header over the drvfs mount), so cache by
 // path + size + mtime. A replaced wav changes size or mtime and is probed again.
 const durationCache = new Map();
-function wavDuration(p, st) {
+export function wavDuration(p, st) {
   const key = `${p}|${st.size}|${st.mtimeMs}`;
   if (durationCache.has(key)) return durationCache.get(key);
   let result;
@@ -49,7 +49,7 @@ function wavDuration(p, st) {
   return result;
 }
 
-function readTranscript(jsonPath) {
+export function readTranscript(jsonPath) {
   const text = readOrNull(jsonPath);
   if (text === null) return { exists: false };
   try {
@@ -132,8 +132,13 @@ export function scanAll({ ssd, state }) {
           recording.json = readTranscript(`${stem}.json`);
           recording.jsonPath = `${stem}.json`;
           recording.jsxPath = `${stem}_overlap_phrases.jsx`;
-          recording.jsxExists = !!statOrNull(recording.jsxPath);
+          const jsxStat = statOrNull(recording.jsxPath);
+          recording.jsxExists = !!jsxStat;
+          recording.jsxMtime = jsxStat?.mtimeMs ?? null;
         }
+        recording.inFanDir = path.dirname(wav) === fanDir;
+        recording.split = state.splits?.[sf.num] || null;
+        recording.placement = state.placements?.[sf.num] || null;
       } else if (!claimants.length) {
         recording.candidates = historyWavs
           .filter(({ f }) => recordingMatchesSlug(f, sf.slug))
@@ -169,5 +174,15 @@ export function scanAll({ ssd, state }) {
     };
   });
 
-  return { videos, fanDir, fanDirExists, ssdError };
+  // Every recording Studio can see, for the link picker. `claimedBy` is the script already
+  // holding it, so the page can't offer one wav to two videos.
+  const claimed = new Map(videos.filter((v) => v.recording.linked).map((v) => [v.recording.linked.wav, v.num]));
+  const recordings = ssdError
+    ? []
+    : [
+        ...fanWavs.map((f) => ({ rel: path.posix.join(SSD_FOLDERS.fanEconomy, f), name: f, fan: true })),
+        ...historyWavs.map(({ rel, f }) => ({ rel: path.posix.join(rel, f), name: f, fan: false })),
+      ].map((r) => ({ ...r, claimedBy: claimed.get(path.join(ssd.root, r.rel)) ?? null, leading: leadingNumber(r.name) }));
+
+  return { videos, fanDir, fanDirExists, ssdError, recordings };
 }

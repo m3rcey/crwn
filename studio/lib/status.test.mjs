@@ -33,19 +33,21 @@ test("step 3: sheets, shape, then a PDF newer than every sheet", () => {
   const all = { present: [1, 2, 3, 4, 5], mtimes: { 1: 10, 2: 10, 3: 10, 4: 10, 5: 20 } };
   assert.equal(stepOf(base(), 3).status, "todo");
   assert.equal(stepOf(base({ sheets: { present: [1, 2], mtimes: {} } }), 3).status, "progress");
-  assert.equal(stepOf(base({ sheets: all }), 3).status, "progress"); // no PDF
+  assert.equal(stepOf(base({ sheets: all }), 3).status, "done"); // no PDF: printed from the JPEGs
   const stale = [{ name: "CRWN-Fan-Economy-Sheets-61-61.pdf", lo: 61, hi: 61, mtime: 15 }];
   assert.match(stepOf(base({ sheets: all, pdfs: stale }), 3).summary, /Rebuild the PDF/);
   const fresh = [{ name: "CRWN-Fan-Economy-Sheets-55-65.pdf", lo: 55, hi: 65, mtime: 30 }];
   assert.equal(stepOf(base({ sheets: all, pdfs: fresh }), 3).status, "done");
   const other = [{ name: "CRWN-Fan-Economy-Sheets-1-9.pdf", lo: 1, hi: 9, mtime: 30 }];
-  assert.equal(stepOf(base({ sheets: all, pdfs: other }), 3).status, "progress");
+  assert.equal(stepOf(base({ sheets: all, pdfs: other }), 3).status, "done"); // a PDF for OTHER videos is irrelevant
 });
 
-test("step 3: a script prompting one sheet is not done even with that sheet and a PDF", () => {
+test("step 3: a one-sheet script is done once its one sheet and a PDF exist (founder call 2026-09-23)", () => {
   const one = "**SCRIPT:**\nx\n---\n**NANO BANANA PRO PROMPT:**\na\n---\n**META:** y";
   const s = stepOf(base({ scriptText: one, sheets: { present: [1], mtimes: { 1: 1 } }, pdfs: [{ name: "p", lo: 61, hi: 61, mtime: 9 }] }), 3);
-  assert.equal(s.status, "progress");
+  assert.equal(s.status, "done");
+  assert.equal(stepOf(base({ scriptText: one, sheets: { present: [1], mtimes: { 1: 1 } } }), 3).status, "done");
+  assert.equal(stepOf(base({ scriptText: one }), 3).status, "todo");
 });
 
 test("step 3: the old four-sheet shape is complete", () => {
@@ -57,6 +59,7 @@ test("step 3: the old four-sheet shape is complete", () => {
 const linked = (over) => ({
   ssdError: null, conflicts: ["/w.wav"], candidates: [], linked: { wav: "/w.wav", exists: true, source: "s" },
   duration: 265.4, json: { exists: true, hasSegments: true, hasLanguage: true, segmentCount: 59, lastEnd: 259.0 }, jsxExists: true,
+  jsxMtime: 500, split: null, placement: { by: "bridge", ok: true, jsxMtime: 500, placed: 59, total: 59, failed: 0, at: "2026-09-23T00:00:00Z" },
   ...over,
 });
 
@@ -67,6 +70,37 @@ test("step 6: known-good 820 transcript (6.4s short) passes; a half transcript f
   assert.equal(stepOf(base({ recording: linked({ json: { exists: false } }) }), 6).status, "progress");
   assert.equal(stepOf(base({ recording: linked({ json: { exists: true, parseError: "Unexpected end" } }) }), 6).status, "failed");
   assert.equal(stepOf(base({ recording: linked({ json: { exists: true, hasSegments: true, hasLanguage: false, segmentCount: 3, lastEnd: 265 } }) }), 6).status, "failed");
+});
+
+test("step 6: a failed split blocks placement and shows failed", () => {
+  const split = { ok: false, jsxMtime: 500, checks: [{ ok: false, label: "Built 61 phrases = Loaded 71 segments" }] };
+  const s = stepOf(base({ recording: linked({ split, placement: null }) }), 6);
+  assert.equal(s.status, "failed");
+  assert.equal(s.stage, "split");
+});
+
+test("step 6: split and placement records only count for the JSX they were made from", () => {
+  // Placed, then the JSX was rewritten (mtime 900): not placed any more.
+  const s = stepOf(base({ recording: linked({ jsxMtime: 900 }) }), 6);
+  assert.equal(s.status, "progress");
+  assert.equal(s.stage, "place");
+  // A failed split of an OLD jsx doesn't block the new one.
+  const stale = { ok: false, jsxMtime: 100, checks: [] };
+  assert.equal(stepOf(base({ recording: linked({ split: stale }) }), 6).status, "done");
+});
+
+test("step 6: Premiere reporting failures fails the step; by hand counts as placed", () => {
+  const bad = { by: "bridge", ok: false, jsxMtime: 500, placed: 50, total: 59, failed: 9, at: "x", message: "Failed: 9" };
+  assert.equal(stepOf(base({ recording: linked({ placement: bad }) }), 6).status, "failed");
+  const hand = { by: "hand", ok: true, jsxMtime: 500, at: "2026-09-23T00:00:00Z" };
+  assert.equal(stepOf(base({ recording: linked({ placement: hand }) }), 6).status, "done");
+});
+
+test("step 6: stages walk link, transcribe, split, place", () => {
+  assert.equal(stepOf(base(), 6).stage, "link");
+  assert.equal(stepOf(base({ recording: linked({ json: { exists: false } }) }), 6).stage, "transcribe");
+  assert.equal(stepOf(base({ recording: linked({ jsxExists: false }) }), 6).stage, "split");
+  assert.equal(stepOf(base({ recording: linked({ placement: null }) }), 6).stage, "place");
 });
 
 test("step 6: no SSD is 'can't tell', never 'not started'; two claimants is a failure", () => {

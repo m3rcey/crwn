@@ -95,10 +95,8 @@ function stepImages(f) {
   const missing = wanted.filter((n) => !f.sheets.present.includes(n));
   for (const n of wanted) s.checks.push({ ok: present.includes(n), label: sheetFileName(f.slug, n) });
 
-  // Two shapes are legal (generator header): 4 sheets for videos 1 to 9, 5 from then on.
-  const shapeOk = wanted.length >= 4;
-  s.checks.push({ ok: shapeOk, label: `script has prompts for ${wanted.length} sheet(s) (a video needs 5; the old shape is 4)` });
-
+  // A video needs exactly the sheets its script prompts for, however many (founder call
+  // 2026-09-23: one-sheet videos were made that way and are complete).
   if (!present.length) {
     s.summary = `0 of ${wanted.length} sheets generated.`;
     return s;
@@ -108,30 +106,27 @@ function stepImages(f) {
     s.summary = `${present.length} of ${wanted.length} sheets generated.`;
     return s;
   }
-  if (!shapeOk) {
-    s.status = STATUS.PROGRESS;
-    s.summary = `The script only has prompts for ${wanted.length} sheet${wanted.length === 1 ? "" : "s"} (all generated). A video needs 5.`;
-    return s;
-  }
-
+  // Done = every prompted sheet exists (founder call 2026-09-23). A PDF is optional: most
+  // videos were printed straight from the JPEGs. A PDF that exists but predates a sheet still
+  // blocks, because printing it prints a superseded sheet.
   const covering = f.pdfs.filter((p) => p.lo <= f.num && f.num <= p.hi);
   const newestSheet = Math.max(...wanted.map((n) => f.sheets.mtimes[n] || 0));
   const fresh = covering.filter((p) => p.mtime >= newestSheet);
-  s.checks.push({
-    ok: fresh.length > 0,
-    label: covering.length
-      ? `PDF ${covering.map((p) => p.name).join(", ")} ${fresh.length ? "is newer than every sheet" : "is OLDER than a sheet"}`
-      : "a PDF covering this video exists",
-  });
+  if (covering.length) {
+    s.checks.push({
+      ok: fresh.length > 0,
+      label: `PDF ${covering.map((p) => p.name).join(", ")} ${fresh.length ? "is newer than every sheet" : "is OLDER than a sheet"}`,
+    });
+  }
   if (!covering.length) {
-    s.status = STATUS.PROGRESS;
-    s.summary = `All ${wanted.length} sheets exist. No PDF yet.`;
+    s.status = STATUS.DONE;
+    s.summary = `${wanted.length} sheet${wanted.length === 1 ? "" : "s"} (no PDF)`;
   } else if (!fresh.length) {
     s.status = STATUS.PROGRESS;
     s.summary = "A sheet changed after the PDF was built. Rebuild the PDF.";
   } else {
     s.status = STATUS.DONE;
-    s.summary = `${wanted.length} sheets + ${fresh[0].name}`;
+    s.summary = `${wanted.length} sheet${wanted.length === 1 ? "" : "s"} + ${fresh[0].name}`;
   }
   s.note = "Sheet approval is tracked from Phase 3.";
   return s;
@@ -150,13 +145,11 @@ const MANUAL_TEXT = {
   },
   7: {
     name: "Film sheets",
-    next: "Print the PDF, film each sheet on the stand at slowed playback (shift+J x5), shake between sheets.",
-    lands: "Camera clips (their folder on the SSD is not specified yet).",
+    next: "Print the sheets, film each one on the stand at slowed playback (shift+J x5), shake between sheets.",
   },
   8: {
     name: "Assemble",
     next: "Line up the shakes, trim to the pro audio, music bed with the hook beat drop + riser, app overlay on the CRWN plug, calculator clip on \"I built a free...\".",
-    lands: "The finished edit in Premiere (export location not specified yet).",
   },
 };
 
@@ -166,7 +159,7 @@ function stepManual(n, f) {
   return step(n, t.name, mark?.done ? STATUS.DONE : STATUS.TODO, mark?.done ? `Marked done ${mark.at.slice(0, 10)}` : "Not marked done.", {
     manual: true,
     next: t.next,
-    lands: t.lands,
+    ...(t.lands ? { lands: t.lands } : {}),
   });
 }
 
@@ -187,6 +180,7 @@ function stepChop(f) {
   if (!r.linked) {
     s.summary = "No recording linked.";
     s.candidates = r.candidates;
+    s.stage = "link";
     return s;
   }
   if (!r.linked.exists) {
@@ -195,53 +189,98 @@ function stepChop(f) {
     return s;
   }
 
-  const j = r.json;
-  s.checks.push({ ok: j.exists, label: "transcript JSON exists" });
-  if (!j.exists) {
+  // `stage` tells the page which single action is next: transcribe, split or place.
+  const t = transcriptCheck(r.json, r.duration, r.durationError);
+  s.checks.push(...t.checks);
+  if (t.state === "missing") {
     s.status = STATUS.PROGRESS;
     s.summary = "Recording linked, not transcribed yet.";
+    s.stage = "transcribe";
     return s;
   }
-  if (j.parseError) {
-    s.status = STATUS.FAILED;
-    s.summary = `Transcript JSON doesn't parse: ${j.parseError}`;
-    s.checks.push({ ok: false, label: "JSON parses" });
-    return s;
-  }
-  const shapeOk = j.hasSegments && j.hasLanguage && j.segmentCount > 0;
-  s.checks.push({ ok: shapeOk, label: `has "segments" and "language"${j.segmentCount != null ? ` (${j.segmentCount} segments)` : ""}` });
-  if (!shapeOk) {
-    s.status = STATUS.FAILED;
-    s.summary = "Transcript JSON is missing segments or language.";
-    return s;
-  }
-  if (r.duration == null) {
+  if (t.state === "unknown") {
     s.status = STATUS.UNKNOWN;
-    s.summary = `Couldn't read the wav's duration${r.durationError ? `: ${r.durationError}` : ""}.`;
+    s.summary = t.summary;
     return s;
   }
-  const gap = r.duration - j.lastEnd;
-  const allowed = transcriptGapAllowed(r.duration);
-  const complete = gap <= allowed;
-  s.checks.push({
-    ok: complete,
-    label: `last segment ends ${gap.toFixed(1)}s before the wav's end (${r.duration.toFixed(1)}s; allowed ${allowed.toFixed(1)}s)`,
-  });
-  if (!complete) {
+  if (t.state === "broken") {
     s.status = STATUS.FAILED;
-    s.summary = "Transcript stops well before the audio does. The run probably died.";
+    s.summary = t.summary;
+    s.stage = "transcribe";
     return s;
   }
+
   s.checks.push({ ok: r.jsxExists, label: "_overlap_phrases.jsx exists" });
   if (!r.jsxExists) {
     s.status = STATUS.PROGRESS;
     s.summary = "Transcribed, not split yet.";
+    s.stage = "split";
+    return s;
+  }
+  // A saved record only counts for the JSX it was made from. A JSX rewritten since then
+  // (a re-split, a hand edit) has no checks and no placement until it earns them again.
+  const split = r.split && r.split.jsxMtime === r.jsxMtime ? r.split : null;
+  if (split) {
+    s.checks.push(...split.checks);
+    if (!split.ok) {
+      s.status = STATUS.FAILED;
+      s.summary = "The split failed its checks. It is blocked from Premiere.";
+      s.stage = "split";
+      return s;
+    }
+  } else {
+    s.checks.push({ ok: true, label: "split outside Studio (its checks weren't recorded)" });
+  }
+
+  const placement = r.placement && r.placement.jsxMtime === r.jsxMtime ? r.placement : null;
+  if (!placement) {
+    s.status = STATUS.PROGRESS;
+    s.summary = "Split. Not placed in Premiere yet.";
+    s.stage = "place";
+    return s;
+  }
+  if (placement.by === "hand") {
+    s.checks.push({ ok: true, label: `placed by hand (marked ${placement.at.slice(0, 10)})` });
+  } else {
+    s.checks.push({
+      ok: placement.ok,
+      label: `Premiere: Placed ${placement.placed ?? "?"} of ${placement.total ?? "?"}, Failed ${placement.failed ?? "?"}`,
+    });
+  }
+  if (!placement.ok) {
+    s.status = STATUS.FAILED;
+    s.summary = "Placement in Premiere reported a problem.";
+    s.stage = "place";
+    s.message = placement.message;
     return s;
   }
   s.status = STATUS.DONE;
-  s.summary = "Transcribed and split.";
-  s.note = "Premiere placement is tracked from Phase 2.";
+  s.summary = "Transcribed, split and placed.";
+  s.stage = "done";
   return s;
+}
+
+// The spec's transcript checks: the JSON parses, has segments and language, and its last
+// segment ends near the wav's end. `broken` means a rerun must move the JSON aside first.
+export function transcriptCheck(j, duration, durationError) {
+  const checks = [{ ok: !!j?.exists, label: "transcript JSON exists" }];
+  if (!j?.exists) return { state: "missing", checks };
+  if (j.parseError) {
+    checks.push({ ok: false, label: "JSON parses" });
+    return { state: "broken", checks, summary: `Transcript JSON doesn't parse: ${j.parseError}` };
+  }
+  const shapeOk = j.hasSegments && j.hasLanguage && j.segmentCount > 0;
+  checks.push({ ok: shapeOk, label: `has "segments" and "language"${j.segmentCount != null ? ` (${j.segmentCount} segments)` : ""}` });
+  if (!shapeOk) return { state: "broken", checks, summary: "Transcript JSON is missing segments or language." };
+  if (duration == null) {
+    return { state: "unknown", checks, summary: `Couldn't read the wav's duration${durationError ? `: ${durationError}` : ""}.` };
+  }
+  const gap = duration - j.lastEnd;
+  const allowed = transcriptGapAllowed(duration);
+  const complete = gap <= allowed;
+  checks.push({ ok: complete, label: `last segment ends ${gap.toFixed(1)}s before the wav's end (${duration.toFixed(1)}s; allowed ${allowed.toFixed(1)}s)` });
+  if (!complete) return { state: "broken", checks, summary: "Transcript stops well before the audio does. The run probably died." };
+  return { state: "complete", checks };
 }
 
 function stepCaption(f) {
