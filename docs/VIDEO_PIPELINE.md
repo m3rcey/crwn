@@ -8,6 +8,10 @@ approve or correct one scene.
 
 Built 2026-08-26. All commands run **inside WSL** (same rule as builds).
 
+**This is not the filmed series.** The videos Josh records himself and shoots off printed
+sheets are a separate run with its own steps and its own tools. That one is
+[videos/PRODUCTION_RUNBOOK.md](../videos/PRODUCTION_RUNBOOK.md).
+
 ## Commands
 
 Dry run (storyboard + validation + music proposal + cost estimate, no image spend):
