@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CRWN Studio</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>CRWN Studio</h1>
+    <div id="env"></div>
+  </header>
+  <main>
+    <section id="list-pane">
+      <div id="legend">
+        <span class="chip done">done</span>
+        <span class="chip progress">in progress</span>
+        <span class="chip todo">not started</span>
+        <span class="chip failed">failed</span>
+        <span class="chip unknown">can't tell</span>
+      </div>
+      <table id="videos">
+        <thead>
+          <tr>
+            <th>#</th><th>Video</th>
+            <th title="Ideas">1</th><th title="Script">2</th><th title="Images">3</th>
+            <th title="Record">4</th><th title="Vocal chain">5</th><th title="Chop silences">6</th>
+            <th title="Film sheets">7</th><th title="Assemble">8</th><th title="Caption">9</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <p id="gaps"></p>
+    </section>
+    <section id="detail-pane"><p class="muted">Pick a video.</p></section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>

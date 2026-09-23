@@ -1,0 +1,231 @@
+SHORT-FORM VIDEO PROCESS — AUTOMATION SPEC
+
+PURPOSE OF THIS DOCUMENT
+This is for a Claude building an interface that automates as much of my short-form video process as possible. It describes one video from idea to caption. Each step has my description of how I do it, followed by a SPEC block with inputs, outputs, commands, how to tell the step succeeded, and whether it can be automated.
+
+Rules for the builder:
+- Anything marked UNKNOWN is a gap in this document. Ask me; do not guess.
+- Anything marked MANUAL is physical or creative work I do myself. The interface should track it and hand off to it, not try to replace it.
+- Do not change the creative decisions baked into steps 1–3 and 9. Those skills already enforce rules I care about. Wrap them; don't rewrite them.
+
+ENVIRONMENT (verified on the machine by Claude Code, not assumed)
+- The interface runs in WSL bash (Ubuntu) from the repo at /home/merce/workspace-crwn. Not Git Bash, not PowerShell. Work from the WSL path, never the //wsl.localhost UNC path: UNC access is slow enough to time out.
+- The node scripts are already written for WSL (they call wslpath and headless Chrome at /mnt/c/Program Files/Google/Chrome/Application/chrome.exe). WSL node is v22.23.1. A second node (v20.17.0) exists on the Windows side; nothing pins either, so always run node from WSL.
+- load-env.sh (repo root) exports GEMINI_API_KEY and BRAVE_API_KEY from .env.local. It only works from WSL. Source it; do not source .env.local directly.
+- Python tools in C:\Users\Josh\Tools\ (reachable as /mnt/c/Users/Josh/Tools) need pdfplumber, which only the Windows Python has. From WSL call the Windows interpreter directly:
+    /mnt/c/Users/Josh/AppData/Local/Programs/Python/Python312/python.exe
+  and pass it Windows-style paths (convert with wslpath -w). Do not use WSL's python3 for these.
+- ffmpeg/ffprobe are present on both sides.
+- The SSD: exFAT, labelled "Extreme SSD", currently E: (/mnt/e in WSL). Find the letter by label at startup, e.g. powershell.exe -NoProfile -Command "(Get-Volume -FileSystemLabel 'Extreme SSD').DriveLetter".
+- DANGER: /mnt/d exists in WSL as an empty directory that is not a mount. Writing there does not error; the files silently land inside the WSL disk. Before writing anywhere under /mnt/<letter>, confirm it is a real mount (mountpoint -q) and that the expected folder exists. Refuse to write otherwise.
+- The SSD reports "Full Repair Needed" in Windows. It reads fine, but it holds all the footage: back it up before running chkdsk.
+- Where the repo and this document disagree, the repo wins. Phase 0 recon (studio/RECON.md) checked every command name here against the repo and they match. docs/VIDEO_PIPELINE.md describes other pipelines, not this one; the real sources are the root .mjs files and .claude/commands/.
+
+AT A GLANCE
+Step  Owner   What                          Automatable?
+1     Claude  Ideas batch                   Yes (already a command)
+2     Claude  Script                        Yes (already a command)
+3     Claude  Five image sheets + PDF       Yes, with a manual review gate
+4     Me      Record + Adobe Podcast edit   Manual (recording, take selection)
+5     Me      FL Studio vocal chain         Manual today (see open questions)
+6     Both    Silence-chop into Premiere    Mostly yes — best target
+7     Me      Film the printed sheets       Manual (physical)
+8     Me      Assemble in Premiere          Manual (creative)
+9     Claude  Caption + carousel            Yes (already a command)
+
+The best place for the interface to start is a per-video tracker that knows which step each video is on, plus full automation of step 6, which today is a copy-paste loop between PowerShell and a Claude chat.
+
+
+1. IDEAS (Claude)
+I have Claude come up with ideas cold using the ideas skill:
+
+/crwn-fan-economy-ideas 10
+/crwn-fan-economy-ideas 10 women in R&B
+
+It writes the batch to videos/ideas/fan-economy/ as batch-NN.md before showing it to me, so the list survives the session. Batches 01 to 04 exist, next is 05. I cull to the ones worth building and it marks PICKED and PASSED in that same file. It never writes a script in the same turn as the pitches.
+
+What the skill already enforces so I do not have to: at least half the batch is a versus with an ICP artist as the subject (a megastar can only be the foil), hip hop and R&B only, gender counted on the pitch list rather than on the picks, and the problem has to get worse once the artist already sells something.
+
+SPEC
+Input: optional count and theme.
+Output: videos/ideas/fan-economy/batch-NN.md, next NN = highest existing + 1.
+Done when: file exists; after culling, every pitch is marked PICKED or PASSED.
+Interface role: show unpicked batches, let me mark PICKED/PASSED, feed PICKED items into step 2.
+Repo root: /home/merce/workspace-crwn (WSL).
+
+
+2. SCRIPT (Claude)
+/crwn-fan-economy <the pick>
+
+Saved to videos/scripts/fan-economy/NN-slug.md. The next number is the highest existing one plus 1 (60 exists as of this writing, so 61). Numbers 17 and 20 are missing; the tracker shows gaps rather than inventing rows. Every number is verified before the script is written and cited in the META line, including the other artist's number in a versus. Reveal counts get written as figures, not words, or the contract test cannot see them. npm test is the gate.
+
+The SCRIPT section of that file is what I read into my phone.
+
+SPEC
+Input: one PICKED idea.
+Output: videos/scripts/fan-economy/NN-slug.md with META and SCRIPT sections.
+Done when: npm test passes.
+Interface role: show the SCRIPT section in a readable teleprompter view for recording.
+Key: NN-slug is the video's ID for steps 3 and 9. See the numbering problem under step 4.
+
+
+3. IMAGES (Claude)
+Five sheets per video, and they are not five loose images. They are the script's five beats in filming order:
+
+NN-slug.jpg     the hook, payoff withheld
+NN-slug-2.jpg   the middle, still withheld
+NN-slug-3.jpg   the CRWN plug, the only sheet that letters CRWN
+NN-slug-4.jpg   the reveal
+NN-slug-5.jpg   the comment CTA and the lead magnet
+
+Generate them:
+
+source ./load-env.sh
+node generate-fan-economy-images.mjs 60
+node generate-fan-economy-images.mjs 60 62 71    # a list, not a range
+node generate-fan-economy-images.mjs 60-65       # a range
+
+They render at 4K, about 436 DPI on letter, because I print them and film them with the camera zoomed in, which magnifies the pixel grid and any JPEG edge fringing. Existing files are skipped so a rerun only fills gaps. They land in Dropbox/nano banana output/Shortform Posts/Fan Economy.
+
+I open every sheet before printing. The generator catches colour leaking off a reference photo; it cannot catch a miscounted reveal, a misdrawn face or a sheet that answers its own question.
+
+Then the PDF I print from:
+
+node build-fan-economy-pdf.mjs 60 60
+
+The JPEG bytes go in untouched and the pages come out in filming order.
+
+SPEC
+Input: script number NN.
+Output: five JPEGs in the Dropbox folder above, then a PDF.
+Done when: all five files exist AND I have approved each one.
+Interface role: show the five sheets side by side with the script beat each one belongs to, an approve/regenerate control per sheet, and only allow the PDF build once all five are approved. Regenerating means deleting that one file and rerunning, since existing files are skipped.
+Manual gate: sheet approval. Do not auto-approve.
+PDF: written to the same Dropbox folder as the sheets, named CRWN-Fan-Economy-Sheets-<lo>-<hi>.pdf (CRWN-Fan-Economy-Sheets-60-60.pdf for one video).
+
+
+4. RECORD AND CLEAN UP THE AUDIO (mine)
+I record myself saying the script on voice notes. That file goes into Adobe Podcast, which converts the m4a to wav. Enhance slider around 80%, background noise 10%, music 0%. I use its transcript to delete mess ups and duplicates: deleting a sentence deletes that audio. If I said something three times I keep the last one, because the last one is when I got it right, so I delete the first two. Then I download the wav.
+
+Because Adobe removes the duplicate takes here, step 6 runs with dedup turned off and only strips silence.
+
+SPEC
+Status: MANUAL. Take selection is a judgment call I make reading Adobe's transcript.
+Output: a cleaned wav.
+Interface role: mark the step done and register where the wav landed.
+
+Linking recordings to scripts: my phone names voice notes "New Recording NNN" from its own counter, which has nothing to do with the script's NN (script 60 might be recording 823). Up to now I have tracked which is which in my head.
+
+Going forward, I rename the file after recording so it starts with the script number, e.g. "60 tee grizzley vs drake". The script number is the video's ID from here through step 9, and the interface matches files by that leading number.
+
+The interface should also handle the old way: if a wav comes in still named "New Recording NNN", ask me which script it belongs to rather than refusing it or guessing.
+
+Optional check once step 6 has transcribed the audio: compare the transcript to the script's SCRIPT section and warn if they clearly don't match. This catches a file renamed with the wrong number. It is a warning only, because my delivery drifts from the script wording.
+
+Adobe's transcript export is plain text with a single start timestamp. It is not usable by step 6. Do not build anything that relies on it.
+
+
+5. VOCAL CHAIN (mine)
+That wav goes into FL Studio through my Waves chain with my presets: compression, EQ, de-esser, limiter. Export. The exported wav is what step 6 reads.
+
+SPEC
+Status: MANUAL.
+Output: processed wav.
+Interface role: mark done, register the path.
+
+The footage lives on an external SSD labelled "Extreme SSD". It is E: today; it was D: before I started using a second drive, so the letter depends on what else is plugged in. Never hardcode the letter. Paths below use <SSD> for it. The interface finds the drive by its label (see ENVIRONMENT).
+
+Where files have landed so far (the folder has not been consistent):
+- <SSD>\Videos\2026\CRWN\Reels TikTok Shorts\Hip Hop Industry\          older reels, names like "New Recording 785-esv2-80p-bg-6p-music-m.wav"
+- ...\Hip Hop Industry\Unmixed\    newer reels, names like "New Recording 814 currensy vs westside gunn.wav" (already processed despite the folder name)
+- ...\Hip Hop Industry\Mixed\      VSL files, names like "vsl 1 - fan worth.wav"
+UNKNOWN: which folder new videos should go to going forward. The interface should settle on one convention.
+
+
+6. CHOP THE SILENCES IN PREMIERE (mine, with Claude in a chat — main automation target)
+Today this runs as a Claude chat: Claude writes PowerShell, I run it, I paste the output back, Claude reads the numbers and decides whether to continue. Running the result in VS Code chops the clips and removes a lot of the dead silence. The pacing still is not right, so I go through each clip and nudge it so phrases do not come too quick back to back or too slow.
+
+Everything in this step up to the Premiere placement can run without me.
+
+Tools: C:\Users\Josh\Tools\. Below, PY means the Windows python.exe from ENVIRONMENT. (Run by hand in PowerShell, PY is py -3.12.)
+
+Command 1 — transcribe
+PY C:\Users\Josh\Tools\build_region_transcript_fast.py "<wav>" ["<wav>" ...]
+- wav paths are positional. Writes <wav basename>.json next to each wav.
+- It skips any wav that already has a .json (unless --force). A truncated JSON from a crashed run therefore blocks a rerun: check the JSON first, and if it's incomplete move it to _replaced/ before rerunning.
+- faster-whisper small.en, CPU int8, loads once per call.
+- Prints nothing for a file until that file finishes. A 24-minute file took over 15 minutes silent. The interface must not treat silence as a hang. Run it as a background job and show elapsed time. If a liveness check is needed, the process's CPU time should keep climbing.
+- Success check: the JSON parses, contains "segments" and "language", and the last segment's end is close to the wav's duration. A JSON that exists but is truncated means the run died.
+
+Command 2 — split
+PY C:\Users\Josh\Tools\overlap_phrases.py "<wav>" "<json>" --no-dedupe
+- Writes <wav basename>_overlap_phrases.jsx next to the wav.
+- Always --no-dedupe. Never --script. (Both exist from before Adobe did dedup. Do not use them.)
+- Success checks, parsed from its stdout (these are the numbers I have been having Claude read):
+  - "Built N phrases" equals "Loaded N segment(s)". If not, regions were lost.
+  - "Dropped 0 short fragment(s)".
+  - Timeline duration divided by audio duration has run 55–70% on every good file so far. Well under 50% means material got dropped; flag it and do not continue.
+- Better long term: have overlap_phrases.py write a small JSON summary instead of parsing printed text. Ask before changing the tool.
+
+Command 3 — place in Premiere
+Today: open the JSX in VS Code, select an empty sequence with 4 audio tracks in Premiere, press F5 once, then run verify_timeline_audio.py.
+- F5 runs the open VS Code buffer, not the file on disk. If the JSX was regenerated after it was opened, I place the stale version. Automating the run removes this problem entirely.
+- Large placements are slow. Several hundred clips can take a while and look stuck.
+The real placement check is the JSX's own final message: "Placed: N of M" and "Failed: 0". Pass means Placed equals M and Failed is 0. Today that message only appears in a Premiere dialog.
+verify_timeline_audio.py (<wav> <jsx>) is not a pass/fail check. It rebuilds audio from the numbers in the JSX, so it passes even if Premiere placed nothing. Treat it as an optional deep check only.
+overlap_phrases.py has an --output flag, so each run can write a separately named JSX without touching the tool.
+Running a JSX without F5: see studio/RECON.md section 3 (a small CEP bridge panel, or F5 on a freshly named file).
+
+After placement (MANUAL): I ripple-delete any stutters that survived Adobe, and nudge clip spacing for pacing.
+
+Batch mode (only when doing several at once, not part of the single-video flow)
+- Transcribe all wavs in one call so the model loads once, then split each.
+- Then combine: PY C:\Users\Josh\Tools\build_master_jsx.py --dir "<folder>" --start <n> --end <n> --gap 600
+- --gap is in seconds. 600 (ten minutes between videos) is my standard.
+- Writes _MASTER_<start>_<end>.jsx in that folder. Success check: every number in the range appears in its printout.
+- Limitation: it only finds JSX files whose names contain "Recording <digits>" (regex Recording (\d+)). Other names are silently skipped. My workaround has been renaming the JSX files, e.g. "Recording 901 vsl fan worth_overlap_phrases.jsx". Renaming is safe because the master reads the audio path from inside each JSX. The interface should fix this properly (pass files explicitly, or match by a video ID) rather than keep the rename trick.
+
+
+7. FILM THE SHEETS (mine)
+I print the images, put the first sheet on a clipboard, set it on a stand, press play in Premiere and hit shift+J five times to slow it down so I have time to pan to different parts of the sheet as the script hits them. At the end of a sheet I shake the camera, take the sheet off, put the next one on, and start the next clip by shaking again. Same until the last sheet and the end of the script.
+
+SPEC
+Status: MANUAL. Interface role: mark done.
+
+
+8. ASSEMBLE (mine)
+Upload to Dropbox, pull it onto my external drive, then bring each clip into the Premiere session. I line them up so the shakes match: the next clip starts mid shake from the furthest right, where the previous one ended, so the turn looks seamless. One at a time, I trim each clip so its audio and video match the professional audio. Then I adjust the timing so everything connects with no gaps, play it through, and check that every pan lands with the script rather than early or late.
+
+Then the music bed, very low, always the same level, from the start to a two second fade that ends before the last phrase. I drop the beat for a couple of seconds starting in the middle of the last sentence of the hook ("let's find out", "let's see"), and it comes back when I start talking again. A riser peaks exactly where the beat drops out.
+
+Over the CRWN plug I overlay clips of the app showing memberships and vault tracks. Toward the end, as I say "I built a free...", I cut in clips of whichever calculator the CTA points to. That clip ends right before I say "comment this and I'll send you the link."
+
+SPEC
+Status: MANUAL today.
+Possible later help, not a first priority: the transcript JSON from step 6 has word timings, so the interface could tell me where the hook's last sentence, the CRWN plug, "I built a free...", and "comment..." fall on the timeline. That would give exact marker times for the beat drop, riser, and overlays. Ask me before building this.
+
+
+9. CAPTION (Claude)
+/crwn-fan-economy-carousel 60
+
+One command writes the caption and the four carousel slides, because the caption is a condensation of the script and both have to give a viewer the same number. It reads the artist, the figures and the claim tier off the script's META instead of re-deriving them.
+
+The caption lives in the **CAPTION:** block of videos/carousels/fan-economy/<slug>.md. That is the one to edit. It also exists as a derived caption.md in the generated folder, which is the copy a publisher reads, so after any caption edit the generator gets re-run or the post still carries the old text. Instagram refuses anything over 2,200 characters, and the generator prints each caption's count and lists every offender.
+
+SPEC
+Input: script number NN.
+Output: videos/carousels/fan-economy/<slug>.md (source) and a derived caption.md (what gets published).
+Done when: caption is 2,200 characters or fewer and caption.md matches the source.
+Interface role: an editor for the CAPTION block with a live character count, and automatic regeneration of caption.md on save so the stale-copy mistake can't happen.
+Source file: videos/carousels/fan-economy/<NN-slug>.md (includes the number).
+Derived caption.md: /mnt/c/Users/Josh/Dropbox/nano banana output/Carousel Posts/Fan Economy/<NN-slug>/caption.md, beside slide-1.jpg to slide-5.jpg.
+Cost warning: rerunning the carousel generator also renders any missing slide through Gemini. Before a caption-only rerun, confirm all five slides exist and warn if any is missing.
+Idea batches: only batch 04 and later use the PICKED/PASSED template. Batches 02 and 03 are free prose. Treat older batches as read-only.
+
+
+OPEN QUESTIONS FOR ME
+1. (Settled: recordings get renamed to start with the script number. See step 4.)
+2. Which folder should processed wavs go to going forward? (Step 5.)
+3. Repo root path for videos/ and the node scripts. (Steps 1–3, 9.)
+4. (Settled: a local web page, served from WSL. See ENVIRONMENT.)
+5. Does anything post automatically after step 9, or do I upload by hand?
