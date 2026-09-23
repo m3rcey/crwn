@@ -33,7 +33,16 @@ function detectExt(buf) {
   return null;
 }
 
-export function findExistingPersonRef(slug) {
+export function findExistingPersonRef(slug, known = loadKnownPeople()) {
+  // A record may name the exact file to use. Four photos of Tink were in the folder and the
+  // slug-matched one was not the clearest face; renaming a founder's files to fix that is worse
+  // than letting the record say which one it is.
+  const pinned = known[slug]?.primaryRef;
+  if (pinned) {
+    const p = path.join(PEOPLE_DIR, pinned);
+    if (fs.existsSync(p)) return p;
+    console.warn(`[${slug}] primaryRef ${pinned} not found, falling back to ${slug}.<ext>`);
+  }
   const found = [];
   for (const ext of EXTS) {
     const p = path.join(PEOPLE_DIR, `${slug}.${ext}`);
@@ -363,30 +372,11 @@ export async function fetchPersonRef(slug, opts = {}) {
   return null;
 }
 
-// Extra angles of the SAME person, named `<slug>2.jpg`, `<slug>3.jpg` and so on. The primary
-// `<slug>.<ext>` is found by findExistingPersonRef; these are additions to it, never a
-// replacement. Josh drops these in when one photo is not enough to pin a likeness, and before
-// this they sat in the folder doing nothing because nothing ever looked for them.
-export function findPersonRefVariants(slug) {
-  if (!fs.existsSync(PEOPLE_DIR)) return [];
-  const out = [];
-  for (let i = 2; i <= 9; i += 1) {
-    for (const ext of EXTS) {
-      const p = path.join(PEOPLE_DIR, `${slug}${i}.${ext}`);
-      if (fs.existsSync(p)) { out.push(p); break; }
-    }
-  }
-  return out;
-}
-
 export async function ensurePersonRefs(slugs) {
   const refs = [];
   for (const slug of slugs) {
     const p = await fetchPersonRef(slug);
     if (p) refs.push({ slug, path: p });
-    for (const extra of findPersonRefVariants(slug)) {
-      refs.push({ slug, path: extra });
-    }
   }
   return refs;
 }
@@ -403,7 +393,7 @@ export function buildPersonRefParts(refs) {
   const out = [];
   for (const { slug, path: p } of refs) {
     const name = known[slug]?.name || displayNameFromSlugLocal(slug);
-    out.push({ text: `Reference photo of ${name} (use this exact likeness when drawing anyone labeled "${name.toUpperCase()}" in the image). Where several photographs of ${name} are attached they are the SAME ONE PERSON from different angles, so combine them into one consistent likeness and never draw them as separate people:` });
+    out.push({ text: `Reference photo of ${name} (use this exact likeness when drawing anyone labeled "${name.toUpperCase()}" in the image).:` });
     const ext = path.extname(p).slice(1);
     out.push({ inlineData: { mimeType: mimeFromExt(ext), data: fs.readFileSync(p).toString("base64") } });
   }
