@@ -27,6 +27,7 @@
 // Existing slide files are skipped, so reruns are safe. Delete a slide to reroll it.
 
 import { GoogleGenAI } from "@google/genai";
+import { SHARPIE_RULES } from "./fan-economy-sharpie-rules.mjs";
 import fs from "node:fs";
 import path from "node:path";
 import sharp from "sharp";
@@ -68,6 +69,7 @@ const STYLE_REFS = [
 // The final clause is the one difference: the sheet generator forbids the CRWN mark
 // outright, and the 128 end card is the one page in the series that needs it.
 const STYLE_INSTRUCTION =
+  SHARPIE_RULES +
   "Use the exact same visual style as these reference images: bold black sharpie marker handwriting on pure white paper, clean hand-drawn icons and diagrams, high contrast black on white, no gray tones, no background texture. Match the lettering weight, spacing, and hand-drawn aesthetic exactly. " +
   "CRITICAL MONOCHROME RULE: the entire image is BLACK INK ON WHITE PAPER and contains NO COLOUR WHATSOEVER. There is no gold, no yellow, no red, no blue, no green and no coloured accent anywhere, not on a chain, a logo, a garment, a record label, a highlight or any object. The attached person reference photographs ARE in colour and their colours must NOT be copied: translate every one of them into black marker line work. If a person wears a gold chain or coloured clothing in their photo, draw it in black ink like everything else. Every pixel in the finished page is either black ink or white paper. " +
   "CRITICAL BACKGROUND RULE: The background must be PURE WHITE (#FFFFFF), absolutely flat, edge to edge. NO off-white, cream, eggshell, beige, or warm paper tones. NO desk, table, notebook, binding, or surface visible underneath. NO shadows under the page, NO page curl, NO page edges, NO paper texture or grain. The entire frame IS the paper. This is a flat editorial scan, not a photograph of a sheet on a desk. Pure #FFFFFF pixels fill every edge of the frame. " +
