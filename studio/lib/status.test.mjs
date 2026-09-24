@@ -124,6 +124,14 @@ test("step 9: over the limit fails, stale caption.md fails, in sync is done", ()
   assert.equal(stepOf(base({ carousel: car("a".repeat(2200)), captionMd: { exists: true, text: "a".repeat(2200) + "\n" } }), 9).status, "done");
 });
 
+test("step 9: the 'posted without a carousel' mark counts only while no carousel file exists", () => {
+  const mark = { 9: { done: true, at: "2026-09-24T00:00:00Z" } };
+  assert.equal(stepOf(base({ manual: mark }), 9).status, "done");
+  // A carousel over the limit still fails even though the mark is set.
+  const car = { fileName: "61-x.md", text: `**CAPTION:**\n${"a".repeat(2201)}\n---\n` };
+  assert.equal(stepOf(base({ manual: mark, carousel: car }), 9).status, "failed");
+});
+
 test("manual steps come only from check marks", () => {
   assert.equal(stepOf(base(), 4).status, "todo");
   assert.equal(stepOf(base({ manual: { 4: { done: true, at: "2026-09-23T00:00:00Z" } } }), 4).status, "done");

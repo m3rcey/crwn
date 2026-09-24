@@ -293,7 +293,18 @@ export function transcriptCheck(j, duration, durationError) {
 function stepCaption(f) {
   const s = step(9, "Caption", STATUS.TODO, "");
   if (!f.carousel) {
-    s.summary = "No carousel file yet.";
+    // Videos posted before carousels existed can never be proven by a file, so Josh's check
+    // mark stands in. It only counts while there is NO carousel file: once one exists, its
+    // own checks (length, caption.md in sync) decide, and a stale caption can't hide.
+    const mark = f.manual?.[9];
+    s.captionOverride = true;
+    if (mark?.done) {
+      s.status = STATUS.DONE;
+      s.summary = `Posted without a carousel file (marked ${mark.at.slice(0, 10)}).`;
+      s.overridden = true;
+    } else {
+      s.summary = "No carousel file yet.";
+    }
     return s;
   }
   const caption = section(f.carousel.text, "**CAPTION:**");

@@ -5,7 +5,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { STUDIO_DIR, PATHS, loadConfig } from "./lib/config.mjs";
 import { locateSsd } from "./lib/ssd.mjs";
-import { readState, setManual, updateState, MANUAL_STEPS } from "./lib/state.mjs";
+import { readState, setManual, updateState, MARKABLE_STEPS } from "./lib/state.mjs";
 import { scanAll } from "./lib/scan.mjs";
 import { videoStatus, numberGaps, section } from "./lib/status.mjs";
 import { GuardError } from "./lib/guard.mjs";
@@ -134,7 +134,7 @@ function readBody(req) {
 // POST /api/videos/:num/<action>
 const VIDEO_ACTIONS = {
   manual: (num, body) => {
-    if (!MANUAL_STEPS.includes(body.step)) throw new act.ActionError(`Only steps ${MANUAL_STEPS.join(", ")} are check marks.`);
+    if (!MARKABLE_STEPS.includes(body.step)) throw new act.ActionError(`Only steps ${MARKABLE_STEPS.join(", ")} are check marks.`);
     if (!scan().videos.some((v) => v.num === num)) throw new act.ActionError("No such script.");
     setManual(num, body.step, !!body.done);
   },

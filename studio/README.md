@@ -27,7 +27,7 @@ Tests:
 | 3 Images | every sheet the script's NANO BANANA PRO PROMPT blocks ask for exists, however many that is. A PDF is optional; one that exists but is older than a sheet blocks |
 | 4, 5, 7, 8 | check marks you click, stored in `studio/state.json` |
 | 6 Chop | the linked recording: transcript complete, split passed its checks, placed in Premiere |
-| 9 Caption | the carousel's CAPTION block is at most 2,200 characters and `caption.md` matches it exactly |
+| 9 Caption | the carousel's CAPTION block is at most 2,200 characters and `caption.md` matches it exactly. A video posted before carousels existed has a "Posted without a carousel file" check mark instead; it stops counting the moment a carousel file exists |
 
 ## Step 6
 

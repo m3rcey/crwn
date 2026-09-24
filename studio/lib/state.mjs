@@ -27,6 +27,8 @@ export function updateState(fn) {
 }
 
 export const MANUAL_STEPS = [4, 5, 7, 8];
+// Step 9's "posted without a carousel file" mark. status.mjs ignores it once a carousel exists.
+export const MARKABLE_STEPS = [...MANUAL_STEPS, 9];
 
 export function setManual(num, step, done) {
   return updateState((state) => {
