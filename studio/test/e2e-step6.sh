@@ -44,7 +44,8 @@ ID=$(curl -s $B/api/activity | j 'v.bridge.pending.id')
 curl -s -X POST -H "x-crwn-bridge: 1" -H "x-crwn-bridge-version: 2" -H "content-type: application/json" \
   -d "{\"id\":$ID,\"message\":\"CLIPS:46\\noverlap_phrases.jsx complete.\\nPlaced: 46 of 46 on A3/A4\\nFailed: 0\\nClamped: 0\"}" $B/api/bridge/result | j '"  saved: "+v.saved'
 curl -s $B/api/videos/$NUM | j "$s6"
-curl -s $B/api/videos/$NUM | j '"  "+v.steps[5].checks.slice(-2).map(c=>c.label).join("\n  ")'
+curl -s $B/api/videos/$NUM | j '"  "+v.steps[5].checks.slice(-5).map(c=>c.label).join("\n  ")'
+echo "  place again: $(post place | j 'v.error || "QUEUED (wrong)"')"
 echo "  placement copy: $(ls "$E/ssd/HHI/Fan Economy/" | grep _placement) ($(grep -c "__crwnReport(" "$E/ssd/HHI/Fan Economy/"*_placement.jsx) reroutes, $(grep -c "alert(" "$E/ssd/HHI/Fan Economy/"*_placement.jsx) alerts)"
 echo "8. re-split moves the old JSX aside:"
 curl -s -X POST -H "Origin: $B" -H "content-type: application/json" -d '{}' $B/api/videos/$NUM/split > /dev/null; wait_job

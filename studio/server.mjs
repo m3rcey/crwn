@@ -23,6 +23,9 @@ const config = loadConfig();
 let ssd = locateSsd(config.ssdLetter);
 console.log(ssd.root ? `SSD: ${ssd.root} (${ssd.source})` : `SSD not available: ${ssd.error}`);
 
+// Read on every use, so a config.json edit applies to the next placement without a restart.
+const spacingNow = () => ({ ...DEFAULT_SPACING, ...(loadConfig().spacing || {}) });
+
 const PUBLIC = path.join(STUDIO_DIR, "public");
 const TYPES = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8" };
 
@@ -90,6 +93,7 @@ function detail(num) {
           renameTo: r.inFanDir && !r.jsxExists && !r.json?.exists && !path.basename(r.linked.wav).startsWith(`${num} `) ? act.renameTarget(f) : null,
           placedByHand: r.placement?.by === "hand" && r.placement.jsxMtime === r.jsxMtime,
           placeRefusal: v.steps[5].stage === "place" ? act.placeRefusal(r) : null,
+          preview: v.steps[5].stage === "place" && !act.placeRefusal(r) ? act.placementPreview(f, spacingNow()) : null,
         }
       : null,
     // What the link picker offers: this video's suggestions first, then everything unclaimed.
@@ -144,7 +148,7 @@ const VIDEO_ACTIONS = {
   rename: (num) => act.renameRecording(ssd, scan(), num),
   transcribe: (num) => act.startTranscribe(ssd, scan(), num),
   split: (num) => act.startSplit(ssd, scan(), num),
-  place: (num) => act.startPlace(ssd, scan(), num, { ...DEFAULT_SPACING, ...(loadConfig().spacing || {}) }),
+  place: (num) => act.startPlace(ssd, scan(), num, spacingNow()),
   "placed-by-hand": (num, body) => act.markPlacedByHand(scan(), num, !!body.done),
 };
 

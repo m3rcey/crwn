@@ -92,6 +92,17 @@ function chopControls(d, s) {
     if (canPlace) buttons.push(`<button class="primary" data-act="place">Place in Premiere</button>`);
     if (buttons.length) out.push(`<div class="row">${buttons.join("")}</div>`);
     if (canPlace) out.push(`<p class="muted">First select an empty sequence with 4 audio tracks in Premiere. The CRWN Studio Bridge panel runs the JSX from disk.</p>`);
+    const p = r.preview;
+    if (canPlace && p) {
+      const fr = (n) => `${n > 0 ? "+" : ""}${n} frames`;
+      const line = (l, what, gap) =>
+        l ? `<li>${what} (phrase ${l.phrase}, "${esc(l.text)}"): ${gap}</li>` : `<li class="bad">${what}: not found, so that gap gets ${fr(p.spacing.gapFrames)}</li>`;
+      out.push(`<div class="muted"><b>Placement plan</b> (${p.phrases} phrases, settings in studio/config.json):<ul class="plan">
+        ${line(p.hook, "After the hook", `${p.spacing.hookSilenceSec}s of silence`)}
+        ${line(p.cta, "Before the CTA", fr(p.spacing.ctaGapFrames))}
+        ${line(p.last, "Before the last line", fr(p.spacing.lastLineGapFrames))}
+        <li>Every other gap: ${fr(p.spacing.gapFrames)}</li></ul></div>`);
+    }
     if (s.stage === "place" && r.placeRefusal) out.push(`<p class="bad">Can't place from Studio: ${esc(r.placeRefusal)}</p>`);
     if (s.stage === "place" || r.placedByHand) {
       out.push(`<label class="mark"><input type="checkbox" id="by-hand" ${r.placedByHand ? "checked" : ""}> I placed this JSX by hand</label>`);

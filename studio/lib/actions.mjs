@@ -9,7 +9,7 @@ import { queuePlacement } from "./bridge.mjs";
 import { transcribeCommand, splitCommand, parseSplitOutput, winPath } from "./tools.mjs";
 import { readTranscript, wavDuration } from "./scan.mjs";
 import { transcriptCheck, leadingNumber, section } from "./status.mjs";
-import { buildPlacementJsx, findHookEnd, parsePhraseRows, phraseTexts } from "./placement.mjs";
+import { buildPlacementJsx, findLandmarks, parsePhraseRows, phraseTexts } from "./placement.mjs";
 
 export class ActionError extends GuardError {}
 const refuse = (msg) => {
@@ -160,6 +160,11 @@ export function jsxAudioPath(jsxText) {
 export function placeRefusal(r) {
   if (r.ssdError || !r.linked?.exists) return "The recording isn't available.";
   if (!r.jsxExists) return "Split it first.";
+  // A video that is already cut and placed is never placed again by Studio (founder call
+  // 2026-09-24: videos 1-9 must not be touched). "Placed" = a successful record, by the panel or
+  // by hand, for THIS JSX. Unticking "placed by hand" is the deliberate way to re-open it.
+  const placement = r.placement && r.placement.jsxMtime === r.jsxMtime ? r.placement : null;
+  if (placement?.ok) return "It's already placed. Studio never places a finished video again.";
   const split = r.split && r.split.jsxMtime === r.jsxMtime ? r.split : null;
   if (split && !split.ok) return "The split failed its checks, so it is blocked from Premiere.";
   const expected = winPath(r.linked.wav);
@@ -173,15 +178,29 @@ export function placeRefusal(r) {
 // Places a Studio COPY of the tool's JSX (lib/placement.mjs): hook pause + tightened spacing, and
 // alert() rerouted so the result comes back. The copy is regenerated on every placement from the
 // untouched tool JSX, so it is overwritten rather than kept in _replaced/.
+function landmarksFor(v, r) {
+  const toolJsx = fs.readFileSync(r.jsxPath, "utf-8");
+  const texts = phraseTexts(parsePhraseRows(toolJsx.replace(/\r\n/g, "\n")), r.json.segments || []);
+  return { toolJsx, count: texts.length, landmarks: findLandmarks(texts, section(v.scriptText, "**SCRIPT:**") || "") };
+}
+
+// What a placement WILL do, from the same functions the placement uses, so the preview and the
+// placed timeline can't disagree.
+export function placementPreview(v, spacing) {
+  const r = v.recording;
+  if (!r.jsxExists || !r.json?.segments) return null;
+  const { count, landmarks } = landmarksFor(v, r);
+  const at = (l) => (l ? { phrase: l.index + 1, text: String(l.phrase).slice(0, 80) } : null);
+  return { phrases: count, spacing, hook: at(landmarks.hook), cta: at(landmarks.cta), last: at(landmarks.last) };
+}
+
 export function startPlace(ssd, facts, num, spacing) {
   const v = video(facts, num);
   const r = linkedWav(v);
   const reason = placeRefusal(r);
   if (reason) refuse(reason);
-  const toolJsx = fs.readFileSync(r.jsxPath, "utf-8");
-  const texts = phraseTexts(parsePhraseRows(toolJsx.replace(/\r\n/g, "\n")), r.json.segments || []);
-  const hook = findHookEnd(texts, section(v.scriptText, "**SCRIPT:**") || "");
-  const built = buildPlacementJsx(toolJsx, { hookIndex: hook ? hook.index : null, ...spacing });
+  const { toolJsx, landmarks } = landmarksFor(v, r);
+  const built = buildPlacementJsx(toolJsx, { landmarks, spacing });
   const copy = r.jsxPath.replace(/_overlap_phrases\.jsx$/, "_placement.jsx");
   assertWritable(ssd, copy);
   fs.writeFileSync(copy, built.jsx);
@@ -191,7 +210,13 @@ export function startPlace(ssd, facts, num, spacing) {
     jsxWin: winPath(copy),
     jsxMtime: r.jsxMtime, // the record belongs to the TOOL's JSX: a re-split invalidates it
     total: built.rows.length,
-    spacing: { ...spacing, hook: hook ? `after phrase ${hook.index + 1}: "${hook.phrase}"` : null, hookShiftSec: +built.hookShiftSec.toFixed(2) },
+    spacing: {
+      ...spacing,
+      hookShiftSec: +built.hookShiftSec.toFixed(2),
+      landmarks: Object.fromEntries(
+        Object.entries(landmarks).map(([k, l]) => [k, l ? { phrase: l.index + 1, text: String(l.phrase).slice(0, 80) } : null]),
+      ),
+    },
   });
 }
 

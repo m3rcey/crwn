@@ -1,20 +1,25 @@
-// Pure. Builds the JSX Studio actually places: a COPY of overlap_phrases.py's output with two
-// changes, both founder calls (2026-09-24). The tool and its own JSX are never edited.
+// Pure. Builds the JSX Studio actually places: a COPY of overlap_phrases.py's output with its
+// gaps re-spaced by where they fall in the script (founder calls 2026-09-24). The tool and its own
+// JSX are never edited; its flags can't do this (only --script has a special gap, and --script
+// ignores --no-dedupe: on video 14 it dropped 54 phrases to 21).
 //
-// 1. Spacing. The tool already butts phrases together (+0.08s, or -0.42s when both are long),
-//    but each phrase carries quiet the silence detector left in it, so Josh was pulling every
-//    clip left by hand: A (track select forward), then Alt+Shift+Left twice = 2 x 5 frames.
-//    The copy pulls each clip left `tightenFrames` per gap before it. Frames are converted with
-//    the ACTIVE SEQUENCE's own timebase when the JSX runs, so no frame rate is assumed here.
-//    A clip is never pulled onto the previous clip on its own track (that would overwrite it).
-// 2. The hook pause. After the hook's last line ("Let's find out") the next phrase starts
-//    `hookSilenceSec` of speech-to-speech silence later. Each phrase keeps EDGE_PAD of room tone
-//    at both ends, so the timeline gap is hookSilenceSec - 2 * EDGE_PAD.
+// Pacing is not one number. What Josh fixed by hand after every placement, as starting values
+// (Alt+Shift+Left / Right is a large nudge, 5 frames):
+//   after the hook's last line ("Let's find out")  exactly hookSilenceSec of speech-to-speech silence
+//   before the CTA ("I built a free...")          ctaGapFrames      (-5: one nudge left)
+//   before the last line ("Comment X and I'll")   lastLineGapFrames (+5: one nudge RIGHT)
+//   every other gap                               gapFrames         (-10: two nudges left)
+// A gap's frames are added to the tool's gap, and every clip moves by the running total of the
+// gaps before it (what "A, then nudge" does in Premiere). Frames are converted with the ACTIVE
+// SEQUENCE's own timebase when the JSX runs, so no frame rate is assumed here. A clip is never
+// pulled onto the previous clip on its own track (that would overwrite it). A landmark that can't
+// be found falls back to gapFrames and is reported, never guessed.
 //
-// Every alert() becomes __crwnReport(), so the closing "Placed N of M" message comes back to
-// Studio as text instead of a Premiere dialog nobody can read from here.
+// Each phrase keeps EDGE_PAD of room tone at both ends, so the hook's timeline gap is
+// hookSilenceSec - 2 * EDGE_PAD. Every alert() becomes __crwnReport(), so the closing
+// "Placed N of M" message comes back to Studio as text instead of a Premiere dialog.
 
-export const DEFAULT_SPACING = { hookSilenceSec: 3.0, tightenFrames: 10 };
+export const DEFAULT_SPACING = { hookSilenceSec: 3.0, gapFrames: -10, ctaGapFrames: -5, lastLineGapFrames: 5 };
 export const EDGE_PAD = 0.25; // overlap_phrases.py --edge-pad default; Studio never passes it
 
 const ROW = /^(\s*)\[\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*(\d+)\s*\](,?)\s*$/;
@@ -54,22 +59,64 @@ export function findHookEnd(phraseTexts, scriptSection, searchFirst = 8) {
   return null;
 }
 
-// Returns { jsx, rows, hookShiftSec } or throws when the tool's output isn't the shape expected.
-export function buildPlacementJsx(rawJsx, { hookIndex = null, hookSilenceSec, tightenFrames }) {
+const scriptLines = (section) =>
+  (section || "").split("\n").map((l) => l.trim()).filter((l) => l && !/not spoken|^128\b/i.test(l));
+
+// The CTA opens with "I built a free". Found on all ten recordings checked (2026-09-24), always
+// the second-to-last phrase. Only a script that HAS that line gets a CTA gap.
+export function findCta(texts, scriptSection) {
+  if (!scriptLines(scriptSection).some((l) => /^i built a free\b/i.test(l))) return null;
+  for (let i = texts.length - 1; i > 0; i--) if (/^i built a free\b/.test(norm(texts[i]).join(" "))) return { index: i, phrase: texts[i] };
+  return null;
+}
+
+// The last line opens "Comment <KEYWORD>". Josh's keyword delivery drifts ("Comment, plan,"), so
+// only the opening word is matched, and only among the last three phrases.
+export function findLastLine(texts, scriptSection) {
+  const lines = scriptLines(scriptSection);
+  if (!lines.length || !/^comment\b/i.test(lines[lines.length - 1])) return null;
+  for (let i = texts.length - 1; i >= Math.max(1, texts.length - 3); i--) if (norm(texts[i])[0] === "comment") return { index: i, phrase: texts[i] };
+  return null;
+}
+
+export function findLandmarks(texts, scriptSection) {
+  return { hook: findHookEnd(texts, scriptSection), cta: findCta(texts, scriptSection), last: findLastLine(texts, scriptSection) };
+}
+
+// Per-gap frames. gap[i] sits BEFORE clip i (gap[0] is 0). The hook gap is set in seconds instead.
+export function gapPlan(count, landmarks, spacing) {
+  const gap = new Array(count).fill(spacing.gapFrames);
+  gap[0] = 0;
+  const hook = landmarks.hook?.index ?? null;
+  const afterHook = hook != null && hook + 1 < count ? hook + 1 : null;
+  if (afterHook != null) gap[afterHook] = 0; // set in seconds, not frames
+  const cta = landmarks.cta?.index ?? null;
+  if (cta != null && cta > 0 && cta !== afterHook) gap[cta] = spacing.ctaGapFrames;
+  const last = landmarks.last?.index ?? null;
+  if (last != null && last > 0 && last !== afterHook) gap[last] = spacing.lastLineGapFrames;
+  return gap;
+}
+
+// Returns { jsx, rows, gap, frames, hookShiftSec } or throws when the tool's output isn't the
+// shape expected.
+export function buildPlacementJsx(rawJsx, { landmarks = {}, spacing }) {
   const toolJsx = rawJsx.replace(/\r\n/g, "\n"); // Windows python writes CRLF
   const rows = parsePhraseRows(toolJsx);
   if (!rows.length) throw new Error("No phrase rows found in the JSX.");
   const anchor = toolJsx.match(/\n([ \t]*)\];\n/);
   if (!anchor || !/var phrases = \[/.test(toolJsx)) throw new Error("The JSX isn't in the shape overlap_phrases.py writes; Studio won't guess.");
+  const hookIndex = landmarks.hook?.index ?? null;
 
   // Hook pause: a fixed shift in seconds for every clip after the hook.
   let hookShiftSec = 0;
   if (hookIndex != null && hookIndex + 1 < rows.length) {
-    const wantGap = hookSilenceSec - 2 * EDGE_PAD;
+    const wantGap = spacing.hookSilenceSec - 2 * EDGE_PAD;
     hookShiftSec = rows[hookIndex].tlEnd + wantGap - rows[hookIndex + 1].tlStart;
   }
-  // k = how many tightened gaps sit before each clip. The hook gap is set exactly, not tightened.
-  const k = rows.map((_, i) => (hookIndex != null && i > hookIndex ? i - 1 : i));
+  // frames[i] = running total of the gap frames before clip i: how far clip i moves.
+  const gap = gapPlan(rows.length, landmarks, spacing);
+  const frames = [];
+  gap.reduce((sum, g, i) => (frames[i] = sum + g), 0);
   const shifted = rows.map((r, i) => {
     const d = hookIndex != null && i > hookIndex ? hookShiftSec : 0;
     return { ...r, tlStart: +(r.tlStart + d).toFixed(4), tlEnd: +(r.tlEnd + d).toFixed(4) };
@@ -90,9 +137,9 @@ export function buildPlacementJsx(rawJsx, { hookIndex = null, hookSilenceSec, ti
   const inject = [
     `${pad}];`,
     "",
-    `${pad}// CRWN Studio spacing: pull clip i left k[i] x ${tightenFrames} frames of the ACTIVE sequence,`,
-    `${pad}// never onto the previous clip on its own track.`,
-    `${pad}var __crwnK = [${k.join(", ")}];`,
+    `${pad}// CRWN Studio spacing: move clip i by __crwnF[i] frames of the ACTIVE sequence (the running`,
+    `${pad}// total of each gap's frames), never onto the previous clip on its own track.`,
+    `${pad}var __crwnF = [${frames.join(", ")}];`,
     `${pad}var __crwnSeq = app.project && app.project.activeSequence;`,
     `${pad}var __crwnClamped = 0;`,
     `${pad}if (__crwnSeq) {`,
@@ -100,7 +147,7 @@ export function buildPlacementJsx(rawJsx, { hookIndex = null, hookSilenceSec, ti
     `${pad}    var __crwnLastEnd = {};`,
     `${pad}    for (var __i = 0; __i < phrases.length; __i++) {`,
     `${pad}        var __dur = phrases[__i][3] - phrases[__i][2];`,
-    `${pad}        var __s = phrases[__i][2] - __crwnK[__i] * ${tightenFrames} * __crwnFrame;`,
+    `${pad}        var __s = phrases[__i][2] + __crwnF[__i] * __crwnFrame;`,
     `${pad}        var __t = phrases[__i][4];`,
     `${pad}        if (__s < 0) __s = 0;`,
     `${pad}        if (__crwnLastEnd[__t] !== undefined && __s < __crwnLastEnd[__t]) { __s = __crwnLastEnd[__t]; __crwnClamped++; }`,
@@ -119,5 +166,5 @@ export function buildPlacementJsx(rawJsx, { hookIndex = null, hookSilenceSec, ti
     '$.global.__crwnReport = function (m) { $.global.__crwnLast = ($.global.__crwnLast ? $.global.__crwnLast + "\\n---\\n" : "") + String(m); };',
     "",
   ].join("\n");
-  return { jsx: header + out, rows: shifted, hookShiftSec, k };
+  return { jsx: header + out, rows: shifted, gap, frames, hookShiftSec };
 }

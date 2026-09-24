@@ -48,14 +48,30 @@ Tests:
    blocks) below 60% word overlap. Right-script recordings measured 77-90%; any other script never
    above 47%. The warning names the script it sounds more like.
 5. **Place** writes `<stem>_placement.jsx` beside the tool's JSX (regenerated every time; never
-   edit it) and hands it to the CRWN Studio Bridge panel, which runs it from disk. The copy:
-   - puts **3 seconds** of speech-to-speech silence after the hook's last line (the last line of
-     the SCRIPT section's first paragraph, e.g. "Let's find out", matched against what you said);
-   - pulls every other clip **10 frames** left per gap before it (your A + Alt+Shift+Left twice),
-     using the active sequence's own frame rate, and never onto a clip on its own track;
-   - reports back as text, and the panel counts the clips that actually landed on A3/A4.
+   edit it) and hands it to the CRWN Studio Bridge panel, which runs it from disk. Pacing is set
+   per gap, by where it falls in the script (starting values; a large nudge is 5 frames):
 
-   Tune it in `studio/config.json`: `{ "spacing": { "hookSilenceSec": 3, "tightenFrames": 10 } }`.
+   | Gap | Change from the tool's placement |
+   |---|---|
+   | after the hook's last line (last line of the SCRIPT's first paragraph, e.g. "Let's find out") | exactly `hookSilenceSec` (3) of speech-to-speech silence |
+   | before the CTA ("I built a free...") | `ctaGapFrames` (-5) |
+   | before the last line ("Comment X and I'll...") | `lastLineGapFrames` (+5) |
+   | every other gap | `gapFrames` (-10) |
+
+   Each clip moves by the running total of the gaps before it, in frames of the ACTIVE
+   sequence, and never onto a clip on its own track. A landmark not found in what you said falls
+   back to `gapFrames` and step 6 says so; step 6 shows the plan before you place. The copy reports
+   back as text, and the panel counts the clips that actually landed on A3/A4.
+
+   Tune in `studio/config.json` (read on every placement, no restart):
+   `{ "spacing": { "hookSilenceSec": 3, "gapFrames": -10, "ctaGapFrames": -5, "lastLineGapFrames": 5 } }`
+
+   `overlap_phrases.py`'s own flags can't do this: its only special gap needs `--script`, which
+   ignores `--no-dedupe` (on video 14 it cut 54 phrases to 21, final line included).
+
+   **A placed video is never placed again.** Once step 6 records a successful placement (by the
+   panel or "placed by hand"), Place is refused; unticking "placed by hand" is the deliberate way
+   to reopen one.
 
 Studio writes ONLY inside `Fan Economy\`, only while the SSD is a real mount, and never deletes:
 a replaced JSON or JSX moves to `Fan Economy\_replaced\`. Unmixed, Mixed and the Hip Hop

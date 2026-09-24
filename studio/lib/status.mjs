@@ -285,12 +285,21 @@ function stepChop(f) {
       label: `Premiere: Placed ${placement.placed ?? "?"} of ${placement.total ?? "?"}, Failed ${placement.failed ?? "?"}`,
     });
     const sp = placement.spacing;
-    if (sp) {
+    if (sp?.landmarks) {
+      const f = (n) => `${n > 0 ? "+" : ""}${n} frames`;
+      const lm = (key, what, gap) => {
+        const l = sp.landmarks[key];
+        s.checks.push({
+          ok: !!l,
+          label: l ? `${what} (phrase ${l.phrase}, "${l.text}"): ${gap}` : `${what}: not found in the recording, so that gap got the normal ${f(sp.gapFrames)}`,
+        });
+      };
+      lm("hook", "after the hook", `${sp.hookSilenceSec}s of silence`);
+      lm("cta", "before the CTA", f(sp.ctaGapFrames));
+      lm("last", "before the last line", f(sp.lastLineGapFrames));
       s.checks.push({
-        ok: !!sp.hook,
-        label: sp.hook
-          ? `${sp.hookSilenceSec}s pause ${sp.hook}; every other gap ${sp.tightenFrames} frames tighter${placement.clamped ? ` (${placement.clamped} held back to avoid overlapping their own track)` : ""}`
-          : `hook's last line not found, so no pause was added; every gap ${sp.tightenFrames} frames tighter`,
+        ok: true,
+        label: `every other gap ${f(sp.gapFrames)}${placement.clamped ? ` (${placement.clamped} held back to avoid overlapping their own track)` : ""}`,
       });
     }
   }
