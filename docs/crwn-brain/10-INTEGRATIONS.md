@@ -260,7 +260,7 @@ cron on 2026-08-26 after one env-var whitespace failure). The other five are bui
   TikTok caps roughly 15 to 25 posts per account per day even audited. YouTube takes video only.
   **YouTube community posts cannot be published by any API** and are recorded as permanently
   unsupported in `capabilities.ts`.
-- **Instagram Reels (built 2026-09-24, NOT yet proven live).** `scripts/queue-video.mjs` queues
+- **Instagram Reels (LIVE 2026-09-24: media 17899246509668686, published unattended by the cron after one resumed container).** `scripts/queue-video.mjs` queues
   one finished video (`kind: 'video_short'`, one R2 key). It probes the file against the Reels
   spec and makes a compliant H.264/AAC copy when needed: the founder's Premiere exports run ~28.6
   Mbps against Meta's 25 Mbps cap, and the automated pipeline writes 96 kHz audio against 48 kHz,
