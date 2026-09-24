@@ -64,6 +64,25 @@ export function recordingMatchesSlug(fileName, slug) {
   return words.every((w) => slugWords.has(w));
 }
 
+// Does what Josh SAID match the linked script? A warning only: delivery drifts from the page.
+// Score = share of the transcript's distinct content words that appear in the script's SCRIPT
+// section. Measured 2026-09-24 on ten real recordings: 0.77 to 0.90 against their own script,
+// never above 0.47 against any other. Under 0.60 is a clear mismatch.
+export const MATCH_WARN_BELOW = 0.6;
+const MATCH_STOP = new Set(
+  "the and that this with you your for are was but not they them what have just like his her its our out all can get got how who why when then than into from about there their were been being will would could should did does done dont cant isnt".split(" "),
+);
+export function contentWords(text) {
+  return new Set(String(text || "").toLowerCase().replace(/[^a-z0-9 ]+/g, " ").split(/\s+/).filter((w) => w.length >= 3 && !MATCH_STOP.has(w)));
+}
+export function scriptMatch(transcriptText, ownWords, others) {
+  const t = contentWords(transcriptText);
+  if (!t.size) return null;
+  const score = (s) => [...t].filter((w) => s.has(w)).length / t.size;
+  const best = others.map((o) => ({ num: o.num, score: score(o.words) })).sort((a, b) => b.score - a.score)[0] || null;
+  return { score: score(ownWords), best };
+}
+
 // The scripts a recording's own words name ("New Recording 823 money man.wav" names
 // 14-money-man-paid-to-leave). One match is a link (founder call 2026-09-24: the words in the
 // name ARE the script's ID); several is a question with those candidates; none is a question.
@@ -217,6 +236,12 @@ function stepChop(f) {
     return s;
   }
 
+  const m = r.scriptMatch;
+  if (m && m.score < MATCH_WARN_BELOW) {
+    const alt = m.best && m.best.score > m.score ? ` It sounds more like script ${m.best.num} (${Math.round(m.best.score * 100)}%).` : "";
+    s.warnings = [`What you said matches this script only ${Math.round(m.score * 100)}% (recordings of the right script run 77-90%). Check the recording is linked to the right video.${alt}`];
+  }
+
   s.checks.push({ ok: r.jsxExists, label: "_overlap_phrases.jsx exists" });
   if (!r.jsxExists) {
     s.status = STATUS.PROGRESS;
@@ -248,11 +273,26 @@ function stepChop(f) {
   }
   if (placement.by === "hand") {
     s.checks.push({ ok: true, label: `placed by hand (marked ${placement.at.slice(0, 10)})` });
+  } else if (placement.placed == null) {
+    // The bridge ran but nothing came back: the clips may well be on the timeline.
+    s.status = STATUS.PROGRESS;
+    s.summary = "Premiere didn't report the result. Check the timeline; if the clips are there, tick \"I placed this JSX by hand\", or place again.";
+    s.stage = "place";
+    return s;
   } else {
     s.checks.push({
       ok: placement.ok,
       label: `Premiere: Placed ${placement.placed ?? "?"} of ${placement.total ?? "?"}, Failed ${placement.failed ?? "?"}`,
     });
+    const sp = placement.spacing;
+    if (sp) {
+      s.checks.push({
+        ok: !!sp.hook,
+        label: sp.hook
+          ? `${sp.hookSilenceSec}s pause ${sp.hook}; every other gap ${sp.tightenFrames} frames tighter${placement.clamped ? ` (${placement.clamped} held back to avoid overlapping their own track)` : ""}`
+          : `hook's last line not found, so no pause was added; every gap ${sp.tightenFrames} frames tighter`,
+      });
+    }
   }
   if (!placement.ok) {
     s.status = STATUS.FAILED;

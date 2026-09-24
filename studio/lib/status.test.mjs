@@ -1,7 +1,7 @@
 // node --test studio/
 import test from "node:test";
 import assert from "node:assert/strict";
-import { videoStatus, promptSheets, leadingNumber, recordingMatchesSlug, scriptsNamedBy, numberGaps, parsePdfName, transcriptGapAllowed } from "./status.mjs";
+import { videoStatus, promptSheets, leadingNumber, recordingMatchesSlug, scriptsNamedBy, numberGaps, parsePdfName, transcriptGapAllowed, contentWords, scriptMatch, MATCH_WARN_BELOW } from "./status.mjs";
 
 const SCRIPT5 = [
   "# T", "**SCRIPT:**", "words", "---",
@@ -101,6 +101,25 @@ test("step 6: stages walk link, transcribe, split, place", () => {
   assert.equal(stepOf(base({ recording: linked({ json: { exists: false } }) }), 6).stage, "transcribe");
   assert.equal(stepOf(base({ recording: linked({ jsxExists: false }) }), 6).stage, "split");
   assert.equal(stepOf(base({ recording: linked({ placement: null }) }), 6).stage, "place");
+});
+
+test("step 6: a transcript that clearly doesn't match its script warns, never blocks", () => {
+  const own = contentWords("Money Man paid 250,000 to leave Cash Money and EMPIRE paid him a million");
+  const other = { num: 19, words: contentWords("Dom Kennedy turned down Jay-Z and kept his label") };
+  const good = scriptMatch("money man paid to leave cash money empire million", own, [other]);
+  assert.ok(good.score >= MATCH_WARN_BELOW);
+  assert.equal(stepOf(base({ recording: linked({ scriptMatch: good }) }), 6).warnings, undefined);
+  const bad = scriptMatch("dom kennedy turned down jay label kept", own, [other]);
+  const s = stepOf(base({ recording: linked({ scriptMatch: bad }) }), 6);
+  assert.equal(s.status, "done"); // a warning, not a failure
+  assert.match(s.warnings[0], /sounds more like script 19/);
+});
+
+test("step 6: a bridge run that reported nothing is 'check the timeline', not a failure", () => {
+  const silent = { by: "bridge", ok: false, jsxMtime: 500, placed: null, total: null, failed: null, at: "x", message: "" };
+  const s = stepOf(base({ recording: linked({ placement: silent }) }), 6);
+  assert.equal(s.status, "progress");
+  assert.equal(s.stage, "place");
 });
 
 test("step 6: no SSD is 'can't tell', never 'not started'; two claimants is a failure", () => {

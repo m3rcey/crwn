@@ -111,7 +111,9 @@ function renderStep(s, d) {
     : "";
   return `<div class="step">
     <div class="step-head"><span class="chip ${s.status}">${esc(LABEL[s.status])}</span><b>${s.step}. ${esc(s.name)}</b></div>
-    <div>${esc(s.summary)}</div>${checks}${manual}${s.step === 6 ? chopControls(d, s) : ""}
+    <div>${esc(s.summary)}</div>${checks}
+    ${(s.warnings || []).map((w) => `<p class="warn">⚠ ${esc(w)}</p>`).join("")}
+    ${manual}${s.step === 6 ? chopControls(d, s) : ""}
     ${s.captionOverride ? `<label class="mark"><input type="checkbox" data-step="9" ${s.overridden ? "checked" : ""}> Posted without a carousel file</label>` : ""}
     ${s.note ? `<p class="muted">${esc(s.note)}</p>` : ""}
   </div>`;
@@ -165,7 +167,13 @@ async function pollActivity() {
   const j = a.job;
   const b = a.bridge;
   const parts = [];
-  parts.push(`Premiere panel: ${b.connected ? `<span class="okc">connected</span>` : `<span class="bad">not connected</span>`}`);
+  parts.push(
+    `Premiere panel: ${
+      !b.connected ? `<span class="bad">not connected</span>`
+      : b.outdated ? `<span class="bad">old version: close and reopen it (Window > Extensions > CRWN Studio Bridge)</span>`
+      : `<span class="okc">connected</span>`
+    }`,
+  );
   if (b.pending) {
     parts.push(`Placing video ${b.pending.num}: ${b.pending.picked ? "running in Premiere" : "waiting for the panel"} (${clock(b.pending.queuedSec)}) <button id="cancel-place">Cancel</button>`);
   }

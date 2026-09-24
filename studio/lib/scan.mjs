@@ -4,7 +4,7 @@ import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { PATHS, SSD_FOLDERS } from "./config.mjs";
 import { isMount } from "./ssd.mjs";
-import { leadingNumber, parsePdfName, recordingMatchesSlug, scriptsNamedBy, MAX_SHEETS, sheetFileName } from "./status.mjs";
+import { leadingNumber, parsePdfName, recordingMatchesSlug, scriptsNamedBy, MAX_SHEETS, sheetFileName, section, contentWords, scriptMatch } from "./status.mjs";
 
 const listDir = (dir) => {
   try {
@@ -61,6 +61,8 @@ export function readTranscript(jsonPath) {
       hasLanguage: typeof j.language === "string" && j.language.length > 0,
       segmentCount: segs ? segs.length : null,
       lastEnd: segs && segs.length ? Number(segs[segs.length - 1].end) : null,
+      text: segs ? segs.map((s) => s.text || "").join(" ") : "",
+      segments: segs || [],
     };
   } catch (e) {
     return { exists: true, parseError: e.message };
@@ -98,8 +100,11 @@ export function scanAll({ ssd, state }) {
     ? []
     : SSD_FOLDERS.history.flatMap((rel) => listWavs(path.join(ssd.root, rel)).map((f) => ({ rel, f })));
 
+  const scriptTexts = new Map(scriptFiles.map((sf) => [sf.num, readOrNull(path.join(PATHS.scripts, sf.fileName)) || ""]));
+  const scriptWords = scriptFiles.map((sf) => ({ num: sf.num, words: contentWords(section(scriptTexts.get(sf.num), "**SCRIPT:**")) }));
+
   const videos = scriptFiles.map((sf) => {
-    const scriptText = readOrNull(path.join(PATHS.scripts, sf.fileName)) || "";
+    const scriptText = scriptTexts.get(sf.num);
 
     const present = [];
     const mtimes = {};
@@ -131,6 +136,10 @@ export function scanAll({ ssd, state }) {
           recording.durationError = dur.error;
           recording.json = readTranscript(`${stem}.json`);
           recording.jsonPath = `${stem}.json`;
+          if (recording.json.text) {
+            const own = scriptWords.find((w) => w.num === sf.num).words;
+            recording.scriptMatch = scriptMatch(recording.json.text, own, scriptWords.filter((w) => w.num !== sf.num));
+          }
           recording.jsxPath = `${stem}_overlap_phrases.jsx`;
           const jsxStat = statOrNull(recording.jsxPath);
           recording.jsxExists = !!jsxStat;

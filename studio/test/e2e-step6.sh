@@ -38,11 +38,14 @@ curl -s $B/api/videos/$NUM | j "$s6"
 echo "7. place (panel simulated):"
 post place | j "$s6"
 echo "  web page can't take the job: $(curl -s -o /dev/null -w %{http_code} $B/api/bridge/next)"
-curl -s -H "x-crwn-bridge: 1" $B/api/bridge/next | j '"  panel got: "+v.jsx'
+echo "  old panel gets nothing: $(curl -s -o /dev/null -w %{http_code} -H "x-crwn-bridge: 1" $B/api/bridge/next)"
+curl -s -H "x-crwn-bridge: 1" -H "x-crwn-bridge-version: 2" $B/api/bridge/next | j '"  panel got: "+v.jsx'
 ID=$(curl -s $B/api/activity | j 'v.bridge.pending.id')
-curl -s -X POST -H "x-crwn-bridge: 1" -H "content-type: application/json" \
-  -d "{\"id\":$ID,\"message\":\"overlap_phrases.jsx complete.\\nPlaced: 46 of 46 on A3/A4\\nFailed: 0\\n\"}" $B/api/bridge/result | j '"  saved: "+v.saved'
+curl -s -X POST -H "x-crwn-bridge: 1" -H "x-crwn-bridge-version: 2" -H "content-type: application/json" \
+  -d "{\"id\":$ID,\"message\":\"CLIPS:46\\noverlap_phrases.jsx complete.\\nPlaced: 46 of 46 on A3/A4\\nFailed: 0\\nClamped: 0\"}" $B/api/bridge/result | j '"  saved: "+v.saved'
 curl -s $B/api/videos/$NUM | j "$s6"
+curl -s $B/api/videos/$NUM | j '"  "+v.steps[5].checks.slice(-2).map(c=>c.label).join("\n  ")'
+echo "  placement copy: $(ls "$E/ssd/HHI/Fan Economy/" | grep _placement) ($(grep -c "__crwnReport(" "$E/ssd/HHI/Fan Economy/"*_placement.jsx) reroutes, $(grep -c "alert(" "$E/ssd/HHI/Fan Economy/"*_placement.jsx) alerts)"
 echo "8. re-split moves the old JSX aside:"
 curl -s -X POST -H "Origin: $B" -H "content-type: application/json" -d '{}' $B/api/videos/$NUM/split > /dev/null; wait_job
 ls "$E/ssd/HHI/Fan Economy/_replaced/"

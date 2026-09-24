@@ -13,6 +13,7 @@ main { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); flex
 #activity, #unassigned { padding: 8px 20px; border-bottom: 1px solid var(--line); font-size: 13px; }
 #unassigned { background: #2a2410; }
 .okc { color: var(--done); }
+.warn { color: var(--gold); margin: 6px 0; }
 .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
 select { background: var(--raised); color: var(--text); border: 1px solid var(--line); border-radius: 6px; padding: 4px; max-width: 100%; }
 button.primary { background: var(--gold); color: #111; border-color: var(--gold); font-weight: 600; }

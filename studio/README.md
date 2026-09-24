@@ -44,8 +44,18 @@ Tests:
 4. **Split** runs `overlap_phrases.py <wav> <json> --no-dedupe`. It must pass: Built = Loaded,
    word timing present, 0 dropped, timeline at least 50% of the audio. A failed split is blocked
    from Premiere.
-5. **Place** hands the JSX to the CRWN Studio Bridge panel in Premiere, which runs it from disk
-   and returns its own "Placed N of M / Failed F" message.
+   After transcription Studio compares what you said with the linked script and WARNS (never
+   blocks) below 60% word overlap. Right-script recordings measured 77-90%; any other script never
+   above 47%. The warning names the script it sounds more like.
+5. **Place** writes `<stem>_placement.jsx` beside the tool's JSX (regenerated every time; never
+   edit it) and hands it to the CRWN Studio Bridge panel, which runs it from disk. The copy:
+   - puts **3 seconds** of speech-to-speech silence after the hook's last line (the last line of
+     the SCRIPT section's first paragraph, e.g. "Let's find out", matched against what you said);
+   - pulls every other clip **10 frames** left per gap before it (your A + Alt+Shift+Left twice),
+     using the active sequence's own frame rate, and never onto a clip on its own track;
+   - reports back as text, and the panel counts the clips that actually landed on A3/A4.
+
+   Tune it in `studio/config.json`: `{ "spacing": { "hookSilenceSec": 3, "tightenFrames": 10 } }`.
 
 Studio writes ONLY inside `Fan Economy\`, only while the SSD is a real mount, and never deletes:
 a replaced JSON or JSX moves to `Fan Economy\_replaced\`. Unmixed, Mixed and the Hip Hop
@@ -58,6 +68,10 @@ Installed by [cep/install.ps1](cep/install.ps1) (sets `PlayerDebugMode=1` under
 `HKCU\Software\Adobe\CSXS.11` and copies the panel to `%APPDATA%\Adobe\CEP\extensions`). Re-run
 it after editing anything in `cep/`. In Premiere: restart once, then Window > Extensions >
 CRWN Studio Bridge. It says "Connected" while Studio is running.
+
+Premiere keeps running the panel it loaded at startup, so after a reinstall close and reopen the
+panel. The panel sends its version (`VERSION` in `bridge.js`, `PANEL_VERSION` in `lib/bridge.mjs`;
+bump both together) and Studio refuses to place through an out-of-date one.
 
 ## If the SSD isn't found
 

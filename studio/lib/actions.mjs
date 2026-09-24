@@ -8,7 +8,8 @@ import { startJob } from "./jobs.mjs";
 import { queuePlacement } from "./bridge.mjs";
 import { transcribeCommand, splitCommand, parseSplitOutput, winPath } from "./tools.mjs";
 import { readTranscript, wavDuration } from "./scan.mjs";
-import { transcriptCheck, leadingNumber } from "./status.mjs";
+import { transcriptCheck, leadingNumber, section } from "./status.mjs";
+import { buildPlacementJsx, findHookEnd, parsePhraseRows, phraseTexts } from "./placement.mjs";
 
 export class ActionError extends GuardError {}
 const refuse = (msg) => {
@@ -169,12 +170,29 @@ export function placeRefusal(r) {
   return null;
 }
 
-export function startPlace(facts, num) {
+// Places a Studio COPY of the tool's JSX (lib/placement.mjs): hook pause + tightened spacing, and
+// alert() rerouted so the result comes back. The copy is regenerated on every placement from the
+// untouched tool JSX, so it is overwritten rather than kept in _replaced/.
+export function startPlace(ssd, facts, num, spacing) {
   const v = video(facts, num);
   const r = linkedWav(v);
   const reason = placeRefusal(r);
   if (reason) refuse(reason);
-  return queuePlacement({ num, jsxPath: r.jsxPath, jsxWin: winPath(r.jsxPath), jsxMtime: r.jsxMtime });
+  const toolJsx = fs.readFileSync(r.jsxPath, "utf-8");
+  const texts = phraseTexts(parsePhraseRows(toolJsx.replace(/\r\n/g, "\n")), r.json.segments || []);
+  const hook = findHookEnd(texts, section(v.scriptText, "**SCRIPT:**") || "");
+  const built = buildPlacementJsx(toolJsx, { hookIndex: hook ? hook.index : null, ...spacing });
+  const copy = r.jsxPath.replace(/_overlap_phrases\.jsx$/, "_placement.jsx");
+  assertWritable(ssd, copy);
+  fs.writeFileSync(copy, built.jsx);
+  return queuePlacement({
+    num,
+    jsxPath: copy,
+    jsxWin: winPath(copy),
+    jsxMtime: r.jsxMtime, // the record belongs to the TOOL's JSX: a re-split invalidates it
+    total: built.rows.length,
+    spacing: { ...spacing, hook: hook ? `after phrase ${hook.index + 1}: "${hook.phrase}"` : null, hookShiftSec: +built.hookShiftSec.toFixed(2) },
+  });
 }
 
 export function markPlacedByHand(facts, num, done) {

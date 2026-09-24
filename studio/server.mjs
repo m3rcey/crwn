@@ -12,6 +12,7 @@ import { GuardError } from "./lib/guard.mjs";
 import { currentJob } from "./lib/jobs.mjs";
 import { bridgeStatus, takeNext, finishPlacement, cancelPlacement } from "./lib/bridge.mjs";
 import * as act from "./lib/actions.mjs";
+import { DEFAULT_SPACING } from "./lib/placement.mjs";
 
 if (process.platform !== "linux") {
   console.error("Run Studio from WSL (node on Linux), not from Windows.");
@@ -143,7 +144,7 @@ const VIDEO_ACTIONS = {
   rename: (num) => act.renameRecording(ssd, scan(), num),
   transcribe: (num) => act.startTranscribe(ssd, scan(), num),
   split: (num) => act.startSplit(ssd, scan(), num),
-  place: (num) => act.startPlace(scan(), num),
+  place: (num) => act.startPlace(ssd, scan(), num, { ...DEFAULT_SPACING, ...(loadConfig().spacing || {}) }),
   "placed-by-hand": (num, body) => act.markPlacedByHand(scan(), num, !!body.done),
 };
 
@@ -153,7 +154,7 @@ const server = http.createServer(async (req, res) => {
     // ---- Premiere panel ----
     if (url.pathname.startsWith("/api/bridge/") && isBridge(req)) {
       if (req.method === "GET" && url.pathname === "/api/bridge/next") {
-        const job = takeNext();
+        const job = takeNext(Date.now(), req.headers["x-crwn-bridge-version"] || null);
         return job ? sendJson(res, 200, job) : (res.writeHead(204), res.end());
       }
       if (req.method === "POST" && url.pathname === "/api/bridge/result") {
