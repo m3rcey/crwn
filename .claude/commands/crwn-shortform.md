@@ -382,9 +382,8 @@ For every topic, output in this exact order with these exact headers. **Caption 
 
 **CAPTION:**
 
-[SUGGESTED TITLE — the strongest of the 5 options below, picked by the writer]
-
-Link in bio to [holy grail outcome from this specific script] with CRWN. Free to start at thecrwn.app.
+[SUGGESTED TITLE, 44 characters or fewer: the strongest of the 5 options below]
+Comment "[KEYWORD]" for [the loss the keyword's tool measures, tied to this script's payoff].
 
 ---
 
@@ -437,15 +436,31 @@ After saving, also print this exact block to the chat so the user can copy it wi
 
 ## Caption Rules
 
-- Start with the **suggested title** (the strongest of the 5 options, chosen by the writer). Do NOT use `[TITLE TBD]` — pick the one you think wins and bake it into the caption. The other 4 titles are still listed below as alternates Josh can swap to.
-- Then: `Link in bio to [holy grail outcome] with CRWN. Free to start at thecrwn.app.`
-- The holy grail outcome connects to THIS script's payoff specifically — not a generic CRWN line
-- Examples:
-  - "Link in bio to start getting paid what your music is worth with CRWN. Free to start at thecrwn.app."
-  - "Link in bio to turn your fans into monthly income with CRWN. Free to start at thecrwn.app."
-  - "Link in bio to keep 92% of every dollar your fans spend on you with CRWN. Free to start at thecrwn.app."
-  - "Link in bio to own your audience instead of renting one with CRWN. Free to start at thecrwn.app."
-  - "Link in bio to get your first paying fan today with CRWN. Free to start at thecrwn.app."
+Founder decision, 2026-09-24: the caption is TWO lines, a title and a comment CTA. It replaced the
+old "Link in bio to [outcome] with CRWN" line, because a comment keyword is what ManyChat can act
+on and a link in bio is a step most viewers never take.
+
+- **Line 1: the suggested title, 44 characters or fewer.** The strongest of the 5 options, chosen
+  by the writer. Do NOT use `[TITLE TBD]`. **Count the characters; never judge 44 by eye.** Spaces
+  and punctuation count. If the best title is over, rewrite it shorter; never truncate it mid-word.
+  The other 4 titles are still listed below as alternates Josh can swap to, and a swapped title
+  obeys the same 44 limit.
+- **Line 2: `Comment "KEYWORD" for [the loss].`** One of the registered ManyChat keywords, never an
+  invented one (a keyword ManyChat does not know sends the commenter nothing). The clause after
+  `for` names what the viewer LOSES by not acting (CLAUDE.md copy rule), and it may only name a
+  loss the tool behind that keyword actually measures. Use the ratified frames in
+  `/crwn-fan-economy` ("The CTA sheet's box may only name a loss the tool actually measures") as
+  the default, and sharpen toward THIS video's payoff where the tool still backs it:
+  - WORTH: `Comment "WORTH" for what you're not collecting from your fans each month.`
+  - VAULT: `Comment "VAULT" for what you're leaving unsold.`
+  - OWN: `Comment "OWN" for how many of your fans you can't reach.`
+  - FREE: `Comment "FREE" for what you're missing.`
+  - PRODUCER: `Comment "PRODUCER" for what an empty room costs you.`
+- Nothing else: no "Link in bio", no hashtags, no third line. No em dashes or en dashes.
+- Example (video 9, "Before Vs After For One Artist"):
+
+      Same artist, same fans. $30 vs $600.
+      Comment "WORTH" for what you're not collecting from your fans each month.
 
 ## Thumbnail (after user confirms or swaps the suggested title)
 
