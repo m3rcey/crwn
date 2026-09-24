@@ -260,6 +260,18 @@ cron on 2026-08-26 after one env-var whitespace failure). The other five are bui
   TikTok caps roughly 15 to 25 posts per account per day even audited. YouTube takes video only.
   **YouTube community posts cannot be published by any API** and are recorded as permanently
   unsupported in `capabilities.ts`.
+- **Instagram Reels (built 2026-09-24, NOT yet proven live).** `scripts/queue-video.mjs` queues
+  one finished video (`kind: 'video_short'`, one R2 key). It probes the file against the Reels
+  spec and makes a compliant H.264/AAC copy when needed: the founder's Premiere exports run ~28.6
+  Mbps against Meta's 25 Mbps cap, and the automated pipeline writes 96 kHz audio against 48 kHz,
+  and either would have been accepted at queue time and then failed inside Meta at the slot. A
+  video is refused if its CONTENT hash (`payload.source_sha256`) is already queued or posted,
+  because a reposted video is a public duplicate and Instagram throttles its reach. On the server,
+  `publishReel` resumes rather than retries: Meta's video processing can outlive the tick's 60
+  seconds, so a still-processing container goes back to `queued` with `ig_container_id` in the
+  target payload and the next tick checks THAT container. Once a container exists, no attempt ever
+  creates another, and a resumed container reading `PUBLISHED` stops permanently. A video runs
+  alone in its tick. Pinned by `src/lib/social/instagramReel.test.ts` (mutation-tested).
 - **Security note:** every adapter strips its credentials from error text before it can reach a
   log or `last_error`; a trailing space in a pasted env var produced a Meta `code 100/33` with an
   empty message that read exactly like a permissions failure, which is why every read is trimmed.

@@ -6,6 +6,8 @@
  * This file only adapts its shape: the same request in, the same classified error out. Carousel
  * and single image both go through publishCarousel's container flow; a single image is a
  * one-item container rather than a separate code path, because that is what was tested.
+ * A Reel (video_short) goes through publishReel, which resumes a still-processing container
+ * across ticks through payload.ig_container_id instead of uploading the video again.
  */
 
 import {
@@ -14,7 +16,7 @@ import {
   type PublishResult,
   PublishError,
 } from '../adapter';
-import { publishCarousel, GraphError, type InstagramConfig } from '../instagramPublish';
+import { publishCarousel, publishReel, GraphError, type InstagramConfig } from '../instagramPublish';
 
 function configFromEnv(env: Record<string, string | undefined>): InstagramConfig {
   // TRIM EVERY ONE. The first scheduled post failed on a trailing space pasted into the Vercel
@@ -42,18 +44,35 @@ export function createInstagramAdapter(env: Record<string, string | undefined> =
     supportsNativeScheduling: false,
 
     async publish(req: PublishRequest): Promise<PublishResult> {
-      if (req.kind !== 'carousel' && req.kind !== 'image') {
-        // Reels are in the capability table as a supported kind, but the Reels container flow
-        // (media_type=REELS, video_url, longer processing) has not been exercised live yet.
-        // Refusing loudly beats shipping an untested path that publishes to a real account.
-        throw new PublishError(`Instagram adapter does not yet publish ${req.kind}; carousel and image are live`, {
+      if (req.kind !== 'carousel' && req.kind !== 'image' && req.kind !== 'video_short') {
+        throw new PublishError(`Instagram adapter does not publish ${req.kind}; carousel, image and video_short (Reels) are supported`, {
           retryable: false,
           kind: 'permanent',
-          message: 'kind not yet implemented',
+          message: 'kind not supported',
         });
       }
       const cfg = configFromEnv(env);
       try {
+        if (req.kind === 'video_short') {
+          if (req.mediaUrls.length !== 1) {
+            throw new PublishError(`a Reel takes exactly one video, got ${req.mediaUrls.length}`, {
+              retryable: false,
+              kind: 'permanent',
+              message: 'bad reel media count',
+            });
+          }
+          const resumeId = req.payload.ig_container_id;
+          const thumb = Number(req.payload.thumb_offset_ms);
+          const reel = await publishReel(cfg, req.mediaUrls[0], req.caption, {
+            resumeContainerId: typeof resumeId === 'string' ? resumeId : undefined,
+            thumbOffsetMs: req.payload.thumb_offset_ms !== undefined && Number.isFinite(thumb) ? thumb : undefined,
+          });
+          return {
+            providerPostId: reel.mediaId,
+            permalink: reel.permalink,
+            providerResponse: { reel_container_id: reel.containerId },
+          };
+        }
         const out = await publishCarousel(cfg, req.mediaUrls, req.caption);
         return {
           providerPostId: out.mediaId,
@@ -65,12 +84,16 @@ export function createInstagramAdapter(env: Record<string, string | undefined> =
         };
       } catch (e) {
         if (e instanceof GraphError) {
-          throw new PublishError(e.message, {
-            retryable: e.classification.retryable,
-            kind: e.classification.kind,
-            message: e.classification.message,
-            code: e.classification.code,
-          });
+          throw new PublishError(
+            e.message,
+            {
+              retryable: e.classification.retryable,
+              kind: e.classification.kind,
+              message: e.classification.message,
+              code: e.classification.code,
+            },
+            e.resume
+          );
         }
         throw e;
       }

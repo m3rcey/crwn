@@ -75,7 +75,7 @@ export const CAPABILITIES: Record<Platform, PlatformCapability> = {
     dailyPostLimit: 100,
     requiresAudit: false,
     notes:
-      'Live since 2026-08-26. A carousel counts as ONE post against the daily limit. Aspect ratio must be within 4:5 and 1.91:1 or the container is REJECTED, which is why every image is contained into a 1080x1350 white frame.',
+      'Live since 2026-08-26. A carousel counts as ONE post against the daily limit. Aspect ratio must be within 4:5 and 1.91:1 or the container is REJECTED, which is why every image is contained into a 1080x1350 white frame. video_short publishes as a Reel (publishReel, queued by scripts/queue-video.mjs, which re-encodes anything over 25 Mbps or 48 kHz); a container still processing when the tick ends is resumed by id on the next tick, never re-uploaded.',
   },
   facebook: {
     kinds: ['image', 'carousel', 'video_short', 'video_long', 'text'],

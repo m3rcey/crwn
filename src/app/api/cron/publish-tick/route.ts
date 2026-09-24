@@ -112,6 +112,12 @@ export async function GET(req: NextRequest) {
   for (const row of rows) {
     if (handled >= MAX_TARGETS_PER_TICK) break;
     const post = row.social_posts;
+    // A VIDEO RUNS ALONE. Waiting on video processing can use most of the 60 second ceiling, so a
+    // video never shares a tick with other work: it waits for a fresh tick when something was
+    // already handled, and it ends the tick when it runs. A killed function would leave the
+    // target stuck in 'publishing'.
+    const isVideo = post.kind === 'video_short' || post.kind === 'video_long';
+    if (isVideo && handled > 0) continue;
     const slot = new Date(post.scheduled_for);
     const due = isDue(slot, new Date());
 
@@ -217,12 +223,18 @@ export async function GET(req: NextRequest) {
         env.YOUTUBE_REFRESH_TOKEN,
       ]);
 
+      // RESUME STATE. An adapter that got partway (a video container Meta is still processing)
+      // says where it got to, and the next attempt continues from there instead of uploading
+      // again. Kept even on give-up, so a human can see which container was involved.
+      const resume = err instanceof PublishError ? err.resume : undefined;
+
       await supabaseAdmin
         .from('social_post_targets')
         .update({
           // An audit refusal from inside an adapter is a refusal, not a failure to retry.
           status: classification?.kind === 'audit_required' ? 'refused' : giveUp ? 'failed' : 'queued',
           last_error: message.slice(0, 2000),
+          ...(resume ? { payload: { ...(row.payload ?? {}), ...resume } } : {}),
         })
         .eq('id', row.id);
 
@@ -235,6 +247,7 @@ export async function GET(req: NextRequest) {
         error: message.slice(0, 300),
       });
     }
+    if (isVideo) break;
   }
 
   // Roll the post-level status up from its targets, so a reader of social_posts alone gets an

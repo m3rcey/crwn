@@ -111,10 +111,16 @@ export function redactSecrets(text: string, secrets: string[] = []): string {
 
 export class GraphError extends Error {
   classification: GraphErrorClassification;
-  constructor(message: string, classification: GraphErrorClassification) {
+  /**
+   * State the NEXT attempt must resume from instead of starting over. Set by the Reels path once
+   * a container exists: a retry that created a second container could publish the video twice.
+   */
+  resume?: Record<string, string>;
+  constructor(message: string, classification: GraphErrorClassification, resume?: Record<string, string>) {
     super(message);
     this.name = 'GraphError';
     this.classification = classification;
+    this.resume = resume;
   }
 }
 
@@ -259,6 +265,126 @@ export async function publishCarousel(
   }
 
   return { mediaId, permalink, carouselContainerId, childContainerIds };
+}
+
+export interface ReelOptions {
+  /** A container an earlier attempt created. Resumed, never recreated. */
+  resumeContainerId?: string;
+  /** How long this call may wait on Meta's video processing before handing off to the next tick. */
+  pollBudgetMs?: number;
+  pollIntervalMs?: number;
+  /** Which frame becomes the cover, in milliseconds from the start. */
+  thumbOffsetMs?: number;
+}
+
+export interface ReelResult {
+  mediaId: string;
+  permalink: string | null;
+  containerId: string;
+}
+
+/**
+ * Publish one Reel. `videoUrl` must be publicly fetchable: Meta downloads it itself.
+ *
+ * VIDEO PROCESSING OUTLIVES A FUNCTION. The tick runs under a 60 second ceiling and Meta can take
+ * longer than that to transcode a video, so a container still IN_PROGRESS when the budget runs out
+ * is handed to the next tick (a retryable error carrying `resume.ig_container_id`), which checks
+ * that SAME container rather than uploading again.
+ *
+ * NEVER A SECOND CONTAINER ONCE ONE EXISTS. Every failure after creation carries the container id,
+ * so a retry always resumes it. A resumed container that reads PUBLISHED means an earlier attempt
+ * posted it (the response was lost), and that stops permanently: a human checks the account, which
+ * is recoverable, where a second post of the same video is not.
+ */
+export async function publishReel(
+  cfg: InstagramConfig,
+  videoUrl: string,
+  caption: string,
+  opts: ReelOptions = {}
+): Promise<ReelResult> {
+  if (caption.length > IG_LIMITS.maxCaptionChars) {
+    throw new GraphError(
+      `caption is ${caption.length} characters, over Instagram's ${IG_LIMITS.maxCaptionChars} limit`,
+      { retryable: false, kind: 'permanent', message: 'caption too long' }
+    );
+  }
+  const budgetMs = opts.pollBudgetMs ?? 35000;
+  const intervalMs = opts.pollIntervalMs ?? 4000;
+
+  let containerId = opts.resumeContainerId?.trim() || '';
+  if (!containerId) {
+    const params: Record<string, string> = {
+      media_type: 'REELS',
+      video_url: videoUrl,
+      caption,
+      share_to_feed: 'true',
+    };
+    if (opts.thumbOffsetMs !== undefined && opts.thumbOffsetMs >= 0) {
+      params.thumb_offset = String(Math.round(opts.thumbOffsetMs));
+    }
+    const created = await graph(cfg, 'POST', `${cfg.igUserId}/media`, params);
+    containerId = String(created.id);
+  }
+  const resume = { ig_container_id: containerId };
+
+  try {
+    const started = Date.now();
+    for (;;) {
+      const s = await graph(cfg, 'GET', containerId, { fields: 'status_code,status' });
+      const code = String(s.status_code ?? '');
+      if (code === 'PUBLISHED') {
+        throw new GraphError(
+          `reel container ${containerId} is already PUBLISHED; an earlier attempt posted it. Check the account; not retrying`,
+          { retryable: false, kind: 'permanent', message: 'container already published' }
+        );
+      }
+      const state = interpretContainerStatus(code);
+      if (state.done && state.ok) break;
+      if (state.done) {
+        const detail = typeof s.status === 'string' && s.status ? ` (${s.status})` : '';
+        throw new GraphError(`reel container ${containerId}: ${state.message}${detail}`, {
+          retryable: false,
+          kind: 'media_format',
+          message: state.message,
+        });
+      }
+      if (Date.now() - started + intervalMs > budgetMs) {
+        throw new GraphError(`reel container ${containerId} is still processing; the next tick resumes it`, {
+          retryable: true,
+          kind: 'server',
+          message: 'video still processing',
+        });
+      }
+      await sleep(intervalMs);
+    }
+
+    const published = await graph(cfg, 'POST', `${cfg.igUserId}/media_publish`, {
+      creation_id: containerId,
+    });
+    const mediaId = String(published.id);
+
+    let permalink: string | null = null;
+    try {
+      const detail = await graph(cfg, 'GET', mediaId, { fields: 'permalink' });
+      permalink = typeof detail.permalink === 'string' ? detail.permalink : null;
+    } catch {
+      // The post exists. A failed permalink read must never look like a failed publish.
+      permalink = null;
+    }
+    return { mediaId, permalink, containerId };
+  } catch (e) {
+    if (e instanceof GraphError) {
+      e.resume = resume;
+      throw e;
+    }
+    // A network failure mid-publish is unknown, not permanent: resume the same container so the
+    // PUBLISHED check above decides, rather than a fresh upload.
+    throw new GraphError(redactSecrets(e instanceof Error ? e.message : String(e), [cfg.accessToken]), {
+      retryable: true,
+      kind: 'server',
+      message: 'network failure',
+    }, resume);
+  }
 }
 
 /** Remaining posts in the rolling 24 hour window, or null when Meta does not say. */

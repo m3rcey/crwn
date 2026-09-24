@@ -33,10 +33,16 @@ export interface FailureClassification {
 
 export class PublishError extends Error {
   classification: FailureClassification;
-  constructor(message: string, classification: FailureClassification) {
+  /**
+   * Keys the tick merges into the target's payload so the next attempt RESUMES rather than
+   * starting over (for example a video container that is still processing). Plain strings only.
+   */
+  resume?: Record<string, string>;
+  constructor(message: string, classification: FailureClassification, resume?: Record<string, string>) {
     super(message);
     this.name = 'PublishError';
     this.classification = classification;
+    this.resume = resume;
   }
 }
 
