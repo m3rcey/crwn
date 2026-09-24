@@ -382,8 +382,9 @@ For every topic, output in this exact order with these exact headers. **Caption 
 
 **CAPTION:**
 
-[SUGGESTED TITLE, 44 characters or fewer: the strongest of the 5 options below]
 Comment "[KEYWORD]" for [the loss the keyword's tool measures, tied to this script's payoff].
+
+[SUGGESTED TITLE, 44 characters or fewer: the strongest of the 5 options below]
 
 ---
 
@@ -436,16 +437,20 @@ After saving, also print this exact block to the chat so the user can copy it wi
 
 ## Caption Rules
 
-Founder decision, 2026-09-24: the caption is TWO lines, a title and a comment CTA. It replaced the
-old "Link in bio to [outcome] with CRWN" line, because a comment keyword is what ManyChat can act
-on and a link in bio is a step most viewers never take.
+Founder decision, 2026-09-24: the caption is TWO sentences, the comment CTA FIRST, then a blank
+line, then the title. It replaced the old "Link in bio to [outcome] with CRWN" line, because a
+comment keyword is what ManyChat can act on and a link in bio is a step most viewers never take.
+The CTA leads because Instagram truncates a caption at the fold, and the ask is the one line that
+must be seen.
 
-- **Line 1: the suggested title, 44 characters or fewer.** The strongest of the 5 options, chosen
+- **Line 1: `Comment "KEYWORD" for [the loss].`** (rules below)
+- **Line 2: blank.** Double spaced, always.
+- **Line 3: the suggested title, 44 characters or fewer.** The strongest of the 5 options, chosen
   by the writer. Do NOT use `[TITLE TBD]`. **Count the characters; never judge 44 by eye.** Spaces
   and punctuation count. If the best title is over, rewrite it shorter; never truncate it mid-word.
   The other 4 titles are still listed below as alternates Josh can swap to, and a swapped title
   obeys the same 44 limit.
-- **Line 2: `Comment "KEYWORD" for [the loss].`** One of the registered ManyChat keywords, never an
+- **The CTA: `Comment "KEYWORD" for [the loss].`** One of the registered ManyChat keywords, never an
   invented one (a keyword ManyChat does not know sends the commenter nothing). The clause after
   `for` names what the viewer LOSES by not acting (CLAUDE.md copy rule), and it may only name a
   loss the tool behind that keyword actually measures. Use the ratified frames in
@@ -456,11 +461,12 @@ on and a link in bio is a step most viewers never take.
   - OWN: `Comment "OWN" for how many of your fans you can't reach.`
   - FREE: `Comment "FREE" for what you're missing.`
   - PRODUCER: `Comment "PRODUCER" for what an empty room costs you.`
-- Nothing else: no "Link in bio", no hashtags, no third line. No em dashes or en dashes.
+- Nothing else: no "Link in bio", no hashtags, nothing beyond the CTA, one blank line and the title. No em dashes or en dashes.
 - Example (video 9, "Before Vs After For One Artist"):
 
-      Same artist, same fans. $30 vs $600.
       Comment "WORTH" for what you're not collecting from your fans each month.
+
+      Same artist, same fans. $30 vs $600.
 
 ## Thumbnail (after user confirms or swaps the suggested title)
 
