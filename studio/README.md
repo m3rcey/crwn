@@ -31,10 +31,12 @@ Tests:
 
 ## Step 6
 
-1. **Link.** A wav in `Hip Hop Industry\Fan Economy\` whose name starts with the script number
-   links itself. Anything else ("New Recording 823.wav", or an old recording in Unmixed/Mixed)
-   is linked from the video's step 6 picker; a wav with no number in the Fan Economy folder is
-   listed at the top as "Which script is this?".
+1. **Link.** A wav in `Hip Hop Industry\Fan Economy\` links itself when its name starts with the
+   script number ("14 money man.wav") OR when its words name exactly one script
+   ("New Recording 823 money man.wav" is 14-money-man-paid-to-leave); that link is saved, so a
+   later script sharing the words can't undo it. Only a name that matches no script, or several
+   ("dom kennedy" is 13 and 19), is listed at the top as "Which script is this?", with the
+   candidates. Old recordings in Unmixed/Mixed are linked from the video's step 6 picker.
 2. **Rename** (optional, Fan Economy only, before transcribing): to `NN <slug words>.wav`.
 3. **Transcribe** runs `build_region_transcript_fast.py`. It is silent until it finishes; the
    page shows elapsed time. Complete means the JSON parses, has segments and language, and ends

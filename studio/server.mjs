@@ -30,7 +30,23 @@ function sendJson(res, code, body) {
   res.end(JSON.stringify(body));
 }
 
-const scan = () => scanAll({ ssd, state: readState() });
+// A Fan Economy recording whose words name exactly one script ("New Recording 823 money man")
+// is linked to it, and the link is SAVED: a later script sharing those words must not silently
+// unlink a recording that was already matched. Two recordings naming one script link neither.
+function scan() {
+  const facts = scanAll({ ssd, state: readState() });
+  const taken = new Set(facts.videos.filter((v) => v.recording.linked || v.recording.conflicts.length).map((v) => v.num));
+  const named = facts.recordings.filter((r) => r.fan && r.claimedBy == null && r.namedScripts.length === 1 && !taken.has(r.namedScripts[0]));
+  const perScript = new Map();
+  for (const r of named) perScript.set(r.namedScripts[0], [...(perScript.get(r.namedScripts[0]) || []), r]);
+  const links = [...perScript].filter(([, rs]) => rs.length === 1).map(([num, [r]]) => [num, r.rel]);
+  if (!links.length) return facts;
+  updateState((s) => {
+    for (const [num, rel] of links) s.links[num] = { rel, at: new Date().toISOString(), by: "name" };
+  });
+  for (const [num, rel] of links) console.log(`Linked ${rel} to script ${num} by its name.`);
+  return scanAll({ ssd, state: readState() });
+}
 
 function overview() {
   const facts = scan();
@@ -47,7 +63,9 @@ function overview() {
     fanDir: facts.fanDir,
     fanDirExists: facts.fanDirExists,
     // A recording in the Fan Economy folder that no video holds: the page asks which script it is.
-    unassigned: facts.recordings.filter((r) => r.fan && r.claimedBy == null && !scripts.has(r.leading)).map((r) => r.name),
+    unassigned: facts.recordings
+      .filter((r) => r.fan && r.claimedBy == null && !scripts.has(r.leading))
+      .map((r) => ({ name: r.name, candidates: r.namedScripts })),
   };
 }
 

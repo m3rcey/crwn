@@ -38,8 +38,12 @@ function renderEnv(o) {
   }
   $("#env").innerHTML = parts.join(" · ");
   $("#relocate")?.addEventListener("click", (e) => act(e.target, () => api("/api/ssd/relocate", {})));
+  const ask = (u) =>
+    u.candidates.length
+      ? `${esc(u.name)} could be ${u.candidates.map((n) => `<a href="#${n}">${n}</a>`).join(" or ")}`
+      : `${esc(u.name)} doesn't name a script`;
   $("#unassigned").innerHTML = o.unassigned.length
-    ? `<b>Which script is this?</b> ${o.unassigned.map(esc).join(", ")} ${o.unassigned.length === 1 ? "is" : "are"} in the Fan Economy folder with no script number. Open its video and link it in step 6.`
+    ? `<b>Which script is this?</b> ${o.unassigned.map(ask).join("; ")}. Open its video and link it in step 6, or put the script number or more of the title in the file name.`
     : "";
   $("#unassigned").hidden = !o.unassigned.length;
 }

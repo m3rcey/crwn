@@ -1,7 +1,7 @@
 // node --test studio/
 import test from "node:test";
 import assert from "node:assert/strict";
-import { videoStatus, promptSheets, leadingNumber, recordingMatchesSlug, numberGaps, parsePdfName, transcriptGapAllowed } from "./status.mjs";
+import { videoStatus, promptSheets, leadingNumber, recordingMatchesSlug, scriptsNamedBy, numberGaps, parsePdfName, transcriptGapAllowed } from "./status.mjs";
 
 const SCRIPT5 = [
   "# T", "**SCRIPT:**", "words", "---",
@@ -131,6 +131,20 @@ test("manual steps come only from check marks", () => {
 
 test("the current step is the first one not done", () => {
   assert.equal(videoStatus(base()).current, 3);
+});
+
+test("a recording named with words links to the one script they name (founder call 2026-09-24)", () => {
+  const scripts = [
+    { num: 13, slug: "13-dom-kennedy-fifteen-year-buyers" },
+    { num: 14, slug: "14-money-man-paid-to-leave" },
+    { num: 18, slug: "18-akeem-ali-the-hours-money-cant-buy" },
+    { num: 19, slug: "19-dom-kennedy-vs-jay-z-the-deal-he-turned-down" },
+  ];
+  assert.deepEqual(scriptsNamedBy("New Recording 823 money man.wav", scripts), [14]);
+  assert.deepEqual(scriptsNamedBy("New Recording 824 dom kennedy.wav", scripts), [13, 19]); // ambiguous: ask
+  assert.deepEqual(scriptsNamedBy("New Recording 825 dom kennedy jay z.wav", scripts), [19]);
+  assert.deepEqual(scriptsNamedBy("New Recording 826.wav", scripts), []); // no words: ask
+  assert.deepEqual(scriptsNamedBy("New Recording 827 money.wav", scripts), [14, 18]);
 });
 
 test("helpers", () => {

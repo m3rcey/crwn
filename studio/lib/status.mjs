@@ -64,6 +64,13 @@ export function recordingMatchesSlug(fileName, slug) {
   return words.every((w) => slugWords.has(w));
 }
 
+// The scripts a recording's own words name ("New Recording 823 money man.wav" names
+// 14-money-man-paid-to-leave). One match is a link (founder call 2026-09-24: the words in the
+// name ARE the script's ID); several is a question with those candidates; none is a question.
+export function scriptsNamedBy(fileName, scripts) {
+  return scripts.filter((s) => recordingMatchesSlug(fileName, s.slug)).map((s) => s.num);
+}
+
 const step = (n, name, status, summary, extra = {}) => ({ step: n, name, status, summary, checks: [], ...extra });
 
 function stepIdea(f) {

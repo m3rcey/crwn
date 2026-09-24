@@ -4,7 +4,7 @@ import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { PATHS, SSD_FOLDERS } from "./config.mjs";
 import { isMount } from "./ssd.mjs";
-import { leadingNumber, parsePdfName, recordingMatchesSlug, MAX_SHEETS, sheetFileName } from "./status.mjs";
+import { leadingNumber, parsePdfName, recordingMatchesSlug, scriptsNamedBy, MAX_SHEETS, sheetFileName } from "./status.mjs";
 
 const listDir = (dir) => {
   try {
@@ -182,7 +182,13 @@ export function scanAll({ ssd, state }) {
     : [
         ...fanWavs.map((f) => ({ rel: path.posix.join(SSD_FOLDERS.fanEconomy, f), name: f, fan: true })),
         ...historyWavs.map(({ rel, f }) => ({ rel: path.posix.join(rel, f), name: f, fan: false })),
-      ].map((r) => ({ ...r, claimedBy: claimed.get(path.join(ssd.root, r.rel)) ?? null, leading: leadingNumber(r.name) }));
+      ].map((r) => ({
+        ...r,
+        claimedBy: claimed.get(path.join(ssd.root, r.rel)) ?? null,
+        leading: leadingNumber(r.name),
+        // Only Fan Economy recordings are named for a script; history names are hints only.
+        namedScripts: r.fan && leadingNumber(r.name) == null ? scriptsNamedBy(r.name, scriptFiles) : [],
+      }));
 
   return { videos, fanDir, fanDirExists, ssdError, recordings };
 }
