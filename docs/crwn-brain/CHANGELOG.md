@@ -1,5 +1,36 @@
 # CRWN Brain — Changelog
 
+## 2026-09-24 - Fan Economy reel editor: raw talking head in, finished reel out
+
+A third video path, for a format that did not exist yet: the founder talking to camera.
+`scripts/reel/` (manual `docs/REEL_EDITOR.md`, skill `fan-economy-reel-editor`) takes the
+raw recording, finds which script it is from the file name or from what was said, and
+aligns every spoken phrase to the canonical script. A retake is the script position
+jumping backwards; the editor keeps one path through time and script order, the LAST
+complete take wins a near-tie (the founder's own rule), and speech the recognizer mangled
+is kept when it fills a hole in a line. The clean cut is rendered before any graphic, then
+a beat plan maps every line to a visual with a reason, and HyperFrames (pinned, isolated
+from the app) renders it.
+
+What the code guarantees rather than hopes: a figure first spoken after the CRWN detour
+never reaches the screen before the word that says it (cards, sheets, captions, sourced
+B-roll); every number on screen traces to the script (the existing fact lock); CRWN product
+footage appears only when the script's claim tier is shipped, the line names the
+capability, and `capabilities.json` lists it with evidence paths a test checks exist; the
+CTA keyword is the script's. Measured against all 58 scripts, which share one grammar
+(hook question, "market FOR fans" detour closed by ANYWAY, reveal, "I built a free",
+"Comment KEYWORD", 128).
+
+Two facts found on the way. The existing Studio transcriber requests word timestamps
+and then collapses them to one "word" per region, so it cannot drive captions or retake
+detection; the editor has its own word-level transcriber. And Whisper times figures as
+sub-word pieces ("$1", ",000", ",000"), which silently cut the reveal figure out of the
+first synthetic run; the transcript normalizer now glues them back.
+
+No talking-head recording exists yet, so it was proven end to end on a labelled
+synthetic clip (text-to-speech with an abandoned take, a mid-line restart, a stutter, a
+filler, an aside and dead air). Nothing in the app changed.
+
 ## 2026-09-20 - /worth?listeners=N lands on N again
 
 Every prefilled outreach link was ignored: `/worth?listeners=4000` showed the generic 150,000

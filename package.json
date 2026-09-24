@@ -28,7 +28,12 @@
     "video:motion-plan": "node scripts/video/video.mjs motion-plan",
     "video:motion-render": "node scripts/video/video.mjs motion-render",
     "video:motion-verify": "node scripts/video/video.mjs motion-verify",
-    "test:video": "vitest run --config vitest.video.config.ts"
+    "video:v2-plan": "node scripts/video/video.mjs v2-plan",
+    "video:v2-render": "node scripts/video/video.mjs v2-render",
+    "video:v2-verify": "node scripts/video/video.mjs v2-verify",
+    "test:video": "vitest run --config vitest.video.config.ts",
+    "reel": "node scripts/reel/reel.mjs",
+    "test:reel": "vitest run --config vitest.reel.config.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.111.0",

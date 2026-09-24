@@ -1,0 +1,106 @@
+{
+  "_about": "What the reel editor may SHOW as a live CRWN capability. A CRWN product visual is only allowed for a capability listed here with status 'shipped', whose evidence paths exist in this repo (capabilities.test.mjs checks them, so deleting a feature fails the suite instead of reaching a reel), and whose words the script line actually says. The script's own META 'CRWN claim tier' still gates first: a 'conceptual' tier gets typography, never product UI. Add a capability here only after checking the code.",
+  "verifiedAt": "2026-09-24",
+  "capabilities": {
+    "memberships": {
+      "label": "Membership tiers",
+      "status": "shipped",
+      "match": "\\bmembership|\\btiers?\\b|\\brungs?\\b|top rung|members\\b",
+      "evidence": ["src/lib/tierTemplate.ts", "src/app/(main)/account/tiers"],
+      "footage": ["crwn-memberships-vault"]
+    },
+    "vault": {
+      "label": "The Vault",
+      "status": "shipped",
+      "match": "\\bvault\\b",
+      "evidence": ["src/lib/vaultCollection.ts"],
+      "footage": ["crwn-memberships-vault"]
+    },
+    "set_price": {
+      "label": "You set the price",
+      "status": "shipped",
+      "match": "set the (top rung|price)|you set|price (it|them) yourself|a number you picked",
+      "evidence": ["src/lib/tierTemplate.ts", "src/app/(main)/account/tiers"],
+      "footage": ["crwn-memberships-vault"]
+    },
+    "fan_crm": {
+      "label": "Your fan list, in one place",
+      "status": "shipped",
+      "match": "fan (list|crm)|who (actually )?(pays|bought)|the list of who|one place|buyer comes with the sale|your list|names",
+      "evidence": ["src/app/(main)/studio/fans"],
+      "footage": []
+    },
+    "fan_import": {
+      "label": "Bring your existing fans",
+      "status": "shipped",
+      "match": "\\bimport|bring (your|ya) (fans|list|buyers)|patreon",
+      "evidence": ["src/lib/patreonImport.ts"],
+      "footage": []
+    },
+    "community": {
+      "label": "Your fan community",
+      "status": "shipped",
+      "match": "\\bcommunity\\b",
+      "evidence": ["src/components/community/CommunityFeed.tsx"],
+      "footage": []
+    },
+    "live": {
+      "label": "Live sessions",
+      "status": "shipped",
+      "match": "\\blive (session|room|show|stream)s?|go live|\\blive\\b",
+      "evidence": ["src/app/(main)/studio/live", "src/lib/liveSessionTemplates.ts"],
+      "footage": []
+    },
+    "producer_sessions": {
+      "label": "Executive Producer Sessions",
+      "status": "shipped",
+      "match": "producer session|executive producer|help pick|pick the (next|feature)",
+      "evidence": ["src/lib/producer/access.ts"],
+      "footage": []
+    },
+    "share_to_earn": {
+      "label": "Share-to-Earn",
+      "status": "shipped",
+      "match": "share-to-earn|share link|cut they earn|earn on every|referral",
+      "evidence": ["src/app/(main)/account/referrals"],
+      "footage": []
+    },
+    "release_waterfall": {
+      "label": "Release waterfall",
+      "status": "shipped",
+      "match": "waterfall|highest tier first|hears? it first|early access|before (anybody|everybody|the public)",
+      "evidence": ["src/lib/waterfall.ts"],
+      "footage": []
+    },
+    "promise_calendar": {
+      "label": "Promise Calendar",
+      "status": "shipped",
+      "match": "promise calendar|promises? you (made|forgot)|what you promised",
+      "evidence": ["src/app/(main)/studio/promise"],
+      "footage": []
+    },
+    "email_campaigns": {
+      "label": "Email your members",
+      "status": "shipped",
+      "match": "\\bemail\\b|message (them|your)|send (them|a message)",
+      "evidence": ["src/lib/launchCampaign.ts", "src/app/(main)/studio/fans"],
+      "footage": []
+    },
+    "founder_window": {
+      "label": "Founder Window",
+      "status": "shipped",
+      "match": "founder window|first \\d+ (members|fans) (get|pay)|day one price",
+      "evidence": ["src/app/api/stripe/checkout/route.ts"],
+      "footage": []
+    }
+  },
+  "neverClaim": {
+    "_about": "Things CRWN does not do. A CRWN beat whose line reads as one of these gets typography only, and QA flags it. Sources: CLAUDE.md (no physical goods 2026-09-03, nobody books an artist 2026-09-03) and the scripts' own claim-tier notes.",
+    "distribution": "\\bdistribut",
+    "masters": "\\bmasters\\b",
+    "ticketing": "\\bticket(ing|s)? (sales|platform)",
+    "physical_goods": "\\b(ship|shipping|merch fulfil)",
+    "booking": "\\bbook (you|an artist|a show)",
+    "game_servers": "game server|roleplay server"
+  }
+}

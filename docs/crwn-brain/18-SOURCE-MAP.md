@@ -119,6 +119,18 @@
   0.25s). Commands `video:v2-plan|v2-render|v2-verify`.
 - VSL slide decks: `scripts/vsl/` (headless Chrome, exact copy, OFL fonts in
   `scripts/vsl/assets/fonts`, reused by the handwritten-motion lettering).
+- Fan Economy reel editor (2026-09-24): `scripts/reel/` turns RAW talking-head footage of
+  a Fan Economy script (mistakes and retakes included) into a finished 1080x1920 reel.
+  Manual `docs/REEL_EDITOR.md`, skill `.claude/skills/fan-economy-reel-editor/`. Stages:
+  word-level transcription (`lib/transcribe.mjs`: ElevenLabs Scribe if the key is set,
+  else local faster-whisper), script alignment + take selection (`lib/align.mjs`), the
+  clean cut before any decoration (`lib/cut.mjs`), a semantic beat plan with the
+  withheld-reveal gate, fact lock and CRWN claim gate (`lib/beats.mjs`,
+  `capabilities.json` whose evidence paths are test-checked), a HyperFrames composition
+  (`lib/compose.mjs`; engine pinned and isolated in `scripts/reel/engine/`), the mix
+  (`lib/audio.mjs`), and post-render QA (`lib/qa.mjs`). Rules the founder tunes:
+  `scripts/reel/rules.json`. Tests: `npm run test:reel`. Projects live in
+  `videos/reels/<slug>/` (not in git).
 
 ## NOT app code (verify before assuming relevance)
 Root `*.mjs` (content generation), `carousel-*.json`, `videos/` (except `videos/scripts/` and `videos/motion-specs/`, which are tracked source content), `.claude/` (harness config, incl. `.claude/agents/*.md` which are Claude Code subagents, not product roles).

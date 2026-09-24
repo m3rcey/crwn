@@ -688,6 +688,33 @@ responsible for. Do not work those.
 
 ### P2 — worth doing, nothing breaks if you never do it
 
+- [ ] **Record the first talking-head Fan Economy reel and run it through the editor.**
+      The reel editor is built and proven on a synthetic test clip; no recording of you exists
+      yet. Pilot script: 14 (Money Man): its five sheets exist and its CTA calculator has a
+      screen recording. Say the script to camera, mistakes and retakes are fine (the last good
+      take wins). Name the file so it starts with 14, e.g. `14 money man.mov`, then in WSL:
+
+          cd /home/merce/workspace-crwn && npm run reel -- run "/mnt/c/Users/Josh/<path>/14 money man.mov"
+
+      The finished reel lands in `videos/reels/14-money-man-paid-to-leave/final/`. Or tell
+      Claude "edit this as a Fan Economy reel" with the file path. Manual:
+      [docs/REEL_EDITOR.md](docs/REEL_EDITOR.md).
+- [ ] **Optional: an ElevenLabs key for verbatim transcripts.** Without it the editor uses free
+      local Whisper, which sometimes smooths a stumble into one clean-looking take. Create a
+      key at elevenlabs.io with ONLY the Speech to Text permission, then add this line to
+      `~/.bashrc` in WSL (never to the repo):
+
+          export ELEVENLABS_API_KEY=<the key>
+
+- [ ] **Optional: screen-record the CTA tools that have no recording yet.** Reels whose CTA
+      points at these get a name card instead of real footage: Share-to-Earn, Live Experience,
+      Between-Tour, Proof of Demand, Executive Producer Session, Royalty Readiness, and the
+      /worth page. Put each recording in `Dropbox/CRWN/` and add an entry to
+      [scripts/reel/assets.json](scripts/reel/assets.json) (copy an existing `tool-*` entry,
+      set `leadMagnet` to the tool's slug). `npm run reel -- assets` lists what is missing.
+- [ ] **Optional: create the export folder.** Passed reels are also copied to
+      `Dropbox/CRWN/content/Reels TikToks Shorts/Fan Economy Reels/` when that folder exists.
+
 - [ ] **Two FILMED videos say a CTA line the Vault planner cannot fully back. Your call.**
       Scripts 1 (Curren$y vs Westside Gunn) and 5 (Rapsody) are locked and already shot, and both
       say the planner "prices exactly that". It does produce a price band, so the claim is not
@@ -984,6 +1011,12 @@ Things that are never finished. Cadence, then the thing.
 ---
 
 ## On Claude's plate (not yours)
+
+- **Fan Economy reel editor: tune it on the first real recording.** Everything taste-related
+  (pacing values in [scripts/reel/rules.json](scripts/reel/rules.json), which beats go
+  full-screen, caption position, music level) was set from the founder's written process and
+  a synthetic test clip, not from his real footage or his eye. The first real run will need a
+  review pass and his notes turned into rules (the skill's RULES.md feedback log).
 
 - **Make the revenue ramp invert the recommended-plan cost exactly.** Since 2026-09-20 the
   calculators price CRWN on the plan recommended for the modeled gross (a rate AND a fixed

@@ -1,0 +1,10 @@
+{
+  "name": "crwn-reel-engine",
+  "private": true,
+  "description": "Pinned HyperFrames render engine for the Fan Economy reel editor. Isolated from the app on purpose: nothing here is a dependency of the product.",
+  "type": "module",
+  "dependencies": {
+    "gsap": "3.15.0",
+    "hyperframes": "0.8.36"
+  }
+}

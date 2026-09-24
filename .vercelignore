@@ -5,3 +5,5 @@ generate-carousel.mjs
 generate-thumbnail.mjs
 flatten-one.mjs
 fetch-person-ref.mjs
+# Fan Economy reel editor: content production, never deployed
+scripts/reel/

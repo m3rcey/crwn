@@ -48,4 +48,8 @@ platform-emails-preview.html
 # founder-original audio (with Dropbox `name:com.dropbox.attrs` junk entries that
 # Windows git cannot even check out). Neither belongs in history.
 /videos/output/
+# Fan Economy reel editor (scripts/reel): per-video projects hold raw footage and renders,
+# and the render engine is an isolated npm package (hyperframes + gsap) outside the app.
+/videos/reels/
+/scripts/reel/engine/node_modules/
 /videos/music/

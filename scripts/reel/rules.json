@@ -1,0 +1,81 @@
+{
+  "_about": "Persistent editing rules for the Fan Economy reel editor. Numbers here are read by the code on every run; the prose taste rules live in .claude/skills/fan-economy-reel-editor/RULES.md. Change a number here, rerun `npm run reel -- plan <n>` and `render`, and every future video inherits it. Seeded 2026-09-24 from studio/Shortform_Video_Process.txt (the founder's own assembly habits) plus short-form conventions; every value is a starting point, not a law.",
+
+  "format": { "width": 1080, "height": 1920, "fps": 30 },
+
+  "safeZone": {
+    "_about": "Instagram/TikTok/Shorts chrome: header on top, caption + buttons at the bottom, action rail on the right. Text never goes outside this box.",
+    "left": 72, "right": 940, "top": 230, "bottom": 1500
+  },
+
+  "transcription": {
+    "provider": "auto",
+    "_provider": "auto = ElevenLabs Scribe when ELEVENLABS_API_KEY is set, otherwise local faster-whisper. Scribe keeps disfluencies verbatim, which is what retake detection needs.",
+    "elevenlabsModel": "scribe_v1",
+    "localModel": "small.en"
+  },
+
+  "takes": {
+    "phraseGapSec": 0.3,
+    "minMatchSim": 0.72,
+    "minPieceCoverage": 0.34,
+    "lastTakeBonus": 0.6,
+    "_lastTakeBonus": "Founder habit: 'if I said something three times I keep the last one, because the last one is when I got it right.' A later complete take wins a near-tie.",
+    "offscriptMinScore": 0.35,
+    "fillers": ["um", "uh", "erm", "er", "hmm", "uhm", "mm"],
+    "removeFillers": true,
+    "minFillerSec": 0.12
+  },
+
+  "pacing": {
+    "_about": "Pauses the clean cut leaves between phrases, in seconds of source room tone. Natural, not robotic: breaths under keepPauseMaxSec inside a take are left alone.",
+    "keepPauseMaxSec": 0.3,
+    "sentencePauseSec": 0.2,
+    "commaPauseSec": 0.09,
+    "paragraphPauseSec": 0.3,
+    "hookTurnPauseSec": 0.55,
+    "preRevealPauseSec": 0.4,
+    "padInSec": 0.05,
+    "padOutSec": 0.09,
+    "snapWindowSec": 0.07,
+    "endcardSec": 1.6
+  },
+
+  "visual": {
+    "minFaceRatio": 0.5,
+    "_minFaceRatio": "Share of the reel where the founder's face is on screen (full, punch or split). He is the trust in these videos.",
+    "maxNoFaceRunSec": 5.0,
+    "maxStaticSec": { "hook": 1.4, "body": 3.2 },
+    "hookFirstChangeSec": 1.0,
+    "punchScale": 1.16,
+    "readingWordsPerSec": 3.2,
+    "readingHoldMinSec": 1.2,
+    "revealHoldSec": 2.2,
+    "revealLeadSec": 0.05,
+    "ctaMinSec": 2.5
+  },
+
+  "captions": {
+    "maxWords": 4,
+    "maxChars": 22,
+    "minSec": 0.45,
+    "y": 1255,
+    "splitSeamY": 905
+  },
+
+  "audio": {
+    "voiceTargetLufs": -16,
+    "finalTargetLufs": -14,
+    "finalTruePeak": -1.5,
+    "musicUnderVoiceDb": 20,
+    "_musicUnderVoiceDb": "Founder habit: the bed is very low and always the same level. Voice must win by this many LU.",
+    "duckDb": 6,
+    "denoise": false,
+    "hookDropSec": 1.6,
+    "_hookDropSec": "Founder habit: drop the beat from the middle of the hook's last sentence until speech resumes, and a riser peaks exactly where the beat drops.",
+    "revealDrop": true,
+    "musicEndsBeforeLastLine": true,
+    "musicFadeSec": 2.0,
+    "maxSfxPerMinute": 9
+  }
+}
