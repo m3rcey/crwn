@@ -32,6 +32,9 @@
     "keepPauseMaxSec": 0.3,
     "sentencePauseSec": 0.2,
     "commaPauseSec": 0.09,
+    "breathPauseSec": 0.22,
+    "_breathPauseSec": "A pause inside a line with no word removed (2026-09-24, first real recording: squeezing these to 0.03s made his comma pauses sound robotic).",
+    "silenceDb": -38,
     "paragraphPauseSec": 0.3,
     "hookTurnPauseSec": 0.55,
     "preRevealPauseSec": 0.4,
@@ -53,6 +56,18 @@
     "revealHoldSec": 2.2,
     "revealLeadSec": 0.05,
     "ctaMinSec": 2.5
+  },
+
+  "landscape": {
+    "_about": "Framing for a LANDSCAPE recording (project framing.mode 'dynamic'). The portrait crop of a 1080p landscape frame is only ~608px wide, so it is already upscaled 1.78x: punchScale stays modest or the punch looks soft. Pixel values are canvas pixels (1080x1920). holdPx is in source pixels: the crop only follows the speaker at a cut, and only if he moved more than this.",
+    "punchScale": 1.12,
+    "pushScale": 1.07,
+    "punchEyeY": 700,
+    "splitEyeY": 1210,
+    "bandTop": 520,
+    "bandCaptionY": 1450,
+    "holdPx": 45,
+    "sustain": 1.02
   },
 
   "captions": {

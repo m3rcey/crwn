@@ -130,7 +130,10 @@
   (`lib/compose.mjs`; engine pinned and isolated in `scripts/reel/engine/`), the mix
   (`lib/audio.mjs`), and post-render QA (`lib/qa.mjs`). Rules the founder tunes:
   `scripts/reel/rules.json`. Tests: `npm run test:reel`. Projects live in
-  `videos/reels/<slug>/` (not in git).
+  `videos/reels/<slug>/` (not in git). Landscape recordings: `lib/track.mjs` locates the
+  speaker; authored beat plans live in `videos/reel-plans/<slug>.mjs` (in git, helper
+  `lib/author.mjs`); a real-footage regression fixture is
+  `scripts/reel/fixtures/23-real-transcript.json` (`realtake.test.mjs`).
 
 ## NOT app code (verify before assuming relevance)
 Root `*.mjs` (content generation), `carousel-*.json`, `videos/` (except `videos/scripts/` and `videos/motion-specs/`, which are tracked source content), `.claude/` (harness config, incl. `.claude/agents/*.md` which are Claude Code subagents, not product roles).

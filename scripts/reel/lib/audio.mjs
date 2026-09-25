@@ -134,7 +134,24 @@ export function mix({ voiceIn, outFile, workDir, plan, structure, outWords, rule
     // Bed: loop if needed, trim, drop/fade automation, level it under the voice.
     const raw = path.join(workDir, "music.raw.wav");
     const len = Math.max(1, sp.musicEnd);
-    ff(["-stream_loop", "-1", "-ss", String(music.segmentStart || 0), "-i", music.sourcePath, "-t", len.toFixed(3), "-ac", "2", "-ar", "48000", "-af", `afade=t=in:d=0.6,afade=t=out:st=${Math.max(0, len - A.musicFadeSec).toFixed(3)}:d=${A.musicFadeSec}`, raw]);
+    // A track shorter than the bed is repeated with a CROSSFADE, never a hard wrap: on the
+    // first real reel the wrap landed half a second after the reveal's hit and the beat
+    // audibly restarted on the payoff.
+    const trackDur = parseFloat(execFileSync("ffprobe", ["-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", music.sourcePath]).toString());
+    const start = music.segmentStart || 0;
+    const xf = 2.5;
+    let src = music.sourcePath;
+    if (trackDur - start < len) {
+      const copies = Math.ceil((len - (trackDur - start)) / (trackDur - xf)) + 1;
+      const inputs = [], chain = [];
+      for (let i = 0; i < copies; i++) inputs.push("-i", music.sourcePath);
+      chain.push(`[0:a]atrim=start=${start},asetpts=PTS-STARTPTS[c0]`);
+      for (let i = 1; i < copies; i++) chain.push(`[c${i - 1}][${i}:a]acrossfade=d=${xf}:c1=tri:c2=tri[c${i}]`);
+      const looped = path.join(workDir, "music.looped.wav");
+      ff([...inputs, "-filter_complex", chain.join(";"), "-map", `[c${copies - 1}]`, "-ac", "2", "-ar", "48000", looped]);
+      src = looped;
+    }
+    ff(["-ss", String(src === music.sourcePath ? start : 0), "-i", src, "-t", len.toFixed(3), "-ac", "2", "-ar", "48000", "-af", `afade=t=in:d=0.6,afade=t=out:st=${Math.max(0, len - A.musicFadeSec).toFixed(3)}:d=${A.musicFadeSec}`, raw]);
     const m = measureLoudness(raw);
     const gain = A.voiceTargetLufs - A.musicUnderVoiceDb - m.i;
     musicFile = path.join(workDir, "music.wav");

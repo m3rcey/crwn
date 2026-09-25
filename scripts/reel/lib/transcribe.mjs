@@ -118,6 +118,39 @@ export async function transcribeElevenLabs(audioPath, { model = "scribe_v1", api
   return res.json();
 }
 
+// ---------------------------------------------------------------- omission repair
+//
+// Found on the first real recording (script 23, 2026-09-24): over a 3.8-minute file,
+// Whisper silently DROPPED whole passages (12 words once, 17 seconds another time,
+// including the script's "not a forecast" qualifier) and hid each drop by stretching a
+// neighbouring word across it ("built" stamped 19 seconds long). The same audio,
+// transcribed as a short window on its own, came back complete. So: a word stamped longer
+// than maxWordSec marks a probable omission; that window is re-transcribed and spliced in.
+
+/** Windows around suspiciously long words, merged. Pure. */
+export function suspectWindows(words, { maxWordSec = 1.5, padSec = 3, duration = Infinity } = {}) {
+  const wins = [];
+  for (const w of words) {
+    if (w.end - w.start <= maxWordSec) continue;
+    const a = Math.max(0, w.start - padSec), b = Math.min(duration, w.end + padSec);
+    const last = wins[wins.length - 1];
+    if (last && a <= last.end) last.end = Math.max(last.end, b);
+    else wins.push({ start: a, end: b });
+  }
+  return wins;
+}
+
+/** Replace the inside of a window with the window's own words. The outer `edgeSec` of the
+ * window keeps the original words, so the splice never duplicates or loses a boundary
+ * word. Window words are already on the file's timeline. Pure. */
+export function spliceWindow(words, windowWords, win, edgeSec = 1) {
+  const a = win.start + (win.start > 0 ? edgeSec : 0), b = win.end - edgeSec;
+  const before = words.filter((w) => w.start < a);
+  const after = words.filter((w) => w.start >= b);
+  const inside = windowWords.filter((w) => w.start >= a && w.start < b);
+  return [...before, ...inside, ...after].sort((x, y) => x.start - y.start);
+}
+
 export function transcribeLocal(audioPath, outPath, { model = "small.en", hotwords = null } = {}) {
   const win = (p) => execFileSync("wslpath", ["-w", p]).toString().trim();
   const args = ["-X", "utf8", "-u", win(path.join(HERE, "transcribe_local.py")), win(audioPath), win(outPath), "--model", model];

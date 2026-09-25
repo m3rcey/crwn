@@ -119,6 +119,17 @@ describe("take selection", () => {
     expect(keptText(tr, al)).not.toMatch(/phone/);
   });
 
+  // The paraphrase and false-match cases are covered by realtake.test.mjs on the real
+  // transcript: synthetic timings could not reproduce them (proved by mutation).
+  it("a full retake said with no pause is still cut", () => {
+    const s23 = loadStructure(23);
+    const cta = s23.anchors.toolLine;
+    const plan = [{ line: cta - 1 }, { line: cta }, { pause: 1.0 }, { line: cta }, { line: cta + 1 }];
+    const tr = synthTranscript(s23, plan);
+    const text = keptText(tr, alignTakes(s23, tr, rules));
+    expect(text.split("I built a free").length - 1).toBe(1);
+  });
+
   it("a line never delivered is reported missing, not invented", () => {
     const plan = s14.lines.filter((l) => l.id !== 7).map((l) => ({ line: l.id }));
     const al = alignTakes(s14, synthTranscript(s14, plan), rules);

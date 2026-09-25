@@ -1,5 +1,21 @@
 # CRWN Brain — Changelog
 
+## 2026-09-24 - Reel editor calibrated on the first real recording (script 23, Smino)
+
+The editor ran end to end on real footage for the first time: a 3:48 landscape take of
+script 23 plus the CRWN plug and CTA screen recordings. What the real footage changed, all
+reusable: landscape sources are framed dynamically per beat from a tracked subject position
+(`lib/track.mjs`) instead of one centre crop; local Whisper's silent omissions are detected
+(a word stretched past 1.5s) and re-transcribed (`suspectWindows`/`spliceWindow`), which
+recovered 65 dropped words including the qualifier; paraphrase joined to kept speech is kept;
+comma pauses breathe and out-points wait for silence; captions keep his words over the
+script's unless they are the same word; short music tracks crossfade-loop; an authored beat
+plan anchored to spoken words (`videos/reel-plans/<slug>.mjs`) re-resolves on every re-cut;
+`project.json` `exclude` makes a sub-3:00 cut. The CRWN plug clip shows tier benefits, not
+the Promise Calendar screen, so the reel labels what the code does
+(`src/lib/tierObligations.ts`: an obligation exists only for a benefit the artist schedules)
+and does not claim a calendar UI it never shows. No app code changed.
+
 ## 2026-09-24 - Fan Economy reel editor: raw talking head in, finished reel out
 
 A third video path, for a format that did not exist yet: the founder talking to camera.

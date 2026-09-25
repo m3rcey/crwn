@@ -105,6 +105,50 @@ To rerender after a change: `npm run reel -- render 14`. Each render is versione
 5. **Build** (`lib/compose.mjs`, `lib/audio.mjs`). One HyperFrames HTML composition + the mix.
 6. **Render + QA** (`lib/qa.mjs`). Rendered locally in headless Chrome, muxed, checked.
 
+## Landscape recordings (added 2026-09-24, first real reel)
+
+A landscape source is never center-cropped once. The project gets `"framing": {"mode":
+"dynamic"}` automatically; the working proxy stays landscape and `lib/track.mjs` locates the
+speaker (the dark mass in front of a plain wall; columns that stay dark in the top of every
+frame are a static occluder such as a monitor edge and are never shown). Every beat is then
+one of five transforms of the same video, positioned from where he actually is:
+
+| `aroll` | What it is | Use it for |
+|---|---|---|
+| `full` | portrait crop, frame height fills the canvas | direct address |
+| `punch` | tighter, centred on the eyes (limited by resolution: `rules.landscape.punchScale`) | emphasis, masking a jump cut |
+| `split` | the speaker in the lower part, a graphic panel above (240 to 860) | proof, concepts, the reveal math |
+| `band` | a SQUARE 1:1 crop across the middle, headline above | variety; the sharpest crop (no upscale) |
+| `hidden` | full-screen graphic | the thesis, the payoff |
+
+The crop only moves at a real cut or a change of treatment, and only if he moved more than
+`holdPx`. Shoot in 4K if possible: a portrait crop of a 1080p frame is only ~608px wide, so it
+is already upscaled 1.78x before any punch-in.
+
+## Transcription repair (added 2026-09-24)
+
+Whisper on a long file can silently DROP whole passages and hide each drop by stretching a
+neighbouring word (the first real recording lost 65 words, including the script's "not a
+forecast" qualifier, behind a word stamped 19 seconds long). After a local transcription,
+every word longer than 1.5s marks a probable omission; that window is re-transcribed on its
+own and spliced in (`suspectWindows` / `spliceWindow` in `lib/transcribe.mjs`). The take
+report then shows the recovered lines as delivered.
+
+## Authored plans (added 2026-09-24)
+
+`plan` drafts a plan; the editorial pass is written as `videos/reel-plans/<slug>.mjs`
+(tracked in git), where every beat is anchored to a SPOKEN WORD (`P.w(line, "word")`), not to
+seconds. `plan`, `build` and `render` re-resolve it against the current cut automatically, so
+a re-cut never strands a graphic. Reference: `videos/reel-plans/23-smino-the-promise-you-forgot.mjs`.
+Helper API: `scripts/reel/lib/author.mjs`.
+
+## A shorter cut
+
+Instagram Reels and YouTube Shorts cap length (3:00 when this was written: check). To make a
+shorter version, list the script lines to drop in the project's `project.json`
+(`"exclude": [5, 23, 24, 25]`), then `cut` and `render`: the take report says what was
+excluded, and an authored plan skips beats whose lines are not in the cut (`P.has(line)`).
+
 ## Guarantees (enforced by code, tested)
 
 - **The withheld reveal.** Every figure first spoken after the CRWN detour is withheld

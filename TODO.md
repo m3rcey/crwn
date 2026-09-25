@@ -688,17 +688,13 @@ responsible for. Do not work those.
 
 ### P2 — worth doing, nothing breaks if you never do it
 
-- [ ] **Record the first talking-head Fan Economy reel and run it through the editor.**
-      The reel editor is built and proven on a synthetic test clip; no recording of you exists
-      yet. Pilot script: 14 (Money Man): its five sheets exist and its CTA calculator has a
-      screen recording. Say the script to camera, mistakes and retakes are fine (the last good
-      take wins). Name the file so it starts with 14, e.g. `14 money man.mov`, then in WSL:
-
-          cd /home/merce/workspace-crwn && npm run reel -- run "/mnt/c/Users/Josh/<path>/14 money man.mov"
-
-      The finished reel lands in `videos/reels/14-money-man-paid-to-leave/final/`. Or tell
-      Claude "edit this as a Fan Economy reel" with the file path. Manual:
-      [docs/REEL_EDITOR.md](docs/REEL_EDITOR.md).
+- [ ] **Watch the Smino reel (script 23) and pick the full or the short cut.** Two files in
+      `videos/reels/23-smino-the-promise-you-forgot/final/`: the full cut runs about 3:25,
+      which is over the 3:00 Instagram Reels / YouTube Shorts cap; the `-short` file drops
+      lines 5, 23, 24 and 25 (Smino's "nobody above him" line and the three-line passage
+      after the reveal) to land under 3:00. Post the one you want; send notes to Claude and
+      they become rules in the skill's RULES.md. Next recordings: shoot in 4K if the camera
+      allows (a vertical crop of 1080p is soft on a punch-in).
 - [ ] **Optional: an ElevenLabs key for verbatim transcripts.** Without it the editor uses free
       local Whisper, which sometimes smooths a stumble into one clean-looking take. Create a
       key at elevenlabs.io with ONLY the Speech to Text permission, then add this line to
@@ -1012,11 +1008,10 @@ Things that are never finished. Cadence, then the thing.
 
 ## On Claude's plate (not yours)
 
-- **Fan Economy reel editor: tune it on the first real recording.** Everything taste-related
-  (pacing values in [scripts/reel/rules.json](scripts/reel/rules.json), which beats go
-  full-screen, caption position, music level) was set from the founder's written process and
-  a synthetic test clip, not from his real footage or his eye. The first real run will need a
-  review pass and his notes turned into rules (the skill's RULES.md feedback log).
+- **Fan Economy reel editor: turn the founder's notes on the Smino reel into rules.** The
+  editor is calibrated on his real footage (RULES.md, "Calibrated on the first real
+  recording"), but not yet on his eye. His notes on script 23 go into the RULES.md feedback
+  log, reusable ones into [scripts/reel/rules.json](scripts/reel/rules.json).
 
 - **Make the revenue ramp invert the recommended-plan cost exactly.** Since 2026-09-20 the
   calculators price CRWN on the plan recommended for the modeled gross (a rate AND a fixed

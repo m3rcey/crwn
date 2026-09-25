@@ -217,7 +217,7 @@ export function planBeats(ctx) {
         b = mk("aroll_hero", { notes: "a direct question to the viewer: stay on the face" });
         break;
       case "cta_tool": {
-        const toolAsset = Object.entries(library?.library || {}).find(([, a]) => a.kind === "tool_footage" && a.leadMagnet === S.leadMagnet.slug)?.[0] || null;
+        const toolAsset = Object.entries(library?.library || {}).filter(([, a]) => a.kind === "tool_footage" && a.leadMagnet === S.leadMagnet.slug).map(([id]) => id).sort().reverse()[0] || null;
         const name = ctx.toolName || S.leadMagnet.toolName || "the free calculator";
         b = mk("cta_tool", { text: [String(name).toUpperCase(), "FREE"], graphic: { component: "ToolCard", props: { name, footage: toolAsset } }, broll: toolAsset ? { asset: toolAsset } : null, evidence: "product", assetSource: toolAsset ? `CRWN tool recording (${toolAsset})` : "composition (tool name card)", transition: "slide", notes: toolAsset ? "" : `no recording of ${S.leadMagnet.slug} yet: add one to scripts/reel/assets.json` });
         break;
@@ -367,10 +367,18 @@ export function validateBeats(plan, ctx) {
   const late = new Set(S.withheld.lateTokens);
   const lead = rules.visual.revealLeadSec;
   for (const b of beats) {
+    // A graphic whose elements land on their own words declares them in textAt
+    // ({text, at}); an element is judged at its own time, everything else at the beat start.
+    const shownAt = new Map((b.textAt || []).map((x) => [x.text, x.at]));
     for (const txt of b.text || []) {
+      const shown = shownAt.has(txt) ? shownAt.get(txt) : b.start;
       for (const t of [...screenNumberTokens(txt), ...lineNumberTokens(txt)]) {
         if (!late.has(t) || !spokenAt.has(t)) continue;
         const at = spokenAt.get(t);
+        if (shownAt.has(txt)) {
+          if (shown < at - lead) errors.push(`WITHHELD LEAK: beat ${b.id} shows "${txt}" at ${shown.toFixed(2)}s, spoken at ${at.toFixed(2)}s`);
+          continue;
+        }
         if (b.start < at - lead) {
           const i = beats.indexOf(b);
           if (i > 0 && at < b.end) {

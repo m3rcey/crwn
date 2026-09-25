@@ -47,6 +47,16 @@ const SYN_GROUPS = [
   ["whole", "hole"],
   ["crwn", "crown", "curwin", "cron"],
 ];
+// For CAPTIONS, only pure spelling/pronunciation twins may print in the script's spelling:
+// the recognizer writes "your" when he says "ya", "going to" for "gon". Meaning-synonyms
+// (not/aint, is/aint, they/their) are different words: printing the script's word there
+// put "two are aint small" on screen for "those two are not small" (first real reel).
+const SPELLING_TWINS = [["ya", "you", "your", "youre"], ["gon", "gonna", "going"], ["em", "them", "dem"], ["cause", "because", "cuz", "coz", "cos"], ["tryna", "trying"], ["lil", "little"], ["nothin", "nothing"], ["somethin", "something"], ["bout", "about"], ["ok", "okay"], ["wit", "with"], ["crwn", "crown", "curwin", "cron"], ["dont", "don't"], ["aint", "ain't"]];
+const TWIN = new Map();
+for (const g of SPELLING_TWINS) for (const w of g) TWIN.set(w, new Set(g));
+// Common words the recognizer hears correctly: never "corrected" into a script word.
+const COMMON = new Set("a an and are as at be been but by can could did do does for from get got had has have he her him his i if in is it its me my no not of on or our she so that the them then there they this to up us was we were what when where which who will with would you your".split(" "));
+export function spellingTwin(a, b) { return a === b || !!TWIN.get(a)?.has(b); }
 const SYN = new Map();
 for (const g of SYN_GROUPS) for (const w of g) SYN.set(w, new Set([...(SYN.get(w) || []), ...g]));
 
@@ -410,7 +420,52 @@ export function alignTakes(structure, transcript, rules) {
     if (f) for (let w = f.from; w <= f.to; w++) if (words[w].type === "word") kept.push({ w, line: f.line, s: null, sTok: null, drop: null, piece: p, fill: true });
   }
   kept.sort((a, b) => a.w - b.w);
-  const offscriptKept = offscript.filter((o) => { for (let w = o.w0; w <= o.w1; w++) if (fillSet.has(w)) return false; return true; });
+
+  // Contiguity restore (found on the first real recording, 2026-09-24). The founder
+  // paraphrases: "worth as an independent artist?", "behind the scenes content.",
+  // "What they're going to do is just stop paying". Words that match no script word, or
+  // short common words falsely matched to ANOTHER line that was already said, were being
+  // cut out of the middle of his own sentences. A word is his delivery, not an aside,
+  // when it is joined to kept speech with no pause. Real retakes are never restored: a
+  // retake comes BEFORE the take that was kept, so a dropped piece is only eligible when
+  // it is LATER than every chosen piece of its line.
+  const keptIdx = new Set(kept.filter((k) => !k.drop).map((k) => k.w));
+  const lastChosenByLine = new Map();
+  for (const p of chosen) lastChosenByLine.set(p.line, Math.max(lastChosenByLine.get(p.line) ?? -1, p.w1));
+  const eligible = new Set();
+  for (const o of offscript) for (let w = o.w0; w <= o.w1; w++) eligible.add(w);
+  // A dropped piece is a FALSE match (not a retake) when the kept speech it touches with
+  // no pause belongs to a different line: "You're about to" matched a later line's
+  // "about", but it sits between line 0 and line 1. A real no-pause retake ("the gap
+  // between them, the gap between them aint small") touches kept words of its OWN line.
+  const keptLine = new Map(kept.filter((k) => !k.drop).map((k) => [k.w, k.line]));
+  for (const p of pieces) {
+    if (chosen.some((c) => c.order === p.order)) continue;
+    const before = p.w0 - 1, after = p.w1 + 1;
+    const nbLines = [];
+    if (keptLine.has(before) && words[p.w0].start - words[before].end < R.phraseGapSec) nbLines.push(keptLine.get(before));
+    if (keptLine.has(after) && words[after].start - words[p.w1].end < R.phraseGapSec) nbLines.push(keptLine.get(after));
+    const last = lastChosenByLine.get(p.line);
+    // ...and only a SHORT match: a piece covering most of its line is a real retake.
+    const falseMatch = p.coverage < 0.5 && nbLines.length && nbLines.every((l) => l !== p.line);
+    if (falseMatch || (last !== undefined && p.w0 > last && !nbLines.includes(p.line))) for (const x of p.idx) for (let w = x.tok.w0; w <= x.tok.w1; w++) eligible.add(w);
+  }
+  const restored = [];
+  const joined = (a, b) => words[b].start - words[a].end < R.phraseGapSec;
+  for (let pass = 0; pass < 2; pass++) {
+    const order = pass === 0 ? [...Array(words.length).keys()] : [...Array(words.length).keys()].reverse();
+    for (const w of order) {
+      if (keptIdx.has(w) || !eligible.has(w) || stutterSet.has(w) || words[w].type !== "word") continue;
+      const nb = pass === 0 ? w - 1 : w + 1;
+      if (nb < 0 || nb >= words.length || !keptIdx.has(nb) || !(pass === 0 ? joined(nb, w) : joined(w, nb))) continue;
+      const anchor = kept.find((k) => k.w === nb);
+      keptIdx.add(w);
+      restored.push(w);
+      kept.push({ w, line: anchor?.line ?? null, s: null, sTok: null, drop: null, piece: anchor?.piece, restored: true });
+    }
+  }
+  kept.sort((a, b) => a.w - b.w);
+  const offscriptKept = offscript.filter((o) => { for (let w = o.w0; w <= o.w1; w++) if (fillSet.has(w) || restored.includes(w)) return false; return true; });
 
   // Per-line report: what was chosen, what was dropped and why.
   const lines = structure.lines.map((l) => {
@@ -445,6 +500,7 @@ export function alignTakes(structure, transcript, rules) {
     lines,
     offscript: offscriptKept,
     filled: fills.map((f) => ({ line: f.line, said: wordsText(words, f.from, f.to) })),
+    restored: restored.sort((x, y) => x - y).map((w) => ({ at: +words[w].start.toFixed(2), word: words[w].text })),
     stutters,
     pieces: pieces.length,
     runs: runs.length,
@@ -465,13 +521,41 @@ export function captionWords(structure, transcript, alignment) {
   const words = transcript.words;
   const out = [];
   const shownScriptWords = new Set();
-  for (const k of alignment.kept) {
-    if (k.drop) continue;
+  const live = alignment.kept.filter((k) => !k.drop);
+  // Script words another kept word already stands for: a misheard neighbour may not reuse
+  // one ("fan bases" heard as two words printed "fanbases fanbases").
+  const claimed = new Set(live.filter((x) => x.sTok).map((x) => `${x.sTok.line}:${x.sTok.wFrom}`));
+  for (let i = 0; i < live.length; i++) {
+    const k = live[i];
     const w = words[k.w];
     let text;
     let lineId = k.line;
     let scriptWord = null;
-    if (k.sTok) {
+    // Script spelling only when it is the SAME word he said (or its dialect twin). A
+    // looser match printed "That's you was busy" for "that you was busy" and "doesnt not"
+    // for "does not" on the first real recording.
+    const same = (k.sTok && /^#/.test(k.sTok.n)) || (k.sTok && (spellingTwin(norm(w.text), k.sTok.n) || (sim(norm(w.text), k.sTok.n) >= 0.9 && !SYN.get(norm(w.text))?.has(k.sTok.n))));
+    if (k.sTok && !same) {
+      text = w.text;
+    } else if (!k.sTok) {
+      // A misheard word sitting exactly where ONE script word was skipped, and sounding
+      // like it ("olded" for "owed"), is that script word.
+      const prev = live.slice(0, i).reverse().find((x) => x.sTok && x.line === k.line);
+      const next = live.slice(i + 1).find((x) => x.sTok && x.line === k.line);
+      const line = structure.lines[k.line];
+      text = w.text;
+      if (prev && next && line && !COMMON.has(norm(w.text)) && next.sTok.wFrom - prev.sTok.wTo >= 2 && next.sTok.wFrom - prev.sTok.wTo <= 4) {
+        let best = null;
+        for (let j = prev.sTok.wTo + 1; j < next.sTok.wFrom; j++) {
+          if (claimed.has(`${line.id}:${j}`)) continue;
+          const v = sim(norm(w.text), norm(line.words[j]));
+          // A different word with a related meaning ("they're" for "They") is what he said.
+          if (SYN.get(norm(w.text))?.has(norm(line.words[j])) && !spellingTwin(norm(w.text), norm(line.words[j]))) continue;
+          if (v >= 0.5 && (!best || v > best.v)) best = { j, v };
+        }
+        if (best) { text = line.words[best.j].replace(/[,;:]$/, ""); scriptWord = { line: line.id, from: best.j, to: best.j }; claimed.add(`${line.id}:${best.j}`); }
+      }
+    } else if (k.sTok) {
       const line = structure.lines[k.sTok.line];
       const key = `${line.id}:${k.sTok.wFrom}`;
       if (shownScriptWords.has(key)) {
@@ -487,6 +571,30 @@ export function captionWords(structure, transcript, alignment) {
       text = w.text;
     }
     out.push({ text, start: w.start, end: w.end, line: lineId, scriptWord, src: k.w });
+  }
+  // One script word the recognizer split in two ("fan" + "bases" for "fanbases"): the
+  // half that repeats the neighbouring caption word is merged into it.
+  const letters = (x) => x.toLowerCase().replace(/[^a-z0-9]/g, "");
+  for (let i = out.length - 1; i > 0; i--) {
+    const prev = out[i - 1], cur = out[i];
+    const p = letters(prev.text), c = letters(cur.text);
+    if (c.length < 3 || p === c || cur.start - prev.end > 0.25) continue;
+    if (p.endsWith(c)) { prev.end = cur.end; out.splice(i, 1); }
+    else if (c.startsWith(p) && p.length >= 3) { cur.start = prev.start; out.splice(i - 1, 1); }
+  }
+  // When he keeps talking past the script's punctuation ("worth? to Smino?", "forget one,
+  // of them"), the mark is not where his phrase breaks: drop it.
+  for (let i = 0; i + 1 < out.length; i++) {
+    const cur = out[i], nx = out[i + 1];
+    if (/[.?!:,;]$/.test(cur.text) && nx.start - cur.end < 0.3 && !nx.scriptWord && /^[a-z]/.test(nx.text)) cur.text = cur.text.replace(/[.?!:,;]+$/, "");
+  }
+  // A script word capitalised because its script line starts a sentence ("They just stop
+  // paying") is lowercase when he says it mid-sentence. Stress capitals (DELIVERY) and
+  // names stay as written.
+  for (let i = 1; i < out.length; i++) {
+    const cur = out[i], prev = out[i - 1];
+    if (!cur.scriptWord || /[.?!:]$/.test(prev.text) || cur.start - prev.end > 0.6) continue;
+    if (/^[A-Z][a-z']+$/.test(cur.text) && cur.scriptWord.from === 0) cur.text = cur.text[0].toLowerCase() + cur.text.slice(1);
   }
   return out;
 }

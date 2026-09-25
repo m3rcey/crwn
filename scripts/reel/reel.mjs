@@ -18,7 +18,7 @@ import path from "node:path";
 import { execFileSync, spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { parseFanEconomy } from "./lib/structure.mjs";
-import { resolveProvider, normalizeAny, normalizeElevenLabs, normalizeLocal, validateTranscript, transcribeElevenLabs, transcribeLocal } from "./lib/transcribe.mjs";
+import { resolveProvider, normalizeAny, normalizeElevenLabs, normalizeLocal, validateTranscript, transcribeElevenLabs, transcribeLocal, suspectWindows, spliceWindow } from "./lib/transcribe.mjs";
 import { alignTakes, captionWords } from "./lib/align.mjs";
 import { buildEdl, remapWords, lineWindows, takeReport, probe, makeProxy, decodePcm, envelope, spliceAudio, writeWav, renderClean, sdrFilter, BT709_TAGS, SEEKABLE } from "./lib/cut.mjs";
 import { groupCaptions, captionLeaks } from "./lib/captions.mjs";
@@ -28,6 +28,9 @@ import { loadLibrary, resolveSheets, resolveBroll, toolNames, missingFiles } fro
 import { buildComposition, writeProject, safeZoneViolations } from "./lib/compose.mjs";
 import { mix } from "./lib/audio.mjs";
 import { runQa, qaMarkdown, contactSheets } from "./lib/qa.mjs";
+import { trackSubject } from "./lib/track.mjs";
+import { openPlan } from "./lib/author.mjs";
+import { pathToFileURL } from "node:url";
 import { recordingMatchesSlug, contentWords } from "../../studio/lib/status.mjs";
 import { proposeTrack } from "../video/lib/music.mjs";
 
@@ -107,6 +110,9 @@ export function createProject(ref, video, opts = {}) {
     if (!info.hasAudio) throw new Error("that file has no audio track");
     pj.source = { path: abs, ...info };
     pj.stages = {};
+    // A landscape recording is framed per beat (portrait crop, punch, split, band) around
+    // where the speaker actually is; a vertical one keeps the fixed crop.
+    if (info.width > info.height && (!pj.framing || !pj.framing.mode)) pj.framing = { mode: "dynamic" };
   }
   writeJson(path.join(dir, "project.json"), pj);
   if (!fs.existsSync(path.join(dir, "feedback.md"))) fs.writeFileSync(path.join(dir, "feedback.md"), `# Feedback: ${s.slug}\n\nNotes for the next pass. Anything that should apply to EVERY future reel belongs in .claude/skills/fan-economy-reel-editor/RULES.md or scripts/reel/rules.json instead.\n\n`);
@@ -130,12 +136,13 @@ async function stageTranscribe(ref, opts = {}) {
   if (opts.import) raw = readJson(path.resolve(opts.import));
   else if (provider === "elevenlabs") { log("transcribing with ElevenLabs Scribe (word timestamps, verbatim)..."); raw = await transcribeElevenLabs(asr, { model: rules.transcription.elevenlabsModel }); }
   else {
-    log(`transcribing locally with faster-whisper ${rules.transcription.localModel} (free; set ELEVENLABS_API_KEY for verbatim retake detection)...`);
+    log(`transcribing locally with faster-whisper ${opts.model || rules.transcription.localModel} (free; set ELEVENLABS_API_KEY for verbatim retake detection)...`);
     const hot = [S.artist, "CRWN", ...new Set(S.lines.flatMap((l) => l.names))].filter(Boolean).join(", ");
-    raw = transcribeLocal(asr, path.join(work, "transcript.local.json"), { model: rules.transcription.localModel, hotwords: hot });
+    raw = transcribeLocal(asr, path.join(work, "transcript.local.json"), { model: opts.model || rules.transcription.localModel, hotwords: hot });
   }
   writeJson(path.join(dir, "transcript.raw.json"), raw);
-  const t = opts.import ? normalizeAny(raw, rules.takes.fillers) : provider === "elevenlabs" ? normalizeElevenLabs(raw, rules.takes.fillers) : normalizeLocal(raw, rules.takes.fillers);
+  let t = opts.import ? normalizeAny(raw, rules.takes.fillers) : provider === "elevenlabs" ? normalizeElevenLabs(raw, rules.takes.fillers) : normalizeLocal(raw, rules.takes.fillers);
+  if (t.provider === "local" && !opts.noRepair) t = repairOmissions(t, asr, work, { model: opts.model || rules.transcription.localModel, fillers: rules.takes.fillers, duration: pj.source.duration });
   const problems = validateTranscript(t, pj.source.duration);
   if (problems.length) throw new Error(`transcript unusable: ${problems.join("; ")}`);
   writeJson(path.join(dir, "transcript.json"), t);
@@ -146,6 +153,27 @@ async function stageTranscribe(ref, opts = {}) {
   if (id.best?.num !== s.num) log(`WARNING: this recording sounds more like script ${id.best?.num} (${(id.best?.score * 100).toFixed(0)}%) than ${s.num}. Check the script before cutting.`);
 }
 
+/** Re-transcribe windows where Whisper probably dropped speech (see transcribe.mjs). */
+function repairOmissions(t, asr, work, { model, fillers, duration }) {
+  let words = t.words;
+  const repaired = [];
+  for (let pass = 0; pass < 3; pass++) {
+    const wins = suspectWindows(words, { duration });
+    if (!wins.length) break;
+    for (const win of wins) {
+      const clip = path.join(work, `window-${Math.round(win.start)}.wav`);
+      execFileSync("ffmpeg", ["-v", "error", "-y", "-ss", String(win.start), "-t", String(win.end - win.start), "-i", asr, "-ac", "1", "-ar", "16000", clip]);
+      const raw = transcribeLocal(clip, clip.replace(/\.wav$/, ".json"), { model });
+      const ww = normalizeLocal(raw, fillers).words.map((w) => ({ ...w, start: +(w.start + win.start).toFixed(3), end: +(w.end + win.start).toFixed(3) }));
+      const beforeN = words.length;
+      words = spliceWindow(words, ww, win);
+      repaired.push({ start: +win.start.toFixed(2), end: +win.end.toFixed(2), wordsBefore: beforeN, wordsAfter: words.length });
+      log(`  omission repair ${win.start.toFixed(1)}-${win.end.toFixed(1)}s: ${words.length - beforeN >= 0 ? "+" : ""}${words.length - beforeN} words`);
+    }
+  }
+  return { ...t, words, repaired };
+}
+
 function stageCut(ref) {
   const { s, dir, pj, save } = loadProject(ref);
   const rules = loadRules();
@@ -153,6 +181,11 @@ function stageCut(ref) {
   const t = readJson(path.join(dir, "transcript.json"));
   if (!t) throw new Error("no transcript.json: run transcribe first");
   const al = alignTakes(S, t, rules);
+  const exclude = new Set(pj.exclude || []);
+  if (exclude.size) {
+    for (const k of al.kept) if (exclude.has(k.line)) k.drop = "excluded";
+    log(`excluding script lines ${[...exclude].join(", ")} (project.json "exclude")`);
+  }
   const work = path.join(dir, "work");
   fs.mkdirSync(work, { recursive: true });
   // Audio: 48k mono for the splice, and the envelope for cut snapping.
@@ -165,9 +198,25 @@ function stageCut(ref) {
   writeJson(path.join(dir, "edl.json"), edl);
   writeJson(path.join(dir, "words.clean.json"), outWords);
   fs.writeFileSync(path.join(dir, "takes.md"), takeReport(S, al, edl, t));
-  log("framing the source into a 1080x1920 proxy...");
   const proxy = path.join(work, "proxy.mp4");
-  makeProxy(pj.source.path, proxy, pj.framing, rules);
+  // The proxy (and the speaker track) depend only on the source and the framing: an
+  // unchanged pair is not re-encoded on every re-cut.
+  const st = fs.statSync(pj.source.path);
+  const proxyKey = JSON.stringify({ src: pj.source.path, size: st.size, mtime: st.mtimeMs, framing: pj.framing });
+  const proxyStamp = path.join(work, "proxy.key");
+  const fresh = fs.existsSync(proxy) && fs.existsSync(proxyStamp) && fs.readFileSync(proxyStamp, "utf8") === proxyKey;
+  if (!fresh) {
+    log("framing the source into the working proxy...");
+    makeProxy(pj.source.path, proxy, pj.framing, rules);
+    fs.writeFileSync(proxyStamp, proxyKey);
+  }
+  if (pj.framing?.mode === "dynamic" && (!fresh || !fs.existsSync(path.join(dir, "track.json")))) {
+    log("locating the speaker across the landscape source...");
+    const track = trackSubject(proxy, { width: 1920, height: 1080 }, 2);
+    writeJson(path.join(dir, "track.json"), track);
+    const ok = track.samples.filter((s) => s.conf).length / Math.max(1, track.samples.length);
+    log(`speaker located in ${(ok * 100).toFixed(0)}% of samples${track.occluder ? `, static occluder at x ${track.occluder.from}-${track.occluder.to}` : ""}`);
+  }
   const voice = path.join(work, "voice.clean.wav");
   writeWav(voice, spliceAudio(pcm, rate, edl), rate);
   log("rendering the clean talking-head cut...");
@@ -190,13 +239,25 @@ function planContext(s, dir) {
   const sheets = resolveSheets(s.slug, library);
   const { assets: broll, refused } = resolveBroll(dir);
   const toolName = toolNames()[S.leadMagnet.slug] || S.leadMagnet.toolName;
-  return { rules, structure: S, outWords, edl, lineTimes: lineWindows(S, outWords), caps, library, sheets, broll, refused, toolName };
+  const track = readJson(path.join(dir, "track.json"));
+  const pj = readJson(path.join(dir, "project.json"));
+  return { rules, structure: S, outWords, edl, lineTimes: lineWindows(S, outWords), caps, library, sheets, broll, refused, toolName, track: pj?.framing?.mode === "dynamic" ? track : null };
 }
 
-function stagePlan(ref, opts = {}) {
+async function stagePlan(ref, opts = {}) {
   const { s, dir, pj, save } = loadProject(ref);
   const ctx = planContext(s, dir);
   const file = path.join(dir, "beats.json");
+  // An authored plan (videos/reel-plans/<slug>.mjs) anchors every beat to a spoken word:
+  // it is re-resolved on every plan/build/render, so a re-cut never strands a graphic.
+  const authored = path.join(REPO, "videos/reel-plans", `${s.slug}.mjs`);
+  if (fs.existsSync(authored) && !opts.draft) {
+    const mod = await import(`${pathToFileURL(authored).href}?t=${Date.now()}`);
+    const P = await openPlan(s.slug, { reelsDir: REELS_DIR });
+    await mod.default(P);
+    P.write();
+    log(`plan: authored plan ${path.relative(REPO, authored)} re-resolved against this cut`);
+  }
   const existing = readJson(file);
   if (existing?.edited && !opts.force) {
     log("beats.json has hand edits (edited: true): validating it instead of replacing it. Use --force to redraft.");
@@ -251,14 +312,14 @@ function prepareAssets(compDir, dir, ctx, plan) {
   return files;
 }
 
-function stageBuild(ref) {
+async function stageBuild(ref) {
   const { s, dir, pj, save } = loadProject(ref);
-  const { plan, ctx, v } = stagePlan(ref);
+  const { plan, ctx, v } = await stagePlan(ref);
   const compDir = path.join(dir, "composition");
   const assetFiles = prepareAssets(compDir, dir, ctx, plan);
   const phrases = groupCaptions(ctx.outWords, ctx.structure, ctx.rules);
   const leaks = captionLeaks(phrases);
-  const comp = buildComposition({ plan, phrases, rules: ctx.rules, outWords: ctx.outWords, assetFiles });
+  const comp = buildComposition({ plan, phrases, rules: ctx.rules, outWords: ctx.outWords, assetFiles, framing: ctx.track ? { track: ctx.track, edl: ctx.edl } : null });
   if (comp.missing.length) throw new Error(`beats use components that do not exist: ${comp.missing.join(", ")}`);
   const safe = safeZoneViolations(comp.boxes, ctx.rules);
   writeProject(compDir, comp.html, { id: s.slug, name: ctx.structure.title, createdAt: pj.createdAt });
@@ -270,7 +331,9 @@ function stageBuild(ref) {
   try { music = proposeTrack(plan.duration, { overrideName: pj.music?.override || null, record: false }); } catch (e) { log(`no music: ${e.message}`); }
   const audioDir = path.join(dir, "audio");
   const mixReport = mix({ voiceIn: path.join(dir, "work/voice.clean.wav"), outFile: path.join(audioDir, "mix.wav"), workDir: audioDir, plan, structure: ctx.structure, outWords: ctx.outWords, rules: ctx.rules, music });
-  writeJson(path.join(audioDir, "mix.json"), { music: music && { track: music.track, tier: music.tier, segmentStart: music.segmentStart, reason: music.selectionReason, source: "founder music library (videos/music)" }, ...mixReport });
+  // The track record and the loudness measurements are separate keys: spreading the
+  // measurements after the record used to overwrite which track was used.
+  writeJson(path.join(audioDir, "mix.json"), { ...mixReport, musicLoudness: mixReport.music, music: music && { track: music.track, tier: music.tier, segmentStart: music.segmentStart, reason: music.selectionReason, source: "founder music library (videos/music)" } });
 
   log("hyperframes check (lint, runtime, layout, contrast)...");
   const chk = spawnSync(HF, ["check", compDir, "--json", "--samples", "12"], { encoding: "utf8", env: HF_ENV, maxBuffer: 1 << 26, timeout: 600000 });
@@ -290,9 +353,9 @@ function stageBuild(ref) {
   return { plan, ctx, v, safe, leaks, mixReport };
 }
 
-function stageRender(ref, opts = {}) {
+async function stageRender(ref, opts = {}) {
   const { s, dir, pj, save } = loadProject(ref);
-  const built = stageBuild(ref);
+  const built = await stageBuild(ref);
   const compDir = path.join(dir, "composition");
   const renders = path.join(dir, "renders");
   fs.mkdirSync(renders, { recursive: true });
@@ -366,7 +429,7 @@ async function stageRun(args, opts) {
   const { pj } = loadProject(ref);
   if (!pj.stages.transcribe || video) await stageTranscribe(ref, opts);
   stageCut(ref);
-  const q = stageRender(ref, opts);
+  const q = await stageRender(ref, opts);
   if (!q.passed) {
     log(`QA failed: ${q.failed.join(", ")}. Nothing was exported. Fix the cause (see qa/QA.md), then  npm run reel -- render ${ref}`);
     process.exitCode = 2;
@@ -441,9 +504,9 @@ async function main() {
     }
     case "transcribe": await stageTranscribe(args[0], opts); break;
     case "cut": stageCut(args[0]); break;
-    case "plan": stagePlan(args[0], opts); break;
-    case "build": stageBuild(args[0]); break;
-    case "render": { const q = stageRender(args[0], opts); if (!q.passed) process.exitCode = 2; break; }
+    case "plan": await stagePlan(args[0], opts); break;
+    case "build": await stageBuild(args[0]); break;
+    case "render": { const q = await stageRender(args[0], opts); if (!q.passed) process.exitCode = 2; break; }
     case "qa": { const q = stageQa(args[0]); if (!q.passed) process.exitCode = 2; break; }
     case "run": await stageRun(args, opts); break;
     case "preview": stagePreview(args[0]); break;

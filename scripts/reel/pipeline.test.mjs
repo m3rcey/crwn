@@ -10,7 +10,7 @@ import { planBeats, validateBeats, maskFor, faceStats, qualifierTag } from "./li
 import { groupCaptions, captionLeaks } from "./lib/captions.mjs";
 import { loadCapabilities, missingEvidence, claimGate } from "./lib/claims.mjs";
 import { loadLibrary, resolveSheets, resolveBroll, toolNames } from "./lib/assets.mjs";
-import { buildComposition, safeZoneViolations, arollState, wrapLines } from "./lib/compose.mjs";
+import { buildComposition, safeZoneViolations, arollState, wrapLines, captionMarkup } from "./lib/compose.mjs";
 import { soundPlan, dropExpression } from "./lib/audio.mjs";
 import { normalizeElevenLabs, normalizeLocal, normalizeAny, validateTranscript, resolveProvider, transcribeElevenLabs } from "./lib/transcribe.mjs";
 import { parseIntervals, sampleTimes } from "./lib/qa.mjs";
@@ -210,6 +210,31 @@ describe("composition", () => {
     const c = buildComposition({ plan: r.plan, phrases: [], rules, outWords: r.outWords, assetFiles: {} });
     const second = hooks[1].id;
     expect(c.html).not.toMatch(new RegExp(`tl\\.fromTo\\('#h${second}-l0'`));
+  });
+  it("A-roll tweens are seek-safe: no fromTo on the A-roll renders at build time, no bare to()", () => {
+    const r = build(14);
+    r.plan.beats[3].transition = "whip";
+    const c = buildComposition({ plan: r.plan, phrases: [], rules, outWords: r.outWords, assetFiles: {} });
+    const aroll = c.html.split("\n").filter((l) => /#arollWrap|#arollClip/.test(l) && /tl\.(to|fromTo)\(/.test(l));
+    expect(aroll.length).toBeGreaterThan(3);
+    for (const l of aroll) {
+      expect(l, l).not.toMatch(/tl\.to\('#aroll/);
+      expect(l, l).toMatch(/immediateRender:false/);
+    }
+  });
+  it("a caption starting as the picture slides into a split travels with it, never jumping over the face", () => {
+    const beats = [
+      { start: 0, end: 5, aroll: "full" },
+      { start: 5, end: 10, aroll: "split" },
+    ];
+    const words = [{ text: "Everybody", start: 5, end: 5.6, emph: false }, { text: "builds", start: 5.6, end: 6, emph: false }];
+    const { js } = captionMarkup([{ start: 5, end: 6, words }], beats, rules);
+    expect(js).toContain(`tl.fromTo('#cp0',{y:${rules.captions.y - rules.captions.splitSeamY}},{y:0,duration:0.38,ease:'power3.inOut',immediateRender:false},5)`);
+    // Layout properties snap to pixels under frame capture (HyperFrames lint): never `top`.
+    expect(js).not.toMatch(/top:/);
+    // A phrase well inside a split beat does not move.
+    const still = captionMarkup([{ start: 7, end: 8, words: words.map((w) => ({ ...w, start: w.start + 2, end: w.end + 2 })) }], beats, rules);
+    expect(still.js).not.toMatch(/tl\.fromTo\('#cp0',\{y:-?\d+\}/);
   });
   it("A-roll states", () => {
     expect(arollState("punch", rules).scale).toBe(rules.visual.punchScale);

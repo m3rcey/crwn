@@ -89,6 +89,47 @@
         "rights": "owned",
         "url": null
       }
+    },
+    "crwn-tier-benefits-plug": {
+      "kind": "product_footage",
+      "path": "/mnt/c/Users/Josh/Videos/CRWN/Smino-23/CRWNplug.mp4",
+      "shows": [
+        "memberships",
+        "set_price"
+      ],
+      "provenance": {
+        "source": "CRWN app screen recording made by the founder (artist page: albums, then tier benefit lists)",
+        "rights": "owned",
+        "url": null
+      },
+      "framing": "phone_in_hand",
+      "startAt": 1.2,
+      "crop": {
+        "x": 0.12,
+        "y": 0.32,
+        "w": 0.66,
+        "h": 0.68
+      },
+      "note": "9.1s. Shows an artist page and its tier BENEFIT lists ($10 / $25 tiers: early access, monthly vault unlock). It does NOT show the Promise Calendar screen: label it as tier benefits, never as the calendar. startAt 1.2 so a ~7.8s beat ends on the clip's last frame. Chosen from a 1s contact sheet, 2026-09-24."
+    },
+    "tool-opportunity-calculator-v2": {
+      "kind": "tool_footage",
+      "path": "/mnt/c/Users/Josh/Videos/CRWN/Smino-23/cta-free.mp4",
+      "leadMagnet": "opportunity-calculator",
+      "provenance": {
+        "source": "CRWN calculator screen recording made by the founder (hero, questions, review, result)",
+        "rights": "owned",
+        "url": null
+      },
+      "framing": "phone_in_hand",
+      "startAt": 0,
+      "crop": {
+        "x": 0.1,
+        "y": 0.18,
+        "w": 0.74,
+        "h": 0.8
+      },
+      "note": "4.8s, the whole flow ending on the result. Preferred over tool-opportunity-calculator (2026-09-24): shorter and complete. The result on screen is a demo artist's number, not anyone in a script."
     }
   },
   "sheets": {

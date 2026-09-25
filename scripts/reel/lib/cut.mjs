@@ -50,7 +50,7 @@ export function buildEdl(structure, transcript, alignment, rules, opts = {}) {
     if (!lastTokenOfLine.has(l) || k.w > lastTokenOfLine.get(l)) lastTokenOfLine.set(l, k.w);
   }
 
-  const env = opts.envelope || null;
+  const env = opts.envelope ? { ...opts.envelope, peak: opts.envelope.peak ?? Math.max(...opts.envelope.rms) } : null;
   const quietest = (a, b) => {
     if (!env || b <= a) return (a + b) / 2;
     let best = a, bestV = Infinity;
@@ -81,7 +81,12 @@ export function buildEdl(structure, transcript, alignment, rules, opts = {}) {
       const nextLine = structure.lines[next.firstLine];
       const thisLine = structure.lines[s.line];
       const sameLine = next.firstLine === s.line;
-      if (sameLine && !endsLine) { pause = 0.03; kind = "micro"; }
+      // Tight only where a word was actually removed (a filler, a stutter). A plain pause
+      // mid-line is a breath: squeezing it to nothing made real delivery sound robotic.
+      let removed = false;
+      for (let w = s.w1 + 1; w < next.w0; w++) if (words[w].type !== "event") { removed = true; break; }
+      if (sameLine && !endsLine && removed) { pause = 0.03; kind = "micro"; }
+      else if (sameLine && !endsLine) { pause = Math.min(words[next.w0].start - s.last, P.breathPauseSec ?? 0.22); kind = "breath"; }
       else if (thisLine?.role === "hook_turn") { pause = P.hookTurnPauseSec; kind = "hook_turn"; }
       else if (nextLine?.role === "reveal" && firstTokenOfLine.get(nextLine.id) === next.w0) { pause = P.preRevealPauseSec; kind = "pre_reveal"; }
       else if (nextLine && thisLine && nextLine.para !== thisLine.para) { pause = P.paragraphPauseSec; kind = "paragraph"; }
@@ -115,6 +120,17 @@ export function buildEdl(structure, transcript, alignment, rules, opts = {}) {
     const outLo = Math.max(s.last + 0.02, s.outRaw - W);
     const outHi = Math.min(s.last + s.availAfter, s.outRaw + W);
     s.out = s.outRaw - s.last > 0.02 ? quietest(outLo, outHi) : s.outRaw;
+    // Recognizers often end a sentence's last word early: never cut before the audio has
+    // actually gone quiet (bounded by the next word, so a cut never eats into it).
+    if (env) {
+      const thr = env.peak * Math.pow(10, (P.silenceDb ?? -38) / 20);
+      const limit = s.last + s.availAfter;
+      let t = s.last;
+      const quietAt = (x) => { const i = Math.round(x / env.hop); for (let k = i; k < i + Math.round(0.03 / env.hop); k++) if ((env.rms[k] ?? 0) > thr) return false; return true; };
+      while (t < limit && !quietAt(t)) t += env.hop;
+      if (t < limit) s.out = Math.max(s.out, Math.min(limit, t + 0.02));
+      else s.out = Math.max(s.out, limit);
+    }
     // Frame grid, so picture and sound cut on the same instant.
     s.in = Math.max(0, Math.round(s.in * fps) / fps);
     s.out = Math.round(s.out * fps) / fps;
@@ -188,6 +204,10 @@ export function takeReport(structure, alignment, edl, transcriptMeta) {
     out.push("");
     out.push("**Kept although the recognizer did not match it to the script** (it sits where script words were missing, so it is most likely those words misheard):");
     for (const f of alignment.filled) out.push(`- line ${f.line}: "${f.said}"`);
+  }
+  if (alignment.restored?.length) {
+    out.push("");
+    out.push(`**Kept as part of the delivery** (paraphrase joined to kept speech with no pause, ${alignment.restored.length} words): ${alignment.restored.map((r) => r.word).join(" ")}`);
   }
   if (alignment.offscript.length) {
     out.push("");
@@ -289,7 +309,10 @@ export function spliceAudio(pcm, rate, edl, fadeSec = 0.006) {
 export function makeProxy(src, outFile, framing, rules) {
   const info = probe(src);
   const { width: W, height: H, fps } = rules.format;
-  const vf = `${sdrFilter(info)}fps=${fps},${framingFilter(info, framing, W, H)},setsar=1`;
+  // framing.mode "dynamic" (a landscape source): keep the whole landscape frame; the
+  // composition places a portrait crop, punch, split or band per beat around the speaker.
+  const frame = framing?.mode === "dynamic" ? "scale=-2:1080" : framingFilter(info, framing, W, H);
+  const vf = `${sdrFilter(info)}fps=${fps},${frame},setsar=1`;
   execFileSync("ffmpeg", ["-v", "error", "-y", "-i", src, "-vf", vf, "-an", "-c:v", "libx264", "-preset", "veryfast", "-crf", "14", "-g", String(fps), "-pix_fmt", "yuv420p", ...BT709_TAGS, outFile], { stdio: "inherit" });
   return info;
 }
