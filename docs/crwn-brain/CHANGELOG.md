@@ -1,5 +1,22 @@
 # CRWN Brain — Changelog
 
+## 2026-09-25 - Reel editor: real media first, the 3D direction retired (decision record)
+
+The 3D Smino rebuild fixed the reel's structure and still looked far below the premium
+references, so the founder paused rebuilds and asked what production system can reach that
+class. Per-second classification of the five references (`docs/REEL_MEDIA_ARCHITECTURE.md`)
+found they ARE ~47% 3D, but photoreal CG built from real imagery, used only where no camera
+can go; real footage dominates wherever it exists, and flat 2D is ~1% (their graphics are
+annotation on real imagery). For Fan Economy topics, whose artists and product have real
+media, the architecture is: real media, 2.5D compositing of real photographs, annotation and
+textured 2D over real imagery, full-screen UI, founder-shot physical B-roll, 3D only if
+photoreal. Two probes validated the unknowns: CSS 3D layer compositing in HyperFrames (true
+parallax, depth blur, type behind the subject, grain; lint clean with
+`data-layout-allow-occlusion`) and OpenCV inpainting (unreliable on bright backdrops, so the
+pipeline composites cut-outs onto a different real background instead). The 3D artist figure
+is retired. A ~20s prototype (script 23 lines 0, 1, 3, 7) comes before any full rebuild;
+artist-photo and album-art rights are a founder decision.
+
 ## 2026-09-25 - The Vault Revenue Planner prices the catalog
 
 Founder: the vault calculator must show what the catalog is worth, not just say it is ready.

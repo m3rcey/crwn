@@ -697,6 +697,14 @@ responsible for. Do not work those.
       would pay, and the price), which is a flow edit only you can make. Tell Claude "match the
       VAULT DM" and it will change the adapter and write the exact ManyChat questions.
 
+- [ ] **Decide which Smino images CRWN may use before the 20-second prototype.** The new
+      reel direction is real media first (`docs/REEL_MEDIA_ARCHITECTURE.md`). (1) Artist
+      photos: the usable Creative Commons ones are few and mostly 2016 (credited on screen);
+      better, current photos need Smino's team or label to say yes (a press kit), because
+      editorial licences such as Getty's generally exclude promotional use and a CRWN reel
+      is promotional. (2) "Maybe In Nirvana" cover art is the label's copyright: use it as
+      commentary (your judgment), ask for permission, or keep it out. Tell Claude which
+      images are cleared and the prototype gets built.
 - [ ] **Watch the rebuilt Smino reel (script 23) and decide on its length.** The premium
       rebuild (3D world, the 3D Smino figure, full-screen product and calculator) is
       `videos/reels/23-smino-the-promise-you-forgot/final/23-smino-the-promise-you-forgot.mp4`.
@@ -1018,6 +1026,10 @@ Things that are never finished. Cadence, then the thing.
 
 ## On Claude's plate (not yours)
 
+- **Fan Economy reel editor: build the 20-second mixed-media prototype** (script 23 lines
+  0, 1, 3, 7) per `docs/REEL_MEDIA_ARCHITECTURE.md`, once the founder clears the images:
+  a `Layers` 2.5D component, the annotation/textured-2D primitives it needs, and retiring
+  the `figure`/`stage` primitives and the storyboard rule that accepts a 3D figure.
 - **Fan Economy reel editor: turn the founder's notes on the Smino reel into rules.** The
   editor is calibrated on his real footage (RULES.md, "Calibrated on the first real
   recording"), but not yet on his eye. His notes on script 23 go into the RULES.md feedback

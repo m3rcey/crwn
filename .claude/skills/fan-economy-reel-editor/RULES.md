@@ -59,12 +59,14 @@ line plus small tags pinned to objects; shots about 2s except continuous fly-thr
 - **Visuals follow what he SAID** (spoken transcript), the script only guards facts,
   qualifiers, withheld figures, claims and the CTA. On script 23 the old plan put "ZERO
   FATIGUE" on screen; he never said it.
-- **The artist is on screen as a 3D figure, never as his photographs** (founder,
-  2026-09-25: "use the photos as reference to make 3d animations out of, instead of just
-  using the photos"). Source reference photos with provenance and LOOK at them; they decide
-  the figure's hair, headband, outfit and props (world type `figure`, `artist: true`). The
-  figure is a stylised character in the fans' design language, not a likeness. No photo of
-  the artist and no album art appears on screen.
+- **Real media first; no fake artist models** (founder, 2026-09-25, REVERSING the same
+  day's "3D figure" rule after seeing the 3D render). A real artist, album, event or product
+  is shown as the real thing: photographs, album art, footage, CRWN recordings. The 3D Smino
+  figure is retired. Architecture and the prototype that must pass first:
+  [docs/REEL_MEDIA_ARCHITECTURE.md](../../../docs/REEL_MEDIA_ARCHITECTURE.md).
+- **"3D" is not "premium".** The references' 3D (~47% of their frames) is photoreal CG built
+  from real imagery, used where no camera can go. Procedural primitives on a dark void read as
+  a game. Abstract mechanisms get annotated real imagery or textured 2D, not low-poly props.
 - **Product and calculator footage own the frame**, with a virtual camera move inside the
   recording. Never a small phone above his face.
 - **Text labels; it does not carry the explanation.** Captions are one short line, 54px

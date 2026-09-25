@@ -51,12 +51,13 @@ explainers), not like a talking head with templates:
 - **One world that evolves**, not a slide per sentence. The 3D world (`lib/world3d.js`,
   the plan's `world` spec) carries recurring anchors (fans, a timeline rail, promise
   tiles, coin stacks) through several lines, the camera moving through it.
-- **The artist is a 3D figure built from reference photos** (never the photos on
-  screen). Source reference photos with provenance BEFORE planning (Wikimedia Commons CC
-  works; record author, licence, URL) and look at every one (a Commons set "including" the
-  artist may show someone else). Read the signature look off them (hair, headband, outfit,
-  props) into a `figure` style, and stand the figure in the world. Album art is never
-  shown; a designed sleeve carries the title he said.
+- **Real media first** (the media hierarchy in `docs/REEL_MEDIA_ARCHITECTURE.md`): real
+  artist photography, album art, footage and CRWN UI; 2.5D compositing of real photos (the
+  cut-out over a DIFFERENT real background, type behind the subject); annotation drawn over
+  real imagery; full-screen UI; founder-shot physical B-roll; 3D only when photoreal. Never
+  a modelled figure standing in for a real artist. Source with provenance and LOOK at every
+  image (a Commons set "including" the artist showed someone else). Rights for artist
+  photos and album art are the founder's call (TODO.md).
 - **Text labels, it does not explain.** Tags pinned to objects, numbers, names. Several
   text-led scenes in a row is a storyboard failure.
 - The hook shows who, what changed, how many and that the value is unknown inside ~1 s.

@@ -137,7 +137,9 @@
   `lib/boundaries.mjs` (acoustic cut points and the boundary audit, `boundaries.test.mjs`).
   The 3D world: `lib/world3d.js` (browser module, Three.js pinned in `engine/`), its checks
   in `lib/beats.mjs` (`worldTexts`, `worldCameraLint`, `storyboardLint`), tests in
-  `world.test.mjs`. Premium references: `videos/reels/references/` (not in git).
+  `world.test.mjs`. Premium references: `videos/reels/references/` (not in git). The
+  current visual architecture (real media first; the 3D world kept but its art retired):
+  `docs/REEL_MEDIA_ARCHITECTURE.md`.
 
 ## NOT app code (verify before assuming relevance)
 Root `*.mjs` (content generation), `carousel-*.json`, `videos/` (except `videos/scripts/` and `videos/motion-specs/`, which are tracked source content), `.claude/` (harness config, incl. `.claude/agents/*.md` which are Claude Code subagents, not product roles).
