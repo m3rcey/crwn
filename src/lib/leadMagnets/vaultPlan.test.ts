@@ -9,6 +9,9 @@
 import { describe, expect, it } from 'vitest';
 import { generateResult } from './resultGenerators';
 import { getDeliverableSpec } from '@/lib/opportunityDrafts/deliverableSpecs';
+import { getLeadMagnet } from './registry';
+import { buildNurtureTokens } from '@/lib/prospectNurture/tokens';
+import { projectedGmvCentsFromSeed } from '@/lib/leadResults/projectedGmv';
 import {
   VAULT_INVENTORY_TYPES,
   buildVaultSchedule,
@@ -225,8 +228,81 @@ describe('readiness says what it measures', () => {
   });
 });
 
+// The result PRICES the catalog (2026-09-25). Every "Comment VAULT" script promises a tool that
+// "prices exactly that", using fans who join x monthly price. These pin the page to the scripts.
+describe('the catalog is priced the way the Fan Economy scripts price it', () => {
+  // Script 5: "Let's say only 750 of them collectors join at $20 a month for the vault.
+  // That's $15,000 a month, or $180,000 a year." 328 unreleased songs, dropped weekly.
+  const RAPSODY = { artistName: 'Rapsody', unreleasedSongs: 328, vaultMembers: 750, monthlyPrice: 20, dropFrequency: 'weekly', willingPrivate: true };
+
+  it('reproduces the Rapsody script: $15,000 a month, $180,000 a year', () => {
+    const r = run(RAPSODY);
+    expect(r.heroValue).toBe('$15,000');
+    expect(r.heroSuffix).toBe('/mo');
+    expect(r.headline).toBe('Rapsody, your catalog could earn $15,000 a month');
+    const tiles = Object.fromEntries(section(r, 'worth').metrics!.map((m) => [m.label, m.value]));
+    expect(tiles['A year of it']).toBe('$180,000');
+    // 328 songs -> 164 drops -> 41 months of weekly drops -> 41 x $15,000.
+    expect(tiles['Drops you already made']).toBe('164');
+    expect(tiles['Months those drops cover (weekly)']).toBe('41');
+    expect(tiles['What your finished work is worth']).toBe('$615,000');
+    expect(r.estimatedMonthlyCents).toBe(1_500_000);
+    expect(r.estimatedAnnualCents).toBe(18_000_000);
+  });
+
+  it('prices on the fan count the artist gave, never a rate applied to their supporters', () => {
+    const withSupporters = run({ ...RAPSODY, supporterCount: 5000 });
+    expect(withSupporters.heroValue).toBe(run(RAPSODY).heroValue);
+    expect(section(withSupporters, 'assumptions').items!.join(' ')).toMatch(/your own estimate\. CRWN applies no conversion rate/);
+  });
+
+  it('multiplies out exactly as shown when the catalog covers under a month', () => {
+    // 6 items -> 3 drops -> 0.75 weekly months, shown and priced as 0.8.
+    const r = run({ artistName: 'A', demos: 6, vaultMembers: 10, monthlyPrice: 10, dropFrequency: 'weekly' });
+    const tiles = Object.fromEntries(section(r, 'worth').metrics!.map((m) => [m.label, m.value]));
+    expect(tiles['Months those drops cover (weekly)']).toBe('0.8');
+    expect(tiles['What your finished work is worth']).toBe('$80');
+  });
+
+  it('shows no number without a full drop, a fan count, or a price', () => {
+    for (const v of [
+      { ...RAPSODY, unreleasedSongs: 1 },
+      { ...RAPSODY, vaultMembers: 0 },
+      { ...RAPSODY, monthlyPrice: 0 },
+      JAYLEN,
+    ]) {
+      const r = run(v);
+      expect(r.heroValue).toBeUndefined();
+      expect(r.estimatedMonthlyCents).toBeUndefined();
+      expect(r.sections.find((s) => s.key === 'worth')).toBeUndefined();
+    }
+  });
+
+  it('asks the fan count and the price as required questions on the wizard', () => {
+    const inputs = getLeadMagnet('vault-revenue-planner')!.inputs;
+    expect(inputs.find((i) => i.key === 'vaultMembers')).toMatchObject({ required: true, step: 'audience' });
+    expect(inputs.find((i) => i.key === 'monthlyPrice')).toMatchObject({ required: true });
+  });
+
+  it('is read as a monthly gross by the nurture emails and the plan sizing', () => {
+    const r = run(RAPSODY);
+    const { tokens, hasNumber } = buildNurtureTokens({
+      resultData: r as unknown as Record<string, unknown>,
+      artistName: 'Rapsody', toolName: 'Vault Revenue Planner', featureName: 'Artist Vault', slug: 'vault-revenue-planner',
+      publicRoute: '/tools/vault-revenue-planner', appUrl: 'https://thecrwn.app', publicToken: null, unsubToken: 'u', ctaLabel: 'x',
+    });
+    expect(hasNumber).toBe(true);
+    expect(tokens.monthly_value).toBe('$15,000 a month');
+    expect(tokens.annual_value).toBe('$180,000 a year');
+    expect(
+      projectedGmvCentsFromSeed({ toolSlug: 'vault-revenue-planner', estimatedMonthlyCents: r.estimatedMonthlyCents!, conversionPayload: r.conversionPayload }),
+    ).toBe(1_500_000);
+  });
+});
+
 describe('house rules', () => {
   it('writes no em dash or en dash', () => {
+    expect(everyWord(run({ ...JAYLEN, vaultMembers: 40 }))).not.toMatch(/[—–]/);
     expect(everyWord(run(JAYLEN))).not.toMatch(/[—–]/);
     expect(JSON.stringify(spec.prefill(run(JAYLEN).conversionPayload as Record<string, unknown>))).not.toMatch(/[—–]/);
   });

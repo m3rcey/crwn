@@ -64,6 +64,7 @@ function vaultRevenuePlan(v: LeadMagnetInputValues): GeneratedResult {
   const runwayMonths = perMonth > 0 ? Math.floor(runwayDrops / perMonth) : 0;
   const priceDollars = clamp(num(v.monthlyPrice, 0), 0, 500);
   const supporters = int(v.supporterCount);
+  const members = clamp(int(v.vaultMembers), 0, 1_000_000);
   const willingPrivate = bool(v.willingPrivate);
 
   // Readiness score: content depth + cadence feasibility + willingness.
@@ -90,7 +91,38 @@ function vaultRevenuePlan(v: LeadMagnetInputValues): GeneratedResult {
     ? joinWords(nonZero.map((i) => VAULT_INVENTORY_TYPES.find((t) => t.key === i.key)?.plural ?? i.label.toLowerCase()))
     : 'private content';
 
+  // WHAT THE CATALOG IS WORTH: the Fan Economy scripts' math, on the artist's own numbers only.
+  // Fans who would join (their estimate, no rate applied) x their price is the month; x 12 is the
+  // year. The catalog's own worth is that month times the months of drops the work they ALREADY
+  // made covers at the cadence they chose. Months are rounded to one decimal and the worth is
+  // computed from the rounded figure, so the tiles multiply out exactly as shown. Gross: nothing
+  // here models CRWN's fee, and the assumptions say so rather than retyping a rate.
+  // At least one full drop, or the catalog's worth would read "$0 you have not charged for".
+  const priced = runwayDrops > 0 && members > 0 && priceDollars > 0;
+  const monthlyDollars = members * priceDollars;
+  const monthsCovered = perMonth > 0 ? Math.round((runwayDrops / perMonth) * 10) / 10 : 0;
+  const catalogDollars = monthlyDollars * monthsCovered;
+  const monthsWord = (m: number) => `${m.toLocaleString('en-US')} month${m === 1 ? '' : 's'}`;
+
   const sections: ResultSection[] = [
+    ...(priced
+      ? [
+          {
+            key: 'worth',
+            title: 'What your catalog is worth',
+            kind: 'projection' as const,
+            // The hero grid renders value + label only, so every label carries its own meaning.
+            metrics: [
+              { label: 'Fans you expect to pay', value: members.toLocaleString('en-US') },
+              { label: 'Your monthly price', value: usd(priceDollars) },
+              { label: 'A year of it', value: usd(monthlyDollars * 12) },
+              { label: 'Drops you already made', value: runwayDrops.toLocaleString('en-US') },
+              { label: `Months those drops cover (${cadenceWord})`, value: monthsCovered.toLocaleString('en-US') },
+              { label: 'What your finished work is worth', value: usd(catalogDollars) },
+            ],
+          },
+        ]
+      : []),
     {
       // The score is content depth, runway and willingness. It knows nothing about demand, price
       // or a published page, so it is named for what it measures and never for a launch.
@@ -153,7 +185,18 @@ function vaultRevenuePlan(v: LeadMagnetInputValues): GeneratedResult {
         'The readiness score measures your content and your runway only. It does not measure demand, your price, or whether your page and payouts are set up.',
         'Every drop in this plan uses only the content you entered. Nothing here assumes material you did not list.',
         'Price range is a planning suggestion based on your comfort input, not a demand measurement.',
-        supporters > 0 ? `You have ${supporters} current supporters as context only.` : 'No current supporter count provided.',
+        ...(priced
+          ? [
+              `How many fans would pay (${members.toLocaleString('en-US')}) is your own estimate. CRWN applies no conversion rate to it.`,
+              `Your catalog's worth is fans x price x the months your finished drops cover. The monthly and yearly figures are gross, before CRWN's fee and card processing.`,
+              'A planning number, not a prediction or a promise.',
+            ]
+          : []),
+        supporters > 0 && priced && members > supporters
+          ? `You expect more fans to pay (${members.toLocaleString('en-US')}) than you have supporters today (${supporters.toLocaleString('en-US')}). That may be worth a second look.`
+          : supporters > 0
+            ? `You have ${supporters} current supporters as context only.`
+            : 'No current supporter count provided.',
       ],
     },
     {
@@ -168,10 +211,30 @@ function vaultRevenuePlan(v: LeadMagnetInputValues): GeneratedResult {
     generatorVersion: GENERATOR_VERSION,
     // "Your Vault is 100% ready" read as launch readiness and was re-shown after signup to an
     // artist with no live offer. The score is about CONTENT, so the headline says content.
-    headline: notReady ? 'Your Vault needs a little content first' : `${artist}, your Vault content is ${readiness}% ready`,
+    // Priced (every result from the current wizard): the headline and hero carry the money, and the
+    // readiness score moves below it as a section. A result without a fan count (saved before the
+    // question existed) keeps the content-readiness headline it always had.
+    headline: notReady
+      ? 'Your Vault needs a little content first'
+      : priced
+        ? `${artist}, your catalog could earn ${usd(monthlyDollars)} a month`
+        : `${artist}, your Vault content is ${readiness}% ready`,
     summary: notReady
       ? 'You have not entered private content yet. Capture a few pieces and you can launch a recurring supporter Vault.'
-      : `You have enough for about ${runwayDrops} drops. Here is your ${cadenceWord} Vault plan and ${vaultDropsPhrase(drops.length)}.`,
+      : priced
+        ? `${members.toLocaleString('en-US')} fans at ${usd(priceDollars)} a month. What you already made covers ${monthsWord(monthsCovered)} of drops: ${usd(catalogDollars)} you have not charged for.`
+        : `You have enough for about ${runwayDrops} drops. Here is your ${cadenceWord} Vault plan and ${vaultDropsPhrase(drops.length)}.`,
+    ...(priced
+      ? {
+          heroEyebrow: 'Your unreleased catalog, unsold, every month',
+          heroValue: usd(monthlyDollars),
+          heroSuffix: '/mo',
+          // Gross subscription money, the same kind of figure the DM Vault result already stores,
+          // so projected GMV and the nurture emails read it without a special case.
+          estimatedMonthlyCents: cents(monthlyDollars),
+          estimatedAnnualCents: cents(monthlyDollars * 12),
+        }
+      : {}),
     sections,
     conversionPayload: {
       tierName: 'Gold',

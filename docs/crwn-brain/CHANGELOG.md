@@ -1,5 +1,27 @@
 # CRWN Brain — Changelog
 
+## 2026-09-25 - The Vault Revenue Planner prices the catalog
+
+Founder: the vault calculator must show what the catalog is worth, not just say it is ready.
+Fifteen Fan Economy scripts end on "Comment VAULT", and the ones that price anything say the tool
+"prices exactly that" using fans who join x monthly price (script 5, Rapsody: 750 x $20 = $15,000
+a month, $180,000 a year; script 12, Tink: 800 x $15). The web tool returned only a readiness
+score, so the video promised a number the page never showed. The DM version already showed one.
+
+The result now leads with a hero figure: fans x price a month, with a year of it, the drops the
+artist already made, the months those drops cover at their cadence, and the catalog's worth (the
+month times those months). The 2026-08-16 objection (no invented conversion rate) is kept by
+ASKING the number instead of deriving it: a new required `vaultMembers` question ("How many fans
+would pay to get inside?") sits on the audience step, `supporterCount` stays context only, and
+`monthlyPrice` became required. Gross, stated as before CRWN's fee. It sets `estimatedMonthlyCents`
+and `estimatedAnnualCents`, the same figure kind the DM vault result already stores, so the
+nurture emails and projected GMV read it with no special case. A saved result without a fan count
+keeps its old readiness headline. `GENERATOR_VERSION` stays `1.0.0` (shared, pinned).
+Pinned in `vaultPlan.test.ts` against the Rapsody script's own numbers, mutation-tested by
+pricing on supporters instead of the fan count.
+
+Known divergence, unchanged: the DM vault result still estimates 1.5% of audience x $10.
+
 ## 2026-09-25 - Reel editor rebuilt to the premium-reference standard (script 23 again)
 
 The founder set five premium voice-led explainers (videos/reels/references, Cleo Abram's

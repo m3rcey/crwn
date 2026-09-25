@@ -11,7 +11,7 @@ const VAULT_REVENUE_PLANNER: LeadMagnetConfig = {
   name: 'Vault Revenue Planner',
   featureName: 'Artist Vault',
   category: 'Monetize',
-  description: 'See whether your unreleased catalog is enough to run a Vault, and what to charge for it.',
+  description: 'See what your unreleased catalog is worth as a Vault, whether you have enough to run it, and what to charge.',
   videoAngle: 'Your unreleased catalog is the clearest reason a committed fan has to pay you more. It is sitting on a hard drive instead.',
   publicRoute: '/tools/vault-revenue-planner',
   artistRoute: '/artist/tools/vault-revenue-planner',
@@ -19,23 +19,24 @@ const VAULT_REVENUE_PLANNER: LeadMagnetConfig = {
   timeToComplete: '3 min',
   dmKeywords: ['vault'],
   hero: {
-    // The hero promises a PLAN, not a revenue figure, and that is deliberate (2026-08-16).
-    // `vaultRevenuePlan` returns a readiness score, an inventory, a suggested price band, a
-    // 30-day schedule and a fan pitch. It computes no monthly total and carries no `heroValue`,
-    // because a total would need supporters x a conversion rate x price, and this tool collects
-    // `supporterCount` explicitly as "context only, never as a guaranteed conversion". Inventing
-    // the missing rate is the one thing the house rules forbid ("if a personalized result would
-    // need a business rule CRWN does not have, do not invent the rule"). The whole-business
-    // revenue question already has an honest home in the Opportunity Calculator, which models the
-    // Vault as the Gold rung. This tool answers a different and equally real question: do I have
-    // enough to run this, how often can I drop, and what should I charge. The copy now says so.
+    // The result PRICES the catalog (2026-09-25, founder: "show how much the catalog is worth,
+    // not just say it's ready"). Every Fan Economy script that sends a viewer here with "Comment
+    // VAULT" promises a tool that "prices exactly that", and the scripts' own math is
+    // fans who join x monthly price (Rapsody: 750 x $20 = $15,000 a month, $180,000 a year). The
+    // tool used to return only a readiness score, so the video promised a number the page never
+    // showed. The 2026-08-16 objection still holds and is why the fan count is ASKED, never
+    // derived: `supporterCount` stays context only, CRWN applies no conversion rate, and the
+    // artist names how many would pay, the same way the scripts say "say 750 of them join".
+    // Price is required for the same reason: the number is only ever the artist's own inputs
+    // multiplied. The catalog's part is how many months of drops the work they already made
+    // covers, which is what makes it the CATALOG's worth rather than a membership forecast.
     //
     // Zero to One positioning pass (2026-08-14). The old hero sold idle files as lost money.
     // The catalog is not the product: deeper ACCESS to it is the clearest reason a committed fan
     // identifies themselves, pays, and climbs a rung. That is a membership beat, not an
     // inventory beat, and it is why the vault lives inside the ladder rather than beside it.
     headline: 'Your most committed fans have nowhere to go.',
-    subheadline: 'The unreleased work on your phone is the reason they would pay you more. See if you have enough to run it, and what to charge.',
+    subheadline: 'The unreleased work on your phone is the reason they would pay you more. See what it is worth and what to charge.',
     primaryCta: 'See what I am leaving unsold',
     image: '/hero-vault.webp',
     imageAlt: 'Illustration of an artist at a desk facing shelves of tapes and records lit in gold',
@@ -52,6 +53,8 @@ const VAULT_REVENUE_PLANNER: LeadMagnetConfig = {
     { key: 'altVersions', type: 'number', label: 'Alternate versions', min: 0, max: 5000, step: 'inventory', placeholder: '12' },
     { key: 'archivedPhotos', type: 'number', label: 'Archived photos', min: 0, max: 20000, step: 'inventory', placeholder: '150' },
     { key: 'supporterCount', type: 'number', label: 'Current supporters (optional)', help: 'Used as context only, never as a guaranteed conversion.', min: 0, max: 10000000, step: 'audience', placeholder: '75' },
+    // The fan count the worth is priced on. The artist's own estimate, never a rate CRWN applies.
+    { key: 'vaultMembers', type: 'number', label: 'How many fans would pay to get inside?', help: 'Your honest guess. Count people who already buy from you, not followers.', required: true, min: 1, max: 1000000, step: 'audience', placeholder: '50' },
     {
       key: 'dropFrequency', type: 'option', label: 'How often can you drop?', required: true, step: 'offer',
       options: [
@@ -60,19 +63,21 @@ const VAULT_REVENUE_PLANNER: LeadMagnetConfig = {
         { value: 'monthly', label: 'Monthly', hint: 'One strong drop a month', icon: '🗓️' },
       ],
     },
-    { key: 'monthlyPrice', type: 'currency', label: 'Monthly price you have in mind', help: 'A planning number. We suggest a range around it.', min: 0, max: 500, step: 'offer', placeholder: '10' },
+    { key: 'monthlyPrice', type: 'currency', label: 'Monthly price you have in mind', help: 'A planning number. We suggest a range around it.', required: true, min: 1, max: 500, step: 'offer', placeholder: '10' },
     { key: 'willingPrivate', type: 'toggle', label: 'Willing to post private, unreleased content?', step: 'positioning' },
   ],
   wizardSteps: [
     { id: 'identity', group: 'Profile', title: 'Who is this Vault for?', subtitle: 'Start with your name and sound.' },
     { id: 'inventory', group: 'Inventory', title: 'What do you already have?', subtitle: 'Rough counts are fine. This is what your Vault runs on.' },
-    { id: 'audience', group: 'Audience', title: 'Who is already with you?', subtitle: 'Context only. Skip if you are not sure.' },
+    { id: 'audience', group: 'Audience', title: 'Who would pay to get inside?', subtitle: 'Count people, not followers. Your honest guess is the number we price.' },
     { id: 'offer', group: 'Offer', title: 'Shape the offer', subtitle: 'Cadence and price you are comfortable with.' },
     { id: 'positioning', group: 'Offer', title: 'One last thing', subtitle: 'How real are you willing to get?' },
     { id: 'review', group: 'Review', title: 'Review', subtitle: 'Check your answers, then see your Vault plan.' },
   ],
   resultGeneratorKey: 'vaultRevenuePlan',
   resultSections: [
+    // A `projection` section, so the shared renderer pulls these tiles into the hero number.
+    { key: 'worth', title: 'What your catalog is worth', preview: true },
     { key: 'readiness', title: 'Your Vault content readiness', preview: true },
     { key: 'inventory', title: 'What is already in your Vault', preview: true },
     { key: 'offer', title: 'Recommended offer' },
@@ -83,7 +88,7 @@ const VAULT_REVENUE_PLANNER: LeadMagnetConfig = {
     { key: 'assumptions', title: 'Assumptions' },
     { key: 'nextSteps', title: 'Build it in CRWN' },
   ],
-  publicPreviewSections: ['readiness', 'inventory'],
+  publicPreviewSections: ['worth', 'readiness', 'inventory'],
   leadCapture: { required: false, consentCopy: 'Email me my Vault plan, plus the follow-up emails on how to launch it. Unsubscribe anytime.' },
   cta: {
     publicPrimary: 'Create your CRWN account and build your Vault',

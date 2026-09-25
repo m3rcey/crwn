@@ -591,6 +591,11 @@ primitive, never 19 copies. `src/lib/leadMagnets/conversionContract.test.ts` pin
   when five can be formed from entered inventory, and call the score what it measures ("content
   readiness"). A spec field that follows another uses `derive`. When a test demands a non-blank
   prefill, feed it a REAL result payload: an empty payload is how the literals came to exist.
+  **The planner PRICES the catalog** (2026-09-25): fans who would pay (`vaultMembers`, ASKED,
+  required) x the artist's price, x12 for the year, and x the months their finished drops cover
+  for the catalog's worth. That is the Fan Economy scripts' own math ("Comment VAULT"). Never
+  derive the fan count from `supporterCount` or apply a rate to it; that is the invented rule the
+  old "no number" design was avoiding, and asking is what made the number honest.
 
 ## Interruptions are governed — one engine, one cap
 
