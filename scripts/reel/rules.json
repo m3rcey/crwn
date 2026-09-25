@@ -45,9 +45,8 @@
   },
 
   "visual": {
-    "minFaceRatio": 0.5,
-    "_minFaceRatio": "Share of the reel where the founder's face is on screen (full, punch or split). He is the trust in these videos.",
-    "maxNoFaceRunSec": 5.0,
+    "spokenWindowSec": 12,
+    "_spokenWindowSec": "On-screen words must be words he says within this many seconds of the beat (UNSPOKEN check). The face-time ratio rule was retired 2026-09-25: presenter time is decided by the narrative.",
     "maxStaticSec": { "hook": 1.4, "body": 3.2 },
     "hookFirstChangeSec": 1.0,
     "punchScale": 1.16,
@@ -74,8 +73,11 @@
     "maxWords": 4,
     "maxChars": 22,
     "minSec": 0.45,
-    "y": 1255,
-    "splitSeamY": 905
+    "y": 1320,
+    "splitSeamY": 905,
+    "fontPx": 54,
+    "upper": true,
+    "_style": "Captions support the edit, they are not the visual (founder, 2026-09-25, from the premium references): one short line, 54px uppercase, lower third. Was 66px mixed case at 1255."
   },
 
   "audio": {

@@ -133,7 +133,11 @@
   `videos/reels/<slug>/` (not in git). Landscape recordings: `lib/track.mjs` locates the
   speaker; authored beat plans live in `videos/reel-plans/<slug>.mjs` (in git, helper
   `lib/author.mjs`); a real-footage regression fixture is
-  `scripts/reel/fixtures/23-real-transcript.json` (`realtake.test.mjs`).
+  `scripts/reel/fixtures/23-real-transcript.json` (`realtake.test.mjs`). Phrase integrity:
+  `lib/boundaries.mjs` (acoustic cut points and the boundary audit, `boundaries.test.mjs`).
+  The 3D world: `lib/world3d.js` (browser module, Three.js pinned in `engine/`), its checks
+  in `lib/beats.mjs` (`worldTexts`, `worldCameraLint`, `storyboardLint`), tests in
+  `world.test.mjs`. Premium references: `videos/reels/references/` (not in git).
 
 ## NOT app code (verify before assuming relevance)
 Root `*.mjs` (content generation), `carousel-*.json`, `videos/` (except `videos/scripts/` and `videos/motion-specs/`, which are tracked source content), `.claude/` (harness config, incl. `.claude/agents/*.md` which are Claude Code subagents, not product roles).

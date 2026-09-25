@@ -19,58 +19,69 @@ Run everything inside WSL: `wsl.exe -e bash -lc 'cd ~/workspace-crwn && npm run 
   meaning and wording, META for the withheld variable, Big Reveal, lead magnet + keyword,
   and CRWN claim tier. Read both before judging any beat.
 
-## 2. After the cut: read `takes.md`, then check the clean A-roll
+## 2. After the cut: phrase integrity first, then read `takes.md`
 
+- **Phrase integrity is a hard gate.** The cut stage audits every boundary against the
+  SOURCE audio (`lib/boundaries.mjs`): a cut is clean only inside room tone longer than a
+  consonant closure. Any chopped word blocks the render. ASR word times are never cut
+  points: recognizers end words early and start them late, and a 30ms stop closure
+  ("Dis|cord") is not silence.
 - Every line should be CLEAN. A MISSING line means he never said it cleanly: tell him which
-  line, do not invent it. A PARTIAL line: check whether his delivery paraphrased it (fine,
-  delivery drifts from the page) or cut a fact (not fine).
+  line, do not invent it. A PARTIAL line is usually his paraphrase: fine.
 - Read "Kept although the recognizer did not match it" and "Said but not in the script":
   a real line wrongly cut or an aside wrongly kept is fixed in the cut, before any visual.
-- Sample `aroll.clean.mp4` at a few cut points (ffmpeg frames). A clipped word or a jolt is
-  a cut problem; fix it now (rules.json `pacing`), never cover it with a graphic.
-- With only a local transcript (no ELEVENLABS_API_KEY), Whisper can smooth a stumble into
-  one clean-looking take. Listen for doubled phrases the report did not flag.
 
-## 3. The plan: review `beats.json` against meaning
+## 3. The plan is built from what he SAID
 
-`plan` writes a deterministic draft. Your job is the pass a senior short-form editor makes:
-for EVERY beat ask "why does this visual exist?" It must serve comprehension, proof,
-emotion or retention. Visual noise for movement's sake is a defect.
+Two sources, two jobs. The **canonical script** is the guardrail: facts, qualifiers, the
+withheld figure, CRWN claims, the CTA keyword. The **final spoken transcript**
+(`words.clean.json`) is the editorial timeline: every visual stands on words he actually
+said. Never show something he changed or dropped (on script 23 he never said "Zero
+Fatigue"; the validator refuses a beat on an unspoken line, and on-screen words he never
+said nearby, unless they are a declared structural label).
 
-- Hook (first 1-2 s): the question must be visible AND unanswered. Headline from the hook
-  sheet, masked answer, frame changes within 1 s. Never reveal magnitude (no "$???,???").
-- Proof beats: a figure the viewer should read stays long enough to read it (the
-  validator warns). Qualifiers stay on screen: reported, about, a model not a measurement.
-  Never upgrade a modeled or reported number into a measured one.
-- Face time: he is the trust. Default at least half the reel on his face; a direct question
-  to the viewer stays on the face.
-- The CRWN moment: one capability, the one the script's bridge names. Product footage only
-  where the claim gate allows. If the script says something CRWN does not do, typography.
-- The reveal gets the only full-frame burst. Nothing before it may show the answer: no
-  card, sheet, headline, caption or sourced asset (the validator enforces; do not argue
-  with it, fix the plan).
-- CTA: the tool (registry name), then COMMENT <keyword from the script>, then 128.
+Plan like the premium references (`videos/reels/references/`, voice-led visual
+explainers), not like a talking head with templates:
 
-Edit `beats.json` directly: change `scene`, `aroll`, `graphic`, `text`, `broll`, `sound`.
-On-screen words come from the script (its spelling, its dialect). Add B-roll by putting
-the file in `<project>/broll/` WITH its provenance sidecar (source, url, rights, and
-`reveals` if it shows a withheld figure). Set `"edited": true` so `plan` validates your
-plan instead of redrafting it, then run `npm run reel -- plan <n>`. Zero errors to proceed.
+- **His face is one asset, not the background.** Presenter time follows the narrative
+  (hook turn, direct address, emphasis, the CTA). There is no face-time quota.
+- **Visuals own the frame.** Real imagery of the artist, product UI, the calculator, the
+  reveal: full-screen. The top-graphic/bottom-face split is not a default (the storyboard
+  gate rejects it above 15%).
+- **One world that evolves**, not a slide per sentence. The 3D world (`lib/world3d.js`,
+  the plan's `world` spec) carries recurring anchors (fans, a timeline rail, promise
+  tiles, coin stacks) through several lines, the camera moving through it.
+- **The artist is a 3D figure built from reference photos** (never the photos on
+  screen). Source reference photos with provenance BEFORE planning (Wikimedia Commons CC
+  works; record author, licence, URL) and look at every one (a Commons set "including" the
+  artist may show someone else). Read the signature look off them (hair, headband, outfit,
+  props) into a `figure` style, and stand the figure in the world. Album art is never
+  shown; a designed sleeve carries the title he said.
+- **Text labels, it does not explain.** Tags pinned to objects, numbers, names. Several
+  text-led scenes in a row is a storyboard failure.
+- The hook shows who, what changed, how many and that the value is unknown inside ~1 s.
+  The reveal is one persistent sequence where the viewer SEES why the numbers differ;
+  withheld figures land on their spoken word (counters included).
+- The qualifier stays legible (a factual guardrail outranks speech).
+- CTA: the tool full-screen (a constant `rate` lets a short recording cover the line
+  without reaching a screen you must not show), then COMMENT <keyword>, then 128.
 
-Never source footage by downloading commercial music, full music videos or anything whose
-rights you cannot state in the sidecar. Never generate an image that implies a real event
-happened. Never put a person's likeness on screen that the script does not name.
+Author the plan as `videos/reel-plans/<slug>.mjs` (anchors: `P.w(line, word, n)`; check
+`n` when a word repeats in a line). `npm run reel -- plan <n>`: zero errors to proceed.
+`npm run reel -- build <n> --fast` rebuilds the composition only, for visual iteration.
 
-## 4. Render, inspect, fix, render again
+## 4. Storyboard, then render, then watch
 
+- `npm run reel -- storyboard <n>` writes `qa/storyboard.jpg` (a frame per beat) and runs
+  the storyboard gate. LOOK at it against the references before spending a render:
+  monotony, a tiny product shot, text walls, a camera looking at nothing. A rejected
+  storyboard blocks the render.
+- Sound is planned on VISUAL events (`plan.sfx`: travel, pass, tick, coin, thud, impact,
+  impact_big, shimmer, swell, tap), with silence before the payoffs (`plan.musicDrops`).
+  Voice > music > SFX. Never an effect on every cut.
 - `npm run reel -- render <n>` renders, mixes, and runs QA. Rendering is not completion.
-- Read `qa/QA.md`. Every FAIL is fixed and re-rendered, not reported as a to-do.
-- LOOK at `qa/contact-*.jpg` (Read the images). Check what no machine check can: a card
-  over his face, text fighting the background, a B-roll beat that does not match its
-  sentence, a transition that jolts, a reveal that lands flat, a static stretch.
-- For a closer look at one moment: `npm run reel -- preview <n>` (HyperFrames Studio,
-  scrubbable), or extract frames with ffmpeg.
-- Iterate until QA passes and your visual pass finds nothing you would send back.
+- Watch it: extract frames around every sequence and every cut. Compare against the
+  references, not against the previous version. Fix the largest gap, render again.
 
 ## 5. Report honestly
 
@@ -86,7 +97,7 @@ When the founder gives notes ("too many full-screen animations", "numbers bigger
 1. Log the note in the project: `npm run reel -- feedback <n> "<note>"`.
 2. Decide: this video only, or every future reel? If unclear, it is this video only.
 3. A standing rule goes in ONE place: a number in `scripts/reel/rules.json` (caption y,
-   punch scale, face ratio, pause lengths, music level...) or a taste rule in `RULES.md`
+   punch scale, pause lengths, music level...) or a taste rule in `RULES.md`
    beside this file, each with the date and the founder's words. A rule that needs new
    behavior goes in the code WITH a test.
 4. Re-render the current video with the change and show him.

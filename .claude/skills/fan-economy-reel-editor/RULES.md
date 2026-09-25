@@ -42,6 +42,36 @@ they are the kinetic words. 20 of 58 are versus scripts: both names get the comp
 - 2026-09-24: CRWN brand palette only (near-black, charcoal, gold, amber, burnt orange,
   white, paper). No em dashes in any on-screen copy.
 
+## The premium standard (founder, 2026-09-25; references in videos/reels/references/)
+
+The five premium references (Cleo Abram's "Huge If True" reels, 8M-20M views) replaced the
+older creative preferences where they conflicted. Measured on those five, frame by frame:
+presenter 10-35% of screen time and always full-frame; zero top/bottom splits; 65-90%
+full-screen visuals (3D CG worlds, real evidence photos and footage with small credit
+lines, product footage, 2.5D cut-outs placed inside CG); one persistent hero object per
+video with the camera travelling through ONE world that changes state; text is a caption
+line plus small tags pinned to objects; shots about 2s except continuous fly-throughs.
+
+- **Retired: "the face on at least half the reel"** (it forced split screens under visuals
+  that should own the frame). Presenter time is decided by the narrative, never a quota.
+- **Retired: split screen as the default grammar.** Allowed as a rare hybrid (the
+  storyboard gate rejects it above 15% of the reel).
+- **Visuals follow what he SAID** (spoken transcript), the script only guards facts,
+  qualifiers, withheld figures, claims and the CTA. On script 23 the old plan put "ZERO
+  FATIGUE" on screen; he never said it.
+- **The artist is on screen as a 3D figure, never as his photographs** (founder,
+  2026-09-25: "use the photos as reference to make 3d animations out of, instead of just
+  using the photos"). Source reference photos with provenance and LOOK at them; they decide
+  the figure's hair, headband, outfit and props (world type `figure`, `artist: true`). The
+  figure is a stylised character in the fans' design language, not a likeness. No photo of
+  the artist and no album art appears on screen.
+- **Product and calculator footage own the frame**, with a virtual camera move inside the
+  recording. Never a small phone above his face.
+- **Text labels; it does not carry the explanation.** Captions are one short line, 54px
+  uppercase, subordinate (rules.json `captions`).
+- **Sound follows visual events** and leaves silence before the payoffs.
+- **Storyboard before render.** `reel storyboard` and look at it against the references.
+
 ## Calibrated on the first real recording (script 23, Smino, 2026-09-24)
 
 These held on real footage of him and apply to every future reel. One-off choices for that
@@ -71,8 +101,12 @@ video live in its authored plan, [videos/reel-plans/23-smino-the-promise-you-for
 - **Whisper drops whole passages on a long file** and hides the hole behind one stretched
   word. Omission repair runs on every local transcript; the first recording lost 65 words,
   including the qualifier and the closing questions, and got every one back.
-- **A comma is a breath, not a cut.** Pauses at commas keep 0.22s; out-points wait for the
-  word's tail to reach silence (-38 dB under the peak). Both clipped his words before.
+- **A comma is a breath, not a cut.** Pauses at commas keep 0.22s.
+- **Cuts are acoustic, never ASR times** (2026-09-25, "the reel audibly chops phrase
+  endings"). Measured: a 30ms stop closure mid-word read as silence ("Dis|cord", "conten|t"),
+  recognizer word ends early and starts late, frame rounding moved cuts into words. A word
+  now ends only when quiet holds 90ms, starts where its onset really begins, and the cut
+  stage refuses any boundary whose quiet stretch is under 80ms (5 clips in V3, 0 now).
 - **His room is quiet.** Noise floor about -54 LUFS against speech at -23: no denoise.
 - **A music track shorter than the reel is looped with a crossfade**, never a hard loop:
   the hard seam landed on the $33,000 hit.

@@ -70,7 +70,8 @@ HyperFrames anonymous telemetry is disabled on every call the editor makes
 | `npm run reel -- transcribe 14 [--provider local\|elevenlabs] [--import file.json]` | word-level transcript |
 | `npm run reel -- cut 14` | align to the script, choose takes, render the clean A-roll |
 | `npm run reel -- plan 14 [--force]` | draft (or validate a hand-edited) beat plan |
-| `npm run reel -- build 14` | composition + audio mix + HyperFrames check |
+| `npm run reel -- build 14 [--fast]` | composition + audio mix + HyperFrames check (`--fast`: composition only, for visual iteration; never clears the render gates) |
+| `npm run reel -- storyboard 14` | build, then one labelled frame per beat in `qa/storyboard.jpg`, and the storyboard gate |
 | `npm run reel -- render 14 [--draft]` | render, mux, QA, export if QA passes |
 | `npm run reel -- qa 14` | re-run QA on the latest render |
 | `npm run reel -- preview 14` | HyperFrames Studio: scrub the composition in a browser |
@@ -170,6 +171,24 @@ excluded, and an authored plan skips beats whose lines are not in the cut (`P.ha
   and a rights basis, recorded per video in `assets.json`. Sourced B-roll without a
   sidecar is refused.
 - **Safe zones.** All text stays inside the platform-safe box (rules.json `safeZone`).
+- **Phrase integrity** (2026-09-25). Every cut boundary is measured on the SOURCE audio
+  (`lib/boundaries.mjs`): a cut is clean only inside room tone at least 80ms long, which a
+  consonant closure never is. Out-points wait for the voice to decay (quiet held 90ms),
+  in-points find the real onset, frame rounding never moves a cut into a word, splices use
+  raised-cosine edges. A chopped word blocks the render (`--allowClips` overrides).
+- **Visuals follow the spoken edit** (2026-09-25). A beat may only stand on a script line
+  that is in the spoken edit, and on-screen words (beat text, world tags, card faces) must
+  be words he says within 12s of them, unless declared a structural label (a withheld
+  placeholder, a claim-gated product label, a factual qualifier, a photo credit).
+- **The world passes the same gates.** 3D tags, counters and card faces go through the
+  withheld reveal (a counter may only land on a withheld figure at its spoken word), the
+  fact lock (a counter's in-between values are arithmetic between script numbers; a photo
+  credit's licence version is exempt only when flagged `attribution`) and UNSPOKEN. A
+  camera move that crosses the world without a cut is refused.
+- **The storyboard gate.** Before a render: split screen above 15% of the reel, three
+  text-led scenes in a row, a hook without the artist when his photographs exist, or
+  product footage over the talking head rejects the storyboard (`--allowStoryboard`
+  overrides). Coverage by medium is reported, never targeted.
 
 ## Project folder
 
@@ -251,7 +270,28 @@ render as frozen video.
   CTA cross-check, number tokens, malformed-number check), `scripts/video/lib/music.mjs`
   (library, rotation), `studio/lib/status.mjs` (recording-name -> script matching).
 
+- **Three.js inside HyperFrames for the 3D world** (2026-09-25). HyperFrames dispatches
+  `hf-seek` with the composition time for every captured frame and waits on any promise
+  the listener registers, so a Three.js scene rendered as a pure function of time is
+  deterministic in any frame order and any worker (proven: a probe of 100 lit, shadowed
+  fans and a depth rail, ~0.45s a frame in software WebGL). One pinned MIT dependency in
+  the isolated engine (`three`), no new framework. `lib/world3d.js` holds the primitives
+  (fans, rail, promise tiles, coin stacks, drawn cards, photo cut-outs, a bracket, pinned
+  HTML tags, a keyframed camera); a reel's plan supplies only the spec.
+- **The artist is a 3D figure built from reference photographs, never the photographs**
+  (founder, 2026-09-25). Reference photos come from Wikimedia Commons (CC licences, author
+  and URL in each `broll/*.json` sidecar); their look (braids, headband, jersey, chain,
+  mic for Smino) becomes a `figure` style in `lib/world3d.js`, a stylised character in the
+  fans' design language, posed by keys (mic, point, nod, bob, turn). The `photo` primitive
+  and the rembg cut-out tooling (`C:\Users\Josh\.cache\reel-rembg`) remain for non-person
+  evidence; they are not used for the artist.
+
 ## Pilot status (2026-09-24)
+
+Superseded: the first real recording (script 23, Smino) was edited on 2026-09-24 and
+rebuilt to the premium-reference standard on 2026-09-25. The paragraph below records the
+synthetic pilot.
+
 
 No talking-head recording exists yet (the September files in Dropbox are the filmed
 sheets, and the product recordings are phone-in-hand screen captures). The system was

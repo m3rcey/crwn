@@ -54,6 +54,31 @@ describe("edit decision list", () => {
   });
 });
 
+describe("visuals are planned from what he said, not the written script", () => {
+  // He skips line 3 entirely.
+  const steps = loadStructure(14).lines.filter((l) => l.id !== 3).map((l) => ({ line: l.id }));
+  const r = build(14, steps);
+  const at = r.outWords.find((w) => w.line === 4).start;
+  const withBeat = (extra) => {
+    const plan = JSON.parse(JSON.stringify(r.plan));
+    const i = plan.beats.findIndex((b) => b.start <= at && b.end > at);
+    Object.assign(plan.beats[i], extra);
+    return { v: validateBeats(plan, r.ctx), id: plan.beats[i].id };
+  };
+  it("the automatic plan builds no beat on a line he never said", () => {
+    expect(r.plan.beats.some((b) => b.lines?.includes(3))).toBe(false);
+    expect(validateBeats(r.plan, r.ctx).errors).toEqual([]);
+  });
+  it("a beat built on a skipped line is refused", () => {
+    const { v, id } = withBeat({ lines: [3] });
+    expect(v.errors.some((e) => e.startsWith(`SPOKEN: beat ${id}`))).toBe(true);
+  });
+  it("on-screen words he never said are refused, unless declared a label", () => {
+    expect(withBeat({ text: ["QUARTERLY SYNERGY PIPELINE"] }).v.errors.some((e) => e.startsWith("UNSPOKEN"))).toBe(true);
+    expect(withBeat({ text: ["QUARTERLY SYNERGY PIPELINE"], labels: ["QUARTERLY SYNERGY PIPELINE"] }).v.errors.filter((e) => e.startsWith("UNSPOKEN"))).toEqual([]);
+  });
+});
+
 describe("beat plan", () => {
   let r;
   beforeAll(() => { r = build(14); });
@@ -85,9 +110,6 @@ describe("beat plan", () => {
     const m = r.plan.beats.filter((b) => b.scene === "crwn_mechanism");
     expect(m.length).toBe(1);
     expect(m[0].graphic.props.gate.allowed).toBe(true);
-  });
-  it("keeps the founder on screen", () => {
-    expect(faceStats(r.plan.beats).ratio).toBeGreaterThanOrEqual(rules.visual.minFaceRatio);
   });
   it("the reveal sheet (it letters the answer) never appears before the reveal", () => {
     const revealAt = r.plan.beats.find((b) => b.scene === "numeric_reveal").start;

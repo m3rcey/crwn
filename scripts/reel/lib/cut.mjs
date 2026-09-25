@@ -4,10 +4,12 @@
 // Pacing is set per gap by what the gap IS, not by a global silence threshold:
 // breaths inside a take stay, a sentence end gets a sentence pause, the hook's turn
 // ("Let's find out.") gets a longer beat, the reveal gets a held breath before it, and
-// a removed filler or stutter closes up tight. Every cut point is then snapped to the
-// quietest moment near it, so a cut never clips the tail of a word.
+// a removed filler or stutter closes up tight. Every cut point is then placed
+// ACOUSTICALLY (lib/boundaries.mjs): an out-point only after the voice has decayed, an
+// in-point before the word's real onset, so a cut never clips a word's tail or start.
 
 import fs from "node:fs";
+import { withLevels, quietThreshold, decayPoint, onsetPoint, quietRunAfter, quietRunBefore, quietestIn, levelIn } from "./boundaries.mjs";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
 
@@ -50,14 +52,8 @@ export function buildEdl(structure, transcript, alignment, rules, opts = {}) {
     if (!lastTokenOfLine.has(l) || k.w > lastTokenOfLine.get(l)) lastTokenOfLine.set(l, k.w);
   }
 
-  const env = opts.envelope ? { ...opts.envelope, peak: opts.envelope.peak ?? Math.max(...opts.envelope.rms) } : null;
-  const quietest = (a, b) => {
-    if (!env || b <= a) return (a + b) / 2;
-    let best = a, bestV = Infinity;
-    const i0 = Math.max(0, Math.floor(a / env.hop)), i1 = Math.min(env.rms.length - 1, Math.ceil(b / env.hop));
-    for (let i = i0; i <= i1; i++) if (env.rms[i] < bestV) { bestV = env.rms[i]; best = i * env.hop; }
-    return best;
-  };
+  const env = opts.envelope ? withLevels(opts.envelope) : null;
+  const thrDb = env ? quietThreshold(env, { overFloorDb: P.quietOverFloorDb ?? 5, ceilDb: P.quietCeilDb ?? -24 }) : null;
 
   for (let i = 0; i < spans.length; i++) {
     const s = spans[i];
@@ -97,43 +93,57 @@ export function buildEdl(structure, transcript, alignment, rules, opts = {}) {
     s.pause = pause;
   }
 
-  // Split each pause into this span's tail and the next span's head, using only real
-  // room tone the recording has on each side.
+  // Acoustic boundaries. A word ENDS where the voice has decayed (quiet held longer than a
+  // consonant closure), searched past the recognizer's end and past the next recognized
+  // word's start, because both are routinely early. A word STARTS where its onset really
+  // begins, searched back from the recognizer's (late) start. Without a measured envelope
+  // (tests, a silent file) the recognizer's times plus padding are used.
   for (let i = 0; i < spans.length; i++) {
-    const s = spans[i], next = spans[i + 1];
-    const tail = Math.min(Math.max(P.padOutSec, s.pause * 0.6), s.availAfter);
-    s.outRaw = s.last + tail;
-    if (next) {
-      const want = Math.max(P.padInSec, s.pause - tail);
-      next.headRaw = Math.min(want, next.availBefore);
+    const s = spans[i];
+    const nextWord = words[s.w1 + 1];
+    const prevWord = words[s.w0 - 1];
+    if (env) {
+      const lim = nextWord ? nextWord.start + (P.onsetSlackSec ?? 0.15) : s.last + 1;
+      const d = decayPoint(env, s.last - 0.02, lim, { thrDb, holdSec: P.voiceHoldSec ?? 0.09 });
+      if (d === null) { s.voiceEnd = quietestIn(env, s.last, Math.max(s.last, lim)); s.continuous = true; }
+      else s.voiceEnd = Math.max(d, s.last - 0.02);
+      s.quietAfter = s.continuous ? 0 : quietRunAfter(env, s.voiceEnd, thrDb);
+      const low = prevWord ? prevWord.end - 0.05 : 0;
+      const o = onsetPoint(env, s.first + 0.03, low, { thrDb, holdSec: P.onsetHoldSec ?? 0.06 });
+      s.voiceStart = o === null ? quietestIn(env, Math.max(low, s.first - 0.12), s.first) : Math.min(o, s.first);
+      s.quietBefore = o === null ? 0 : quietRunBefore(env, s.voiceStart, thrDb);
+      s.continuousIn = o === null;
+    } else {
+      s.voiceEnd = s.last; s.voiceStart = s.first;
+      s.quietAfter = s.availAfter; s.quietBefore = s.availBefore;
     }
   }
-  spans[0].headRaw = Math.min(P.padInSec + 0.05, spans[0].availBefore);
 
-  // Snap to the quietest point nearby, never into a neighbouring word.
-  const W = P.snapWindowSec;
-  for (const s of spans) {
-    const inTarget = s.first - s.headRaw;
-    const inLo = Math.max(s.first - s.availBefore, inTarget - W);
-    const inHi = Math.min(s.first - 0.015, inTarget + W);
-    s.in = s.headRaw > 0.02 ? quietest(inLo, inHi) : inTarget;
-    const outLo = Math.max(s.last + 0.02, s.outRaw - W);
-    const outHi = Math.min(s.last + s.availAfter, s.outRaw + W);
-    s.out = s.outRaw - s.last > 0.02 ? quietest(outLo, outHi) : s.outRaw;
-    // Recognizers often end a sentence's last word early: never cut before the audio has
-    // actually gone quiet (bounded by the next word, so a cut never eats into it).
-    if (env) {
-      const thr = env.peak * Math.pow(10, (P.silenceDb ?? -38) / 20);
-      const limit = s.last + s.availAfter;
-      let t = s.last;
-      const quietAt = (x) => { const i = Math.round(x / env.hop); for (let k = i; k < i + Math.round(0.03 / env.hop); k++) if ((env.rms[k] ?? 0) > thr) return false; return true; };
-      while (t < limit && !quietAt(t)) t += env.hop;
-      if (t < limit) s.out = Math.max(s.out, Math.min(limit, t + 0.02));
-      else s.out = Math.max(s.out, limit);
+  // Split each pause into this span's tail and the next span's head, taking only real
+  // room tone the recording has on each side of the voice.
+  for (let i = 0; i < spans.length; i++) {
+    const s = spans[i], next = spans[i + 1];
+    const tail = Math.min(Math.max(P.padOutSec, s.pause * 0.6), Math.max(0, s.quietAfter - 0.01));
+    s.out = s.voiceEnd + tail;
+    if (next) {
+      const want = Math.max(P.padInSec, s.pause - tail);
+      next.head = Math.min(want, Math.max(0, next.quietBefore - 0.01));
     }
-    // Frame grid, so picture and sound cut on the same instant.
-    s.in = Math.max(0, Math.round(s.in * fps) / fps);
-    s.out = Math.round(s.out * fps) / fps;
+  }
+  spans[0].head = Math.min(P.padInSec + 0.05, Math.max(0, spans[0].quietBefore - 0.01));
+
+  for (let i = 0; i < spans.length; i++) {
+    const s = spans[i];
+    s.in = Math.max(0, s.voiceStart - (s.head ?? 0));
+    // Frame grid, so picture and sound cut on the same instant. Rounding may only move a
+    // cut AWAY from the voice (in earlier, out later), and only while that stays in room
+    // tone; otherwise it moves toward the voice by less than a frame, never across it.
+    const inF = Math.floor(s.in * fps) / fps, inC = Math.ceil(s.in * fps) / fps;
+    s.in = !env || levelIn(env, inF, s.voiceStart) <= thrDb + 3 || inC > s.voiceStart ? inF : inC;
+    const outC = Math.ceil(s.out * fps) / fps, outF = Math.floor(s.out * fps) / fps;
+    s.out = !env || levelIn(env, s.voiceEnd, outC) <= thrDb + 3 || outF < s.voiceEnd ? outC : outF;
+    s.in = Math.max(0, s.in);
+    if (i > 0 && s.in < spans[i - 1].out) s.in = spans[i - 1].out;
     if (s.out <= s.in) s.out = s.in + 1 / fps;
   }
 
@@ -151,6 +161,7 @@ export function buildEdl(structure, transcript, alignment, rules, opts = {}) {
       line: s.line,
       gapAfter: s.gapKind,
       jumpCut: i > 0 && spans[i - 1].line === s.firstLine && spans[i - 1].gapKind === "micro",
+      ...(s.continuous ? { continuous: true } : {}),
     };
     t += s.out - s.in;
     return seg;
@@ -288,7 +299,7 @@ export function writeWav(file, pcm, rate) {
 }
 
 /** Splice the kept audio sample-accurately, with short fades at every seam (no clicks). */
-export function spliceAudio(pcm, rate, edl, fadeSec = 0.006) {
+export function spliceAudio(pcm, rate, edl, fadeSec = 0.012) {
   const total = Math.round(edl.duration * rate) + 1;
   const out = new Float32Array(total);
   const f = Math.max(1, Math.round(fadeSec * rate));
@@ -297,8 +308,10 @@ export function spliceAudio(pcm, rate, edl, fadeSec = 0.006) {
     const n = b - a;
     for (let k = 0; k < n && o + k < total && a + k < pcm.length; k++) {
       let g = 1;
-      if (k < f) g = k / f;
-      else if (n - k < f) g = (n - k) / f;
+      // Raised-cosine edges: a linear 6ms ramp on a boundary with any voice left in it
+      // was audible as a chop on the first real reel.
+      if (k < f) g = 0.5 - 0.5 * Math.cos(Math.PI * k / f);
+      else if (n - k < f) g = 0.5 - 0.5 * Math.cos(Math.PI * (n - k) / f);
       out[o + k] += pcm[a + k] * g;
     }
   }

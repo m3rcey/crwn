@@ -57,7 +57,32 @@ export const SFX = {
   whoosh: { d: 0.4, src: "anoisesrc=d=0.4:c=pink:r=48000:a=0.5:seed=7", post: "bandpass=f=1400:w=1800,afade=t=in:d=0.18,afade=t=out:st=0.2:d=0.2" },
   pop: { d: 0.14, src: "aevalsrc='0.45*sin(2*PI*880*t)*exp(-38*t)':d=0.14:s=48000", post: "" },
   soft_hit: { d: 1.2, src: "aevalsrc='0.5*sin(2*PI*65*t)*exp(-4*t)':d=1.2:s=48000", post: "aecho=0.8:0.6:60:0.3" },
+  // Added 2026-09-25 for 3D sequences. Each one exists for a kind of VISUAL event, and a
+  // cue is placed on that event's frame (plan.sfx), never on a cut for its own sake.
+  // UI: a finger on the product (Promise Calendar, the calculator).
+  tap: { d: 0.09, src: "aevalsrc='0.5*sin(2*PI*1500*t)*exp(-70*t)+0.2*sin(2*PI*3100*t)*exp(-120*t)':d=0.09:s=48000", post: "highpass=f=500" },
+  // A promise delivered: a soft bright tick on the tile turning gold.
+  tick: { d: 0.12, src: "aevalsrc='0.35*sin(2*PI*2400*t)*exp(-55*t)':d=0.12:s=48000", post: "" },
+  // Money landing: a metallic coin, partials of a struck disc.
+  coin: { d: 0.6, src: "aevalsrc='0.28*sin(2*PI*2637*t)*exp(-9*t)+0.2*sin(2*PI*3951*t)*exp(-13*t)+0.12*sin(2*PI*5274*t)*exp(-18*t)':d=0.6:s=48000", post: "aecho=0.7:0.5:35:0.25" },
+  // A promise missed, a fan gone: low and muted, never a buzzer.
+  thud: { d: 0.5, src: "aevalsrc='0.7*sin(2*PI*70*t)*exp(-9*t)':d=0.5:s=48000", post: "lowpass=f=400" },
+  // The camera travelling through depth.
+  travel: { d: 1.1, src: "anoisesrc=d=1.1:c=pink:r=48000:a=0.45:seed=11", post: "bandpass=f=900:w=1400,afade=t=in:d=0.5:curve=qsin,afade=t=out:st=0.55:d=0.55:curve=qsin" },
+  // Something flying past the lens.
+  pass: { d: 0.35, src: "anoisesrc=d=0.35:c=white:r=48000:a=0.35:seed=5", post: "bandpass=f=3200:w=2600,afade=t=in:d=0.15,afade=t=out:st=0.15:d=0.2" },
+  // Stacks rising month after month: a glassy build, not one sound per coin.
+  shimmer: { d: 2.4, src: "aevalsrc='0.1*sin(2*PI*(900+500*t)*t)*(0.6+0.4*sin(2*PI*9*t))+0.07*sin(2*PI*(1350+700*t)*t)':d=2.4:s=48000", post: "afade=t=in:d=0.6,afade=t=out:st=1.8:d=0.6,aecho=0.6:0.5:70:0.3" },
+  // The pull into a big number.
+  swell: { d: 1.3, src: "anoisesrc=d=1.3:c=pink:r=48000:a=0.4:seed=3", post: "lowpass=f=1800,afade=t=in:d=1.25:curve=exp" },
+  // A figure landing: body and air.
+  impact: { d: 1.8, src: "aevalsrc='0.9*sin(2*PI*(58-18*t)*t)*exp(-3.2*t)+0.25*sin(2*PI*116*t)*exp(-7*t)':d=1.8:s=48000", post: "lowpass=f=1200,aecho=0.8:0.6:90:0.25" },
+  // The payoff: the largest landing in the reel, once.
+  impact_big: { d: 2.8, src: "aevalsrc='1.0*sin(2*PI*(52-20*t)*t)*exp(-2.2*t)+0.35*sin(2*PI*104*t)*exp(-5*t)+0.12*sin(2*PI*208*t)*exp(-8*t)':d=2.8:s=48000", post: "lowpass=f=1500,aecho=0.8:0.7:120:0.35" },
 };
+
+/** Mix level (dB) of each sound under the voice. SFX sit under dialogue by design. */
+export const SFX_GAIN = { riser: -9, hit: -4, whoosh: -12, pop: -14, soft_hit: -14, tap: -18, tick: -20, coin: -17, thud: -12, travel: -15, pass: -18, shimmer: -16, swell: -12, impact: -5, impact_big: -2 };
 
 export function makeSfx(dir) {
   fs.mkdirSync(dir, { recursive: true });
@@ -80,6 +105,10 @@ export function soundPlan(plan, structure, outWords, rules) {
   const drops = [];
   const lineStart = (id) => outWords.find((w) => w.line === id)?.start ?? null;
   const lineEnd = (id) => { const ws = outWords.filter((w) => w.line === id); return ws.length ? ws[ws.length - 1].end : null; };
+  // Authored cues sit on VISUAL events of the plan (a camera move, a number landing, a
+  // tile turning gold); authored drops are silences the plan asks for (before a reveal).
+  for (const c of plan.sfx || []) cues.push({ kind: c.kind, at: c.at, gain: c.gain, authored: true });
+  for (const d of plan.musicDrops || []) drops.push({ from: d.from, to: d.to, fade: d.fade ?? 0.3 });
   for (const b of plan.beats) {
     if (!b.sound) continue;
     if (b.sound === "riser_drop") {
@@ -103,7 +132,7 @@ export function soundPlan(plan, structure, outWords, rules) {
   // Cap density: keep the first N per minute, riser and hit always kept.
   const perMin = A.maxSfxPerMinute;
   const limit = Math.max(3, Math.floor((plan.duration / 60) * perMin));
-  const keep = cues.filter((c) => c.kind === "riser" || c.kind === "hit");
+  const keep = cues.filter((c) => c.kind === "riser" || c.kind === "hit" || c.kind === "impact" || c.kind === "impact_big");
   for (const c of cues) if (!keep.includes(c) && keep.length < limit) keep.push(c);
   keep.sort((a, b) => a.at - b.at);
   return { cues: keep, drops, musicEnd };
@@ -166,7 +195,7 @@ export function mix({ voiceIn, outFile, workDir, plan, structure, outWords, rule
     const inputs = [], labels = [];
     sp.cues.forEach((c, i) => {
       inputs.push("-i", sfx[c.kind]?.file || sfx.pop.file);
-      const gain = c.kind === "riser" ? -9 : c.kind === "hit" ? -4 : c.kind === "whoosh" ? -12 : -14;
+      const gain = c.gain ?? SFX_GAIN[c.kind] ?? -14;
       labels.push(`[${i}:a]volume=${gain}dB,adelay=${Math.round(c.at * 1000)}|${Math.round(c.at * 1000)}[s${i}]`);
     });
     const fc = `${labels.join(";")};${sp.cues.map((_, i) => `[s${i}]`).join("")}amix=inputs=${sp.cues.length}:normalize=0,apad,atrim=0:${dur.toFixed(3)}[out]`;

@@ -40,6 +40,10 @@ export async function openPlan(slug, { reelsDir = process.env.REEL_DIR || path.j
   const { assets: broll } = resolveBroll(dir);
   const speechEnd = outWords[outWords.length - 1].end;
   const beats = [];
+  // Plan-level parts beside the beats: the 3D world spec, authored sound cues on visual
+  // events, planned silences. Set with P.set("world", {...}), P.set("sfx", [...]).
+  const extra = {};
+  const set = (k, v) => { extra[k] = v; };
 
   /** Start time of the n-th spoken word in `line` whose text matches `word`. */
   function w(line, word, n = 0) {
@@ -78,7 +82,7 @@ export async function openPlan(slug, { reelsDir = process.env.REEL_DIR || path.j
       broll: null, evidence: "none", assetSource: "endcard-128 (owned)", transition: "slide", sound: "soft_hit", captions: "off", notes: "",
     });
     for (const b of sorted) delete b.at;
-    return { slug, title: structure.title, edited: true, authored: true, arollDuration: edl.duration, duration, speechEnd, beats: sorted.map((b, i) => ({ id: i, ...b })) };
+    return { ...extra, slug, title: structure.title, edited: true, authored: true, arollDuration: edl.duration, duration, speechEnd, beats: sorted.map((b, i) => ({ id: i, ...b })) };
   }
 
   function write() {
@@ -89,5 +93,5 @@ export async function openPlan(slug, { reelsDir = process.env.REEL_DIR || path.j
     return { plan, validation: v };
   }
 
-  return { dir, rules, structure, outWords, edl, sheets, library, w, lineStart, lineEnd, has, beat, build, write, speechEnd };
+  return { dir, rules, structure, outWords, edl, sheets, library, broll, w, lineStart, lineEnd, has, beat, build, write, set, speechEnd };
 }

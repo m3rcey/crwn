@@ -52,7 +52,7 @@ export function arollState(mode, rules) {
     case "push": return { scale: 1 + (rules.visual.punchScale - 1) / 2, y: 0, clipTop: 0, opacity: 1 };
     case "split": return { scale: 1.0, y: 470, clipTop: 880, opacity: 1 };
     case "pip": return { scale: 0.42, y: 560, clipTop: 0, opacity: 1 };
-    case "hidden": return { scale: 1.0, y: 0, clipTop: 0, opacity: 0 };
+    case "hidden": case "world": return { scale: 1.0, y: 0, clipTop: 0, opacity: 0 };
     default: return { scale: 1.0, y: 0, clipTop: 0, opacity: 1 };
   }
 }
@@ -72,9 +72,9 @@ function arollTimeline(beats, rules) {
       js.push(`tl.set('#arollClip',{clipPath:'inset(${s.clipTop}px 0px 0px 0px)',opacity:${s.opacity}},${r3(b.start)});`);
       js.push(`tl.set('#arollWrap',{scale:${s.scale},y:${s.y}${b.transition === "whip" ? "" : ",x:0,filter:'blur(0px)'"}},${r3(b.start)});`);
     }
-    if (b.transition === "whip") js.push(`tl.fromTo('#arollWrap',{x:${b.aroll === "hidden" ? 0 : -140},filter:'blur(14px)'},{x:0,filter:'blur(0px)',duration:0.22,ease:'power3.out',immediateRender:false},${r3(b.start)});`);
+    if (b.transition === "whip") js.push(`tl.fromTo('#arollWrap',{x:${b.aroll === "hidden" || b.aroll === "world" ? 0 : -140},filter:'blur(14px)'},{x:0,filter:'blur(0px)',duration:0.22,ease:'power3.out',immediateRender:false},${r3(b.start)});`);
     // Sustain: a slow push so no A-roll beat is ever a dead frame.
-    if (b.aroll !== "hidden" && d > 0.5) js.push(`tl.fromTo('#arollWrap',{scale:${s.scale}},{scale:${r3(s.scale * 1.025)},duration:${r3(Math.max(0.05, d - smooth - 1 / rules.format.fps))},ease:'none',immediateRender:false},${r3(b.start + smooth)});`);
+    if (b.aroll !== "hidden" && b.aroll !== "world" && d > 0.5) js.push(`tl.fromTo('#arollWrap',{scale:${s.scale}},{scale:${r3(s.scale * 1.025)},duration:${r3(Math.max(0.05, d - smooth - 1 / rules.format.fps))},ease:'none',immediateRender:false},${r3(b.start + smooth)});`);
     prev = b;
   }
   return js.join("\n");
@@ -151,6 +151,7 @@ export function landscapeState(mode, face, rules, occluder) {
       return { s, tx: -x0, ty: L.bandTop, clipTop: L.bandTop, clipBottom: Math.max(0, H - (L.bandTop + SH)), opacity: 1 };
     }
     case "hidden":
+    case "world":
       return { s: fit, tx: clampX(W / 2 - fx * fit, fit), ty: 0, clipTop: 0, clipBottom: 0, opacity: 0 };
     default: {
       const s = fit;
@@ -180,9 +181,9 @@ function landscapeTimeline(beats, rules, framing) {
       js.push(`tl.set('#arollClip',{clipPath:'${clip}',opacity:${st.opacity},x:0,filter:'blur(0px)'},${r3(b.start)});`);
       js.push(`tl.set('#arollWrap',{x:${r3(st.tx)},y:${r3(st.ty)},scale:${r3(st.s)}},${r3(b.start)});`);
     }
-    if (b.transition === "whip" && b.aroll !== "hidden") js.push(`tl.fromTo('#arollClip',{x:-120,filter:'blur(12px)'},{x:0,filter:'blur(0px)',duration:0.22,ease:'power3.out',immediateRender:false},${r3(b.start)});`);
+    if (b.transition === "whip" && b.aroll !== "hidden" && b.aroll !== "world") js.push(`tl.fromTo('#arollClip',{x:-120,filter:'blur(12px)'},{x:0,filter:'blur(0px)',duration:0.22,ease:'power3.out',immediateRender:false},${r3(b.start)});`);
     // Sustain: a slow push about the speaker's eyes, never a dead frame.
-    if (b.aroll !== "hidden" && b.aroll !== "band" && d > 0.6 && face) {
+    if (b.aroll !== "hidden" && b.aroll !== "world" && b.aroll !== "band" && d > 0.6 && face) {
       const s2 = st.s * rules.landscape.sustain;
       const px = st.tx + face.x * st.s, py = st.ty + face.eyeY * st.s;
       const tx2 = Math.max(rules.format.width - 1920 * s2, Math.min(0, px - face.x * s2));
@@ -360,11 +361,36 @@ C.Kinetic = (b) => {
 // data-start, so a <video> may not sit inside a timed scene (it would freeze). Videos go
 // to a top-level layer, positioned over the frame drawn in the scene, and every tween on
 // the frame is applied to the video too.
-function floatingVideo(id, assetId, ctx, { start, dur, offset = 0, box, radius = 38 }) {
+function floatingVideo(id, assetId, ctx, { start, dur, offset = 0, box, radius = 38, rate = 1 }) {
   const a = ctx.assetFiles[assetId];
   if (!a || a.type !== "video") return "";
-  return `<video id="${id}" class="clip float-media" data-start="${r3(start)}" data-duration="${r3(dur)}" data-media-start="${r3(offset)}" muted playsinline src="${esc(a.rel)}" style="left:${box.x}px;top:${box.y}px;width:${box.w}px;height:${box.h}px;border-radius:${radius}px"></video>`;
+  // data-playback-rate is a constant, render-safe speed (HyperFrames): it lets a short
+  // product recording cover a longer line without reaching a screen we must not show.
+  return `<video id="${id}" class="clip float-media${radius === 0 ? " ft" : ""}" data-start="${r3(start)}" data-duration="${r3(dur)}" data-media-start="${r3(offset)}"${rate !== 1 ? ` data-playback-rate="${rate}"` : ""} muted playsinline src="${esc(a.rel)}" style="left:${box.x}px;top:${box.y}px;width:${box.w}px;height:${box.h}px;border-radius:${radius}px"></video>`;
 }
+
+/**
+ * Product footage that OWNS the frame (founder, 2026-09-25: CRWN UI and the calculator
+ * are the hero when they are the subject, never a small card over his face). A virtual
+ * camera moves inside the recording: `move` is [from, to] of {scale, x, y} (y > 0 pans
+ * down the screen). Labels land on their spoken words.
+ */
+C.Footage = (b, ctx) => {
+  const id = `f${b.id}`;
+  const p = b.graphic.props;
+  const d = Math.max(0.3, b.end - b.start);
+  const vid = floatingVideo(`${id}-vid`, p.footage, ctx, { start: b.start, dur: d, offset: p.offset ?? ctx.assetFiles[p.footage]?.startAt ?? 0, box: { x: 0, y: 0, w: 1080, h: 1920 }, radius: 0, rate: p.rate ?? 1 });
+  const [m0, m1] = p.move || [{ scale: 1.04 }, { scale: 1.12 }];
+  const labels = (p.labels || []).map((l, i) => `<div class="ft-label" id="${id}-l${i}" style="top:${l.y ?? 300}px">${esc(l.text)}</div>`).join("");
+  // Labels ride in the media layer, AFTER the video: scene HTML renders beneath floating
+  // media, which hid the first footage label under its own recording.
+  const html = ``;
+  const js = [
+    `tl.fromTo('#${id}-vid',{scale:${m0.scale ?? 1},x:${m0.x ?? 0},y:${m0.y ?? 0}},{scale:${m1.scale ?? 1},x:${m1.x ?? 0},y:${m1.y ?? 0},duration:${r3(d)},ease:'${p.ease || "power1.inOut"}',immediateRender:false},${r3(b.start)});`,
+    ...(p.labels || []).map((l, i) => `tl.fromTo('#${id}-l${i}',{opacity:0,y:18,scale:0.9},{opacity:1,y:0,scale:1,duration:0.3,ease:'back.out(2)',immediateRender:false},${r3(l.at ?? b.start + 0.3)});\ntl.set('#${id}-l${i}',{opacity:0},${r3(b.end)});`),
+  ].join("\n");
+  return { html, js, media: vid + labels, boxes: (p.labels || []).map((l) => ({ what: "footage label", x: 140, y: l.y ?? 300, w: 800, h: 70 })) };
+};
 
 C.SheetCard = (b, ctx) => {
   const id = `s${b.id}`;
@@ -387,10 +413,10 @@ C.CrwnMechanism = (b, ctx) => {
   // Labels may carry their own spoken time ({text, at}) so each lands on its word.
   const labels = (b.graphic.props.labels || []).map((l) => (typeof l === "string" ? { text: l } : l));
   const split = b.aroll === "split";
-  const card = split ? { x: 80, y: PANEL_TOP, w: 450, h: 580 } : { x: 190, y: 420, w: 700, h: 938 };
+  const card = split ? { x: 80, y: PANEL_TOP, w: 450, h: 580 } : { x: 190, y: 380, w: 700, h: 790 };
   const vid = footage ? floatingVideo(`${id}-vid`, footage, ctx, { start: b.start, dur: b.end - b.start, offset: ctx.assetFiles[footage]?.startAt ?? 2, box: card }) : "";
   const tgt = vid ? `#${id}-card,#${id}-vid` : `#${id}-card`;
-  const listX = split ? 560 : 190, listY = split ? PANEL_TOP + 90 : 1390;
+  const listX = split ? 560 : 190, listY = split ? PANEL_TOP + 90 : card.y + card.h + 40;
   const html = `
 <div class="chip chip-gold" id="${id}-chip" style="left:${split ? 560 : 190}px;top:${split ? TOP : 320}px;font-size:${chip.length > 16 ? 28 : 36}px">${esc(chip)}</div>
 <div class="device" id="${id}-card" style="left:${card.x}px;top:${card.y}px;width:${card.w}px;height:${card.h}px"></div>${b.graphic.props.deviceLabel ? `<div class="device-label" id="${id}-dl" style="left:${card.x}px;top:${card.y + card.h + 14}px;width:${card.w}px">${esc(b.graphic.props.deviceLabel)}</div>` : ""}
@@ -572,6 +598,28 @@ C.Headline = (b) => {
 
 export const COMPONENTS = C;
 
+/** The world spec with each photo's `asset` id resolved to its staged file. */
+export function worldSpecFor(spec, assetFiles) {
+  const objects = (spec.objects || []).map((o) => {
+    if (o.type !== "photo") return o;
+    const f = assetFiles[o.asset];
+    if (!f) throw new Error(`world photo ${o.id} uses asset "${o.asset}", which was not staged`);
+    return { ...o, src: f.rel };
+  });
+  return { ...spec, objects };
+}
+
+/** The world is on screen during these beats (aroll "world", the frame it owns). */
+export function worldWindows(beats) {
+  const out = [];
+  for (const b of beats) {
+    if (b.aroll !== "world") continue;
+    const last = out[out.length - 1];
+    if (last && Math.abs(last[1] - b.start) < 1e-3) last[1] = b.end; else out.push([b.start, b.end]);
+  }
+  return out;
+}
+
 // ------------------------------------------------------------------ captions
 
 export function captionMarkup(phrases, beats, rules) {
@@ -638,6 +686,9 @@ export function buildComposition({ plan, phrases, rules, outWords, assetFiles, f
   }
   const cap = captionMarkup(phrases, plan.beats, rules);
   const landscape = !!framing;
+  // The 3D world (lib/world3d.js): one canvas and one tag overlay above the A-roll, owned
+  // by the plan's world spec. Its photos resolve to staged asset files.
+  const world = plan.world ? { ...worldSpecFor(plan.world, assetFiles), windows: plan.world.windows || worldWindows(plan.beats) } : null;
   const duration = plan.duration;
   const doc = `<!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=${W},height=${H}">
@@ -756,13 +807,28 @@ ${landscape ? `#arollWrap{position:absolute;left:0;top:0;width:1920px;height:108
 .compare-compact .cr-fig{font-size:112px}
 .cr-foot{font-weight:800;font-size:30px;letter-spacing:.16em;color:${PALETTE.amber};text-align:center;margin-top:4px}
 .device-label{position:absolute;text-align:center;font-weight:800;font-size:26px;letter-spacing:.18em;color:rgba(255,255,255,.8)}
-.cap{position:absolute;left:${rules.safeZone.left}px;width:${rules.safeZone.right - rules.safeZone.left}px;text-align:center;font-weight:850;font-size:66px;line-height:1.12;color:#fff;-webkit-text-stroke:10px ${PALETTE.ink};paint-order:stroke fill;text-shadow:0 6px 18px rgba(0,0,0,.55);transform:translateY(-50%)}
+.cap{position:absolute;left:${rules.safeZone.left}px;width:${rules.safeZone.right - rules.safeZone.left}px;text-align:center;font-weight:850;font-size:${rules.captions.fontPx ?? 66}px;line-height:1.12;color:#fff;-webkit-text-stroke:${Math.round((rules.captions.fontPx ?? 66) / 7)}px ${PALETTE.ink};paint-order:stroke fill;text-shadow:0 6px 18px rgba(0,0,0,.55);transform:translateY(-50%)${rules.captions.upper ? ";text-transform:uppercase;letter-spacing:.01em" : ""}}
 .cw-e{color:${PALETTE.amber}}
+.float-media.ft{object-fit:cover;box-shadow:none}
+.ft-vignette{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 45%,rgba(0,0,0,0) 55%,rgba(0,0,0,.55) 100%)}
+.ft-label{position:absolute;z-index:5;opacity:0;left:50%;transform:translateX(-50%);white-space:nowrap;font-weight:900;font-size:38px;letter-spacing:.03em;color:${PALETTE.ink};background:${PALETTE.gold};padding:10px 24px;border-radius:14px;box-shadow:0 10px 34px rgba(0,0,0,.5)}
+#gl{position:absolute;left:0;top:0;width:${W}px;height:${H}px;visibility:hidden}
+#wo{position:absolute;inset:0;pointer-events:none;visibility:hidden}
+.wtag{position:absolute;left:0;top:0;white-space:nowrap;font-weight:900;letter-spacing:.03em;opacity:0}
+.wtag-tag{font-size:36px;color:${PALETTE.ink};background:${PALETTE.gold};padding:9px 20px;border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,.45)}
+.wtag-dark{font-size:34px;color:#fff;background:rgba(13,13,13,.78);border:3px solid ${PALETTE.gold};padding:8px 20px;border-radius:14px}
+.wtag-big{font-size:104px;color:${PALETTE.gold};letter-spacing:-.01em;text-shadow:0 8px 34px rgba(0,0,0,.75)}
+.wtag-name{font-size:132px;color:#fff;letter-spacing:.02em;text-shadow:0 10px 40px rgba(0,0,0,.8)}
+.wtag-num{font-size:150px;color:#fff;letter-spacing:-.02em;text-shadow:0 10px 44px rgba(0,0,0,.85)}
+.wtag-gold{font-size:150px;color:${PALETTE.gold};letter-spacing:-.02em;text-shadow:0 10px 44px rgba(0,0,0,.85)}
+.wtag-dim{font-size:30px;color:#fff;opacity:.85;letter-spacing:.22em;font-weight:800}
+.wtag-credit{font-size:20px;color:rgba(255,255,255,.62);font-weight:600;letter-spacing:.02em}
 </style></head>
 <body>
 <div id="root" data-composition-id="main" data-start="0" data-duration="${r3(duration)}" data-width="${W}" data-height="${H}" data-fps="${fps}">
 <div id="bg"></div>
 <div id="arollClip"><div id="arollWrap" data-layout-allow-overflow><video id="av" class="clip" data-start="0" data-duration="${r3(plan.arollDuration ?? duration)}" muted playsinline src="assets/aroll.mp4"${landscape ? ` style="width:1920px;height:1080px;object-fit:fill"` : ""}></video></div></div>
+${world ? `<canvas id="gl" width="${W}" height="${H}" data-layout-allow-overflow></canvas>\n<div id="wo" data-layout-allow-overflow></div>` : ""}
 ${scenes.join("\n")}
 ${media.join("\n")}
 <div id="captions">${cap.html}</div>
@@ -777,6 +843,12 @@ tl.set({}, {}, ${r3(duration)});
 window.__timelines = window.__timelines || {};
 window.__timelines.main = tl;
 </script>
+${world ? `<script type="module">
+import { createWorld } from './assets/world3d.js';
+const world = createWorld(document.getElementById('gl'), ${JSON.stringify(world)}, document.getElementById('wo'));
+window.addEventListener('hf-seek', (e) => { e.detail.waitUntil(world.ready.then(() => world.render(e.detail.time))); });
+world.ready.then(() => world.render(0));
+</script>` : ""}
 </body></html>
 `;
   return { html: doc, boxes, missing, captions: cap.count };

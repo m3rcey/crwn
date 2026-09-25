@@ -27,7 +27,8 @@ export const SCENES = {
   calculation: { face: true, aroll: "split", purpose: "show the math in the order it is said" },
   comparison: { face: false, aroll: "hidden", purpose: "two things side by side" },
   crwn_mechanism: { face: false, aroll: "hidden", purpose: "the CRWN capability this story needs" },
-  cta_tool: { face: true, aroll: "split", purpose: "show the free tool" },
+  // The tool owns the frame (founder, 2026-09-25: never a small calculator above his face).
+  cta_tool: { face: false, aroll: "hidden", purpose: "show the free tool" },
   cta_keyword: { face: true, aroll: "full", purpose: "tell them exactly what to comment" },
   endcard: { face: false, aroll: "hidden", purpose: "series sign-off" },
 };
@@ -49,6 +50,13 @@ const QUAL_TAG = [
   [/\breported(ly)?\b/i, "REPORTED"],
   [/\bestimat/i, "ESTIMATE"],
 ];
+/** A spoken line as a two-line headline (at most ~7 words a line). */
+function splitHeadline(t) {
+  const w = t.split(/\s+/).filter(Boolean).slice(0, 14);
+  const h = Math.ceil(w.length / 2);
+  return w.length > 7 ? [w.slice(0, h).join(" "), w.slice(h).join(" ")] : [w.join(" ")];
+}
+
 export function qualifierTag(text) {
   for (const [re, tag] of QUAL_TAG) if (re.test(text)) return tag;
   return null;
@@ -92,7 +100,8 @@ export function planBeats(ctx) {
   const speechEnd = outWords.length ? outWords[outWords.length - 1].end : edl.duration;
   const duration = +(Math.max(edl.duration, speechEnd) + rules.pacing.endcardSec).toFixed(3);
   const lt = new Map(lineTimes.map((l) => [l.id, l]));
-  const spoken = S.lines.filter((l) => lt.get(l.id)?.start !== null && lt.get(l.id)?.start !== undefined);
+  const said = spokenLineIds(S, outWords);
+  const spoken = S.lines.filter((l) => said.has(l.id) && lt.get(l.id)?.start !== null && lt.get(l.id)?.start !== undefined);
   const mask = maskFor(S.withheld);
   const sheet = (role) => sheets.find((s) => s.role === role) || null;
   const pair = versusPair(S);
@@ -103,10 +112,10 @@ export function planBeats(ctx) {
 
   const wordsOf = (lineId) => outWords.filter((w) => w.line === lineId);
   const timeOfWord = (lineId, pred) => wordsOf(lineId).find((w) => pred(w.text))?.start ?? null;
-  // A stress word pops once, on the word.
+  // A stress word pops once, on the word. A script word he did not say is not shown.
   const kin = (line, words = line.emphasis, extra = {}) => ({
     component: "Kinetic",
-    props: { ...extra, words: words.map((text) => ({ text, at: timeOfWord(line.id, (tx) => tx.replace(/[^A-Za-z0-9$%]/g, "").toUpperCase() === text.replace(/[^A-Za-z0-9$%]/g, "").toUpperCase()) ?? lt.get(line.id).start })) },
+    props: { ...extra, words: words.map((text) => ({ text, at: timeOfWord(line.id, (tx) => tx.replace(/[^A-Za-z0-9$%]/g, "").toUpperCase() === text.replace(/[^A-Za-z0-9$%]/g, "").toUpperCase()) })).filter((w) => w.at !== null) },
   });
   let namedArtist = false;
 
@@ -116,7 +125,8 @@ export function planBeats(ctx) {
     const t1 = next ? lt.get(next.id).start : speechEnd + 0.35;
     const base = {
       start: +t0.toFixed(3), end: +t1.toFixed(3), lines: [line.id], role: line.role,
-      phrase: line.text, text: [], broll: null, graphic: null, evidence: "none",
+      // The phrase is what he SAID on this line (the viewer hears that), not the script.
+      phrase: wordsOf(line.id).map((w) => w.text).join(" ") || line.text, text: [], broll: null, graphic: null, evidence: "none",
       assetSource: "composition (programmatic)", transition: "cut", sound: null, captions: "on", notes: "",
     };
     const mk = (scene, extra = {}) => ({ ...base, scene, aroll: SCENES[scene].aroll, purpose: SCENES[scene].purpose, ...extra });
@@ -127,8 +137,13 @@ export function planBeats(ctx) {
     switch (line.role) {
       case "hook": {
         if (idx === 0) {
-          const headline = S.hookHeadline || [line.text];
-          b = mk("hook_open", { text: [...headline, mask.text + (mask.unit ? ` ${mask.unit}` : "")], graphic: { component: "HookOpen", props: { headline, mask, artist: S.artist } }, sound: "pop" });
+          // The script's written hook headline only when he actually said it (a rewording
+          // is fine); otherwise the question as he asked it.
+          const said = wordsOf(line.id).map((w) => w.text);
+          const W = rules.visual.spokenWindowSec;
+          const fits = (h) => h.every((x) => { const all = unspokenWords(x, [], 0, 0, S).length; return unspokenWords(x, outWords, -1, t1 + W, S).length <= all / 3; });
+          const headline = S.hookHeadline && fits(S.hookHeadline) ? S.hookHeadline : said.length ? splitHeadline(said.join(" ").toUpperCase()) : [line.text];
+          b = mk("hook_open", { text: [...headline, mask.text + (mask.unit ? ` ${mask.unit}` : "")], labels: [mask.text + (mask.unit ? ` ${mask.unit}` : "")], graphic: { component: "HookOpen", props: { headline, mask, artist: S.artist } }, sound: "pop" });
         } else if (!usedHookSheet && sheet("hook")) {
           usedHookSheet = true;
           b = mk("aroll_proof", { broll: { asset: sheet("hook").id }, evidence: "illustration", assetSource: "hook sheet (owned)", graphic: { component: "SheetCard", props: { asset: sheet("hook").id, focus: "top" } } });
@@ -139,10 +154,10 @@ export function planBeats(ctx) {
         b = mk("aroll_punch", { transition: "punch", sound: "riser_drop", notes: "music drops here and a riser peaks on the drop (founder's own assembly rule)" });
         break;
       case "tease":
-        b = mk("withheld_tease", { text: [mask.text + (mask.unit ? ` ${mask.unit}` : "")], graphic: { component: "MaskedFigure", props: { mask } } });
+        b = mk("withheld_tease", { text: [mask.text + (mask.unit ? ` ${mask.unit}` : "")], labels: [mask.text + (mask.unit ? ` ${mask.unit}` : "")], graphic: { component: "MaskedFigure", props: { mask } } });
         break;
       case "detour_open":
-        b = mk("aroll_punch", { transition: "whip", sound: "whoosh", text: ["SIDENOTE"], graphic: { component: "Chip", props: { text: "SIDENOTE" } } });
+        b = mk("aroll_punch", { transition: "whip", sound: "whoosh", text: ["SIDENOTE"], labels: ["SIDENOTE"], graphic: { component: "Chip", props: { text: "SIDENOTE" } } });
         break;
       case "detour_thesis":
         b = mk("motion_concept", { text: [line.text.toUpperCase()], graphic: { component: "Thesis", props: { lines: line.text.split(/(?<=\.)\s+/).map((s) => s.toUpperCase()) } }, transition: "slide", captions: "off", notes: "the thesis text IS the spoken words: no captions under it" });
@@ -153,6 +168,8 @@ export function planBeats(ctx) {
         const labels = gate.capabilities.map((c) => caps.capabilities[c].label);
         b = mk("crwn_mechanism", {
           text: gate.allowed ? ["LIVE ON CRWN", ...labels.slice(0, 3).map((x) => x.toUpperCase())] : [],
+          // Capability labels come from the claim-gated registry: product truth, not speech.
+          labels: gate.allowed ? ["LIVE ON CRWN", ...labels.slice(0, 3).map((x) => x.toUpperCase())] : [],
           graphic: { component: "CrwnMechanism", props: { footage, labels: gate.allowed ? labels.slice(0, 3) : [], gate } },
           broll: footage ? { asset: footage } : null,
           evidence: gate.allowed ? "product" : "none",
@@ -171,7 +188,7 @@ export function planBeats(ctx) {
         b = mk("aroll_hero", { transition: "whip", sound: "whoosh" });
         break;
       case "restate":
-        b = mk("withheld_tease", { text: [mask.text + (mask.unit ? ` ${mask.unit}` : "")], graphic: { component: "MaskedFigure", props: { mask, pulse: true } } });
+        b = mk("withheld_tease", { text: [mask.text + (mask.unit ? ` ${mask.unit}` : "")], labels: [mask.text + (mask.unit ? ` ${mask.unit}` : "")], graphic: { component: "MaskedFigure", props: { mask, pulse: true } } });
         break;
       case "reveal": {
         if (withheldFig) {
@@ -209,8 +226,11 @@ export function planBeats(ctx) {
         b = line.emphasis.length ? mk("aroll_punch", { text: line.emphasis, graphic: kin(line) }) : mk("aroll_hero");
         break;
       case "qualifier": {
-        const tag = qualifierTag(line.text) || qualifierTag(S.meta.metric || "");
-        b = mk("aroll_hero", { text: tag ? [tag] : [], graphic: tag ? { component: "Chip", props: { text: tag, tone: "quiet" } } : null, notes: "keeps the epistemic status on screen" });
+        // His own qualifier words pick the tag when he said one; either way a qualifier is a
+        // factual guardrail (accuracy outranks speech), so it is always a declared label.
+        const saidTag = qualifierTag(wordsOf(line.id).map((w) => w.text).join(" "));
+        const tag = saidTag || qualifierTag(line.text) || qualifierTag(S.meta.metric || "");
+        b = mk("aroll_hero", { text: tag ? [tag] : [], labels: tag ? [tag] : [], graphic: tag ? { component: "Chip", props: { text: tag, tone: "quiet" } } : null, notes: "keeps the epistemic status on screen" });
         break;
       }
       case "question":
@@ -219,7 +239,7 @@ export function planBeats(ctx) {
       case "cta_tool": {
         const toolAsset = Object.entries(library?.library || {}).filter(([, a]) => a.kind === "tool_footage" && a.leadMagnet === S.leadMagnet.slug).map(([id]) => id).sort().reverse()[0] || null;
         const name = ctx.toolName || S.leadMagnet.toolName || "the free calculator";
-        b = mk("cta_tool", { text: [String(name).toUpperCase(), "FREE"], graphic: { component: "ToolCard", props: { name, footage: toolAsset } }, broll: toolAsset ? { asset: toolAsset } : null, evidence: "product", assetSource: toolAsset ? `CRWN tool recording (${toolAsset})` : "composition (tool name card)", transition: "slide", notes: toolAsset ? "" : `no recording of ${S.leadMagnet.slug} yet: add one to scripts/reel/assets.json` });
+        b = mk("cta_tool", { text: [String(name).toUpperCase(), "FREE"], labels: [String(name).toUpperCase()], graphic: toolAsset ? { component: "Footage", props: { footage: toolAsset, move: [{ scale: 1.02 }, { scale: 1.1, y: -30 }], labels: [{ text: "FREE CALCULATOR", y: 300 }] } } : { component: "ToolCard", props: { name, footage: null } }, broll: toolAsset ? { asset: toolAsset } : null, evidence: "product", assetSource: toolAsset ? `CRWN tool recording (${toolAsset})` : "composition (tool name card)", transition: "slide", notes: toolAsset ? "" : `no recording of ${S.leadMagnet.slug} yet: add one to scripts/reel/assets.json` });
         break;
       }
       case "cta_keyword":
@@ -229,7 +249,7 @@ export function planBeats(ctx) {
         // setup / mechanism: evidence first, then the owned sheets, then the face.
         const bl = broll.find((x) => x.line === line.id);
         if (bl) b = mk(bl.kind === "broll_video" ? "fullscreen_proof" : "aroll_proof", { broll: { asset: bl.id }, evidence: "sourced", assetSource: `${bl.provenance.source}${bl.provenance.url ? ` (${bl.provenance.url})` : ""}`, graphic: { component: "Media", props: { asset: bl.id } } });
-        else if (!namedArtist && line.mentionsArtist && (line.role === "setup" || line.role === "mechanism") && !figs.length) {
+        else if (!namedArtist && line.mentionsArtist && S.artist && !/^none\b/i.test(S.artist) && (line.role === "setup" || line.role === "mechanism") && !figs.length) {
           namedArtist = true;
           b = mk("aroll_hero", { text: [String(S.artist).toUpperCase()], graphic: { component: "NameTag", props: { name: S.artist } }, notes: "who this story is about" });
         }
@@ -237,8 +257,11 @@ export function planBeats(ctx) {
         else if (figs.length && figureCards < 4 && !withheldFig) {
           figureCards++;
           const f = figureLabel(figs[0]);
-          b = mk("aroll_proof", { text: [[f.qualifier, f.figure].filter(Boolean).join(" "), f.unit].filter(Boolean), graphic: { component: "FigureCard", props: { ...f, tag: qualifierTag(line.text) } }, evidence: "figure", notes: qualifierTag(line.text) ? "qualifier kept on the card" : "" });
-          if (qualifierTag(line.text)) b.text.push(qualifierTag(line.text));
+          const saidQ = qualifierTag(wordsOf(line.id).map((w) => w.text).join(" "));
+          const q = saidQ || qualifierTag(line.text);
+          b = mk("aroll_proof", { text: [[f.qualifier, f.figure].filter(Boolean).join(" "), f.unit].filter(Boolean), graphic: { component: "FigureCard", props: { ...f, tag: q } }, evidence: "figure", notes: q ? "qualifier kept on the card" : "" });
+          // A qualifier is the factual guardrail: always shown, always a declared label.
+          if (q) { b.text.push(q); b.labels = [q]; }
         } else if (line.role === "mechanism" && !usedMiddleSheet && sheet("middle")) {
           usedMiddleSheet = true;
           b = mk("fullscreen_proof", { broll: { asset: sheet("middle").id }, evidence: "illustration", assetSource: "middle sheet (owned)", graphic: { component: "SheetCard", props: { asset: sheet("middle").id, focus: "center" } }, transition: "slide" });
@@ -260,7 +283,7 @@ export function planBeats(ctx) {
 
   beats.forEach(cleanBeat);
   let out = pace(beats, { outWords, edl, rules });
-  out = balanceFace(out, rules);
+  // (The face-time balancer that turned full-screen beats into splits was retired 2026-09-25.)
   return { duration, speechEnd, beats: out.map((b, i) => ({ id: i, ...b })) };
 }
 
@@ -314,34 +337,159 @@ function pace(beats, { outWords, edl, rules }) {
   return out;
 }
 
+const STOP = new Set("a an and are as at be been but by can could did do does for from get got had has have he her him his i if in is it its me my no not of on or our she so that the them then there they this to up us was we were what when where which who will with would you your just one all any how than too very own about around roughly over nearly more under almost".split(" "));
+const stem = (w) => w.toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 5);
+/**
+ * Content words in on-screen text that he never says within [a, b] on the clean
+ * timeline. Numbers are the fact lock's job; the artist's name, CRWN, the CTA keyword and
+ * "comment" are always allowed.
+ */
+export function unspokenWords(txt, outWords, a, b, S) {
+  const said = outWords.filter((w) => w.end >= a && w.start <= b).flatMap((w) => String(w.text).split(/[\s-]+/)).map((w) => w.toLowerCase().replace(/[^a-z0-9]/g, "")).filter(Boolean);
+  const near = new Set(said.map(stem));
+  // A plural or a tense is the same word he said ("TOURS" for "tour", "OWED" for "owe").
+  const heard = (w) => { const n = w.toLowerCase().replace(/[^a-z0-9]/g, ""); return near.has(stem(n)) || said.some((x) => Math.min(x.length, n.length) >= 3 && (x.startsWith(n) || n.startsWith(x)) && Math.abs(x.length - n.length) <= 2); };
+  const free = new Set(["crwn", "comme", "vs", stem(S.ctaKeyword || ""), ...String(S.artist || "").split(/\s+/).map(stem)]);
+  return String(txt).replace(/\*/g, "").split(/[\s/,.:;!?()"“”-]+/).filter(Boolean)
+    .filter((w) => !/[0-9$%]/.test(w) && w.length > 2 && !STOP.has(w.toLowerCase()))
+    .filter((w) => !heard(w) && !free.has(stem(w)));
+}
+
+/**
+ * Script lines that are really in the spoken edit. A stray short word the aligner pinned
+ * to a line he skipped ("to.") does not make the line spoken: it needs at least 3 of its
+ * words, or a third of a short line.
+ */
+export function spokenLineIds(S, outWords) {
+  const n = new Map();
+  for (const w of outWords) if (w.line != null) n.set(w.line, (n.get(w.line) || 0) + 1);
+  return new Set(S.lines.filter((l) => { const k = n.get(l.id) || 0; return k >= Math.min(3, Math.max(1, Math.ceil(l.words.length / 3))); }).map((l) => l.id));
+}
+
+/**
+ * Objects that glide for a long time between two keys, usually a move keyed from t=0 that
+ * was meant to happen at its second key (a caption card drifted for 86 seconds and sat
+ * half off-frame when its scene came up). A warning: a slow glide can be intended.
+ */
+export function worldDriftLint(plan, maxGlideSec = 12) {
+  const out = [];
+  for (const o of plan.world?.objects || []) for (const [prop, keys] of Object.entries(o.keys || {})) {
+    if (!Array.isArray(keys) || prop === "opacity") continue;
+    for (let i = 1; i < keys.length; i++) {
+      const a = keys[i - 1], b = keys[i];
+      if (b.t - a.t > maxGlideSec && JSON.stringify(a.v) !== JSON.stringify(b.v) && b.ease !== "hold") out.push(`world object ${o.id}: "${prop}" glides for ${(b.t - a.t).toFixed(0)}s (${a.t}s to ${b.t}s); hold it until its move starts`);
+    }
+  }
+  return out;
+}
+
+/** Camera keys that travel across the world without a declared cut. */
+export function worldCameraLint(plan, maxTravel = 25) {
+  const keys = [...(plan.world?.camera || [])].sort((a, b) => a.t - b.t);
+  const out = [];
+  for (let i = 1; i < keys.length; i++) {
+    const a = keys[i - 1], b = keys[i];
+    if (b.cut) continue;
+    const d = Math.hypot(b.pos[0] - a.pos[0], b.pos[1] - a.pos[1], b.pos[2] - a.pos[2]);
+    if (d > maxTravel) out.push(`WORLD CAMERA: flies ${d.toFixed(0)} units between ${a.t}s and ${b.t}s without a cut (a sequence's last move ends after the next one's cut)`);
+  }
+  return out;
+}
+
+/**
+ * Every piece of text the 3D world puts on screen, with when it is visible: pinned tags
+ * (and their counters) and the words drawn on card faces.
+ */
+export function worldTexts(plan) {
+  const W = plan.world;
+  if (!W) return [];
+  const out = [];
+  (W.tags || []).forEach((tg, i) => out.push({ id: `world tag ${i}`, start: tg.start, end: tg.end, text: tg.text ? [tg.text] : [], counter: tg.counter || null, label: tg.label || null, attribution: !!tg.attribution }));
+  for (const o of W.objects || []) {
+    if (o.type !== "card" || !o.data) continue;
+    const d = o.data;
+    const text = [d.title, d.price, d.text, d.sub, ...(d.lines || [])].filter(Boolean).map((x) => String(x).replace(/\n/g, " "));
+    if (!text.length) continue;
+    const op = o.keys?.opacity || [];
+    const on = op.find((k) => k.v > 0.01)?.t ?? (o.keys?.pos?.[0]?.t ?? 0);
+    const offK = [...op].reverse().find((k) => k.v <= 0.01 && k.t > on);
+    out.push({ id: `world card ${o.id}`, start: on, end: offK ? offK.t : on + 10, text, label: o.label || null });
+  }
+  return out;
+}
+
+/** What a beat's frame is made of, for the coverage report (declared or derived). */
+export function mediumOf(b) {
+  if (b.medium) return b.medium;
+  if (b.scene === "endcard") return "endcard";
+  if (b.aroll === "world") return "3d";
+  if (b.graphic?.component === "Footage") return b.scene === "cta_tool" ? "calculator" : "ui";
+  if (b.aroll === "split") return "hybrid";
+  if (b.aroll === "hidden") return b.broll ? "photo" : "2d";
+  return "aroll";
+}
+
+/**
+ * The storyboard gate (founder, 2026-09-25): what makes a storyboard look like "a talking
+ * head decorated with templates" is structural, so it is checked before any render. Errors
+ * block the render; the coverage numbers are descriptive, never targets.
+ */
+export function storyboardLint(plan, ctx) {
+  const { structure: S, broll = [] } = ctx;
+  const beats = plan.beats.filter((b) => b.scene !== "endcard");
+  const total = beats.reduce((a, b) => a + (b.end - b.start), 0) || 1;
+  const errors = [], warnings = [];
+  const cov = {};
+  for (const b of beats) cov[mediumOf(b)] = (cov[mediumOf(b)] || 0) + (b.end - b.start);
+  const pct = Object.fromEntries(Object.entries(cov).map(([k, v]) => [k, +(100 * v / total).toFixed(1)]));
+  // 1. Top/bottom split is not the default grammar.
+  const split = beats.filter((b) => b.aroll === "split").reduce((a, b) => a + (b.end - b.start), 0);
+  if (split / total > 0.15) errors.push(`${(100 * split / total).toFixed(0)}% of the reel is the top-graphic/bottom-face split: that is the old default grammar (allow at most 15%)`);
+  // 2. Text-led scenes in a row read as slides.
+  let run = 0;
+  for (const b of beats) { run = mediumOf(b) === "2d" ? run + 1 : 0; if (run >= 3) { errors.push(`beats ${b.id - 2}-${b.id} are three text-led scenes in a row`); break; } }
+  // 3. Long stretches of only the talking head.
+  let s0 = null;
+  for (const b of beats) {
+    if (mediumOf(b) === "aroll") { s0 ??= b.start; if (b.end - s0 > 16) { warnings.push(`the talking head runs ${(b.end - s0).toFixed(0)}s without a cutaway from ${s0.toFixed(1)}s`); s0 = -1e9; } }
+    else s0 = null;
+  }
+  // 4. A video about a real artist shows the artist. The founder's preference (2026-09-25)
+  // is a 3D figure BUILT FROM reference photographs (a world object of type "figure" with
+  // artist: true), not the photographs themselves; a sourced photo still counts.
+  const artistPhotos = broll.filter((x) => S.artist && new RegExp(S.artist.split(/\s+/)[0], "i").test(`${x.shows || ""} ${x.provenance?.source || ""}`)).map((x) => x.id);
+  const artistObjs = new Set((plan.world?.objects || []).filter((o) => (o.type === "figure" && o.artist) || (o.type === "photo" && artistPhotos.includes(o.asset))).map((o) => o.id));
+  const usesArtist = (b) => artistPhotos.includes(b.broll?.asset) || (b.aroll === "world" && (plan.world?.objects || []).some((o) => artistObjs.has(o.id) && visibleIn(o, b)));
+  const hasFigure = [...artistObjs].some((id) => (plan.world?.objects || []).find((o) => o.id === id)?.type === "figure");
+  if (artistPhotos.length || artistObjs.size) {
+    const n = beats.filter(usesArtist).length;
+    if (!beats.filter((b) => b.start < 1.5).some(usesArtist)) errors.push(`the hook does not show ${S.artist} (${hasFigure ? "a 3D figure of him exists in the world" : "his photographs exist in broll/"})`);
+    if (n < 3) warnings.push(`${S.artist} appears in only ${n} beat(s)`);
+  } else if (S.artist && !/^none\b/i.test(S.artist)) warnings.push(`${S.artist} never appears: build a 3D figure of him from reference photographs (world type "figure", artist: true)`);
+  // 5. Product and calculator footage own the frame.
+  for (const b of beats) if (b.graphic?.props?.footage && b.aroll !== "hidden" && b.aroll !== "world") errors.push(`beat ${b.id} shows product footage over the talking head: the product is the hero when it is the subject`);
+  // 6. A long reel with no dimensional scene at all.
+  if (!plan.world && total > 90) warnings.push("no 3D world in a reel over 90s");
+  return { errors, warnings, coverage: pct, presenterPct: pct.aroll || 0 };
+}
+function visibleIn(o, b) {
+  const op = o.keys?.opacity;
+  if (!op?.length) return true;
+  const mid = (b.start + b.end) / 2;
+  let v = op[0].v;
+  for (const k of op) if (k.t <= mid) v = k.v;
+  return v > 0.05;
+}
+
 export function faceStats(beats) {
   let face = 0, run = 0, maxRun = 0, total = 0;
   for (const b of beats) {
     if (b.scene === "endcard") continue;
     const d = b.end - b.start;
     total += d;
-    if (b.aroll !== "hidden") { face += d; run = 0; } else { run += d; maxRun = Math.max(maxRun, run); }
+    if (b.aroll !== "hidden" && b.aroll !== "world") { face += d; run = 0; } else { run += d; maxRun = Math.max(maxRun, run); }
   }
   return { ratio: total ? face / total : 1, maxNoFaceRun: maxRun };
-}
-
-/** Keep the founder on screen: convert the least important full-screen beats to splits. */
-function balanceFace(beats, rules) {
-  const V = rules.visual;
-  const order = ["fullscreen_proof", "comparison", "motion_concept", "crwn_mechanism"];
-  let guard = 0;
-  while (guard++ < 40) {
-    const st = faceStats(beats);
-    if (st.ratio >= V.minFaceRatio && st.maxNoFaceRun <= V.maxNoFaceRunSec) break;
-    const cand = beats
-      .map((b, i) => ({ b, i }))
-      .filter(({ b }) => order.includes(b.scene) && b.aroll === "hidden" && b.role !== "detour_thesis")
-      .sort((x, y) => order.indexOf(x.b.scene) - order.indexOf(y.b.scene) || (y.b.end - y.b.start) - (x.b.end - x.b.start))[0];
-    if (!cand) break;
-    cand.b.aroll = "split";
-    cand.b.notes = `${cand.b.notes ? cand.b.notes + "; " : ""}kept the face on screen (split) to hold the face-time rule`;
-  }
-  return beats;
 }
 
 /**
@@ -399,6 +547,26 @@ export function validateBeats(plan, ctx) {
     if (br?.reveals?.length && br.reveals.some((t) => late.has(String(t)) && spokenAt.has(String(t)) && b.start < spokenAt.get(String(t)) - lead)) errors.push(`WITHHELD LEAK: sourced asset ${br.id} reveals a withheld figure before it is spoken`);
   }
 
+  // The 3D camera: a move that is not a declared cut but crosses the world is the bug
+  // where one sequence's last move ends after the next sequence's cut, so the camera
+  // flies back across the map (found on the first 3D storyboard: two empty scenes).
+  errors.push(...worldCameraLint(plan));
+  warnings.push(...worldDriftLint(plan));
+
+  // The 3D world's own text (pinned tags, counters, card faces) passes the same gates.
+  const worldAt = new Map();
+  for (const it of worldTexts(plan)) {
+    for (const txt of it.text) {
+      for (const t of [...screenNumberTokens(txt), ...lineNumberTokens(txt)]) {
+        if (late.has(t) && spokenAt.has(t) && it.start < spokenAt.get(t) - lead) errors.push(`WITHHELD LEAK: ${it.id} shows "${txt}" at ${it.start.toFixed(2)}s, spoken at ${spokenAt.get(t).toFixed(2)}s`);
+      }
+    }
+    if (it.counter) {
+      for (const t of screenNumberTokens(`$${it.counter.to}`)) if (late.has(t) && spokenAt.has(t) && it.counter.t1 < spokenAt.get(t) - lead) errors.push(`WITHHELD LEAK: ${it.id} counts to ${it.counter.to} at ${it.counter.t1.toFixed(2)}s, spoken at ${spokenAt.get(t).toFixed(2)}s`);
+    }
+    worldAt.set(it.id, it);
+  }
+
   // Fact lock: every number on screen traces to this script.
   const parsedLike = { title: S.title, scriptText: S.lines.map((l) => l.text).join("\n"), meta: S.meta };
   const allowed = new Set([...sourceNumberTokens(parsedLike), ...S.lines.flatMap((l) => l.numbers)]);
@@ -406,6 +574,12 @@ export function validateBeats(plan, ctx) {
     const bad = malformedNumbers(txt);
     if (bad.length) errors.push(`beat ${b.id}: malformed number in "${txt}"`);
     for (const t of screenNumberTokens(txt)) if (!allowed.has(t) && !(b.scene === "endcard" && t === "128")) errors.push(`FACT LOCK: beat ${b.id} shows ${t} ("${txt}"), which this script never states`);
+  }
+  for (const it of worldAt.values()) {
+    // A photo credit's licence version ("CC BY 4.0") is attribution, not a figure.
+    if (!it.attribution) for (const txt of it.text) for (const t of screenNumberTokens(txt)) if (!allowed.has(t)) errors.push(`FACT LOCK: ${it.id} shows ${t} ("${txt}"), which this script never states`);
+    // A counter's in-between values are arithmetic between two script numbers.
+    if (it.counter) for (const v of [it.counter.from, it.counter.to]) if (v !== 0) for (const t of screenNumberTokens(`$${v}`)) if (!allowed.has(t)) errors.push(`FACT LOCK: ${it.id} counts to ${v}, which this script never states`);
   }
 
   // Claims: CRWN product visuals only where the gate allows.
@@ -436,10 +610,52 @@ export function validateBeats(plan, ctx) {
   if (last?.scene !== "endcard") errors.push("the last beat is not the 128 end card");
   else if (last.end - last.start < 1.0) errors.push("end card shorter than 1s");
 
-  // Pacing and face time: warnings (taste), not errors.
+  // Presenter time is DESCRIPTIVE (reported, never a rule): the founder retired the
+  // "face on at least half the reel" rule on 2026-09-25 because it forced split screens
+  // under visuals that should own the frame. The narrative decides when his face is on.
   const st = faceStats(beats);
-  if (st.ratio < rules.visual.minFaceRatio) warnings.push(`face on screen ${(st.ratio * 100).toFixed(0)}% (rule: at least ${(rules.visual.minFaceRatio * 100).toFixed(0)}%)`);
-  if (st.maxNoFaceRun > rules.visual.maxNoFaceRunSec + 0.01) warnings.push(`longest stretch without the face is ${st.maxNoFaceRun.toFixed(1)}s (rule: ${rules.visual.maxNoFaceRunSec}s)`);
+
+  // What he SAID is the editorial timeline. A visual beat may only stand on a line that is
+  // in the spoken edit, and on-screen words must be words he actually said near that
+  // moment. The written script stays the guardrail for facts, withheld figures, claims and
+  // the CTA; it is never the source of what the viewer is shown.
+  const spokenLines = spokenLineIds(S, outWords);
+  for (const b of beats) {
+    if (b.scene === "endcard") continue;
+    for (const l of b.lines || []) if (!spokenLines.has(l)) errors.push(`SPOKEN: beat ${b.id} is built on script line ${l}, which is not in the spoken edit`);
+  }
+  for (const it of worldAt.values()) {
+    if (it.label) continue;
+    const W = rules.visual.spokenWindowSec;
+    for (const txt of it.text) {
+      const missing = unspokenWords(txt, outWords, it.start - W, it.end + W, S);
+      const total = unspokenWords(txt, [], 0, 0, S).length;
+      if (missing.length && missing.length / Math.max(1, total) > 1 / 3) errors.push(`UNSPOKEN: ${it.id} puts "${txt}" on screen, but he never says ${missing.map((m) => `"${m}"`).join(", ")} near it (a structural label sets label: "<why>")`);
+    }
+  }
+
+  // Structural labels (a withheld placeholder, a SIDENOTE chip, a claim-gated product
+  // label, a tool's name) are declared in b.labels and are not speech. Everything else may
+  // reword what he said, but a third or more of its content words never said nearby is an
+  // unspoken claim: an error.
+  for (const b of beats) {
+    if (b.scene === "endcard") continue;
+    const labels = new Set(b.labels || []);
+    for (const txt of b.text || []) {
+      if (labels.has(txt)) continue;
+      const W = rules.visual.spokenWindowSec;
+      // A continued beat (a pacing split holding the same graphic) is judged from where
+      // that graphic first appeared.
+      let i0 = beats.indexOf(b);
+      while (i0 > 0 && beats[i0].continued && beats[i0 - 1].scene === b.scene) i0--;
+      const missing = unspokenWords(txt, outWords, beats[i0].start - W, b.end + W, S);
+      const total = unspokenWords(txt, [], 0, 0, S).length;
+      if (!missing.length) continue;
+      const msg = `beat ${b.id} puts "${txt}" on screen, but he never says ${missing.map((m) => `"${m}"`).join(", ")} near it`;
+      if (missing.length / Math.max(1, total) > 1 / 3) errors.push(`UNSPOKEN: ${msg} (a product-truth label goes in the beat's labels)`);
+      else warnings.push(msg);
+    }
+  }
   for (const b of beats) {
     const d = b.end - b.start;
     const words = (b.text || []).join(" ").split(/\s+/).filter(Boolean).length;

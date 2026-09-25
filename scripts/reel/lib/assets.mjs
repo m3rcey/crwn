@@ -61,7 +61,7 @@ export function resolveBroll(projectDir) {
       shows: meta.shows || null,
       reveals: meta.reveals || [],
       line: meta.line ?? null,
-      provenance: { source: meta.source, url: meta.url || null, rights: meta.rights },
+      provenance: { source: meta.source, url: meta.url || null, rights: meta.rights, ...(meta.credit ? { credit: meta.credit } : {}), ...(meta.license ? { license: meta.license } : {}) },
     });
   }
   return { assets, refused };

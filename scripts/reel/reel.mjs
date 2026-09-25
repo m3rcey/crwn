@@ -20,9 +20,10 @@ import { fileURLToPath } from "node:url";
 import { parseFanEconomy } from "./lib/structure.mjs";
 import { resolveProvider, normalizeAny, normalizeElevenLabs, normalizeLocal, validateTranscript, transcribeElevenLabs, transcribeLocal, suspectWindows, spliceWindow } from "./lib/transcribe.mjs";
 import { alignTakes, captionWords } from "./lib/align.mjs";
+import { auditBoundaries } from "./lib/boundaries.mjs";
 import { buildEdl, remapWords, lineWindows, takeReport, probe, makeProxy, decodePcm, envelope, spliceAudio, writeWav, renderClean, sdrFilter, BT709_TAGS, SEEKABLE } from "./lib/cut.mjs";
 import { groupCaptions, captionLeaks } from "./lib/captions.mjs";
-import { planBeats, validateBeats, faceStats } from "./lib/beats.mjs";
+import { planBeats, validateBeats, faceStats, storyboardLint, mediumOf } from "./lib/beats.mjs";
 import { loadCapabilities, missingEvidence } from "./lib/claims.mjs";
 import { loadLibrary, resolveSheets, resolveBroll, toolNames, missingFiles } from "./lib/assets.mjs";
 import { buildComposition, writeProject, safeZoneViolations } from "./lib/compose.mjs";
@@ -193,6 +194,9 @@ function stageCut(ref) {
   const pcm = decodePcm(pj.source.path, rate);
   const env = envelope(pcm, rate);
   const edl = buildEdl(S, t, al, rules, { envelope: env });
+  // Phrase integrity is a HARD GATE: a cut that chops a word fails the edit, whatever the
+  // pictures do later. Measured on the source audio, not on recognizer word times.
+  const clips = auditBoundaries(edl, env, { minQuietSec: rules.pacing.minCutQuietSec ?? 0.08 });
   const outWords = remapWords(edl, captionWords(S, t, al));
   writeJson(path.join(dir, "alignment.json"), { coverage: al.coverage, lines: al.lines, chosen: al.chosen, offscript: al.offscript, stutters: al.stutters });
   writeJson(path.join(dir, "edl.json"), edl);
@@ -222,10 +226,12 @@ function stageCut(ref) {
   log("rendering the clean talking-head cut...");
   renderClean(proxy, voice, edl, path.join(dir, "aroll.clean.mp4"));
   const bad = al.lines.filter((l) => l.status !== "clean");
-  pj.stages.cut = { at: new Date().toISOString(), coverage: al.coverage, rawSec: +pj.source.duration.toFixed(2), cleanSec: edl.duration, segments: edl.segments.length, linesNeedingReview: bad.map((l) => l.id) };
+  pj.stages.cut = { at: new Date().toISOString(), coverage: al.coverage, rawSec: +pj.source.duration.toFixed(2), cleanSec: edl.duration, segments: edl.segments.length, linesNeedingReview: bad.map((l) => l.id), clippedBoundaries: clips, continuousJoins: edl.segments.filter((x) => x.continuous).map((x) => x.i) };
   save();
   log(`clean cut: ${edl.duration.toFixed(1)}s from ${pj.source.duration.toFixed(1)}s, ${edl.segments.length} segments, script coverage ${(al.coverage * 100).toFixed(0)}%. Review takes.md and aroll.clean.mp4.`);
   if (bad.length) log(`lines to check: ${bad.map((l) => `${l.id} (${l.status})`).join(", ")}`);
+  if (clips.length) log(`PHRASE INTEGRITY: ${clips.length} cut(s) chop a word: ${clips.map((c) => `${c.kind} at ${c.at}s (source ${c.src}s)`).join("; ")}. Render is blocked until the cut is fixed.`);
+  else log("phrase integrity: every cut sits in room tone.");
 }
 
 function planContext(s, dir) {
@@ -290,6 +296,20 @@ function prepareAssets(compDir, dir, ctx, plan) {
   for (const f of ["inter.woff2", "patrickhand.woff2"]) fs.copyFileSync(path.join(FONTS, f), path.join(A, "fonts", f));
   const used = new Set();
   for (const b of plan.beats) for (const id of [b.broll?.asset, b.graphic?.props?.asset, b.graphic?.props?.footage]) if (id) used.add(id);
+  // The 3D world: the pinned engine, three.js, and every photo it stands in the scene.
+  // Cut-outs keep their alpha (PNG); plates become JPEG like any other still.
+  if (plan.world) {
+    for (const f of ["three.module.min.js", "three.core.min.js"]) fs.copyFileSync(path.join(ENGINE, "node_modules/three/build", f), path.join(A, f));
+    fs.copyFileSync(path.join(REPO, "scripts/reel/lib/world3d.js"), path.join(A, "world3d.js"));
+    for (const o of plan.world.objects || []) if (o.type === "photo") {
+      const br = ctx.broll.find((x) => x.id === o.asset);
+      if (!br) throw new Error(`world photo ${o.id}: "${o.asset}" is not a sourced asset with provenance in broll/`);
+      const png = /\.png$/i.test(br.path);
+      const dst = path.join(A, `${o.asset}.${png ? "png" : "jpg"}`);
+      if (!fs.existsSync(dst) || fs.statSync(dst).mtimeMs < fs.statSync(br.path).mtimeMs) execFileSync("ffmpeg", ["-v", "error", "-y", "-i", br.path, "-vf", "scale='min(1600,iw)':-2", ...(png ? [] : ["-q:v", "3"]), dst]);
+      files[o.asset] = { rel: `assets/${path.basename(dst)}`, type: "image", credit: br.provenance.credit || `Source: ${br.provenance.source}`, provenance: br.provenance };
+    }
+  }
   for (const id of used) {
     const sheet = ctx.sheets.find((x) => x.id === id);
     const lib = ctx.library.library[id];
@@ -299,11 +319,11 @@ function prepareAssets(compDir, dir, ctx, plan) {
     const isVideo = /\.(mp4|mov|webm|m4v)$/i.test(src);
     const dst = path.join(A, `${id}.${isVideo ? "mp4" : "jpg"}`);
     const stamp = `${dst}.src.json`;
-    const want = JSON.stringify({ src, mtime: fs.statSync(src).mtimeMs, crop: lib?.crop || null, enc: 2 });
+    const want = JSON.stringify({ src, mtime: fs.statSync(src).mtimeMs, crop: lib?.crop || null, enc: 3 });
     if (!fs.existsSync(dst) || !fs.existsSync(stamp) || fs.readFileSync(stamp, "utf8") !== want) {
       const c = lib?.crop;
       const cropF = c ? `crop=iw*${c.w}:ih*${c.h}:iw*${c.x}:ih*${c.y},` : "";
-      if (isVideo) execFileSync("ffmpeg", ["-v", "error", "-y", "-i", src, "-an", "-vf", `${sdrFilter(probe(src))}${cropF}scale=720:-2,fps=30`, "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-pix_fmt", "yuv420p", ...BT709_TAGS, ...SEEKABLE, "-t", "90", dst]);
+      if (isVideo) execFileSync("ffmpeg", ["-v", "error", "-y", "-i", src, "-an", "-vf", `${sdrFilter(probe(src))}${cropF}scale=1080:-2,fps=30`, "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-pix_fmt", "yuv420p", ...BT709_TAGS, ...SEEKABLE, "-t", "90", dst]);
       else execFileSync("ffmpeg", ["-v", "error", "-y", "-i", src, "-vf", "scale='min(1400,iw)':-2", "-q:v", "3", dst]);
       fs.writeFileSync(stamp, want);
     }
@@ -312,7 +332,7 @@ function prepareAssets(compDir, dir, ctx, plan) {
   return files;
 }
 
-async function stageBuild(ref) {
+async function stageBuild(ref, opts = {}) {
   const { s, dir, pj, save } = loadProject(ref);
   const { plan, ctx, v } = await stagePlan(ref);
   const compDir = path.join(dir, "composition");
@@ -326,6 +346,14 @@ async function stageBuild(ref) {
   writeJson(path.join(dir, "captions.json"), phrases);
   writeJson(path.join(dir, "assets.json"), Object.fromEntries(Object.entries(assetFiles).map(([id, a]) => [id, { file: a.rel, type: a.type, provenance: a.provenance }])));
 
+  // --fast (visual iteration): the composition only. No mix, no check, and the build
+  // stage is not recorded, so a fast build can never clear the render gates.
+  if (opts.fast) {
+    const board = storyboardLint(plan, ctx);
+    log(`composition (fast): ${path.relative(REPO, compDir)}; storyboard ${Object.entries(board.coverage).map(([k, v]) => `${k} ${v}%`).join(", ")}`);
+    for (const e of board.errors) log(`  STORYBOARD REJECTED: ${e}`);
+    return { plan, ctx, v, safe, leaks, board, fast: true };
+  }
   log("mixing audio...");
   let music = null;
   try { music = proposeTrack(plan.duration, { overrideName: pj.music?.override || null, record: false }); } catch (e) { log(`no music: ${e.message}`); }
@@ -341,7 +369,9 @@ async function stageBuild(ref) {
   try { check = JSON.parse(chk.stdout.slice(chk.stdout.indexOf("{"))); } catch { check = { raw: (chk.stdout || "") + (chk.stderr || "") }; }
   writeJson(path.join(dir, "qa/check.json"), check);
   const lintErrors = (check?.lint?.findings || []).filter((f) => f.severity === "error");
-  pj.stages.build = { at: new Date().toISOString(), captions: comp.captions, safeZone: safe, captionLeaks: leaks, checkExit: chk.status, lintErrors: lintErrors.map((f) => f.code), music: music?.track || null };
+  const board = storyboardLint(plan, ctx);
+  const layoutErrors = (check?.layout?.findings || []).filter((f) => f.severity === "error").map((f) => ({ code: f.code, at: f.time, selector: f.selector }));
+  pj.stages.build = { at: new Date().toISOString(), captions: comp.captions, safeZone: safe, captionLeaks: leaks, checkExit: chk.status, lintErrors: lintErrors.map((f) => f.code), layoutErrors, storyboard: board, music: music?.track || null };
   save();
   if (lintErrors.length) {
     for (const f of lintErrors) log(`  HYPERFRAMES ERROR ${f.code}: ${f.message}`);
@@ -350,11 +380,57 @@ async function stageBuild(ref) {
   log(`composition: ${path.relative(REPO, compDir)} (${comp.captions} caption phrases). hyperframes check exit ${chk.status}.`);
   if (safe.length) log(`  safe-zone problems: ${safe.map((x) => `beat ${x.beat} ${x.what}`).join(", ")}`);
   if (leaks.length) log(`  CAPTION LEAKS: ${leaks.map((l) => l.phrase).join("; ")}`);
-  return { plan, ctx, v, safe, leaks, mixReport };
+  log(`storyboard: ${Object.entries(board.coverage).map(([k, v]) => `${k} ${v}%`).join(", ")}`);
+  for (const e of board.errors) log(`  STORYBOARD REJECTED: ${e}`);
+  for (const w of board.warnings) log(`  storyboard: ${w}`);
+  for (const f of layoutErrors) log(`  LAYOUT: ${f.code} at ${f.at}s (${f.selector})`);
+  return { plan, ctx, v, safe, leaks, mixReport, board, layoutErrors };
+}
+
+/**
+ * The storyboard: one labelled frame per beat (two for a long beat) from the built
+ * composition, BEFORE the expensive render, so monotony, a tiny product shot or a wall of
+ * text is visible at a glance. Writes qa/storyboard.jpg.
+ */
+async function stageStoryboard(ref) {
+  const { dir } = loadProject(ref);
+  const built = await stageBuild(ref);
+  const compDir = path.join(dir, "composition");
+  const beats = built.plan.beats;
+  const times = [];
+  for (const b of beats) {
+    const d = b.end - b.start;
+    const at = d > 4 ? [b.start + d * 0.3, b.start + d * 0.75] : [b.start + d * 0.5];
+    for (const t of at) times.push({ t: +t.toFixed(2), b });
+  }
+  const out = path.join(dir, "qa/storyboard");
+  fs.rmSync(out, { recursive: true, force: true });
+  log(`storyboard: snapshotting ${times.length} frames...`);
+  const r = spawnSync(HF, ["snapshot", compDir, "--at", times.map((x) => x.t).join(","), "--no-end", "-o", out], { stdio: "inherit", env: HF_ENV, timeout: 30 * 60 * 1000 });
+  if (r.status !== 0) throw new Error(`hyperframes snapshot failed (exit ${r.status})`);
+  const frames = fs.readdirSync(out).filter((f) => /^frame-\d+-at-.*\.png$/.test(f)).sort();
+  const cols = 8, tw = 240, th = 427;
+  const inputs = [], chains = [];
+  frames.forEach((f, i) => {
+    const x = times[i];
+    const label = `${x.t.toFixed(1)}s ${mediumOf(x.b)} ${x.b.scene}`.replace(/[:']/g, "");
+    inputs.push("-i", path.join(out, f));
+    chains.push(`[${i}]scale=${tw}:${th},drawtext=text='${label}':x=6:y=6:fontsize=15:fontcolor=white:box=1:boxcolor=black@0.7[v${i}]`);
+  });
+  const layout = frames.map((_, i) => `${(i % cols) * tw}_${Math.floor(i / cols) * th}`).join("|");
+  const sheet = path.join(dir, "qa/storyboard.jpg");
+  execFileSync("ffmpeg", ["-v", "error", "-y", ...inputs, "-filter_complex", `${chains.join(";")};${frames.map((_, i) => `[v${i}]`).join("")}xstack=inputs=${frames.length}:layout=${layout}:fill=white`, "-frames:v", "1", "-q:v", "3", sheet]);
+  log(`storyboard: ${path.relative(REPO, sheet)} (${frames.length} frames)`);
+  if (built.board.errors.length) log(`storyboard REJECTED (${built.board.errors.length}): fix the plan before rendering`);
+  return { sheet, board: built.board };
 }
 
 async function stageRender(ref, opts = {}) {
   const { s, dir, pj, save } = loadProject(ref);
+  const board = pj.stages.build?.storyboard;
+  if (board?.errors?.length && !opts.allowStoryboard) throw new Error(`the storyboard was rejected (${board.errors.join("; ")}): fix the plan first (--allowStoryboard overrides)`);
+  const clips = pj.stages.cut?.clippedBoundaries || [];
+  if (clips.length && !opts.allowClips) throw new Error(`the clean cut chops ${clips.length} word(s) (${clips.map((c) => `${c.at}s`).join(", ")}): fix the cut first (phrase integrity is a hard gate; --allowClips overrides)`);
   const built = await stageBuild(ref);
   const compDir = path.join(dir, "composition");
   const renders = path.join(dir, "renders");
@@ -505,7 +581,8 @@ async function main() {
     case "transcribe": await stageTranscribe(args[0], opts); break;
     case "cut": stageCut(args[0]); break;
     case "plan": await stagePlan(args[0], opts); break;
-    case "build": await stageBuild(args[0]); break;
+    case "build": await stageBuild(args[0], opts); break;
+    case "storyboard": await stageStoryboard(args[0]); break;
     case "render": { const q = await stageRender(args[0], opts); if (!q.passed) process.exitCode = 2; break; }
     case "qa": { const q = stageQa(args[0]); if (!q.passed) process.exitCode = 2; break; }
     case "run": await stageRun(args, opts); break;

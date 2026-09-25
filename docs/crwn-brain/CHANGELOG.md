@@ -1,5 +1,25 @@
 # CRWN Brain — Changelog
 
+## 2026-09-25 - Reel editor rebuilt to the premium-reference standard (script 23 again)
+
+The founder set five premium voice-led explainers (videos/reels/references, Cleo Abram's
+"Huge If True" reels) as the quality bar. Measured frame by frame, they are presenter
+10-35% and always full-frame, never split, 65-90% full-screen visuals, one evolving 3D
+world with pinned tags, real evidence with credit lines. The previous Smino reel was the
+opposite (split screen 60%, face 95%, text cards, no Smino imagery), so the editor changed:
+phrase integrity is a hard gate measured on the source audio (5 chopped words found and
+fixed: consonant closures read as silence, recognizer times, frame rounding); visuals are
+planned from the spoken transcript and the validator refuses on-screen words he never said
+(the old reel showed "Zero Fatigue", never said); a deterministic Three.js world inside
+HyperFrames (`scripts/reel/lib/world3d.js`, pure function of time via `hf-seek`) carries
+fans, a timeline rail, promise tiles and coin stacks, so the reveal shows 3 stacks against
+36; Smino himself is a stylised 3D figure built from reference photographs (founder: use
+the photos as reference for 3D, not on screen), performing on a lettered stage; the
+product and calculator own the frame; a storyboard gate rejects split-screen
+defaults, text slides, an artist-less hook and minimised product footage before a render;
+sound is planned on visual events. Retired by the founder: the 50% face-time rule and
+split screen as the default. No app code changed.
+
 ## 2026-09-24 - Reel editor calibrated on the first real recording (script 23, Smino)
 
 The editor ran end to end on real footage for the first time: a 3:48 landscape take of

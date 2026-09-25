@@ -688,13 +688,14 @@ responsible for. Do not work those.
 
 ### P2 — worth doing, nothing breaks if you never do it
 
-- [ ] **Watch the Smino reel (script 23) and pick the full or the short cut.** Two files in
-      `videos/reels/23-smino-the-promise-you-forgot/final/`: the full cut runs about 3:25,
-      which is over the 3:00 Instagram Reels / YouTube Shorts cap; the `-short` file drops
-      lines 5, 23, 24 and 25 (Smino's "nobody above him" line and the three-line passage
-      after the reveal) to land under 3:00. Post the one you want; send notes to Claude and
-      they become rules in the skill's RULES.md. Next recordings: shoot in 4K if the camera
-      allows (a vertical crop of 1080p is soft on a punch-in).
+- [ ] **Watch the rebuilt Smino reel (script 23) and decide on its length.** The premium
+      rebuild (3D world, the 3D Smino figure, full-screen product and calculator) is
+      `videos/reels/23-smino-the-promise-you-forgot/final/23-smino-the-promise-you-forgot.mp4`.
+      It runs about 3:29, over the 3:00 Instagram Reels / YouTube Shorts cap. Post it where
+      length allows, or tell Claude "make the short cut" (drops lines 5 and 23-25, about 30s;
+      the plan needs those beats guarded first, then a render). The older split-screen
+      versions are in `final/superseded/`. Send notes to Claude: they become rules in the
+      skill's RULES.md. Next recordings: shoot in 4K if the camera allows.
 - [ ] **Optional: an ElevenLabs key for verbatim transcripts.** Without it the editor uses free
       local Whisper, which sometimes smooths a stumble into one clean-looking take. Create a
       key at elevenlabs.io with ONLY the Speech to Text permission, then add this line to
