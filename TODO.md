@@ -688,6 +688,15 @@ responsible for. Do not work those.
 
 ### P2 — worth doing, nothing breaks if you never do it
 
+- [ ] **Decide: should the VAULT DM price the catalog the same way the web tool now does?**
+      The web Vault Revenue Planner now shows fans who would pay x your price (the scripts'
+      math, with the fan count ASKED). The DM result still estimates 1.5% of monthly listeners
+      x $10 ([src/lib/acquisition/toolAdapters.ts](src/lib/acquisition/toolAdapters.ts), the
+      `vault` adapter), so a DM arrival and a web visitor can see different numbers for the same
+      artist. Matching it means the ManyChat VAULT flow asks two new questions (how many fans
+      would pay, and the price), which is a flow edit only you can make. Tell Claude "match the
+      VAULT DM" and it will change the adapter and write the exact ManyChat questions.
+
 - [ ] **Watch the rebuilt Smino reel (script 23) and decide on its length.** The premium
       rebuild (3D world, the 3D Smino figure, full-screen product and calculator) is
       `videos/reels/23-smino-the-promise-you-forgot/final/23-smino-the-promise-you-forgot.mp4`.
