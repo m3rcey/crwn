@@ -202,3 +202,10 @@ SELECT 'schema-phase2-tier-events-offer-vocabulary.sql' AS migration,
           WHERE conname='tier_events_event_type_check'
             AND pg_get_constraintdef(oid) LIKE '%tier_vsl_started%'
        ) AS applied;
+
+-- 14. Retired new-artist trigger (2026-09-26). 'sql-check': triggers are invisible to anon.
+--     Expect applied = true after running supabase/schema-phase2-drop-new-artist-trigger.sql.
+SELECT 'schema-phase2-drop-new-artist-trigger.sql' AS migration,
+       NOT EXISTS (
+         SELECT 1 FROM pg_trigger WHERE tgname = 'trg_notify_new_artist' AND NOT tgisinternal
+       ) AS applied;

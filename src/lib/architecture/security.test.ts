@@ -832,7 +832,6 @@ describe('SEC-SERVICE — service-role routes are the only authorization boundar
     'src/app/api/partner/apply/route.ts',
     'src/app/api/surveys/route.ts',
     'src/app/api/producer/flag/route.ts',
-    'src/app/api/notifications/new-artist-hook/route.ts',
     // Fan recognition labels for a public artist page. A signed-out reader must see the
     // same badges every other reader sees, so requiring a session would make the feature
     // depend on who is looking. It reads no other tenant's rows in any meaningful sense:

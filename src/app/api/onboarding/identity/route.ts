@@ -6,6 +6,7 @@ import { isEmailLike } from '@/lib/publicName';
 import { slugify } from '@/lib/slugify';
 import { resend, FROM_EMAIL } from '@/lib/resend';
 import { welcomeEmail } from '@/lib/emails/welcome';
+import { sendNewArtistAlerts } from '@/lib/newArtistAlert';
 
 // Saves the new user's identity (name + role, plus the CRWN link for artists)
 // from the setup wizard's first screens. This replaced the /welcome page's
@@ -82,6 +83,9 @@ export async function POST(request: NextRequest) {
 
   let artistId: string | null = existing?.id ?? null;
   let slug: string | null = existing?.slug ?? null;
+  // True only on the request that actually created the artist row: drives the founder alert.
+  let createdArtist = false;
+  let recruitedBy: string | null = null;
 
   if (effectiveRole === 'artist' && !existing) {
     // The handle becomes their permanent public link, so validate it up front
@@ -143,6 +147,8 @@ export async function POST(request: NextRequest) {
     }
     artistId = newArtist.id;
     slug = wantedSlug;
+    createdArtist = true;
+    recruitedBy = recruiterCode;
   }
 
   // Was onboarding already completed once? Drives the one-time welcome email.
@@ -178,6 +184,13 @@ export async function POST(request: NextRequest) {
         html: welcomeEmail(displayName.split(' ')[0] || 'there'),
       })
       .catch((e) => console.error('Welcome email failed:', e));
+  }
+
+  // Founder alert + Josh's personal welcome, now that the chosen name is saved (the old
+  // DB trigger fired before this and named the email seed). AWAITED: an unawaited promise
+  // can be cut off when a Vercel function returns. It never fails the signup.
+  if (createdArtist && slug) {
+    await sendNewArtistAlerts({ slug, displayName, recruitedBy, artistEmail: user.email });
   }
 
   return NextResponse.json({ success: true, role: effectiveRole, artistId, slug });

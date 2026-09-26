@@ -18,7 +18,7 @@
 // replay a no-op rather than a vulnerability, which is the best available answer given the
 // transport's constraints.
 //
-// The precedent for this pattern is src/app/api/notifications/new-artist-hook/route.ts,
+// The precedent for this pattern was the new-artist hook (deleted 2026-09-26),
 // where a Postgres pg_net trigger has the same "cannot sign" limitation.
 //
 // If the secret leaks: rotate MANYCHAT_WEBHOOK_SECRET in Vercel, update the ManyChat

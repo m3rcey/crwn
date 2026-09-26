@@ -200,7 +200,7 @@ it cannot currently send.
 | `support`, `support/chat`, `admin/support-chat` | 4 | T | NO | NO |
 | `partner/apply` | 2 | I | NO | NO |
 | `recruit/signup` | 1 | I | NO | NO |
-| `notifications/new-artist-hook` | 2 | I | NO | NO |
+| `newArtistAlert` (from `onboarding/identity`, `onboarding/artist-created`) | 2 | I | NO | NO |
 | `popups` | 1 | I | NO | NO |
 | `admin/agent/briefing` † | 1 | I | NO | NO |
 | `acquisition/automationDispatcher` | 1 | M | NO | NO |

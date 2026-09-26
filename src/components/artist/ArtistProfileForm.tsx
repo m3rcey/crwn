@@ -276,7 +276,10 @@ export function ArtistProfileForm() {
           // trigger (schema-phase2-promote-artist-role.sql). The client cannot set
           // role — RLS forbids it (schema-phase2-rls-column-restrictions.sql) — so
           // the old client-side role update here always failed silently and left
-          // new artists stuck as 'fan'. Founder is notified by the same trigger.
+          // new artists stuck as 'fan'.
+          // Founder alert: server-side, session-scoped to this user's own new row. It
+          // used to ride a pg_net DB trigger that broke silently (2026-09-26).
+          fetch('/api/onboarding/artist-created', { method: 'POST' }).catch(() => {});
         }
       }
 

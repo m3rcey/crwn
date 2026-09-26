@@ -1,5 +1,5 @@
 // Personal welcome from Josh to every new artist the moment they publish their
-// page. Sent exactly once, server-side, from /api/notifications/new-artist-hook
+// page. Sent exactly once, server-side, from sendNewArtistAlerts (src/lib/newArtistAlert.ts)
 // (driven by the artist_profiles INSERT trigger). Carries the Cal.com link so
 // the artist can book a 1-on-1 onboarding call with Josh to get set up to earn.
 //

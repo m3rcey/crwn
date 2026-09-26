@@ -30,7 +30,7 @@
 | `/api/webhooks/resend`, `/api/outreach/webhook`, `/api/outreach/inbound` | Resend | ✅ Svix signature (`verifySvixSignature`, fails closed; the old "unverified (HIGH)" note predated the 2026-08 hardening) |
 | ~~`/api/sms/status`, `/api/sms/webhook`~~ | Twilio | Routes deleted 2026-07-31 with the SMS removal |
 | `/api/webhooks/meta` | Meta (IG + FB comments, Fan Automations) | ✅ `hub.challenge` GET + `X-Hub-Signature-256` (`verifyMetaSignature`, fails closed); dedupe `UNIQUE(provider, comment_id)` |
-| `/api/notifications/new-artist-hook` | internal (`NEW_ARTIST_WEBHOOK_SECRET`) | secret |
+| `/api/onboarding/artist-created` | session (own row, created < 10 min ago) | founder alert for a browser-created artist page |
 | `/api/cron/*` (25) | Vercel Scheduler | `CRON_SECRET` bearer |
 | PKCE auth callback | Supabase (via middleware `exchangeCodeForSession`) | code param |
 

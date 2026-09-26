@@ -59,7 +59,7 @@ npm test             # vitest, 820 tests across 50 files (a moving figure: run i
 | `DEEPSEEK_API_KEY`, `OPENAI_API_KEY` | AI (DeepSeek also powers the /support chat; if unset, chat escalates to the founder) |
 | `CRON_SECRET` | gates all cron routes (24 after `sms-reset` was deleted 2026-07-31) |
 | `INTERNAL_TRACK_SECRET` | middleware → `/api/admin/track` |
-| `NEW_ARTIST_WEBHOOK_SECRET` | new-artist hook |
+| `NEW_ARTIST_WEBHOOK_SECRET` | RETIRED 2026-09-26 (the new-artist hook was deleted); safe to remove from Vercel |
 | `SURVEY_TOKEN_SECRET` | signed loyalty-survey tokens |
 | `VERCEL_URL` | deploy URL fallback |
 

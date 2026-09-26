@@ -67,6 +67,14 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **Remove the dead new-artist trigger, and read what it says on the way out.** New-artist
+      emails no longer depend on it (they send straight from the signup code as of 2026-09-26),
+      so this is cleanup, not a blocker. Run in the Supabase SQL Editor:
+      [supabase/schema-phase2-drop-new-artist-trigger.sql](supabase/schema-phase2-drop-new-artist-trigger.sql)
+      Before it ends with `schema-phase2-drop-new-artist-trigger: OK`, it prints lines starting
+      `diagnostic:`. Paste those to me: they say why the old alert kept dying (401 means the
+      secret drifted). Then delete `NEW_ARTIST_WEBHOOK_SECRET` from Vercel; nothing reads it.
+
 - [ ] **Run the Featured switch migration so new signups (and Fr35h) come off everyone's Home.**
       Until it runs, the code falls back to the old rule, Fr35h stays on the row, and the
       Feature buttons at /admin?tab=artists are greyed out. Open and run in the Supabase SQL Editor:
