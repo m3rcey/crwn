@@ -22,6 +22,20 @@ responsible for. Do not work those.
 
 ### P0 — money flows or acquisition are blocked
 
+- [ ] **Build the TOUR and DEMAND ManyChat automations before 9:00 AM CT 9/27.** Three scheduled
+      posts ask for a keyword nothing answers: TOUR 9/27 9:00 AM (Oddisee), DEMAND 9/27 8:00 PM
+      (Lil Dicky), TOUR 9/28 3:00 PM (Atmosphere). The server already serves both tools. Clone the
+      VAULT automation (keep its comment trigger scope, it already fires on every post) and follow
+      [docs/acquisition/manychat-setup-guide.md](docs/acquisition/manychat-setup-guide.md) steps 5 to 10. Per clone:
+      - TOUR: trigger keyword `TOUR` (+ DM keyword trigger). Body: `"lead_magnet_id":"between-tour-calculator"`,
+        `"keyword":"TOUR"`, `"utm_content":"tour"`. Opener: "The months between shows are paying you
+        nothing. Want to see what they're worth?" Button: Show Me.
+      - DEMAND: trigger keyword `DEMAND` (+ DM keyword trigger). Body: `"lead_magnet_id":"proof-of-demand-test-builder"`,
+        `"keyword":"DEMAND"`, `"utm_content":"demand"`. Opener: "You're about to pay for your next
+        release out of pocket. Want to see if your buyers would fund it?" Button: Show Me.
+      - Smoke test each with Test Request: it must return `ask_question` with the NEW tool's question.
+      - Also confirm automations exist for FREE (9/28 noon), ROYALTY (9/29 9 AM) and LIVE (9/29 6 PM).
+
 - [ ] **To finish Team Splits I need a test-mode sandbox. This is the only thing left, and it is
       environment setup, not code.** Nothing to run in SQL.
       I checked rather than assumed: your Stripe key really is live (I asked Stripe, and the balance
