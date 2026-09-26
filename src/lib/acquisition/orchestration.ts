@@ -20,6 +20,7 @@
 import { supabaseAdmin } from './db';
 import { mirrorFunnelDirect } from '../analytics/acquisitionFunnelMirror';
 import { LEAD_MAGNETS, getLeadMagnet } from '../leadMagnets/registry';
+import { resolveSessionKeyword } from './sessionKeyword';
 import { decide } from './claudeDecisionService';
 import { getField, normalizeDeterministic } from './fieldRegistry';
 import { fallbackDecision } from './fallbackDecision';
@@ -597,6 +598,11 @@ async function loadOrCreateSession(
 
   const toolId = payload.lead_magnet_id ?? DEFAULT_TOOL_ID;
 
+  // Attribution only (routing already follows toolId): a half-edited ManyChat clone reports its
+  // parent's keyword, so record the keyword that belongs to this tool. See sessionKeyword.ts.
+  const kw = resolveSessionKeyword(payload.keyword, toolId);
+  const recordedKeyword = kw.mislabeled ? kw.keyword : payload.keyword;
+
   const { data: open } = await supabaseAdmin
     .from('lead_sessions')
     .select('id, state, lead_magnet_id, revision')
@@ -624,7 +630,7 @@ async function loadOrCreateSession(
       source_platform: 'instagram',
       creator_account: payload.creator_account,
       source_post_id: payload.source_post_id,
-      keyword: payload.keyword,
+      keyword: recordedKeyword,
       conversation_id: payload.conversation_id,
       referring_url: payload.referring_url,
       utm_source: payload.utm_source,
@@ -656,7 +662,12 @@ async function loadOrCreateSession(
   await recordEvent('lead_session_started', {
     leadIdentityId: identity.id,
     sessionId: String(data.id),
-    metadata: { tool: toolId, keyword: payload.keyword, sourcePost: payload.source_post_id },
+    metadata: {
+      tool: toolId,
+      keyword: recordedKeyword,
+      ...(kw.mislabeled ? { keyword_reported: payload.keyword } : {}),
+      sourcePost: payload.source_post_id,
+    },
   });
 
   // Mirror into the funnel with the IG post as the video dimension (attribution is right here on
@@ -670,7 +681,7 @@ async function loadOrCreateSession(
     calculator: toolId,
     video: payload.source_post_id ?? payload.utm_content,
     creatorAccount: payload.creator_account,
-    keyword: payload.keyword,
+    keyword: recordedKeyword,
     campaign: payload.utm_campaign,
   });
 

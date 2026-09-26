@@ -23,6 +23,7 @@ import { ALLOWED_RECURRENCES } from '@/lib/promisePlan';
 import type { Recurrence } from '@/lib/fulfillment';
 import { recordFunnelEvent } from '@/lib/analytics/funnelEvents';
 import { attributionDimsFor } from '@/lib/analytics/attributionLookup';
+import { signupFallbackDims } from '@/lib/analytics/signupAttribution';
 import { recommendPlan } from '@/lib/planRecommendation';
 import { assignSubAvatar, deriveAcquisitionAvatar, mergeEvidence, evidenceFromInputs } from '@/lib/avatars/assignment';
 import { getSubAvatar } from '@/lib/avatars/taxonomy';
@@ -93,7 +94,12 @@ export async function POST() {
   // The campaign that brought them, read back off their now-claimed result row. This is the join
   // that makes "which video produced an artist" answerable: without it the funnel below signup
   // knows the calculator but not the content, and every video looks identical from here down.
-  const attributionDims = await attributionDimsFor(supabaseAdmin, { userId: user.id });
+  // No claimed row carries a source (a Google signup, or no calculator at all): fall back to the
+  // first-touch snapshot the fresh session wrote to user_metadata, re-sanitized. Row always wins.
+  const attributionDims = signupFallbackDims(
+    await attributionDimsFor(supabaseAdmin, { userId: user.id }),
+    meta,
+  );
 
   const dims = {
     calculator: seed?.toolSlug ?? null,

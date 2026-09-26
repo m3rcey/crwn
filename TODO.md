@@ -67,23 +67,24 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
-- [ ] **Content test (9/25 to 9/29): qualify the five signups by hand.** CRWN holds no audience or
-      sales data for them. Look up each one's IG followers and Spotify monthly listeners and tell Claude. Rerun the audit each day:
+- [ ] **Content test (9/25 to 9/29): finish the hand-grade of two signups.** Claude graded all five
+      from public sources (none is verified Tier 1 or 2). Two could not be matched to a public
+      artist: tell Claude the IG handle or Spotify link for **c-k-215** (C.K.215) and **fr35h**
+      (several artists use that name). Rerun the audit each day:
       `bash -c 'set -a; source ./.env.local; set +a; node scripts/funnel-audit.mjs --since 2026-09-25'`
       ([scripts/funnel-audit.mjs](scripts/funnel-audit.mjs)).
-      - **djdawest**: started Stripe but did not finish (charges off), so the paid tiers have no
-        Stripe price and nobody can buy. Tiers are $100 / $250 / $1,000, which is 10x the
-        template: confirm they meant it. Fix: finish Stripe at /account/payouts.
-      - **meditraption**: Stripe fully on, but only the free Bronze tier exists. Nothing to buy.
-      - **fr35h**: stopped mid-setup, no Stripe, tiers not priced.
-      - **existentialbeingmusic** (IG, came from the VAULT DM): claimed their result, then stopped
-        on the first setup screen with no artist page.
-- [ ] **Content test attribution (instrumentation only, changes nothing a lead sees).** In ManyChat,
-      on every cloned automation's session_start External Request body: set `keyword` to the
-      automation's real word (VAULT flows still send "WORTH"; 20 of 21 sessions are mislabeled),
-      and set `utm_content` to a per-post label (e.g. `vault-reel-0925`). Add
-      `utm_campaign=content-test-day3` (then day4, day5) to the bio link WITHOUT changing where
-      it points. Also send Claude a screenshot of the VAULT opening DM node (Meta rate-limited the read).
+- [ ] **Content test attribution: two ManyChat body edits and one bio-link edit.** None changes
+      what a lead sees. The server now records the right keyword even if you skip the first edit,
+      but fix the source anyway.
+      1. ManyChat, every automation, the session_start **External Request** Body: set `"keyword"`
+         to that automation's own word (the VAULT clones still send `"WORTH"`).
+      2. Same body: add `"utm_content":"<post label>",` with one label per post, e.g.
+         `vault-reel-0925`, `worth-reel-0926`, `demand-feed-0926`. ManyChat has no post-id field, so
+         this label IS the post id from now on.
+      3. Instagram bio: find the link that carries `utm_content=link_in_bio` (the API reports only
+         bare https://thecrwn.app, so it is probably your second link). Append
+         `&utm_campaign=content-test-day3` to it, then `day4` and `day5` on those mornings.
+         Do NOT change the page it opens.
 
 - [ ] **Watch V2 against V1 and tell me which parts still miss.** You rejected V1 on look:
       not alive, too fast, images cut off, screen unused, does not hold attention. You said the
@@ -1053,6 +1054,17 @@ Things that are never finished. Cadence, then the thing.
 ---
 
 ## On Claude's plate (not yours)
+
+- **Content test Day 5 review queue (9/29). Recorded, deliberately NOT resolved mid-test:**
+  - ICP doc vs scorer: docs/ICP.md requires followers AND listeners AND 40 songs AND 3 years;
+    `leadScoring.ts` uses followers OR listeners and checks neither songs nor years;
+    `catalog_size` means unreleased in the DM/scorer but released in `avatars/assignment.ts`.
+  - Should acquisition hooks qualify harder (audience, proven sales) instead of catalog?
+  - VAULT: a broad reach hook, or rewritten to be ICP-specific?
+  - The DM confirmation tap ("Show Me" after they already commented): keep, change or remove?
+  - Calculator qualification: the Vault web planner asks none of the fields the scorer reads.
+  - Should signup capture ICP facts (followers, listeners, proof of sales)? Today it captures none.
+  - Distribution: does @thecrwnapp (4.4k followers) need to reach established artists more directly?
 
 - **Fan Economy reel editor: after the founder's verdict on the prototype**, either rebuild
   the full Smino reel in real media with the cleared images, or fix what his eye rejects

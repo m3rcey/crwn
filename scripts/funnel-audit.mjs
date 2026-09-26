@@ -144,9 +144,54 @@ async function production(posts) {
   const aev = await all('acquisition_events', 'event_name,status', (q) => q.gte('occurred_at', SINCE));
   console.log('  acquisition_events', JSON.stringify(sorted(tally(aev, (e) => e.event_name))));
   console.log('  acquisition_events failed/dead', JSON.stringify(sorted(tally(aev.filter((e) => ['failed', 'dead_letter'].includes(e.status)), (e) => e.event_name))));
-  const idents = await all('lead_identities', 'id,email,user_id,status,first_seen_at', (q) => q.gte('first_seen_at', SINCE));
+  const idents = await all('lead_identities', 'id,email,user_id,status,first_seen_at,instagram_username', (q) => q.gte('first_seen_at', SINCE));
   console.log(`  new lead identities ${idents.length}, with email ${idents.filter((i) => i.email).length}, claimed by an account ${idents.filter((i) => i.user_id).length}`);
   console.log('  identity status', JSON.stringify(sorted(tally(idents, (i) => i.status))));
+
+  // ── Per-post attribution, recovered by JOIN (read time, no stored claim) ─────────────────
+  // A lead's instagram_username + the keyword comments that username left on test posts.
+  // Exactly one post = that post. More than one = 'multiple' (never guessed). None = the lead
+  // typed the keyword in DMs, commented on an older post, or changed username.
+  const byUser = new Map();
+  for (const p of posts) for (const w of p.kwWho || []) {
+    const k = String(w).toLowerCase();
+    if (!byUser.has(k)) byUser.set(k, new Set());
+    byUser.get(k).add(p.id);
+  }
+  const identById = new Map(idents.map((i) => [i.id, i]));
+  const label = (id) => { const p = posts.find((x) => x.id === id); return p ? `${p.timestamp.slice(5, 16)} ${(p.caption || '').match(/Comment "([A-Z]+)"/)?.[1] || '?'} ${p.media_product_type}` : id; };
+  const postOf = (s) => {
+    const u = identById.get(s.lead_identity_id)?.instagram_username?.toLowerCase();
+    const set = u ? byUser.get(u) : null;
+    if (!set || !set.size) return '(no keyword comment on a test post)';
+    return set.size === 1 ? label([...set][0]) : 'multiple posts';
+  };
+  const leadProfiles = await all('lead_profiles', 'lead_identity_id,score_band,monthly_listeners,social_followers,monetization_status', (q) => q.in('lead_identity_id', sessions.map((s) => s.lead_identity_id)));
+  const prof = new Map(leadProfiles.map((p) => [p.lead_identity_id, p]));
+  // ICP tier from docs/ICP.md thresholds, applied ONLY to what the lead actually reported.
+  const tierOf = (p) => {
+    if (!p) return 'unknown';
+    const f = p.social_followers, l = p.monthly_listeners;
+    if (f == null && l == null) return 'unknown';
+    if ((f ?? 0) >= 250000 || (l ?? 0) >= 100000) return 'T1';
+    if ((f ?? 0) >= 50000 || (l ?? 0) >= 20000) return 'T2';
+    return 'T3';
+  };
+  out('DM LEADS BY ORIGINATING POST (username join) and ICP QUALITY');
+  const rows = {};
+  for (const s of sessions) {
+    const k = postOf(s);
+    rows[k] ||= { starts: 0, results: 0, bands: {}, tiers: {} };
+    rows[k].starts++;
+    if (['result_sent', 'result_viewed', 'account_claim_started', 'account_claimed'].includes(s.state)) rows[k].results++;
+    const p = prof.get(s.lead_identity_id);
+    const b = p?.score_band || 'none'; rows[k].bands[b] = (rows[k].bands[b] || 0) + 1;
+    const t = tierOf(p); rows[k].tiers[t] = (rows[k].tiers[t] || 0) + 1;
+  }
+  for (const [k, v] of Object.entries(rows)) console.log(`  ${k.padEnd(36)} DM starts ${v.starts}, results ${v.results} | bands ${JSON.stringify(v.bands)} | ICP tier (self-reported) ${JSON.stringify(v.tiers)}`);
+  const all3 = sessions.map((s) => tierOf(prof.get(s.lead_identity_id)));
+  console.log(`  QUALITY: T1 ${all3.filter((t) => t === 'T1').length}, T2 ${all3.filter((t) => t === 'T2').length}, T3 ${all3.filter((t) => t === 'T3').length}, unknown ${all3.filter((t) => t === 'unknown').length}; sales_priority ${leadProfiles.filter((p) => p.score_band === 'sales_priority').length}`);
+  console.log('  keyword as RECORDED vs tool (a mismatch = the ManyChat body label, see TODO):', JSON.stringify(sorted(tally(sessions, (s) => `${(s.keyword || '-').toLowerCase()}->${s.lead_magnet_id}`))));
 
   out('CALCULATOR RESULTS (lead_magnet_results)');
   const results = await all('lead_magnet_results', 'id,tool_slug,source,user_id,status,input_data,created_at', (q) => q.gte('created_at', SINCE));
@@ -213,6 +258,29 @@ async function production(posts) {
   }
   const fans = pros.filter((p) => !artists.some((a) => a.user_id === p.id));
   console.log(`  accounts with no artist page: ${fans.length}`, fans.map((p) => `${p.created_at.slice(5, 16)} ${p.role} ${mask(authEmail[p.id] || p.email)} onboarded=${p.onboarding_completed}`).join(' | '));
+
+  // ── Leading indicators under FIRST PAID MEMBER (read from existing rows, no new writes) ────
+  // offer ready  = an active PAID tier            payable   = that tier carries a Stripe price
+  //   (prices are backfilled only once the artist's Stripe account can take charges)
+  // funnel active = a fan_automations row is on   invited   = a fan_invited funnel event
+  // offer reached = tier_card_viewed (a paid tier) checkout  = tier_checkout_started, written by
+  //   /api/stripe/checkout only AFTER Stripe created the session, subscriptions only
+  // paid         = an active subscription on a paid tier; revenue = the monthly price of those
+  // Qualified ICP is NOT decided here: CRWN stores no ICP grade for a signed-up artist. It comes
+  // from the hand-grade (and, for DM leads, lead_profiles.score_band above).
+  out('LEADING INDICATORS PER NEW ARTIST (invite -> offer -> checkout -> paid)');
+  const tev = aIds.length ? await all('tier_events', 'artist_id,tier_id,event_type,fan_id,occurred_at', (q) => q.in('artist_id', aIds)) : [];
+  const autos = aIds.length ? await all('fan_automations', 'artist_id,status', (q) => q.in('artist_id', aIds)) : [];
+  const invites = aIds.length ? await all('funnel_events', 'artist_id,stage,occurred_at', (q) => q.in('artist_id', aIds).eq('stage', 'fan_invited')) : [];
+  for (const a of artists) {
+    const paid = tiers.filter((t) => t.artist_id === a.id && t.is_active && (t.price || 0) > 0);
+    const paidIds = new Set(paid.map((t) => t.id));
+    const mine = tev.filter((e) => e.artist_id === a.id && paidIds.has(e.tier_id) && e.fan_id !== a.user_id);
+    const paying = subs.filter((s) => s.artist_id === a.id && s.status === 'active' && (tierPrice[s.tier_id] || 0) > 0);
+    const mrr = paying.reduce((n, s) => n + (tierPrice[s.tier_id] || 0), 0);
+    const flag = (b) => (b ? 'yes' : 'no ');
+    console.log(`  ${String(a.slug).padEnd(22)} offer ready ${flag(paid.length)} | payable ${flag(paid.some((t) => t.stripe_price_id))} | funnel active ${flag(autos.some((f) => f.artist_id === a.id && f.status === 'active'))} | invited ${invites.filter((e) => e.artist_id === a.id).length} | offer reached ${mine.filter((e) => e.event_type === 'tier_card_viewed').length} | checkout attempts ${mine.filter((e) => e.event_type === 'tier_checkout_started').length} | paid members ${paying.length} | MRR $${(mrr / 100).toFixed(2)}`);
+  }
 }
 
 const posts = await instagram().catch((e) => { console.log('  instagram failed:', e.message); return []; });

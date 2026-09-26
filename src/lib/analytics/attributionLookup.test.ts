@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { attributionFromRows, resolveAttribution, attributionDimsFor, withAttribution } from './attributionLookup';
+import { attributionFromRows, attributionFromSession, resolveAttribution, attributionDimsFor, withAttribution } from './attributionLookup';
 import { ATTRIBUTION_INPUT_KEY, parseCampaignAttribution } from './campaignAttribution';
 
 const tag = (s: string) => parseCampaignAttribution(new URLSearchParams(s));
@@ -96,6 +96,63 @@ describe('resolveAttribution', () => {
 
   it('attributionDimsFor returns {} for an unattributed artist, so a spread is always safe', async () => {
     expect(await attributionDimsFor(fakeDb({}), { userId: 'u1' })).toEqual({});
+  });
+});
+
+describe('DM results: attribution read from the session the row points at', () => {
+  it('attributionFromSession maps the session through the one normalizer and fixes a clone label', () => {
+    const a = attributionFromSession({
+      keyword: 'WORTH', // the half-edited VAULT clone's label
+      lead_magnet_id: 'vault-revenue-planner',
+      source_platform: 'instagram',
+      utm_content: 'vault-reel-0925',
+    });
+    expect(a!.platform).toBe('instagram');
+    expect(a!.keyword).toBe('vault');
+    expect(a!.creative).toBe('vault-reel-0925');
+    expect(a!.campaign).toBeNull(); // nothing recorded, nothing invented
+  });
+
+  it('uses the post id as the creative only when no utm_content label exists', () => {
+    expect(attributionFromSession({ source_platform: 'instagram', source_post_id: '1798' })!.creative).toBe('1798');
+    expect(attributionFromSession({ source_platform: 'instagram', source_post_id: '1798', utm_content: 'label' })!.creative).toBe('label');
+    expect(attributionFromSession(null)).toBeNull();
+  });
+
+  it('resolveAttribution fills a DM row (no _attribution) from its session, and a web row still wins first touch', async () => {
+    const sessions = [{ id: 's1', keyword: 'WORTH', lead_magnet_id: 'vault-revenue-planner', source_platform: 'instagram', utm_content: 'vault-reel-0925' }];
+    const db = {
+      from(table: string) {
+        const b = {
+          select: () => b,
+          eq: () => b,
+          order: () => b,
+          limit: () => Promise.resolve({ data: [{ input_data: { catalog_size: 60 }, lead_session_id: 's1' }] }),
+          in: () => Promise.resolve({ data: table === 'lead_sessions' ? sessions : [] }),
+        };
+        return b;
+      },
+    };
+    const a = await resolveAttribution(db, { userId: 'u1' });
+    expect(a!.keyword).toBe('vault');
+    expect(a!.creative).toBe('vault-reel-0925');
+
+    // A web row with its own stored tag is untouched and never triggers the session read.
+    let sessionReads = 0;
+    const web = {
+      from(table: string) {
+        const b = {
+          select: () => b,
+          eq: () => b,
+          order: () => b,
+          limit: () => Promise.resolve({ data: [{ ...row('utm_campaign=web_first'), lead_session_id: null }] }),
+          in: () => { if (table === 'lead_sessions') sessionReads++; return Promise.resolve({ data: [] }); },
+        };
+        return b;
+      },
+    };
+    expect((await resolveAttribution(web, { userId: 'u1' }))!.campaign).toBe('web_first');
+    expect(sessionReads).toBe(0);
   });
 });
 

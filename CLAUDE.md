@@ -378,6 +378,30 @@ parse it through this module, which is also the length limit and the HTML-safety
 - **Two policies, on purpose.** The client beacon is LAST touch (current URL wins, the snapshot
   fills silence): existing behavior, do not change it. Persisted attribution is FIRST touch:
   `mergeAttribution` never replaces a set field, so a later untagged visit cannot erase the video.
+- **Three gaps closed 2026-09-26 (content test), all reporting-only.**
+  - **A DM result has no `_attribution`; its session does.** `resolveAttribution` fills such a row from
+    its `lead_session_id` at READ time (`attributionFromSession`), so a DM lead who signs up keeps the
+    keyword and creative. Stored rows are never rewritten.
+  - **The recorded DM keyword comes from `resolveSessionKeyword`** (`src/lib/acquisition/sessionKeyword.ts`).
+    A half-edited ManyChat clone reports its parent's keyword (every VAULT session was stored as
+    "WORTH"). A single-keyword tool records its own word, a multi-keyword tool records null, never
+    the wrong word, and the raw value goes to `keyword_reported`. The write path and the read path
+    share it. Routing still follows `lead_magnet_id` only.
+  - **Signup carries first touch on `user_metadata`**, the rail the email path already used for
+    `pending_result_token`.
+    - `first_touch_attribution` is set at email signUp.
+    - For Google, `attachSignupAttribution` in `useAuth` writes it, plus the signup page's own result
+      token (carried across the redirect in sessionStorage), from the FRESH account's session.
+    - That write must land BEFORE the first auto-claim, because `account_created` dedups on the user id.
+      `signupAttribution.test.ts` pins that order, mutation-tested.
+    - Auto-claim re-sanitizes the snapshot and uses it only when no claimed row carries attribution,
+      so the row still wins.
+    - Never claim a draft found lying in browser storage: on a shared device that is someone else's.
+- **There is no ManyChat post-id field** (none is confirmed; `campaign-tagging.md`). The post a DM
+  lead came from is recovered by JOIN in [scripts/funnel-audit.mjs](scripts/funnel-audit.mjs): the lead's
+  `instagram_username` against each post's keyword comments, `from.username`. Exactly one post means
+  that post, several means "multiple", and nothing is ever guessed. Going forward, give each
+  automation a per-post `utm_content` label.
 - Attribution is a REPORTING dimension. It may never reach a calculator input, a price, a fee, the
   lead scorer, or an authorization decision. Lead quality comes from the canonical server-side
   scorer (`decideCallRequest`), stamped as `metadata.band`; never trust a client-sent band.

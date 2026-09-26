@@ -19,10 +19,12 @@ import {
   attributionToFunnelDims,
   hasAttribution,
   mergeAttribution,
+  parseCampaignAttribution,
   sanitizeStoredAttribution,
   type CampaignAttribution,
   type FunnelAttributionDims,
 } from './campaignAttribution';
+import { resolveSessionKeyword } from '@/lib/acquisition/sessionKeyword';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Db = { from: (t: string) => any };
@@ -49,6 +51,37 @@ export function attributionFromRows(
   return merged;
 }
 
+/** The lead_sessions columns a DM-generated result's attribution is read from. */
+export interface SessionAttributionSource {
+  keyword?: string | null;
+  lead_magnet_id?: string | null;
+  source_platform?: string | null;
+  source_post_id?: string | null;
+  utm_source?: string | null;
+  utm_medium?: string | null;
+  utm_campaign?: string | null;
+  utm_content?: string | null;
+}
+
+/**
+ * Attribution for a result generated INSIDE a ManyChat DM. Those rows never carry
+ * `input_data._attribution` (the DM path writes only the answers), so without this a DM lead who
+ * signs up arrives with no source at all. Read from the session the row already points at, through
+ * the same normalizer, with the keyword resolved by the one attribution rule for mislabeled clones.
+ * Nothing is invented: a field the session did not record stays null. Pure and exported for tests.
+ */
+export function attributionFromSession(s: SessionAttributionSource | null | undefined): CampaignAttribution | null {
+  if (!s) return null;
+  const attr = parseCampaignAttribution({
+    utm_source: s.utm_source ?? s.source_platform,
+    utm_medium: s.utm_medium,
+    utm_campaign: s.utm_campaign,
+    utm_content: s.utm_content ?? s.source_post_id,
+    keyword: resolveSessionKeyword(s.keyword, s.lead_magnet_id).keyword,
+  });
+  return hasAttribution(attr) ? attr : null;
+}
+
 /**
  * The campaign attribution owned by this user/artist, or null. Prefers the artist scope and falls
  * back to the user scope, mirroring getLeadMagnetSeed so both read the same rows.
@@ -62,12 +95,12 @@ export async function resolveAttribution(
     const select = (col: 'artist_id' | 'user_id', value: string) =>
       db
         .from('lead_magnet_results')
-        .select('input_data, created_at')
+        .select('input_data, created_at, lead_session_id')
         .eq(col, value)
         .order('created_at', { ascending: true })
         .limit(MAX_ROWS);
 
-    let rows: { input_data?: Record<string, unknown> | null }[] = [];
+    let rows: { input_data?: Record<string, unknown> | null; lead_session_id?: string | null }[] = [];
     if (opts.artistId) {
       const { data } = await select('artist_id', opts.artistId);
       rows = data ?? [];
@@ -75,6 +108,24 @@ export async function resolveAttribution(
     if (!rows.length && opts.userId) {
       const { data } = await select('user_id', opts.userId);
       rows = data ?? [];
+    }
+
+    // A DM result has no stored _attribution but does point at its session: fill ONLY those rows
+    // from the session, in place, so the oldest-first first-touch merge below is unchanged.
+    const needSession = rows.filter(
+      (r) => r.lead_session_id && !(r.input_data ?? {})[ATTRIBUTION_INPUT_KEY],
+    );
+    if (needSession.length) {
+      const { data: sessions } = await db
+        .from('lead_sessions')
+        .select('id, keyword, lead_magnet_id, source_platform, source_post_id, utm_source, utm_medium, utm_campaign, utm_content')
+        .in('id', needSession.map((r) => r.lead_session_id));
+      const byId = new Map(((sessions ?? []) as (SessionAttributionSource & { id: string })[]).map((s) => [s.id, s]));
+      rows = rows.map((r) => {
+        if (!needSession.includes(r)) return r;
+        const attr = attributionFromSession(byId.get(String(r.lead_session_id)));
+        return attr ? { ...r, input_data: { ...(r.input_data ?? {}), [ATTRIBUTION_INPUT_KEY]: attr } } : r;
+      });
     }
     return attributionFromRows(rows);
   } catch {

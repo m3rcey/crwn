@@ -5,6 +5,14 @@ import { User, AuthError } from '@supabase/supabase-js';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { markDeviceDnt } from '@/lib/analytics/doNotTrack';
 import { clearLocalDrafts } from '@/lib/opportunityDrafts/localDraft';
+import { readCampaignAttribution } from '@/lib/leadMagnets/analytics';
+import { hasAttribution } from '@/lib/analytics/campaignAttribution';
+import {
+  OAUTH_RESULT_TOKEN_STORAGE_KEY,
+  SIGNUP_ATTRIBUTION_META_KEY,
+  isCarryableResultToken,
+  signupMetadataPatch,
+} from '@/lib/analytics/signupAttribution';
 
 type UserRole = 'fan' | 'artist' | 'admin';
 
@@ -64,6 +72,40 @@ function redeemPendingClaims(): void {
     });
 }
 
+// Attribution only (see signupAttribution.ts). A FRESH account's own session writes, once, the
+// first-touch snapshot and any result token its Google redirect carried into user_metadata, the
+// same rail email signup already uses, BEFORE the first auto-claim: account_created dedups on the
+// user id, so that first call decides the row's attribution forever. getSession and
+// onAuthStateChange both fire, so they share one promise per user. Never throws, never blocks auth
+// beyond one metadata write, and a returning login (older than the window) writes nothing.
+let signupAttach: { userId: string; done: Promise<void> } | null = null;
+function attachSignupAttribution(
+  supabase: ReturnType<typeof createBrowserSupabaseClient>,
+  user: User,
+): Promise<void> {
+  if (typeof window === 'undefined') return Promise.resolve();
+  if (signupAttach?.userId === user.id) return signupAttach.done;
+  const done = (async () => {
+    let token: string | null = null;
+    try { token = window.sessionStorage.getItem(OAUTH_RESULT_TOKEN_STORAGE_KEY); } catch { /* blocked */ }
+    try {
+      const patch = signupMetadataPatch({
+        existingMeta: user.user_metadata,
+        attribution: readCampaignAttribution(),
+        pendingResultToken: token,
+        userCreatedAt: user.created_at,
+        now: Date.now(),
+      });
+      if (patch) await supabase.auth.updateUser({ data: patch });
+    } catch {
+      /* analytics must never break sign-in */
+    }
+    try { window.sessionStorage.removeItem(OAUTH_RESULT_TOKEN_STORAGE_KEY); } catch { /* blocked */ }
+  })();
+  signupAttach = { userId: user.id, done };
+  return done;
+}
+
 /** Browser-side builder drafts never cross the account boundary (see localDraft.ts). */
 function forgetLocalDrafts(): void {
   if (typeof window === 'undefined') return;
@@ -81,7 +123,7 @@ interface AuthContextType {
   signUp: (email: string, password: string, username?: string, fullName?: string, pendingResultToken?: string, pendingNext?: string) => Promise<{ error: AuthError | null }>;
   signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>;
   signInWithMagicLink: (email: string) => Promise<{ error: AuthError | null }>;
-  signInWithGoogle: (nextPath?: string) => Promise<{ error: AuthError | null }>;
+  signInWithGoogle: (nextPath?: string, pendingResultToken?: string) => Promise<{ error: AuthError | null }>;
   signInWithApple: () => Promise<{ error: AuthError | null }>;
   signOut: () => Promise<{ error: AuthError | null }>;
   resetPassword: (email: string) => Promise<{ error: AuthError | null }>;
@@ -138,6 +180,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(session?.user ?? null);
       if (session?.user) {
         await redeemPendingInvite();
+        await attachSignupAttribution(supabase, session.user);
         redeemPendingClaims();
         fetchProfile(session.user.id);
       } else {
@@ -150,6 +193,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(session?.user ?? null);
       if (session?.user) {
         await redeemPendingInvite();
+        await attachSignupAttribution(supabase, session.user);
         redeemPendingClaims();
         fetchProfile(session.user.id);
       } else {
@@ -176,6 +220,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           // /verify page can send the fan back to what they came for. Same rail as the
           // result token: user_metadata, never browser storage, survives verification.
           ...(pendingNext ? { pending_next: pendingNext } : {}),
+          // First-touch campaign attribution (reporting only; the server re-sanitizes it). Set at
+          // creation because verification may finish on another device with no snapshot.
+          ...(() => {
+            const attr = readCampaignAttribution();
+            return hasAttribution(attr) ? { [SIGNUP_ATTRIBUTION_META_KEY]: attr } : {};
+          })(),
         },
       },
     });
@@ -214,7 +264,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return { error };
   };
 
-  const signInWithGoogle = async (nextPath?: string) => {
+  const signInWithGoogle = async (nextPath?: string, pendingResultToken?: string) => {
+    // OAuth cannot set user_metadata at signup, so the signup page's result token rides this tab's
+    // sessionStorage across the Google redirect; attachSignupAttribution moves it into metadata on
+    // return. Only the token the page was explicitly handed (?result= / ?token=), never a draft
+    // found lying in storage: on a shared device that would claim someone else's result.
+    if (isCarryableResultToken(pendingResultToken)) {
+      try { window.sessionStorage.setItem(OAUTH_RESULT_TOKEN_STORAGE_KEY, pendingResultToken); } catch { /* blocked */ }
+    }
     // Honor a validated internal return path so an OAuth signup/login lands back on
     // what the person came for (e.g. a Song Lab vote landing with the carried choice),
     // instead of unconditionally dropping them on /home. Same guard shape as
