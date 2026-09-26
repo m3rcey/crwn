@@ -734,6 +734,16 @@ responsible for. Do not work those.
       promotional. (2) The cover art is the label's copyright: use it as commentary (your
       judgment), ask for permission, or keep it out. Tell Claude your verdict and which
       images are cleared.
+- [ ] **Approve (or mark up) the 9-frame illustrated Smino storyboard before anything is
+      animated.** Open the grid first:
+      [videos/reels/smino/storyboard/smino-storyboard-3x3.png](videos/reels/smino/storyboard/smino-storyboard-3x3.png),
+      then the full frames beside it (`01-independent.png` to `09-crwn-free.png`) and the
+      prompts in [videos/reels/smino/storyboard/storyboard-manifest.md](videos/reels/smino/storyboard/storyboard-manifest.md).
+      Judge it with the sound off: likeness, style, whether each frame explains itself, the
+      Scene 8 money picture, the Scene 9 CRWN screens. Tell Claude the scene number and the one
+      thing wrong, and it rerolls just that frame. The likeness came from press photos and the
+      Scene 1 mood from the album cover, so the rights question in the item above applies to
+      these too before anything is published.
 - [ ] **Watch the rebuilt Smino reel (script 23) and decide on its length.** The premium
       rebuild (3D world, the 3D Smino figure, full-screen product and calculator) is
       `videos/reels/23-smino-the-promise-you-forgot/final/23-smino-the-promise-you-forgot.mp4`.
