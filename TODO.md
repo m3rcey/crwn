@@ -1068,7 +1068,12 @@ Things that are never finished. Cadence, then the thing.
     `catalog_size` means unreleased in the DM/scorer but released in `avatars/assignment.ts`.
   - Should acquisition hooks qualify harder (audience, proven sales) instead of catalog?
   - VAULT: a broad reach hook, or rewritten to be ICP-specific?
-  - The DM confirmation tap ("Show Me" after they already commented): keep, change or remove?
+  - The DM confirmation tap. VAULT and WORTH both send one opener plus a "Show Me" button before
+    any value; 28 of 101 commenters tapped (VAULT 29%, WORTH 19%), 5 of the 6 commenters with
+    50k+ followers did not (incl. Freeway 700k, Prince Dre 168k). Meta allows ONE private reply and
+    it does not open the messaging window, so a non-tap can never be followed up. Options to weigh:
+    put the calculator link in that one reply (no tap), or ask the first question in it (a typed
+    reply counts as the interaction; see manychat-setup-guide.md "Ask-in-opener").
   - Calculator qualification: the Vault web planner asks none of the fields the scorer reads.
   - Should signup capture ICP facts (followers, listeners, proof of sales)? Today it captures none.
   - Distribution: does @thecrwnapp (4.4k followers) need to reach established artists more directly?
