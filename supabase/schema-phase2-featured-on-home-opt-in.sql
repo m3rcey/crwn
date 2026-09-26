@@ -1,4 +1,6 @@
--- Home's Featured Artists row becomes OPT-IN (founder decision, 2026-09-26).
+-- Home's Featured Artists row is the FOUNDER'S DISCRETION (founder decision, 2026-09-26).
+-- Artists do not opt in and cannot set it: Josh switches an artist on from
+-- /admin?tab=artists, and a new signup starts switched off.
 --
 -- The problem: the row featured every artist with music + an avatar + a presentable
 -- name unless `featured_hidden` was set. So every new signup landed in the first
@@ -33,6 +35,52 @@ COMMENT ON COLUMN artist_profiles.featured_on_home IS
 UPDATE artist_profiles
    SET featured_on_home = true
  WHERE slug IN ('gb', 'm3rcey');
+
+-- ── Featured is the FOUNDER'S discretion, so artists cannot set it ────────────────
+-- Artists hold UPDATE on their own artist_profiles row (they edit their profile from
+-- the browser), and column protection is a DENYLIST in this trigger function, so a new
+-- column is artist-writable by default. Without this, any artist could put themselves
+-- on the Featured row, or un-hide themselves, from the browser console.
+-- Full replacement of the function as last defined by
+-- schema-phase2-artist-plan-overrides.sql (every column it froze is kept), adding the two
+-- discovery flags. The founder sets them from /admin?tab=artists (service role).
+CREATE OR REPLACE FUNCTION public.freeze_artist_profiles_protected_cols()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  -- Only browser end-users are frozen. service_role and direct SQL legitimately edit these.
+  IF coalesce(auth.role(), '') NOT IN ('authenticated', 'anon') THEN
+    RETURN NEW;
+  END IF;
+
+  NEW.platform_tier                   := OLD.platform_tier;
+  NEW.stripe_connect_id               := OLD.stripe_connect_id;
+  NEW.platform_subscription_status    := OLD.platform_subscription_status;
+  NEW.platform_stripe_subscription_id := OLD.platform_stripe_subscription_id;
+  NEW.platform_stripe_customer_id     := OLD.platform_stripe_customer_id;
+  NEW.is_founding_artist              := OLD.is_founding_artist;
+  NEW.founding_artist_number          := OLD.founding_artist_number;
+  NEW.referral_commission_rate        := OLD.referral_commission_rate;
+  NEW.clipper_commission_rate         := OLD.clipper_commission_rate;
+  NEW.clipper_rate_schedule           := OLD.clipper_rate_schedule;
+  NEW.clipper_campaign_started_at     := OLD.clipper_campaign_started_at;
+  NEW.plan_feature_overrides          := OLD.plan_feature_overrides;
+  NEW.song_lab_enabled                := OLD.song_lab_enabled;
+  -- Discovery curation. Founder-set only.
+  NEW.featured_on_home                := OLD.featured_on_home;
+  NEW.featured_hidden                 := OLD.featured_hidden;
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS trg_freeze_artist_profiles_cols ON public.artist_profiles;
+CREATE TRIGGER trg_freeze_artist_profiles_cols
+  BEFORE UPDATE ON public.artist_profiles
+  FOR EACH ROW
+  EXECUTE FUNCTION public.freeze_artist_profiles_protected_cols();
 
 -- The public view enumerates its columns AT CREATION TIME, so a new column is
 -- invisible to it until it is rebuilt. Same exclusion list and same (non
@@ -113,6 +161,21 @@ BEGIN
     RAISE EXCEPTION 'MIGRATION FAILED: gb and m3rcey were not carried onto the Featured row';
   END IF;
 
+  -- The freeze must cover both flags AND still cover what it covered before.
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_trigger
+     WHERE tgrelid = 'public.artist_profiles'::regclass
+       AND tgname = 'trg_freeze_artist_profiles_cols' AND NOT tgisinternal
+  ) THEN
+    RAISE EXCEPTION 'MIGRATION FAILED: freeze trigger missing on artist_profiles';
+  END IF;
+  IF position('NEW.featured_on_home' IN pg_get_functiondef('public.freeze_artist_profiles_protected_cols()'::regprocedure)) = 0
+     OR position('NEW.featured_hidden' IN pg_get_functiondef('public.freeze_artist_profiles_protected_cols()'::regprocedure)) = 0
+     OR position('NEW.plan_feature_overrides' IN pg_get_functiondef('public.freeze_artist_profiles_protected_cols()'::regprocedure)) = 0
+     OR position('NEW.stripe_connect_id' IN pg_get_functiondef('public.freeze_artist_profiles_protected_cols()'::regprocedure)) = 0 THEN
+    RAISE EXCEPTION 'MIGRATION FAILED: freeze function does not cover the featured flags plus the existing protected columns';
+  END IF;
+
   IF EXISTS (SELECT 1 FROM artist_profiles WHERE slug = 'fr35h' AND featured_on_home) THEN
     RAISE EXCEPTION 'MIGRATION FAILED: the newest signup (fr35h) is featured';
   END IF;
@@ -120,7 +183,7 @@ BEGIN
   RAISE NOTICE 'schema-phase2-featured-on-home-opt-in: OK';
 END $$;
 
--- To feature an artist on Home later:
+-- To feature an artist on Home later: use the Feature button at /admin?tab=artists, or
 --   UPDATE artist_profiles SET featured_on_home = true WHERE slug = '<slug>';
 -- To see who is on the row:
 --   SELECT slug FROM artist_profiles WHERE featured_on_home AND NOT featured_hidden;

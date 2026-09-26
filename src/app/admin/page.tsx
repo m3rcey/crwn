@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
-import { Loader2, BarChart3, Users, Mail, Filter, Instagram, Megaphone, LifeBuoy, Banknote, Radar } from 'lucide-react';
+import { Loader2, BarChart3, Users, Mail, Filter, Instagram, Megaphone, LifeBuoy, Banknote, Radar, Star } from 'lucide-react';
 // The old 1,000-line dashboard (AdminDashboard.tsx) is preserved in the repo, unmounted: it read
 // LGP:CAC, per-tier Hormozi economics, payback period, cohort retention and projections over nine
 // artists. The Dashboard tab now renders the 90-day experiment scorecard instead.
@@ -27,20 +27,23 @@ import AcquisitionView from '@/components/admin/AcquisitionView';
 import SupportChatView from '@/components/admin/SupportChatView';
 import MoneyModelView from '@/components/admin/MoneyModelView';
 import DistributionFinder from '@/components/admin/DistributionFinder';
+import ArtistsView from '@/components/admin/ArtistsView';
 // ManagerOpsView (ARTIST-facing Manager telemetry) was removed from admin navigation by the
 // 2026-08-13 surface reduction: it reports on a system with 7 actions and 7 insights all time,
 // whose scheduled half is being deleted and whose artist-facing half is hidden. The component
 // and its API remain in the repo.
 
 type AdminTab =
-  | 'dashboard' | 'acquisition' | 'leadmagnets' | 'distribution' | 'funnel' | 'pipeline' | 'support' | 'moneymodel' | 'email'
+  | 'dashboard' | 'artists' | 'acquisition' | 'leadmagnets' | 'distribution' | 'funnel' | 'pipeline' | 'support' | 'moneymodel' | 'email'
   | 'avatars' | 'experiments' | 'crm' | 'partners' | 'access' | 'sequences';
 
-/** The nine buttons. Order is the founder's reading order, not alphabetical.
+/** The primary buttons. Order is the founder's reading order, not alphabetical.
  *  Distribution joined 2026-08-24 by founder request: it is used immediately
  *  before publishing each carousel, so it earns a button. */
 const PRIMARY_TABS: { id: AdminTab; label: string; Icon: typeof BarChart3 }[] = [
   { id: 'dashboard',   label: 'Dashboard',   Icon: BarChart3 },
+  // Every artist on CRWN + the founder's Featured switch (founder request, 2026-09-26).
+  { id: 'artists',     label: 'Artists',     Icon: Star },
   { id: 'acquisition', label: 'Acquisition', Icon: Instagram },
   { id: 'leadmagnets', label: 'Lead Magnets', Icon: Megaphone },
   { id: 'distribution', label: 'Distribution', Icon: Radar },
@@ -207,6 +210,12 @@ export default function AdminPage() {
       {activeTab === 'moneymodel' && (
         <div className="max-w-7xl mx-auto px-4 pb-12">
           <MoneyModelView />
+        </div>
+      )}
+
+      {activeTab === 'artists' && (
+        <div className="max-w-7xl mx-auto px-4 pb-12">
+          <ArtistsView />
         </div>
       )}
 

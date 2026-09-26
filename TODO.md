@@ -67,14 +67,14 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
-- [ ] **Run the Featured-row opt-in so new signups stop showing on everyone's Home.** Until it
-      runs, the code falls back to the old rule and Fr35h (signed up 2026-09-26) stays eligible.
-      Open and run in the Supabase SQL Editor:
+- [ ] **Run the Featured switch migration so new signups (and Fr35h) come off everyone's Home.**
+      Until it runs, the code falls back to the old rule, Fr35h stays on the row, and the
+      Feature buttons at /admin?tab=artists are greyed out. Open and run in the Supabase SQL Editor:
       [supabase/schema-phase2-featured-on-home-opt-in.sql](supabase/schema-phase2-featured-on-home-opt-in.sql)
       It ends with `schema-phase2-featured-on-home-opt-in: OK`. It keeps GB and Mercey on the row
-      and nobody else. Then confirm with:
+      and nobody else, and locks the switch so artists cannot feature themselves. Then confirm:
           npm run verify:migrations
-      To feature someone later, the one-line UPDATE is at the bottom of that file.
+      From then on, feature or unfeature anyone at /admin?tab=artists.
 
 - [ ] **Watch V2 against V1 and tell me which parts still miss.** You rejected V1 on look:
       not alive, too fast, images cut off, screen unused, does not hold attention. You said the
