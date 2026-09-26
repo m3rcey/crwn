@@ -688,6 +688,12 @@ responsible for. Do not work those.
 
 ### P2 — worth doing, nothing breaks if you never do it
 
+- [ ] **Connect Claude to your Instagram (comments, DMs, stats).** Paste
+      [docs/acquisition/instagram-read-token-astra-prompt.md](docs/acquisition/instagram-read-token-astra-prompt.md)
+      into GPT-6 Astra. It adds three read permissions to the CRWN Publishing Engine Meta app,
+      saves a token to `~/workspace-crwn/.env.instagram` and checks it. It never touches the
+      publishing token. Then tell Claude "token's in".
+
 - [ ] **Delete the unused Vercel env var `NEW_ARTIST_WEBHOOK_SECRET`.** Nothing reads it since the
       new-artist alert moved into the signup code (2026-09-26). Vercel > crwn > Settings >
       Environment Variables > delete it. No redeploy needed.
@@ -1035,6 +1041,10 @@ Things that are never finished. Cadence, then the thing.
 ---
 
 ## On Claude's plate (not yours)
+
+- **Build the read-only Instagram MCP server once `.env.instagram` exists.** Local, GET-only
+  tools (media, comments, conversations, insights) reading `IG_READ_TOKEN`; registered with
+  Claude Code; token refresh before its 60-day expiry. Replies stay drafts Josh sends.
 
 - **Fan Economy reel editor: after the founder's verdict on the prototype**, either rebuild
   the full Smino reel in real media with the cleared images, or fix what his eye rejects
