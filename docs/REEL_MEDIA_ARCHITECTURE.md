@@ -95,7 +95,12 @@ installed with rembg) was also tested: acceptable on a dark, even backdrop, visi
 a bright textured one, so the pipeline avoids needing it (new-background compositing) rather
 than adding a heavier model.
 
-### Textured 2D / annotation primitives (to build, HTML + SVG + GSAP)
+### Textured 2D / annotation primitives (HTML + SVG + GSAP)
+
+BUILT for the prototype (`scripts/reel/lib/depth.mjs`): underline, hand-drawn circle,
+bracket, arrow, highlight, label, pin, counter, timeline marker; the `Layers`, `Collage`
+and `Timeline` scenes. Still to build when a script needs them: calendar grid, member dots,
+payment flow, stack/bar growth, split compare, retention curve, mask wipe.
 
 Each draws over a real image or texture, in CRWN colours, one accent at a time:
 Counter (odometer), Circle/underline (hand-drawn stroke reveal), Arrow/callout, Pin, Timeline
@@ -140,6 +145,11 @@ problem. A 3D beat returns only if it can be made photoreal.
 
 ## The prototype (about 20 seconds, before any full rebuild)
 
+PLANNED below; BUILT and measured in "The prototype result" further down. Two plan points
+did not survive the evidence: line 6 had to join (no clean cut exists into line 7), and the
+hook uses the NYE 2016 cut-out (the highest-resolution matte) with the fans as a lit
+foreground photograph rather than a member-dot field.
+
 Spoken lines 0, 1, 3, 7 of script 23 (a project `exclude` cut, ~20.2s):
 
 | Time | Line (spoken) | Treatment | Tests |
@@ -153,7 +163,9 @@ Why this section: it is the only 20 seconds that contains all five scene types t
 depends on (artist hook, 2.5D, collage, mechanism, A-roll transition). The reveal is not in
 it on purpose: it depends on the mechanism language this test proves.
 
-Blocked on the founder: which artist images and whether album art may be used (gap 1).
+Not blocked on rights for an INTERNAL prototype (founder, 2026-09-25): it was built with
+the Commons photos and the album cover marked `PROTOTYPE_ONLY_NOT_CLEARED_FOR_PUBLICATION`,
+which the pipeline refuses in anything publishable. Publishing still needs gap 1 decided.
 
 ## Acceptance criteria (the founder's eye decides)
 
@@ -167,3 +179,47 @@ Blocked on the founder: which artist images and whether album art may be used (g
 - The cut back to A-roll feels deliberate.
 - Captions subordinate; sound lands on visual events; no clipped word (the gate passes).
 - Technical QA passes; render time per second of reel is recorded.
+
+## The prototype result (built, rendered and reviewed 2026-09-25)
+
+Project `videos/reels/23-smino-the-promise-you-forgot--proto/` (not in git), plan
+[videos/reel-plans/23-smino-the-promise-you-forgot--proto.mjs](../videos/reel-plans/23-smino-the-promise-you-forgot--proto.mjs),
+render v2: 23.2s, lines 0, 1, 3, 6, 7. Two renders; v2 fixed three defects seen in v1 (a
+1.4s bare planner before the launch spike, a sticker outline around the matte from a 2px
+contact shadow, a label in Instagram's right-hand button column).
+
+**Measured:** 1080x1920 at 30fps, -14.02 LUFS, -1.9 dBTP, voice 23 LU over the bed, no
+black or frozen frames, HyperFrames lint/runtime/layout clean, every withheld, fact-lock,
+claim, provenance and safe-zone check passing. `publication_rights` FAILS by design (the
+album cover is uncleared). Render cost: 12.9s (v1) and 11.9s (v2) per second of reel at
+standard quality with 4 workers, so about 45 minutes for a 3.5-minute reel. Phrase
+integrity: every cut in room tone, after two cutter fixes this prototype forced (pauses
+hidden inside abutting recognizer stamps; see [docs/REEL_EDITOR.md](REEL_EDITOR.md)).
+
+**Seen, against the acceptance criteria and the 14M/20M references (contact sheets, not
+machine-judged):**
+- Smino is unmistakable from the first frame, from a real photograph. PASS.
+- Depth is real: the crowd plate, the SMINO type behind his head, him, the lit fans in
+  front of him and the camera push move at different rates. PASS. The matte is clean at
+  100% (no halo, no leftover background); the composite still reads as composited on close
+  inspection (his cool stage light against a warm ground, a crisp edge around a soft 2016
+  face): there is no light-wrap or colour-match step yet.
+- The collage is art-directed: one dominant print, facts pinned on their spoken words, a
+  lit stage ground, no voids. PASS.
+- The return to A-roll is deliberate (a camera push through him, the founder's hook drop
+  in the music). PASS.
+- The mechanism (launch spike, delivery line) reads with the sound off and never sits on a
+  void. PASS on the criteria, and the clearest gap to the references: their mechanism
+  scenes put a HERO OBJECT in a world with scale (light crossing the solar system, a drill
+  through ice); ours is a line over a blurred planner. Legible, not premium.
+- Sound: cues land on the planned visual events and the bed builds about 10 dB across the
+  piece, measured per stem (Claude cannot listen; the founder's ear is the check).
+
+**What the evidence changed in this record:** the artist-and-evidence half of the
+hierarchy (2.5D real photographs, collage, annotation) reaches the reference class; the
+"textured 2D" answer for abstract mechanisms does not, and a Fan Economy reel is mostly
+mechanism (promises, calendars, fans leaving, the reveal). Abstract beats need a real hero
+object on camera (founder-shot physical B-roll: a real planner being written in, phones,
+cash, a crowd) or photoreal CG; a drawn line over a texture is the fallback, not the
+standard. Recommendation recorded: do not scale to the full reel until that mechanism
+language exists (and the rights in gap 1 are decided).

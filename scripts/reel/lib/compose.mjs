@@ -20,6 +20,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { subjectIn } from "./track.mjs";
+import { layerScene, collageScene, timelineScene, DEPTH_CSS } from "./depth.mjs";
 
 export const PALETTE = { ink: "#0D0D0D", card: "#1A1A1A", raised: "#2A2A2A", gold: "#D4AF37", amber: "#E8A33D", burnt: "#C2571A", paper: "#F4F1EA", white: "#FFFFFF" };
 
@@ -596,6 +597,12 @@ C.Headline = (b) => {
   return { html, js, boxes: [{ what: "headline", x: 90, y: top, w: 900, h: lines.length * size * 1.08 }] };
 };
 
+// Real media in depth (lib/depth.mjs): a matted subject over a photographic ground, prints
+// in a collage, the textured timeline. The frame is theirs, like Footage.
+C.Layers = layerScene;
+C.Collage = collageScene;
+C.Timeline = timelineScene;
+
 export const COMPONENTS = C;
 
 /** The world spec with each photo's `asset` id resolved to its staged file. */
@@ -823,6 +830,7 @@ ${landscape ? `#arollWrap{position:absolute;left:0;top:0;width:1920px;height:108
 .wtag-gold{font-size:150px;color:${PALETTE.gold};letter-spacing:-.02em;text-shadow:0 10px 44px rgba(0,0,0,.85)}
 .wtag-dim{font-size:30px;color:#fff;opacity:.85;letter-spacing:.22em;font-weight:800}
 .wtag-credit{font-size:20px;color:rgba(255,255,255,.62);font-weight:600;letter-spacing:.02em}
+${DEPTH_CSS}
 </style></head>
 <body>
 <div id="root" data-composition-id="main" data-start="0" data-duration="${r3(duration)}" data-width="${W}" data-height="${H}" data-fps="${fps}">

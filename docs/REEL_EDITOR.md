@@ -278,13 +278,45 @@ render as frozen video.
   the isolated engine (`three`), no new framework. `lib/world3d.js` holds the primitives
   (fans, rail, promise tiles, coin stacks, drawn cards, photo cut-outs, a bracket, pinned
   HTML tags, a keyframed camera); a reel's plan supplies only the spec.
-- **The artist is a 3D figure built from reference photographs, never the photographs**
-  (founder, 2026-09-25). Reference photos come from Wikimedia Commons (CC licences, author
-  and URL in each `broll/*.json` sidecar); their look (braids, headband, jersey, chain,
-  mic for Smino) becomes a `figure` style in `lib/world3d.js`, a stylised character in the
-  fans' design language, posed by keys (mic, point, nod, bob, turn). The `photo` primitive
-  and the rembg cut-out tooling (`C:\Users\Josh\.cache\reel-rembg`) remain for non-person
-  evidence; they are not used for the artist.
+- **The artist is his real photograph, never a modelled figure** (founder, 2026-09-25,
+  reversing the same day's "3D figure" rule after seeing it; decision record in
+  [docs/REEL_MEDIA_ARCHITECTURE.md](REEL_MEDIA_ARCHITECTURE.md)). `storyboardLint` counts
+  the artist only through a sourced photograph (a cut-out in a layered scene, a collage
+  print, a full-frame photo, or a `photo` object in the world); a `figure` object no
+  longer satisfies the hook rule (`world.test.mjs`, `media.test.mjs`).
+- **Real media in depth: `lib/depth.mjs`** (prototype, 2026-09-25). Three components over
+  CSS 3D inside HyperFrames, no new dependency: `Layers` (layers at `translateZ` under one
+  perspective, placed in SCREEN terms: `sx`/`sy`/`sw`/`bottom`/`cover`, and a keyed camera
+  that moves through them, so parallax is real), `Collage` (real photo prints over a
+  photographic ground, exactly ONE `dominant` item, enforced), `Timeline` (a real texture
+  in depth, a short launch spike, a long delivery line whose promise markers land as it
+  draws, a camera that travels it). Annotation primitives (`annotate`): hand-drawn
+  underline/circle/bracket/arrow (deterministic wobble, drawn on by dash offset), highlight,
+  label, pin, counter, timeline marker, in screen space or inside a layer so they ride its
+  parallax. Two render rules learned the hard way: an element's hidden state is SET before
+  its entrance tween (a worker that starts mid-scene rendered a same-instant hide after the
+  entrance and lost the artist for the whole hook), and alpha cut-outs stage as WebP
+  (490 KB against a 6.7 MB PNG for the same matte). Cut-outs: rembg in
+  `C:\Users\Josh\.cache\reel-rembg`, trimmed to the alpha box; composite them onto a
+  DIFFERENT real background, never back onto their own photo, and no hard contact shadow
+  (a 2px one drew a sticker outline at 100%).
+- **Variants and rights.** `--variant proto` makes a separate project
+  (`videos/reels/<slug>--proto`, plan `videos/reel-plans/<slug>--proto.mjs`) that is marked
+  `prototype`: no end card or CTA required (a wrong keyword still fails), never copied to
+  `final/` or exported. A sidecar `"clearance": "PROTOTYPE_ONLY_NOT_CLEARED_FOR_PUBLICATION"`
+  marks an asset whose publication rights are not established: an ERROR in any plan that
+  is not a prototype, and the QA check `publication_rights` fails any render that carries
+  one. `project.json` `excludeSrc: [{from, to}]` drops words by SOURCE time (a false start
+  the aligner kept on a line), where `exclude` drops whole lines.
+- **Pauses the recognizer hides** (measured on script 23). Local Whisper stamps words that
+  abut, so a real pause can sit INSIDE the next word's stamp ("nothing" | "now"
+  40.30-41.22, one syllable stamped 0.9s). Two fixes in `lib/cut.mjs`: a span breaks where
+  the source holds more than `pacing.maxHiddenPauseSec` (0.6s) of unbroken room tone
+  between two kept words (it gets a normal breath pause), and when no quiet exists before
+  a word's stamp the in-point is searched FORWARD (`onsetAfterPause`: the pause must start
+  within 0.15s of the stamp, hold 0.12s, be 70% quiet, and the cut goes in the unbroken room
+  tone before the onset, judged with the audit's own 3 dB slack). Without them, the
+  prototype's joins chopped "nothing" and "that" and kept a 1.0s dead pause.
 
 ## Pilot status (2026-09-24)
 

@@ -139,7 +139,12 @@
   in `lib/beats.mjs` (`worldTexts`, `worldCameraLint`, `storyboardLint`), tests in
   `world.test.mjs`. Premium references: `videos/reels/references/` (not in git). The
   current visual architecture (real media first; the 3D world kept but its art retired):
-  `docs/REEL_MEDIA_ARCHITECTURE.md`.
+  `docs/REEL_MEDIA_ARCHITECTURE.md`. Real media in depth: `lib/depth.mjs` (`Layers`,
+  `Collage`, `Timeline`, `annotate`; tests `media.test.mjs`). Variant projects
+  (`--variant proto` -> `videos/reels/<slug>--<variant>/`, plan
+  `videos/reel-plans/<slug>--<variant>.mjs`) are prototypes: never exported, and an asset
+  whose sidecar says `PROTOTYPE_ONLY_NOT_CLEARED_FOR_PUBLICATION` is refused in anything
+  publishable (`beatAssets`/`isUncleared` in `lib/beats.mjs`, QA `publication_rights`).
 
 ## NOT app code (verify before assuming relevance)
 Root `*.mjs` (content generation), `carousel-*.json`, `videos/` (except `videos/scripts/` and `videos/motion-specs/`, which are tracked source content), `.claude/` (harness config, incl. `.claude/agents/*.md` which are Claude Code subagents, not product roles).

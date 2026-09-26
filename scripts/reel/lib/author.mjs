@@ -25,18 +25,21 @@ import { norm } from "./align.mjs";
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.resolve(HERE, "../../..");
 
-export async function openPlan(slug, { reelsDir = process.env.REEL_DIR || path.join(REPO, "videos/reels") } = {}) {
+// A variant project (<slug>--proto) reads its script and filmed sheets by `scriptSlug`;
+// a prototype ends on its last spoken word instead of the series end card, because it
+// is a slice of a reel, never a finished one.
+export async function openPlan(slug, { reelsDir = process.env.REEL_DIR || path.join(REPO, "videos/reels"), scriptSlug = slug.replace(/--[a-z0-9-]+$/, ""), prototype = false } = {}) {
   const dir = path.join(reelsDir, slug);
   const read = (f) => JSON.parse(fs.readFileSync(path.join(dir, f), "utf8"));
   const rules = JSON.parse(fs.readFileSync(path.join(HERE, "..", "rules.json"), "utf8"));
-  const num = parseInt(slug, 10);
-  const scriptFile = path.join(REPO, "videos/scripts/fan-economy", `${slug}.md`);
-  const structure = parseFanEconomy(fs.readFileSync(scriptFile, "utf8"), { num, slug });
+  const num = parseInt(scriptSlug, 10);
+  const scriptFile = path.join(REPO, "videos/scripts/fan-economy", `${scriptSlug}.md`);
+  const structure = parseFanEconomy(fs.readFileSync(scriptFile, "utf8"), { num, slug: scriptSlug });
   const outWords = read("words.clean.json");
   const edl = read("edl.json");
   const library = loadLibrary();
   const caps = loadCapabilities();
-  const sheets = resolveSheets(slug, library);
+  const sheets = resolveSheets(scriptSlug, library);
   const { assets: broll } = resolveBroll(dir);
   const speechEnd = outWords[outWords.length - 1].end;
   const beats = [];
@@ -72,6 +75,12 @@ export async function openPlan(slug, { reelsDir = process.env.REEL_DIR || path.j
   function build() {
     const sorted = [...beats].sort((a, b) => a.start - b.start);
     sorted[0].start = 0;
+    if (prototype) {
+      const duration = +(Math.max(edl.duration, speechEnd) + (rules.pacing.prototypeTailSec ?? 0.6)).toFixed(3);
+      for (let i = 0; i < sorted.length; i++) sorted[i].end = i + 1 < sorted.length ? sorted[i + 1].start : duration;
+      for (const b of sorted) delete b.at;
+      return { ...extra, slug, title: structure.title, edited: true, authored: true, prototype: true, arollDuration: edl.duration, duration, speechEnd, beats: sorted.map((b, i) => ({ id: i, ...b })) };
+    }
     const endcardAt = +(speechEnd + 0.35).toFixed(3);
     const duration = +(Math.max(edl.duration, speechEnd) + rules.pacing.endcardSec).toFixed(3);
     for (let i = 0; i < sorted.length; i++) sorted[i].end = i + 1 < sorted.length ? sorted[i + 1].start : endcardAt;
@@ -93,5 +102,5 @@ export async function openPlan(slug, { reelsDir = process.env.REEL_DIR || path.j
     return { plan, validation: v };
   }
 
-  return { dir, rules, structure, outWords, edl, sheets, library, broll, w, lineStart, lineEnd, has, beat, build, write, set, speechEnd };
+  return { dir, rules, structure, outWords, edl, sheets, library, broll, w, lineStart, lineEnd, has, beat, build, write, set, speechEnd, prototype };
 }

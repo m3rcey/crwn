@@ -418,6 +418,19 @@ export function worldTexts(plan) {
   return out;
 }
 
+/** Every asset id a beat puts on screen: its B-roll, a component's asset or footage, the
+ * layers of a depth scene and the items of a collage. The ONE list the provenance, rights,
+ * staging and artist checks read, so a new component cannot slip an asset past them. */
+export function beatAssets(b) {
+  const p = b.graphic?.props || {};
+  return [...new Set([b.broll?.asset, p.asset, p.footage, p.bg?.asset, ...(p.layers || []).map((l) => l.asset), ...(p.items || []).map((i) => i.asset), ...(p.extraLayers || []).map((l) => l.asset)].filter(Boolean))];
+}
+
+/** The rights marker for an asset used in an internal prototype whose publication rights
+ * are not established. A render carrying one is never publication-ready. */
+export const UNCLEARED = "PROTOTYPE_ONLY_NOT_CLEARED_FOR_PUBLICATION";
+export const isUncleared = (prov) => !!prov && (prov.clearance === UNCLEARED || String(prov.rights || "").includes(UNCLEARED));
+
 /** What a beat's frame is made of, for the coverage report (declared or derived). */
 export function mediumOf(b) {
   if (b.medium) return b.medium;
@@ -454,18 +467,18 @@ export function storyboardLint(plan, ctx) {
     if (mediumOf(b) === "aroll") { s0 ??= b.start; if (b.end - s0 > 16) { warnings.push(`the talking head runs ${(b.end - s0).toFixed(0)}s without a cutaway from ${s0.toFixed(1)}s`); s0 = -1e9; } }
     else s0 = null;
   }
-  // 4. A video about a real artist shows the artist. The founder's preference (2026-09-25)
-  // is a 3D figure BUILT FROM reference photographs (a world object of type "figure" with
-  // artist: true), not the photographs themselves; a sourced photo still counts.
+  // 4. A video about a real artist shows the REAL artist: his photograph, as a cut-out in a
+  // layered scene, a collage item, a full-frame photo or a photo in the world. A modelled
+  // 3D figure never counts (founder, 2026-09-25, reversing the same-day figure rule: a
+  // generic model reads as a mannequin, not as Smino; docs/REEL_MEDIA_ARCHITECTURE.md).
   const artistPhotos = broll.filter((x) => S.artist && new RegExp(S.artist.split(/\s+/)[0], "i").test(`${x.shows || ""} ${x.provenance?.source || ""}`)).map((x) => x.id);
-  const artistObjs = new Set((plan.world?.objects || []).filter((o) => (o.type === "figure" && o.artist) || (o.type === "photo" && artistPhotos.includes(o.asset))).map((o) => o.id));
-  const usesArtist = (b) => artistPhotos.includes(b.broll?.asset) || (b.aroll === "world" && (plan.world?.objects || []).some((o) => artistObjs.has(o.id) && visibleIn(o, b)));
-  const hasFigure = [...artistObjs].some((id) => (plan.world?.objects || []).find((o) => o.id === id)?.type === "figure");
-  if (artistPhotos.length || artistObjs.size) {
+  const artistObjs = new Set((plan.world?.objects || []).filter((o) => o.type === "photo" && artistPhotos.includes(o.asset)).map((o) => o.id));
+  const usesArtist = (b) => beatAssets(b).some((id) => artistPhotos.includes(id)) || (b.aroll === "world" && (plan.world?.objects || []).some((o) => artistObjs.has(o.id) && visibleIn(o, b)));
+  if (artistPhotos.length) {
     const n = beats.filter(usesArtist).length;
-    if (!beats.filter((b) => b.start < 1.5).some(usesArtist)) errors.push(`the hook does not show ${S.artist} (${hasFigure ? "a 3D figure of him exists in the world" : "his photographs exist in broll/"})`);
-    if (n < 3) warnings.push(`${S.artist} appears in only ${n} beat(s)`);
-  } else if (S.artist && !/^none\b/i.test(S.artist)) warnings.push(`${S.artist} never appears: build a 3D figure of him from reference photographs (world type "figure", artist: true)`);
+    if (!beats.filter((b) => b.start < 1.5).some(usesArtist)) errors.push(`the hook does not show ${S.artist} (his photographs exist in broll/)`);
+    if (n < 3 && !plan.prototype) warnings.push(`${S.artist} appears in only ${n} beat(s)`);
+  } else if (S.artist && !/^none\b/i.test(S.artist)) warnings.push(`${S.artist} never appears: source real photographs of him (broll/ with provenance), never a modelled figure`);
   // 5. Product and calculator footage own the frame.
   for (const b of beats) if (b.graphic?.props?.footage && b.aroll !== "hidden" && b.aroll !== "world") errors.push(`beat ${b.id} shows product footage over the talking head: the product is the hero when it is the subject`);
   // 6. A long reel with no dimensional scene at all.
@@ -539,12 +552,13 @@ export function validateBeats(plan, ctx) {
       }
     }
     // Gated assets (the reveal and CTA sheets) never before the reveal word.
-    const assetId = b.broll?.asset || b.graphic?.props?.asset;
-    const sh = sheets.find((s) => s.id === assetId);
     const revealAt = S.withheld.revealLine >= 0 ? outWords.find((w) => w.line === S.withheld.revealLine)?.start : null;
-    if (sh?.gatedToReveal && revealAt != null && b.start < revealAt - lead) errors.push(`WITHHELD LEAK: beat ${b.id} shows the ${sh.role} sheet at ${b.start}s, before the reveal at ${revealAt.toFixed(2)}s`);
-    const br = broll.find((x) => x.id === assetId);
-    if (br?.reveals?.length && br.reveals.some((t) => late.has(String(t)) && spokenAt.has(String(t)) && b.start < spokenAt.get(String(t)) - lead)) errors.push(`WITHHELD LEAK: sourced asset ${br.id} reveals a withheld figure before it is spoken`);
+    for (const assetId of beatAssets(b)) {
+      const sh = sheets.find((s) => s.id === assetId);
+      if (sh?.gatedToReveal && revealAt != null && b.start < revealAt - lead) errors.push(`WITHHELD LEAK: beat ${b.id} shows the ${sh.role} sheet at ${b.start}s, before the reveal at ${revealAt.toFixed(2)}s`);
+      const br = broll.find((x) => x.id === assetId);
+      if (br?.reveals?.length && br.reveals.some((t) => late.has(String(t)) && spokenAt.has(String(t)) && b.start < spokenAt.get(String(t)) - lead)) errors.push(`WITHHELD LEAK: sourced asset ${br.id} reveals a withheld figure before it is spoken`);
+    }
   }
 
   // The 3D camera: a move that is not a declared cut but crosses the world is the bug
@@ -594,20 +608,26 @@ export function validateBeats(plan, ctx) {
   // Provenance for every referenced asset.
   const known = new Map([...sheets.map((s) => [s.id, s]), ...broll.map((s) => [s.id, s]), ...Object.entries(library?.library || {}).map(([id, a]) => [id, a])]);
   for (const b of beats) {
-    for (const id of [b.broll?.asset, b.graphic?.props?.asset, b.graphic?.props?.footage].filter(Boolean)) {
+    for (const id of beatAssets(b)) {
       const a = known.get(id);
       if (!a) errors.push(`beat ${b.id}: unknown asset "${id}"`);
       else if (!a.provenance?.source) errors.push(`beat ${b.id}: asset "${id}" has no provenance`);
+      // Rights: an asset marked uncleared may appear ONLY in a prototype. In a reel that
+      // could be published it is an error, not a warning.
+      else if (isUncleared(a.provenance)) (plan.prototype ? warnings : errors).push(`RIGHTS: beat ${b.id} uses "${id}", marked ${UNCLEARED}`);
     }
   }
 
-  // CTA and end card.
+  // CTA and end card. A prototype is a slice of a reel: their absence is reported, not
+  // refused (the keyword, when one IS shown, must still match the script).
+  const need = plan.prototype ? warnings : errors;
   const kw = beats.filter((b) => b.scene === "cta_keyword");
-  if (kw.length !== 1) errors.push(`expected exactly one cta_keyword beat, found ${kw.length}`);
+  if (kw.length > 1 || (kw.length === 0 && !plan.prototype)) errors.push(`expected exactly one cta_keyword beat, found ${kw.length}`);
+  else if (kw.length === 0) warnings.push("prototype: no cta_keyword beat");
   else if (kw[0].graphic?.props?.keyword !== S.ctaKeyword) errors.push(`CTA keyword on screen is "${kw[0].graphic?.props?.keyword}", script says "${S.ctaKeyword}"`);
   if (kw[0] && kw[0].end - kw[0].start < 0.8) warnings.push("CTA keyword is on screen under 0.8s");
   const last = beats[beats.length - 1];
-  if (last?.scene !== "endcard") errors.push("the last beat is not the 128 end card");
+  if (last?.scene !== "endcard") need.push(plan.prototype ? "prototype: no 128 end card" : "the last beat is not the 128 end card");
   else if (last.end - last.start < 1.0) errors.push("end card shorter than 1s");
 
   // Presenter time is DESCRIPTIVE (reported, never a rule): the founder retired the

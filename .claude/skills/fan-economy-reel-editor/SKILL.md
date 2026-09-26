@@ -58,6 +58,13 @@ explainers), not like a talking head with templates:
   a modelled figure standing in for a real artist. Source with provenance and LOOK at every
   image (a Commons set "including" the artist showed someone else). Rights for artist
   photos and album art are the founder's call (TODO.md).
+- **Build real media with `lib/depth.mjs`**: `Layers` (a matted subject at depth over a
+  separate photographic ground, type behind him, a foreground in front of him, a keyed
+  camera), `Collage` (ONE dominant print), `Timeline` (a spike and a line over a real
+  texture), and `annotate` primitives. Place layers in screen terms (`sx`/`sy`/`sw`/`bottom`).
+  Test a new visual language as a `--variant proto` project first: it never exports, and a
+  sidecar `"clearance": "PROTOTYPE_ONLY_NOT_CLEARED_FOR_PUBLICATION"` keeps an uncleared
+  image out of anything publishable (the `publication_rights` QA check).
 - **Text labels, it does not explain.** Tags pinned to objects, numbers, names. Several
   text-led scenes in a row is a storyboard failure.
 - The hook shows who, what changed, how many and that the value is unknown inside ~1 s.

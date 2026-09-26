@@ -34,6 +34,8 @@
     "commaPauseSec": 0.09,
     "breathPauseSec": 0.22,
     "_breathPauseSec": "A pause inside a line with no word removed (2026-09-24, first real recording: squeezing these to 0.03s made his comma pauses sound robotic).",
+    "maxHiddenPauseSec": 0.6,
+    "_maxHiddenPauseSec": "Unbroken room tone longer than this between two kept words breaks the span even when the recognizer's stamps abut (2026-09-25: script 23 hid a 1.0s pause inside one word's stamp). The join then gets breathPauseSec.",
     "silenceDb": -38,
     "paragraphPauseSec": 0.3,
     "hookTurnPauseSec": 0.55,

@@ -75,6 +75,54 @@ export function onsetPoint(env, from, limit, { thrDb, holdSec = 0.06 } = {}) {
   return null;
 }
 
+/**
+ * The EARLY-stamp case (prototype, 2026-09-25): a recognizer whose word times abut can
+ * put a real pause INSIDE the next word ("nothing" 40.30 | "now" 40.30-41.22, one syllable
+ * stamped 0.9s long). Searching back finds no quiet, so the cut would fall on the voiced
+ * boundary and chop "nothing". This searches FORWARD from the stamped start for a pause
+ * that begins within `nearSec` of it and holds at least `holdSec` (longer than any
+ * consonant closure), and returns where the voice resumes after it with the pause length.
+ * null when there is none (the word really starts at its stamp).
+ */
+export function onsetAfterPause(env, from, limit, { thrDb, holdSec = 0.12, nearSec = 0.15, voiceSec = 0.04, minQuietFrac = 0.7, slackDb = 3 } = {}) {
+  const q = quietFrom(env, thrDb);
+  const i0 = Math.max(0, Math.floor(from / env.hop));
+  const end = Math.floor(limit / env.hop);
+  const near = Math.min(end, i0 + Math.ceil(nearSec / env.hop));
+  let s = -1;
+  for (let i = i0; i <= near; i++) if (q(i)) { s = i; break; }
+  if (s < 0) return null;
+  // The voice resumes at the first `voiceSec` that is sound throughout: a breath or a
+  // click inside a real pause (measured on script 23: 5ms blips) is not the word.
+  const vn = Math.max(1, Math.round(voiceSec / env.hop));
+  let v = -1;
+  for (let i = s; i + vn <= end + 1 && v < 0; i++) {
+    let loud = true;
+    for (let k = i; k < i + vn; k++) if (q(k)) { loud = false; break; }
+    if (loud) v = i;
+  }
+  if (v < 0 || (v - s) * env.hop < holdSec) return null;
+  let quietN = 0;
+  for (let i = s; i < v; i++) if (q(i)) quietN++;
+  if (quietN / (v - s) < minQuietFrac) return null;
+  // The in-point goes in the unbroken room tone right before the voice, judged with the
+  // same 3 dB slack auditBoundaries uses: a blip at the threshold is room tone to the
+  // audit, so it must be here too, or the two disagree about where the pause is.
+  const q2 = quietFrom(env, thrDb + slackDb);
+  let r = v;
+  while (r > s && q2(r - 1)) r--;
+  const quiet = (v - r) * env.hop;
+  return quiet >= 0.06 ? { onset: v * env.hop, quiet } : null;
+}
+
+/** The longest unbroken quiet run (seconds) inside [a, b]. */
+export function longestQuietRun(env, a, b, thrDb) {
+  const q = quietFrom(env, thrDb);
+  let best = 0, run = 0;
+  for (let i = Math.max(0, Math.floor(a / env.hop)); i <= Math.ceil(b / env.hop); i++) { run = q(i) ? run + 1 : 0; if (run > best) best = run; }
+  return best * env.hop;
+}
+
 /** How long the quiet lasts from `t` onward (seconds), up to `max`. */
 export function quietRunAfter(env, t, thrDb, max = 2) {
   const q = quietFrom(env, thrDb);

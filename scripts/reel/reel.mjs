@@ -23,7 +23,7 @@ import { alignTakes, captionWords } from "./lib/align.mjs";
 import { auditBoundaries } from "./lib/boundaries.mjs";
 import { buildEdl, remapWords, lineWindows, takeReport, probe, makeProxy, decodePcm, envelope, spliceAudio, writeWav, renderClean, sdrFilter, BT709_TAGS, SEEKABLE } from "./lib/cut.mjs";
 import { groupCaptions, captionLeaks } from "./lib/captions.mjs";
-import { planBeats, validateBeats, faceStats, storyboardLint, mediumOf } from "./lib/beats.mjs";
+import { planBeats, validateBeats, faceStats, storyboardLint, mediumOf, beatAssets } from "./lib/beats.mjs";
 import { loadCapabilities, missingEvidence } from "./lib/claims.mjs";
 import { loadLibrary, resolveSheets, resolveBroll, toolNames, missingFiles } from "./lib/assets.mjs";
 import { buildComposition, writeProject, safeZoneViolations } from "./lib/compose.mjs";
@@ -89,21 +89,46 @@ export function identifyByTranscript(text) {
 }
 
 export function projectDir(slug) { return path.join(REELS_DIR, slug); }
+
+// A VARIANT is a second project over the same script and footage (--variant proto ->
+// videos/reels/<slug>--proto, plan videos/reel-plans/<slug>--proto.mjs): a prototype or an
+// experiment that must never overwrite, export or be mistaken for the real reel.
+let VARIANT = process.env.REEL_VARIANT || null;
+export function setVariant(v) { VARIANT = v || null; }
+export function variantSlug(slug, variant = VARIANT) {
+  if (!variant) return slug;
+  if (!/^[a-z0-9-]+$/.test(variant)) throw new Error(`variant "${variant}" must be lowercase letters, digits and dashes`);
+  return `${slug}--${variant}`;
+}
+
+/** Transcript word indexes inside a project's excludeSrc source-time ranges: the way to
+ * drop a few words of a line (a false start the aligner kept) without dropping the line. */
+export function excludedBySource(words, ranges = []) {
+  const out = new Set();
+  for (const r of ranges) {
+    if (!(r.to > r.from)) throw new Error(`excludeSrc range ${JSON.stringify(r)} needs from < to (source seconds)`);
+    words.forEach((w, i) => { if (w.start >= r.from - 0.01 && w.end <= r.to + 0.01) out.add(i); });
+  }
+  return out;
+}
+
 function loadProject(ref) {
-  const s = resolveScript(ref);
-  const dir = projectDir(s.slug);
+  const s0 = resolveScript(ref);
+  const s = { ...s0, pslug: variantSlug(s0.slug) };
+  const dir = projectDir(s.pslug);
   const pj = readJson(path.join(dir, "project.json"));
-  if (!pj) throw new Error(`no project for ${s.slug} yet: run  npm run reel -- new ${s.num} --video <file>`);
+  if (!pj) throw new Error(`no project for ${s.pslug} yet: run  npm run reel -- new ${s.num} --video <file>${VARIANT ? ` --variant ${VARIANT}` : ""}`);
   return { s, dir, pj, save: () => writeJson(path.join(dir, "project.json"), pj) };
 }
 function loadStructure(s) { return parseFanEconomy(fs.readFileSync(s.file, "utf8"), { num: s.num, slug: s.slug }); }
 
 export function createProject(ref, video, opts = {}) {
-  const s = resolveScript(ref);
-  const dir = projectDir(s.slug);
+  const s0 = resolveScript(ref);
+  const s = { ...s0, pslug: variantSlug(s0.slug) };
+  const dir = projectDir(s.pslug);
   fs.mkdirSync(path.join(dir, "broll"), { recursive: true });
   const existing = readJson(path.join(dir, "project.json"));
-  const pj = existing || { num: s.num, slug: s.slug, script: path.relative(REPO, s.file), createdAt: new Date().toISOString(), framing: { x: 0.5, y: 0.42, zoom: 1 }, music: { override: null }, stages: {}, renders: [] };
+  const pj = existing || { num: s.num, slug: s.pslug, script: path.relative(REPO, s.file), ...(VARIANT ? { variant: VARIANT, prototype: true } : {}), createdAt: new Date().toISOString(), framing: { x: 0.5, y: 0.42, zoom: 1 }, music: { override: null }, stages: {}, renders: [] };
   if (video) {
     const abs = path.resolve(video);
     if (!fs.existsSync(abs)) throw new Error(`video not found: ${abs}`);
@@ -116,7 +141,7 @@ export function createProject(ref, video, opts = {}) {
     if (info.width > info.height && (!pj.framing || !pj.framing.mode)) pj.framing = { mode: "dynamic" };
   }
   writeJson(path.join(dir, "project.json"), pj);
-  if (!fs.existsSync(path.join(dir, "feedback.md"))) fs.writeFileSync(path.join(dir, "feedback.md"), `# Feedback: ${s.slug}\n\nNotes for the next pass. Anything that should apply to EVERY future reel belongs in .claude/skills/fan-economy-reel-editor/RULES.md or scripts/reel/rules.json instead.\n\n`);
+  if (!fs.existsSync(path.join(dir, "feedback.md"))) fs.writeFileSync(path.join(dir, "feedback.md"), `# Feedback: ${s.pslug}\n\nNotes for the next pass. Anything that should apply to EVERY future reel belongs in .claude/skills/fan-economy-reel-editor/RULES.md or scripts/reel/rules.json instead.\n\n`);
   if (!opts.quiet) log(`project: ${path.relative(REPO, dir)}${pj.source ? `\nsource:  ${pj.source.path} (${pj.source.width}x${pj.source.height}, ${pj.source.duration.toFixed(1)}s)` : "\nno footage yet: pass --video <file>"}`);
   return { s, dir, pj };
 }
@@ -187,6 +212,11 @@ function stageCut(ref) {
     for (const k of al.kept) if (exclude.has(k.line)) k.drop = "excluded";
     log(`excluding script lines ${[...exclude].join(", ")} (project.json "exclude")`);
   }
+  const bySrc = excludedBySource(t.words, pj.excludeSrc || []);
+  if (bySrc.size) {
+    for (const k of al.kept) if (bySrc.has(k.w)) k.drop = "excludedSrc";
+    log(`excluding ${bySrc.size} word(s) by source time (project.json "excludeSrc"): ${[...bySrc].map((i) => t.words[i].text).join(" ")}`);
+  }
   const work = path.join(dir, "work");
   fs.mkdirSync(work, { recursive: true });
   // Audio: 48k mono for the splice, and the envelope for cut snapping.
@@ -256,10 +286,10 @@ async function stagePlan(ref, opts = {}) {
   const file = path.join(dir, "beats.json");
   // An authored plan (videos/reel-plans/<slug>.mjs) anchors every beat to a spoken word:
   // it is re-resolved on every plan/build/render, so a re-cut never strands a graphic.
-  const authored = path.join(REPO, "videos/reel-plans", `${s.slug}.mjs`);
+  const authored = path.join(REPO, "videos/reel-plans", `${s.pslug}.mjs`);
   if (fs.existsSync(authored) && !opts.draft) {
     const mod = await import(`${pathToFileURL(authored).href}?t=${Date.now()}`);
-    const P = await openPlan(s.slug, { reelsDir: REELS_DIR });
+    const P = await openPlan(s.pslug, { reelsDir: REELS_DIR, scriptSlug: s.slug, prototype: !!pj.prototype });
     await mod.default(P);
     P.write();
     log(`plan: authored plan ${path.relative(REPO, authored)} re-resolved against this cut`);
@@ -269,9 +299,10 @@ async function stagePlan(ref, opts = {}) {
     log("beats.json has hand edits (edited: true): validating it instead of replacing it. Use --force to redraft.");
   } else {
     const p = planBeats(ctx);
-    writeJson(file, { slug: s.slug, title: ctx.structure.title, edited: false, arollDuration: ctx.edl.duration, ...p });
+    writeJson(file, { slug: s.pslug, title: ctx.structure.title, edited: false, arollDuration: ctx.edl.duration, ...p });
   }
   const plan = readJson(file);
+  if (pj.prototype) plan.prototype = true;
   const v = validateBeats(plan, ctx);
   writeJson(file, plan);
   pj.stages.plan = { at: new Date().toISOString(), beats: plan.beats.length, errors: v.errors, warnings: v.warnings, repaired: v.repaired, face: v.face };
@@ -295,7 +326,7 @@ function prepareAssets(compDir, dir, ctx, plan) {
   fs.copyFileSync(path.join(ENGINE, "node_modules/gsap/dist/gsap.min.js"), path.join(A, "gsap.min.js"));
   for (const f of ["inter.woff2", "patrickhand.woff2"]) fs.copyFileSync(path.join(FONTS, f), path.join(A, "fonts", f));
   const used = new Set();
-  for (const b of plan.beats) for (const id of [b.broll?.asset, b.graphic?.props?.asset, b.graphic?.props?.footage]) if (id) used.add(id);
+  for (const b of plan.beats) for (const id of beatAssets(b)) used.add(id);
   // The 3D world: the pinned engine, three.js, and every photo it stands in the scene.
   // Cut-outs keep their alpha (PNG); plates become JPEG like any other still.
   if (plan.world) {
@@ -317,17 +348,21 @@ function prepareAssets(compDir, dir, ctx, plan) {
     const src = sheet?.path || lib?.path || br?.path;
     if (!src || !fs.existsSync(src)) throw new Error(`asset ${id} is missing on disk: ${src}`);
     const isVideo = /\.(mp4|mov|webm|m4v)$/i.test(src);
-    const dst = path.join(A, `${id}.${isVideo ? "mp4" : "jpg"}`);
+    // A cut-out keeps its alpha as WebP (yuva420p): the prototype matte is 490 KB as WebP
+    // against 6.7 MB as PNG, on every frame of every render worker. A layered scene needs
+    // resolution for depth moves, so stills stage at up to 2000px.
+    const png = !isVideo && /\.png$/i.test(src);
+    const dst = path.join(A, `${id}.${isVideo ? "mp4" : png ? "webp" : "jpg"}`);
     const stamp = `${dst}.src.json`;
-    const want = JSON.stringify({ src, mtime: fs.statSync(src).mtimeMs, crop: lib?.crop || null, enc: 3 });
+    const want = JSON.stringify({ src, mtime: fs.statSync(src).mtimeMs, crop: lib?.crop || null, enc: 5 });
     if (!fs.existsSync(dst) || !fs.existsSync(stamp) || fs.readFileSync(stamp, "utf8") !== want) {
       const c = lib?.crop;
       const cropF = c ? `crop=iw*${c.w}:ih*${c.h}:iw*${c.x}:ih*${c.y},` : "";
       if (isVideo) execFileSync("ffmpeg", ["-v", "error", "-y", "-i", src, "-an", "-vf", `${sdrFilter(probe(src))}${cropF}scale=1080:-2,fps=30`, "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-pix_fmt", "yuv420p", ...BT709_TAGS, ...SEEKABLE, "-t", "90", dst]);
-      else execFileSync("ffmpeg", ["-v", "error", "-y", "-i", src, "-vf", "scale='min(1400,iw)':-2", "-q:v", "3", dst]);
+      else execFileSync("ffmpeg", ["-v", "error", "-y", "-i", src, "-vf", `scale='min(${png ? 1800 : 2000},iw)':-2`, ...(png ? ["-c:v", "libwebp", "-quality", "90", "-pix_fmt", "yuva420p"] : ["-q:v", "2"]), dst]);
       fs.writeFileSync(stamp, want);
     }
-    files[id] = { rel: `assets/${path.basename(dst)}`, type: isVideo ? "video" : "image", startAt: lib?.startAt ?? 2, credit: br ? `Source: ${br.provenance.source}` : null, provenance: sheet?.provenance || lib?.provenance || br?.provenance };
+    files[id] = { rel: `assets/${path.basename(dst)}`, type: isVideo ? "video" : "image", startAt: lib?.startAt ?? 2, credit: br ? br.provenance.credit || `Source: ${br.provenance.source}` : null, provenance: sheet?.provenance || lib?.provenance || br?.provenance };
   }
   return files;
 }
@@ -342,7 +377,7 @@ async function stageBuild(ref, opts = {}) {
   const comp = buildComposition({ plan, phrases, rules: ctx.rules, outWords: ctx.outWords, assetFiles, framing: ctx.track ? { track: ctx.track, edl: ctx.edl } : null });
   if (comp.missing.length) throw new Error(`beats use components that do not exist: ${comp.missing.join(", ")}`);
   const safe = safeZoneViolations(comp.boxes, ctx.rules);
-  writeProject(compDir, comp.html, { id: s.slug, name: ctx.structure.title, createdAt: pj.createdAt });
+  writeProject(compDir, comp.html, { id: s.pslug, name: `${ctx.structure.title}${pj.prototype ? " (PROTOTYPE)" : ""}`, createdAt: pj.createdAt });
   writeJson(path.join(dir, "captions.json"), phrases);
   writeJson(path.join(dir, "assets.json"), Object.fromEntries(Object.entries(assetFiles).map(([id, a]) => [id, { file: a.rel, type: a.type, provenance: a.provenance }])));
 
@@ -440,7 +475,7 @@ async function stageRender(ref, opts = {}) {
   const r = spawnSync(HF, ["render", compDir, "-o", silent, "-f", String(built.ctx.rules.format.fps), "-q", opts.draft ? "draft" : "standard", "-w", String(opts.workers || 4), "--sdr", "--quiet"], { stdio: "inherit", env: HF_ENV, timeout: 3 * 60 * 60 * 1000 });
   if (r.status !== 0) throw new Error(`hyperframes render failed (exit ${r.status})`);
   const version = (pj.renders?.length || 0) + 1;
-  const final = path.join(renders, `${s.slug}-v${version}.mp4`);
+  const final = path.join(renders, `${s.pslug}-v${version}.mp4`);
   execFileSync("ffmpeg", ["-v", "error", "-y", "-i", silent, "-i", path.join(dir, "audio/mix.wav"), "-map", "0:v", "-map", "1:a", "-c:v", "copy", "-c:a", "aac", "-b:a", "256k", "-movflags", "+faststart", "-shortest", final]);
   pj.renders = [...(pj.renders || []), { version, file: path.relative(dir, final), at: new Date().toISOString(), draft: !!opts.draft }];
   save();
@@ -460,7 +495,7 @@ function stageQa(ref, opts = {}) {
     const phrases = groupCaptions(ctx.outWords, ctx.structure, ctx.rules);
     return { plan, ctx, v, safe: pj.stages.build?.safeZone || [], leaks: captionLeaks(phrases), mixReport: readJson(path.join(dir, "audio/mix.json")) };
   })();
-  const q = runQa(file, { plan: built.plan, rules: built.ctx.rules, structure: built.ctx.structure, validation: built.v, captionLeaks: built.leaks, safeZone: built.safe, mixReport: built.mixReport, hfCheck: readJson(path.join(dir, "qa/check.json")) });
+  const q = runQa(file, { plan: built.plan, rules: built.ctx.rules, structure: built.ctx.structure, validation: built.v, captionLeaks: built.leaks, safeZone: built.safe, mixReport: built.mixReport, hfCheck: readJson(path.join(dir, "qa/check.json")), broll: built.ctx.broll, prototype: !!pj.prototype });
   const qaDir = path.join(dir, "qa");
   const cs = contactSheets(file, built.plan, qaDir);
   writeJson(path.join(qaDir, "qa.json"), { file: path.relative(dir, file), ...q, sheets: cs.sheets.map((x) => path.relative(dir, x)) });
@@ -468,13 +503,16 @@ function stageQa(ref, opts = {}) {
   pj.stages.qa = { at: new Date().toISOString(), file: path.relative(dir, file), passed: q.passed, failed: q.failed };
   save();
   log(qaMarkdown(q, cs));
-  if (q.passed) {
+  // A prototype is never a deliverable, whatever QA says: nothing goes to final/ or the
+  // export folder, so it cannot be posted by mistake.
+  if (q.passed && pj.prototype) log("prototype: not copied to final/ or exported (a prototype is never a deliverable)");
+  else if (q.passed) {
     const finalDir = path.join(dir, "final");
     fs.mkdirSync(finalDir, { recursive: true });
-    const out = path.join(finalDir, `${s.slug}.mp4`);
+    const out = path.join(finalDir, `${s.pslug}.mp4`);
     fs.copyFileSync(file, out);
     log(`final: ${path.relative(REPO, out)}`);
-    if (fs.existsSync(EXPORT_DIR)) { fs.copyFileSync(file, path.join(EXPORT_DIR, `${s.slug}.mp4`)); log(`exported: ${EXPORT_DIR}/${s.slug}.mp4`); }
+    if (fs.existsSync(EXPORT_DIR)) { fs.copyFileSync(file, path.join(EXPORT_DIR, `${s.pslug}.mp4`)); log(`exported: ${EXPORT_DIR}/${s.pslug}.mp4`); }
   }
   return q;
 }
@@ -529,7 +567,7 @@ function stageFeedback(ref, note) {
 }
 
 function stageStatus(ref) {
-  const dirs = ref ? [resolveScript(ref).slug] : fs.existsSync(REELS_DIR) ? fs.readdirSync(REELS_DIR).filter((d) => fs.existsSync(path.join(REELS_DIR, d, "project.json"))) : [];
+  const dirs = ref ? [variantSlug(resolveScript(ref).slug)] : fs.existsSync(REELS_DIR) ? fs.readdirSync(REELS_DIR).filter((d) => fs.existsSync(path.join(REELS_DIR, d, "project.json"))) : [];
   if (!dirs.length) { log("no reel projects yet."); return; }
   for (const d of dirs) {
     const pj = readJson(path.join(REELS_DIR, d, "project.json"));
@@ -571,6 +609,7 @@ function parseArgs(argv) {
 async function main() {
   const [cmd, ...rest] = process.argv.slice(2);
   const { args, opts } = parseArgs(rest);
+  if (opts.variant) setVariant(opts.variant);
   switch (cmd) {
     case "new": createProject(args[0], opts.video || args[1]); break;
     case "identify": {

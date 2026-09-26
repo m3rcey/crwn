@@ -67,6 +67,16 @@ line plus small tags pinned to objects; shots about 2s except continuous fly-thr
 - **"3D" is not "premium".** The references' 3D (~47% of their frames) is photoreal CG built
   from real imagery, used where no camera can go. Procedural primitives on a dark void read as
   a game. Abstract mechanisms get annotated real imagery or textured 2D, not low-poly props.
+- **Learned on the real-media prototype** (script 23, 2026-09-25, each one seen in a frame):
+  the image carries the frame, type sits under it (the references' labels are ~5% of the
+  frame; a 170px counter and a 124px label read as a slide and were cut to 128/96px);
+  a cut-out gets a soft cast shadow, never a tight contact shadow (it draws a sticker
+  outline at 100%); a foreground layer must be LIT (a dark crowd strip in front of the
+  subject read as a black void, a backlit crowd reads as fans); a scene that opens before
+  its first event is a dead frame (the timeline opened on "Going" and showed a bare planner
+  for 1.4s; it opens on "launch" now); keep labels out of Instagram's right-hand button
+  column (safe zone right edge); and look at the source photo's own edges (the planner's
+  dark page curl became a black wedge once the camera travelled).
 - **Product and calculator footage own the frame**, with a virtual camera move inside the
   recording. Never a small phone above his face.
 - **Text labels; it does not carry the explanation.** Captions are one short line, 54px

@@ -9,7 +9,7 @@
 // in-point before the word's real onset, so a cut never clips a word's tail or start.
 
 import fs from "node:fs";
-import { withLevels, quietThreshold, decayPoint, onsetPoint, quietRunAfter, quietRunBefore, quietestIn, levelIn } from "./boundaries.mjs";
+import { withLevels, quietThreshold, decayPoint, onsetPoint, onsetAfterPause, longestQuietRun, quietRunAfter, quietRunBefore, quietestIn, levelIn } from "./boundaries.mjs";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
 
@@ -34,10 +34,22 @@ export function buildEdl(structure, transcript, alignment, rules, opts = {}) {
   // beats get their pause even when the founder rushed straight through them.
   const roleOf = (w) => structure.lines[keptSet.get(w)?.line]?.role;
   const forcedBreak = (a, b) => keptSet.get(a)?.line !== keptSet.get(b)?.line && (roleOf(a) === "hook_turn" || roleOf(b) === "reveal");
+  // A pause the recognizer hid: stamps that abut ("now" 40.30-41.22 | "here's" 41.22-42.52)
+  // report no gap, so a full second of room tone survived inside one span (script 23
+  // prototype, 2026-09-25). Measured on the source, a quiet run longer than
+  // maxHiddenPauseSec between two kept words breaks the span like any other pause.
+  const env = opts.envelope ? withLevels(opts.envelope) : null;
+  const thrDb = env ? quietThreshold(env, { overFloorDb: P.quietOverFloorDb ?? 5, ceilDb: P.quietCeilDb ?? -24 }) : null;
+  const hiddenPause = (a, b) => !!env && longestQuietRun(env, words[a].start, words[b].end, thrDb + 3) > (P.maxHiddenPauseSec ?? 0.6);
   const spans = [];
   let cur = null;
   for (const w of kept) {
-    if (cur && w === cur.w1 + 1 && words[w].start - words[cur.w1].end <= P.keepPauseMaxSec && !forcedBreak(cur.w1, w)) { cur.w1 = w; continue; }
+    if (cur && w === cur.w1 + 1 && words[w].start - words[cur.w1].end <= P.keepPauseMaxSec && !forcedBreak(cur.w1, w)) {
+      if (!hiddenPause(cur.w1, w)) { cur.w1 = w; continue; }
+      cur = { w0: w, w1: w, hiddenBefore: true };
+      spans.push(cur);
+      continue;
+    }
     cur = { w0: w, w1: w };
     spans.push(cur);
   }
@@ -51,9 +63,6 @@ export function buildEdl(structure, transcript, alignment, rules, opts = {}) {
     if (!firstTokenOfLine.has(l) || k.w < firstTokenOfLine.get(l)) firstTokenOfLine.set(l, k.w);
     if (!lastTokenOfLine.has(l) || k.w > lastTokenOfLine.get(l)) lastTokenOfLine.set(l, k.w);
   }
-
-  const env = opts.envelope ? withLevels(opts.envelope) : null;
-  const thrDb = env ? quietThreshold(env, { overFloorDb: P.quietOverFloorDb ?? 5, ceilDb: P.quietCeilDb ?? -24 }) : null;
 
   for (let i = 0; i < spans.length; i++) {
     const s = spans[i];
@@ -82,7 +91,7 @@ export function buildEdl(structure, transcript, alignment, rules, opts = {}) {
       let removed = false;
       for (let w = s.w1 + 1; w < next.w0; w++) if (words[w].type !== "event") { removed = true; break; }
       if (sameLine && !endsLine && removed) { pause = 0.03; kind = "micro"; }
-      else if (sameLine && !endsLine) { pause = Math.min(words[next.w0].start - s.last, P.breathPauseSec ?? 0.22); kind = "breath"; }
+      else if (sameLine && !endsLine) { pause = next.hiddenBefore ? P.breathPauseSec ?? 0.22 : Math.min(words[next.w0].start - s.last, P.breathPauseSec ?? 0.22); kind = "breath"; }
       else if (thisLine?.role === "hook_turn") { pause = P.hookTurnPauseSec; kind = "hook_turn"; }
       else if (nextLine?.role === "reveal" && firstTokenOfLine.get(nextLine.id) === next.w0) { pause = P.preRevealPauseSec; kind = "pre_reveal"; }
       else if (nextLine && thisLine && nextLine.para !== thisLine.para) { pause = P.paragraphPauseSec; kind = "paragraph"; }
@@ -110,9 +119,19 @@ export function buildEdl(structure, transcript, alignment, rules, opts = {}) {
       s.quietAfter = s.continuous ? 0 : quietRunAfter(env, s.voiceEnd, thrDb);
       const low = prevWord ? prevWord.end - 0.05 : 0;
       const o = onsetPoint(env, s.first + 0.03, low, { thrDb, holdSec: P.onsetHoldSec ?? 0.06 });
-      s.voiceStart = o === null ? quietestIn(env, Math.max(low, s.first - 0.12), s.first) : Math.min(o, s.first);
-      s.quietBefore = o === null ? 0 : quietRunBefore(env, s.voiceStart, thrDb);
-      s.continuousIn = o === null;
+      // No quiet before the stamp: the pause may be INSIDE this word's stamp (an early
+      // stamp; lib/boundaries.mjs onsetAfterPause), which is a clean in-point after all.
+      // A span split for a hidden pause has that pause inside the stamps by definition, so
+      // the forward search comes first there.
+      // The limit runs a little past the stamp's end: an early stamp's audible word can
+      // start right at (or after) where the recognizer says it ended.
+      const late = o === null || s.hiddenBefore ? onsetAfterPause(env, s.first, Math.min(words[s.w0].end + 0.25, s.first + 1.5), { thrDb }) : null;
+      if (late) { s.voiceStart = late.onset; s.quietBefore = late.quiet; s.continuousIn = false; }
+      else {
+        s.voiceStart = o === null ? quietestIn(env, Math.max(low, s.first - 0.12), s.first) : Math.min(o, s.first);
+        s.quietBefore = o === null ? 0 : quietRunBefore(env, s.voiceStart, thrDb);
+        s.continuousIn = o === null;
+      }
     } else {
       s.voiceEnd = s.last; s.voiceStart = s.first;
       s.quietAfter = s.availAfter; s.quietBefore = s.availBefore;
@@ -179,7 +198,14 @@ export function toOut(edl, srcT) {
 export function remapWords(edl, capWords) {
   const out = [];
   for (const w of capWords) {
-    const a = toOut(edl, w.start), b = toOut(edl, w.end);
+    let a = toOut(edl, w.start);
+    const b = toOut(edl, w.end);
+    // An early-stamped word whose in-point was moved past the pause inside its stamp
+    // starts where its segment starts.
+    if (a === null && b !== null) {
+      const seg = edl.segments.find((s) => w.end >= s.srcIn - 1e-6 && w.end <= s.srcOut + 1e-6);
+      if (seg && w.start < seg.srcIn) a = seg.outStart;
+    }
     if (a === null || b === null) continue;
     out.push({ ...w, start: a, end: Math.max(a + 0.04, b) });
   }

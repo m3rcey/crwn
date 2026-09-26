@@ -130,7 +130,9 @@ export function soundPlan(plan, structure, outWords, rules) {
   const lastLineAt = kw !== -1 ? lineStart(kw) : null;
   const musicEnd = A.musicEndsBeforeLastLine && lastLineAt !== null ? lastLineAt : plan.duration;
   // Cap density: keep the first N per minute, riser and hit always kept.
-  const perMin = A.maxSfxPerMinute;
+  // A plan may declare its own density (plan.sfxPerMinute) when its sound design is an
+  // explicit brief, as the real-media prototype's is; the default stays the founder's cap.
+  const perMin = plan.sfxPerMinute ?? A.maxSfxPerMinute;
   const limit = Math.max(3, Math.floor((plan.duration / 60) * perMin));
   const keep = cues.filter((c) => c.kind === "riser" || c.kind === "hit" || c.kind === "impact" || c.kind === "impact_big");
   for (const c of cues) if (!keep.includes(c) && keep.length < limit) keep.push(c);
@@ -143,6 +145,23 @@ export function dropExpression(drops) {
   if (!drops.length) return "1";
   const parts = drops.map((d) => `if(between(t,${d.from.toFixed(3)},${d.to.toFixed(3)}),max(0,1-min(1,(t-${d.from.toFixed(3)})/${d.fade})),if(between(t,${d.to.toFixed(3)},${(d.to + 0.25).toFixed(3)}),(t-${d.to.toFixed(3)})/0.25,1))`);
   return parts.reduce((acc, p) => (acc === "1" ? p : `min(${acc},${p})`), "1");
+}
+
+/**
+ * ffmpeg volume expression for a music level that BUILDS: plan.musicGain keyframes
+ * [{t, db}] (relative to the bed level), linear in amplitude between keys, held flat
+ * before the first and after the last. "1" when there are none. Pure.
+ */
+export function rampExpression(keys = []) {
+  const k = [...keys].sort((a, b) => a.t - b.t).map((x) => ({ t: +x.t.toFixed(3), g: +Math.pow(10, x.db / 20).toFixed(4) }));
+  if (!k.length) return "1";
+  let expr = String(k[k.length - 1].g);
+  for (let i = k.length - 2; i >= 0; i--) {
+    const a = k[i], b = k[i + 1];
+    const seg = b.t > a.t ? `${a.g}+(${(b.g - a.g).toFixed(4)})*(t-${a.t})/${(b.t - a.t).toFixed(3)}` : String(b.g);
+    expr = `if(lt(t,${b.t}),${seg},${expr})`;
+  }
+  return `if(lt(t,${k[0].t}),${k[0].g},${expr})`;
 }
 
 /**
@@ -185,7 +204,8 @@ export function mix({ voiceIn, outFile, workDir, plan, structure, outWords, rule
     const gain = A.voiceTargetLufs - A.musicUnderVoiceDb - m.i;
     musicFile = path.join(workDir, "music.wav");
     const exprFile = path.join(workDir, "music.expr");
-    fs.writeFileSync(exprFile, `volume='${dropExpression(sp.drops)}':eval=frame,volume=${gain.toFixed(2)}dB`);
+    const ramp = plan.musicGain?.length ? `,volume='${rampExpression(plan.musicGain)}':eval=frame` : "";
+    fs.writeFileSync(exprFile, `volume='${dropExpression(sp.drops)}':eval=frame${ramp},volume=${gain.toFixed(2)}dB`);
     ff(["-i", raw, "-filter_script:a", exprFile, "-ar", "48000", musicFile]);
   }
 

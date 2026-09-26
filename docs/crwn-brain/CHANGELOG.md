@@ -1,5 +1,28 @@
 # CRWN Brain — Changelog
 
+## 2026-09-25 - Reel editor: the real-media prototype (built, rendered, reviewed; do not scale yet)
+
+A 23-second prototype of script 23 (Smino) tested the real-media architecture before any
+full rebuild: a 2.5D hook (his matted photograph over a separate crowd photograph, SMINO
+behind his head, lit fans in front, the count and a withheld value), a deliberate return to
+the A-roll, an art-directed album collage and a textured launch/delivery timeline, with an
+authored sound plan and a building music bed. New code: `scripts/reel/lib/depth.mjs`
+(`Layers`, `Collage`, `Timeline`, annotation primitives), variant projects
+(`--variant proto`, never exported), a rights marker
+(`PROTOTYPE_ONLY_NOT_CLEARED_FOR_PUBLICATION`: an error in anything publishable, a failing
+`publication_rights` QA check), `excludeSrc`, a building music ramp (`musicGain`), and two
+cutter fixes for pauses hidden inside abutting recognizer stamps (they chopped "nothing" and
+"that" and kept a 1.0s dead pause). The storyboard no longer accepts a modelled figure as
+the artist. A render-order bug (a hide added after a same-instant entrance dropped Smino
+from any render worker that started mid-scene) was found by a cold snapshot and fixed. QA
+on v2: everything passes except `publication_rights` (the uncleared album cover, by
+design). Verdict against the 14M/20M references: the artist and evidence scenes reach the
+class; the abstract mechanism scene (a line over a planner) does not, and Fan Economy
+reels are mostly mechanism. Recommendation: do not scale yet; abstract beats need a real
+hero object (founder-shot B-roll) or photoreal CG. Evidence and numbers:
+`docs/REEL_MEDIA_ARCHITECTURE.md` ("The prototype result"). Tests: `media.test.mjs`
+(20, four mutation-tested), 233 reel tests green.
+
 ## 2026-09-25 - Reel editor: real media first, the 3D direction retired (decision record)
 
 The 3D Smino rebuild fixed the reel's structure and still looked far below the premium

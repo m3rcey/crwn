@@ -12,6 +12,7 @@ import path from "node:path";
 import { execFileSync, spawnSync } from "node:child_process";
 import { probe } from "./cut.mjs";
 import { measureLoudness } from "./audio.mjs";
+import { beatAssets, isUncleared, UNCLEARED } from "./beats.mjs";
 
 export function parseIntervals(stderr, kind) {
   const out = [];
@@ -92,8 +93,15 @@ export function runQa(file, ctx) {
   add("crwn_claims", !v.errors.some((e) => e.startsWith("CLAIM")), v.errors.filter((e) => e.startsWith("CLAIM")).join("; ") || "product visuals only where the claim gate allows");
   add("provenance", !v.errors.some((e) => e.includes("provenance") || e.includes("unknown asset")), v.errors.filter((e) => e.includes("provenance") || e.includes("unknown asset")).join("; ") || "every asset has a source");
   const kw = plan.beats.find((b) => b.scene === "cta_keyword");
-  add("cta_keyword", kw && kw.graphic?.props?.keyword === ctx.structure.ctaKeyword, kw ? `COMMENT ${kw.graphic?.props?.keyword} (script: ${ctx.structure.ctaKeyword})` : "no CTA keyword beat");
-  add("endcard", endcard && endcard.end - endcard.start >= 1.0 && plan.beats[plan.beats.length - 1] === endcard, endcard ? `${(endcard.end - endcard.start).toFixed(1)}s, last` : "missing");
+  // A prototype is a slice: a missing CTA or end card is reported, a WRONG keyword is not.
+  const slice = plan.prototype ? "warning" : "error";
+  if (kw || !plan.prototype) add("cta_keyword", kw && kw.graphic?.props?.keyword === ctx.structure.ctaKeyword, kw ? `COMMENT ${kw.graphic?.props?.keyword} (script: ${ctx.structure.ctaKeyword})` : "no CTA keyword beat");
+  else add("cta_keyword", false, "prototype: no CTA keyword beat", slice);
+  add("endcard", endcard && endcard.end - endcard.start >= 1.0 && plan.beats[plan.beats.length - 1] === endcard, endcard ? `${(endcard.end - endcard.start).toFixed(1)}s, last` : plan.prototype ? "prototype: no end card" : "missing", endcard ? "error" : slice);
+  // Publication rights: a render that carries an asset marked uncleared FAILS, whatever
+  // else passes, so it can never be mistaken for a deliverable.
+  const uncleared = [...new Set(plan.beats.flatMap(beatAssets))].filter((id) => isUncleared((ctx.broll || []).find((x) => x.id === id)?.provenance));
+  add("publication_rights", !uncleared.length, uncleared.length ? `${uncleared.join(", ")} marked ${UNCLEARED}: internal prototype only` : "no asset marked uncleared");
   add("safe_zone", !(ctx.safeZone || []).length, (ctx.safeZone || []).map((s) => `beat ${s.beat} ${s.what}: ${s.problems.join(", ")}`).join("; ") || "all text inside the platform safe zone");
   const first = plan.beats.find((b) => b.start > 0.01);
   add("hook_moves_fast", first && first.start <= rules.visual.hookFirstChangeSec + 0.05, first ? `first change at ${first.start.toFixed(2)}s` : "no change", "warning");

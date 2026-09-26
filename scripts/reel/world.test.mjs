@@ -111,13 +111,16 @@ describe("the storyboard gate", () => {
     p.beats[0].broll = { asset: "broll-artist" };
     expect(storyboardLint(p, ctx).errors.filter((e) => e.includes("the hook"))).toEqual([]);
   });
-  it("a 3D figure of the artist counts, and a hook without it is rejected", () => {
+  it("a modelled 3D figure never stands in for the artist; his photograph in the world does", () => {
+    // Founder reversal, 2026-09-25: a generic model reads as a mannequin, not as the artist
+    // (docs/REEL_MEDIA_ARCHITECTURE.md). Only real photographs of him count.
+    const ctx = { ...r.ctx, broll: [{ id: "broll-artist", shows: `${r.S.artist}, real photograph`, provenance: { source: "test" } }] };
     const p = clone(r.plan);
     p.beats[0].aroll = "world"; p.beats[3].aroll = "world";
     p.world = { camera: [], tags: [], objects: [{ id: "artist", type: "figure", artist: true, keys: { scale: [{ t: 0, v: 1 }] } }] };
-    expect(storyboardLint(p, r.ctx).errors.filter((e) => e.includes("the hook"))).toEqual([]);
-    p.beats[0].aroll = "full";
-    expect(storyboardLint(p, r.ctx).errors.some((e) => e.includes("the hook does not show"))).toBe(true);
+    expect(storyboardLint(p, ctx).errors.some((e) => e.includes("the hook does not show"))).toBe(true);
+    p.world.objects.push({ id: "photo", type: "photo", asset: "broll-artist", keys: { scale: [{ t: 0, v: 1 }] } });
+    expect(storyboardLint(p, ctx).errors.filter((e) => e.includes("the hook"))).toEqual([]);
   });
   it("reports coverage by medium (descriptive)", () => {
     const c = storyboardLint(r.plan, r.ctx).coverage;
