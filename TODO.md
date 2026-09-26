@@ -67,6 +67,25 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **Content test (9/25 to 9/29): three artists who signed up this week cannot be paid yet.**
+      Message each one personally today. Rerun the audit each day:
+      `bash -c 'set -a; source ./.env.local; set +a; node scripts/funnel-audit.mjs --since 2026-09-25'`
+      ([scripts/funnel-audit.mjs](scripts/funnel-audit.mjs)).
+      - **djdawest**: started Stripe but did not finish (charges off), so the paid tiers have no
+        Stripe price and nobody can buy. Tiers are $100 / $250 / $1,000, which is 10x the
+        template: confirm they meant it. Fix: finish Stripe at /account/payouts.
+      - **meditraption**: Stripe fully on, but only the free Bronze tier exists. Nothing to buy.
+      - **fr35h**: stopped mid-setup, no Stripe, tiers not priced.
+      - **existentialbeingmusic** (IG, came from the VAULT DM): claimed their result, then stopped
+        on the first setup screen with no artist page.
+- [ ] **ManyChat: 59 of 84 people who commented a keyword never replied to the opening DM.**
+      Look at the opening message on the VAULT automation (Claude cannot read it; Meta refused).
+      While there: the VAULT flow reports its keyword as "worth" and sends no post id, so the
+      DM side cannot be compared per post. Pass the real keyword and the post id.
+- [ ] **Link in bio lands on the Opportunity Calculator while the posts say VAULT.** 78 people
+      opened it, 13 answered the first question. Point the bio link at the tool the current
+      post names, e.g. https://thecrwn.app/tools/vault-revenue-planner (verified live).
+
 - [ ] **Watch V2 against V1 and tell me which parts still miss.** You rejected V1 on look:
       not alive, too fast, images cut off, screen unused, does not hold attention. You said the
       handwritten style and the numbers were right, and both of those are untouched.
