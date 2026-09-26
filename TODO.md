@@ -67,23 +67,6 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
-- [ ] **Remove the dead new-artist trigger, and read what it says on the way out.** New-artist
-      emails no longer depend on it (they send straight from the signup code as of 2026-09-26),
-      so this is cleanup, not a blocker. Run in the Supabase SQL Editor:
-      [supabase/schema-phase2-drop-new-artist-trigger.sql](supabase/schema-phase2-drop-new-artist-trigger.sql)
-      Before it ends with `schema-phase2-drop-new-artist-trigger: OK`, it prints lines starting
-      `diagnostic:`. Paste those to me: they say why the old alert kept dying (401 means the
-      secret drifted). Then delete `NEW_ARTIST_WEBHOOK_SECRET` from Vercel; nothing reads it.
-
-- [ ] **Run the Featured switch migration so new signups (and Fr35h) come off everyone's Home.**
-      Until it runs, the code falls back to the old rule, Fr35h stays on the row, and the
-      Feature buttons at /admin?tab=artists are greyed out. Open and run in the Supabase SQL Editor:
-      [supabase/schema-phase2-featured-on-home-opt-in.sql](supabase/schema-phase2-featured-on-home-opt-in.sql)
-      It ends with `schema-phase2-featured-on-home-opt-in: OK`. It keeps GB and Mercey on the row
-      and nobody else, and locks the switch so artists cannot feature themselves. Then confirm:
-          npm run verify:migrations
-      From then on, feature or unfeature anyone at /admin?tab=artists.
-
 - [ ] **Watch V2 against V1 and tell me which parts still miss.** You rejected V1 on look:
       not alive, too fast, images cut off, screen unused, does not hold attention. You said the
       handwritten style and the numbers were right, and both of those are untouched.
@@ -704,6 +687,11 @@ responsible for. Do not work those.
       (one automation per video, forever). Do it ONLY for a hero video you want to measure.
 
 ### P2 — worth doing, nothing breaks if you never do it
+
+- [ ] **Delete the unused Vercel env var `NEW_ARTIST_WEBHOOK_SECRET`.** Nothing reads it since the
+      new-artist alert moved into the signup code (2026-09-26). Vercel > crwn > Settings >
+      Environment Variables > delete it. No redeploy needed.
+
 
 - [ ] **Decide: should the VAULT DM price the catalog the same way the web tool now does?**
       The web Vault Revenue Planner now shows fans who would pay x your price (the scripts'
