@@ -227,6 +227,17 @@ Founder-operated, not artist-facing. Publishes the generated Fan Economy content
 Instagram is LIVE and proven (media 18415895044156240 on @thecrwnapp, published unattended by the
 cron on 2026-08-26 after one env-var whitespace failure). The other five are built and gated.
 
+- **The Meta app ("CRWN Publishing Engine") is PUBLISHED as of 2026-09-26.** It ran unpublished
+  until then; publishing works that way, but reading other people's data does not: every comment
+  list and DM thread came back EMPTY with no error (even the founder's own comment), while
+  identity, posts and insights worked. Standard Access, no App Review, is enough for the
+  founder's own account once the app is published. The same app now also carries
+  `instagram_business_manage_comments` / `_manage_messages` / `_manage_insights` ("Ready for
+  testing"), used by the founder-only read tool
+  [tools/instagram-mcp/server.mjs](../../tools/instagram-mcp/server.mjs) (local, GET-only, token in
+  the git-ignored `.env.instagram`, registered in [.mcp.json](../../.mcp.json)). Never unpublish
+  the app: that silently empties those reads again.
+
 - **Env (all server-only, all trimmed on read):** `IG_USER_ID`, `IG_ACCESS_TOKEN`, `GRAPH_HOST`
   (graph.instagram.com for IGAA tokens, graph.facebook.com for EAA tokens), `FB_PAGE_ID`,
   `FB_PAGE_ACCESS_TOKEN`, `THREADS_USER_ID`, `THREADS_ACCESS_TOKEN`, `X_API_KEY`, `X_API_SECRET`,
