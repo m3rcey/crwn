@@ -67,10 +67,7 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
-- [ ] **Content test (9/25 to 9/29): finish the hand-grade of two signups.** Claude graded all five
-      from public sources (none is verified Tier 1 or 2). Two could not be matched to a public
-      artist: tell Claude the IG handle or Spotify link for **c-k-215** (C.K.215) and **fr35h**
-      (several artists use that name). Rerun the audit each day:
+- [ ] **Content test (9/25 to 9/29): rerun the audit each morning** and send Claude the output:
       `bash -c 'set -a; source ./.env.local; set +a; node scripts/funnel-audit.mjs --since 2026-09-25'`
       ([scripts/funnel-audit.mjs](scripts/funnel-audit.mjs)).
 - [ ] **Content test attribution: two ManyChat body edits and one bio-link edit.** None changes
