@@ -115,14 +115,32 @@ async function instagram() {
 
   out(`INSTAGRAM: ${posts.length} posts since ${SINCE_DAY} (followers now ${me.followers_count})`);
   console.log('  account window:', JSON.stringify(acct));
+  // DM DELIVERED per post: which keyword commenters have a DM thread at all. Separates "the
+  // automation never sent" (a missing ManyChat trigger for that keyword) from "sent but not
+  // tapped". Participants only, never message bodies; a couple of calls, not one per thread.
+  const dmUsers = new Set();
+  let dmErr = null;
+  try {
+    let after;
+    for (let i = 0; i < 10; i++) {
+      const r = await G('me/conversations', { platform: 'instagram', fields: 'updated_time,participants', limit: '50', ...(after ? { after } : {}) });
+      for (const t of r.data || []) for (const p of t.participants?.data || []) dmUsers.add(String(p.username || '').toLowerCase());
+      if (!r.paging?.next || (r.data || []).some((t) => t.updated_time < SINCE)) break;
+      after = r.paging.cursors.after;
+    }
+  } catch (e) { dmErr = String(e.message).slice(0, 80); }
+  for (const p of posts) p.dmDelivered = [...(p.kwWho || [])].filter((w) => dmUsers.has(String(w).toLowerCase())).length;
+
   let tv = 0, tk = 0, tku = 0;
   const everyone = new Set();
   for (const p of posts.sort((a, b) => a.timestamp.localeCompare(b.timestamp))) {
     tv += p.m.views || 0; tk += p.kwComments; tku += p.kwUsers;
     for (const w of p.kwWho) everyone.add(w);
     const cap = (p.caption || '').split('\n')[0].slice(0, 60);
-    console.log(`  ${p.timestamp.slice(5, 16)} ${p.media_product_type.padEnd(5)} views ${String(p.m.views ?? '?').padStart(6)} reach ${String(p.m.reach ?? '?').padStart(6)} likes ${String(p.m.likes ?? '?').padStart(4)} shares ${String(p.m.shares ?? '?').padStart(4)} saves ${String(p.m.saved ?? '?').padStart(4)} profVisits ${String(p.m.profile_visits ?? '?').padStart(4)} follows ${String(p.m.follows ?? '?').padStart(3)} | comments ${p.otherComments} keyword ${p.kwComments} (${p.kwUsers} ppl) ${JSON.stringify(p.kwBy)} | ${p.id} "${cap}"`);
+    console.log(`  ${p.timestamp.slice(5, 16)} ${p.media_product_type.padEnd(5)} views ${String(p.m.views ?? '?').padStart(6)} reach ${String(p.m.reach ?? '?').padStart(6)} likes ${String(p.m.likes ?? '?').padStart(4)} shares ${String(p.m.shares ?? '?').padStart(4)} saves ${String(p.m.saved ?? '?').padStart(4)} profVisits ${String(p.m.profile_visits ?? '?').padStart(4)} follows ${String(p.m.follows ?? '?').padStart(3)} | comments ${p.otherComments} keyword ${p.kwComments} (${p.kwUsers} ppl) ${JSON.stringify(p.kwBy)} DM delivered ${dmErr ? '?' : `${p.dmDelivered}/${p.kwUsers}`} | ${p.id} "${cap}"`);
+    if (!dmErr && p.kwUsers > 0 && p.dmDelivered === 0) console.log(`    !! NO DM SENT to any of ${p.kwUsers} keyword commenters: check the ManyChat automation for ${JSON.stringify(Object.keys(p.kwBy))}`);
   }
+  if (dmErr) console.log(`  (DM delivery unknown this run: ${dmErr})`);
   console.log(`  TOTAL views ${tv}, keyword comments ${tk}, keyword commenters ${tku} per-post sum, ${everyone.size} distinct people, rate ${tv ? ((everyone.size / tv) * 100).toFixed(2) : '?'}% of views`);
   return posts;
 }
