@@ -39,6 +39,7 @@ const PROBES = [
   // unlimited ones, silently and without an error anywhere.
   ['founder window columns', 'subscription_tiers?select=founder_window_enabled&limit=1', 'schema-phase2-founder-window.sql'],
   ['track waterfall column', 'tracks?select=waterfall&limit=1', 'schema-phase2-track-waterfall.sql'],
+  ['home featured opt-in column', 'artist_profiles_public?select=featured_on_home&limit=1', 'schema-phase2-featured-on-home-opt-in.sql'],
   ['support chat resolution columns', 'support_conversations?select=resolved_by&limit=1', 'schema-phase2-support-chat-resolution.sql'],
   // Z3. The anon key sees the table but no rows (owner-only RLS), which is the correct pass here:
   // a 200 with [] proves the table exists, a 42P01 proves the migration has not run.

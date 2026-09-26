@@ -96,17 +96,27 @@ export default function HomePage() {
         const ids = (artistsData as unknown as ArtistProfile[]).map((a) => a.id);
         let withMusic = new Set<string>();
         let hidden = new Set<string>();
+        // null = the opt-in column is not there yet, so nobody is filtered by it.
+        let optedIn: Set<string> | null = null;
         if (ids.length > 0) {
           // `featured_hidden` is queried SEPARATELY and tolerantly, not added to the
           // select above, because schema-phase2-featured-hidden.sql may not be applied
           // yet. Naming an absent column in the main select would 42703 and blank the
           // whole Featured row; a failed side query just returns null and hides nobody.
-          const [musicRes, hiddenRes] = await Promise.all([
+          //
+          // `featured_on_home` is the OPT-IN (schema-phase2-featured-on-home-opt-in.sql,
+          // founder decision 2026-09-26): a new artist is not on this row until the
+          // founder puts them there. It governs this row only; Explore still reads
+          // `featured_hidden` alone. Same tolerance: before that migration runs the
+          // query errors and the row falls back to the old rule instead of going blank.
+          const [musicRes, hiddenRes, optInRes] = await Promise.all([
             supabase.from('tracks').select('artist_id').eq('is_active', true).in('artist_id', ids),
             supabase.from('artist_profiles_public').select('id').eq('featured_hidden', true).in('id', ids),
+            supabase.from('artist_profiles_public').select('id').eq('featured_on_home', true).in('id', ids),
           ]);
           withMusic = new Set((musicRes.data || []).map((t) => t.artist_id as string));
           hidden = new Set((hiddenRes.data || []).map((r) => r.id as string));
+          if (!optInRes.error) optedIn = new Set((optInRes.data || []).map((r) => r.id as string));
         }
         // A featured tile must be complete: has music AND an uploaded avatar,
         // otherwise it renders as a broken placeholder.
@@ -126,7 +136,7 @@ export default function HomePage() {
         const hasName = (a: ArtistProfile) => isPresentableArtistName(prof(a)?.display_name);
         setFeaturedArtists(
           (artistsData as unknown as ArtistProfile[])
-            .filter((a) => withMusic.has(a.id) && hasAvatar(a) && isActive(a) && hasName(a) && !hidden.has(a.id))
+            .filter((a) => (optedIn === null || optedIn.has(a.id)) && withMusic.has(a.id) && hasAvatar(a) && isActive(a) && hasName(a) && !hidden.has(a.id))
             .slice(0, 12)
         );
       }
@@ -337,8 +347,14 @@ export default function HomePage() {
           This is neither. The public page is NOT in the tab bar, it is the one thing on
           this screen that belongs to the artist, and sharing it is the literal first step
           toward a first paying member: nobody reaches a checkout they were never sent to.
-          Loss-framed per the copy rule, and it states the real URL rather than describing it. */}
-      {setup.isArtist && !setup.loading && setup.slug && setup.steps.every((s) => s.done) && (
+          Loss-framed per the copy rule, and it states the real URL rather than describing it.
+
+          Shown to EVERY artist with a page, not only once all four setup steps are done
+          (founder ask, 2026-09-26). Shop and Monetize are skippable in the wizard, so the
+          old all-steps gate hid an artist's own page from them indefinitely, and since new
+          artists are no longer on the Featured row this card is how they reach it. While
+          setup is unfinished the Finish setup card above keeps the one gold button. */}
+      {setup.isArtist && !setup.loading && setup.slug && (
         <section className="neu-raised p-6">
           <h2 className="text-lg font-semibold text-crwn-text">
             Nobody can pay you from a link you never send.
@@ -352,7 +368,11 @@ export default function HomePage() {
           <div className="mt-4 flex flex-col sm:flex-row gap-2">
             <Link
               href={`/${setup.slug}`}
-              className="neu-button-accent inline-flex h-11 items-center justify-center gap-1.5 px-6 text-sm"
+              className={
+                setup.steps.every((s) => s.done)
+                  ? 'neu-button-accent inline-flex h-11 items-center justify-center gap-1.5 px-6 text-sm'
+                  : 'inline-flex h-11 items-center justify-center gap-1.5 rounded-full bg-crwn-elevated px-6 text-sm font-medium text-crwn-text hover:text-crwn-gold transition-colors'
+              }
             >
               Open my page
               <ArrowRight className="w-4 h-4" />

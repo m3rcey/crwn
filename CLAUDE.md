@@ -746,6 +746,15 @@ because every tile in it was a second door to a bottom-nav slot. **Do not re-add
 `/profile/artist` on `/home`, and never pad the Featured row with placeholder tiles**: it shows
 only artists with music AND an avatar AND a presentable name AND `featured_hidden = false`.
 
+**The Featured row is OPT-IN** (founder decision, 2026-09-26): an artist also needs
+`artist_profiles.featured_on_home = true`, which defaults to false, so a new signup is NOT shown
+to everyone at login until Josh features them
+([supabase/schema-phase2-featured-on-home-opt-in.sql](supabase/schema-phase2-featured-on-home-opt-in.sql)).
+It governs the Home row ONLY. Do not "simplify" it into defaulting `featured_hidden` to true:
+that flag also drops an artist from Explore browse and Explore tracks, which would bury every new
+artist's music. The artist's own way to their page is the "Open my page" card on `/home`, shown to
+every artist with a slug (not gated on finishing the skippable Shop/Monetize steps).
+
 **A short Featured row is NOT evidence the catalogue is short.** I claimed that on 2026-08-19
 from the completeness filter alone and it was wrong; probing on 2026-08-20 found the real cause
 is `featured_hidden`, and that the curation is inverted. Five of ten artists are hidden,
