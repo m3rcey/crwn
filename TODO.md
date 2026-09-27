@@ -48,13 +48,11 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
-- [ ] **ManyChat per-post attribution: the Knxwledge PILOT only.** Nothing else is built until
-      it passes all nine checks. Prompt, run order and the nine checks:
-      [docs/acquisition/astra-manychat-per-post-attribution.md](docs/acquisition/astra-manychat-per-post-attribution.md)
-      1. DONE 9/26 9:38 PM (Astra built the pilot; Claude verified it in production).
-      2. The pilot copy is Live. From `@m3rcey`, comment `VAULT` on the Knxwledge post
-         (instagram.com/p/Ddxa_ZfiV3g). Count DMs and public replies from @thecrwnapp (one each),
-         tap Show Me, answer the first question, then tell Claude "pilot done" and the time.
+- [ ] **ManyChat per-post automations: run the rollout prompt through Astra tonight, then after
+      each posting slot through 9/29 8:30 PM.** The Knxwledge pilot PASSED all nine checks.
+      Same text every run (it skips done rows and posts not out yet):
+      [docs/acquisition/astra-manychat-per-post-rollout.md](docs/acquisition/astra-manychat-per-post-rollout.md)
+      Minimum cadence: about 12:30 PM and 8:30 PM Central. Send Claude every report.
 - [ ] **Content test (9/25 to 9/29): rerun the audit each morning** and send Claude the output:
       `bash -c 'set -a; source ./.env.local; set +a; node scripts/funnel-audit.mjs --since 2026-09-25'`
       ([scripts/funnel-audit.mjs](scripts/funnel-audit.mjs)).
@@ -1044,12 +1042,9 @@ Things that are never finished. Cadence, then the thing.
 
 ## On Claude's plate (not yours)
 
-- **Per-post ManyChat attribution pilot: judge the nine checks** in
-  [docs/acquisition/astra-manychat-per-post-attribution.md](docs/acquisition/astra-manychat-per-post-attribution.md)
-  from Josh's comment time: DM thread and public replies via the IG API, the ONE M3rcey
-  `lead_sessions` row after the comment (the Test Request's row is earlier), and
-  `node scripts/funnel-audit.mjs --since 2026-09-26 --include-founder` printing `via tag`. Only on
-  PASSED: write the per-post prompt for the remaining posts from the live queue.
+- **Per-post ManyChat rollout: verify each Astra report.** Every CREATED row's Test Request leaves a
+  M3rcey `lead_sessions` row carrying its slug, keyword and tool; check those, then run
+  `node scripts/funnel-audit.mjs --since 2026-09-25` and read `by utm_content` and `post resolved by`.
 - **Content test Day 5 review queue (9/29). Recorded, deliberately NOT resolved mid-test:**
   - ICP doc vs scorer: docs/ICP.md requires followers AND listeners AND 40 songs AND 3 years;
     `leadScoring.ts` uses followers OR listeners and checks neither songs nor years;

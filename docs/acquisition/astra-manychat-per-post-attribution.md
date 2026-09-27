@@ -8,7 +8,15 @@ that time.
 **Status 2026-09-26 9:38 PM Central:** step 1 DONE and verified in production (VAULT fallback now
 sends `vault`; the pilot's Test Request session carries `39-knxwledge-half-a-million-beats`,
 keyword `VAULT`, tool `vault-revenue-planner`; all eight keyword automations Live with the expected
-tool and keyword). Waiting on step 2.
+tool and keyword).
+
+**PILOT PASSED 2026-09-26 9:43 PM Central.** @m3rcey commented once (02:43:20Z): one public reply,
+one opener DM, one question after Show Me; exactly one session after the comment
+(`f1d43ec1`, `utm_content 39-knxwledge-half-a-million-beats`, `VAULT`, `vault-revenue-planner`), one
+`manychat.session_start`, no `vault` fallback session, funnel row filed under the slug, and the audit
+printed `-> 09-27T01:23 VAULT FEED via tag`. The DM opener body is a button template the IG API
+does not expose; condition 9 rests on Astra's identical-text check and Josh's own view. Next:
+[astra-manychat-per-post-rollout.md](astra-manychat-per-post-rollout.md).
 
 **Run order**
 1. Paste everything below the line into Astra. Send Claude its report.
