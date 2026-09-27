@@ -48,6 +48,19 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **Schedule the Tish Hyman note (today, Sun 9/27).** It is a DRAFT in your Gmail, subject
+      "Your CRWN setup", to listen2tish@me.com. Open it, tap the arrow next to Send, Schedule send,
+      custom time **12:00 PM ET** (11 AM CDT). One draft exists and nothing else is queued to her,
+      so she gets it once. Not sent through Resend: the local Resend key is send-only, so a scheduled
+      send there could not be confirmed or cancelled. If she replies: she is still inside the setup
+      wizard, so `/studio/music` bounces her back to it. Walk her through the wizard from the tier
+      ladder screen (prefilled), then "An album, EP, or mixtape" on the music screen.
+- [ ] **Delete the 9/27 QA upload from the m3rcey test artist** (browser test of the catalog
+      uploader). Studio, Music, select `QA Track 1`, `QA Track 2`, `QA Track 3`, `QA single (delete me)`,
+      Delete. Then Albums, delete `QA test album (delete me)`. The app's delete removes the audio
+      objects too; nothing else on m3rcey was touched (35 tracks, 6 albums, 24 album links verified
+      unchanged).
+
 - [ ] **ManyChat per-post automations: run the rollout prompt through Astra tonight, then after
       each posting slot through 9/29 8:30 PM.** The Knxwledge pilot PASSED all nine checks.
       Same text every run (it skips done rows and posts not out yet):
@@ -1046,6 +1059,17 @@ Things that are never finished. Cadence, then the thing.
   M3rcey `lead_sessions` row carrying its slug, keyword and tool; check those, then run
   `node scripts/funnel-audit.mjs --since 2026-09-25` and read `by utm_content` and `post resolved by`.
 - **Content test Day 5 review queue (9/29). Recorded, deliberately NOT resolved mid-test:**
+  - Tish Hyman (listen2tish, 9/27 10:52 UTC) is the first `tagged_no_calc` signup: bio link to the
+    homepage to signup with NO calculator result, plus a DM opener delivered 10:49 and never tapped
+    (the WORTH comment is founder-reported; the post read was refused as PII, so it is unverified here).
+    `funnel-audit.mjs` now prints an ENTRY PATH per new artist so she is never counted as a
+    calculator conversion. The other four new artists this test are `untagged`.
+  - Calculator funnel events cannot be stitched to a visitor: `/api/lead-magnets/analytics` writes
+    the per-event id into `funnel_events.anon_id`, so every event looks like a new person and
+    "actors" counts are events. A measurement fix, deliberately held until the test ends.
+  - Smallest safe fix, awaiting a founder go: the `activation_no_track` nudge enrolls an artist
+    whose `setup_completed` is still false, and its `/studio/music` link bounces them back into the
+    wizard. Gate that rule on `setup_completed = true` (or link `/setup`). Tish would enroll ~9/30.
   - ICP doc vs scorer: docs/ICP.md requires followers AND listeners AND 40 songs AND 3 years;
     `leadScoring.ts` uses followers OR listeners and checks neither songs nor years;
     `catalog_size` means unreleased in the DM/scorer but released in `avatars/assignment.ts`.
