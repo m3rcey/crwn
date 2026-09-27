@@ -155,6 +155,25 @@ Three honest options, in the order they cost effort:
 Do NOT tag a shared "any post" flow with a single video's `utm_content`. It looks like per-video
 data and is not, which is worse than an honest `unknown`.
 
+**Chosen for the 2026-09-25 content test: option 3, with the any-post flow kept as the fallback.**
+Procedure: [astra-manychat-per-post-attribution.md](astra-manychat-per-post-attribution.md).
+- The per-post automation's `utm_content` is the publishing engine's `social_posts.slug`, which is
+  unique per post and already lowercase, so it survives `normalizeTag` unchanged. A value that is
+  not a slug (`vault`, `tour`, `free_v1`) is a keyword-level fallback label and means "post
+  unknown"; `scripts/funnel-audit.mjs` classifies them that way, and for fallback sessions it
+  attributes by commenter-username join instead.
+- **Why not one reusable flow fed a per-post custom field** (the smaller design, rejected on repo
+  evidence): a comment trigger cannot set a field, so it takes an extra entry automation plus a
+  "start another automation" hop, and the shared flow's body would then read that field. Trap 5 in
+  [manychat-setup-guide.md](manychat-setup-guide.md) says an EMPTY field arrives as `{{cuf_NNNN}}`
+  and CRWN rejects it with a 400, so every fallback comment would lose its DM. A set field is also
+  sticky on the contact, so a lead's second comment would carry their first post's slug.
+- A specific-post trigger can only be bound once the post is live (the picker lists published
+  posts), so bindings happen in repeated runs after each posting slot. Comments before a binding go
+  to the any-post flow and lose nothing.
+- Precedence between a specific-post and an any-post trigger on the same keyword was still
+  untested on 2026-09-26; the prompt proves it on one post (the pilot) before binding the rest.
+
 ### Procedure B: a simple link flow (a button that opens a website)
 
 1. Build the link in the **Campaign link builder** and click **Copy link**.

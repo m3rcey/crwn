@@ -7,8 +7,9 @@
 //   bash -c 'set -a; source ./.env.local; set +a; node scripts/funnel-audit.mjs --since 2026-09-25'
 //
 // Known blind spots (2026-09-26): Google sign-ups carry no source, so an account that never
-// claimed a calculator result is untraceable to a video; ManyChat sends keyword "worth" for the
-// VAULT flow and no source_post_id, so the DM side cannot be split per post.
+// claimed a calculator result is untraceable to a video. The DM side is split per post by the
+// per-post ManyChat automations' utm_content (a social_posts slug) where one exists, and by the
+// commenter-username join otherwise.
 //
 // Instagram numbers come from the local read token in .env.instagram (see
 // tools/instagram-mcp/server.mjs). Everything else comes from production with the service role.
@@ -166,6 +167,11 @@ async function production(posts) {
   console.log('  by tool', JSON.stringify(sorted(tally(sessions, (s) => s.lead_magnet_id))));
   console.log('  by state', JSON.stringify(sorted(tally(sessions, (s) => s.state))));
   console.log('  by post (tagged to a test post?)', JSON.stringify(sorted(tally(sessions, (s) => s.source_post_id ? (postIds.has(s.source_post_id) ? `test:${s.source_post_id}` : `other:${s.source_post_id}`) : null))));
+  // Per-post ManyChat automations send the publishing-engine slug as utm_content
+  // (docs/acquisition/astra-manychat-per-post-attribution.md). A value that is not a social_posts
+  // slug is a keyword-level fallback label ("vault", "tour", "free_v1"): the post is unknown there.
+  const slugMedia = new Map((await all('social_posts', 'slug,ig_media_id')).map((r) => [r.slug, r.ig_media_id]));
+  console.log('  by utm_content (post: = a publishing-engine slug)', JSON.stringify(sorted(tally(sessions, (s) => s.utm_content ? (slugMedia.has(s.utm_content) ? `post:${s.utm_content}` : `fallback:${s.utm_content}`) : null))));
   const aev = await all('acquisition_events', 'event_name,status', (q) => q.gte('occurred_at', SINCE));
   console.log('  acquisition_events', JSON.stringify(sorted(tally(aev, (e) => e.event_name))));
   console.log('  acquisition_events failed/dead', JSON.stringify(sorted(tally(aev.filter((e) => ['failed', 'dead_letter'].includes(e.status)), (e) => e.event_name))));
@@ -186,7 +192,10 @@ async function production(posts) {
   const identById = new Map(idents.map((i) => [i.id, i]));
   const label = (id) => { const p = posts.find((x) => x.id === id); return p ? `${p.timestamp.slice(5, 16)} ${(p.caption || '').match(/Comment "([A-Z]+)"/)?.[1] || '?'} ${p.media_product_type}` : id; };
   const postOf = (s) => {
-    const u = identById.get(s.lead_identity_id)?.instagram_username?.toLowerCase();
+    // The per-post automation's slug is deterministic and wins over the username join.
+    const tagged = slugMedia.get(s.utm_content);
+    if (tagged && posts.some((p) => p.id === tagged)) return label(tagged);
+    const u =identById.get(s.lead_identity_id)?.instagram_username?.toLowerCase();
     const set = u ? byUser.get(u) : null;
     if (!set || !set.size) return '(no keyword comment on a test post)';
     return set.size === 1 ? label([...set][0]) : 'multiple posts';

@@ -45,44 +45,32 @@ responsible for. Do not work those.
       replay, the artist surplus return, a dispute, and a collaborator cashout), then reconcile every
       cent and decide whether payouts turn on. **They stay off until that passes.**
 
-- [ ] **Before carousel post #1: verify the six keyword flows in ManyChat and tag them at
-      campaign level.** The repo side is done and tested: every batch keyword resolves to the
-      right calculator (VAULT, OWN, DEMAND, TOUR, ROYALTY, LIVE, plus STACK and FREE/PLAN if
-      used), no keyword maps to two tools, and the narrow-result-to-flagship bridge is live on
-      every eligible calculator. What only you can check, in the ManyChat UI:
-      1. Each keyword the batch uses has a LIVE, PUBLISHED flow, and (for engine flows) the
-         External Request body's `lead_magnet_id` matches the keyword's tool:
-         vault → vault-revenue-planner, own → own-your-fans-calculator,
-         demand → proof-of-demand-test-builder, tour → between-tour-calculator,
-         royalty → royalty-readiness-check, live → live-experience-calculator.
-         A half-edited clone (keyword changed, id not) silently runs the wrong tool; the
-         Vercel warning "[acquisition] session_start keyword ... maps to ..." is the tell.
-      2. Tag each flow at CAMPAIGN level per Procedure A in
-         [docs/acquisition/campaign-tagging.md](docs/acquisition/campaign-tagging.md)
-         (utm_campaign = the angle, e.g. vault). Do NOT put one video's utm_content on a
-         shared any-post flow; video stays honestly unknown for this batch (your call,
-         2026-08-24: campaign-level attribution is sufficient).
-      3. After tagging each flow, comment the keyword from a test account, run the DM to the
-         result, and confirm the row appears in /admin → Lead Magnets → Content scorecard,
-         grouped by Campaign. Until that row appears, the flow is not tagged.
+- [ ] **ManyChat: run the per-post attribution prompt through Astra, tonight. ROYALTY (9/29
+      9 AM) and LIVE (9/29 6 PM) have had no DM session since July and August**, i.e. before the
+      8/26 plan lapse that switched automations off, so those two posts may send no DM at all.
+      The prompt checks them first and rebuilds either one if it is off or missing. It also fixes
+      the VAULT automation, which is stamping `utm_content: vault-reel-sep26-1` on comments from
+      EVERY post (no post has that name), and gives each test post its own automation carrying
+      its publishing-engine slug.
+      Prompt and run order: [docs/acquisition/astra-manychat-per-post-attribution.md](docs/acquisition/astra-manychat-per-post-attribution.md)
+      1. Paste it into Astra as is (Parts A and B only).
+      2. From `@m3rcey`, comment `VAULT` on the Knxwledge post (instagram.com/p/Ddxa_ZfiV3g), check
+         you get ONE DM and ONE public reply, tap Show Me, tell Claude "pilot done".
+      3. Once Claude says PASSED, rerun it with `PILOT PASSED` as its first line after each posting
+         slot (at minimum about 12:30 PM and 8:30 PM Central) through 9/29 8:30 PM.
+      Send Claude Astra's report after every run.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
 - [ ] **Content test (9/25 to 9/29): rerun the audit each morning** and send Claude the output:
       `bash -c 'set -a; source ./.env.local; set +a; node scripts/funnel-audit.mjs --since 2026-09-25'`
       ([scripts/funnel-audit.mjs](scripts/funnel-audit.mjs)).
-- [ ] **Content test attribution: two ManyChat body edits and one bio-link edit.** None changes
-      what a lead sees. The server now records the right keyword even if you skip the first edit,
-      but fix the source anyway.
-      1. ManyChat, every automation, the session_start **External Request** Body: set `"keyword"`
-         to that automation's own word (the VAULT clones still send `"WORTH"`).
-      2. Same body: add `"utm_content":"<post label>",` with one label per post, e.g.
-         `vault-reel-0925`, `worth-reel-0926`, `demand-feed-0926`. ManyChat has no post-id field, so
-         this label IS the post id from now on.
-      3. Instagram bio: find the link that carries `utm_content=link_in_bio` (the API reports only
-         bare https://thecrwn.app, so it is probably your second link). Append
-         `&utm_campaign=content-test-day3` to it, then `day4` and `day5` on those mornings.
-         Do NOT change the page it opens.
+- [ ] **Content test attribution: one bio-link edit.** Does not change what a lead sees. (The
+      ManyChat body edits that used to be here are now the Astra item under P0.)
+      Instagram bio: find the link that carries `utm_content=link_in_bio` (the API reports only
+      bare https://thecrwn.app, so it is probably your second link). Append
+      `&utm_campaign=content-test-day3` to it, then `day4` and `day5` on those mornings.
+      Do NOT change the page it opens.
 
 - [ ] **Watch V2 against V1 and tell me which parts still miss.** You rejected V1 on look:
       not alive, too fast, images cut off, screen unused, does not hold attention. You said the
@@ -1063,6 +1051,11 @@ Things that are never finished. Cadence, then the thing.
 
 ## On Claude's plate (not yours)
 
+- **Per-post ManyChat attribution: verify every Astra report against production.** For the pilot,
+  M3rcey's newest `lead_sessions` row must carry `utm_content = 39-knxwledge-half-a-million-beats`
+  (if it reads `vault`, the any-post automation won and the per-post plan stops there). For each
+  run, every CREATED row's Test Request left a M3rcey session carrying that row's slug. Then
+  `node scripts/funnel-audit.mjs` reads it: `by utm_content` shows `post:<slug>` rows.
 - **Content test Day 5 review queue (9/29). Recorded, deliberately NOT resolved mid-test:**
   - ICP doc vs scorer: docs/ICP.md requires followers AND listeners AND 40 songs AND 3 years;
     `leadScoring.ts` uses followers OR listeners and checks neither songs nor years;
