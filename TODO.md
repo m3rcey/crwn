@@ -198,18 +198,14 @@ responsible for. Do not work those.
       [docs/crwn-brain/31-FAN-AUTOMATIONS.md](docs/crwn-brain/31-FAN-AUTOMATIONS.md).
       Step 1 (the migration) is done: applied and probe-verified 2026-09-01, and the LINK
       funnel is live for every artist since then. What remains is the comment-to-DM half.
-      **Step 2 (Instagram) is three short stages, in**
+      **Server side is DONE (2026-09-27):** the four Instagram vars are in Vercel Production
+      as Sensitive, redeployed, and the webhook handshake answers `4242` (wrong token and
+      unsigned POST both 403). **What is left:** paste the Stage 3 prompt from
       [docs/fan-automations/astra-instagram-go-live.md](docs/fan-automations/astra-instagram-go-live.md)
-      **(Astra never sees a secret):**
-      1. You, Astra NOT running: `npx vercel login` in the Ubuntu terminal, then reveal the
-         Instagram app ID + secret in Meta and paste them into the hidden prompt the doc gives
-         you (Stage 1). Tell Claude "secrets in".
-      2. Claude sets the four vars in Vercel Production as Sensitive from the git-ignored
-         `.env.fanautomations`, redeploys, and confirms the webhook handshake.
-      3. You paste the Stage 3 prompt into Astra (Meta redirect URI, m3rcey tester, webhook,
-         connect m3rcey, activate a `CRWNTEST` automation), send Claude the report, then
-         comment `CRWNTEST` on any m3rcey post from your phone (not as m3rcey). Claude confirms
-         the private reply from the database and rotates the verify token Astra saw.
+      into Astra (Meta redirect URI, m3rcey tester, webhook, connect m3rcey, activate a
+      `CRWNTEST` automation), send Claude the report, then comment `CRWNTEST` on any m3rcey
+      post from your phone (not as m3rcey). Claude confirms the private reply from the
+      database and rotates the verify token Astra saw.
       Standard Access covers app-role accounts, so none of this waits on Meta.
       **Later, not in that run:**
       - Facebook Pages half: add Facebook Login for Business to the same app, redirect URI

@@ -37,7 +37,7 @@ Josh, or from a file to Vercel through the CLI's stdin, run by Claude.
 
 4. Reload the Meta page so the secret is masked again. Tell Claude "secrets in".
 
-## Stage 2: Claude
+## Stage 2: Claude (DONE 2026-09-27: four vars added as Sensitive, redeployed, handshake 4242)
 
 Links the repo to the `crwn` Vercel project, adds the four variables to Production as
 Sensitive from `.env.fanautomations` via stdin (leaving an existing `SOCIAL_TOKEN_ENC_KEY`
