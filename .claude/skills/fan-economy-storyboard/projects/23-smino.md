@@ -113,6 +113,15 @@ Planning never depends on these. When frames are approved for generation:
 - Product UI: the model draws a flat chroma-key screen; the real screenshot is keyed in.
 - Checks before showing the founder: `distance` (greyscale, tiny, blurred: every silhouette
   survives) and `audit-text` (each word at least 3:1).
+- **Continuity across a sequence: `editOf`** (added 2026-09-27 for the opening keyframes). The
+  first state is generated fresh; each later state is an EDIT of the previous approved raw,
+  sent with only the base image and "change ONLY this" (no style or identity references, which
+  invite a redraw). Learned on the opening: the edit holds the base almost perfectly (identity,
+  hand, fans, camera), but it will NOT make a scale change (asked to enlarge the fans 30%, it
+  returned the image unchanged, 0% of pixels moved), so size and composition must be right in
+  the fresh first state. Chained edits soften the image (face sharpness fell about 25% by the
+  third edit, then held). Contact sheets take a list: `sheet 11,12,13,14,15,16 <out> 6`. The
+  opening lives in `videos/reels/smino/storyboard/opening/` with its own `manifest.md`.
 
 **Runner promotion (reviewed 2026-09-27, deliberately left local).** Policy: reproducible
 tooling is tracked once stable; generated images and temporary outputs stay local. The runner
@@ -147,6 +156,9 @@ comes first.
 
 Newest first.
 
+- 2026-09-27. Opening keyframes generated for founder review (six states, `opening/`); awaiting
+  visual approval. HOW MUCH sits across the top of the afro (the plan's dark-orange top band does
+  not exist in the chosen frame; white on the amber circle fails contrast).
 - 2026-09-27. Opening APPROVED and LOCKED: concept G "his fans in his own hands", revision 3
   (videos/reel-plans/23-smino-the-promise-you-forgot.storyboard.md). No strings in the hook;
   independence is not required by 0:05 and becomes explicit in the "Going Indie" anchor;
