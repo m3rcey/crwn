@@ -62,8 +62,26 @@ Ask the founder only for what recon cannot answer, and ask once, before handing 
 - **Bound retries.** "Redo step 5 at most twice, then report" prevents loops that burn credits.
 - **Forbid exploration explicitly.** No reading docs, browsing settings, or opening unrelated
   items. Astra does not need the why; keep rationale out of the prompt unless it changes an action.
-- **Never route secrets through Astra's transcript.** Tokens go into files via a hidden paste
-  (`read -rs`) or are left untouched ("do not open the Headers tab"). Never ask it to report one.
+- **Astra never SEES a secret, not just never reports one.** It works from screenshots and every
+  screenshot leaves the machine, so a secret revealed on screen ("Show" on an app secret) or
+  pasted into a visible field (a Vercel value box) is already exposed. Split the task into stages
+  (worked example: [docs/fan-automations/astra-instagram-go-live.md](../../../docs/fan-automations/astra-instagram-go-live.md)):
+  1. **Claude generates its own secrets** into a git-ignored `~/workspace-crwn/.env.<feature>`
+     (umask 077), printing only names and lengths.
+  2. **Josh reveals provider secrets with Astra NOT running** and pastes each into a `read -rsp`
+     one-liner that appends to that file. The one-liner MUST check the length and refuse
+     otherwise: a hidden paste gives no feedback, and the first real run saved a 67-character
+     secret where 32 were expected (several invisible pastes). Tell Josh the password
+     re-prompt before "Show" is normal.
+  3. **Claude moves values to the destination** without a screen: `printf '%s' "$val" | npx
+     vercel env add NAME production --sensitive` in WSL (after Josh's one-time
+     `npx vercel login`), refuse to overwrite an existing var, redeploy with
+     `vercel redeploy <latest prod url> --target production` (never `vercel --prod` from the
+     dirty tree), then probe production.
+  4. **Astra gets only non-secret UI work.** A low-value value it must paste (a webhook verify
+     token) goes by `... | clip.exe` from the file, and Claude rotates it after the run.
+  Put a table in the doc header saying who handles each value and how. The prompt's Never list
+  forbids Show, copying tokens, opening the env files, and opening the destination dashboard.
 - **Name every test identity. Never write "any contact / any user / any account".** A smoke test
   runs for real against whoever is selected. On 2026-09-27 "pick any contact" made Astra run two
   ManyChat Test Requests as a real lead (@blizzbugaddi, mid-conversation), opening two sessions
