@@ -7,6 +7,18 @@ artist or script.
 - Plan (not written yet): `videos/reel-plans/23-smino-the-promise-you-forgot.storyboard.md`
 - Art direction version: v5 (2026-09-27)
 
+## Opening inputs (not a design)
+
+Recorded 2026-09-27 for the opening pass; the opening itself is designed in the plan, not here.
+
+- **Primary curiosity gap:** how much could Smino's first 100 paying fans ultimately be worth,
+  now that he is independent?
+- **Semantic hook:** anchor 1, "How Much / Smino / 100 Paying Fans / Worth".
+- **Withheld payoff:** $3,000, $36,000, and the $33,000 difference. None of them in the first
+  five seconds if showing it collapses the gap.
+- **What the opening has to make worth resolving:** Smino, his independence, 100 paying fans,
+  their money value, and uncertainty about the outcome.
+
 ## Approved text spine
 
 Founder-approved 2026-09-27. Ten SEMANTIC anchors, not ten frames; each spans several.
@@ -135,6 +147,8 @@ comes first.
 
 Newest first.
 
+- 2026-09-27. Opening priority adopted as method (../RULES.md, "The opening"). Recorded here:
+  the primary curiosity gap and the withheld payoff only. No opening designed yet.
 - 2026-09-27. Precedence decided: this file's approved art direction (illustrated likeness,
   warmed natural palette) overrides the reel editor's generic "CRWN palette only / real media
   first / no fake artist models" defaults (../RULES.md, "Precedence for visual decisions").

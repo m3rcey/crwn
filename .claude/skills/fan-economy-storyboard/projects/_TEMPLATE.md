@@ -7,6 +7,13 @@ completely from other projects. The method itself lives in ../SKILL.md and ../RU
 - Plan: `videos/reel-plans/<NN>-<slug>.storyboard.md`
 - Art direction version: v1 (<date>)
 
+## Opening inputs (not a design)
+
+- Primary curiosity gap:
+- Semantic hook (spine anchor):
+- Withheld payoff (kept out of the first five seconds if it would close the gap):
+- What the opening must make worth resolving:
+
 ## Approved text spine
 
 (Filled in after the founder approves the spine. Exact words; the number is the anchor id,

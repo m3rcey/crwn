@@ -80,6 +80,61 @@ anything published).
   in, never redrawn by the model.
 - **No em dashes or en dashes in any on-screen text.**
 
+### The opening (founder, 2026-09-27)
+
+- **Priority order: frame 1, then the first second, then the first five seconds, then
+  everything else.** The first five seconds are the retention battlefield: if they fail, the
+  rest is irrelevant. They must be immediately understandable, visually arresting,
+  curiosity-driven, constantly progressing, hard to predict, hard to scroll past, and tied to
+  the video's actual payoff. They work with sound on or off, captions on or off.
+- **The 90% rule.** About 90% of the storyboard's intensive creative exploration (concepts
+  tried, compared, rejected and refined) goes into the first five seconds before the rest is
+  treated as locked. It is a rule about THINKING effort. It does not mean 90% of frames, 90%
+  of production budget, or a weaker remainder: the body still needs excellent pacing,
+  comprehension and payoff. In practice: several idea-level opening concepts, a written
+  comparison, a hard rejection pass, and a gate the opening must pass before the standard
+  process starts on the remainder.
+- **Frame 1** answers "would I stop if this appeared silently in my feed for a fraction of a
+  second?" **The first second** answers "does something happen fast enough that I need what
+  comes next?" (it never just holds frame 1). **The first five seconds** answer "does every
+  beat deepen the curiosity gap or add another reason to stay?"
+- **The first five seconds are a mini-story, and they progress.** Usually some combination of:
+  subject recognition, an unresolved question, visible stakes, a change or escalation, more
+  evidence or context, another unanswered implication. The viewer knows more at second 5 than
+  at frame 1 and still does not know the answer. The same hook in several compositions is not
+  progression.
+- **Curiosity compounds and the primary gap stays open.** Nest the questions: "what is
+  this?" -> "wait, how?" -> "why would these two outcomes differ?" -> "I get the premise, now I
+  need the explanation". Each small reveal answers a small question while opening or deepening
+  the larger one. The primary gap closes only at the reveal.
+- **Every opening beat earns the next.** Each visual state names the new reason it gives to
+  stay: introduces the subject, establishes stakes, creates or deepens a question, reveals a
+  contrast, adds surprising context, shows cause or consequence, withholds a wanted answer, or
+  makes the next visual necessary. "It looks cool" is not a reason.
+- **Speed is not chaos.** Retention comes from clarity + novelty + progression + unresolved
+  meaning, not random cuts, motion everywhere, clutter, flashing, ten subjects, unreadable
+  copy, constant zooms or arbitrary pattern interrupts. Every state must decode instantly.
+- **Selection criteria** (compare in prose, no numeric scores): instant comprehension,
+  subject recognition, curiosity, stakes, progression, sound-off performance, simplicity,
+  withholding, continuity into the story, truthfulness (the video delivers what the hook
+  promises).
+- **Reject on sight:** generic portraits, generic talking-head openings, logos, fades from
+  black, static title cards, slow scene establishment, context before tension, explanations
+  before questions, decorative animation, redundant states, the exact payoff shown early, and
+  any frame that only becomes interesting once narration explains it. Understandable,
+  attractive, correct and on-style is necessary, never sufficient.
+- **The five-second gate.** Before the remainder is planned, by about five seconds the viewer
+  must know WHO or WHAT this is about, WHAT question is being asked and WHY the answer could
+  matter or surprise, and must NOT know the final answer. That is the contract: "stay and I
+  will resolve this." Plus the stricter muted test below, and founder approval of the opening.
+- **The opening gets a harsher sound-off test** than the rest: narration off, music off,
+  captions hidden, only visuals and editorial text. A viewer must still understand enough to
+  want the answer. If it only becomes compelling with voice, music or SFX, the visual hook is
+  not strong enough yet: audio amplifies retention, it never creates it.
+- **Density follows retention first.** Frames are not spread evenly by time: the opening may
+  carry several planned visual states in five seconds while a later explanation holds one
+  evolving composition.
+
 ## 2. Learned failure modes
 
 Each was seen in a real attempt. The plan must not show any of them.
@@ -100,6 +155,14 @@ Each was seen in a real attempt. The plan must not show any of them.
 10. **Ambiguous nouns.** "Fan silhouettes" drew electric fans; say "people".
 11. **A named group drawn as strangers.** A reference photo of a real crew is an IDENTITY
     reference: draw those people, not generic stand-ins (Zero Fatigue, 2026-09-26).
+12. **The first workable hook accepted.** One opening concept, taken because it works.
+13. **Opening as ordinary beginning.** The first five seconds planned with the same attention
+    as any other stretch, or as one subsection of the frame plan.
+14. **A hook that recomposes instead of progressing.** The same statement shown several ways;
+    the viewer knows nothing more at second 5.
+15. **The payoff leaked early.** A withheld figure or answer appears in the opening and the
+    primary curiosity gap closes.
+16. **Audio-dependent hook.** The opening only works once narration, music or SFX carry it.
 
 ## 3. Retired rules
 
@@ -131,6 +194,14 @@ If the layer is unclear, it is the narrowest one (this script only). Then add a 
 ## 4. Decision log
 
 Newest first. Date, founder's words or decision, layer, what changed.
+
+- 2026-09-27. "The priority hierarchy is first frame, first second, first five seconds, then
+  the rest of the video. Approximately 90% of intensive storyboard planning/refinement should
+  be concentrated on making the first five seconds extraordinarily difficult to skip. The
+  opening must work with or without sound and must truthfully preserve the video's primary
+  curiosity gap." Method. Added "The opening" to section 1, failure modes 12 to 16, and
+  reordered SKILL.md so the curiosity gap, withheld payoff and the opening (with its own gate,
+  stricter muted test and founder approval) are solved before beats, spine and the remainder.
 
 - 2026-09-27. "Reusable scripts/configuration required to reproduce those outputs should be
   repository-tracked once stable"; generated images and temporary outputs may stay local.
