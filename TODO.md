@@ -1078,9 +1078,12 @@ Things that are never finished. Cadence, then the thing.
   - The DM confirmation tap. VAULT and WORTH both send one opener plus a "Show Me" button before
     any value; 28 of 101 commenters tapped (VAULT 29%, WORTH 19%), 5 of the 6 commenters with
     50k+ followers did not (incl. Freeway 700k, Prince Dre 168k). Meta allows ONE private reply and
-    it does not open the messaging window, so a non-tap can never be followed up. Options to weigh:
-    put the calculator link in that one reply (no tap), or ask the first question in it (a typed
-    reply counts as the interaction; see manychat-setup-guide.md "Ask-in-opener").
+    it does not open the messaging window, so the AUTOMATION can never follow up a non-tap. A
+    founder's own DM can: Josh messaged both by hand, and by 9/27 Prince Dre had replied, taken a
+    call, and booked a CRWN walkthrough with his business partner (Freeway: no reply yet). Options
+    to weigh: put the calculator link in that one reply (no tap), ask the first question in it (a
+    typed reply counts as the interaction; see manychat-setup-guide.md "Ask-in-opener"), or make a
+    founder DM to every 50k+ commenter the standing follow-up.
   - Calculator qualification: the Vault web planner asks none of the fields the scorer reads.
   - Should signup capture ICP facts (followers, listeners, proof of sales)? Today it captures none.
   - Distribution: does @thecrwnapp (4.4k followers) need to reach established artists more directly?
