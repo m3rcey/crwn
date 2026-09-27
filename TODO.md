@@ -48,14 +48,6 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
-- [ ] **Schedule the Tish Hyman note (today, Sun 9/27).** It is a DRAFT in your Gmail, subject
-      "Your CRWN setup", to listen2tish@me.com. Open it, tap the arrow next to Send, Schedule send,
-      custom time **12:00 PM ET** (11 AM CDT). One draft exists and nothing else is queued to her,
-      so she gets it once. Not sent through Resend: the local Resend key is send-only, so a scheduled
-      send there could not be confirmed or cancelled. If she replies: she is still inside the setup
-      wizard, so `/studio/music` bounces her back to it. Walk her through the wizard from the tier
-      ladder screen (prefilled), then "An album, EP, or mixtape" on the music screen.
-
 - [ ] **ManyChat per-post automations: run the rollout prompt through Astra tonight, then after
       each posting slot through 9/29 8:30 PM.** The Knxwledge pilot PASSED all nine checks.
       Same text every run (it skips done rows and posts not out yet):
