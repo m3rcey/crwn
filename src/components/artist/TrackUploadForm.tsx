@@ -12,6 +12,8 @@ import { AddToPlaylistMenu } from '@/components/artist/TrackListItem';
 import UpgradePrompt from '@/components/shared/UpgradePrompt';
 import { usePlatformLimits } from '@/hooks/usePlatformLimits';
 import { BulkUploadForm } from './BulkUploadForm';
+import { OnboardingProjectUpload } from '@/components/onboarding/OnboardingProjectUpload';
+import { PROJECT_TYPE_OPTIONS } from '@/lib/projectUpload';
 import { QuickCreateAlbumModal } from './QuickCreateAlbumModal';
 import { QuickCreatePlaylistModal } from './QuickCreatePlaylistModal';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
@@ -83,7 +85,9 @@ export function TrackUploadForm() {
   const [editingTrack, setEditingTrack] = useState<Track | null>(null);
   // Track whose fan-credits modal is open (feature: credits on releases).
   const [creditsTrack, setCreditsTrack] = useState<Track | null>(null);
-  const [uploadMode, setUploadMode] = useState<'single' | 'bulk'>('single');
+  // The SAME three paths the setup wizard offers (PROJECT_TYPE_OPTIONS), so an artist who
+  // skipped music there can bring a whole project here without rebuilding it track by track.
+  const [uploadMode, setUploadMode] = useState<'single' | 'bulk' | 'project'>('single');
 
   const { tier, limits, usage, loading: limitsLoading } = usePlatformLimits(artistProfileId);
   const trackLimitReached = limits.tracks !== -1 && usage.tracks >= limits.tracks;
@@ -228,6 +232,12 @@ export function TrackUploadForm() {
           return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
         });
         setTracks(sorted as Track[]);
+        // An empty catalog is an artist bringing their music for the first time (usually
+        // one who skipped the wizard's music step): open on the project path, not a
+        // one-track form. A benefit fast action keeps the single form it prefilled.
+        if (sorted.length === 0 && !readBenefitPointer(window.location.search)) {
+          setUploadMode('project');
+        }
       }
       setIsLoadingTracks(false);
 
@@ -237,6 +247,25 @@ export function TrackUploadForm() {
   }, [user, supabase]);
 
   // Also refetch tracks after upload - handled in handleSubmit
+
+  /** After a bulk or project batch: reload tracks, and albums (a project creates one). */
+  const refetchAfterBatch = async () => {
+    if (!artistProfileId) return;
+    const [{ data: tracksData }, { data: albumsData }] = await Promise.all([
+      supabase.from('tracks').select('*').eq('artist_id', artistProfileId).order('position', { ascending: true }),
+      supabase.from('albums').select('id, title').eq('artist_id', artistProfileId).eq('is_active', true).order('created_at', { ascending: false }),
+    ]);
+    if (albumsData) setAlbums(albumsData);
+    if (tracksData) {
+      const sorted = [...tracksData].sort((a: Track, b: Track) => {
+        if (a.position != null && b.position != null) return a.position - b.position;
+        if (a.position != null) return -1;
+        if (b.position != null) return 1;
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      });
+      setTracks(sorted as Track[]);
+    }
+  };
 
   const handleReorderTracks = async (reorderedTracks: Track[]) => {
     // Update local state immediately for smooth UX
@@ -808,31 +837,15 @@ export function TrackUploadForm() {
         />
       )}
 
-      {/* Upload Mode Toggle */}
+      {/* Upload path: the wizard's own three choices, as a dropdown (pick-one-of-3 rule). */}
       {!trackLimitReached && (
-        <div className="flex gap-2 mb-4">
-          <button
-            type="button"
-            onClick={() => setUploadMode('single')}
-            className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors ${
-              uploadMode === 'single'
-                ? 'bg-crwn-gold text-crwn-bg'
-                : 'bg-crwn-surface text-crwn-text-secondary hover:text-crwn-text'
-            }`}
-          >
-            Single Upload
-          </button>
-          <button
-            type="button"
-            onClick={() => setUploadMode('bulk')}
-            className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors ${
-              uploadMode === 'bulk'
-                ? 'bg-crwn-gold text-crwn-bg'
-                : 'bg-crwn-surface text-crwn-text-secondary hover:text-crwn-text'
-            }`}
-          >
-            Bulk Upload
-          </button>
+        <div className="max-w-2xl mb-4">
+          <OptionSelect
+            options={PROJECT_TYPE_OPTIONS.map((o) => ({ value: o.value, label: o.label, hint: o.hint }))}
+            value={uploadMode === 'bulk' ? 'loose' : uploadMode}
+            onChange={(v) => setUploadMode(v === 'loose' ? 'bulk' : (v as 'single' | 'project'))}
+            placeholder="What are you adding?"
+          />
         </div>
       )}
 
@@ -1143,31 +1156,16 @@ export function TrackUploadForm() {
       {/* Bulk Upload Form */}
       {uploadMode === 'bulk' && artistProfileId && (
         <div className="max-w-2xl bg-crwn-surface p-6 rounded-xl border border-crwn-elevated" style={{ opacity: trackLimitReached ? 0.5 : 1, pointerEvents: trackLimitReached ? 'none' : 'auto' }}>
-          <h2 className="text-lg font-semibold text-crwn-text mb-4">Bulk Upload</h2>
-          <BulkUploadForm
-            artistProfileId={artistProfileId}
-            onComplete={() => {
-              // Refetch tracks after bulk upload
-              async function refetchTracks() {
-                if (!user) return;
-                const { data: tracksData } = await supabase
-                  .from('tracks')
-                  .select('*')
-                  .eq('artist_id', artistProfileId)
-                  .order('position', { ascending: true });
-                if (tracksData) {
-                  const sorted = [...tracksData].sort((a: Track, b: Track) => {
-                    if (a.position != null && b.position != null) return a.position - b.position;
-                    if (a.position != null) return -1;
-                    if (b.position != null) return 1;
-                    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-                  });
-                  setTracks(sorted as Track[]);
-                }
-              }
-              refetchTracks();
-            }}
-          />
+          <h2 className="text-lg font-semibold text-crwn-text mb-4">Upload a batch of tracks</h2>
+          <BulkUploadForm artistProfileId={artistProfileId} onComplete={refetchAfterBatch} />
+        </div>
+      )}
+
+      {/* Project upload: the wizard's album/EP/mixtape flow (one title, one cover, tracks in order). */}
+      {uploadMode === 'project' && artistProfileId && (
+        <div className="max-w-2xl bg-crwn-surface p-6 rounded-xl border border-crwn-elevated" style={{ opacity: trackLimitReached ? 0.5 : 1, pointerEvents: trackLimitReached ? 'none' : 'auto' }}>
+          <h2 className="text-lg font-semibold text-crwn-text mb-4">Upload an album, EP, or mixtape</h2>
+          <OnboardingProjectUpload artistProfileId={artistProfileId} onComplete={refetchAfterBatch} />
         </div>
       )}
 
