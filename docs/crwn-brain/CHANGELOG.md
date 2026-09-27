@@ -1,5 +1,22 @@
 # CRWN Brain — Changelog
 
+## 2026-09-27 - Storyboard planning is its own skill (method separated from art direction)
+
+New skill `.claude/skills/fan-economy-storyboard/`: plans a Fan Economy script's visuals
+BEFORE image generation or editing (story argument, causal chain, semantic beats, the
+minimum semantic text spine, visual substitution, visual sequences, frame plan, sound-off
+QA), writing `videos/reel-plans/<slug>.storyboard.md`. Three layers so feedback changes one
+without breaking the rest: `SKILL.md` (the method), `RULES.md` (permanent methodology,
+learned failure modes, retired rules, decision log) and `projects/<script>.md` (per-project
+art direction, references, approved text spine). Smino is the first project file and the
+calibration example, not a template. Retired: "1 to 2 words per scene", "one sentence = one
+frame", "the 9 calibration frames are the storyboard", "one project's style is universal".
+It is a sub-skill rather than part of `fan-economy-reel-editor` because its input is the
+script and its stage is pre-production; the reel editor gained one pointer line. Open
+founder question: the reel editor's RULES.md still says "CRWN brand palette only" and "real
+media first, no fake artist models", while the Smino storyboard is illustrated in a warmed
+natural palette. No code, no images generated.
+
 ## 2026-09-25 - Reel editor: the real-media prototype (built, rendered, reviewed; do not scale yet)
 
 A 23-second prototype of script 23 (Smino) tested the real-media architecture before any

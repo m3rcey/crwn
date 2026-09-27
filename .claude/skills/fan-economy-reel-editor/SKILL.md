@@ -7,6 +7,9 @@ description: Edit a raw talking-head recording of a CRWN Fan Economy script into
 
 The machine is `scripts/reel/` (manual: `docs/REEL_EDITOR.md`). This skill is the editor's
 judgment on top of it. The code drafts and guards; you review what each sentence MEANS.
+Planning a script's visuals BEFORE recording or image generation (causal chain, semantic
+text spine, frame plan) is the `fan-economy-storyboard` skill; when a
+`videos/reel-plans/<slug>.storyboard.md` exists, build the reel from it.
 Run everything inside WSL: `wsl.exe -e bash -lc 'cd ~/workspace-crwn && npm run reel -- ...'`.
 
 ## 1. Start
