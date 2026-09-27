@@ -5,6 +5,7 @@
 //
 // Run (WSL, repo root). load-env.sh does NOT carry the Supabase vars; .env.local does:
 //   bash -c 'set -a; source ./.env.local; set +a; node scripts/funnel-audit.mjs --since 2026-09-25'
+//   --no-instagram skips every Graph call (production half only).
 //
 // Known blind spots (2026-09-26): Google sign-ups carry no source, so an account that never
 // claimed a calculator result is untraceable to a video. The DM side is split per post by the
@@ -64,6 +65,7 @@ async function instagram() {
   try {
     token = (readFileSync(new URL('../.env.instagram', import.meta.url), 'utf8').match(/^IG_READ_TOKEN=(.+)$/m) || [])[1]?.trim() || '';
   } catch { /* no token file */ }
+  if (process.argv.includes('--no-instagram')) { out('INSTAGRAM'); console.log('  skipped (--no-instagram)'); return []; }
   if (!token) { out('INSTAGRAM'); console.log('  no .env.instagram token; skipped'); return []; }
   const G = async (path, params = {}) => {
     const q = new URLSearchParams({ ...params, access_token: token });
@@ -99,6 +101,7 @@ async function instagram() {
     for (const x of comments) x.who = x.from?.username || x.username || x.from?.id || x.id;
     const others = comments.filter((x) => String(x.who).toLowerCase() !== OWN_IG);
     const kw = others.filter((x) => keywordOf(x.text));
+    p.kwKeywordOf = new Map(kw.map((x) => [String(x.who).toLowerCase(), keywordOf(x.text)]));
     p.kwComments = kw.length;
     p.kwUsers = new Set(kw.map((x) => x.who)).size;
     p.kwWho = new Set(kw.map((x) => x.who));
@@ -131,6 +134,8 @@ async function instagram() {
     }
   } catch (e) { dmErr = String(e.message).slice(0, 80); }
   for (const p of posts) p.dmDelivered = [...(p.kwWho || [])].filter((w) => dmUsers.has(String(w).toLowerCase())).length;
+  // Read by the per-artist ENTRY PATH below (a DM that was delivered but never tapped).
+  posts.dmUsers = dmErr ? null : dmUsers;
 
   let tv = 0, tk = 0, tku = 0;
   const everyone = new Set();
@@ -281,9 +286,11 @@ async function production(posts) {
   const tierPrice = Object.fromEntries(tiers.map((t) => [t.id, t.price || 0]));
   // Login emails live in auth.users; profiles.email is not reliably populated.
   const authEmail = {};
+  const authMeta = {};
   for (const p of profiles) {
     const { data } = await db.auth.admin.getUserById(p.id);
     authEmail[p.id] = data?.user?.email || null;
+    authMeta[p.id] = data?.user?.user_metadata || {};
   }
   const isTest = (id) => /^crwn\.astra\.audit\+test/i.test(authEmail[id] || '');
   const mask = (e) => (e ? (/^crwn\.astra\.audit/i.test(e) ? 'ASTRA TEST' : e.replace(/^(.{2}).*(@.*)$/, '$1***$2')) : '-');
@@ -297,6 +304,51 @@ async function production(posts) {
     const res = results.filter((r) => r.user_id === a.user_id).map((r) => r.tool_slug);
     console.log(`  ${a.created_at.slice(5, 16)} ${String(a.slug).padEnd(22)} ${mask(p.email).padEnd(28)} setup ${a.setup_completed ? 'DONE' : 'open'} | tracks ${tracks.filter((t) => t.artist_id === a.id).length} | paid tiers ${paid.length} (priced in Stripe ${paid.filter((t) => t.stripe_price_id).length}) | stripe ${a.stripe_connect_id ? 'yes' : 'no'} | members ${subs.filter((s) => s.artist_id === a.id && s.status === 'active').length}, paying ${paying.length} | came from ${res.join(',') || '-'}`);
   }
+  // ── ENTRY PATH per new artist (read time, nothing stored) ────────────────────────────────
+  // Separates the four ways an account arrives, so a signup is never counted as a calculator
+  // conversion it did not make:
+  //   dm_calculator      a DM session claimed by this account (DM tap -> calculator -> signup)
+  //   web_calculator     a claimed public calculator result (e.g. bio -> calculator -> signup)
+  //   tagged_no_calc     tagged first touch on the signup (user_metadata.first_touch_attribution)
+  //                      but NO calculator result: a content visit that went straight to signup
+  //   untagged           nothing: a direct signup with no content attribution we can see
+  // Plus one FLAG, never a path: the account's handle (slug or email local part) is a keyword
+  // commenter and/or a DM recipient on Instagram with no DM session of its own = "DM delivered,
+  // never tapped". CRWN stores no Instagram handle for an artist, so this is a HANDLE MATCH and is
+  // printed as inferred. A different handle simply shows no flag; it never guesses.
+  const claimedIdents = await all('lead_identities', 'id,user_id,instagram_username', (q) => q.in('user_id', artists.map((a) => a.user_id)));
+  const dmUsers = posts.dmUsers;
+  const commented = new Map();
+  for (const p of posts) for (const [w, k] of p.kwKeywordOf || []) if (!commented.has(w)) commented.set(w, k);
+  const sessionIdents = new Set(sessions.map((s) => s.lead_identity_id));
+  const entryOf = (a) => {
+    const md = authMeta[a.user_id] || {};
+    const mine = results.filter((r) => r.user_id === a.user_id);
+    const dmClaim = claimedIdents.find((i) => i.user_id === a.user_id);
+    let path;
+    if (dmClaim || mine.some((r) => r.source !== 'public')) path = 'dm_calculator';
+    else if (mine.length) {
+      const t = attr(mine[0]);
+      path = `web_calculator (${[t.platform, t.creative].filter(Boolean).join('/') || 'untagged'} -> ${mine[0].tool_slug})`;
+    } else if (md.first_touch_attribution) {
+      const f = md.first_touch_attribution;
+      path = `tagged_no_calc (${[f.platform, f.creative, f.ref && `ref=${f.ref}`, f.campaign].filter(Boolean).join(' ')})`;
+    } else path = 'untagged';
+    const handles = [a.slug, (authEmail[a.user_id] || '').split('@')[0]].filter(Boolean).map((h) => h.toLowerCase());
+    const hit = handles.find((h) => commented.has(h) || dmUsers?.has(h));
+    let flag = '';
+    if (hit && !dmClaim) {
+      const bits = [commented.has(hit) && `commented ${String(commented.get(hit)).toUpperCase()}`, dmUsers?.has(hit) && 'DM delivered'].filter(Boolean);
+      const tapped = claimedIdents.some((i) => i.instagram_username?.toLowerCase() === hit && sessionIdents.has(i.id));
+      flag = ` | +IG ${bits.join(', ')}, ${tapped ? 'tapped' : 'no DM session'} (handle match "${hit}", inferred)`;
+    } else if (!dmUsers) flag = ' | IG exposure unknown this run';
+    return { path, line: path + flag };
+  };
+  out('ENTRY PATH PER NEW ARTIST (dm_calculator / web_calculator / tagged_no_calc / untagged)');
+  const entries = artists.filter((a) => !admins.has(a.user_id) && !isTest(a.user_id)).map((a) => ({ a, e: entryOf(a) }));
+  for (const { a, e } of entries) console.log(`  ${a.created_at.slice(5, 16)} ${String(a.slug).padEnd(22)} ${e.line}`);
+  console.log('  by path', JSON.stringify(sorted(tally(entries, ({ e }) => e.path.split(' ')[0]))));
+
   const fans = pros.filter((p) => !artists.some((a) => a.user_id === p.id));
   console.log(`  accounts with no artist page: ${fans.length}`, fans.map((p) => `${p.created_at.slice(5, 16)} ${p.role} ${mask(authEmail[p.id] || p.email)} onboarded=${p.onboarding_completed}`).join(' | '));
 
