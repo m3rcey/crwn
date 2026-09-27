@@ -5,6 +5,11 @@ Nothing here changes what a lead sees. The remaining per-post automations are NO
 Claude writes that prompt only after the pilot passes every check below, from the live queue at
 that time.
 
+**Status 2026-09-26 9:38 PM Central:** step 1 DONE and verified in production (VAULT fallback now
+sends `vault`; the pilot's Test Request session carries `39-knxwledge-half-a-million-beats`,
+keyword `VAULT`, tool `vault-revenue-planner`; all eight keyword automations Live with the expected
+tool and keyword). Waiting on step 2.
+
 **Run order**
 1. Paste everything below the line into Astra. Send Claude its report.
 2. Only if the report says the pilot automation is Live with a passing Test Request: from your own
@@ -93,7 +98,8 @@ B1. First, open the VAULT automation's comment trigger WITHOUT changing it and w
 B2. Automations list: open the "…" menu on **VAULT**, choose **Duplicate**. Rename the copy to
     `VAULT | 39-knxwledge-half-a-million-beats`. (If a copy with that name already exists from an
     earlier attempt, open it and continue from the first step it is missing.)
-B3. Triggers do not survive duplication. Add ONE trigger: comment trigger ("Post or Reel
+B3. The copy may carry VAULT's triggers. Delete any DM keyword trigger on it, and make its ONE
+    comment trigger (edit the carried one, do not add a second) a comment trigger ("Post or Reel
     comment"). Set "When someone comments on" to **a specific post or reel** and pick the
     Knxwledge post described above. Keywords, match type, and the reply-to-comment setting and
     text: exactly what you wrote down in B1.

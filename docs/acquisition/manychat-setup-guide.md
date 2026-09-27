@@ -468,8 +468,13 @@ them in order; do not publish until the smoke test passes.
 
 4. **Duplicate** the Vault automation. Three edits only; everything else carries over,
    including the whole email gate.
-5. **Trigger. It does NOT survive duplication.** Re-create both: the comment trigger (pick the
-   post, set the keyword) AND a DM keyword trigger with the same keyword plus case variants. The
+5. **Triggers: CHECK what the copy carries before adding any.** This step used to say triggers
+   do not survive duplication. On 2026-09-26 Astra duplicated VAULT and the copy KEPT both of
+   VAULT's triggers (the any-post comment trigger and the DM keyword trigger), so "re-create both"
+   on top of them can leave a copy that ALSO answers the parent's keyword. Open the copy's
+   triggers first, edit the ones it carries, and delete any that belong to the parent. Then make
+   sure it has the comment trigger (pick the post, set the keyword) AND a DM keyword trigger with
+   the same keyword plus case variants (a per-post attribution copy gets NO DM trigger). The
    DM trigger is both a real entry point and your unlimited test path (comment triggers fire
    once per person per post; you WILL run out of posts).
 6. **Opening message = a BRIDGE, not a question and not a re-pitch.** The lead already said yes
@@ -555,7 +560,8 @@ them into a single row forever.
 ### Clone procedure (per flow, twice)
 
 1. Duplicate the **worth** automation. Name the copies `ALL-IN-ONE / FREE` and `ALL-IN-ONE / PLAN`.
-2. **Re-create both triggers. They do not survive duplication** (Trap in section 10, step 5):
+2. **Set both triggers. The copy may carry the parent's** (section 10, step 5: replace them,
+   never add beside them):
    - Comment trigger: `any post or reel`, comment has `free, FREE` (or `plan, PLAN`).
      Set the match to the **whole word**, not "contains". `free` is a common comment word and a
      substring match will DM people who wrote "free game".

@@ -51,8 +51,8 @@ responsible for. Do not work those.
 - [ ] **ManyChat per-post attribution: the Knxwledge PILOT only.** Nothing else is built until
       it passes all nine checks. Prompt, run order and the nine checks:
       [docs/acquisition/astra-manychat-per-post-attribution.md](docs/acquisition/astra-manychat-per-post-attribution.md)
-      1. Paste it into Astra and send Claude the report.
-      2. If the pilot copy is Live: from `@m3rcey`, comment `VAULT` on the Knxwledge post
+      1. DONE 9/26 9:38 PM (Astra built the pilot; Claude verified it in production).
+      2. The pilot copy is Live. From `@m3rcey`, comment `VAULT` on the Knxwledge post
          (instagram.com/p/Ddxa_ZfiV3g). Count DMs and public replies from @thecrwnapp (one each),
          tap Show Me, answer the first question, then tell Claude "pilot done" and the time.
 - [ ] **Content test (9/25 to 9/29): rerun the audit each morning** and send Claude the output:
