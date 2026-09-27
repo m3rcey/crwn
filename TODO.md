@@ -45,23 +45,16 @@ responsible for. Do not work those.
       replay, the artist surplus return, a dispute, and a collaborator cashout), then reconcile every
       cent and decide whether payouts turn on. **They stay off until that passes.**
 
-- [ ] **ManyChat: run the per-post attribution prompt through Astra, tonight. ROYALTY (9/29
-      9 AM) and LIVE (9/29 6 PM) have had no DM session since July and August**, i.e. before the
-      8/26 plan lapse that switched automations off, so those two posts may send no DM at all.
-      The prompt checks them first and rebuilds either one if it is off or missing. It also fixes
-      the VAULT automation, which is stamping `utm_content: vault-reel-sep26-1` on comments from
-      EVERY post (no post has that name), and gives each test post its own automation carrying
-      its publishing-engine slug.
-      Prompt and run order: [docs/acquisition/astra-manychat-per-post-attribution.md](docs/acquisition/astra-manychat-per-post-attribution.md)
-      1. Paste it into Astra as is (Parts A and B only).
-      2. From `@m3rcey`, comment `VAULT` on the Knxwledge post (instagram.com/p/Ddxa_ZfiV3g), check
-         you get ONE DM and ONE public reply, tap Show Me, tell Claude "pilot done".
-      3. Once Claude says PASSED, rerun it with `PILOT PASSED` as its first line after each posting
-         slot (at minimum about 12:30 PM and 8:30 PM Central) through 9/29 8:30 PM.
-      Send Claude Astra's report after every run.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **ManyChat per-post attribution: the Knxwledge PILOT only.** Nothing else is built until
+      it passes all nine checks. Prompt, run order and the nine checks:
+      [docs/acquisition/astra-manychat-per-post-attribution.md](docs/acquisition/astra-manychat-per-post-attribution.md)
+      1. Paste it into Astra and send Claude the report.
+      2. If the pilot copy is Live: from `@m3rcey`, comment `VAULT` on the Knxwledge post
+         (instagram.com/p/Ddxa_ZfiV3g). Count DMs and public replies from @thecrwnapp (one each),
+         tap Show Me, answer the first question, then tell Claude "pilot done" and the time.
 - [ ] **Content test (9/25 to 9/29): rerun the audit each morning** and send Claude the output:
       `bash -c 'set -a; source ./.env.local; set +a; node scripts/funnel-audit.mjs --since 2026-09-25'`
       ([scripts/funnel-audit.mjs](scripts/funnel-audit.mjs)).
@@ -1051,11 +1044,12 @@ Things that are never finished. Cadence, then the thing.
 
 ## On Claude's plate (not yours)
 
-- **Per-post ManyChat attribution: verify every Astra report against production.** For the pilot,
-  M3rcey's newest `lead_sessions` row must carry `utm_content = 39-knxwledge-half-a-million-beats`
-  (if it reads `vault`, the any-post automation won and the per-post plan stops there). For each
-  run, every CREATED row's Test Request left a M3rcey session carrying that row's slug. Then
-  `node scripts/funnel-audit.mjs` reads it: `by utm_content` shows `post:<slug>` rows.
+- **Per-post ManyChat attribution pilot: judge the nine checks** in
+  [docs/acquisition/astra-manychat-per-post-attribution.md](docs/acquisition/astra-manychat-per-post-attribution.md)
+  from Josh's comment time: DM thread and public replies via the IG API, the ONE M3rcey
+  `lead_sessions` row after the comment (the Test Request's row is earlier), and
+  `node scripts/funnel-audit.mjs --since 2026-09-26 --include-founder` printing `via tag`. Only on
+  PASSED: write the per-post prompt for the remaining posts from the live queue.
 - **Content test Day 5 review queue (9/29). Recorded, deliberately NOT resolved mid-test:**
   - ICP doc vs scorer: docs/ICP.md requires followers AND listeners AND 40 songs AND 3 years;
     `leadScoring.ts` uses followers OR listeners and checks neither songs nor years;

@@ -172,7 +172,9 @@ Procedure: [astra-manychat-per-post-attribution.md](astra-manychat-per-post-attr
   posts), so bindings happen in repeated runs after each posting slot. Comments before a binding go
   to the any-post flow and lose nothing.
 - Precedence between a specific-post and an any-post trigger on the same keyword was still
-  untested on 2026-09-26; the prompt proves it on one post (the pilot) before binding the rest.
+  untested on 2026-09-26. One post (Knxwledge) is the pilot, and no other per-post automation is
+  built until it passes nine checks (one DM, one public reply, the slug/keyword/tool on the ONE
+  session after the comment, and the audit resolving it `via tag` with `--include-founder`).
 
 ### Procedure B: a simple link flow (a button that opens a website)
 

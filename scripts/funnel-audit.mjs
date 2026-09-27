@@ -159,9 +159,11 @@ async function production(posts) {
   const SMOKE_TEST_SESSIONS = new Set(['a1bf086e-bd82-410a-b9a7-8a06831206b7', 'd077e69a-7df8-4646-99d4-c68ae0413058']);
   // The founder's own ManyChat test contact (M3rcey): every session it starts is a smoke test.
   const FOUNDER_TEST_IG = ['m3rcey'];
+  // --include-founder: count them anyway, to verify a ManyChat pilot run from that contact.
+  const INCLUDE_FOUNDER = process.argv.includes('--include-founder');
   const founderIds = new Set((await all('lead_identities', 'id,instagram_username', (q) => q.in('instagram_username', FOUNDER_TEST_IG))).map((i) => i.id));
   const sessions = (await all('lead_sessions', 'id,lead_identity_id,lead_magnet_id,keyword,source_post_id,state,status,utm_content,started_at', (q) => q.gte('started_at', SINCE)))
-    .filter((s) => !SMOKE_TEST_SESSIONS.has(s.id) && !founderIds.has(s.lead_identity_id));
+    .filter((s) => !SMOKE_TEST_SESSIONS.has(s.id) && (INCLUDE_FOUNDER || !founderIds.has(s.lead_identity_id)));
   console.log(`  sessions ${sessions.length}, distinct people ${new Set(sessions.map((s) => s.lead_identity_id)).size}`);
   console.log('  by keyword', JSON.stringify(sorted(tally(sessions, (s) => (s.keyword || '').toLowerCase() || null))));
   console.log('  by tool', JSON.stringify(sorted(tally(sessions, (s) => s.lead_magnet_id))));
@@ -194,8 +196,9 @@ async function production(posts) {
   const postOf = (s) => {
     // The per-post automation's slug is deterministic and wins over the username join.
     const tagged = slugMedia.get(s.utm_content);
-    if (tagged && posts.some((p) => p.id === tagged)) return label(tagged);
-    const u =identById.get(s.lead_identity_id)?.instagram_username?.toLowerCase();
+    if (tagged && posts.some((p) => p.id === tagged)) { s.via = 'tag'; return label(tagged); }
+    s.via = 'join';
+    const u = identById.get(s.lead_identity_id)?.instagram_username?.toLowerCase();
     const set = u ? byUser.get(u) : null;
     if (!set || !set.size) return '(no keyword comment on a test post)';
     return set.size === 1 ? label([...set][0]) : 'multiple posts';
@@ -224,6 +227,10 @@ async function production(posts) {
   }
   for (const [k, v] of Object.entries(rows)) console.log(`  ${k.padEnd(36)} DM starts ${v.starts}, results ${v.results} | bands ${JSON.stringify(v.bands)} | ICP tier (self-reported) ${JSON.stringify(v.tiers)}`);
   const all3 = sessions.map((s) => tierOf(prof.get(s.lead_identity_id)));
+  console.log('  post resolved by', JSON.stringify(sorted(tally(sessions, (s) => s.via))));
+  if (INCLUDE_FOUNDER) for (const s of sessions.filter((x) => founderIds.has(x.lead_identity_id))) {
+    console.log(`  FOUNDER ${s.started_at.slice(0, 19)} ${s.id} ${s.lead_magnet_id} kw=${s.keyword} utm_content=${s.utm_content} state=${s.state} -> ${postOf(s)} via ${s.via}`);
+  }
   console.log(`  QUALITY: T1 ${all3.filter((t) => t === 'T1').length}, T2 ${all3.filter((t) => t === 'T2').length}, T3 ${all3.filter((t) => t === 'T3').length}, unknown ${all3.filter((t) => t === 'unknown').length}; sales_priority ${leadProfiles.filter((p) => p.score_band === 'sales_priority').length}`);
   console.log('  keyword as RECORDED vs tool (a mismatch = the ManyChat body label, see TODO):', JSON.stringify(sorted(tally(sessions, (s) => `${(s.keyword || '-').toLowerCase()}->${s.lead_magnet_id}`))));
 
