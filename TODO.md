@@ -198,16 +198,19 @@ responsible for. Do not work those.
       [docs/crwn-brain/31-FAN-AUTOMATIONS.md](docs/crwn-brain/31-FAN-AUTOMATIONS.md).
       Step 1 (the migration) is done: applied and probe-verified 2026-09-01, and the LINK
       funnel is live for every artist since then. What remains is the comment-to-DM half.
-      **Step 2 (Instagram) is one Astra run:** paste
+      **Step 2 (Instagram) is three short stages, in**
       [docs/fan-automations/astra-instagram-go-live.md](docs/fan-automations/astra-instagram-go-live.md)
-      into Astra. It uses the existing CRWN Publishing Engine app (redirect URI, m3rcey as
-      Instagram Tester, webhook + `comments` field), sets the four Instagram vars in Vercel
-      Production (the two CRWN-generated values already sit in the git-ignored
-      `~/workspace-crwn/.env.fanautomations` and reach Vercel by clipboard, never through the
-      prompt), redeploys, connects m3rcey in /studio/automations and activates a `CRWNTEST`
-      automation. **Then:** send Claude Astra's report, and comment `CRWNTEST` on any m3rcey
-      post from your phone with any account except m3rcey. Claude confirms the private reply
-      from the database. Standard Access covers app-role accounts, so none of this waits on Meta.
+      **(Astra never sees a secret):**
+      1. You, Astra NOT running: `npx vercel login` in the Ubuntu terminal, then reveal the
+         Instagram app ID + secret in Meta and paste them into the hidden prompt the doc gives
+         you (Stage 1). Tell Claude "secrets in".
+      2. Claude sets the four vars in Vercel Production as Sensitive from the git-ignored
+         `.env.fanautomations`, redeploys, and confirms the webhook handshake.
+      3. You paste the Stage 3 prompt into Astra (Meta redirect URI, m3rcey tester, webhook,
+         connect m3rcey, activate a `CRWNTEST` automation), send Claude the report, then
+         comment `CRWNTEST` on any m3rcey post from your phone (not as m3rcey). Claude confirms
+         the private reply from the database and rotates the verify token Astra saw.
+      Standard Access covers app-role accounts, so none of this waits on Meta.
       **Later, not in that run:**
       - Facebook Pages half: add Facebook Login for Business to the same app, redirect URI
         `https://thecrwn.app/api/social-connect/callback/facebook`, subscribe the Page object
