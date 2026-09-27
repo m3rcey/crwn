@@ -147,6 +147,10 @@ comes first.
 
 Newest first.
 
+- 2026-09-27. Opening APPROVED and LOCKED: concept G "his fans in his own hands", revision 3
+  (videos/reel-plans/23-smino-the-promise-you-forgot.storyboard.md). No strings in the hook;
+  independence is not required by 0:05 and becomes explicit in the "Going Indie" anchor;
+  5.66-6.16s is his eyes lifting to the viewer. Script-level decision, not method.
 - 2026-09-27. Opening priority adopted as method (../RULES.md, "The opening"). Recorded here:
   the primary curiosity gap and the withheld payoff only. No opening designed yet.
 - 2026-09-27. Precedence decided: this file's approved art direction (illustrated likeness,
