@@ -102,10 +102,44 @@ Planning never depends on these. When frames are approved for generation:
 - Checks before showing the founder: `distance` (greyscale, tiny, blurred: every silhouette
   survives) and `audit-text` (each word at least 3:1).
 
+**Runner promotion (reviewed 2026-09-27, deliberately left local).** Policy: reproducible
+tooling is tracked once stable; generated images and temporary outputs stay local. The runner
+has no secrets (the key comes from `GEMINI_API_KEY` via `load-env.sh`) and no absolute paths,
+but it is not yet reusable:
+
+1. Six stacked style strings (`STYLE` -> `RESTRAINED` -> `MEDIUM` -> `WARM` -> `NATURAL` ->
+   `TINTED`) built by chained `.replace()` on each other; only `TINTED` is live, and a replace
+   that stops matching fails silently. Collapse to ONE art-direction string owned by the
+   project.
+2. `IDENTITY_TEXT` hardcodes Smino's face; move it to project config.
+3. `REFS` (`references/smino`), the output folder and `smino-storyboard-3x3.png` are fixed;
+   read them from project config.
+4. `calendarScreen()` / `calculatorScreen()` crop coordinates fit these exact screenshots;
+   move them to project config.
+5. `scenes.mjs` mixes prompts with per-attempt label coordinates and `compose` pointers;
+   split reusable config from attempt state (`selections.json`).
+6. The model import is `../../../../scripts/video/config.mjs` (breaks on a move).
+
+Target when promoted: generic runner in `scripts/storyboard/` (beside `scripts/reel/` and
+`scripts/video/`), with an `npm run storyboard` entry; per-project config tracked at
+`videos/storyboard-projects/<slug>/project.mjs` (art direction, identity text, references
+map, screen crops, scene prompts); outputs stay in the ignored `videos/reels/<slug>/storyboard/`.
+The keepable generic parts: the generate call (references plus composition reference), the
+fitted/stacked label renderer, the chroma-key screen insert with fringe clean-up, paint-outs,
+and the `audit`, `audit-text`, `distance` and `sheet` checks, with tests for label fitting,
+the key insert and the contrast audit. Trigger: before the full Smino generation pass (the
+point where reproducibility starts to matter), or when a second script needs it, whichever
+comes first.
+
 ## Project decision log
 
 Newest first.
 
+- 2026-09-27. Precedence decided: this file's approved art direction (illustrated likeness,
+  warmed natural palette) overrides the reel editor's generic "CRWN palette only / real media
+  first / no fake artist models" defaults (../RULES.md, "Precedence for visual decisions").
+  The conflict is closed. Rights and likeness-from-references rules still apply in full.
+- 2026-09-27. Runner stays local until the cleanup under "Execution notes" is done.
 - 2026-09-27. "Remove the stroke around the fonts." Typography: no outline.
 - 2026-09-27. "Colorway ... 3.8/10"; "use the dark orange background"; "make the backgrounds
   simpler". Color and background rules above.

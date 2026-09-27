@@ -10,6 +10,31 @@ Four layers, so one note can change one layer without breaking the rest:
 Project art direction (palette, style, likeness, typography, references) is NOT here. It
 lives per project in [projects/](projects/), because it changes from artist to artist.
 
+## Precedence for visual decisions (founder, 2026-09-27)
+
+This is the ONE place the order is defined; other rule files point here.
+
+1. An explicit founder decision for the current project.
+2. The current project calibration (its file in projects/).
+3. This file's permanent storyboard methodology.
+4. Generic visual defaults, including the reel editor's
+   ([../fan-economy-reel-editor/RULES.md](../fan-economy-reel-editor/RULES.md)): "CRWN brand
+   palette only", "real media first", "no fake artist models", and the palette in
+   `scripts/reel/lib/compose.mjs`.
+
+It governs ART DIRECTION only: style, palette, medium (illustration vs real media),
+likeness treatment, composition, typography. Where a project calibration approves a
+different treatment (Smino: a flat-vector illustrated likeness in a warmed natural palette),
+the calibration wins over the defaults.
+
+It never relaxes the methodology in section 1 (sound-off comprehension, visual substitution,
+the text spine), which changes only by an explicit founder decision to change the METHOD.
+And it never overrides these, which stay absolute in every project: security, factual
+accuracy and qualifiers, product truth (real UI is a real screenshot, no invented features,
+the CRWN claim gate), likeness drawn from the supplied references of the real person (never
+an unrelated stand-in), and rights (uncleared artist photos and album art stay out of
+anything published).
+
 ## 1. Permanent methodology
 
 - **The governing rule.** Text carries the minimum semantic anchors required for
@@ -106,6 +131,16 @@ If the layer is unclear, it is the narrowest one (this script only). Then add a 
 ## 4. Decision log
 
 Newest first. Date, founder's words or decision, layer, what changed.
+
+- 2026-09-27. "Reusable scripts/configuration required to reproduce those outputs should be
+  repository-tracked once stable"; generated images and temporary outputs may stay local.
+  Method (tooling policy). The Smino runner was reviewed and deliberately left local for now
+  (too Smino-specific); the promotion plan and target location are in projects/23-smino.md,
+  "Execution notes".
+- 2026-09-27. "Project-specific, founder-approved art direction takes precedence over generic
+  visual defaults." Method (precedence). Added the precedence section above; the reel
+  editor's palette and real-media rules are now defaults (its RULES.md points here). The
+  Smino conflict in TODO.md is closed.
 
 - 2026-09-27. "Turn the storyboard methodology into a reusable, evolvable skill." Method.
   This skill created: causal chain first, minimum semantic text spine, visual substitution,

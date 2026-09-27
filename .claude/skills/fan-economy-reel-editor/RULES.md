@@ -1,5 +1,12 @@
 # Fan Economy reel rules (standing)
 
+**Visual and art-direction rules in this file are DEFAULTS** (founder, 2026-09-27): the CRWN
+palette, "real media first" and "no fake artist models" yield to a project's founder-approved
+art direction. The order, and what stays absolute (facts, product truth, likeness from real
+references, rights), is defined once in
+[../fan-economy-storyboard/RULES.md](../fan-economy-storyboard/RULES.md), "Precedence for
+visual decisions". Editing, audio, caption and phrase-integrity rules are unaffected.
+
 Read before every edit. These override the skill's defaults. Numbers live in
 [scripts/reel/rules.json](../../../scripts/reel/rules.json); this file holds taste and the
 reason behind each rule. Add a rule only when the founder's note applies to EVERY future
@@ -130,4 +137,6 @@ video live in its authored plan, [videos/reel-plans/23-smino-the-promise-you-for
 
 Newest first. Format: date, the founder's words, what changed (file + value).
 
-- (none yet)
+- 2026-09-27. "Project-specific, founder-approved art direction takes precedence over generic
+  visual defaults." The palette and real-media rules above became defaults (note at the top
+  of this file; precedence defined in the storyboard skill's RULES.md).
