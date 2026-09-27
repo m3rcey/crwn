@@ -55,11 +55,6 @@ responsible for. Do not work those.
       send there could not be confirmed or cancelled. If she replies: she is still inside the setup
       wizard, so `/studio/music` bounces her back to it. Walk her through the wizard from the tier
       ladder screen (prefilled), then "An album, EP, or mixtape" on the music screen.
-- [ ] **Delete the 9/27 QA upload from the m3rcey test artist** (browser test of the catalog
-      uploader). Studio, Music, select `QA Track 1`, `QA Track 2`, `QA Track 3`, `QA single (delete me)`,
-      Delete. Then Albums, delete `QA test album (delete me)`. The app's delete removes the audio
-      objects too; nothing else on m3rcey was touched (35 tracks, 6 albums, 24 album links verified
-      unchanged).
 
 - [ ] **ManyChat per-post automations: run the rollout prompt through Astra tonight, then after
       each posting slot through 9/29 8:30 PM.** The Knxwledge pilot PASSED all nine checks.
@@ -1063,13 +1058,20 @@ Things that are never finished. Cadence, then the thing.
     homepage to signup with NO calculator result, plus a DM opener delivered 10:49 and never tapped
     (the WORTH comment is founder-reported; the post read was refused as PII, so it is unverified here).
     `funnel-audit.mjs` now prints an ENTRY PATH per new artist so she is never counted as a
-    calculator conversion. The other four new artists this test are `untagged`.
+    calculator conversion, plus a `verified:` note pinned for her (VERIFIED_ENTRY_NOTES). The other
+    four new artists this test are `untagged`: zero verified calculator-driven artist signups so far.
+    Read her as evidence a higher-intent artist can skip the calculator entirely.
   - Calculator funnel events cannot be stitched to a visitor: `/api/lead-magnets/analytics` writes
     the per-event id into `funnel_events.anon_id`, so every event looks like a new person and
     "actors" counts are events. A measurement fix, deliberately held until the test ends.
-  - Smallest safe fix, awaiting a founder go: the `activation_no_track` nudge enrolls an artist
-    whose `setup_completed` is still false, and its `/studio/music` link bounces them back into the
-    wizard. Gate that rule on `setup_completed = true` (or link `/setup`). Tish would enroll ~9/30.
+  - The setup wizard records no per-screen events (only `setup_started`/`setup_completed` and
+    milestones), so "skipped" vs "stopped" cannot be reconstructed. Instrument after the test.
+  - Smallest safe fix, post-test: the `activation_no_track` nudge enrolls an artist whose
+    `setup_completed` is still false, and its `/studio/music` link bounces them back into the
+    wizard. Gate that rule on `setup_completed = true` (or link `/setup`). Only real artist exposed:
+    Tish, enroll 10/1 02:00 UTC, send 10/1 10:00 UTC, after the test. Checked 9/27: fr35h (setup
+    open, tiers, no Stripe) gets the Stripe nudge 9/28 10:00 UTC; its `/account/payouts` link
+    bounces to `/setup`, which resumes on the Stripe screen, so it lands on the right action.
   - ICP doc vs scorer: docs/ICP.md requires followers AND listeners AND 40 songs AND 3 years;
     `leadScoring.ts` uses followers OR listeners and checks neither songs nor years;
     `catalog_size` means unreleased in the DM/scorer but released in `avatars/assignment.ts`.

@@ -316,6 +316,11 @@ async function production(posts) {
   // commenter and/or a DM recipient on Instagram with no DM session of its own = "DM delivered,
   // never tapped". CRWN stores no Instagram handle for an artist, so this is a HANDLE MATCH and is
   // printed as inferred. A different handle simply shows no flag; it never guesses.
+  // Hand-verified entry facts, printed beside the computed path so a case study survives an
+  // Instagram API gap on the day of the review (same idea as SMOKE_TEST_SESSIONS above).
+  const VERIFIED_ENTRY_NOTES = {
+    listen2tish: 'DM opener delivered 09-27 10:49 UTC, no reply, no session (IG thread read 09-27); WORTH comment founder-reported. NOT a DM, calculator or draft conversion.',
+  };
   const claimedIdents = await all('lead_identities', 'id,user_id,instagram_username', (q) => q.in('user_id', artists.map((a) => a.user_id)));
   const dmUsers = posts.dmUsers;
   const commented = new Map();
@@ -346,7 +351,10 @@ async function production(posts) {
   };
   out('ENTRY PATH PER NEW ARTIST (dm_calculator / web_calculator / tagged_no_calc / untagged)');
   const entries = artists.filter((a) => !admins.has(a.user_id) && !isTest(a.user_id)).map((a) => ({ a, e: entryOf(a) }));
-  for (const { a, e } of entries) console.log(`  ${a.created_at.slice(5, 16)} ${String(a.slug).padEnd(22)} ${e.line}`);
+  for (const { a, e } of entries) {
+    console.log(`  ${a.created_at.slice(5, 16)} ${String(a.slug).padEnd(22)} ${e.line}`);
+    if (VERIFIED_ENTRY_NOTES[a.slug]) console.log(`  ${' '.repeat(34)}verified: ${VERIFIED_ENTRY_NOTES[a.slug]}`);
+  }
   console.log('  by path', JSON.stringify(sorted(tally(entries, ({ e }) => e.path.split(' ')[0]))));
 
   const fans = pros.filter((p) => !artists.some((a) => a.user_id === p.id));
