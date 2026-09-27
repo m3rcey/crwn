@@ -69,12 +69,14 @@ This step gets roughly 90% of the plan's intensive creative exploration (RULES.m
 4. **Design frame 1**: would a viewer stop if this appeared silently in the feed for a
    fraction of a second?
 5. **Design the first second**: something meaningful happens; the first second never just
-   holds frame 1.
+   holds frame 1. Its first transition must make the viewer feel something is unfolding.
 6. **Design the first five seconds as a mini-story** that progresses: subject, an unresolved
    question, visible stakes, a change or escalation, more evidence, another unanswered
-   implication. Every visual state must name the new reason it gives the viewer to stay.
-7. **Run the opening gate** (RULES.md, "The five-second gate"), including the stricter muted
-   test. Do not move on until it passes. The founder approves the opening before the rest of
+   implication. Plan it as state -> semantic transition -> state, never image, cut, image
+   (RULES.md, "Opening transitions"). Every visual state names the new reason it gives the
+   viewer to stay; every transition fills the six transition fields below.
+7. **Run the opening gate** (RULES.md, "The five-second gate") and the transition gate, both
+   under the stricter muted test. Do not move on until they pass. The founder approves the opening before the rest of
    the frame plan is treated as locked.
 
 ### 6. Semantic beats
@@ -141,8 +143,25 @@ Runtime basis: recording | script estimate, ~M:SS
 ## Second 2-3               (how the question deepens)
 ## Second 3-4               (what keeps it from flattening)
 ## Second 4-5               (the new reason to continue into the body)
-## Opening states           (each visual state: what it shows, text shown, the reason to stay it adds)
-## Opening QA               (the five-second gate, with the muted test result)
+## Opening sequence         (alternating: STATE, TRANSITION, STATE, TRANSITION, STATE ...)
+
+STATE 1
+Shows:
+Text shown:
+Reason to stay it adds:
+
+TRANSITION 1 -> 2
+FROM:                  (the visual state being left)
+TO:                    (the visual state being entered)
+TRANSITION MECHANIC:   (exactly how one becomes the next)
+MEANING ADDED:         (what the transformation itself communicates)
+RETENTION PURPOSE:     (why this change gives another reason to keep watching)
+CONTINUITY:            (the element that carries through, so the viewer does not restart)
+
+STATE 2
+...
+
+## Opening QA               (five-second gate + transition gate, with the muted test result)
 
 ## Semantic text spine      (numbered anchors, exact words, which beats each covers)
 ## Beat map                 (every script line -> beat; spoken meaning / text / visual information / visual action / references)

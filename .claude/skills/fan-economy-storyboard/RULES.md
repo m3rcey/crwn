@@ -135,6 +135,39 @@ anything published).
   carry several planned visual states in five seconds while a later explanation holds one
   evolving composition.
 
+### Opening transitions (founder, 2026-09-27)
+
+- **A transition is storytelling, not decoration.** For every meaningful visual-state change
+  in the first five seconds, plan HOW state A becomes state B and WHAT that change says. Every
+  opening transition must deepen curiosity, clarify cause and effect, reveal useful
+  information, preserve continuity, or add meaningful momentum; one that does none of these is
+  decorative and usually goes.
+- **Prefer semantic transitions**, where one visual idea physically becomes the next: an
+  empty space fills (scale), a line redraws into a different kind of line (one relationship
+  turning into another), one group begins to split (a comparison arriving), a state flips on an
+  object and its connections react (cause, then consequence). Useful techniques include match
+  cuts, object morphs, spatial reveals, camera moves, transformations, visual handoffs, state
+  changes and compositional reorganization. The method matters more than any technique.
+- **Effects are not meaning.** Zoom, wipe, flash, spin, fade, whip pan, push, blur, a generic
+  morph or camera shake are allowed only in service of a semantic transition, never because
+  they look energetic.
+- **Continuity over reset.** Carry an object, person, shape, motion, line, camera
+  relationship or metaphor from one state into the next, so the idea unfolds in one world
+  instead of becoming a run of unrelated posters. The shape to aim for is state -> semantic
+  transition -> state -> semantic transition -> state, not image, cut, image, cut, image.
+- **A transition can withhold.** Let something accumulate and stop before it resolves, or
+  begin a split and hide where it ends. It never reveals the withheld payoff early.
+- **The first second** is frame 1 stopping the scroll, then the first meaningful transition
+  making the viewer feel something is actively unfolding: the change itself carries meaning,
+  not just a second static image.
+- **Transition gate** (every opening transition): (1) does it communicate something? (2) does
+  it keep or deepen the curiosity gap? (3) does it clarify cause, scale, contrast, consequence
+  or progression? (4) does it carry visual continuity? (5) does it create a reason to stay?
+  (6) would the sequence be weaker with a plain cut here? If (6) is no, it is decorative:
+  replace it with a plain cut or redesign it.
+- **Transitions pass the muted test too**: no narration, music, SFX or captions. Their meaning
+  reads from the picture alone; audio may strengthen it later, never explain it.
+
 ## 2. Learned failure modes
 
 Each was seen in a real attempt. The plan must not show any of them.
@@ -163,6 +196,9 @@ Each was seen in a real attempt. The plan must not show any of them.
 15. **The payoff leaked early.** A withheld figure or answer appears in the opening and the
     primary curiosity gap closes.
 16. **Audio-dependent hook.** The opening only works once narration, music or SFX carry it.
+17. **Decorative transitions.** A zoom, flash or whip chosen for energy, adding no meaning.
+18. **Poster, cut, poster.** Each opening beat a new unrelated composition, so the viewer
+    restarts the scene every time instead of following one idea unfold.
 
 ## 3. Retired rules
 
@@ -194,6 +230,13 @@ If the layer is unclear, it is the narrowest one (this script only). Then add a 
 ## 4. Decision log
 
 Newest first. Date, founder's words or decision, layer, what changed.
+
+- 2026-09-27. "Transitions, especially in the first five seconds, are part of the
+  storytelling rather than decoration. Every meaningful opening transition should define how
+  one visual state becomes the next, what meaning that transformation adds, and why it gives
+  the viewer another reason to stay." Method. Added "Opening transitions" (with the transition
+  gate) to section 1, failure modes 17 and 18, and the FROM / TO / TRANSITION MECHANIC /
+  MEANING ADDED / RETENTION PURPOSE / CONTINUITY fields to the opening plan in SKILL.md.
 
 - 2026-09-27. "The priority hierarchy is first frame, first second, first five seconds, then
   the rest of the video. Approximately 90% of intensive storyboard planning/refinement should
