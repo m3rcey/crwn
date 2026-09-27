@@ -2,7 +2,7 @@
 
 Project file: .claude/skills/fan-economy-storyboard/projects/23-smino.md (art direction v5)
 Runtime basis: the recording (`videos/reels/23-smino-the-promise-you-forgot/words.clean.json`),
-full reel ~3:29. Status: OPENING ONLY, awaiting founder approval. Nothing after ~0:05.7 is
+full reel ~3:29. Status: OPENING ONLY (revision 2), awaiting founder approval. Nothing after ~0:05.7 is
 planned.
 
 ## Story summary
@@ -165,6 +165,8 @@ Seven idea-level routes. Each is written to the same fields.
 
 ### G. His fans in his own hands (SELECTED)
 
+(Revision 1 below; refined in "Revision 2": no 100-figure grid, no price marker or column, no control bar.)
+
 - **Core idea:** a scale contradiction that is also an idiom. Smino, giant and recognizable,
   holds exactly 100 tiny fans standing in the open palm of his own hand. "In his own hands"
   says independence without a word; the fans in his palm say "his fans"; the question says
@@ -215,236 +217,252 @@ Rejected: A (a slide), B (prices fans, no progression), C (asks "against what?")
 the wrong stakes), E (Smino too small at frame 1), F (leaks the withheld variable). Kept: G, with
 D's strings folded in as a subordinate detail rather than a second subject.
 
+## Revision 2 (founder notes, 2026-09-27)
+
+Concept G approved as the direction, refined on these notes:
+- no literal 100 figures, since the number comes from the text "100 PAYING FANS";
+- no spinning digits or price marker;
+- no promise of a large value (the same fans can add up to very different totals);
+- the gate is checked at exactly 0:05.00;
+- the recorded wording is editorial truth;
+- independence stays subordinate and must never raise "who was controlling him?".
+
+What changed from revision 1: the 10 x 10 grid became a compact group; the tall column that
+left the frame became a modest pile in the same palm, growing one payment wave at a time; the
+price marker became the next wave caught in the air; the control bar is gone.
+
 ## Selected direction
 
-Smino literally holds his first 100 paying fans in his own hand. The image is a scale
-contradiction a scroller has not seen, and it says three things at once: this is Smino, these are
-HIS fans (independence: nobody else is holding them), and something about them is being measured.
-The next five seconds turn the fans into money in the same world: they pay, the payments rise into
-one gold column, the column climbs past the broken control he left behind, and its value never
-lands. By 5.66s the viewer has the premise and the stakes and not the number.
+Smino holds his fans in his own hand. They pay him, and their coins pile up right there in the
+same palm, beside them. The pile grows one wave of payments at a time. At five seconds the
+next wave is still in the air, so the total is growing and not yet known, and nothing
+suggests how large it ends up. Everything that matters (the fans, their money, the pile)
+stays in HIS hand: independence without a second mystery.
 
 ## Frame 1
 
 - **Visual state:** the fans in his hand, before anything moves.
 - **Composition:** vertical, filled edge to edge. Smino from mid-chest up, slightly low
-  camera, big rounded afro on a solid lighter-amber circle behind his head (calibration). His
-  right forearm comes toward the viewer and his open palm occupies the lower 40% of the frame,
-  foreshortened, larger than his face. On the palm stand exactly 100 tiny fans in a 10 x 10
-  block, heads tipped up toward him, in warm light clothes (cream, tan, white tees) so the block
-  reads LIGHT against the mid-tone skin of the palm. A small pool of warm light falls on the palm
-  crowd. From his wrist hang two or three snapped marionette strings, the cut ends frayed, dim
-  and subordinate. His face looks down at the fans: calm, assured, a faint half smile (Smino
-  wins; no worry). The background is plain dark burnt orange.
-- **Focal point:** the lit block of 100 tiny people on his palm. His face is the second subject.
+  camera, big rounded afro on the solid lighter-amber circle (calibration), background plain
+  dark burnt orange. His right forearm comes toward the viewer and his open palm fills roughly
+  the lower 40% of the frame, foreshortened, larger than his face. On the palm stands ONE
+  compact group of fans, shoulder to shoulder in a tight cluster (roughly a dozen to twenty
+  figures, never counted). Each figure is big enough that its head, shoulders and raised face
+  read as a PERSON at thumbnail size. They wear light, warm clothes (cream, tan, white), so the
+  group reads as one pale shape against the mid-tone skin of the palm. A small pool of warm light
+  falls on the group. His face looks down at them: calm, assured, a faint half smile (Smino wins).
+  Two short snapped string ends hang from his wrist cuff, small and dim: a hint, never a subject.
+- **Focal point:** the lit group of fans on his palm. His face is the second subject.
 - **Text shown:** HOW MUCH (large, white), top of the frame, over the dark orange beside the
   amber circle.
-- **Understood instantly:** a recognizable artist; a crowd of tiny people held in his hand
-  (his fans); a question about quantity or value.
-- **Unanswered:** how much WHAT? (answered at 0.5s: money), and how much is it?
-- **Why it stops the scroll:** a giant person holding a hundred tiny people is an impossible,
-  instantly legible image; it is not a portrait, an album ad, a CRWN ad or a finance chart.
-- **Thumbnail check:** at 1/9 of a phone, it must read as face + open hand + a pale grid of
-  specks on the palm. The 10 x 10 block's regularity and its lightness against the palm carry
-  it. The drawing must keep the palm big and the block pale.
+- **Understood instantly:** a recognizable artist holding a group of his fans in his own hand; a
+  question about how much.
+- **Unanswered:** how much WHAT? (money, answered at 0.5s), and how much in total?
+- **Why it stops the scroll:** an impossible, instantly legible image: a giant artist cradling
+  real people in his palm. It is not a portrait, an ad, a chart or a title card.
+- **Thumbnail check:** at 1/9 of a phone it must read as face + open hand + a pale cluster of
+  heads. A compact group of large figures survives that size where a 100-dot grid would not.
 
 ## First second
 
 - **Starting state:** Frame 1.
-- **Transition:** a ripple runs from the front row to the back: every tiny fan lifts a small
-  gold coin overhead, row by row, over ~0.5s. The palm's pale block turns into a gold-flecked
-  block.
-- **Resulting state:** the same crowd, now holding up 100 gold coins.
-- **New information:** these are PAYING fans. The money is theirs and it is aimed at him.
-- **Why curiosity increases:** "how much" now has a unit, money, and a quantity, 100 of them.
-  The viewer wants the total.
+- **Transition:** a wave runs through the group, front to back: every fan lifts a gold coin
+  overhead (~0.4s).
+- **Resulting state:** the same group, every hand holding up a gold coin toward him.
+- **New information:** these are PAYING fans; the money is theirs and it is meant for him.
+- **Why curiosity increases:** "how much" now has a unit (money). The viewer wants to know what
+  it adds up to.
 
-## First five seconds
+## First five seconds (0:00-0:05.66)
 
 ### STATE 1 (0.00-0.50): The fans in his hand
 
-- **Shows:** Frame 1 as designed above.
-- **Visual action:** stillness for about a third of a second (the scroll-stop), then the first
-  coin rises on the front row.
+- **Shows:** Frame 1.
+- **Visual action:** stillness for about a third of a second (the scroll-stop), then the front
+  row starts to lift.
 - **Text shown:** HOW MUCH
-- **New information:** Smino; his fans, in his hands; a question.
+- **New information:** Smino; his fans, in his own hand; a question.
 - **Reason to stay:** an impossible image, and a question with no object yet.
-- **Withheld:** what is being counted, and any number.
+- **Withheld:** what is being counted; any total.
 
 ### TRANSITION 1 -> 2
 
-- **FROM:** 100 tiny fans standing on his palm, empty-handed.
-- **TO:** the same 100 fans each holding up a gold coin.
-- **TRANSITION MECHANIC:** a row-by-row ripple, front to back, each fan raising a coin; nothing
-  cuts, nothing zooms.
-- **MEANING ADDED:** these fans pay him directly, a hundred times over.
-- **RETENTION PURPOSE:** the question gains its unit (money) and its scale (100). The viewer
-  now wants a total.
-- **CONTINUITY:** the same hand, the same block, the same camera.
+- **FROM:** the group standing on his palm, empty-handed.
+- **TO:** the same group, every fan holding up a gold coin.
+- **TRANSITION MECHANIC:** a front-to-back wave of fans raising coins; no cut, no camera move.
+- **MEANING ADDED:** these fans pay him directly.
+- **RETENTION PURPOSE:** the question gains its unit (money). The viewer wants the total.
+- **CONTINUITY:** the same hand, the same group, the same camera.
 
-### STATE 2 (0.50-1.40): The paying crowd
+### STATE 2 (0.50-1.30): The paying crowd
 
-- **Shows:** the gold-flecked block on his palm; Smino's gaze still on them.
-- **Visual action:** the coins glint once as they reach full height.
+- **Shows:** the group with coins raised; his gaze still on them.
+- **Visual action:** the coins catch the light once at full height.
 - **Text shown:** HOW MUCH
 - **New information:** his fans pay.
-- **Reason to stay:** what do 100 payments add up to?
+- **Reason to stay:** what does their money add up to?
 - **Withheld:** any total.
 
 ### TRANSITION 2 -> 3
 
-- **FROM:** coins held up on the palm.
-- **TO:** the coins leaving the fans' hands and rising.
-- **TRANSITION MECHANIC:** the coins lift off the tiny hands together and stream upward in one
-  gently curving ribbon, rising past his wrist, where the snapped strings hang limp, and
-  gathering into the base of a single column beside his shoulder.
-- **MEANING ADDED:** a hundred small payments become one growing total, and it collects beside
-  HIM, not somewhere above him.
-- **RETENTION PURPOSE:** the total is now visible and growing; the viewer needs to know where it
-  stops.
-- **CONTINUITY:** the coins themselves (the same objects travel), and the palm stays in frame.
+- **FROM:** coins held up.
+- **TO:** the first small pile of coins in his palm, beside the group.
+- **TRANSITION MECHANIC:** the fans release the coins together; they arc a short distance and
+  land in a neat pile on the open part of his palm, next to the group (the first wave). The
+  fans' hands are empty again.
+- **MEANING ADDED:** their money lands in HIS hand, nobody else's: the payments become his total.
+- **RETENTION PURPOSE:** a total now exists, and it is small so far.
+- **CONTINUITY:** the coins travel (the same objects), inside the same palm.
 
-### STATE 3 (1.40-2.60): The column begins
+### STATE 3 (1.30-2.70): The first pile
 
-- **Shows:** a short gold column forming beside his shoulder; the ribbon still feeding it from
-  the palm.
-- **Visual action:** the column gains height coin by coin.
-- **Text shown:** HOW MUCH; SMINO appears at 1.36s as a small white name tag beside his collar
-  (the first spoken mention) and leaves at ~2.6s, when the face alone carries identity.
-- **New information:** it is Smino's, by name; the money accumulates.
-- **Reason to stay:** it keeps growing.
-- **Withheld:** how high it gets.
+- **Shows:** the group and a small coin pile side by side on his palm.
+- **Visual action:** the pile settles.
+- **Text shown:** HOW MUCH. SMINO appears at 1.36s as a small white name tag beside his collar
+  (the first spoken mention) and leaves at ~2.7s. 100 PAYING FANS appears at 2.14s, pinned beside
+  the group (white), and stays.
+- **New information:** it is Smino by name; exactly 100 paying fans (from the label, not from
+  counting).
+- **Reason to stay:** the total is visible but tiny. Does it grow?
+- **Withheld:** how much it becomes.
 
 ### TRANSITION 3 -> 4
 
-- **FROM:** a short column beside his shoulder, camera at chest height.
-- **TO:** a tall column climbing past his head, and the broken controller bar hanging above
-  him, revealed.
-- **TRANSITION MECHANIC:** the camera tilts up with the growing column (it follows the object
-  that is changing, so the move IS the growth). As it rises above his afro it passes a wooden
-  marionette controller bar hanging empty and broken, its strings cut: the same strings that
-  dangle from his wrist.
-- **MEANING ADDED:** the money used to go up to someone holding the strings; now the strings are
-  cut and the column stands beside him. Independence, told by cause and effect.
-- **RETENTION PURPOSE:** a second small question opens ("he used to be controlled, and now it is
-  his?") and makes the total matter more.
-- **CONTINUITY:** the column (one unbroken object) and the strings (wrist to bar).
+- **FROM:** the first pile, the fans' hands empty.
+- **TO:** the pile one layer taller.
+- **TRANSITION MECHANIC:** the same front-to-back wave repeats: the fans raise new coins and drop
+  them onto the pile, which gains a layer. The second wave is identical in rhythm to the first.
+- **MEANING ADDED:** they pay again; the value accumulates wave by wave (it recurs).
+- **RETENTION PURPOSE:** the total is growing. How many more waves?
+- **CONTINUITY:** the same group, the same gesture, the same pile.
 
-### STATE 4 (2.60-3.90): Past the broken control
+### STATE 4 (2.70-3.90): The pile grows
 
-- **Shows:** the column rising past the empty controller bar; below, the palm crowd is still
-  visible, now labelled.
-- **Visual action:** the column keeps climbing; the controller bar sways once.
-- **Text shown:** HOW MUCH; 100 PAYING FANS appears at 2.14s pinned beside the palm block (white)
-  and stays.
-- **New information:** exactly 100 paying fans; independence (nobody above him).
-- **Reason to stay:** the column has not stopped.
-- **Withheld:** its height and its value.
+- **Shows:** a taller, still modest pile beside the group (it stays well below his face).
+- **Visual action:** the pile settles after the second wave; the fans' hands come down.
+- **Text shown:** HOW MUCH; 100 PAYING FANS
+- **New information:** it is recurring, and it adds up.
+- **Reason to stay:** the pile has a rhythm and no ceiling in sight.
+- **Withheld:** its eventual size.
 
 ### TRANSITION 4 -> 5
 
-- **FROM:** the column climbing, its top in view.
-- **TO:** a value marker riding the top of the column, its figure spinning.
-- **TRANSITION MECHANIC:** a gold price marker slides up onto the top coin as it rises and
-  starts spinning its digits (blurred, never legible) in time with the climb.
-- **MEANING ADDED:** the column has a dollar value, and it is still changing.
-- **RETENTION PURPOSE:** the answer is right there and not yet readable.
-- **CONTINUITY:** the column top.
+- **FROM:** the pile at rest.
+- **TO:** a third wave of coins caught in mid-air above the pile.
+- **TRANSITION MECHANIC:** the fans raise and release a third wave. As the coins rise off their
+  hands, the motion slows to a near stop at the top of the arc: the coins hang in the air
+  between the fans and the pile, not yet landed.
+- **MEANING ADDED:** the total is still being added to; the final amount is not decided yet.
+- **RETENTION PURPOSE:** the answer is literally in the air. The viewer waits for it to land.
+- **CONTINUITY:** the same gesture and the same coins; the pile stays in frame.
 
-### STATE 5 (3.90-5.66): The value that will not land
+### STATE 5 (3.90-5.66): The coins in the air
 
-- **Shows:** the column's top rising toward the top edge; the spinning, unreadable marker; Smino
-  looking up at it.
-- **Visual action:** as "independent artist" is heard (5.04s) the column's top passes out of the
-  frame, the marker still spinning as it leaves; the last beat is Smino's upward look and the
-  palm crowd below.
-- **Text shown:** HOW MUCH; 100 PAYING FANS; WORTH (gold) appears at 3.92s on the marker and
-  rises out of frame with it.
-- **New information:** these fans have a money worth that is still climbing.
-- **Reason to stay:** the number left the frame unresolved: the contract "stay and I will
-  resolve this".
-- **Withheld:** every figure; two outcomes; what decides it.
+- **Shows:** the group with arms up, a wave of coins suspended above the pile, the pile with its
+  top open, and Smino looking down at his palm, calm.
+- **Visual action:** the suspended coins drift almost imperceptibly (alive, not frozen); nothing
+  lands before the end of the hook.
+- **Text shown:** HOW MUCH; 100 PAYING FANS; WORTH (gold) appears at 3.92s, pinned beside the
+  pile and the coins in the air.
+- **New information:** WORTH turns "how much" into value: what these 100 paying fans add up to.
+- **Reason to stay:** the addition is unfinished. The contract is "stay and I will resolve this".
+- **Withheld:** every figure; how many waves there will be; two outcomes; what decides it.
 
-The pause at 5.66-6.16s holds on State 5; "You're about to find out" (6.16s) begins the body,
-out of scope here.
+The pause at 5.66-6.16s holds State 5. "You're about to find out" (6.16s) starts the body and
+is not planned here.
 
 ## Opening gate
 
-### Frame 1 QA
+### Frame 1 gate
 
-- **Would I stop silently?** Yes: a giant recognizable face holding a hundred tiny people is an
+- **Would it stop a scroll silently?** Yes: an artist holding real people in his palm is an
   impossible image.
-- **Is it an idea, not a portrait, ad or title card?** Yes.
-- **Risk:** figure legibility at thumbnail size. It depends on the drawing, which is why the block
-  is pale and regular.
+- **Is it an idea?** Yes, not a portrait, ad, chart or title card.
+- **Readable at thumbnail size?** Face, hand and a pale cluster of heads: yes, by design. No
+  counting is required.
+- **One focal point?** The lit group.
+- **Independence?** Present as the idiom ("in his own hands"). The string ends are too small to
+  pose a question.
 
-### First-second QA
+### First-second gate
 
-- Something meaningful happens by 0.5s (the fans pay).
-- The viewer knows more (they are PAYING fans) and wants more (the total).
-- The change is the meaning; it is not a zoom.
+- Something meaningful happens by ~0.5s (the fans pay).
+- The viewer knows more (paying fans) and wants more (the total).
+- The change is the meaning; there is no camera move.
 
-### Five-second QA
+### Exact 0:05.00 gate
 
-- **Who:** Smino (face plus name).
-- **What question:** how much are 100 paying fans worth.
-- **Why it matters:** the money is real, his, and growing.
-- **Answer given:** none.
-- **Progression:** the viewer knows more at 5s (paying, 100, his, independent, growing, dollar
-  value) and still has no number.
-- **Chaos check:** passes. One world, two subjects, one moving object.
+The spoken audio at this point is "as an", so "independent" has not been heard. The picture
+holds State 5. Visible text: HOW MUCH, 100 PAYING FANS, WORTH. The SMINO tag was seen from
+1.36s to 2.7s.
 
-### Transition QA (all four)
+| Must be understood by 0:05.00 | Carried by | Met? |
+|---|---|---|
+| Smino | his likeness throughout, plus the SMINO tag earlier | yes |
+| his fans are paying | coins raised and dropped in three waves | yes |
+| in his own hands / independent | the whole economy sits in his palm; nobody else's hand appears; the string ends are a hint only | yes, without the spoken word |
+| there are 100 of them | 100 PAYING FANS, pinned since 2.14s | yes |
+| the total value is unresolved | WORTH over a pile whose next wave has not landed | yes |
 
-Each communicates (paying; payments adding up; independence; a live value). Each keeps or
-deepens the gap. Each clarifies scale, cause, consequence or progression. Each carries
-continuity (the hand, the coins, the column, the strings). Each adds a reason to stay. A plain
-cut would be weaker every time: cutting from "fans" to "coins" to "column" would turn one
-causal chain into three posters.
+The last 0.66s adds only the spoken "independent artist". It is not needed for the contract.
 
-### Sound-off QA (voice, music, SFX and captions off)
+### Full-opening gate (0:00-0:05.66)
 
-From the pictures and the four text pieces alone: "Smino holds his own fans; they pay him; it
-adds up past the strings he cut; how much are 100 paying fans worth? It hasn't stopped." The
-premise, stakes and open question all survive. **Pass.**
+- **Who:** Smino.
+- **What question:** how much 100 paying fans add up to.
+- **Why it matters:** the money is real, his, and still arriving.
+- **Answer:** none, and no size cue either way. The pile is modest and unfinished; nothing climbs
+  out of frame or suggests a fortune.
+- **Progression:** the viewer knows more at 5s (paying, 100, his, recurring, adding up) and still
+  has no total.
+- **Chaos check:** passes. Two subjects, one gesture repeating with a purpose.
+- **Rejection list:** no generic portrait, logo, fade, title card, context before tension,
+  decorative motion, or early payoff.
 
-### Curiosity-gap QA
+### Transition gate (all four)
 
-- The gaps nest: "a hundred people in his hand?" -> "they're paying him" -> "it's adding up, and
-  he isn't on strings anymore" -> "how high does it go?"
-- The primary gap stays open; no figure, no second outcome.
+- **Communicates something:** paying; landing in his hand; recurring; not finished.
+- **Keeps or deepens the gap:** yes, each time.
+- **Clarifies cause, scale or progression:** cause (payment -> pile) and progression (wave by
+  wave).
+- **Continuity:** the hand, the group, the coins and the pile, in one camera.
+- **Adds a reason to stay:** yes, each time.
+- **Would a plain cut be weaker?** Yes. Cutting between "fans", "coins" and "pile" would lose that
+  the same people's money lands in his own hand and keeps coming.
 
-### Truthful-hook QA
+### Sound-off gate (voice, music, SFX and captions off)
 
-- The video answers exactly this question: 100 paying fans, a dollar worth, independent.
-- One honest caveat: a single climbing column suggests the answer is large. The reveal says it
-  depends ($3,000 if they drift, $36,000 if they stay).
-- The hook still says only "could end up being worth" and shows no number, and the reveal's tall
-  column is this same column. So it foreshadows the upside truthfully rather than promising it.
-- It never implies Smino did anything wrong (META repost test).
+From the pictures and the text alone: "Smino holds his fans in his own hand. They pay him, again
+and again, and it piles up in his hand. How much are 100 paying fans worth? The next payment is
+still in the air." **Pass.**
 
-**Gate status: passes on paper, pending founder approval.** The one real risk is drawing-level
-(legibility of 100 tiny figures on a foreshortened palm), not concept-level.
+### Curiosity-gap gate
+
+- The questions nest: "people in his hand?" -> "they're paying him" -> "it lands in his hand and
+  keeps coming" -> "so what does it add up to?"
+- The primary gap stays open, with no figure and no second outcome.
+- It is truthful: the video answers exactly this, and the answer ("it depends on whether they
+  keep paying") fits an unfinished pile rather than contradicting a fortune.
+- The waves hint that payment recurs, which the body states openly from ~0:20. They never show
+  anyone stopping, so the withheld variable stays hidden.
+
+**Gate status: passes on paper, pending founder approval.**
 
 ## Reference gaps
 
 - **REFERENCE GAP: an open-palm pose.** A hand pushed toward the camera, palm up and
-  foreshortened, ideally Smino's own hand from a photo. None of the supplied references show it;
-  it is the hardest drawing in the frame.
+  foreshortened, ideally Smino's own hand from a photo. None of the supplied references show it.
 
 ## Founder review
 
-Approve or redirect ONE decision: **concept G, "his fans in his own hands"**, as the opening.
+Approve or redirect concept G, revision 2:
 
-1. Frame 1: Smino holding 100 tiny fans on his open palm, cut strings at his wrist, "HOW
-   MUCH".
-2. The fans lift coins (0.5s).
-3. The coins rise into one column (1.4s).
-4. The camera follows it past the broken controller bar (2.6s).
-5. A spinning value marker with WORTH leaves the frame unresolved (3.9-5.66s).
-6. Text timed to his words: HOW MUCH, SMINO, 100 PAYING FANS, WORTH.
-
-Also confirm or correct: planning on the RECORDED wording ("as an independent artist", "You're
-about to find out") rather than the script's.
+1. Frame 1: Smino holding a compact group of his fans on his open palm, with "HOW MUCH".
+2. The fans lift coins (0.5s), and the coins land in a small pile in his palm (1.3s).
+3. A second wave grows the pile (2.7s).
+4. A third wave hangs in the air, unlanded, with WORTH (3.9s onward).
+5. Text is timed to his recorded words: HOW MUCH, SMINO, 100 PAYING FANS, WORTH.
+6. No digits, no tall column, no control bar; the string ends at his wrist are a subordinate
+   hint, removable if you would rather rely on the palm alone.
 
 The remainder (0:05.7 onward) is not planned and waits for this approval.
