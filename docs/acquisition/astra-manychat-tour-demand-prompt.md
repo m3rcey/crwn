@@ -62,7 +62,7 @@ text and button are exactly as given, and its smoke test (step 7) passed. Then s
    `action → crwn_action`, `message → crwn_message`, `question_key → crwn_question_key`,
    `result_url → crwn_result_url`, `session_id → crwn_session_id`.
 7. **Smoke test.** Same request. In "Contact for testing" (top right) select ONLY the founder's
-   own test contact, named here: `<FOUNDER TEST CONTACT>` (fill in before reuse). The test runs a
+   own test contact, **M3rcey** (Instagram `m3rcey`). The test runs a
    REAL session for whoever is selected, so never pick a lead. If that contact is not listed,
    skip the test and report it. (Run on 2026-09-27 with "any contact"; Astra picked a real lead.)
    Click **Test Request**. PASS when the response shows status 200 and

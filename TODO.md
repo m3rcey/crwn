@@ -22,13 +22,6 @@ responsible for. Do not work those.
 
 ### P0 — money flows or acquisition are blocked
 
-- [ ] **Confirm FREE (9/28 noon), ROYALTY (9/29 9 AM) and LIVE (9/29 6 PM) ManyChat automations exist.**
-      TOUR and DEMAND are live (smoke-tested 9/27). If any is missing, tell Claude and it will write
-      the Astra prompt. Also tell Claude which ManyChat contact is YOUR OWN test contact: smoke tests
-      run for real against the selected contact, and the TOUR/DEMAND tests ran on a real lead.
-- [ ] **10-second check in ManyChat:** open contact @blizzbugaddi, custom field crwn_question_key.
-      It should read monthly_listeners. If it reads social_followers, set it back to
-      monthly_listeners (the smoke test may have overwritten it; their real WORTH session is waiting).
 
 - [ ] **To finish Team Splits I need a test-mode sandbox. This is the only thing left, and it is
       environment setup, not code.** Nothing to run in SQL.

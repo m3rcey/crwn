@@ -69,6 +69,8 @@ Ask the founder only for what recon cannot answer, and ask once, before handing 
   ManyChat Test Requests as a real lead (@blizzbugaddi, mid-conversation), opening two sessions
   that would have hijacked their next reply. If the founder's own test identity is not known,
   ask for it BEFORE handing off, and tell Astra to stop if that exact identity is not selectable.
+  Known: the founder's ManyChat test contact is **M3rcey** (Instagram `m3rcey`); the funnel audit
+  already excludes its sessions.
 - **Protect experiments.** If a test is running, list what must stay identical (copy pattern,
   button label, structure) so the new item does not add a variable.
 - **Prefer cloning a working sibling** over building from scratch; state which few fields change.
