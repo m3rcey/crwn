@@ -61,8 +61,11 @@ text and button are exactly as given, and its smoke test (step 7) passed. Then s
    from the duplicate). If one is missing, add it:
    `action → crwn_action`, `message → crwn_message`, `question_key → crwn_question_key`,
    `result_url → crwn_result_url`, `session_id → crwn_session_id`.
-7. **Smoke test.** Same request, pick any contact in "Contact for testing" (top right) if none is
-   set, click **Test Request**. PASS when the response shows status 200 and
+7. **Smoke test.** Same request. In "Contact for testing" (top right) select ONLY the founder's
+   own test contact, named here: `<FOUNDER TEST CONTACT>` (fill in before reuse). The test runs a
+   REAL session for whoever is selected, so never pick a lead. If that contact is not listed,
+   skip the test and report it. (Run on 2026-09-27 with "any contact"; Astra picked a real lead.)
+   Click **Test Request**. PASS when the response shows status 200 and
    `"message": "Roughly how many followers do you have across your socials?"`
    (and, if shown, `"action": "ask_question"`).
 8. **Publish / Set Live** the automation. Confirm its status reads Live/Active in the list.

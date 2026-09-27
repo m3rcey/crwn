@@ -64,6 +64,11 @@ Ask the founder only for what recon cannot answer, and ask once, before handing 
   items. Astra does not need the why; keep rationale out of the prompt unless it changes an action.
 - **Never route secrets through Astra's transcript.** Tokens go into files via a hidden paste
   (`read -rs`) or are left untouched ("do not open the Headers tab"). Never ask it to report one.
+- **Name every test identity. Never write "any contact / any user / any account".** A smoke test
+  runs for real against whoever is selected. On 2026-09-27 "pick any contact" made Astra run two
+  ManyChat Test Requests as a real lead (@blizzbugaddi, mid-conversation), opening two sessions
+  that would have hijacked their next reply. If the founder's own test identity is not known,
+  ask for it BEFORE handing off, and tell Astra to stop if that exact identity is not selectable.
 - **Protect experiments.** If a test is running, list what must stay identical (copy pattern,
   button label, structure) so the new item does not add a variable.
 - **Prefer cloning a working sibling** over building from scratch; state which few fields change.

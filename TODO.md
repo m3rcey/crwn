@@ -22,12 +22,13 @@ responsible for. Do not work those.
 
 ### P0 — money flows or acquisition are blocked
 
-- [ ] **Build the TOUR and DEMAND ManyChat automations before 9:00 AM CT 9/27.** Three scheduled
-      posts ask for a keyword nothing answers: TOUR 9/27 9:00 AM (Oddisee), DEMAND 9/27 8:00 PM
-      (Lil Dicky), TOUR 9/28 3:00 PM (Atmosphere). The server already serves both tools. Paste
-      [docs/acquisition/astra-manychat-tour-demand-prompt.md](docs/acquisition/astra-manychat-tour-demand-prompt.md)
-      into Astra (or follow it yourself), then send Claude Astra's report.
-      Also confirm automations exist for FREE (9/28 noon), ROYALTY (9/29 9 AM) and LIVE (9/29 6 PM).
+- [ ] **Confirm FREE (9/28 noon), ROYALTY (9/29 9 AM) and LIVE (9/29 6 PM) ManyChat automations exist.**
+      TOUR and DEMAND are live (smoke-tested 9/27). If any is missing, tell Claude and it will write
+      the Astra prompt. Also tell Claude which ManyChat contact is YOUR OWN test contact: smoke tests
+      run for real against the selected contact, and the TOUR/DEMAND tests ran on a real lead.
+- [ ] **10-second check in ManyChat:** open contact @blizzbugaddi, custom field crwn_question_key.
+      It should read monthly_listeners. If it reads social_followers, set it back to
+      monthly_listeners (the smoke test may have overwritten it; their real WORTH session is waiting).
 
 - [ ] **To finish Team Splits I need a test-mode sandbox. This is the only thing left, and it is
       environment setup, not code.** Nothing to run in SQL.

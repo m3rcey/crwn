@@ -153,7 +153,11 @@ async function production(posts) {
   const admins = new Set((await all('profiles', 'id', (q) => q.eq('role', 'admin'))).map((r) => r.id));
 
   out('DM SIDE (ManyChat -> lead_sessions)');
-  const sessions = await all('lead_sessions', 'id,lead_identity_id,lead_magnet_id,keyword,source_post_id,state,status,utm_content,started_at', (q) => q.gte('started_at', SINCE));
+  // ManyChat "Test Request" smoke tests run a REAL session_start for the selected contact. These
+  // two were run on a real lead (@blizzbugaddi) on 2026-09-27 and closed; they are not leads.
+  const SMOKE_TEST_SESSIONS = new Set(['a1bf086e-bd82-410a-b9a7-8a06831206b7', 'd077e69a-7df8-4646-99d4-c68ae0413058']);
+  const sessions = (await all('lead_sessions', 'id,lead_identity_id,lead_magnet_id,keyword,source_post_id,state,status,utm_content,started_at', (q) => q.gte('started_at', SINCE)))
+    .filter((s) => !SMOKE_TEST_SESSIONS.has(s.id));
   console.log(`  sessions ${sessions.length}, distinct people ${new Set(sessions.map((s) => s.lead_identity_id)).size}`);
   console.log('  by keyword', JSON.stringify(sorted(tally(sessions, (s) => (s.keyword || '').toLowerCase() || null))));
   console.log('  by tool', JSON.stringify(sorted(tally(sessions, (s) => s.lead_magnet_id))));
