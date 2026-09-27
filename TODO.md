@@ -711,11 +711,6 @@ responsible for. Do not work those.
       promotional. (2) The cover art is the label's copyright: use it as commentary (your
       judgment), ask for permission, or keep it out. Tell Claude your verdict and which
       images are cleared.
-- [ ] **Top up the Gemini API prepaid credits.** Every Nano Banana generation (storyboards,
-      Fan Economy sheets, carousels) now fails with `402 RESOURCE_EXHAUSTED: Your prepayment
-      credits are depleted`. Add credit at https://ai.studio/projects (Billing), then tell Claude
-      "credits are back" and it reruns the five Smino frames that failed the far-distance
-      contrast test (scenes 1, 3, 5, 6, 9; prompts already updated).
 - [ ] **Approve (or mark up) the 9-frame illustrated Smino storyboard before anything is
       animated.** Open the grid first:
       [videos/reels/smino/storyboard/smino-storyboard-3x3.png](videos/reels/smino/storyboard/smino-storyboard-3x3.png),
