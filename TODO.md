@@ -711,6 +711,14 @@ responsible for. Do not work those.
       promotional. (2) The cover art is the label's copyright: use it as commentary (your
       judgment), ask for permission, or keep it out. Tell Claude your verdict and which
       images are cleared.
+- [ ] **Approve the storyboard-planning skill, then settle one conflict it exposed.** Read
+      [.claude/skills/fan-economy-storyboard/SKILL.md](.claude/skills/fan-economy-storyboard/SKILL.md)
+      and [.claude/skills/fan-economy-storyboard/RULES.md](.claude/skills/fan-economy-storyboard/RULES.md).
+      The conflict: the reel editor's rules
+      ([.claude/skills/fan-economy-reel-editor/RULES.md](.claude/skills/fan-economy-reel-editor/RULES.md))
+      still say "CRWN brand palette only" and "real media first, no fake artist models", while
+      the Smino storyboard is an illustrated Smino in a warmed natural palette. Tell Claude which
+      wins for Fan Economy reels (or "per project"), and "plan Smino" to write the full plan.
 - [ ] **Approve (or mark up) the 9-frame illustrated Smino storyboard before anything is
       animated.** Open the grid first:
       [videos/reels/smino/storyboard/smino-storyboard-3x3.png](videos/reels/smino/storyboard/smino-storyboard-3x3.png),
