@@ -193,18 +193,19 @@ responsible for. Do not work those.
       App Review before they can connect, so it cannot yet replace ManyChat for anyone but you.**
       Proven 2026-09-27: a `CRWNTEST` comment on m3rcey got the public reply and the private DM.
       [docs/crwn-brain/31-FAN-AUTOMATIONS.md](docs/crwn-brain/31-FAN-AUTOMATIONS.md) has the state.
-      1. **App Review (weeks, start when you want artists on it):** developers.facebook.com →
-         CRWN Publishing Engine → Review. Request **Advanced Access** for
-         instagram_business_basic, instagram_business_manage_comments,
-         instagram_business_manage_messages, plus **Business Verification** for M3rcey. The
-         review wants a screencast: record the CRWNTEST flow (connect, comment, DM arrives).
-         Until approved, an artist can only connect after you add them as an Instagram Tester
-         (App roles → Add People) and they accept at instagram.com/accounts/manage_access.
-      2. **Facebook Pages (optional):** add Facebook Login for Business redirect URI
-         `https://thecrwn.app/api/social-connect/callback/facebook`, subscribe the Page object
-         to `feed`, and tell Claude to set FB_APP_ID + FB_APP_SECRET the same hidden way.
-      3. **Test automation cleanup (optional):** the `CRWNTEST` funnel on m3rcey is still active.
-         Archive it in /studio/automations when you no longer need it for the screencast.
+      **Next: one Astra run,**
+      [docs/fan-automations/astra-meta-app-review.md](docs/fan-automations/astra-meta-app-review.md)
+      (Business Verification for JNW Creative Enterprises, Inc., the screencast, the App Review
+      request for the three Instagram permissions). Do its 15-minute "Before you start Astra"
+      list first (reviewer CRWN account, both Instagram accounts logged in, legal documents in a
+      folder). You upload the documents and type the reviewer password when Astra hands back.
+      Send Claude the report: a domain verification code in it is Claude's to publish.
+      Privacy policy and data deletion URL are already done (live 2026-09-27).
+      Until approved, an artist can connect only after you add them as an Instagram Tester
+      (App roles → Add People) and they accept at instagram.com/accounts/manage_access.
+      **Deliberately NOT in this review:** the Facebook Page half (five more permissions to
+      justify; artists' comment funnels are on Instagram). **After approval:** archive the
+      CRWNTEST automation in /studio/automations.
 
 - [ ] **Watch the first machine-made silent video and say keep or fix.** The video pipeline is
       live: script → storyboard → your sharpie-style images → automated motion cut to your own
