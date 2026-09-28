@@ -1640,14 +1640,13 @@ see and the fan was sold a shipment nobody was told to send.
 
 ### Fan Subscription Tiers (M3rcey test artist)
 
-Live rows as of 2026-07-30 (verified against production, an older version of this note listed
-$10/$50/$200, which was wrong). These predate the Bronze/Silver/Gold/Platinum rename and were
-deliberately NOT rewritten, since renaming a tier a fan already pays for is a founder decision:
+Live ACTIVE rows, verified against production 2026-09-27 (anon read of `subscription_tiers`).
+The old The Wave / Inner Circle / The Vault / Throne names are gone; inactive legacy rows remain.
 
-- The Wave: free (now built as Bronze)
-- Inner Circle: $10/mo (now Silver)
-- The Vault: $25/mo (now Gold)
-- Throne: $100/mo (now Platinum)
+- Bronze: free
+- Silver: $10/mo
+- Vault: $25/mo (the Gold rung, named Vault)
+- Platinum: $100/mo
 - Benefits managed via `tier_benefits` table + `benefitCatalog.ts`.
 
 ## Completion Signal

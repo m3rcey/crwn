@@ -80,10 +80,10 @@ automation. Do not explore, read documentation, or open anything not named here.
 | Automation private message | `Here it is. This is the test drop from my CRWN page.` |
 | Gift name | `CRWN test drop` |
 | Gift reason | `A private test of my CRWN drop page.` |
-| Offer tier | The Vault |
+| Offer tier | Vault ($25) |
 | Standout item title | `The monthly vault unlock` |
 | Standout item description | `Unreleased music every month, before anyone else.` |
-| Fallback tier | Inner Circle |
+| Fallback tier | Silver ($10) |
 
 ## Steps
 
@@ -140,9 +140,9 @@ automation. Do not explore, read documentation, or open anything not named here.
     - What can you give a fan right now?: **One of my tracks**. The gift itself: pick the
       first track in the list.
     - Name it: `CRWN test drop`. Why do they want it?: the gift reason from the table.
-    - After the gift, what do you offer?: **The Vault**. The standout item: title and
+    - After the gift, what do you offer?: **Vault**. The standout item: title and
       description from the table.
-    - If they say not now: **Inner Circle**.
+    - If they say not now: **Silver**.
     - Look it over: click **Activate automation**.
 12. Confirm the automation now shows in the list as active. If a toast says "Saved. Finish the
     missing piece to turn it on.", copy its exact text into the report and stop there.
