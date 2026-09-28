@@ -1,0 +1,101 @@
+// The shape of a founder-assisted launch (the ICP concierge onboarding): everything
+// scripts/onboard-launch-partner.mjs writes for one artist, as reviewable data.
+//
+// One file per artist beside gb.ts (princeDre.ts is the first built this way), registered in
+// LAUNCH_PARTNERS below. checkLaunchPartner is the single validation both the script (before
+// any write) and launchPartner.test.ts (for every registered artist) run, so a config that
+// would ship a forbidden promise fails `npm test` instead of reaching a fan.
+//
+// Content rules this enforces, each a ratified CRWN rule (see CLAUDE.md):
+//   - the four stock rungs at the recommended prices (tierTemplate.ts is the source of truth);
+//   - every structured identity is a SUPPORTED registry key standing for an approved line;
+//   - offers pass the Tier Offer Experience write contract (benefit CTA, declared truth);
+//   - no merch, no scarcity, no priority, no cadence, no rights language; no em/en dashes.
+
+import type { TierOfferExperience } from '../types';
+import { normalizeOfferExperience } from '../normalize';
+import { benefitDelivery } from '../../benefitRegistry';
+import { RECOMMENDED_LADDER } from '../../tierTemplate';
+import { normalizeOptions, normalizeOfferSlug, MIN_OPTIONS, MAX_OPTIONS } from '../../songLab/core';
+
+export const LADDER_RUNGS = ['Bronze', 'Silver', 'Gold', 'Platinum'] as const;
+export type Rung = (typeof LADDER_RUNGS)[number];
+export type PaidRung = Exclude<Rung, 'Bronze'>;
+
+/** The vote lead magnet: fans hear 2-4 songs, tap one, and name + email cast the vote,
+ *  which joins the free tier (and so the artist's Fan CRM). Rendered by Song Lab's public
+ *  ballot at /{slug}/join/{offerSlug}. Songs are matched by TITLE among the artist's own
+ *  FREE tracks at run time; until all exist the script builds everything else and waits. */
+export interface VoteMagnetConfig {
+  offerSlug: string;
+  /** Internal label in the artist's Song Lab manager. */
+  offerName: string;
+  headline: string;
+  description: string;
+  question: string;
+  /** Song Lab project the poll hangs off, e.g. "Next project vote". */
+  projectTitle: string;
+  stageLabel: string;
+  /** Which rung the winning project drops on. Copy only: the artist makes the drop. */
+  winnerRung: PaidRung;
+  options: { label: string; trackTitle: string }[];
+}
+
+export interface LaunchPartnerConfig {
+  /** Registry key and the script argument. */
+  key: string;
+  email: string;
+  /** The auth user id, pinned so a lookup can never land on the wrong account. */
+  userId: string;
+  slug: string;
+  displayName: string;
+  promises: Record<Rung, string>;
+  benefits: Record<Rung, string[]>;
+  identities: Record<Rung, { key: string; line: string }[]>;
+  offers: Record<PaidRung, TierOfferExperience>;
+  /** The drop funnel leads with this rung and falls back to the one below it. */
+  funnelPrimary: PaidRung;
+  funnelDownsell: PaidRung;
+  funnelPrimaryItem: { title: string; description: string };
+  vote?: VoteMagnetConfig;
+}
+
+export const LADDER_PRICES_CENTS: Record<Rung, number> = Object.fromEntries(
+  LADDER_RUNGS.map((r) => [r, RECOMMENDED_LADDER.find((l) => l.name === r)!.priceCents]),
+) as Record<Rung, number>;
+
+const BANNED = ['merch', 'limited', 'priority', 'weekly', 'monthly', 'every month', 'royalt', 'ownership', 'guarantee', 'exclusive rights'];
+
+/** Every reason this config may not be written. Empty means it is safe to apply. */
+export function checkLaunchPartner(c: LaunchPartnerConfig): string[] {
+  const errors: string[] = [];
+  for (const rung of LADDER_RUNGS) {
+    if (!c.promises[rung]) errors.push(`${rung}: no promise`);
+    if (!c.benefits[rung]?.length) errors.push(`${rung}: no benefit lines`);
+    for (const id of c.identities[rung] || []) {
+      const def = benefitDelivery(id.key);
+      if (!def || (def.support !== 'recommended' && def.support !== 'additional')) errors.push(`${rung}: ${id.key} is not a supported key`);
+      if (!c.benefits[rung]?.includes(id.line)) errors.push(`${rung}: identity line "${id.line}" is not an approved line`);
+    }
+  }
+  for (const rung of ['Silver', 'Gold', 'Platinum'] as PaidRung[]) {
+    if (!normalizeOfferExperience(c.offers[rung], rung)) errors.push(`${rung}: offer fails the write contract`);
+  }
+  if (LADDER_PRICES_CENTS[c.funnelDownsell] >= LADDER_PRICES_CENTS[c.funnelPrimary]) errors.push('funnel downsell must be cheaper than the primary');
+  if (c.vote) {
+    const v = c.vote;
+    if (normalizeOfferSlug(v.offerSlug) !== v.offerSlug) errors.push(`vote: offer slug "${v.offerSlug}" is not a legal link`);
+    // An EMPTY options list is the pending state: the copy is approved, the songs are not
+    // uploaded yet, and the script builds everything else and skips the poll.
+    if (v.options.length > 0) {
+      if (v.options.length < MIN_OPTIONS || v.options.length > MAX_OPTIONS) errors.push('vote: needs 2 to 4 songs');
+      if (!normalizeOptions(v.options.map((o) => o.label))) errors.push('vote: option labels are not a legal ballot');
+    }
+    if (new Set(v.options.map((o) => o.trackTitle.toLowerCase())).size !== v.options.length) errors.push('vote: two options name the same song');
+  }
+  const text = JSON.stringify(c);
+  if (/[—–]/.test(text)) errors.push('an em or en dash is in the copy');
+  if (/Join (Platinum|Gold|Silver|Bronze)/.test(text)) errors.push('a Join-tier button is in the copy');
+  for (const b of BANNED) if (text.toLowerCase().includes(b)) errors.push(`forbidden promise language: "${b}"`);
+  return errors;
+}

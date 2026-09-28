@@ -30,7 +30,7 @@ responsible for. Do not work those.
       finishes; then its Stripe screen connects Stripe, and CRWN creates his Stripe prices on its own
       the moment charges are enabled. Nothing for you to run. To confirm afterwards, the last column
       of this should read "yes" on Silver, Gold and Platinum:
-          npx tsx scripts/configure-prince-dre.mjs --apply
+          npx tsx scripts/onboard-launch-partner.mjs princedre
 
 
 - [ ] **To finish Team Splits I need a test-mode sandbox. This is the only thing left, and it is
@@ -64,7 +64,9 @@ responsible for. Do not work those.
       him the same `plan_feature_overrides.allowsLive` GB has, or he runs sessions outside CRWN. Also
       confirm with his team the tier lines in
       [src/lib/offerExperience/reference/princeDre.ts](src/lib/offerExperience/reference/princeDre.ts)
-      (the blueprint says pricing and benefits are approved by them before launch).
+      (the blueprint says pricing and benefits are approved by them before launch), including the
+      vote copy: "The project with the most votes drops in the Vault for Gold members" is HIS
+      promise to keep; CRWN counts the votes, he makes the drop.
 
 - [ ] **Run [supabase/schema-phase2-artist-gate-caller-only.sql](supabase/schema-phase2-artist-gate-caller-only.sql)
       in the Supabase SQL Editor.** This stops the daily "Onboarding is broken" email. The alert
@@ -1051,11 +1053,12 @@ Things that are never finished. Cadence, then the thing.
 
 ## On Claude's plate (not yours)
 
-- **Prince Dre, when his lead magnet track arrives:** upload it as a free track, point the draft
-  funnel `/drop/I_FZxgYtcNzc` at it (magnet "the unreleased record not on the mixtape"), add its
-  Bronze line to [src/lib/offerExperience/reference/princeDre.ts](src/lib/offerExperience/reference/princeDre.ts),
-  re-run [scripts/configure-prince-dre.mjs](scripts/configure-prince-dre.mjs) `--apply`, then activate
-  the funnel. Swap Gold/Platinum previews from `example` to `real` as Vault tracks land.
+- **Prince Dre, when his three vote songs arrive:** upload each as a FREE track on his page, set
+  `vote.options` in [src/lib/offerExperience/reference/princeDre.ts](src/lib/offerExperience/reference/princeDre.ts)
+  (label + exact track title), re-run [scripts/onboard-launch-partner.mjs](scripts/onboard-launch-partner.mjs)
+  `princedre --apply`, then open the ballot at /princedre/join/vote in a browser and confirm each song
+  plays (the playable-ballot path has not yet run against a live poll). Flip Gold/Platinum previews
+  from `example` to `real` as Vault tracks land.
 
 - **After the Meta App Review Astra run:** re-run Part D of [docs/fan-automations/astra-meta-app-review.md](docs/fan-automations/astra-meta-app-review.md) if anything blocks Submit. (Reviewer artist `meta-reviewer` is set up, Stripe-priced, and hidden from Explore, verified 2026-09-27.)
 

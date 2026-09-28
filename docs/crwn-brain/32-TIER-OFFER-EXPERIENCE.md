@@ -73,7 +73,9 @@ credit language, no cadence promises, "for consideration" present, no em dashes,
 The second concierge build, from his launch blueprint. Content in
 `src/lib/offerExperience/reference/princeDre.ts` (ladder prose, benefit identities, three offer
 experiences, the funnel's standout item), written by ONE idempotent script,
-`scripts/configure-prince-dre.mjs`, which also created his identity (he had stopped on the
+`scripts/onboard-launch-partner.mjs princedre` (generic since the same day: every concierge
+launch is a `LaunchPartnerConfig` checked by `checkLaunchPartner`, and the workflow is the
+`onboard-icp-artist` skill), which also created his identity (he had stopped on the
 wizard's first screen) and a DRAFT `link` funnel with Gold primary and Silver downsell and no
 magnet yet. Paid tiers carry null Stripe ids until his Connect account enables charges
 (`backfillTierPrices`). The blueprint's merch access, "limited" sessions and "priority" lines were

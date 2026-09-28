@@ -1,5 +1,7 @@
 import { notFound } from 'next/navigation';
 import { createClient } from '@supabase/supabase-js';
+import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { attachStreamUrls } from '@/lib/storage/signedAudio';
 import { isPresentableArtistName } from '@/lib/publicName';
 import {
   offerIsLive,
@@ -82,7 +84,7 @@ export default async function OfferPage({ params }: OfferPageProps) {
         ballot = {
           decisionId: phase.poll.id,
           question: phase.poll.question,
-          options: (phase.poll.options || []) as DecisionOption[],
+          options: await withListenUrls((phase.poll.options || []) as DecisionOption[], artist.artistId),
           // The exact closing instant, so the ballot can run a live countdown. Sent as
           // an absolute timestamp and never as a formatted clock time: the countdown is
           // a duration, which is true in every timezone the link reaches.
@@ -125,6 +127,35 @@ export default async function OfferPage({ params }: OfferPageProps) {
       interlude={interlude}
     />
   );
+}
+
+/**
+ * An online vote magnet lets the fan HEAR each option before voting. The song is read from
+ * tracks_public AS THE VISITOR (never the admin client), so the view's own entitlement check
+ * decides: a free track comes back with its locator and gets a pre-signed url, a gated one
+ * comes back without and simply renders no player. Same rule as the track and album pages.
+ * Fails soft to the plain text ballot.
+ */
+async function withListenUrls(options: DecisionOption[], artistId: string): Promise<DecisionOption[]> {
+  const ids = options.map((o) => o.trackId).filter((t): t is string => !!t);
+  if (ids.length === 0) return options;
+  try {
+    const caller = await createServerSupabaseClient();
+    const { data } = await caller
+      .from('tracks_public')
+      .select('id, title, audio_url_128')
+      .eq('artist_id', artistId)
+      .in('id', ids);
+    const signed = await attachStreamUrls((data || []) as Array<{ id: string; title: string; audio_url_128: string | null }>);
+    const byId = new Map(signed.map((t) => [t.id, t]));
+    return options.map((o) => {
+      const t = o.trackId ? byId.get(o.trackId) : undefined;
+      const streamUrl = t && 'stream_url' in t ? (t as { stream_url?: string }).stream_url : undefined;
+      return streamUrl ? { ...o, streamUrl } : o;
+    });
+  } catch {
+    return options;
+  }
 }
 
 export async function generateMetadata({ params }: OfferPageProps): Promise<Metadata> {

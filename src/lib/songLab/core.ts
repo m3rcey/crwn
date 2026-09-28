@@ -16,6 +16,19 @@
 export interface DecisionOption {
   id: string;
   label: string;
+  /** Optional song the fan can hear before voting (an online vote magnet, where the artist
+   *  is not performing the options live). A POINTER only: the ballot page reads it through
+   *  tracks_public AS THE CALLER, so only a track the visitor may already play is playable,
+   *  and a gated track simply renders no player. It never grants access. */
+  trackId?: string;
+}
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function optionTrackId(raw: unknown): string | undefined {
+  if (!raw || typeof raw !== 'object') return undefined;
+  const t = (raw as { trackId?: unknown }).trackId;
+  return typeof t === 'string' && UUID_RE.test(t) ? t.toLowerCase() : undefined;
 }
 
 export type DecisionStatus = 'draft' | 'open' | 'closed';
@@ -128,14 +141,17 @@ export function tally(
  */
 export function normalizeOptions(raw: unknown): DecisionOption[] | null {
   if (!Array.isArray(raw)) return null;
-  const labels = raw
-    .map((o) => (o && typeof o === 'object' && typeof (o as { label?: unknown }).label === 'string'
-      ? (o as { label: string }).label.trim()
-      : typeof o === 'string' ? o.trim() : ''))
-    .filter((l) => l.length > 0 && l.length <= MAX_LABEL_LENGTH);
-  if (labels.length < MIN_OPTIONS || labels.length > MAX_OPTIONS) return null;
+  const kept = raw
+    .map((o) => ({
+      label: o && typeof o === 'object' && typeof (o as { label?: unknown }).label === 'string'
+        ? (o as { label: string }).label.trim()
+        : typeof o === 'string' ? o.trim() : '',
+      trackId: optionTrackId(o),
+    }))
+    .filter((o) => o.label.length > 0 && o.label.length <= MAX_LABEL_LENGTH);
+  if (kept.length < MIN_OPTIONS || kept.length > MAX_OPTIONS) return null;
   const ids = ['a', 'b', 'c', 'd'];
-  return labels.map((label, i) => ({ id: ids[i], label }));
+  return kept.map((o, i) => (o.trackId ? { id: ids[i], label: o.label, trackId: o.trackId } : { id: ids[i], label: o.label }));
 }
 
 /**
@@ -150,7 +166,11 @@ export function mergeOptionEdit(
   const cleaned = nextLabels.map((l) => l.trim()).filter((l) => l.length > 0 && l.length <= MAX_LABEL_LENGTH);
   if (cleaned.length < MIN_OPTIONS || cleaned.length > MAX_OPTIONS) return null;
   const ids = ['a', 'b', 'c', 'd'];
-  return cleaned.map((label, i) => ({ id: existing[i]?.id ?? ids[i], label }));
+  // A label edit keeps the option's song: the song IS the option on an online vote.
+  return cleaned.map((label, i) => {
+    const trackId = existing[i]?.trackId;
+    return trackId ? { id: existing[i]?.id ?? ids[i], label, trackId } : { id: existing[i]?.id ?? ids[i], label };
+  });
 }
 
 const OFFER_SLUG_RE = /^[a-z0-9][a-z0-9-]{1,62}[a-z0-9]$/;

@@ -172,6 +172,21 @@ describe('normalizeOptions / mergeOptionEdit', () => {
       { id: 'c', label: 'New C' },
     ]);
   });
+  it('keeps a well-formed song pointer and drops anything else', () => {
+    const t = '507c180e-d438-4d33-b12b-181c0d02b12e';
+    expect(normalizeOptions([{ label: 'A', trackId: t }, { label: 'B', trackId: 'not-a-uuid' }, { label: 'C', trackId: 7 }])).toEqual([
+      { id: 'a', label: 'A', trackId: t },
+      { id: 'b', label: 'B' },
+      { id: 'c', label: 'C' },
+    ]);
+  });
+  it('a label edit keeps each option on its song', () => {
+    const t = '507c180e-d438-4d33-b12b-181c0d02b12e';
+    expect(mergeOptionEdit([{ id: 'a', label: 'Old', trackId: t }, { id: 'b', label: 'B' }], ['New', 'B'])).toEqual([
+      { id: 'a', label: 'New', trackId: t },
+      { id: 'b', label: 'B' },
+    ]);
+  });
 });
 
 describe('offer slug and window', () => {

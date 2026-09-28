@@ -1,6 +1,6 @@
 // Prince Dre: the SECOND reference configuration, built from the founder-assisted launch
 // blueprint (Prince_Dre_CRWN_Launch_Blueprint.pdf, 2026-09-28). Same shape and same truth
-// discipline as gb.ts: content, not code. scripts/configure-prince-dre.mjs writes these
+// discipline as gb.ts: content, not code. scripts/onboard-launch-partner.mjs writes these
 // objects to production after validating each through the read path's normalizer.
 //
 // What the blueprint proposed and this file deliberately does NOT carry:
@@ -10,14 +10,14 @@
 //   - "Limited group listening sessions" (Platinum). The ladder never promises a limit it
 //     has not set; the only real cap is the Founder Window, which is opt-in per tier.
 //   - "Priority experiences" (Platinum). Nothing enforces a priority.
-//   - Any free unreleased record on Bronze. That is the lead magnet, which is not uploaded
-//     yet; it joins the Bronze lines when the magnet track exists.
+//   - Any free unreleased record on Bronze. The lead magnet is a VOTE (below), not a gift.
 //
 // Truth: nothing is uploaded yet, so every preview is truth: 'example' except Platinum
 // status (recognition is a real CRWN treatment). No cadence is promised anywhere, and no
 // VSL exists (null renders nothing fan-facing).
 
 import type { TierOfferExperience } from '../types';
+import type { LaunchPartnerConfig } from './launchPartner';
 
 export const DRE_SLUG = 'princedre';
 export const DRE_DISPLAY_NAME = 'Prince Dre';
@@ -264,5 +264,38 @@ export const DRE_SILVER_OFFER: TierOfferExperience = {
   inherited: {
     heading: 'Everything in Bronze included',
     items: ['First word on every new release', 'City announcements when Dre is coming through'],
+  },
+};
+
+/** The whole launch as data, written by scripts/onboard-launch-partner.mjs princedre. */
+export const PRINCE_DRE: LaunchPartnerConfig = {
+  key: 'princedre',
+  email: 'princedremusicbusiness@gmail.com',
+  userId: '7cece8ba-bd78-4cd6-9fa4-55849c2bf144',
+  slug: DRE_SLUG,
+  displayName: DRE_DISPLAY_NAME,
+  promises: DRE_TIER_PROMISES as LaunchPartnerConfig['promises'],
+  benefits: DRE_APPROVED_BENEFITS as LaunchPartnerConfig['benefits'],
+  identities: DRE_BENEFIT_IDENTITIES as LaunchPartnerConfig['identities'],
+  offers: { Silver: DRE_SILVER_OFFER, Gold: DRE_GOLD_OFFER, Platinum: DRE_PLATINUM_OFFER },
+  funnelPrimary: 'Gold',
+  funnelDownsell: 'Silver',
+  funnelPrimaryItem: DRE_FUNNEL_PRIMARY_ITEM,
+  // The lead magnet (founder brief, 2026-09-28): three unreleased songs, one from each of
+  // three projects. Fans listen, tap one, and name + email cast the vote and join Bronze.
+  // The project with the most votes drops in the Vault for Gold. Songs pending upload:
+  // fill `options` with { label, trackTitle } once the three tracks are on his page as FREE
+  // tracks, then re-run the script.
+  vote: {
+    offerSlug: 'vote',
+    offerName: 'Next project vote',
+    headline: 'YOU PICK WHAT DRE DROPS NEXT',
+    description:
+      'Three unreleased songs from three different projects. Listen, pick one. The project with the most votes drops in the Vault for Gold members.',
+    question: 'Which project should Dre drop next?',
+    projectTitle: 'Next project vote',
+    stageLabel: 'Next project',
+    winnerRung: 'Gold',
+    options: [],
   },
 };

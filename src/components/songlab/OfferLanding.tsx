@@ -37,6 +37,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { preselectedOption, type DecisionOption } from '@/lib/songLab/core';
 import { accountEmailNote } from '@/lib/songLab/liveClaim';
 import { VoteCountdown } from '@/components/songlab/VoteCountdown';
+import { InlineAudioPlayer } from '@/components/shared/InlineAudioPlayer';
 import {
   BALLOT_CTA_LABEL,
   BALLOT_SUBMITTING_LABEL,
@@ -53,12 +54,16 @@ import {
   type BallotField,
 } from '@/lib/songLab/voteForm';
 
+/** A ballot option as the page renders it: the stored option plus, for an online vote,
+ *  the pre-signed url of its song (absent when the visitor may not play it). */
+export type LandingOption = DecisionOption & { streamUrl?: string };
+
 export interface LandingBallot {
   /** Which show's poll this is. Sent back with the vote so the server can refuse a
    *  submission whose show closed while the page was open. */
   decisionId: string;
   question: string;
-  options: DecisionOption[];
+  options: LandingOption[];
   /** Absolute closing instant, or null when the vote runs until the artist closes it. */
   closesAt?: string | null;
 }
@@ -471,12 +476,17 @@ export function OfferLanding({
         aria-label={ballot!.question}
         className="space-y-3 mb-6"
       >
-        <p className="text-lg font-semibold text-crwn-text">Tap your pick:</p>
+        <p className="text-lg font-semibold text-crwn-text">
+          {ballot!.options.some((o) => o.streamUrl) ? 'Listen, then tap your pick:' : 'Tap your pick:'}
+        </p>
         {ballot!.options.map((o) => {
           const isSelected = selected === o.id;
           return (
+            <div key={o.id} className="space-y-2">
+            {/* The player sits beside the choice, never inside it: a play tap must not
+                also cast a selection. */}
+            {o.streamUrl ? <InlineAudioPlayer src={o.streamUrl} title={o.label} /> : null}
             <button
-              key={o.id}
               type="button"
               role="radio"
               aria-checked={isSelected}
@@ -497,6 +507,7 @@ export function OfferLanding({
                 <Check className="absolute right-5 top-1/2 -translate-y-1/2 w-7 h-7 text-crwn-gold" aria-hidden />
               ) : null}
             </button>
+            </div>
           );
         })}
       </div>

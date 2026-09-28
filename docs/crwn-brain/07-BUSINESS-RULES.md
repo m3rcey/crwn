@@ -526,6 +526,15 @@ through `src/lib/songLab/access.ts`; there is deliberately no slug check anywher
    kill every link. Show status on both screens is the EFFECTIVE status from the server clock,
    never the stored flag, so a show past its scheduled close never reads "open".
 
+- **An online vote magnet lets fans HEAR the options (2026-09-28).** A ballot option may carry
+  `trackId` (`DecisionOption` in `src/lib/songLab/core.ts`; kept through `normalizeOptions` and
+  label edits). The ballot page reads those songs from `tracks_public` AS THE VISITOR and signs
+  them with `attachStreamUrls`, so only a track the visitor may already play renders a player
+  (`InlineAudioPlayer`, beside the option, never inside it); a gated song renders nothing. The
+  pointer never grants access. This is the ICP concierge lead magnet
+  (`scripts/onboard-launch-partner.mjs`, skill `onboard-icp-artist`); the vote still joins the
+  free tier through `joinFreeTier`, which is what puts the fan in the Fan CRM.
+
 ## 17. Fan Drive rules (Virality Engine V1, 2026-08-11)
 
 Full architecture: doc 22 section 28. The rules, all `Confirmed` in code + tests

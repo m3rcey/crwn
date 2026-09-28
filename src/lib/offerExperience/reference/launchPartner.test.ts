@@ -1,0 +1,52 @@
+import { describe, it, expect } from 'vitest';
+import { LAUNCH_PARTNERS } from './launchPartners';
+import { checkLaunchPartner, LADDER_PRICES_CENTS, type LaunchPartnerConfig } from './launchPartner';
+import { PRINCE_DRE } from './princeDre';
+
+describe('every registered launch partner passes the launch checks', () => {
+  for (const [key, config] of Object.entries(LAUNCH_PARTNERS)) {
+    it(`${key} is safe to apply`, () => {
+      expect(config.key).toBe(key);
+      expect(checkLaunchPartner(config)).toEqual([]);
+    });
+  }
+});
+
+describe('the checks actually refuse what they claim to', () => {
+  const clone = (): LaunchPartnerConfig => JSON.parse(JSON.stringify(PRINCE_DRE));
+
+  it('ladder prices come from the recommended template', () => {
+    expect(LADDER_PRICES_CENTS).toEqual({ Bronze: 0, Silver: 1000, Gold: 2500, Platinum: 10000 });
+  });
+  it('refuses a merch promise', () => {
+    const c = clone(); c.benefits.Gold.push('Early merch access');
+    expect(checkLaunchPartner(c).join()).toContain('merch');
+  });
+  it('refuses a scarcity promise', () => {
+    const c = clone(); c.benefits.Platinum.push('Limited seats');
+    expect(checkLaunchPartner(c).join()).toContain('limited');
+  });
+  it('refuses a retired or manual benefit key', () => {
+    const c = clone(); c.identities.Gold.push({ key: 'monthly_merch', line: c.benefits.Gold[1] });
+    expect(checkLaunchPartner(c).join()).toContain('not a supported key');
+  });
+  it('refuses a Join-tier CTA', () => {
+    const c = clone(); c.offers.Gold.cta = 'Join Gold';
+    expect(checkLaunchPartner(c).length).toBeGreaterThan(0);
+  });
+  it('refuses an em dash', () => {
+    const c = clone(); c.promises.Bronze = 'Stay close — always';
+    expect(checkLaunchPartner(c).join()).toContain('dash');
+  });
+  it('refuses a vote with one song, and allows the pending empty state', () => {
+    const c = clone();
+    c.vote!.options = [{ label: 'Only', trackTitle: 'Only' }];
+    expect(checkLaunchPartner(c).join()).toContain('2 to 4');
+    c.vote!.options = [];
+    expect(checkLaunchPartner(c)).toEqual([]);
+  });
+  it('refuses a downsell that is not cheaper than the primary', () => {
+    const c = clone(); c.funnelDownsell = 'Platinum';
+    expect(checkLaunchPartner(c).join()).toContain('downsell');
+  });
+});
