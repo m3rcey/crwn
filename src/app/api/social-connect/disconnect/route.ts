@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
     const connection = await getActiveConnection(supabaseAdmin, artistId, provider);
     if (!connection) return NextResponse.json({ ok: true, wasConnected: false });
 
-    await markConnection(supabaseAdmin, connection.id, { status: 'disconnected', webhookSubscribed: false });
+    await markConnection(supabaseAdmin, connection.id, { status: 'disconnected', webhookSubscribed: false, eraseToken: true });
     await supabaseAdmin
       .from('fan_automations')
       .update({ status: 'paused', updated_at: new Date().toISOString() })

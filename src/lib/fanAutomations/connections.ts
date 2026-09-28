@@ -224,10 +224,13 @@ export async function updateConnectionToken(
 export async function markConnection(
   admin: any,
   connectionId: string,
-  patch: { status?: string; webhookSubscribed?: boolean },
+  patch: { status?: string; webhookSubscribed?: boolean; eraseToken?: boolean },
 ): Promise<void> {
   const update: Record<string, unknown> = { updated_at: new Date().toISOString() };
   if (patch.status) update.status = patch.status;
   if (typeof patch.webhookSubscribed === 'boolean') update.webhook_subscribed = patch.webhookSubscribed;
+  // An empty ciphertext decrypts to null, so an erased row can never act again; reconnecting
+  // writes a fresh token. The privacy policy promises this on disconnect.
+  if (patch.eraseToken) update.access_token_enc = '';
   await admin.from('artist_social_connections').update(update).eq('id', connectionId);
 }
