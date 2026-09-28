@@ -195,11 +195,12 @@ responsible for. Do not work those.
       [docs/crwn-brain/31-FAN-AUTOMATIONS.md](docs/crwn-brain/31-FAN-AUTOMATIONS.md) has the state.
       **Next: one Astra run,**
       [docs/fan-automations/astra-meta-app-review.md](docs/fan-automations/astra-meta-app-review.md)
-      (Business Verification for JNW Creative Enterprises, Inc., the screencast, the App Review
-      request for the three Instagram permissions). Do its 15-minute "Before you start Astra"
-      list first (reviewer CRWN account, both Instagram accounts logged in, legal documents in a
-      folder). You upload the documents and type the reviewer password when Astra hands back.
-      Send Claude the report: a domain verification code in it is Claude's to publish.
+      (Business Verification for JNW Creative Enterprises, Inc., a reviewer test artist with
+      Stripe, the screencast, the App Review request for the three Instagram permissions).
+      **Your only prep (2 min):** put the incorporation document and the IRS EIN letter in
+      `C:\Users\Josh\Documents\meta-review\`. During the run you type only what Astra hands
+      back: logins/codes, Stripe identity + bank for the reviewer artist, and any address/EIN
+      field. Send Claude the report: a domain verification code in it is Claude's to publish.
       Privacy policy and data deletion URL are already done (live 2026-09-27).
       Until approved, an artist can connect only after you add them as an Instagram Tester
       (App roles → Add People) and they accept at instagram.com/accounts/manage_access.
@@ -1018,6 +1019,8 @@ Things that are never finished. Cadence, then the thing.
 ---
 
 ## On Claude's plate (not yours)
+
+- **After the Meta App Review Astra run:** set `featured_hidden = true` on the `Meta Reviewer` artist (a test page must not appear in Explore), publish any Meta domain-verification tag Astra reports, and re-run Part D of [docs/fan-automations/astra-meta-app-review.md](docs/fan-automations/astra-meta-app-review.md) if Submit was blocked by Business Verification.
 
 - **Promote the storyboard image runner before the full Smino generation pass.** It is local-only
   (`videos/reels/` is gitignored) and too Smino-specific to commit as is; the cleanup list and target
