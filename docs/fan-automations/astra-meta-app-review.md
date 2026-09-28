@@ -46,10 +46,11 @@ reviewer stops at the last step and rejects with "could not reproduce".
 
 Put your legal documents for JNW Creative Enterprises Inc. in
 `C:\Users\Josh\Documents\meta-review\`: the articles or certificate of incorporation, and the
-IRS EIN letter (147C), plus `current-address-proof.pdf`: one document showing the company at its
-CURRENT address (the Missouri statement of change or annual registration report, or a business
-bank statement or utility bill). The IRS letter shows the old address, so it cannot prove the
-address. Name files clearly; Astra picks them by name. Then paste everything below the line into Astra.
+IRS EIN letter (147C). Name files clearly; Astra picks them by name.
+
+**Address decision (2026-09-27):** every Meta address field uses the address printed on these
+documents (all of them still show it), so the typed address and the documents always match. If
+Meta ever asks for proof of a newer address, resubmit with a document that shows it. Then paste everything below the line into Astra.
 
 ---
 
@@ -103,12 +104,14 @@ and run this, then paste. Afterwards clear it with `printf '' | clip.exe`.
    "Verified" or "In review", skip to part B.
 2. Fill in the legal business name, website and contact email from the table. If it asks for
    an address, phone number or tax ID (EIN) that is not already shown, hand it back to me with
-   the field names (I type the business's CURRENT address, exactly as
-   `current-address-proof.pdf` prints it).
-   Upload the **Certificate of Incorporation** as the legal-name document and
-   **current-address-proof.pdf** as the address document. Upload the **IRS EIN letter** only
-   where Meta asks specifically for a tax ID document (never as address proof: it shows an old
-   address). The Articles only if it asks for more.
+   the field names. I type the address exactly as the IRS EIN letter prints it under the
+   company name, and the same address goes in EVERY Meta address field, including the
+   portfolio's **Business info** address (step 2a).
+   Upload the **Certificate of Incorporation** as the legal-name document and the **IRS EIN
+   letter** as the address and tax ID document. The Articles only if it asks for more.
+2a. In `https://business.facebook.com/settings` → **Business info**, check the business address.
+   If it differs from the one I typed in step 2, hand it back to me to correct it. Never type
+   an address yourself.
 3. Documents: upload the incorporation document and the EIN letter from the files folder
    through the file picker. Do not open, preview or read any document.
 4. If it offers **domain verification** for thecrwn.app, choose the **meta tag** method (or the

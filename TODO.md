@@ -197,10 +197,9 @@ responsible for. Do not work those.
       [docs/fan-automations/astra-meta-app-review.md](docs/fan-automations/astra-meta-app-review.md)
       (Business Verification for JNW Creative Enterprises Inc., a reviewer test artist with
       Stripe, the screencast, the App Review request for the three Instagram permissions).
-      **Your only prep:** put the Certificate of Incorporation, the IRS EIN letter, and ONE
-      document showing the company at its CURRENT address (Missouri statement of change or
-      annual report, or a business bank/utility statement) named `current-address-proof.pdf` in
-      `C:\Users\Josh\Documents\meta-review\`. During the run you type only what Astra hands
+      **Your only prep:** put the Certificate of Incorporation and the IRS EIN letter in
+      `C:\Users\Josh\Documents\meta-review\` (Meta uses the address printed on them, in every
+      address field). During the run you type only what Astra hands
       back: logins/codes, Stripe identity + bank for the reviewer artist, and any address/EIN
       field. Send Claude the report: a domain verification code in it is Claude's to publish.
       Privacy policy and data deletion URL are already done (live 2026-09-27).
