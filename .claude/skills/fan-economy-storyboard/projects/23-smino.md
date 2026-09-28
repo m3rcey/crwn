@@ -165,6 +165,12 @@ Newest first.
   Then "the 4th one isnt centered": the close-up crop had been anchored to keep the fingertips
   in, which put the people at 0.33 of the width. A crop is centred on the SUBJECT (measure its
   centre first), never on the edges of a supporting object; re-cropped to 0.50.
+- 2026-09-27. Opening animated (6.0s, 1080x1920, 30fps, recorded voice):
+  `videos/reels/smino/storyboard/animate-opening.mjs` (local) renders from the five keyframe
+  bases, cues on the recorded word times. Learned: a moving element cut out by DIFFERENCING two
+  plates also picks up anything else that changed (his expression and collar rode up with the
+  hand), so bound the mask to where the element lives; two words that re-flow from a stack to a
+  line collide mid-move unless the sideways move finishes before the vertical one.
 - 2026-09-27. The founder sketched a better opening: (1) "HOW MUCH?" alone, full frame;
   (2) "how much slides up as Smino comes in"; (3) "Smino holds hand up; opens it; ppl in it";
   (4) "zoom in on hand w/ ppl; WORTH drops in" ("WORTH?"). No coins. The principles went into
