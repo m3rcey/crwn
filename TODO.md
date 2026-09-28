@@ -22,6 +22,16 @@ responsible for. Do not work those.
 
 ### P0 — money flows or acquisition are blocked
 
+- [ ] **Prince Dre has NOT connected Stripe. Get him to do it; his three paid tiers cannot sell
+      until he does.** Checked 2026-09-28: he signed up with Google (princedremusicbusiness@gmail.com)
+      and stopped on the wizard's FIRST screen, so there was no artist row and no Connect account.
+      His page, ladder, offer copy and draft funnel are now built (https://thecrwn.app/princedre).
+      Tell him: sign in, and the wizard resumes at his photo. It still requires ONE track before it
+      finishes; then its Stripe screen connects Stripe, and CRWN creates his Stripe prices on its own
+      the moment charges are enabled. Nothing for you to run. To confirm afterwards, the last column
+      of this should read "yes" on Silver, Gold and Platinum:
+          npx tsx scripts/configure-prince-dre.mjs --apply
+
 
 - [ ] **To finish Team Splits I need a test-mode sandbox. This is the only thing left, and it is
       environment setup, not code.** Nothing to run in SQL.
@@ -47,6 +57,14 @@ responsible for. Do not work those.
 
 
 ### P1 — real risk or real friction, but nothing is on fire
+
+- [ ] **Decide how Prince Dre's Platinum listening sessions run.** Platinum now promises "Group
+      listening sessions when Dre opens one" (no schedule, no cap). CRWN Live is a Pro feature and he
+      is on Launch. Pick one: he moves to Pro ($49/mo + 8%, which the blueprint recommends), you give
+      him the same `plan_feature_overrides.allowsLive` GB has, or he runs sessions outside CRWN. Also
+      confirm with his team the tier lines in
+      [src/lib/offerExperience/reference/princeDre.ts](src/lib/offerExperience/reference/princeDre.ts)
+      (the blueprint says pricing and benefits are approved by them before launch).
 
 - [ ] **Run [supabase/schema-phase2-artist-gate-caller-only.sql](supabase/schema-phase2-artist-gate-caller-only.sql)
       in the Supabase SQL Editor.** This stops the daily "Onboarding is broken" email. The alert
@@ -1032,6 +1050,12 @@ Things that are never finished. Cadence, then the thing.
 ---
 
 ## On Claude's plate (not yours)
+
+- **Prince Dre, when his lead magnet track arrives:** upload it as a free track, point the draft
+  funnel `/drop/I_FZxgYtcNzc` at it (magnet "the unreleased record not on the mixtape"), add its
+  Bronze line to [src/lib/offerExperience/reference/princeDre.ts](src/lib/offerExperience/reference/princeDre.ts),
+  re-run [scripts/configure-prince-dre.mjs](scripts/configure-prince-dre.mjs) `--apply`, then activate
+  the funnel. Swap Gold/Platinum previews from `example` to `real` as Vault tracks land.
 
 - **After the Meta App Review Astra run:** re-run Part D of [docs/fan-automations/astra-meta-app-review.md](docs/fan-automations/astra-meta-app-review.md) if anything blocks Submit. (Reviewer artist `meta-reviewer` is set up, Stripe-priced, and hidden from Explore, verified 2026-09-27.)
 

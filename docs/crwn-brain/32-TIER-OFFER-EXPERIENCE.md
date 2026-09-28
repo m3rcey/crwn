@@ -68,6 +68,18 @@ Bad is member-gated in production); everything else is truth: 'example' until GB
 runs one. Tests in `reference/gb.test.ts` pin the truth discipline: no rights/royalty/
 credit language, no cadence promises, "for consideration" present, no em dashes, VSL null.
 
+## Prince Dre reference configuration (2026-09-28)
+
+The second concierge build, from his launch blueprint. Content in
+`src/lib/offerExperience/reference/princeDre.ts` (ladder prose, benefit identities, three offer
+experiences, the funnel's standout item), written by ONE idempotent script,
+`scripts/configure-prince-dre.mjs`, which also created his identity (he had stopped on the
+wizard's first screen) and a DRAFT `link` funnel with Gold primary and Silver downsell and no
+magnet yet. Paid tiers carry null Stripe ids until his Connect account enables charges
+(`backfillTierPrices`). The blueprint's merch access, "limited" sessions and "priority" lines were
+left out on purpose (no physical goods; no unenforced scarcity or priority), pinned by
+`princeDre.test.ts`. Every preview is `example` except Platinum status until his Vault is uploaded.
+
 ## The V1 Offer Builder (shipped 2026-09-03, Rise Mode Guided Setup)
 
 An artist writes their own experience through the guided flow at `/build/experience`
