@@ -67,12 +67,16 @@ This step gets roughly 90% of the plan's intensive creative exploration (RULES.m
 3. **Choose one, and reject hard.** "Understandable, attractive, correct, on-style" is
    necessary and not enough. Revise until it creates a strong impulse to continue.
 4. **Design frame 1**: would a viewer stop if this appeared silently in the feed for a
-   fraction of a second?
+   fraction of a second? Give it the lowest possible decoding cost: ONE element (often the
+   question itself, huge) that begins transforming within about half a second. Do not pack
+   who, stakes and question into it (RULES.md, "Opening composition").
 5. **Design the first second**: something meaningful happens; the first second never just
    holds frame 1. Its first transition must make the viewer feel something is unfolding.
-6. **Design the first five seconds as a mini-story** that progresses: subject, an unresolved
-   question, visible stakes, a change or escalation, more evidence, another unanswered
-   implication. Plan it as state -> semantic transition -> state, never image, cut, image
+6. **Design the first five seconds as an additive mini-story**: one new element per beat,
+   each entering on the word that introduces it (the question, then who, then what is being
+   valued, then the stakes), with a reveal where it helps (something closed that opens) and
+   the camera carrying scale and focus. End on the thesis image: the subject, close, with the
+   question on it. Plan it as state -> semantic transition -> state, never image, cut, image
    (RULES.md, "Opening transitions"). Every visual state names the new reason it gives the
    viewer to stay; every transition fills the six transition fields below.
 7. **Run the opening gate** (RULES.md, "The five-second gate") and the transition gate, both

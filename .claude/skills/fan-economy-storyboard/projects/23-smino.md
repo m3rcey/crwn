@@ -156,6 +156,11 @@ comes first.
 
 Newest first.
 
+- 2026-09-27. The founder sketched a better opening: (1) "HOW MUCH?" alone, full frame;
+  (2) "how much slides up as Smino comes in"; (3) "Smino holds hand up; opens it; ppl in it";
+  (4) "zoom in on hand w/ ppl; WORTH drops in" ("WORTH?"). No coins. The principles went into
+  ../RULES.md ("Opening composition"). The locked plan (rev 3) and its keyframes are
+  superseded in direction; the plan is not yet rewritten to the sketch (founder's call).
 - 2026-09-27. Opening keyframes generated for founder review (six states, `opening/`); awaiting
   visual approval. HOW MUCH sits across the top of the afro (the plan's dark-orange top band does
   not exist in the chosen frame; white on the amber circle fails contrast).

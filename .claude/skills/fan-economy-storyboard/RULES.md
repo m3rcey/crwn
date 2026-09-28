@@ -119,7 +119,8 @@ anything published).
   withholding, continuity into the story, truthfulness (the video delivers what the hook
   promises).
 - **Reject on sight:** generic portraits, generic talking-head openings, logos, fades from
-  black, static title cards, slow scene establishment, context before tension, explanations
+  black, title cards that HOLD (a question-only frame that starts transforming within about
+  half a second is not one; see "Opening composition"), slow scene establishment, context before tension, explanations
   before questions, decorative animation, redundant states, the exact payoff shown early, and
   any frame that only becomes interesting once narration explains it. Understandable,
   attractive, correct and on-style is necessary, never sufficient.
@@ -134,6 +135,45 @@ anything published).
 - **Density follows retention first.** Frames are not spread evenly by time: the opening may
   carry several planned visual states in five seconds while a later explanation holds one
   evolving composition.
+
+### Opening composition (founder sketches, 2026-09-27)
+
+Learned from the founder's hand-drawn Smino opening (question alone -> question rises as
+the artist enters -> a closed hand opens on people -> push in, the value word drops in),
+which beat a planned opening that put the face, the hand, the fans, the money mechanic and
+the question all in frame 1.
+
+- **Frame 1 has the lowest possible decoding cost.** Its job is to stop the scroll in a
+  fraction of a second, and the fastest thing to decode is ONE element. When the hook is a
+  question, that element can be the question itself, huge, filling the frame, provided it
+  starts transforming within about half a second. Frame 1 poses the question; it does not
+  have to show who, stakes and question all at once.
+- **Build additively: one new element per beat.** Start near-empty and add exactly one piece
+  of information at each beat (the question, then who it is about, then what is being
+  valued, then the stakes). The viewer assembles the premise piece by piece, and every
+  addition answers a small question while sharpening the big one. Complexity grows only as
+  the viewer's investment grows. Budget: frame 1 holds one element; each later beat adds at
+  most one.
+- **Reveal in the order the sentence delivers it.** Each visual element enters on (or just
+  after) the word that introduces it, never before. Showing the fans while the voice is
+  still on "how much" spends the reveal early; letting "fans" arrive with the fans makes
+  picture and speech one event.
+- **Use a container that opens.** A closed hand, box, door or cover, then the reveal of
+  what is inside, is a micro curiosity gap resolved inside the opening. Withhold the subject
+  a beat, then open it.
+- **Let the camera carry scale and focus.** Push in to make a small subject large (it fixes
+  the "tiny figures at thumbnail size" problem without cramming them into a wide frame), and
+  move or resize text to make room for what enters. A camera move is justified when it
+  changes what the viewer is looking at or how big it is.
+- **Do not visualize the answer's mechanism in the hook.** The question word carries the
+  stakes ("WORTH?"); the money, the growth, the comparison belong to the reveal. A mechanism
+  invented for the hook (coins, piles, meters) adds decoding cost and risks implying an answer.
+- **The question can stay a question.** A question mark in the text keeps the gap explicit.
+  The text in the opening can be as little as the question split into two moments (for
+  example "HOW MUCH?" then "WORTH?"), each landing on its spoken word.
+- **End the opening on the thesis image**: the subject of the question, close, with the
+  question on it, readable as a thumbnail. It is the frame the whole opening was built to
+  reach.
 
 ### Opening transitions (founder, 2026-09-27)
 
@@ -199,6 +239,14 @@ Each was seen in a real attempt. The plan must not show any of them.
 17. **Decorative transitions.** A zoom, flash or whip chosen for energy, adding no meaning.
 18. **Poster, cut, poster.** Each opening beat a new unrelated composition, so the viewer
     restarts the scene every time instead of following one idea unfold.
+19. **Front-loaded frame 1.** Everything packed into the first frame (face, hand, fans,
+    circle, question), so it is slow to decode and the rest of the opening has nothing new
+    to reveal, only small edits of a finished picture.
+20. **Reveal ahead of the word.** A visual element shown before the voice introduces it.
+21. **An invented hook mechanism.** A device the question does not need (coins raised,
+    dropped and piled, a spinning meter), which costs attention and hints at an answer.
+22. **State edits instead of motion.** An opening made of small changes inside one fixed wide
+    shot, with no camera move or reveal to pull the eye forward.
 
 ## 3. Retired rules
 
@@ -212,6 +260,11 @@ Never resurrect these. Each says what replaced it.
   a ~3:30 reel needs roughly 40 to 70 planned frames.
 - **"One project's style is the universal style."** Retired 2026-09-27. Art direction lives
   per project in projects/.
+- **"Frame 1 must show who, what is at stake and the question at once."** Retired 2026-09-27
+  (founder sketches). It front-loaded frame 1. Replaced by "Opening composition": frame 1
+  poses the question with minimal decoding cost, and who and stakes arrive in the next beats.
+- **"Reject every title card."** Narrowed 2026-09-27: reject title cards that hold; a
+  question-only frame that transforms within about half a second is the fastest scroll-stop.
 
 ## How feedback updates this skill
 
@@ -230,6 +283,13 @@ If the layer is unclear, it is the narrowest one (this script only). Then add a 
 ## 4. Decision log
 
 Newest first. Date, founder's words or decision, layer, what changed.
+
+- 2026-09-27. The founder's four sketches of the Smino opening ("these compositions are
+  better for achieving my goal ... understand the principles and methods to replicate in the
+  future"). Method. Added "Opening composition" (lowest decoding cost for frame 1, additive
+  one-element beats, reveal in sentence order, a container that opens, camera for scale and
+  focus, no answer mechanism in the hook, the question stays a question, end on the thesis
+  image), failure modes 19 to 22, two retired rules, and narrowed the title-card rejection.
 
 - 2026-09-27. "Transitions, especially in the first five seconds, are part of the
   storytelling rather than decoration. Every meaningful opening transition should define how
