@@ -2,7 +2,7 @@
 
 Project file: .claude/skills/fan-economy-storyboard/projects/23-smino.md (art direction v5)
 Runtime basis: the recording (`videos/reels/23-smino-the-promise-you-forgot/words.clean.json`),
-full reel ~3:29. Status: OPENING FOUNDER-APPROVED and LOCKED (revision 3, 2026-09-27); remainder not yet planned. Nothing after ~0:05.7 is
+full reel ~3:29. Status: OPENING revision 4 (founder sketches) CURRENT, keyframes awaiting visual review; revision 3 superseded; remainder not yet planned. Nothing after ~0:05.7 is
 planned.
 
 ## Story summary
@@ -217,7 +217,41 @@ Rejected: A (a slide), B (prices fans, no progression), C (asks "against what?")
 the wrong stakes), E (Smino too small at frame 1), F (leaks the withheld variable). Kept: G, with
 D's strings folded in as a subordinate detail rather than a second subject.
 
-## Revision 3: FOUNDER-APPROVED, LOCKED (2026-09-27)
+## Revision 4: FOUNDER SKETCHES, CURRENT (2026-09-27)
+
+The founder drew the opening in four frames, and they supersede revision 3's direction (the
+coin mechanic, the busy first frame). The principles behind them are in the skill's RULES.md,
+"Opening composition". Keyframes: `videos/reels/smino/storyboard/opening-v2/` (local).
+Text follows the sketches: "HOW MUCH?" and "WORTH?" only. SMINO and 100 PAYING FANS are
+carried by his face, the people and the voice; restoring them is a code change if wanted.
+
+| # | Time (recorded words) | State | Text |
+|---|---|---|---|
+| 1 | 0.00-~1.2 ("How much could") | "HOW MUCH?" alone, filling a plain dark burnt-orange frame | HOW MUCH? |
+| 2 | ~1.2-2.1 ("Smino's first") | the question slides up to the top as Smino rises into frame, arms down | HOW MUCH? |
+| 3a | ~2.1-2.5 | he raises his right hand in front of his chest, CLOSED | HOW MUCH? |
+| 3b | ~2.5-3.9 ("paying fans") | the hand opens: a compact group of people stands on his palm | HOW MUCH? |
+| 4 | 3.92-~6.16 ("worth ...") | push in on the hand and the people; WORTH? drops in (gold) | WORTH? |
+
+Transitions:
+- **1 -> 2:** the question rises and shrinks to a top line while Smino rises in beneath it. The
+  question becomes about him; one new element (who).
+- **2 -> 3a:** his hand comes up closed. A container is introduced; what is inside?
+- **3a -> 3b:** the fist opens on the people, a reveal that lands on "fans". One new element (what).
+- **3b -> 4:** the camera pushes in until the people are large. HOW MUCH? leaves and WORTH? drops
+  in on "worth". The stakes arrive, and the frame ends on the thesis image.
+
+Gates:
+- **Frame 1:** a single element, readable in a glance, and it starts moving within ~1s.
+- **Additive:** one new element per beat, each on its word.
+- **0:05:** Smino, his fans in his hand, "how much ... worth?" unresolved; no figure and no money
+  shown.
+- **Sound-off:** the question and "WORTH?" plus the pictures read as "How much are the people in
+  Smino's hand worth?".
+
+Founder visual review pending.
+
+## Revision 3: SUPERSEDED by revision 4 (was locked 2026-09-27)
 
 Revision 3 (final): the snapped string ends are removed (a second symbolic question the hook
 does not need); the five-second contract no longer requires independence, which the next anchor
