@@ -197,7 +197,9 @@ responsible for. Do not work those.
       [docs/fan-automations/astra-meta-app-review.md](docs/fan-automations/astra-meta-app-review.md)
       (Business Verification for JNW Creative Enterprises Inc., a reviewer test artist with
       Stripe, the screencast, the App Review request for the three Instagram permissions).
-      **Your only prep (2 min):** put the incorporation document and the IRS EIN letter in
+      **Your only prep:** put the Certificate of Incorporation, the IRS EIN letter, and ONE
+      document showing the company at its CURRENT address (Missouri statement of change or
+      annual report, or a business bank/utility statement) named `current-address-proof.pdf` in
       `C:\Users\Josh\Documents\meta-review\`. During the run you type only what Astra hands
       back: logins/codes, Stripe identity + bank for the reviewer artist, and any address/EIN
       field. Send Claude the report: a domain verification code in it is Claude's to publish.
@@ -208,6 +210,12 @@ responsible for. Do not work those.
       justify; artists' comment funnels are on Instagram). **After approval:** archive the
       CRWNTEST automation the recording creates, in /studio/automations (the first one is
       already archived).
+
+- [ ] **P2: Tell the IRS the business moved (Form 8822-B).** The IRS still has JNW CREATIVE
+      ENTERPRISES INC at the old address (the 147C shows it), and it expects 8822-B within 60
+      days of a business address change. One page: https://www.irs.gov/forms-pubs/about-form-8822-b
+      (mail or fax per its instructions; 4 to 6 weeks to process). Twilio's brand check and every
+      future IRS notice go by that record. Afterwards, a fresh 147C shows the new address.
 
 - [ ] **Watch the first machine-made silent video and say keep or fix.** The video pipeline is
       live: script → storyboard → your sharpie-style images → automated motion cut to your own
