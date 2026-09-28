@@ -236,7 +236,11 @@ cron on 2026-08-26 after one env-var whitespace failure). The other five are bui
   testing"), used by the founder-only read tool
   [tools/instagram-mcp/server.mjs](../../tools/instagram-mcp/server.mjs) (local, GET-only, token in
   the git-ignored `.env.instagram`, registered in [.mcp.json](../../.mcp.json)). Never unpublish
-  the app: that silently empties those reads again.
+  the app: that silently empties those reads again. The `{conversation}/messages` edge returns DM
+  text but silently drops `attachments`, so a ManyChat card read as a blank `message: ""`
+  (verified 2026-09-28); `ig_get_messages` re-fetches only content-less messages by id
+  ([tools/instagram-mcp/messages.mjs](../../tools/instagram-mcp/messages.mjs)) and also accepts a
+  `username`.
 
 - **Env (all server-only, all trimmed on read):** `IG_USER_ID`, `IG_ACCESS_TOKEN`, `GRAPH_HOST`
   (graph.instagram.com for IGAA tokens, graph.facebook.com for EAA tokens), `FB_PAGE_ID`,

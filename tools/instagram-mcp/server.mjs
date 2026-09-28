@@ -22,6 +22,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createInterface } from 'node:readline';
+import { MESSAGE_FIELDS, enrichMessages, findConversation } from './messages.mjs';
 
 const HOST = 'https://graph.instagram.com';
 const V = 'v26.0';
@@ -81,7 +82,14 @@ async function graph(path, params = {}) {
   try { json = JSON.parse(text); } catch { throw new Error(redact(`Graph ${res.status}: ${text.slice(0, 300)}`)); }
   if (!res.ok || json.error) {
     const e = json.error || {};
-    throw new Error(redact(`Graph ${res.status} code ${e.code ?? '?'}: ${e.message ?? text.slice(0, 300)}`));
+    // Auth failures get the fix, not just the code: 190 = expired/revoked token, 10/200 = a
+    // permission the token was not granted.
+    const hint = e.code === 190
+      ? ` The Instagram token is expired or revoked: generate a new one for @thecrwnapp in the Meta app (Instagram API setup) and replace IG_READ_TOKEN in ${ENV_FILE}, then restart the MCP server.`
+      : e.code === 10 || e.code === 200
+        ? ' The token lacks the permission this call needs (DMs need instagram_business_manage_messages): regenerate the token with that permission ticked.'
+        : '';
+    throw new Error(redact(`Graph ${res.status} code ${e.code ?? '?'}: ${e.message ?? text.slice(0, 300)}${hint}`));
   }
   return json;
 }
@@ -90,6 +98,14 @@ async function graph(path, params = {}) {
 function page(json) {
   const { data = [], paging } = json;
   return { data, next_cursor: paging?.next ? paging?.cursors?.after ?? null : null };
+}
+
+// The connected account's id, which is what `from.id` equals on an outbound message. Fetched once;
+// on failure direction reads "unknown" rather than failing the read.
+let accountIdPromise;
+function accountId() {
+  accountIdPromise ??= graph('me', { fields: 'user_id' }).then((m) => m.user_id ?? null, () => { accountIdPromise = undefined; return null; });
+  return accountIdPromise;
 }
 
 const clamp = (n, lo, hi, d) => Math.min(hi, Math.max(lo, Number.isFinite(+n) && n !== undefined ? +n : d));
@@ -186,21 +202,31 @@ const TOOLS = [
   },
   {
     name: 'ig_get_messages',
-    description: 'Messages in one DM thread, newest first: sender, recipient, text, attachments, shared posts, story replies, time. A message with none of those is a share or reaction the API does not expose. Page with next_cursor.' + UNTRUSTED,
+    description: 'Messages in one DM thread, newest first, by conversation_id or by the other person\'s username: sender, recipient, direction (inbound = they sent it, outbound = @thecrwnapp sent it), text, attachments (a ManyChat card is attachments.data[].generic_template with a title and buttons), shared posts, story replies, time. A message that still has no content after that is one the API does not expose (is_unsupported). A thread from a comment-to-DM reply often holds only the outbound card. Page with next_cursor.' + UNTRUSTED,
     inputSchema: {
       type: 'object',
       properties: {
         conversation_id: { type: 'string', description: 'id from ig_list_conversations' },
+        username: { type: 'string', description: 'the other person\'s Instagram username (with or without @), used when conversation_id is not given' },
         limit: { type: 'number', description: '1 to 50, default 20' },
         cursor: { type: 'string', description: 'next_cursor from a previous call' },
       },
-      required: ['conversation_id'],
     },
-    run: async (a) => page(await graph(`${a.conversation_id}/messages`, {
-      // A shared reel or a reaction can arrive with none of these set; the API gives no content.
-      fields: 'id,created_time,from,to,message,attachments,shares,story',
-      limit: clamp(a.limit, 1, 50, 20), after: a.cursor,
-    })),
+    run: async (a) => {
+      let conversationId = a.conversation_id;
+      let conversation;
+      if (!conversationId) {
+        if (!a.username) throw new Error('Give conversation_id or username.');
+        conversation = await findConversation(a.username, graph);
+        if (!conversation) throw new Error(`No DM thread with @${String(a.username).replace(/^@/, '')} in the 500 most recent conversations.`);
+        conversationId = conversation.id;
+      }
+      const res = page(await graph(`${conversationId}/messages`, {
+        fields: MESSAGE_FIELDS, limit: clamp(a.limit, 1, 50, 20), after: a.cursor,
+      }));
+      res.data = await enrichMessages(res.data, graph, await accountId());
+      return { conversation_id: conversationId, ...(conversation ? { participants: conversation.participants, updated_time: conversation.updated_time } : {}), ...res };
+    },
   },
   {
     name: 'ig_account_insights',
@@ -263,7 +289,8 @@ async function handle(msg) {
       if (!tool) return send({ jsonrpc: '2.0', id, error: { code: -32602, message: `Unknown tool ${params?.name}` } });
       try {
         const result = await tool.run(params.arguments || {});
-        return send({ jsonrpc: '2.0', id, result: { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] } });
+        // redact() here too: a result should never hold the token, and this makes sure it cannot.
+        return send({ jsonrpc: '2.0', id, result: { content: [{ type: 'text', text: redact(JSON.stringify(result, null, 2)) }] } });
       } catch (e) {
         return send({ jsonrpc: '2.0', id, result: { isError: true, content: [{ type: 'text', text: redact(e.message) }] } });
       }
