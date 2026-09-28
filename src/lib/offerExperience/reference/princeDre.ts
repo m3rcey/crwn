@@ -283,9 +283,8 @@ export const PRINCE_DRE: LaunchPartnerConfig = {
   funnelPrimaryItem: DRE_FUNNEL_PRIMARY_ITEM,
   // The lead magnet (founder brief, 2026-09-28): three unreleased songs, one from each of
   // three projects. Fans listen, tap one, and name + email cast the vote and join Bronze.
-  // The project with the most votes drops in the Vault for Gold. Songs pending upload:
-  // fill `options` with { label, trackTitle } once the three tracks are on his page as FREE
-  // tracks, then re-run the script.
+  // The project with the most votes drops in the Vault for Gold. Order is the founder's
+  // (2026-09-28): Wishing Well, Kill Or Be Killed, In My Eyes.
   vote: {
     offerSlug: 'vote',
     offerName: 'Next project vote',
@@ -296,6 +295,10 @@ export const PRINCE_DRE: LaunchPartnerConfig = {
     projectTitle: 'Next project vote',
     stageLabel: 'Next project',
     winnerRung: 'Gold',
-    options: [],
+    options: [
+      { label: 'Wishing Well', trackTitle: 'Wishing Well', file: 'videos/output/Prince Dre - Wishing Well.wav', artFile: 'videos/output/prince dre - wishing well.jpg' },
+      { label: 'Kill Or Be Killed', trackTitle: 'Kill Or Be Killed', file: 'videos/output/Prince Dre - Kill Or Be Killed.wav', artFile: 'videos/output/prince dre - kill or be killed.jpg' },
+      { label: 'In My Eyes', trackTitle: 'In My Eyes', file: 'videos/output/Prince Dre - In My Eyes.wav', artFile: 'videos/output/prince dre - in my eyes.jpg' },
+    ],
   },
 };

@@ -74,10 +74,14 @@ each option's song is read through `tracks_public` AS THE VISITOR and played wit
   word it as the artist's commitment ("the project with the most votes drops in the Vault").
 - `options: []` is the valid PENDING state (songs not uploaded). The script builds everything
   else and prints `vote magnet WAITS`.
-- When the songs exist: upload each as a FREE track on the artist's page (Studio Music, content
-  class "free forever"), then set `options: [{ label, trackTitle }]`. `trackTitle` must match
-  the uploaded title exactly (case-insensitive). A song that is not free is refused, because
-  fans could not hear it.
+- When the founder hands over the songs (usually WAVs plus a cover each in `videos/output/`),
+  set `options` IN THE ORDER THE FOUNDER GIVES (ask if not given):
+  `{ label, trackTitle, file: 'videos/output/<song>.wav', artFile: 'videos/output/<cover>.jpg' }`.
+  The script uploads any song not already on the page exactly as Studio Music does (master to
+  `audio`, cover to `album-art`, free forever, position = ballot order) and runs
+  `scripts/transcode-audio.mjs --id` for the 128 kbps stream copy. A song already uploaded is
+  matched by `trackTitle` (case-insensitive) and must be free, or it is refused (fans could not
+  hear it). The songs also appear on the artist's public page as free tracks: that is the magnet.
 - Once a poll has votes, the script never rewrites its options.
 
 Register the config in `launchPartners.ts`, then:
@@ -105,9 +109,12 @@ artist name; if it is taken or the name is ambiguous, ask the founder before app
 - `curl -s https://thecrwn.app/<slug>` returns 200 and contains the Bronze and Gold promises.
 - The drop funnel is a DRAFT: anonymous requests get the 404 page (status 200 is Next
   streaming it; check the body, not the code). Only the artist can preview it signed in.
-- When the vote is live: open `https://thecrwn.app/<slug>/join/<offerSlug>` in a browser, play
-  each song, tap one, confirm the name and email fields appear. Do not submit a test vote with
-  a real address: it creates a real user and membership that only the founder may delete.
+- When the vote is live, check it from the server-rendered HTML (`curl` the ballot link): the
+  headline, `Listen, then tap your pick`, one `aria-label="Play <song>"` per option in order, and
+  every signed `/object/sign/audio/...-128.mp3?token=` link returning `206 audio/mpeg` (unescape
+  `&` first or the token is clipped). Do not screenshot it from a browser without the
+  `crwn_dnt` cookie (it counts as a view), and never submit a test vote with a real address: it
+  creates a real user and membership only the founder may delete. The founder does the one tap test.
 
 ## 5. Hand-offs (same commit as the build)
 

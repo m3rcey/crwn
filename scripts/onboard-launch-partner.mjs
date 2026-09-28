@@ -22,7 +22,8 @@
 // Run:  npx tsx scripts/onboard-launch-partner.mjs <key>            (dry run)
 //       npx tsx scripts/onboard-launch-partner.mjs <key> --apply    (writes)
 
-import { readFileSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
 import { randomBytes } from 'node:crypto';
 import { createClient } from '@supabase/supabase-js';
 import { normalizeOfferExperience } from '../src/lib/offerExperience/normalize.ts';
@@ -107,13 +108,64 @@ for (const name of LADDER_RUNGS) {
 }
 
 // ── 6 (planned in dry run too). Vote magnet songs ───────────────────────────────
+/** Seconds from the WAV header, walking RIFF chunks (same as upload-gb-tracks.mjs). */
+function wavDuration(path) {
+  const b = readFileSync(path);
+  if (b.toString('ascii', 0, 4) !== 'RIFF' || b.toString('ascii', 8, 12) !== 'WAVE') throw new Error('not a RIFF/WAVE file: ' + path);
+  let off = 12; let byteRate = 0;
+  while (off + 8 <= b.length) {
+    const id = b.toString('ascii', off, off + 4); const size = b.readUInt32LE(off + 4);
+    if (id === 'fmt ') byteRate = b.readUInt32LE(off + 16);
+    if (id === 'data') return Math.round(size / byteRate);
+    off += 8 + size + (size % 2);
+  }
+  throw new Error('no data chunk: ' + path);
+}
+
+/** Upload a vote song exactly as the Studio upload form does: raw file to `audio`, cover to
+ *  `album-art`, access from free_forever (is_free, no tiers, no date), then a 128 kbps stream
+ *  copy through the one transcode script. Returns the new track id. */
+async function uploadVoteSong(o, position) {
+  const ext = o.file.split('.').pop().toLowerCase();
+  if (ext !== 'wav') die(`${o.file}: only WAV masters are supported here`);
+  const bytes = readFileSync(o.file);
+  const audioPath = `${artist.id}/${Date.now()}.wav`;
+  const { error: upErr } = await db.storage.from('audio').upload(audioPath, bytes, { contentType: 'audio/wav', upsert: false });
+  if (upErr) die(`${o.trackTitle} upload: ${upErr.message}`);
+  const audioUrl = db.storage.from('audio').getPublicUrl(audioPath).data.publicUrl;
+  let artUrl = null;
+  if (o.artFile) {
+    const artExt = o.artFile.split('.').pop().toLowerCase();
+    const artPath = `${artist.id}/album-art/${Date.now()}.${artExt}`;
+    const { error: artErr } = await db.storage.from('album-art').upload(artPath, readFileSync(o.artFile), { contentType: artExt === 'png' ? 'image/png' : 'image/jpeg', upsert: false });
+    if (artErr) die(`${o.trackTitle} cover upload: ${artErr.message}`);
+    artUrl = db.storage.from('album-art').getPublicUrl(artPath).data.publicUrl;
+  }
+  const { data: row, error } = await db.from('tracks').insert({
+    artist_id: artist.id, title: o.trackTitle, audio_url_128: audioUrl, audio_url_320: audioUrl,
+    album_art_url: artUrl, duration: wavDuration(o.file), position,
+    is_free: true, allowed_tier_ids: [], public_release_date: null, is_active: true,
+  }).select('id').single();
+  if (error) die(`${o.trackTitle} track insert: ${error.message}`);
+  execFileSync('node', ['scripts/transcode-audio.mjs', '--apply', '--limit', '1', '--id', row.id], { stdio: 'inherit' });
+  return row.id;
+}
+
 let voteTracks = null;
 if (C.vote && C.vote.options.length) {
-  const { data: tracks } = await db.from('tracks').select('id, title, is_free, allowed_tier_ids, public_release_date').eq('artist_id', artist.id);
+  let { data: tracks } = await db.from('tracks').select('id, title, is_free, allowed_tier_ids, public_release_date').eq('artist_id', artist.id);
   voteTracks = [];
   const missing = [];
-  for (const o of C.vote.options) {
-    const t = (tracks || []).find((x) => x.title.trim().toLowerCase() === o.trackTitle.trim().toLowerCase());
+  for (const [i, o] of C.vote.options.entries()) {
+    let t = (tracks || []).find((x) => x.title.trim().toLowerCase() === o.trackTitle.trim().toLowerCase());
+    if (!t && o.file) {
+      if (!existsSync(o.file)) { missing.push(`"${o.trackTitle}" file not found: ${o.file}`); continue; }
+      if (o.artFile && !existsSync(o.artFile)) { missing.push(`"${o.trackTitle}" cover not found: ${o.artFile}`); continue; }
+      if (!APPLY) { console.log(`will upload "${o.trackTitle}" (${Math.floor(wavDuration(o.file) / 60)}:${String(wavDuration(o.file) % 60).padStart(2, '0')}) as a free track, position ${i}`); voteTracks.push({ label: o.label, trackId: 'pending-upload' }); continue; }
+      const id = await uploadVoteSong(o, i);
+      t = { id, title: o.trackTitle, is_free: true, allowed_tier_ids: [], public_release_date: null };
+      console.log(`uploaded "${o.trackTitle}" as a free track (${id})`);
+    }
     if (!t) { missing.push(`"${o.trackTitle}" not uploaded`); continue; }
     const windowOpen = t.public_release_date && new Date(t.public_release_date) > new Date() && (t.allowed_tier_ids || []).length;
     if (!t.is_free || windowOpen) { missing.push(`"${o.trackTitle}" is not free forever (fans could not hear it)`); continue; }

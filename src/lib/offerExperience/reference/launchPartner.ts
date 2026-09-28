@@ -38,7 +38,10 @@ export interface VoteMagnetConfig {
   stageLabel: string;
   /** Which rung the winning project drops on. Copy only: the artist makes the drop. */
   winnerRung: PaidRung;
-  options: { label: string; trackTitle: string }[];
+  /** In ballot order. `file` / `artFile` are repo-relative local paths: when the track is
+   *  not on the artist's page yet, the script uploads it (free forever, the Studio upload
+   *  convention) and gives it a 128 kbps stream copy. Without them it waits for an upload. */
+  options: { label: string; trackTitle: string; file?: string; artFile?: string }[];
 }
 
 export interface LaunchPartnerConfig {

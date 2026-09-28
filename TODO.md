@@ -1053,12 +1053,10 @@ Things that are never finished. Cadence, then the thing.
 
 ## On Claude's plate (not yours)
 
-- **Prince Dre, when his three vote songs arrive:** upload each as a FREE track on his page, set
-  `vote.options` in [src/lib/offerExperience/reference/princeDre.ts](src/lib/offerExperience/reference/princeDre.ts)
-  (label + exact track title), re-run [scripts/onboard-launch-partner.mjs](scripts/onboard-launch-partner.mjs)
-  `princedre --apply`, then open the ballot at /princedre/join/vote in a browser and confirm each song
-  plays (the playable-ballot path has not yet run against a live poll). Flip Gold/Platinum previews
-  from `example` to `real` as Vault tracks land.
+- **Prince Dre's vote is live** (https://thecrwn.app/princedre/join/vote, 2026-09-28): three free songs,
+  signed stream copies verified serving audio. Flip Gold/Platinum previews from `example` to `real` in
+  [src/lib/offerExperience/reference/princeDre.ts](src/lib/offerExperience/reference/princeDre.ts) as
+  Vault tracks land, and when the vote closes, record the winner in his Song Lab manager.
 
 - **After the Meta App Review Astra run:** re-run Part D of [docs/fan-automations/astra-meta-app-review.md](docs/fan-automations/astra-meta-app-review.md) if anything blocks Submit. (Reviewer artist `meta-reviewer` is set up, Stripe-priced, and hidden from Explore, verified 2026-09-27.)
 
