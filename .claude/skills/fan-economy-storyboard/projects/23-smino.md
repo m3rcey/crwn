@@ -162,6 +162,9 @@ Newest first.
   crop of the 2752px raw with no upscale (`crop` on the scene). Founder, same day: "make sure the
   subject is slightly overlapping the font" and "the font is large and leaving little real estate
   like how i did on the drawings": text sits BEHIND the subject (`occlude`), sized to the width.
+  Then "the 4th one isnt centered": the close-up crop had been anchored to keep the fingertips
+  in, which put the people at 0.33 of the width. A crop is centred on the SUBJECT (measure its
+  centre first), never on the edges of a supporting object; re-cropped to 0.50.
 - 2026-09-27. The founder sketched a better opening: (1) "HOW MUCH?" alone, full frame;
   (2) "how much slides up as Smino comes in"; (3) "Smino holds hand up; opens it; ppl in it";
   (4) "zoom in on hand w/ ppl; WORTH drops in" ("WORTH?"). No coins. The principles went into
