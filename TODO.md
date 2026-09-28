@@ -189,34 +189,22 @@ responsible for. Do not work those.
       applying the template. Renaming Economy to Bronze is optional and costs nothing.
 
 
-- [ ] **Fan Automations: the comment-to-DM half is still DARK (the link funnel is live). One
-      founder step turns it on; until then artists keep renting this exact outcome from ManyChat.**
-      Shipped 2026-08-29: an artist connects their own Instagram or Facebook Page, a fan's
-      comment gets the one private reply Meta permits with a link to the artist's drop page,
-      the email there delivers the lead magnet, joins the fan to the free tier, then offers
-      Gold with a Silver downsell through the normal checkout. Full architecture:
-      [docs/crwn-brain/31-FAN-AUTOMATIONS.md](docs/crwn-brain/31-FAN-AUTOMATIONS.md).
-      Step 1 (the migration) is done: applied and probe-verified 2026-09-01, and the LINK
-      funnel is live for every artist since then. What remains is the comment-to-DM half.
-      **Server side is DONE (2026-09-27):** the four Instagram vars are in Vercel Production
-      as Sensitive, redeployed, and the webhook handshake answers `4242` (wrong token and
-      unsigned POST both 403). **What is left:** paste the Stage 3 prompt from
-      [docs/fan-automations/astra-instagram-go-live.md](docs/fan-automations/astra-instagram-go-live.md)
-      into Astra (Meta redirect URI, m3rcey tester, webhook, connect m3rcey, activate a
-      `CRWNTEST` automation), send Claude the report, then comment `CRWNTEST` on any m3rcey
-      post from your phone (not as m3rcey). Claude confirms the private reply from the
-      database and rotates the verify token Astra saw.
-      Standard Access covers app-role accounts, so none of this waits on Meta.
-      **Later, not in that run:**
-      - Facebook Pages half: add Facebook Login for Business to the same app, redirect URI
-        `https://thecrwn.app/api/social-connect/callback/facebook`, subscribe the Page object
-        to `feed`, set `FB_APP_ID` + `FB_APP_SECRET` in Vercel. Until then the artist screen
-        simply does not offer Facebook.
-      - For real artists (not app-role accounts): **Advanced Access via App Review + Business
-        Verification** on instagram_business_basic, instagram_business_manage_comments,
-        instagram_business_manage_messages (Pages: pages_show_list, pages_read_engagement,
-        pages_manage_engagement, pages_manage_metadata, pages_messaging). The review wants a
-        screencast of the flow; the CRWNTEST run is that footage. Weeks, not days.
+- [ ] **Fan Automations is LIVE on Instagram for app-role accounts only. Real artists need Meta
+      App Review before they can connect, so it cannot yet replace ManyChat for anyone but you.**
+      Proven 2026-09-27: a `CRWNTEST` comment on m3rcey got the public reply and the private DM.
+      [docs/crwn-brain/31-FAN-AUTOMATIONS.md](docs/crwn-brain/31-FAN-AUTOMATIONS.md) has the state.
+      1. **App Review (weeks, start when you want artists on it):** developers.facebook.com →
+         CRWN Publishing Engine → Review. Request **Advanced Access** for
+         instagram_business_basic, instagram_business_manage_comments,
+         instagram_business_manage_messages, plus **Business Verification** for M3rcey. The
+         review wants a screencast: record the CRWNTEST flow (connect, comment, DM arrives).
+         Until approved, an artist can only connect after you add them as an Instagram Tester
+         (App roles → Add People) and they accept at instagram.com/accounts/manage_access.
+      2. **Facebook Pages (optional):** add Facebook Login for Business redirect URI
+         `https://thecrwn.app/api/social-connect/callback/facebook`, subscribe the Page object
+         to `feed`, and tell Claude to set FB_APP_ID + FB_APP_SECRET the same hidden way.
+      3. **Test automation cleanup (optional):** the `CRWNTEST` funnel on m3rcey is still active.
+         Archive it in /studio/automations when you no longer need it for the screencast.
 
 - [ ] **Watch the first machine-made silent video and say keep or fix.** The video pipeline is
       live: script → storyboard → your sharpie-style images → automated motion cut to your own

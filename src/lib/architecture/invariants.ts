@@ -1243,14 +1243,15 @@ export const FEATURES: readonly FeatureContract[] = [
   {
     key: 'fan_automations',
     title: 'Fan Automations (artist comment-to-DM funnels)',
-    // DARK until two founder actions land: the migration below, and the Meta app setup
-    // (env vars IG_APP_ID/IG_APP_SECRET, FB_APP_ID/FB_APP_SECRET, META_WEBHOOK_VERIFY_TOKEN,
-    // SOCIAL_TOKEN_ENC_KEY, plus App Review for non-app-role artists). There is no
-    // admin_settings flag on purpose: the gate is configuration presence
-    // (src/lib/fanAutomations/config.ts fails closed on every missing value), which cannot
-    // be flipped on with the plumbing absent. Entirely separate from the founder ManyChat
-    // acquisition engine (H-07): no shared table, route, keyword, or identifier.
-    expectedState: 'dark',
+    // LIVE for Instagram since 2026-09-27: migration applied, Meta app configured (IG_APP_ID,
+    // IG_APP_SECRET, META_WEBHOOK_VERIFY_TOKEN, SOCIAL_TOKEN_ENC_KEY in Vercel Production), and a
+    // real CRWNTEST comment on m3rcey produced a matched receipt with public reply and DM both
+    // sent. Non-app-role artists still need Meta App Review; the Facebook Page half stays off
+    // until FB_APP_ID/FB_APP_SECRET exist. There is no admin_settings flag on purpose: the gate
+    // is configuration presence (src/lib/fanAutomations/config.ts fails closed on every missing
+    // value), which cannot be flipped on with the plumbing absent. Entirely separate from the
+    // founder ManyChat acquisition engine (H-07): no shared table, route, keyword, or identifier.
+    expectedState: 'live',
     flag: null,
     gateModule: 'src/lib/fanAutomations/config.ts',
     surfaces: [

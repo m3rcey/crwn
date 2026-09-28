@@ -1,10 +1,17 @@
 # 31 — Fan Automations (artist comment-to-DM funnels)
 
-**Status: the LINK funnel is LIVE; the comment-to-DM half is DARK (2026-09-03).** The
-migration is applied (probe-verified 2026-09-01) and activation no longer needs a Meta
-connection, so `/drop/<token>` works for every artist today; GB's live funnel is a link funnel.
-Only the Instagram/Facebook listening half waits on the Meta app setup in TODO.md (env vars +
-App Review); until it lands the connection screen says so and the webhook drops everything.
+**Status: LIVE for Instagram (2026-09-27); the Facebook Page half is off.** The link funnel has
+been live since 2026-09-03. On 2026-09-27 the Meta app (the existing CRWN Publishing Engine app,
+Instagram API with Instagram Login) got the redirect URI, the webhook (`comments` field) and four
+Vercel Production vars (IG_APP_ID, IG_APP_SECRET, META_WEBHOOK_VERIFY_TOKEN, SOCIAL_TOKEN_ENC_KEY,
+all Sensitive). Proven end to end: m3rcey connected as an Instagram Tester, a real `CRWNTEST`
+comment from another account produced a matched receipt with the public reply AND the private
+reply sent, and the account's own public reply came back as a comment and was skipped by the
+`isOwnComment` loop guard. Still gated by Meta, not code: artists without an app role need
+Advanced Access via App Review; Facebook Pages need FB_APP_ID/FB_APP_SECRET. An empty public
+reply is stored empty and means no public reply (fixed 2026-09-27; the write path used to
+substitute "Check your DMs"). The handoff doc is
+[docs/fan-automations/astra-instagram-go-live.md](../fan-automations/astra-instagram-go-live.md).
 
 **The funnel row IS the artist's fan funnel** (Rise Mode Guided Setup, 2026-09-03): magnet,
 primary paid offer (`gold_tier_id`), optional downsell (`silver_tier_id`), nurture pointer,
