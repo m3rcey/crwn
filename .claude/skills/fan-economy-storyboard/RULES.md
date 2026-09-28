@@ -254,6 +254,13 @@ Each was seen in a real attempt. The plan must not show any of them.
     dropped and piled, a spinning meter), which costs attention and hints at an answer.
 22. **State edits instead of motion.** An opening made of small changes inside one fixed wide
     shot, with no camera move or reveal to pull the eye forward.
+23. **An unregistered push between two drawings.** A camera move that ends on a separately
+    generated keyframe (a close-up after a wide), aimed by eye and cross-dissolved: the two
+    drawings disagree on position and scale, so the viewer sees two crowds at once (Smino
+    opening, 2026-09-27). Plan any wide -> close push as ONE continuous image: either the push
+    stays inside a single high-resolution frame, or the close-up is generated with the wide as
+    its reference and then REGISTERED (measured zoom and offset), so the switch happens at the
+    same framing and only what truly differs changes.
 
 ## 3. Retired rules
 
@@ -290,6 +297,10 @@ If the layer is unclear, it is the narrowest one (this script only). Then add a 
 ## 4. Decision log
 
 Newest first. Date, founder's words or decision, layer, what changed.
+
+- 2026-09-27. "There's a glitch in the transition from the 4th to the 5th frame ... can we prevent
+  that from happening again?" Failure mode 23: a push between two separately generated keyframes
+  must be registered (or stay inside one image), never aimed by eye and cross-dissolved.
 
 - 2026-09-27. "Make sure the subject is slightly overlapping the font. Also make sure the font is
   large and leaving little real estate like how i did on the drawings." Method. Two bullets added

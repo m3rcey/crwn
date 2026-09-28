@@ -122,6 +122,13 @@ Planning never depends on these. When frames are approved for generation:
   the fresh first state. Chained edits soften the image (face sharpness fell about 25% by the
   third edit, then held). Contact sheets take a list: `sheet 11,12,13,14,15,16 <out> 6`. The
   opening lives in `videos/reels/smino/storyboard/opening/` with its own `manifest.md`.
+- **Registration before any push or dissolve between keyframes** (2026-09-27, the 4 -> 5 glitch).
+  `register.mjs <wide.png> <close.png> [y0 y1]` (local, next to generate.mjs) grid-searches the
+  zoom and window of the wide that best matches the close-up (Smino: s 2.25, origin 0.255/0.507,
+  1.76x effective upscale from the raw). Animate the push as a pure zoom toward the fixed point that
+  lands on that window, read from the RAW generation (not the 1080 plate), then switch at the same
+  framing (a 0.1s dissolve or a cut). The close-up was generated with the wide as reference, which
+  is why the two matched almost exactly once registered; keep doing that.
 
 **Runner promotion (reviewed 2026-09-27, deliberately left local).** Policy: reproducible
 tooling is tracked once stable; generated images and temporary outputs stay local. The runner
