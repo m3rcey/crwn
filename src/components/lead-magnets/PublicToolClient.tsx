@@ -82,6 +82,7 @@ export function PublicToolClient({
   config,
   surface = 'tool',
   below,
+  presetSearch,
 }: {
   config: LeadMagnetConfig;
   surface?: ToolSurface;
@@ -92,6 +93,11 @@ export function PublicToolClient({
    * re-offering a number they already have).
    */
   below?: ReactNode | ((ctx: BelowContext) => ReactNode);
+  /**
+   * Answers supplied by the page instead of the URL (the named `/numbers/<slug>` links). Read
+   * exactly like a query string, through the same allowlist.
+   */
+  presetSearch?: string;
 }) {
   const router = useRouter();
   // The 'loading' first render exists to avoid flashing the hero at someone who
@@ -156,7 +162,7 @@ export function PublicToolClient({
 
   // Resume from an emailed link (?result=token) or start fresh at the hero.
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams(presetSearch ?? window.location.search);
     const token = params.get('result');
     setEntryContext(resolveEntryContext(config, params.get('from')));
     trackLeadMagnet(LM_EVENTS.viewed, { toolSlug: config.slug, context: 'public', ...readUtm() });
@@ -165,7 +171,28 @@ export function PublicToolClient({
       // Answers carried in the link (a ManyChat lead coming back from their result page to
       // answer the questions the DM never asked). Batched with the phase change below, so the
       // wizard's FIRST render already has them and never mounts empty and then jumps.
-      setValues(prefillFromQuery(config, params));
+      const prefilled = prefillFromQuery(config, params);
+      setValues(prefilled);
+      // A founder-sent prospect link (`&show=result`) opens ON the result, the way an emailed
+      // ?result= link does, instead of making the artist click through answers already carried in
+      // the link. Only when every required answer is present; otherwise the wizard asks for it.
+      // Every value stays editable through the result's "change an answer" control. This is a
+      // handed-over result, not a completion, so it records a view exactly as the resume path does
+      // and never a `calculator_completed`.
+      const complete = config.inputs.every(
+        (i) => !i.required || (prefilled as Record<string, unknown>)[i.key] !== undefined,
+      );
+      if (params.get('show') === 'result' && complete) {
+        try {
+          const r = computeResult(prefilled);
+          setResult(r);
+          setPhase('full');
+          trackOpportunity(OPPORTUNITY_EVENTS.resultViewed, opportunityMeta({ resultVersion: r.generatorVersion }));
+          return;
+        } catch {
+          /* fall through to the wizard */
+        }
+      }
       setPhase('hero');
       return;
     }
@@ -192,23 +219,23 @@ export function PublicToolClient({
     })();
   }, [config.slug]);
 
+  const computeResult = (v: LeadMagnetInputValues) => {
+    const lossTool = config.usesLossEngine ? getTool(config.slug) : null;
+    if (!lossTool) return generateResult(config.resultGeneratorKey, v);
+    // Currency inputs are entered in DOLLARS; loss-engine fields ending in _cents want cents.
+    const profile: Record<string, unknown> = { ...v };
+    for (const inp of config.inputs) {
+      if (inp.type === 'currency' && inp.key.endsWith('_cents') && typeof profile[inp.key] === 'number') {
+        profile[inp.key] = Math.round((profile[inp.key] as number) * 100);
+      }
+    }
+    return lossTool.execute(profile as unknown as LeadProfileValues);
+  };
+
   const onComplete = (v: LeadMagnetInputValues) => {
     setValues(v);
     try {
-      const lossTool = config.usesLossEngine ? getTool(config.slug) : null;
-      let r;
-      if (lossTool) {
-        // Currency inputs are entered in DOLLARS; loss-engine fields ending in _cents want cents.
-        const profile: Record<string, unknown> = { ...v };
-        for (const inp of config.inputs) {
-          if (inp.type === 'currency' && inp.key.endsWith('_cents') && typeof profile[inp.key] === 'number') {
-            profile[inp.key] = Math.round((profile[inp.key] as number) * 100);
-          }
-        }
-        r = lossTool.execute(profile as unknown as LeadProfileValues);
-      } else {
-        r = generateResult(config.resultGeneratorKey, v);
-      }
+      const r = computeResult(v);
       setResult(r);
       const isCorrection = completedOnce.current;
       if (isCorrection) {

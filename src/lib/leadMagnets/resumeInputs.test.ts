@@ -171,9 +171,18 @@ describe('the sharpen link carries the answers into the wizard', () => {
   });
 
   it('the wizard reads them back on arrival', () => {
-    expect(client).toContain('setValues(prefillFromQuery(config, params));');
+    expect(client).toContain('const prefilled = prefillFromQuery(config, params);');
+    expect(client).toContain('setValues(prefilled);');
     // Seeded before the hero renders, so the wizard never mounts empty and then jumps.
-    const effect = client.slice(client.indexOf('Resume from an emailed link'), client.indexOf('const onComplete'));
+    const effect = client.slice(client.indexOf('Resume from an emailed link'), client.indexOf('const computeResult'));
     expect(effect.indexOf('prefillFromQuery')).toBeLessThan(effect.indexOf("setPhase('hero')"));
+  });
+
+  it('show=result opens on the result only when every required answer rode in the link', () => {
+    const effect = client.slice(client.indexOf('Resume from an emailed link'), client.indexOf('const computeResult'));
+    expect(effect).toContain("params.get('show') === 'result' && complete");
+    expect(effect).toContain('!i.required ||');
+    // A handed-over result is a view, never a completion.
+    expect(effect).not.toContain('funnelCompleted');
   });
 });
