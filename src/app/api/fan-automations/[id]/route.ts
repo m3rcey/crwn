@@ -99,7 +99,7 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
       Object.assign(update, {
         trigger_media_ids: v.triggerMediaIds,
         trigger_keywords: v.triggerKeywords,
-        public_reply: v.publicReply || 'Check your DMs 👑',
+        public_reply: v.publicReply,
         dm_message: v.dmMessage,
         magnet_kind: v.magnetKind,
         magnet_title: v.magnetTitle,
