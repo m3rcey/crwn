@@ -59,6 +59,13 @@ Ask the founder only for what recon cannot answer, and ask once, before handing 
   close any form").
 - **Give fallbacks, not questions.** "If the picker shows only specific posts, look for 'any post'
   in the same dropdown" beats "ask me if unsure".
+- **Name the starting page, reached by a route that needs no picker.** The founder opens it before
+  pasting, and step 1 repeats the route as a fallback. A business/account switcher is a place
+  Astra stalls (2026-09-27: it could not select M3rcey in Meta's business picker, while "Edit
+  roles in Meta Business Suite" on the app's App roles page opens that portfolio directly).
+- **Say the screen must stay visible.** Chrome maximized, in front, on the main monitor; no lock,
+  no sleep, hands off. A hidden or locked window fails with "window capture timed out" /
+  "FrameArrived timed out", which reads like a bug but is only visibility.
 - **Bound retries.** "Redo step 5 at most twice, then report" prevents loops that burn credits.
 - **Forbid exploration explicitly.** No reading docs, browsing settings, or opening unrelated
   items. Astra does not need the why; keep rationale out of the prompt unless it changes an action.

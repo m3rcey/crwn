@@ -52,6 +52,12 @@ IRS EIN letter (147C). Name files clearly; Astra picks them by name.
 documents (all of them still show it), so the typed address and the documents always match. If
 Meta ever asks for proof of a newer address, resubmit with a document that shows it. Then paste everything below the line into Astra.
 
+**Right before pasting:** open M3rcey's Security Center (developers.facebook.com/apps → CRWN
+Publishing Engine → App roles → Roles → **Edit roles in Meta Business Suite** → **Security
+Center**). Keep Chrome maximized, in front, on your main monitor; do not lock the screen, let
+it sleep, or use the computer while Astra runs. A hidden or locked screen makes Astra fail with
+"window capture timed out".
+
 ---
 
 You are operating my Windows computer to get Meta to approve my app **CRWN Publishing Engine**
@@ -99,9 +105,12 @@ and run this, then paste. Afterwards clear it with `printf '' | clip.exe`.
 
 ## Part A: Business Verification
 
-1. Go to `https://business.facebook.com/settings`, pick the business portfolio **M3rcey**, then
-   **Security Center** (or **Business info**), then **Start verification**. If it already reads
-   "Verified" or "In review", skip to part B.
+1. I start you on M3rcey's **Security Center** in Meta Business settings (Chrome in front,
+   maximized). If you are not on it: developers.facebook.com/apps → **CRWN Publishing Engine** →
+   **App roles** → **Roles** → click **Edit roles in Meta Business Suite** (next to "This app is
+   managed by M3rcey"), then **Security Center** in that page's left menu. Never use the
+   business switcher to find M3rcey; this button already opens it. Click **Start verification**.
+   If it already reads "Verified" or "In review", skip to part B.
 2. Fill in the legal business name, website and contact email from the table. If it asks for
    an address, phone number or tax ID (EIN) that is not already shown, hand it back to me with
    the field names. I type the address exactly as the IRS EIN letter prints it under the
@@ -210,7 +219,8 @@ records one window). Pause about two seconds on every screen so a reviewer can r
 ## Known labels and the fix
 
 - "Add to App Review" or "Request advanced access": adds to a draft. Click it, continue.
-- "Get started" on Business Verification that asks you to pick a business: pick M3rcey.
+- A business picker appears anyway: go back and use the **Edit roles in Meta Business Suite**
+  route in step 1 instead of the picker.
 - A pop-up asks whether the app is for "your own business or clients": choose clients/other
   businesses (artists connect their own accounts).
 - Meta asks to "complete data use checkup": complete it with the three permissions as "used".
