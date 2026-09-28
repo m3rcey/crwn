@@ -63,6 +63,9 @@ Ask the founder only for what recon cannot answer, and ask once, before handing 
   pasting, and step 1 repeats the route as a fallback. A business/account switcher is a place
   Astra stalls (2026-09-27: it could not select M3rcey in Meta's business picker, while "Edit
   roles in Meta Business Suite" on the app's App roles page opens that portfolio directly).
+- **Never send Astra into Chrome Incognito.** The ChatGPT desktop app's browser connection cannot
+  reach Incognito windows, and its screen capture fails often. A task that needs a second login
+  (a reviewer or test account) is the founder's by hand, or a separate step after Astra.
 - **Say the screen must stay visible.** Chrome maximized, in front, on the main monitor; no lock,
   no sleep, hands off. A hidden or locked window fails with "window capture timed out" /
   "FrameArrived timed out", which reads like a bug but is only visibility.

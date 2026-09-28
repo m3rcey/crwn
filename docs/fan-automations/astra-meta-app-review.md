@@ -131,28 +131,14 @@ and run this, then paste. Afterwards clear it with `printf '' | clip.exe`.
    hand it back to me.
 6. Submit when every step is done.
 
-## Part B: reviewer test account
+## Part B: reviewer test account (Josh does this, not Astra)
 
-7. Open a **Chrome Incognito window** (Ctrl+Shift+N). Go to `https://thecrwn.app/login`. Email
-   `joshn.wms+metareview@gmail.com`; password: run the clipboard line, paste, sign in, then
-   clear the clipboard.
-8. You land on the setup wizard. Fill it:
-   - Artist name: `Meta Reviewer`. Link: accept the suggested one.
-   - Photo: upload `reviewer-photo.png` from the files folder.
-   - Tier ladder: accept the recommended ladder as it is.
-   - Promises screen: accept as it is.
-   - Stripe screen: click the connect button. Stripe opens. Click through choices that are not
-     personal data (country United States, "Individual" or the business type shown). Hand it
-     back to me as soon as Stripe asks for a phone code, identity details (name, date of birth,
-     SSN, address) or bank details. When I return control you will be back on the wizard.
-   - Content: choose one featured track; upload `reviewer-track.mp3` from the files folder;
-     title `Reviewer Track`.
-   - Shop: **Skip for now**.
-   - Finish with **Launch my CRWN**.
-9. Go to `https://thecrwn.app/account/tiers`. Confirm the paid tiers show prices and no
-   "connect Stripe" warning. If Stripe shows "under review" or prices are missing, report the
-   exact text and continue with part C anyway.
-10. Close the Incognito window.
+The desktop app cannot reach Chrome Incognito windows (2026-09-27), and the reviewer must be a
+second login, so Josh finishes it by hand: Incognito, sign in as the reviewer (password by the
+clipboard line), wizard with name `Meta Reviewer`, photo and track from the files folder, the
+recommended ladder and promises, **Connect Stripe**, **Skip for now** on Shop, **Launch my
+CRWN**. Claude then confirms the reviewer's Stripe connection and tier prices in the database.
+Astra: skip to part C.
 
 ## Part C: screencast (one continuous recording)
 
