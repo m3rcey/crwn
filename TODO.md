@@ -1021,7 +1021,7 @@ Things that are never finished. Cadence, then the thing.
 
 ## On Claude's plate (not yours)
 
-- **After the Meta App Review Astra run:** set `featured_hidden = true` on the `Meta Reviewer` artist (a test page must not appear in Explore), publish any Meta domain-verification tag Astra reports, and re-run Part D of [docs/fan-automations/astra-meta-app-review.md](docs/fan-automations/astra-meta-app-review.md) if Submit was blocked by Business Verification.
+- **After the Meta App Review Astra run:** re-run Part D of [docs/fan-automations/astra-meta-app-review.md](docs/fan-automations/astra-meta-app-review.md) if anything blocks Submit. (Reviewer artist `meta-reviewer` is set up, Stripe-priced, and hidden from Explore, verified 2026-09-27.)
 
 - **Promote the storyboard image runner before the full Smino generation pass.** It is local-only
   (`videos/reels/` is gitignored) and too Smino-specific to commit as is; the cleanup list and target
