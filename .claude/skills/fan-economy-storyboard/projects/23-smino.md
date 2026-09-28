@@ -157,9 +157,11 @@ comes first.
 Newest first.
 
 - 2026-09-27. Opening regenerated from the sketches (plan revision 4; keyframes in
-  ). Learned: an edit told to "keep the plain band across the top" DREW a band (paint it
-  out, or never describe empty areas as objects in an edit); a close-up can be tightened by a crop of
-  the 2752px raw with no upscale ( on the scene).
+  `opening-v2/`). Learned: an edit told to "keep the plain band across the top" DREW a band (paint
+  it out, or never describe empty areas as objects in an edit); a close-up can be tightened by a
+  crop of the 2752px raw with no upscale (`crop` on the scene). Founder, same day: "make sure the
+  subject is slightly overlapping the font" and "the font is large and leaving little real estate
+  like how i did on the drawings": text sits BEHIND the subject (`occlude`), sized to the width.
 - 2026-09-27. The founder sketched a better opening: (1) "HOW MUCH?" alone, full frame;
   (2) "how much slides up as Smino comes in"; (3) "Smino holds hand up; opens it; ppl in it";
   (4) "zoom in on hand w/ ppl; WORTH drops in" ("WORTH?"). No coins. The principles went into

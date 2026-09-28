@@ -249,6 +249,10 @@ Gates:
 - **Sound-off:** the question and "WORTH?" plus the pictures read as "How much are the people in
   Smino's hand worth?".
 
+Text treatment (founder, same day): HOW MUCH? is as large as the width allows; in frames 2, 3a
+and 3b it sits slightly BEHIND his afro (the hair crown covers the bottoms of a few letters), and
+those frames are cropped to 90% so his head fills the frame under it; frame 4 is cropped to 80%.
+
 Founder visual review pending.
 
 ## Revision 3: SUPERSEDED by revision 4 (was locked 2026-09-27)

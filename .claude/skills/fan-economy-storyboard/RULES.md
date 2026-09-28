@@ -174,6 +174,13 @@ the question all in frame 1.
 - **End the opening on the thesis image**: the subject of the question, close, with the
   question on it, readable as a thumbnail. It is the frame the whole opening was built to
   reach.
+- **Type is big and leaves little dead space.** Opening text is sized to the frame width (as
+  large as the words allow), not set small inside an empty band. Frame the art tightly (a crop
+  of a larger raw costs nothing) so text and subject fill the frame between them.
+- **Where text and subject share a frame, the subject slightly overlaps the text** (type
+  behind the subject, like a magazine cover): the subject's top edge covers the bottom of a few
+  letters. It creates depth and ties the question to the person. Keep it slight: every word must
+  still read at a glance.
 
 ### Opening transitions (founder, 2026-09-27)
 
@@ -283,6 +290,10 @@ If the layer is unclear, it is the narrowest one (this script only). Then add a 
 ## 4. Decision log
 
 Newest first. Date, founder's words or decision, layer, what changed.
+
+- 2026-09-27. "Make sure the subject is slightly overlapping the font. Also make sure the font is
+  large and leaving little real estate like how i did on the drawings." Method. Two bullets added
+  to "Opening composition" (big type with little dead space; subject slightly over the text).
 
 - 2026-09-27. The founder's four sketches of the Smino opening ("these compositions are
   better for achieving my goal ... understand the principles and methods to replicate in the
