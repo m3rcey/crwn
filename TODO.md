@@ -193,7 +193,11 @@ responsible for. Do not work those.
       App Review before they can connect, so it cannot yet replace ManyChat for anyone but you.**
       Proven 2026-09-27: a `CRWNTEST` comment on m3rcey got the public reply and the private DM.
       [docs/crwn-brain/31-FAN-AUTOMATIONS.md](docs/crwn-brain/31-FAN-AUTOMATIONS.md) has the state.
-      **Next: one Astra run,**
+      **NOW (2026-09-27): finish with**
+      [docs/fan-automations/astra-meta-app-review-finish.md](docs/fan-automations/astra-meta-app-review-finish.md)
+      (OBS set to mp4 + Display Capture, then paste; you only press Start/Stop and paste the
+      reviewer password). Business Verification was already verified 2026-08-25.
+      Background, the original run:
       [docs/fan-automations/astra-meta-app-review.md](docs/fan-automations/astra-meta-app-review.md)
       (Business Verification for JNW Creative Enterprises Inc., a reviewer test artist with
       Stripe, the screencast, the App Review request for the three Instagram permissions).
