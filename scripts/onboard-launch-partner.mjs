@@ -35,6 +35,9 @@ import { checkLaunchPartner, LADDER_RUNGS, LADDER_PRICES_CENTS } from '../src/li
 
 const key = process.argv.slice(2).find((a) => !a.startsWith('--'));
 const APPLY = process.argv.includes('--apply');
+// Re-upload each vote song's cover from its artFile even when the track already exists (a
+// cover was wrong, or the founder sent the project art later). New object, old one kept.
+const REFRESH_ART = process.argv.includes('--refresh-art');
 const C = LAUNCH_PARTNERS[key];
 const die = (m) => { console.error('ABORT:', m); process.exit(1); };
 if (!C) die(`unknown launch partner "${key}". Registered: ${Object.keys(LAUNCH_PARTNERS).join(', ')}`);
@@ -122,6 +125,15 @@ function wavDuration(path) {
   throw new Error('no data chunk: ' + path);
 }
 
+/** A cover to `album-art/<artist>/album-art/<ts>.<ext>`, the Studio convention. */
+async function uploadArt(o) {
+  const artExt = o.artFile.split('.').pop().toLowerCase();
+  const artPath = `${artist.id}/album-art/${Date.now()}.${artExt}`;
+  const { error: artErr } = await db.storage.from('album-art').upload(artPath, readFileSync(o.artFile), { contentType: artExt === 'png' ? 'image/png' : 'image/jpeg', upsert: false });
+  if (artErr) die(`${o.trackTitle} cover upload: ${artErr.message}`);
+  return db.storage.from('album-art').getPublicUrl(artPath).data.publicUrl;
+}
+
 /** Upload a vote song exactly as the Studio upload form does: raw file to `audio`, cover to
  *  `album-art`, access from free_forever (is_free, no tiers, no date), then a 128 kbps stream
  *  copy through the one transcode script. Returns the new track id. */
@@ -133,14 +145,7 @@ async function uploadVoteSong(o, position) {
   const { error: upErr } = await db.storage.from('audio').upload(audioPath, bytes, { contentType: 'audio/wav', upsert: false });
   if (upErr) die(`${o.trackTitle} upload: ${upErr.message}`);
   const audioUrl = db.storage.from('audio').getPublicUrl(audioPath).data.publicUrl;
-  let artUrl = null;
-  if (o.artFile) {
-    const artExt = o.artFile.split('.').pop().toLowerCase();
-    const artPath = `${artist.id}/album-art/${Date.now()}.${artExt}`;
-    const { error: artErr } = await db.storage.from('album-art').upload(artPath, readFileSync(o.artFile), { contentType: artExt === 'png' ? 'image/png' : 'image/jpeg', upsert: false });
-    if (artErr) die(`${o.trackTitle} cover upload: ${artErr.message}`);
-    artUrl = db.storage.from('album-art').getPublicUrl(artPath).data.publicUrl;
-  }
+  const artUrl = o.artFile ? await uploadArt(o) : null;
   const { data: row, error } = await db.from('tracks').insert({
     artist_id: artist.id, title: o.trackTitle, audio_url_128: audioUrl, audio_url_320: audioUrl,
     album_art_url: artUrl, duration: wavDuration(o.file), position,
@@ -167,6 +172,15 @@ if (C.vote && C.vote.options.length) {
       console.log(`uploaded "${o.trackTitle}" as a free track (${id})`);
     }
     if (!t) { missing.push(`"${o.trackTitle}" not uploaded`); continue; }
+    if (REFRESH_ART && o.artFile && t.id !== 'pending-upload') {
+      if (!existsSync(o.artFile)) { missing.push(`"${o.trackTitle}" cover not found: ${o.artFile}`); continue; }
+      if (APPLY) {
+        const url = await uploadArt(o);
+        const { error } = await db.from('tracks').update({ album_art_url: url, updated_at: new Date().toISOString() }).eq('id', t.id).eq('artist_id', artist.id);
+        if (error) die(`${o.trackTitle} cover update: ${error.message}`);
+        console.log(`cover for "${o.trackTitle}" set from ${o.artFile}`);
+      } else console.log(`will set the cover for "${o.trackTitle}" from ${o.artFile}`);
+    }
     const windowOpen = t.public_release_date && new Date(t.public_release_date) > new Date() && (t.allowed_tier_ids || []).length;
     if (!t.is_free || windowOpen) { missing.push(`"${o.trackTitle}" is not free forever (fans could not hear it)`); continue; }
     voteTracks.push({ label: o.label, trackId: t.id });

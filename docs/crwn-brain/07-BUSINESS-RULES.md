@@ -529,8 +529,10 @@ through `src/lib/songLab/access.ts`; there is deliberately no slug check anywher
 - **An online vote magnet lets fans HEAR the options (2026-09-28).** A ballot option may carry
   `trackId` (`DecisionOption` in `src/lib/songLab/core.ts`; kept through `normalizeOptions` and
   label edits). The ballot page reads those songs from `tracks_public` AS THE VISITOR and signs
-  them with `attachStreamUrls`, so only a track the visitor may already play renders a player
-  (`InlineAudioPlayer`, beside the option, never inside it); a gated song renders nothing. The
+  them with `attachStreamUrls`, so only a track the visitor may already play gets a play control;
+  a gated song renders none. It plays through the app's ONE player (`usePlayer` + `MiniPlayer`),
+  never a standalone one: that is what stops two songs playing at once. The cover is the play
+  button and a sibling of the choice, never inside it, so a play tap never casts a selection. The
   pointer never grants access. This is the ICP concierge lead magnet
   (`scripts/onboard-launch-partner.mjs`, skill `onboard-icp-artist`); the vote still joins the
   free tier through `joinFreeTier`, which is what puts the fan in the Fan CRM.

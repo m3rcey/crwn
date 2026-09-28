@@ -32,12 +32,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
-import { Check, Mail } from 'lucide-react';
+import { Check, Mail, Pause, Play, Music } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { preselectedOption, type DecisionOption } from '@/lib/songLab/core';
 import { accountEmailNote } from '@/lib/songLab/liveClaim';
 import { VoteCountdown } from '@/components/songlab/VoteCountdown';
-import { InlineAudioPlayer } from '@/components/shared/InlineAudioPlayer';
+import { usePlayer } from '@/hooks/usePlayer';
+import type { Track } from '@/types';
 import {
   BALLOT_CTA_LABEL,
   BALLOT_SUBMITTING_LABEL,
@@ -54,9 +55,11 @@ import {
   type BallotField,
 } from '@/lib/songLab/voteForm';
 
-/** A ballot option as the page renders it: the stored option plus, for an online vote,
- *  the pre-signed url of its song (absent when the visitor may not play it). */
-export type LandingOption = DecisionOption & { streamUrl?: string };
+/** A ballot option as the page renders it: the stored option plus, for an online vote, its
+ *  song as a playable track row (read from tracks_public AS THE VISITOR and pre-signed, so it
+ *  is absent when the visitor may not play it). It plays through the app's ONE player, which
+ *  is what keeps two songs from playing at once and shows the same bar as the artist page. */
+export type LandingOption = DecisionOption & { track?: Track };
 
 export interface LandingBallot {
   /** Which show's poll this is. Sent back with the vote so the server can refuse a
@@ -123,6 +126,9 @@ export function OfferLanding({
   const [error, setError] = useState<string | null>(null);
   const [errorField, setErrorField] = useState<BallotField | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
+  const { currentTrack, isPlaying, play, pause } = usePlayer();
+  // The ballot's songs, in ballot order: the queue the player advances through.
+  const ballotTracks = (ballot?.options ?? []).map((o) => o.track).filter((t): t is Track => !!t);
   const [firstName, setFirstName] = useState('');
   const [email, setEmail] = useState('');
   const [needsSignIn, setNeedsSignIn] = useState(false);
@@ -477,16 +483,65 @@ export function OfferLanding({
         className="space-y-3 mb-6"
       >
         <p className="text-lg font-semibold text-crwn-text">
-          {ballot!.options.some((o) => o.streamUrl) ? 'Listen, then tap your pick:' : 'Tap your pick:'}
+          {ballotTracks.length ? 'Listen, then tap your pick:' : 'Tap your pick:'}
         </p>
         {ballot!.options.map((o) => {
           const isSelected = selected === o.id;
+          const t = o.track;
+          const isThisPlaying = !!t && currentTrack?.id === t.id && isPlaying;
+          if (t) {
+            // Online vote: the cover is the play control, the rest of the card is the choice.
+            // Two sibling buttons, never nested, so a play tap never casts a selection.
+            return (
+              <div
+                key={o.id}
+                className={`flex items-center gap-4 p-3 rounded-2xl transition ${
+                  isSelected ? 'bg-crwn-gold/15 ring-2 ring-crwn-gold' : 'bg-crwn-surface ring-1 ring-white/15 hover:ring-white/30'
+                }`}
+              >
+                <button
+                  type="button"
+                  onClick={() => (isThisPlaying ? pause() : play(t, ballotTracks))}
+                  aria-label={isThisPlaying ? `Pause ${t.title}` : `Play ${t.title}`}
+                  className="relative w-20 h-20 flex-shrink-0 rounded-xl overflow-hidden bg-crwn-elevated shadow-lg focus:outline-none focus-visible:ring-4 focus-visible:ring-crwn-gold/70"
+                >
+                  {t.album_art_url ? (
+                    <Image src={t.album_art_url} alt="" fill sizes="80px" className="object-cover" />
+                  ) : (
+                    <Music className="absolute inset-0 m-auto w-8 h-8 text-crwn-text-secondary" aria-hidden />
+                  )}
+                  <span className={`absolute inset-0 flex items-center justify-center transition ${isThisPlaying ? 'bg-black/35' : 'bg-black/25'}`}>
+                    <span className="w-10 h-10 rounded-full bg-crwn-gold flex items-center justify-center shadow-md">
+                      {isThisPlaying
+                        ? <Pause className="w-5 h-5 text-crwn-bg" fill="currentColor" aria-hidden />
+                        : <Play className="w-5 h-5 text-crwn-bg ml-0.5" fill="currentColor" aria-hidden />}
+                    </span>
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  role="radio"
+                  aria-checked={isSelected}
+                  onClick={() => {
+                    setSelected(o.id);
+                    if (errorField === 'option') { setError(null); setErrorField(null); }
+                  }}
+                  className="relative flex-1 min-w-0 min-h-[80px] pr-10 text-left focus:outline-none focus-visible:ring-4 focus-visible:ring-crwn-gold/70 rounded-xl"
+                >
+                  <span className="block text-lg sm:text-xl font-bold text-crwn-text leading-tight">{o.label}</span>
+                  <span className={`block mt-1 text-sm ${isThisPlaying ? 'text-crwn-gold' : 'text-crwn-text-secondary'}`}>
+                    {isThisPlaying ? `Now playing: ${t.title}` : t.title}
+                  </span>
+                  {isSelected ? (
+                    <Check className="absolute right-1 top-1/2 -translate-y-1/2 w-7 h-7 text-crwn-gold" aria-hidden />
+                  ) : null}
+                </button>
+              </div>
+            );
+          }
           return (
-            <div key={o.id} className="space-y-2">
-            {/* The player sits beside the choice, never inside it: a play tap must not
-                also cast a selection. */}
-            {o.streamUrl ? <InlineAudioPlayer src={o.streamUrl} title={o.label} /> : null}
             <button
+              key={o.id}
               type="button"
               role="radio"
               aria-checked={isSelected}
@@ -507,7 +562,6 @@ export function OfferLanding({
                 <Check className="absolute right-5 top-1/2 -translate-y-1/2 w-7 h-7 text-crwn-gold" aria-hidden />
               ) : null}
             </button>
-            </div>
           );
         })}
       </div>
@@ -589,8 +643,11 @@ export function OfferLanding({
 /* ── Shared chrome ── */
 
 function Shell({ children }: { children: React.ReactNode }) {
+  // The player bar is fixed to the bottom once a song plays; reserve its height so it never
+  // covers the vote button or the email fields.
+  const { currentTrack } = usePlayer();
   return (
-    <div className="min-h-screen bg-crwn-bg flex flex-col items-center justify-center px-5 py-10">
+    <div className={`min-h-screen bg-crwn-bg flex flex-col items-center justify-center px-5 py-10 ${currentTrack ? 'pb-36' : ''}`}>
       <div className="w-full max-w-md text-center page-fade-in">{children}</div>
     </div>
   );

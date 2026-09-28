@@ -4,6 +4,7 @@ import { useState, useRef } from 'react';
 import Image from 'next/image';
 import { usePlayer } from '@/hooks/usePlayer';
 import { hapticMedium } from '@/lib/haptics';
+import { useNavigationVisible } from '@/components/layout/Navigation';
 import { 
   Play, 
   Pause, 
@@ -28,6 +29,10 @@ export function MiniPlayer() {
     duration,
     seek,
   } = usePlayer();
+  // The mobile inset clears the bottom tab bar ONLY when that bar exists. A logged-out fan on
+  // a public page (a ballot, a drop, an artist page) has no tab bar, and a fixed 64px lift left
+  // the player floating over the content with a gap beneath it.
+  const navVisible = useNavigationVisible();
 
   if (!currentTrack) return null;
 
@@ -97,7 +102,7 @@ export function MiniPlayer() {
   };
 
   return (
-    <div className="fixed bottom-16 md:bottom-0 left-0 right-0 bg-[#1a1a1a] z-50 overflow-hidden" style={{ borderRadius: '16px 16px 0 0', boxShadow: '0 -4px 12px rgba(0,0,0,0.5)' }}>
+    <div className={`fixed ${navVisible ? 'bottom-16 md:bottom-0' : 'bottom-0'} left-0 right-0 bg-[#1a1a1a] z-50 overflow-hidden`} style={{ borderRadius: '16px 16px 0 0', boxShadow: '0 -4px 12px rgba(0,0,0,0.5)' }}>
       {/* Progress bar - larger touch target */}
       <div 
         ref={progressRef}

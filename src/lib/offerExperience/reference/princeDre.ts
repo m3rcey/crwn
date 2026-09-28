@@ -296,9 +296,10 @@ export const PRINCE_DRE: LaunchPartnerConfig = {
     stageLabel: 'Next project',
     winnerRung: 'Gold',
     options: [
-      { label: 'Wishing Well', trackTitle: 'Wishing Well', file: 'videos/output/Prince Dre - Wishing Well.wav', artFile: 'videos/output/prince dre - wishing well.jpg' },
-      { label: 'Kill Or Be Killed', trackTitle: 'Kill Or Be Killed', file: 'videos/output/Prince Dre - Kill Or Be Killed.wav', artFile: 'videos/output/prince dre - kill or be killed.jpg' },
-      { label: 'In My Eyes', trackTitle: 'In My Eyes', file: 'videos/output/Prince Dre - In My Eyes.wav', artFile: 'videos/output/prince dre - in my eyes.jpg' },
+      // The fan votes on the PROJECT; the song is how they hear it. Cover = the project's cover.
+      { label: 'The Return Of The Prince', trackTitle: 'Wishing Well', file: 'videos/output/Prince Dre - Wishing Well.wav', artFile: 'videos/output/Prince Dre - The Return Of The Prince.jpg' },
+      { label: "Fresh Prince Of O'Block", trackTitle: 'Kill Or Be Killed', file: 'videos/output/Prince Dre - Kill Or Be Killed.wav', artFile: 'videos/output/Prince Dre - Fresh Prince Of O Block.jpg' },
+      { label: 'Only The O In My Eyes', trackTitle: 'In My Eyes', file: 'videos/output/Prince Dre - In My Eyes.wav', artFile: 'videos/output/prince dre - Only The O In My Eyes.jpg' },
     ],
   },
 };

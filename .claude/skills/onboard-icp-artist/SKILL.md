@@ -67,7 +67,7 @@ creates the captured contact, joins Bronze through the canonical `joinFreeTier`,
 the fan in the artist's Fan CRM (`/studio/fans` reads `subscriptions`). It renders on Song
 Lab's public ballot at `/<slug>/join/<offerSlug>` (`src/components/songlab/OfferLanding.tsx`);
 each option's song is read through `tracks_public` AS THE VISITOR and played with
-`InlineAudioPlayer`, so only a FREE track ever plays.
+played through the app's one player (`usePlayer`, `MiniPlayer`), so only a FREE track ever plays.
 
 - Copy: `headline`, `description`, `question`, and `winnerRung` (which rung the winning project
   drops on). The winner is the ARTIST's call and their promise; CRWN tallies, never picks, so
@@ -77,6 +77,12 @@ each option's song is read through `tracks_public` AS THE VISITOR and played wit
 - When the founder hands over the songs (usually WAVs plus a cover each in `videos/output/`),
   set `options` IN THE ORDER THE FOUNDER GIVES (ask if not given):
   `{ label, trackTitle, file: 'videos/output/<song>.wav', artFile: 'videos/output/<cover>.jpg' }`.
+  When fans vote between PROJECTS, `label` is the project name, `trackTitle` the song that
+  represents it, and `artFile` the PROJECT's album cover, not a single's photo. Ask which
+  project each song is from if the founder did not say. Each option renders as a card: the cover
+  is the play button (the app's one player, so a second song stops the first, and the artist-page
+  player bar shows), the project name is the choice, the song title sits beneath it.
+  A cover that was wrong on an already-uploaded song: fix `artFile` and run with `--refresh-art`.
   The script uploads any song not already on the page exactly as Studio Music does (master to
   `audio`, cover to `album-art`, free forever, position = ballot order) and runs
   `scripts/transcode-audio.mjs --id` for the 128 kbps stream copy. A song already uploaded is

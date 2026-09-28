@@ -17,7 +17,9 @@ import {
   OfferLanding,
   type LandingBallot,
   type LandingInterlude,
+  type LandingOption,
 } from '@/components/songlab/OfferLanding';
+import type { Track } from '@/types';
 import type { Metadata } from 'next';
 import { shareMetadata } from '@/lib/shareMetadata';
 
@@ -136,22 +138,23 @@ export default async function OfferPage({ params }: OfferPageProps) {
  * comes back without and simply renders no player. Same rule as the track and album pages.
  * Fails soft to the plain text ballot.
  */
-async function withListenUrls(options: DecisionOption[], artistId: string): Promise<DecisionOption[]> {
+async function withListenUrls(options: DecisionOption[], artistId: string): Promise<LandingOption[]> {
   const ids = options.map((o) => o.trackId).filter((t): t is string => !!t);
   if (ids.length === 0) return options;
   try {
     const caller = await createServerSupabaseClient();
     const { data } = await caller
       .from('tracks_public')
-      .select('id, title, audio_url_128')
+      .select('*')
       .eq('artist_id', artistId)
       .in('id', ids);
-    const signed = await attachStreamUrls((data || []) as Array<{ id: string; title: string; audio_url_128: string | null }>);
+    // A row without a locator is one this visitor may not play: no player for it.
+    const playable = ((data || []) as Track[]).filter((t) => !!t.audio_url_128);
+    const signed = await attachStreamUrls(playable);
     const byId = new Map(signed.map((t) => [t.id, t]));
     return options.map((o) => {
       const t = o.trackId ? byId.get(o.trackId) : undefined;
-      const streamUrl = t && 'stream_url' in t ? (t as { stream_url?: string }).stream_url : undefined;
-      return streamUrl ? { ...o, streamUrl } : o;
+      return t ? { ...o, track: t } : o;
     });
   } catch {
     return options;
