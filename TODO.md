@@ -211,12 +211,6 @@ responsible for. Do not work those.
       CRWNTEST automation the recording creates, in /studio/automations (the first one is
       already archived).
 
-- [ ] **P2: Tell the IRS the business moved (Form 8822-B).** The IRS still has JNW CREATIVE
-      ENTERPRISES INC at the old address (the 147C shows it), and it expects 8822-B within 60
-      days of a business address change. One page: https://www.irs.gov/forms-pubs/about-form-8822-b
-      (mail or fax per its instructions; 4 to 6 weeks to process). Twilio's brand check and every
-      future IRS notice go by that record. Afterwards, a fresh 147C shows the new address.
-
 - [ ] **Watch the first machine-made silent video and say keep or fix.** The video pipeline is
       live: script → storyboard → your sharpie-style images → automated motion cut to your own
       instrumentals → finished 9:16 MP4, roughly $2 of API per video, no editing app involved.
