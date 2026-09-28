@@ -22,7 +22,7 @@ Already done by Claude (2026-09-27):
 | 1 | Archive the CRWNTEST automation | done | none | Claude archived it. Archive the one the recording creates after approval. |
 | 2 | Record the screencast | 0 | none | Astra. |
 | 3 | Request Advanced Access (App Review form) | 0 | usually a few days to 2 weeks | Astra, including the reviewer account and its Stripe setup (you: identity and bank only). |
-| 4 | Business Verification (JNW Creative Enterprises, Inc.) | about 2 min (drop documents in a folder) | 2 days to several weeks | Astra, uploading from the folder. |
+| 4 | Business Verification (JNW Creative Enterprises Inc.) | about 2 min (drop documents in a folder) | 2 days to several weeks | Astra, uploading from the folder. |
 
 **Start order is not the ranking.** Business Verification has the longest wait and Meta may not
 let the App Review request be submitted until it clears, so Astra starts it first.
@@ -44,7 +44,7 @@ reviewer stops at the last step and rejects with "could not reproduce".
 
 ## Before you start Astra (about 2 minutes, you)
 
-Put your legal documents for JNW Creative Enterprises, Inc. in
+Put your legal documents for JNW Creative Enterprises Inc. in
 `C:\Users\Josh\Documents\meta-review\`: the articles or certificate of incorporation, and the
 IRS EIN confirmation letter (CP 575 or 147C). Then paste everything below the line into Astra.
 
@@ -72,7 +72,7 @@ Hand control back to me at every point this prompt names; then wait.
 |---|---|
 | Meta app | CRWN Publishing Engine |
 | Business portfolio | M3rcey |
-| Legal business name | JNW Creative Enterprises, Inc. |
+| Legal business name | `JNW Creative Enterprises Inc.` (no comma: exactly as the Missouri certificate and the IRS letter print it) |
 | Website | `https://thecrwn.app` |
 | Privacy policy URL | `https://thecrwn.app/privacy` |
 | Terms URL | `https://thecrwn.app/terms` |
@@ -100,7 +100,10 @@ and run this, then paste. Afterwards clear it with `printf '' | clip.exe`.
    "Verified" or "In review", skip to part B.
 2. Fill in the legal business name, website and contact email from the table. If it asks for
    an address, phone number or tax ID (EIN) that is not already shown, hand it back to me with
-   the field names.
+   the field names (I type the address exactly as the IRS letter prints it under the company
+   name).
+   Upload the **Certificate of Incorporation** as the legal-name document and the **IRS EIN
+   letter** where it asks for a tax or address document; the Articles only if it asks for more.
 3. Documents: upload the incorporation document and the EIN letter from the files folder
    through the file picker. Do not open, preview or read any document.
 4. If it offers **domain verification** for thecrwn.app, choose the **meta tag** method (or the

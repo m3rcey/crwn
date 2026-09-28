@@ -195,7 +195,7 @@ responsible for. Do not work those.
       [docs/crwn-brain/31-FAN-AUTOMATIONS.md](docs/crwn-brain/31-FAN-AUTOMATIONS.md) has the state.
       **Next: one Astra run,**
       [docs/fan-automations/astra-meta-app-review.md](docs/fan-automations/astra-meta-app-review.md)
-      (Business Verification for JNW Creative Enterprises, Inc., a reviewer test artist with
+      (Business Verification for JNW Creative Enterprises Inc., a reviewer test artist with
       Stripe, the screencast, the App Review request for the three Instagram permissions).
       **Your only prep (2 min):** put the incorporation document and the IRS EIN letter in
       `C:\Users\Josh\Documents\meta-review\`. During the run you type only what Astra hands
