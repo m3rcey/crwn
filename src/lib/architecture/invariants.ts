@@ -1293,6 +1293,7 @@ export const EXPECTED_MIGRATION_STATE: ReadonlyArray<{
   // DENIED. probe-migrations.mjs has a dedicated section where 42501 is the PASS,
   // because an anon-executable volatile RPC answers 25006 over GET and the generic
   // loop would file that under "unclear" and stay green over an open hole.
+  { file: 'schema-phase2-artist-gate-caller-only.sql', state: 'pending', liveCheck: 'anon-probe', note: 'V11 below revoked user_passes_artist_gate from authenticated on the false premise that RLS policy evaluation needs no EXECUTE, so every BROWSER artist_profiles insert 42501s (the onboarding canary caught it 2026-09-28). The setup wizard is unaffected (service-role insert). Adds a zero-arg current_user_passes_artist_gate() that reads auth.uid(), grants it to authenticated only, and points the INSERT policy at it; the caller-supplied-uuid oracle stays locked. Live proof of the authenticated half is the canary going green.' },
   { file: 'schema-phase2-sec-002-rpc-execute-lockdown.sql', state: 'applied', note: 'SEC-002/011/V11; probe-verified 2026-08-12, anon EXECUTE 25006 -> 42501 on check_rate_limit, redeem_invite, user_passes_artist_gate; negative window rejected 22023' },
   // 'sql-check' and not an anon probe, on purpose: this finding is about what an
   // AUTHENTICATED user may WRITE, PostgREST cannot see a trigger, and the trigger

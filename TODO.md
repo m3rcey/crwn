@@ -48,6 +48,14 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **Run [supabase/schema-phase2-artist-gate-caller-only.sql](supabase/schema-phase2-artist-gate-caller-only.sql)
+      in the Supabase SQL Editor.** This stops the daily "Onboarding is broken" email. The alert
+      is real but narrow: creating an artist page FROM THE BROWSER has failed since 2026-08-12,
+      while the setup wizard (which creates the page on the server) never broke. It should end
+      with NOTICE `schema-phase2-artist-gate-caller-only: OK`. Then confirm with:
+          npm run verify:migrations
+      and the next morning's canary email should not arrive (or arrives green).
+
 - [ ] **ManyChat per-post automations: run the rollout prompt through Astra tonight, then after
       each posting slot through 9/29 8:30 PM.** The Knxwledge pilot PASSED all nine checks.
       Same text every run (it skips done rows and posts not out yet):

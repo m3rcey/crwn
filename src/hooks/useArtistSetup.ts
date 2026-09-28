@@ -182,8 +182,9 @@ export function useArtistSetup(options: UseArtistSetupOptions = {}): ArtistSetup
 
   const steps: SetupStep[] = [
     { key: 'profile', label: 'Profile', required: true, done: hasAvatar },
-    { key: 'monetize', label: 'Monetize', required: false, done: hasTier },
+    // Same order as the wizard's SCREENS: music right after the profile.
     { key: 'music', label: 'Music', required: true, done: hasMusic },
+    { key: 'monetize', label: 'Monetize', required: false, done: hasTier },
     { key: 'shop', label: 'Shop', required: false, done: hasProduct },
   ];
 

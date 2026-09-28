@@ -201,6 +201,12 @@ const SECURITY_PROBES = [
   ['V11 user_passes_artist_gate locked', 'GET',
     `rpc/user_passes_artist_gate?p_user=${RANDOM_UUID}`,
     null, 'schema-phase2-sec-002-rpc-execute-lockdown.sql'],
+  // Applied = the caller-only twin EXISTS and anon is refused (42501). Not applied =
+  // PGRST202 (no such function). Whether AUTHENTICATED can run it is not provable with
+  // the anon key; the daily onboarding canary's publish_insert check is that proof.
+  ['artist gate caller-only twin exists, anon refused', 'GET',
+    'rpc/current_user_passes_artist_gate',
+    null, 'schema-phase2-artist-gate-caller-only.sql'],
   ['SEC-004 notifications INSERT denied', 'POST', 'notifications',
     { user_id: RANDOM_UUID, type: 'probe', title: 'probe', message: 'probe' },
     'schema-phase2-sec-004-007-rls-notifications-tier-benefits.sql'],

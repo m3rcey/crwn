@@ -91,6 +91,19 @@ const SCREENS: ScreenDef[] = [
   { key: 'artist-name', group: 'profile', groupRequired: true, title: 'What do fans call you?', subtitle: 'Your artist or stage name. This is the name on your page, not your email.', icon: User },
   { key: 'artist-link', group: 'profile', groupRequired: true, title: 'Claim your CRWN link', subtitle: 'The link you share everywhere. You can change it later in your profile.', icon: Link2, create: 'identity' },
   { key: 'photo', group: 'profile', groupRequired: true, title: 'Add a profile photo', subtitle: 'A face or logo is the first thing fans trust. Just one photo.', icon: Palette },
+  // Launch Wizard Stage 5: minimum viable content. One decision (featured track
+  // vs full catalog vs later), then the matching uploader. The catalog path
+  // mounts the EXISTING BulkUploadForm (per-track access + artwork + progress),
+  // not an onboarding-only media system.
+  // Music comes straight after the photo (2026-09-28), BEFORE the monetize screens.
+  // Production that week: 6 of 11 new artists had no music, none had even attempted
+  // an upload (empty audio bucket), and two stalled right after confirming all four
+  // tiers. The easiest win was sitting behind four business decisions.
+  { key: 'content-plan', group: 'music', groupRequired: true, title: 'How do you want to add your music?', subtitle: 'Start with one track or bring your catalog. A page with nothing to hear converts nobody.', icon: Music },
+  // Not "your first track": the beachhead is an established artist who may have a catalog and a
+  // decade of releases. The first track ON CRWN is a true statement; their first track is not.
+  { key: 'track-audio', group: 'music', groupRequired: true, title: 'Add a track to your page', subtitle: 'The audio file fans will hear. This one starts free.', icon: Music },
+  { key: 'track-title', group: 'music', groupRequired: true, title: 'Name your track', subtitle: 'What’s this one called?', icon: Music, create: 'track' },
   // Launch Wizard Stage 2 (docs/ARTIST_LAUNCH_WIZARD.md): confirm the recommended
   // model instead of hand-building one free tier. Same apply path as Rise Level 3,
   // so the Promise Calendar obligations seed here too. Stage 3 split the decision
@@ -103,15 +116,6 @@ const SCREENS: ScreenDef[] = [
   // price backfill); the connect link returns to /setup and the resume effect
   // restores this exact screen.
   { key: 'stripe', group: 'monetize', groupRequired: false, title: 'Connect Stripe to get paid', subtitle: 'Connect Stripe so fans can purchase your offers and you can receive payouts. Until then, your paid tiers exist but cannot take a payment.', icon: Banknote },
-  // Launch Wizard Stage 5: minimum viable content. One decision (featured track
-  // vs full catalog vs later), then the matching uploader. The catalog path
-  // mounts the EXISTING BulkUploadForm (per-track access + artwork + progress),
-  // not an onboarding-only media system.
-  { key: 'content-plan', group: 'music', groupRequired: true, title: 'How do you want to add your music?', subtitle: 'Start with one track or bring your catalog. A page with nothing to hear converts nobody.', icon: Music },
-  // Not "your first track": the beachhead is an established artist who may have a catalog and a
-  // decade of releases. The first track ON CRWN is a true statement; their first track is not.
-  { key: 'track-audio', group: 'music', groupRequired: true, title: 'Add a track to your page', subtitle: 'The audio file fans will hear. This one starts free.', icon: Music },
-  { key: 'track-title', group: 'music', groupRequired: true, title: 'Name your track', subtitle: 'What’s this one called?', icon: Music, create: 'track' },
   { key: 'product-type', group: 'shop', groupRequired: false, title: 'What are you selling?', subtitle: 'A digital product fans can buy and download.', icon: ShoppingBag },
   { key: 'product-title', group: 'shop', groupRequired: false, title: 'Name your product', subtitle: 'What’s it called?', icon: ShoppingBag },
   { key: 'product-price', group: 'shop', groupRequired: false, title: 'Set the price', subtitle: 'What fans pay. Enter 0 to give it away.', icon: ShoppingBag, create: 'product' },
