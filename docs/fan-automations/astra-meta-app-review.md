@@ -13,7 +13,7 @@ URL), and disconnecting erases the stored token, which is what that section prom
 
 | # | Task | Your hands-on time | Waiting on Meta | Who |
 |---|---|---|---|---|
-| 1 | Archive the CRWNTEST automation | 1 min | none | Astra. Do it LAST, after approval (you may need to re-record). |
+| 1 | Archive the CRWNTEST automation | done | none | Claude archived it 2026-09-27. Archive the one the recording creates after approval. |
 | 2 | Record the screencast | 15 min | none | Astra drives, you pre-log both Instagram accounts. |
 | 3 | Request Advanced Access (App Review form) | 30 min | usually a few days to 2 weeks | Astra fills it; you type the reviewer password. |
 | 4 | Business Verification (JNW Creative Enterprises, Inc.) | 20 min | 2 days to several weeks, sometimes a document round-trip | Astra fills fields; YOU upload the legal documents. |
@@ -110,9 +110,14 @@ Move slowly: pause about two seconds on every screen so a reviewer can read it.
 8. Under "Connected accounts", disconnect m3rcey (this is expected; you reconnect it next).
 9. Click **New automation**, pick **Instagram**, click **Connect Instagram**. Instagram's
    consent screen shows the permissions: pause on it three seconds, then approve. You return
-   with m3rcey connected. Close the wizard.
-10. In the automation list, the CRWNTEST automation now reads paused. Click its **Activate**
-    (play) button so it reads active.
+   with m3rcey connected.
+10. Click **New automation** and build it on camera: Instagram; **Any post**; keyword
+    `CRWNTEST`; public reply `Check your DMs 👑`; private message
+    `Here it is. This is the test drop from my CRWN page.`; **One of my tracks** and the first
+    track; name `CRWN test drop`; reason `A private test of my CRWN drop page.`; offer
+    **Vault** with item `The monthly vault unlock` / `Unreleased music every month, before anyone else.`;
+    fallback **Silver**; then **Activate automation**. It shows as active in the list. (An
+    older CRWNTEST automation marked archived is expected; ignore it.)
 11. New tab: instagram.com. **Switch accounts** to m3rcey__. Open any recent m3rcey post and
     comment `CRWNTEST`.
 12. Wait up to one minute and reload: the reply "Check your DMs 👑" appears under the comment.

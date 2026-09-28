@@ -205,7 +205,8 @@ responsible for. Do not work those.
       (App roles → Add People) and they accept at instagram.com/accounts/manage_access.
       **Deliberately NOT in this review:** the Facebook Page half (five more permissions to
       justify; artists' comment funnels are on Instagram). **After approval:** archive the
-      CRWNTEST automation in /studio/automations.
+      CRWNTEST automation the recording creates, in /studio/automations (the first one is
+      already archived).
 
 - [ ] **Watch the first machine-made silent video and say keep or fix.** The video pipeline is
       live: script → storyboard → your sharpie-style images → automated motion cut to your own
