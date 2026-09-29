@@ -21,6 +21,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Check, Crown, Download, Loader2, Lock, Play } from 'lucide-react';
 import { freeJoinDisclosure } from '@/lib/subscriptions/freeJoinDisclosure';
 import { InlineAudioPlayer } from '@/components/shared/InlineAudioPlayer';
+import { MagnetPlayer } from '@/components/drop/MagnetPlayer';
 import { CampaignBanner } from '@/components/drop/CampaignBanner';
 import type { CampaignPresentation } from '@/lib/campaigns/giveaway';
 import { TierOfferExperience } from '@/components/offer/TierOfferExperience';
@@ -52,7 +53,7 @@ interface Props {
    *  the funnel renders the full merchandised experience; otherwise the compact card, so
    *  artists without a config are byte-for-byte unchanged. */
   experiences?: Record<string, OfferConfig>;
-  magnet: { kind: 'upload' | 'track' | null; title: string; description: string };
+  magnet: { kind: 'upload' | 'track' | null; title: string; description: string; coverUrl?: string | null; project?: string | null; durationSec?: number | null };
   gold: DropOfferTier | null;
   goldItem: { title: string; description: string };
   silver: DropOfferTier | null;
@@ -66,6 +67,16 @@ export function DropFunnelClient({ token, artist, magnet, gold, goldItem, silver
   const storageKey = `crwn_drop_${token}`;
   const [phase, setPhase] = useState<Phase>('capture');
   const [email, setEmail] = useState('');
+  // The locked player's play control points the fan at the one thing that unlocks it.
+  const emailRef = useRef<HTMLInputElement>(null);
+  const isTrackMagnet = magnet.kind === 'track';
+  const playerProps = {
+    title: magnet.title || 'The song',
+    artistName: artist.name,
+    project: magnet.project ?? null,
+    coverUrl: magnet.coverUrl ?? null,
+    durationSec: magnet.durationSec ?? null,
+  };
   const [firstName, setFirstName] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -198,7 +209,10 @@ export function DropFunnelClient({ token, artist, magnet, gold, goldItem, silver
     </div>
   );
 
-  const magnetAccess = claimed?.magnet?.trackUrl ? (
+  const magnetAccess = claimed?.magnet?.trackUrl && isTrackMagnet ? (
+    // The same card the fan saw locked, now playing, with the short-lived signed URL.
+    <MagnetPlayer {...playerProps} src={claimed.magnet.trackUrl} />
+  ) : claimed?.magnet?.trackUrl ? (
     // The song plays HERE. The signed URL is short-lived by design; the player mounts it
     // for this visit, and re-access below mints a fresh one any time.
     <InlineAudioPlayer src={claimed.magnet.trackUrl} title={magnet.title || 'Your track'} />
@@ -308,7 +322,19 @@ export function DropFunnelClient({ token, artist, magnet, gold, goldItem, silver
 
         {phase === 'capture' && (
           <div className="neu-raised rounded-2xl p-6 bg-crwn-card text-center">
-            <h1 className="text-2xl font-bold text-crwn-text">{magnet.title || 'Your drop is here'}</h1>
+            {isTrackMagnet ? (
+              <div className="mb-5">
+                <MagnetPlayer
+                  {...playerProps}
+                  onLockedTap={() => {
+                    emailRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    emailRef.current?.focus({ preventScroll: true });
+                  }}
+                />
+              </div>
+            ) : (
+              <h1 className="text-2xl font-bold text-crwn-text">{magnet.title || 'Your drop is here'}</h1>
+            )}
             {magnet.description && <p className="text-sm text-crwn-text-secondary mt-2">{magnet.description}</p>}
             {hasSession ? (
               <button
@@ -327,6 +353,7 @@ export function DropFunnelClient({ token, artist, magnet, gold, goldItem, silver
                   className="w-full rounded-xl bg-crwn-elevated px-4 py-3 text-sm text-crwn-text placeholder:text-crwn-text-secondary outline-none"
                 />
                 <input
+                  ref={emailRef}
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -353,8 +380,10 @@ export function DropFunnelClient({ token, artist, magnet, gold, goldItem, silver
         {phase === 'delivered' && (
           <div className="space-y-6">
             <div className="neu-raised rounded-2xl p-6 bg-crwn-card text-center">
-              <p className="text-xs uppercase tracking-wide text-crwn-gold mb-2">Delivered</p>
-              <h1 className="text-xl font-bold text-crwn-text">{magnet.title || 'Your drop'}</h1>
+              <p className="text-xs uppercase tracking-wide text-crwn-gold mb-2">{isTrackMagnet ? 'Unlocked' : 'Delivered'}</p>
+              {!(isTrackMagnet && claimed?.magnet?.trackUrl) ? (
+                <h1 className="text-xl font-bold text-crwn-text">{magnet.title || 'Your drop'}</h1>
+              ) : null}
               <div className="mt-4 flex justify-center">{submitting && !claimed ? <Loader2 className="w-5 h-5 animate-spin text-crwn-gold" /> : magnetAccess}</div>
               {magnet.kind === 'track' && (
                 <p className="mt-3 text-xs text-crwn-text-secondary">
