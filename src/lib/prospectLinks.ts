@@ -62,6 +62,20 @@ export const PROSPECT_LINKS: ProspectLink[] = [
     },
     from: 'brand_led_hip_hop_artist',
   },
+  {
+    // Sales status left blank: his vinyl sells through label stores (Duck Down, Mello Music
+    // Group), which is not money he takes directly, and nothing shows a store of his own.
+    slug: 'skyzoo',
+    name: 'Skyzoo',
+    answers: {
+      genre_family: 'hiphop',
+      social_followers: 95000,
+      monthly_listeners: 142000,
+      current_supporters: 0,
+      time_capacity: 'low',
+    },
+    from: 'established_independent_operator',
+  },
 ];
 
 export function getProspectLink(slug: string): ProspectLink | undefined {
