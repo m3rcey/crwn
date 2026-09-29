@@ -30,9 +30,17 @@ npm test             # vitest, 820 tests across 50 files (a moving figure: run i
 - Post-deploy checklist: `POST_DEPLOY_CHECKLIST.md`; verify with the `kai` agent / production smoke.
 - **Parallel Claude sessions** (2026-09-29): `wsl scripts/dev/crwn <task>` starts each session in
   its own worktree `.claude/worktrees/<task>` on branch `worktree-<task>`.
-  - Env files are copied by `.worktreeinclude`, and `node_modules` is hardlinked by the SessionStart
-    hook. A symlink breaks Turbopack.
-  - Integration is `scripts/dev/crwn land <task>`, a fast-forward to master. That is the deploy.
+  - `.env.local` is copied by `.worktreeinclude`. `.env.instagram` is deliberately NOT copied: the
+    Instagram MCP resolves the main checkout's file (`tools/instagram-mcp/envFile.mjs`), because
+    it refreshes the token in place.
+  - `node_modules` is hardlinked by the SessionStart hook. A symlink breaks Turbopack.
+  - The guard gives a worktree its own full copy before any dependency-changing npm command
+    (`.claude/hooks/deps.mjs`). This was measured: npm's `.package-lock.json` and vitest's `.vite`
+    are rewritten in place, and each worktree gets private copies of them at start.
+  - `.mcp.json` uses a relative server path, which works from Windows and WSL alike.
+  - Integration is `scripts/dev/crwn land <task>`, a fast-forward of the REMOTE master; that is the
+    deploy. `scripts/dev/crwn sync` fast-forwards the local main checkout without touching
+    uncommitted files.
   - Guide: `docs/PARALLEL_CLAUDE_SESSIONS.md`.
 
 ### Deployment storage (verified 2026-09-28)

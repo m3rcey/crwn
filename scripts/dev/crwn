@@ -7,7 +7,9 @@
 #   crwn                        same, and Claude picks the name
 #   crwn resume <task>          reopen a task worktree you kept
 #   crwn ls                     every worktree: branch, ahead/behind master, uncommitted files
-#   crwn land <task|branch>     fast-forward master to a finished, reconciled, pushed branch
+#   crwn land <task|branch>     fast-forward the REMOTE master to a finished, reconciled, pushed branch
+#   crwn sync                   fast-forward the LOCAL main checkout to origin/master; never touches
+#                               uncommitted files (git refuses, and so does this)
 #   crwn rm <task>              remove a finished worktree (the branch is kept)
 #
 # Worktrees are created by Claude Code's native --worktree; this script only adds the checks
@@ -144,10 +146,32 @@ then run: crwn land $arg"
   # A plain push of a descendant: git and GitHub reject it unless it is a fast-forward, so a master
   # that moved since the fetch above fails loudly instead of being overwritten. Never --force.
   g push origin "$tip:refs/heads/$BASE"
-  echo "Landed. origin/$BASE is now $(g rev-parse --short "$tip")."
-  local cur; cur=$(g branch --show-current)
-  [[ "$cur" == "$BASE" ]] && echo "The main checkout ($ROOT) is on $BASE; sync it when no session there is mid-task: git -C $ROOT merge --ff-only origin/$BASE"
+  echo "Landed: the REMOTE origin/$BASE is now $(g rev-parse --short "$tip") (production deploys from it)."
+  echo "Your local main checkout ($ROOT) was not touched. Update it when no session there is mid-task: crwn sync"
   echo "When you are done with the worktree: crwn rm ${arg#worktree-}"
+}
+
+cmd_sync() { # fast-forward the LOCAL main checkout to origin/$BASE, never touching uncommitted work
+  in_claude_worktree && die "a task session never updates the main checkout."
+  local cur; cur=$(g branch --show-current)
+  [[ "$cur" == "$BASE" ]] || die "the main checkout is on '$cur', not $BASE. Not touching it."
+  g fetch --quiet origin "$BASE" || die "fetch failed"
+  local ahead behind
+  ahead=$(g rev-list --count "origin/$BASE..HEAD"); behind=$(g rev-list --count "HEAD..origin/$BASE")
+  [[ "$ahead" -eq 0 ]] || die "local $BASE has $ahead commit(s) that are not on origin. Push or land them first; nothing was changed."
+  [[ "$behind" -gt 0 ]] || { echo "The main checkout is already at origin/$BASE."; return 0; }
+  # git refuses by itself to overwrite a modified tracked file or an untracked one. It does NOT
+  # refuse to overwrite an IGNORED file that master starts tracking (.env* is ignored), so check that.
+  local hit="" f
+  while IFS= read -r f; do [[ -n "$f" && -e "$ROOT/$f" ]] && hit+="  $f"$'\n'; done < <(g diff --name-only --diff-filter=A HEAD "origin/$BASE")
+  [[ -z "$hit" ]] || die "these files exist locally and would be replaced by files $BASE now tracks. Move them yourself first; nothing was changed:
+$hit"
+  local dirty; dirty=$(g status --porcelain | wc -l)
+  if g merge --ff-only --quiet "origin/$BASE"; then
+    echo "The main checkout moved to $(g rev-parse --short HEAD) (+$behind commit(s)). Your $dirty uncommitted file(s) were left exactly as they were."
+  else
+    die "git refused the fast-forward (listed above) because it would overwrite uncommitted work. Nothing was changed. Commit, move or finish those files first, then run crwn sync again."
+  fi
 }
 
 cmd_rm() {
@@ -175,9 +199,10 @@ cmd_rm() {
 }
 
 case "${1:-}" in
-  -h|--help|help) sed -n '2,13p' "$SELF" | sed 's/^# \{0,1\}//' ;;
+  -h|--help|help) sed -n '2,15p' "$SELF" | sed 's/^# \{0,1\}//' ;;
   ls|list) shift; cmd_ls "$@" ;;
   land) shift; cmd_land "$@" ;;
+  sync) shift; cmd_sync "$@" ;;
   rm|remove) shift; cmd_rm "$@" ;;
   resume) shift; cmd_resume "$@" ;;
   *) cmd_new "$@" ;;

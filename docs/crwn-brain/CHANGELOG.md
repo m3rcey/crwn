@@ -24,6 +24,17 @@
   - Their state files moved into `.git`: per worktree, and never tracked.
 - **Superseded rule.** Task sessions no longer push master directly. They push their branch, and
   landing is a separate confirmed fast-forward.
+- **Hardening, same day: dependencies, measured with inode and content snapshots.** Package files
+  never leaked: npm and `next build` write new files.
+  - Two paths are rewritten in place and did leak through the hardlinks: `.package-lock.json` and
+    vitest's `.vite`. Each worktree now gets private copies of them.
+  - Before a dependency-changing npm command, the guard gives the worktree a full own copy, and it
+    blocks the command if that copy fails. `crwn land` and `crwn sync` are blocked from task sessions.
+- **Hardening: Instagram MCP.** `.mcp.json` named a `\\wsl.localhost` path that WSL node cannot
+  open; it is now relative. Its token file resolves to the main checkout, so it is not copied into
+  worktrees; a copy would drift, because the server refreshes the token in place.
+- **New command:** `crwn sync` fast-forwards the local main checkout. It refuses when that would
+  overwrite uncommitted or ignored-but-now-tracked files.
 
 ## 2026-09-29 - Founder follow-up for sales_priority leads (resolver live, auto-send dark)
 

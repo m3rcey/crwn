@@ -260,7 +260,7 @@ export function evaluateAll(input, env = process.env) {
   const none = { reason: null, isolate: [] };
   if (!input || !['Bash', 'PowerShell'].includes(input.tool_name)) return none;
   const command = input.tool_input?.command;
-  if (typeof command !== 'string' || !/\b(git|gh|npm)(\.exe|\.cmd)?\b/.test(command)) return none;
+  if (typeof command !== 'string' || !/\b(git|gh|npm|crwn)(\.exe|\.cmd)?\b/.test(command)) return none;
 
   const cwd = input.cwd || process.cwd();
   const { toLocal, resolveDir } = makeResolver(cwd);
@@ -293,6 +293,13 @@ export function evaluateAll(input, env = process.env) {
         continue;
       }
       if (NOT_A_GIT_CALL.has(head)) continue;
+
+      // `crwn land` / `crwn sync` refuse a task session by its cwd; this also covers a task
+      // session that cds to the main checkout first.
+      const crwnAt = seg.findIndex((t) => path.basename(t) === 'crwn');
+      if (crwnAt >= 0 && ['land', 'sync'].includes(seg[crwnAt + 1]) && implementation) {
+        return `crwn ${seg[crwnAt + 1]} changes master or the main checkout, which a task session never does. Push your branch and report it; Josh lands it.`;
+      }
 
       if (mutatesDeps(seg)) {
         const info = repoInfo(segDir, toLocal);

@@ -62,6 +62,10 @@ test('task worktree: every route to the integration branch is blocked', () => {
   blocked(A, `cd ${MAIN} && git push`);
   blocked(A, `wsl.exe -d Ubuntu -e bash -lc 'cd /anywhere && git push origin HEAD:master'`);
   blocked(A, 'gh pr merge 42 --merge');
+  blocked(A, `cd ${MAIN} && scripts/dev/crwn land task-a --yes`);
+  blocked(A, 'bash scripts/dev/crwn sync');
+  allowed(A, 'scripts/dev/crwn ls');
+  allowed(MAIN, 'scripts/dev/crwn land task-a --yes');
 });
 
 test('task worktree: cannot write into another checkout', () => {

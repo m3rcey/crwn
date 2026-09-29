@@ -1,107 +1,165 @@
 # Parallel Claude sessions: one task, one worktree
 
-Run as many Claude Code sessions as you like. Each gets its own folder (a git worktree) and its own
-branch, so their edits, commits and pushes never touch each other. The main checkout
-(`~/workspace-crwn`) is the integration checkout: it stays on `master`, and finished branches land
-there as fast-forwards.
+Every task session gets its own folder (a git worktree) and its own branch. Edits, commits, pushes
+and dependency installs in one session never touch another. The main checkout (`~/workspace-crwn`)
+is the integration checkout: it stays on `master`, and finished branches reach master only
+through `crwn land`.
 
-## Start a task
+## Starting parallel sessions
 
-In a VS Code terminal (PowerShell is fine):
+In one VS Code terminal (PowerShell is fine):
 
     wsl scripts/dev/crwn manychat-fix
 
-In a second terminal, at the same time:
+At the same time, in a second terminal:
 
     wsl scripts/dev/crwn instagram-dms
 
-From a WSL shell, drop the `wsl`: `scripts/dev/crwn manychat-fix`. With no name
-(`wsl scripts/dev/crwn`), Claude picks one such as `bright-running-fox`. With no typing at all:
-Terminal > Run Task > **CRWN: new Claude task**.
+Other ways to start one:
+- From a WSL shell, drop the `wsl` prefix.
+- Leave the name off and Claude picks one.
+- Terminal > Run Task > **CRWN: new Claude task**.
 
-Optional, once, to type just `crwn` (inside WSL):
+To type plain `crwn` in WSL, run this once:
 
     ln -s ~/workspace-crwn/scripts/dev/crwn ~/.local/bin/crwn
 
-It has to run in WSL: Windows-side git corrupts this repo (it cannot write the colon-named files),
-so the launcher refuses to run anywhere else.
+It has to run in WSL, because Windows-side git corrupts this repo (its colon-named files).
 
-## Where things live
+Each task gets:
+- the folder `~/workspace-crwn/.claude/worktrees/<task>`;
+- the branch `worktree-<task>`, cut from a freshly fetched `origin/master`.
 
-| | |
+A name that is already in use is refused, with the reason.
+
+## Useful commands
+
+The commands below are shown as `wsl scripts/dev/crwn ...`. With the symlink, `crwn ...` does
+the same.
+
+| Command | What it does |
 |---|---|
-| Worktree | `~/workspace-crwn/.claude/worktrees/<task>` (gitignored) |
-| Branch | `worktree-<task>`, cut from a freshly fetched `origin/master` |
-| `node_modules` | hardlinked from the main checkout on first start (about 4s, about 17 MB) |
-| `.env.local`, `.env.instagram` | copied in by Claude Code from `.worktreeinclude`; never committed |
-| `settings.local.json`, skills | read from the main checkout, so permissions and Stop hooks still apply |
+| `wsl scripts/dev/crwn ls` | Every worktree: branch, commits ahead/behind master, uncommitted files, pushed or not |
+| `wsl scripts/dev/crwn resume <task>` | Reopen a task you kept, in a new terminal |
+| `wsl scripts/dev/crwn land <task>` | Fast-forward the REMOTE master to that finished task (asks first) |
+| `wsl scripts/dev/crwn sync` | Fast-forward your LOCAL main checkout to the remote master |
+| `wsl scripts/dev/crwn rm <task>` | Remove a finished task's folder (the branch is kept) |
 
-Cost per worktree: about 120 MB of files, plus about 400 MB of `.next` once it builds. C: is nearly
-full, so remove finished worktrees.
+## Dependencies (`node_modules`)
 
-## See what is running
+A new task hardlinks the main checkout's `node_modules`: about 4 seconds and 17 MB, instead of
+copying about 1 GB.
 
-    wsl scripts/dev/crwn ls
+When Claude runs an npm command that changes dependencies there, the guard first gives that
+worktree its own full copy, automatically. That covers `install`/`i`/`add`, `uninstall`/`rm`,
+`update`, `rebuild`, `dedupe`, `prune`, `link` and `audit fix`. The copy takes about 5 seconds and
+1 GB, then the command runs. Nothing to do on your side.
 
-This lists every worktree with its branch, commits ahead and behind master (`+3 -1`), uncommitted
-file count, and whether the branch is pushed.
+- Other sessions and the main checkout keep exactly what they had.
+- If the copy fails (for example, a full disk), the npm command is blocked rather than run on
+  shared files.
+- `npm ci` needs no copy: it replaces `node_modules` outright.
+- Builds and test runs never need a copy.
 
-## When a task finishes
+Why this design (measured, 2026-09-29):
+- npm and `next build` write new files and never edit an installed file, so sharing is safe for them.
+- npm's own install record (`node_modules/.package-lock.json`) and vitest's cache
+  (`node_modules/.vite`) are edited in place, so every worktree gets private copies of those.
 
-The session:
+Anything else that writes inside `node_modules` directly (say, hand-editing a package file) is
+not covered, so do not do that in a task.
+
+## Instagram MCP
+
+It works in every task session automatically; there is no setup.
+- `.mcp.json` names the server by a relative path, which works from both Windows and WSL.
+- The server reads the one token in the main checkout's `.env.instagram`, and refreshes it there.
+- Worktrees get no copy of the token.
+
+Tools are read-only. The first use in a session still asks permission, as it does today.
+
+## Integration: how work reaches master
+
+A task session never pushes master; the guard blocks it. When it finishes, it does these steps:
 1. Commits to its branch.
-2. Runs `git fetch origin && git merge origin/master` and resolves any conflicts deliberately.
+2. Runs `git fetch origin && git merge origin/master`, and resolves any conflicts deliberately.
 3. Reruns the tests and build.
-4. Pushes with `git push -u origin HEAD`.
-5. Reports the branch, the worktree path and the commit.
+4. Runs `git push -u origin HEAD`.
+5. Reports the branch, folder and commit.
 
-It never pushes master.
-
-When you close the session, Claude asks whether to keep the worktree. **Keep it** until the branch
-has landed. "Remove" deletes the branch too.
-
-## Land it (you, from any terminal)
+Then you land it:
 
     wsl scripts/dev/crwn land manychat-fix
 
-`land` refuses in each of these cases:
-- the worktree has uncommitted files;
+**When `land` refuses:**
+- the task has uncommitted files;
 - the branch is not pushed as-is;
-- master has moved on since the branch was reconciled (it prints the merge to run in the task).
+- master moved on since the task reconciled (it prints the merge the task must run).
 
-Otherwise it shows the commits and any deleted files, asks, and pushes the branch tip to master as a
-**plain fast-forward**. If master moved in the meantime, GitHub rejects the push; it never forces.
-Production deploys from master.
+Otherwise it shows the commits and any deleted files, asks, and pushes to master as a **plain
+fast-forward**. If master moved in the meantime, GitHub rejects it. It never forces, and a
+failure changes nothing. Production deploys from master.
 
-Then sync the main checkout when nothing is mid-task there:
-`git -C ~/workspace-crwn merge --ff-only origin/master`.
+**What `land` does not touch:** your local main checkout. Update it when no session there is
+mid-task:
 
-Land one branch at a time. The second one will be "behind": reconcile it in its session, then land it.
+    wsl scripts/dev/crwn sync
 
-## Remove a finished worktree
+`sync` refuses, changing nothing, in any of these cases:
+- the update would overwrite one of your uncommitted files;
+- master starts tracking a file you hold locally as an ignored file;
+- local master has commits that are not pushed.
 
-    wsl scripts/dev/crwn rm manychat-fix
+Otherwise your uncommitted files stay exactly as they are.
 
-This refuses while its Claude session is still running. It never uses `--force`, so git refuses if
-work is uncommitted. The branch is kept. Delete a landed one with `git branch -d worktree-manychat-fix`
-(`-d` refuses unless it is merged).
+Land one task at a time. The next one will be behind master: reconcile it in its session, then land it.
+
+## Cleanup: ending, keeping and removing
+
+There are three separate things to finish, in this order:
+
+1. **Ending the Claude session.** Type `/exit` or close the terminal. Nothing is deleted.
+   Claude then asks whether to keep the worktree:
+   - **Keep**: always pick this until the task has landed. `wsl scripts/dev/crwn resume <task>`
+     reopens it later.
+   - **Remove**: deletes the folder AND the branch, including commits that exist nowhere else.
+     Pick it only for a task you are abandoning, or one that `crwn ls` shows fully landed.
+2. **Removing the folder** once it has landed:
+
+       wsl scripts/dev/crwn rm manychat-fix
+
+   This refuses while that task's session is running, and git refuses if anything is uncommitted
+   (it is never forced). The branch is kept, and it tells you whether it is pushed and landed.
+3. **Deleting the branch** (optional, landed branches only):
+
+       git branch -d worktree-manychat-fix
+
+   `-d` refuses unless the branch is merged, so it cannot lose work.
+
+Disk: about 120 MB per worktree, plus about 400 MB after a build, plus about 1 GB if it changed
+dependencies. C: is tight, so `rm` finished tasks.
 
 ## The safeguard
 
 `.claude/settings.json` runs `.claude/hooks/git-guard.mjs` before every Bash and PowerShell command
-in every session. This is code, not a prompt instruction. It blocks:
+in every session. This is code, not an instruction.
 
-- a push to master (or `main`, or whatever `origin/HEAD` names) from a task worktree;
-- `gh pr merge` from a task worktree;
-- a force push, a delete or a mirror of master, from anywhere;
-- any git write into a checkout that is not the session's own (read-only commands such as
-  `status`, `log`, `diff` and `fetch` pass);
-- in the shared main checkout: `reset --hard`, `clean -f`, `checkout -- <paths>`, `restore`,
-  `stash drop` and `stash clear`;
-- anywhere: `worktree remove --force` and `branch -D`.
+**Blocked from a task session:**
+- a push to master (or `main`, or `origin/HEAD`'s branch);
+- `gh pr merge`;
+- `crwn land` and `crwn sync`;
+- any git write into a checkout that is not its own.
 
-Commits, feature-branch pushes (including `--force-with-lease` on the session's own branch), merges,
-tests and builds all pass untouched. `npm run test:hooks` runs its tests.
+**Blocked from anywhere:**
+- a force push, delete or mirror of master;
+- `worktree remove --force`;
+- `branch -D`.
 
-It is a seatbelt against accidents, not a security boundary: a human in a terminal is not affected.
-`crwn land` refuses to run from a Claude session inside a task worktree.
+**Blocked in the shared main checkout:** `reset --hard`, `clean -f`, `checkout -- <paths>`,
+`restore`, `stash drop` and `stash clear`.
+
+It also runs the dependency isolation described above.
+
+Commits, pushes of the session's own branch (even `--force-with-lease`), merges, tests and builds
+pass untouched. `npm run test:hooks` runs its tests. It guards Claude's commands only, not what you
+type yourself.

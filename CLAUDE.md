@@ -287,6 +287,9 @@ integration checkout, and its uncommitted files may be another session's work.
 - **Enforced in code, not only here.** `.claude/hooks/git-guard.mjs` (wired in
   `.claude/settings.json`) blocks the master push, the force pushes and the cross-checkout writes. A
   block is the rule working, so do not route around it.
+- **Changing dependencies in a task worktree is safe.** `node_modules` there is hardlinked to the
+  main checkout's, and the guard gives it its own copy before any dependency-changing npm command
+  runs. Never edit files inside `node_modules` by hand.
 
 ## TODO.md — you maintain it, Josh works it
 
