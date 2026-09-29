@@ -321,15 +321,26 @@ export const PRINCE_DRE: LaunchPartnerConfig = {
   funnelPrimary: 'Platinum',
   funnelDownsell: 'Gold',
   funnelPrimaryItem: DRE_FUNNEL_PRIMARY_ITEM,
-  // The second lead magnet (founder, 2026-09-29): "Round Here" from Shotta In Da Jungle, on
-  // the drop funnel. A fan gives an email, hears it through a link that expires, joins Bronze,
-  // and meets the Platinum offer with Gold as the downsell. The song stays Gold-gated on the page.
-  drop: {
-    magnetTrackTitle: 'Round Here',
-    magnetTitle: 'Round Here',
-    magnetDescription: 'Round Here, from Shotta In Da Jungle: a project that was never on streaming. Yours free.',
-    live: true,
-  },
+  // Drop funnels (founder, 2026-09-29): one song each. A fan gives an email, hears it through a
+  // link that expires, joins Bronze, and meets the Platinum offer with Gold as the downsell. The
+  // song keeps its tier gate on the page (Round Here: Gold; Letter To LA: Silver).
+  drops: [
+    {
+      magnetTrackTitle: 'Round Here',
+      magnetTitle: 'Round Here',
+      // The player above already names the song and the project; this line only adds the why.
+      magnetDescription: 'Never on streaming. Yours free.',
+      live: true,
+    },
+    {
+      // The third lead magnet (founder, 2026-09-29): Blood Brothaz, so it leads into Silver's project.
+      magnetTrackTitle: 'Letter To LA - JMoney',
+      magnetTitle: 'Letter To LA',
+      magnetDescription: 'With JMoney. Never on streaming. Yours free.',
+      live: true,
+      linkSlug: 'princedre-letter-to-la',
+    },
+  ],
   // The lead magnet: one song from each project, in the founder's order. The label is the
   // PROJECT (what the fan votes on); the song is how they hear it; the cover is the project's.
   vote: {

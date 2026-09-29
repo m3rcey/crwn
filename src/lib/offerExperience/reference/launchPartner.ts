@@ -66,6 +66,17 @@ export interface ContentProject {
   trackTitles: string[];
 }
 
+/** One drop funnel (/drop/<link>): one of the artist's tracks as the lead magnet, matched by
+ *  title. The claim hands the fan a short-lived signed link to it and a free membership; the
+ *  track keeps its rung gate on the artist page. An artist can run several, one per song. */
+export interface DropConfig {
+  magnetTrackTitle: string;
+  magnetTitle: string;
+  magnetDescription: string;
+  live: boolean;
+  linkSlug?: string;
+}
+
 export interface LaunchPartnerConfig {
   /** Registry key and the script argument. */
   key: string;
@@ -88,7 +99,7 @@ export interface LaunchPartnerConfig {
   /** The drop funnel's lead magnet (/drop/<token>): one of the artist's own tracks, matched by
    *  title. The claim hands the fan a short-lived signed link to it and a free membership; the
    *  track itself keeps its rung gate on the artist page. `live` turns the funnel on. */
-  drop?: { magnetTrackTitle: string; magnetTitle: string; magnetDescription: string; live: boolean; linkSlug?: string };
+  drops?: DropConfig[];
   vote?: VoteMagnetConfig;
   content?: { tracks: ContentTrack[]; projects: ContentProject[] };
 }
@@ -96,9 +107,8 @@ export interface LaunchPartnerConfig {
 /** The drop funnel's public link segment, personalized (founder, 2026-09-29): never the random
  *  token, always `<artist slug>-<magnet song>` unless the config names one. /drop/<this>. It is
  *  a pointer to the funnel row, never authority (drafts still open only for their owner). */
-export function dropLinkSlug(c: LaunchPartnerConfig): string | null {
-  if (!c.drop) return null;
-  return c.drop.linkSlug ?? `${c.slug}-${slugify(c.drop.magnetTrackTitle)}`;
+export function dropLinkSlug(c: LaunchPartnerConfig, d: DropConfig): string {
+  return d.linkSlug ?? `${c.slug}-${slugify(d.magnetTrackTitle)}`;
 }
 const DROP_SLUG_RE = /^[a-z0-9][a-z0-9-]{1,62}[a-z0-9]$/;
 
@@ -148,8 +158,9 @@ export function checkLaunchPartner(c: LaunchPartnerConfig): string[] {
     }
   }
   // Copy is checked, not file paths: a beat's filename is not a promise to a fan.
-  const link = dropLinkSlug(c);
-  if (link !== null && !DROP_SLUG_RE.test(link)) errors.push(`drop: link "${link}" is not a clean lowercase slug`);
+  const links = (c.drops ?? []).map((d) => dropLinkSlug(c, d));
+  for (const link of links) if (!DROP_SLUG_RE.test(link)) errors.push(`drop: link "${link}" is not a clean lowercase slug`);
+  if (new Set(links).size !== links.length) errors.push('drop: two funnels share a link');
   const text = JSON.stringify({ ...c, content: undefined, vote: c.vote ? { ...c.vote, options: c.vote.options.map((o) => o.label) } : undefined });
   if (/[—–]/.test(text)) errors.push('an em or en dash is in the copy');
   if (/Join (Platinum|Gold|Silver|Bronze)/.test(text)) errors.push('a Join-tier button is in the copy');

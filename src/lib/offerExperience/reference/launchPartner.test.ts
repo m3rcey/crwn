@@ -60,9 +60,11 @@ describe('the checks actually refuse what they claim to', () => {
     expect(checkLaunchPartner(c).join()).toContain('link preview');
   });
   it('the drop link is personalized: artist slug plus the magnet song, never a random token', () => {
-    expect(dropLinkSlug(PRINCE_DRE)).toBe('princedre-round-here');
-    const c = clone(); c.drop!.linkSlug = 'Not A Slug!';
+    expect(PRINCE_DRE.drops!.map((d) => dropLinkSlug(PRINCE_DRE, d))).toEqual(['princedre-round-here', 'princedre-letter-to-la']);
+    const c = clone(); c.drops![0].linkSlug = 'Not A Slug!';
     expect(checkLaunchPartner(c).join()).toContain('clean lowercase slug');
+    const d = clone(); d.drops![1].linkSlug = 'princedre-round-here';
+    expect(checkLaunchPartner(d).join()).toContain('share a link');
   });
   it('refuses a downsell that is not cheaper than the primary', () => {
     const c = clone(); c.funnelDownsell = 'Platinum';

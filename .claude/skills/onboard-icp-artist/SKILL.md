@@ -112,11 +112,14 @@ fan had no city at all: only paid checkouts carried one. To hand an artist the l
     node scripts/fan-cities.mjs <artistSlug>          (table: fans and paying fans per city)
     node scripts/fan-cities.mjs <artistSlug> --csv    (for a sheet)
 
-### A second lead magnet: the drop funnel (`drop`)
+### More lead magnets: drop funnels (`drops`)
 
-Besides the vote, a launch can run the drop funnel (`/drop/<token>`) with ONE song as the
-magnet. Set `drop: { magnetTrackTitle, magnetTitle, magnetDescription, live: true }`; the
-script points the artist's funnel at that track and turns it on. The fan gives name and email,
+Besides the vote, a launch can run drop funnels (`/drop/<link>`), each with ONE song as the
+magnet. `drops` is a LIST, one entry per song: `{ magnetTrackTitle, magnetTitle,
+magnetDescription, live: true, linkSlug? }`. The script finds each song's funnel by its link,
+then by its song, and creates one when neither exists, so adding an entry adds a funnel and
+never repoints an existing link. Prince Dre runs two: "Round Here" (Gold) and "Letter To LA"
+(Silver, `/drop/princedre-letter-to-la`). The fan gives name and email,
 hears the song through a signed link that expires, joins Bronze, then meets the primary offer
 (Platinum) with the downsell (Gold). **The song keeps its rung gate** on the artist page: pick
 a paid-tier song (Prince Dre's is "Round Here", Gold) and the magnet is a taste of what Gold
@@ -125,9 +128,17 @@ holds, not a giveaway. The claim route is designed for exactly that (see its hea
 **Every funnel link is personalized, never the random token** (founder, 2026-09-29). The script
 sets the drop link to `/drop/<artist slug>-<magnet song>` (`dropLinkSlug`; Prince Dre's is
 `/drop/princedre-round-here`), refusing one another funnel already uses. Name a different one
-with `drop.linkSlug`. Renaming kills the old link, so rename BEFORE the link is shared, and tell
+with that entry's `linkSlug`. Renaming kills the old link, so rename BEFORE the link is shared, and tell
 the founder the new one. The token is a pointer, never authority: drafts still open only for
 their owner, so a readable link exposes nothing.
+
+**The opt-in button sits above the fold, and that is MEASURED** (founder, 2026-09-29). The
+first screen shows the song LOCKED (`MagnetPlayer` without `src`: cover, lock, title, project,
+length, and no audio in the page) above one name + email row and the Unlock button. Keep
+`magnetDescription` to one short line: the player already names the song and project. After
+any change to the drop page, measure every live funnel at 390x745 and 1280x590 with a CDP probe
+that stamps `crwn_dnt` before navigating; the Unlock button's bottom must be under the fold
+height. Measured 2026-09-29: 534px on a phone and 486px on a laptop, for both of Dre's funnels.
 
 ### The ladder's music (`content`)
 
