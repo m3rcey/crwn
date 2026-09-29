@@ -309,7 +309,7 @@ export const PRINCE_DRE: LaunchPartnerConfig = {
   vote: {
     offerSlug: 'vote',
     offerName: 'First unlock vote',
-    headline: '3 UNRELEASED PROJECTS. ONE SONG FROM EACH.',
+    headline: '3 UNRELEASED PROJECTS. YOU PICK ONE.',
     // Kept to three lines: the covers and the vote button must sit above a laptop's fold.
     description: `Vote for the one Dre unlocks first. Most votes by ${DRE_FIRST_UNLOCK_DATE} unlocks in full for his $25 members. Every vote gets a bonus unreleased song in the free account we email you.`,
     question: 'Which project should Dre unlock first?',

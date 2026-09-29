@@ -55,6 +55,10 @@ describe('the checks actually refuse what they claim to', () => {
     const c = clone(); c.content!.tracks.push({ ...c.content!.tracks[0] });
     expect(checkLaunchPartner(c).join()).toContain('share a title');
   });
+  it('refuses a vote headline a link preview would cut off', () => {
+    const c = clone(); c.vote!.headline = '3 UNRELEASED PROJECTS. ONE SONG FROM EACH.';
+    expect(checkLaunchPartner(c).join()).toContain('link preview');
+  });
   it('refuses a downsell that is not cheaper than the primary', () => {
     const c = clone(); c.funnelDownsell = 'Platinum';
     expect(checkLaunchPartner(c).join()).toContain('downsell');

@@ -17,6 +17,7 @@ import { normalizeOfferExperience } from '../normalize';
 import { benefitDelivery } from '../../benefitRegistry';
 import { RECOMMENDED_LADDER } from '../../tierTemplate';
 import { normalizeOptions, normalizeOfferSlug, MIN_OPTIONS, MAX_OPTIONS } from '../../songLab/core';
+import { SHARE_TITLE_MAX } from '../../shareMetadata';
 
 export const LADDER_RUNGS = ['Bronze', 'Silver', 'Gold', 'Platinum'] as const;
 export type Rung = (typeof LADDER_RUNGS)[number];
@@ -112,6 +113,8 @@ export function checkLaunchPartner(c: LaunchPartnerConfig): string[] {
   if (c.vote) {
     const v = c.vote;
     if (normalizeOfferSlug(v.offerSlug) !== v.offerSlug) errors.push(`vote: offer slug "${v.offerSlug}" is not a legal link`);
+    // The headline IS the link preview's title (DMs, texts), which cuts at SHARE_TITLE_MAX.
+    if (v.headline.length > SHARE_TITLE_MAX) errors.push(`vote: headline is ${v.headline.length} characters; a link preview cuts it at ${SHARE_TITLE_MAX}`);
     // An EMPTY options list is the pending state: the copy is approved, the songs are not
     // uploaded yet, and the script builds everything else and skips the poll.
     if (v.options.length > 0) {
