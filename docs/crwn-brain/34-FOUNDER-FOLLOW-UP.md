@@ -14,11 +14,16 @@ resolver and a handful of fixed templates with verified merge fields.
 
 ## Who qualifies
 
-`lead_profiles.score_band = 'sales_priority'`, as stored by the canonical scorer
-(`leadScoring.ts`, recomputed by `rescore.ts`). That is the ONLY qualification input: no score
-threshold, no second formula. The band already encodes the ICP (Tier 1 audience AND proven direct
-sales, or a booked call, or total >= 70). A boundary test fails if either follow-up file imports
-the scorer, reads a raw metric, or compares a score to a number (mutation-tested).
+The canonical scorer's band for the lead's CURRENT evidence must be `sales_priority`.
+`rescore.scoreCurrent(identityId)` is the read-only half of `recomputeScore`: the same profile read,
+the same behavior loader, the same `scoreLead()`, no writes. It is not a second scorer. The stored
+`lead_profiles.score_band` is only a candidate filter and a display column. It moves only when an
+event rescores, so it can outlive a fixed normalizer or a phantom recalculation (both happened,
+2026-09-29), and a lead whose live band has dropped resolves to `not_qualified`. The admin row shows
+"stored X, live Y" when they disagree. There is no score threshold and no second formula anywhere in
+the follow-up files (a scan test, mutation-proven). Admin accounts and founder-test artists
+(`profiles.role = 'admin'`, `artist_profiles.is_founder_test`) resolve to `internal_account` and are
+never emailed.
 
 Web calculator leads with no `lead_identities` row carry no stored band. They are covered by the
 immediate call request (`/api/lead-magnets/call-request`), not by this system.
@@ -103,6 +108,70 @@ delivery result or error), and the exact draft. "Copy draft" for Gmail; **"I sen
 claims the same dedupe key (re-derived server-side, audited in `agent_action_log`), so the
 automation never repeats a note Josh already sent.
 
+## Provenance: "did this artist actually tell us this?" (2026-09-29)
+
+A WORTH DM asks two questions (monthly listeners, then "have your fans ever paid you directly?").
+Both answers are the artist's own typed words: `lead_conversation_messages` keeps the inbound text,
+`lead_answers` the raw value, and `lead_profiles.field_provenance` records each field's source
+(`deterministic` = their words through the alias rules). The scorer only ever reads `lead_profiles`,
+so the fields CRWN fills for the calculator (`social_followers`, `streaming_revenue_cents`) never
+reached a score.
+
+What did lose provenance was the calculator row. The result page's debounced auto-save fired on
+FIRST RENDER, so opening a result wrote the form's empty fields into `input_data` as `0`, stamped
+`recalculated_at`, and earned the scorer's `engaged_with_result` (+4). In production that was 30 of
+30 recorded recalculations; none was a real edit. Fixed three ways, none of which rewrites history:
+
+- The page posts only after a change from the values it opened with.
+- `/api/lead-results/[token]/recalculate` is a no-op when the modeled numbers did not change
+  (`inputsChanged` in `inputProvenance.ts`), so a cached old page cannot fake it either. A real edit
+  records `_provenance` inside `input_data` and `direct_answer` in `field_provenance` for exactly the
+  fields that moved.
+- The scorer's behavior loader counts a recalculation only if `original_input_data` and `input_data`
+  differ, so the 30 historical phantoms stop counting on the next read.
+
+New DM results carry `input_data._provenance` (`user_explicit`, `system_default`, `derived`,
+`enriched_verified`, `unknown`, and so on) in both snapshots. A row without it reads `unknown` for
+every field, never `user_explicit`. The draft save (`PUT /api/opportunity-drafts/[token]`) rebuilds
+`input_data` keeping only `_attribution`, so a draft-saved row degrades to `unknown`, which is the
+safe direction.
+
+Result-page language (not changed here): with no streaming income given, the worth result labels
+an ESTIMATE from monthly listeners "What streaming pays you now" and the DM summary says "Streaming
+currently pays you about ...". That reads as a figure the artist supplied. Follow-up item.
+
+**Evidence matrix (current weights unchanged):**
+
+| Signal | Weight | Can come from | Provenance-aware today? | Risk if assumed data counted |
+|---|---|---|---|---|
+| Monetization (`direct_monetization_proven` at 30+) | 40 | DM answer (alias or Claude), web calculator answer | yes, `field_provenance` | the largest lever; one misread is a band change |
+| Audience (`tier1_audience`) | 25 | DM answer, a real recalculation edit | yes | low: CRWN never fills a nonzero default |
+| Engagement | 20 | Claude extraction from DM text | yes (`claude_extraction`) | medium: inferred, not said |
+| Catalog | 15 | DM answer or extraction | yes | low |
+| Behavior | 20 | observed rows (view, claim, setup, recalculation) | observed, not asserted | was fabricated by the phantom recalculation; fixed |
+| Founder-verified research | none | nowhere | no field exists | an artist the founder KNOWS sells merch scores as "no sales evidence" |
+
+Recommended, not built (founder decision): a `founder_verified` FieldSource that the admin can set
+on a lead field with a note and date, ranked above `direct_answer` in `TRUST_RANK`, so verified
+research can count without ever being quoted back to the artist as something they said.
+
+## Monetization answers: NEGATION IS RESOLVED BEFORE POSITIVE INTENT MATCHING
+
+`fieldRegistry.ts` `negatedValue`: the answer is split into clauses (punctuation, "but / though /
+except", and a following "just / only" phrase), and the ordered alias rules only see clauses with no
+negation cue. Nothing positive plus a negated clause resolves to `none`; mixed evidence keeps its
+positive half ("I don't have memberships but I sell merch" becomes `merch_only`). Before this, first
+match over the whole sentence stored "I have no paid program or subscriptions" as `direct_some`
+(the bare "i have" rule) and "I don't have anyone of Patreon etc" as `direct_some` ("patreon").
+`drops?` became `drops` ("when I drop everything" is a release, not a sale). Tests:
+`answerNegation.test.ts` (mutation-proven).
+
+Stored rows are corrected only through `renormalize.ts`, from the admin Founder tab ("Check stored
+answers", then "Apply"). It touches only values the deterministic normalizer wrote, only from the
+retained raw text, and only when the current normalizer returns a non-null different value. Each
+write is guarded on the value it planned from, records `renormalized.from` in `field_provenance`,
+and rescores through `recomputeScore`. A null re-read is left for a human.
+
 ## What it deliberately does NOT do
 
 - It never quotes `monetization_status` or any other normalized DM answer back to the artist.
@@ -115,6 +184,13 @@ automation never repeats a note Josh already sent.
   unsubscribe, suppression).
 
 ## Validation record (one-time, not a rule)
+
+2026-09-29, second pass: Anthony's two answers were his own typed words ("700,000"; "I have no paid
+program or subscriptions"). His stored `direct_some` was the negation misread and his
+`engaged_with_result` was the phantom recalculation. Canonical scorer on current evidence: 71
+sales_priority with the misread answer, 27 nurture once it is corrected (`reach_without_proof`,
+because CRWN stores no evidence of his merch). His draft quotes only observed setup facts and is
+unchanged.
 
 2026-09-29, @anthony_b_originalfireman resolved to `setup_incomplete` (tiers priced, Stripe live,
 one product, no music, Launch not pressed), `wait` until 2026-09-30 10:53 UTC because a platform

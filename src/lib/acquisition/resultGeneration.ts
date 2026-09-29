@@ -15,6 +15,7 @@ import { buildResultUrl, expiresAt, mintToken, RESULT_TTL_SECONDS } from '../lea
 import { ESTIMATE_DISCLAIMER } from '../leadMagnets/disclaimers';
 import { recordEvent } from './eventOutbox';
 import { mirrorFunnelForSession } from '../analytics/acquisitionFunnelMirror';
+import { generationProvenance, PROVENANCE_KEY } from './inputProvenance';
 import type { AcquisitionResult } from './types';
 
 const DISCLAIMER_VERSION = '2026-07-11.v1';
@@ -24,6 +25,8 @@ export interface GenerateInput {
   leadIdentityId: string;
   toolId: string;
   profile: LeadProfileValues;
+  /** lead_profiles.field_provenance for these values, so the result row can say who said what. */
+  fieldProvenance?: Record<string, { source?: string } | undefined>;
 }
 
 /**
@@ -116,6 +119,12 @@ export async function generateAndStore(input: GenerateInput): Promise<Acquisitio
 
   // ---- The only place a result is computed. Calls the EXISTING pure engine. ----
   const generated = tool.execute(input.profile);
+  // Who said what (inputProvenance.ts). The engine never reads it; it is for every reader that
+  // later has to answer "did this artist actually tell us this?".
+  const inputSnapshot = {
+    ...input.profile,
+    [PROVENANCE_KEY]: generationProvenance(input.profile as Record<string, unknown>, input.fieldProvenance ?? {}),
+  };
 
   const { raw, hash } = mintToken();
 
@@ -130,8 +139,8 @@ export async function generateAndStore(input: GenerateInput): Promise<Acquisitio
       title: generated.headline,
       // BOTH snapshots. original_input_data is frozen forever; input_data moves when the
       // artist corrects an assumption and recalculates.
-      input_data: input.profile,
-      original_input_data: input.profile,
+      input_data: inputSnapshot,
+      original_input_data: inputSnapshot,
       result_data: generated,
       generator_version: generated.generatorVersion,
       calculator_id: tool.calculatorId,

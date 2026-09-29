@@ -1,5 +1,27 @@
 # CRWN Brain — Changelog
 
+## 2026-09-29 - DM answer negation, phantom recalculations, and live qualification
+
+**Full doc: 34-FOUNDER-FOLLOW-UP.md (Provenance, Monetization answers).**
+- **Negation first.** `normalizeDeterministic` now resolves negation before any positive alias.
+  "I have no paid program or subscriptions" was stored as `direct_some`.
+- **Phantom recalculations.** Opening a DM result auto-saved it: 30 of 30 production
+  "recalculations" were page loads, each worth +4 and `engaged_with_result`. Fixed in the page and
+  the route; the scorer counts a recalculation only if it changed a number, so history repairs on
+  read.
+- **Provenance.** New results carry `input_data._provenance`.
+- **Founder follow-up re-qualified.** It now qualifies on the live canonical score
+  (`rescore.scoreCurrent`) and excludes admin and founder-test accounts.
+- **Reviewed repair.** The admin Founder tab re-reads stored answers through the canonical
+  normalizer and rescores through `recomputeScore`; nothing applies without a click.
+- **Production audit (read-only):**
+  - 4 stored answers are correctable: @anthony_b_originalfireman, @bpmg_official and @djblive
+    (negation), plus @uuumaskman (plural "memberships").
+  - 1 is for review: @phil_moreland, whose stored answer is another bot's auto-reply.
+  - 1 is a rescore only: @b345t9.
+  - sales_priority goes from 3 to 2; Anthony moves 67 to 27 (nurture).
+- **No scoring weight changed.** Founder follow-up stays OFF.
+
 ## 2026-09-29 - Parallel Claude sessions: one task, one worktree (developer tooling only)
 
 **Guide: docs/PARALLEL_CLAUDE_SESSIONS.md.** No product behavior changed.

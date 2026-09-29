@@ -48,6 +48,17 @@ export interface FieldDefinition {
    * ordered most-specific first.
    */
   aliasPatterns?: { pattern: RegExp; value: string }[];
+  /**
+   * enum only. NEGATION IS RESOLVED BEFORE POSITIVE INTENT MATCHING.
+   *
+   * When set, the answer is split into clauses and the alias rules only ever see the clauses
+   * that are NOT negated. A negated clause cannot vote for a positive value, whatever words it
+   * contains, so "I have no paid program" can never match the bare "i have" rule and "I don't
+   * have Patreon" can never match "patreon". If every clause is negated (and nothing positive
+   * survives), the answer resolves to this value. Mixed evidence keeps its positive half:
+   * "I don't have memberships but I sell merch" -> the merch rule.
+   */
+  negatedValue?: string;
   /** integer/cents only. Values outside are rejected, not clamped silently. */
   min?: number;
   max?: number;
@@ -332,24 +343,32 @@ export const FIELD_REGISTRY: Record<string, FieldDefinition> = {
     values: [...MONETIZATION_STATUS],
     aliasPatterns: [
       // Ordered on purpose. A cadence word beats a platform name, a platform name beats merch,
-      // and the bare yes/no rules come LAST so "no, just merch" lands on merch_only and
-      // "nah, only streaming" lands on streaming_only instead of both collapsing to none.
+      // and the bare yes rule comes LAST so "no, just merch" lands on merch_only and "nah, only
+      // streaming" lands on streaming_only. These rules only ever see NON-negated clauses
+      // (negatedValue below): before 2026-09-29 they saw the whole sentence, so "I have no paid
+      // program or subscriptions" matched the bare "i have" and was stored as direct_some, and
+      // "I don't have anyone of Patreon" matched "patreon".
       {
         pattern: /\b(regularly|every month|monthly|all the time|consistently|income stream|main income|full[- ]?time)\b/,
         value: 'direct_established',
       },
       {
-        pattern: /\b(patreon|membership|members|subscription|subscribers|vip|bandcamp|gumroad|shopify|discord|kajabi|beats?|drops?|presale)\b/,
+        // "drops" (the noun, a merch/music drop), not "drop": "when I drop everything" is a
+        // release, not a sale.
+        pattern: /\b(patreon|membership|memberships|members|subscription|subscriptions|subscribers|vip|bandcamp|gumroad|shopify|discord|kajabi|beats?|drops|presale)\b/,
         value: 'direct_some',
       },
       { pattern: /\b(merch|shirts?|hoodies?|tickets?|vinyl|cds?|shows?)\b/, value: 'merch_only' },
-      { pattern: /\b(only streaming|just streaming|streaming only|spotify only|socials only|streams only)\b/, value: 'streaming_only' },
       {
-        pattern: /\b(a few|few times|couple|once|twice|sometimes|here and there|yeah|yea|yes|yep|yup|sure|i have|we have)\b/,
+        pattern: /\b(only streaming|just streaming|streaming only|spotify only|socials only|streams only|just streams|only streams)\b/,
+        value: 'streaming_only',
+      },
+      {
+        pattern: /\b(a few|few times|couple|once|twice|sometimes|here and there|yeah|yea|yes|yep|yup|sure|i have|we have|i've|ive)\b/,
         value: 'direct_some',
       },
-      { pattern: /\b(no|nope|nah|never|not yet|none|nothing)\b/, value: 'none' },
     ],
+    negatedValue: 'none',
     minConfidence: 0.6,
   },
   team_status: {
@@ -561,7 +580,8 @@ export function normalizeDeterministic(fieldKey: string, raw: string): unknown |
       if (def.values?.includes(s)) return s;
       // Nobody types `direct_established` into Instagram. The alias rules are what let a real
       // sentence resolve with no model call and no retry spent.
-      const natural = raw.toLowerCase().trim();
+      const natural = raw.toLowerCase().replace(/[‘’ʼ]/g, "'").trim();
+      if (def.negatedValue !== undefined) return resolveWithNegation(def, natural);
       for (const rule of def.aliasPatterns ?? []) {
         if (rule.pattern.test(natural) && def.values?.includes(rule.value)) return rule.value;
       }
@@ -577,6 +597,39 @@ export function normalizeDeterministic(fieldKey: string, raw: string): unknown |
     default:
       return null;
   }
+}
+
+/** A clause containing any of these is negated: it may not vote for a positive value. */
+const NEGATION_CUE =
+  /\b(no|not|never|none|nothing|nope|nah|neither|nor|without)\b|n't\b|\b(dont|doesnt|didnt|havent|hasnt|hadnt|cant|wont|aint)\b/;
+
+/**
+ * Clause boundaries: punctuation, contrast words ("but", "though", "except"), and the start of a
+ * "just ..." / "only ..." phrase, which is how a DM carries mixed evidence without punctuation
+ * ("no memberships just merch"). The "just"/"only" word stays in its clause because the
+ * streaming rule reads it ("only streaming").
+ */
+export function splitAnswerClauses(natural: string): string[] {
+  return natural
+    .split(/[.,;:!?\n]+|\b(?:but|though|although|however|except)\b|(?=\b(?:just|only)\b)/)
+    .map((c) => (c ?? '').trim())
+    .filter(Boolean);
+}
+
+/**
+ * NEGATION BEFORE POSITIVE INTENT. The alias rules (still in precedence order) only see clauses
+ * with no negation cue. Nothing positive and at least one negated clause -> `negatedValue`.
+ * Neither -> null, so the ordinary escalation (Claude, then a retry hint) still runs.
+ */
+function resolveWithNegation(def: FieldDefinition, natural: string): unknown | null {
+  const clauses = splitAnswerClauses(natural);
+  const positive = clauses.filter((c) => !NEGATION_CUE.test(c));
+  for (const rule of def.aliasPatterns ?? []) {
+    if (!def.values?.includes(rule.value)) continue;
+    if (positive.some((c) => rule.pattern.test(c))) return rule.value;
+  }
+  if (clauses.length > positive.length && def.values?.includes(def.negatedValue!)) return def.negatedValue!;
+  return null;
 }
 
 /**

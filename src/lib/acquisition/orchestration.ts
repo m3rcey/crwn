@@ -382,7 +382,7 @@ export async function orchestrate(
 
   // ---- Ready to generate? Run the EXISTING calculator and send the link. ----
   if (!forceOpeningQuestion && (committedState === 'ready_for_result' || (missingNow.length === 0 && !facts.needsHumanReview))) {
-    return finalize(session, identity, tool, loaded.values);
+    return finalize(session, identity, tool, loaded.values, loaded.provenance);
   }
 
   // ---- Gave up on this artist's answer. Hand them to a person, do not loop. ----
@@ -462,6 +462,7 @@ async function finalize(
   identity: LeadIdentity,
   tool: AcquisitionTool,
   profile: LeadProfileValues,
+  fieldProvenance: Record<string, { source?: string } | undefined> = {},
 ): Promise<ManyChatResponsePayload> {
   await commitState(session, 'result_generating', null);
 
@@ -470,6 +471,7 @@ async function finalize(
     leadIdentityId: identity.id,
     toolId: tool.id,
     profile,
+    fieldProvenance,
   });
 
   if (!result) {

@@ -38,6 +38,8 @@ interface FounderRow {
   name?: string | null;
   lead_score?: number | null;
   score_band?: string | null;
+  /** The band last written to lead_profiles. Shown only when it disagrees with the live one. */
+  stored_band?: string | null;
   reason_codes?: string[];
   stage: string;
   blocker?: string | null;
@@ -52,6 +54,7 @@ interface FounderRow {
 }
 
 const STAGE_LABEL: Record<string, string> = {
+  internal_account: 'Your own or test account',
   not_qualified: 'Not qualified',
   no_result: 'In the DM, no result yet',
   first_paid: 'Converted (first paid member)',
@@ -335,6 +338,7 @@ export default function AcquisitionView() {
           enabled={founderEnabled}
           busy={busy}
           onMarkSent={(id) => act('mark_founder_followup_sent', id)}
+          onReload={load}
         />
       ) : notReady ? (
         <Empty
@@ -648,16 +652,119 @@ function ConfigStrip({ config }: { config: Config }) {
   );
 }
 
+// A stored DM answer the current normalizer reads differently, or a stored band the canonical
+// scorer no longer agrees with. Planned server-side; applying re-plans and is audited.
+interface RenormalizeRow {
+  leadIdentityId: string;
+  instagramUsername: string | null;
+  raw: string;
+  stored: string;
+  proposed: string | null;
+  kind: 'repair' | 'review' | 'rescore';
+  storedBand: string | null;
+  storedScore: number | null;
+  liveBand: string;
+  liveScore: number;
+}
+
+function RenormalizeReview({ onApplied }: { onApplied: () => void }) {
+  const [rows, setRows] = useState<RenormalizeRow[] | null>(null);
+  const [state, setState] = useState<'idle' | 'loading' | 'applying' | 'done'>('idle');
+  const [summary, setSummary] = useState<string | null>(null);
+  const check = async () => {
+    setState('loading');
+    try {
+      const res = await fetch('/api/admin/acquisition?view=renormalize');
+      const json = await res.json();
+      setRows(json.rows ?? []);
+    } catch {
+      setRows([]);
+    }
+    setState('idle');
+  };
+  const apply = async () => {
+    setState('applying');
+    try {
+      const res = await fetch('/api/admin/acquisition', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'apply_renormalization', id: 'all' }),
+      });
+      const json = await res.json();
+      setSummary(`${json.repaired ?? 0} answers corrected, ${json.rescored ?? 0} rescored, ${json.skipped ?? 0} left for review.`);
+    } catch {
+      setSummary('Could not apply. Nothing was changed by this click if you see this.');
+    }
+    setState('done');
+    setRows(null);
+    onApplied();
+  };
+  const actionable = (rows ?? []).filter((r) => r.kind !== 'review').length;
+
+  return (
+    <div className="bg-crwn-surface-solid rounded-xl p-4 mb-4">
+      <div className="flex items-center gap-3 flex-wrap">
+        <p className="text-sm text-crwn-text flex-1 min-w-0">
+          Stored DM answers re-read with the current parser, and bands the scorer no longer agrees with.
+        </p>
+        <button
+          onClick={check}
+          disabled={state === 'loading' || state === 'applying'}
+          className="px-3 py-1.5 rounded-full text-xs bg-crwn-elevated text-crwn-text disabled:opacity-50"
+        >
+          {state === 'loading' ? 'Checking…' : 'Check stored answers'}
+        </button>
+      </div>
+      {summary && <p className="text-xs text-green-400 mt-2">{summary}</p>}
+      {rows && rows.length === 0 && <p className="text-xs text-crwn-text-secondary mt-2">Nothing to correct.</p>}
+      {rows && rows.length > 0 && (
+        <div className="mt-3 space-y-2">
+          {rows.map((r) => (
+            <div key={r.leadIdentityId} className="text-xs text-crwn-text-secondary border-t border-crwn-elevated pt-2">
+              <p className="text-crwn-text">
+                @{r.instagramUsername ?? 'unknown'} ·{' '}
+                {r.kind === 'repair' ? 'Correct the answer' : r.kind === 'rescore' ? 'Rescore only' : 'Needs you (parser cannot tell)'}
+              </p>
+              {r.raw && <p>They wrote: “{r.raw.slice(0, 160)}”</p>}
+              {r.kind !== 'rescore' && (
+                <p>
+                  Stored {r.stored.replace(/_/g, ' ')}
+                  {r.proposed ? `, now reads ${r.proposed.replace(/_/g, ' ')}` : ', now reads as unreadable'}
+                </p>
+              )}
+              <p>
+                Band stored {(r.storedBand ?? 'none').replace(/_/g, ' ')} ({r.storedScore ?? '?'})
+                {r.kind === 'rescore' ? `, scorer now says ${r.liveBand.replace(/_/g, ' ')} (${r.liveScore})` : ''}
+              </p>
+            </div>
+          ))}
+          {actionable > 0 && (
+            <button
+              onClick={apply}
+              disabled={state === 'applying'}
+              className="mt-2 px-4 py-2 rounded-full text-xs font-semibold bg-crwn-gold text-black disabled:opacity-50"
+            >
+              {state === 'applying' ? 'Applying…' : `Apply ${actionable} correction${actionable === 1 ? '' : 's'}`}
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function FounderPanel({
   rows,
   enabled,
   busy,
   onMarkSent,
+  onReload,
 }: {
   rows: FounderRow[];
   enabled: boolean;
   busy: string | null;
   onMarkSent: (id: string) => void;
+  onReload: () => void;
 }) {
   const [open, setOpen] = useState<string | null>(null);
   const [copied, setCopied] = useState<string | null>(null);
@@ -684,6 +791,7 @@ function FounderPanel({
           ? 'Leads marked "Sends on the next daily run" get a note from Josh at CRWN, and replies go to your Gmail.'
           : 'Nothing sends by itself. Copy a draft into Gmail, then mark it sent so it is never sent twice.'}
       </p>
+      <RenormalizeReview onApplied={onReload} />
       {rows.length === 0 ? (
         <Empty
           title="No qualified leads yet"
@@ -722,6 +830,11 @@ function FounderPanel({
                 <div className="text-right shrink-0">
                   <p className={`font-semibold ${BAND_COLOR[r.score_band ?? ''] ?? 'text-crwn-text'}`}>{r.lead_score ?? ''}</p>
                   <p className="text-xs text-crwn-text-secondary">{(r.reason_codes ?? []).join(', ').replace(/_/g, ' ')}</p>
+                  {r.stored_band && r.stored_band !== r.score_band && (
+                    <p className="text-xs text-orange-400">
+                      stored {r.stored_band.replace(/_/g, ' ')}, live {(r.score_band ?? 'none').replace(/_/g, ' ')}
+                    </p>
+                  )}
                 </div>
               </div>
               {r.preview && (

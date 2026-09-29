@@ -19,6 +19,7 @@ import { getResultByToken } from '@/lib/leadResults/resultAccess';
 import { getTool } from '@/lib/acquisition/toolAdapters';
 import { checkRateLimit } from '@/lib/rateLimit';
 import { recordFunnelEvent } from '@/lib/analytics/funnelEvents';
+import { inputsChanged, recalcProvenance, PROVENANCE_KEY } from '@/lib/acquisition/inputProvenance';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -68,12 +69,24 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ token: str
   if (!tool) return NextResponse.json({ error: 'Unknown tool' }, { status: 400 });
 
   // Her corrected profile.
-  const corrected = {
-    ...(result.inputData as Record<string, unknown>),
+  const before = (result.inputData ?? {}) as Record<string, unknown>;
+  const corrected: Record<string, unknown> = {
+    ...before,
     monthly_listeners: listeners,
     social_followers: followers ?? 0,
     streaming_revenue_cents: streamingCents ?? 0,
   };
+
+  // NOTHING CHANGED, NOTHING HAPPENED (2026-09-29). The result page used to post its initial
+  // values 1.5s after first render, so opening a result wrote the form's empty fields in as 0,
+  // stamped recalculated_at, and earned "engaged_with_result" for an artist who typed nothing.
+  // The page no longer does that, but a cached old page still can, so the SERVER decides: the
+  // same numbers are a no-op. No write, no event, no rescore.
+  if (!inputsChanged(before, corrected)) {
+    return NextResponse.json({ ok: true, unchanged: true });
+  }
+  // What she actually moved is hers; an absent field the form sent as 0 is a default.
+  corrected[PROVENANCE_KEY] = recalcProvenance(before, corrected);
 
   // Re-run the EXISTING engine on the SERVER. This is the same leadCalculator.calculate()
   // that /worth and the homepage use, so a corrected result and a fresh one are the same
@@ -111,14 +124,28 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ token: str
   // parsed out of a chat message and everything Claude inferred, and the trust ordering in
   // progressiveProfiling enforces exactly that.
   if (result.leadIdentityId) {
-    await supabaseAdmin
-      .from('lead_profiles')
-      .update({
-        monthly_listeners: listeners,
-        ...(followers ? { social_followers: followers } : {}),
-        ...(streamingCents ? { streaming_revenue_cents: streamingCents } : {}),
-      })
-      .eq('lead_identity_id', result.leadIdentityId);
+    // Only the fields she MOVED, and each one recorded as direct_answer in field_provenance, so
+    // the profile can say where a number came from instead of defaulting to "she said so".
+    const moved: Record<string, number> = {};
+    if (listeners !== Number(before.monthly_listeners ?? 0)) moved.monthly_listeners = listeners;
+    if (followers && followers !== Number(before.social_followers ?? 0)) moved.social_followers = followers;
+    if (streamingCents && streamingCents !== Number(before.streaming_revenue_cents ?? 0)) {
+      moved.streaming_revenue_cents = streamingCents;
+    }
+    if (Object.keys(moved).length) {
+      const { data: lp } = await supabaseAdmin
+        .from('lead_profiles')
+        .select('field_provenance')
+        .eq('lead_identity_id', result.leadIdentityId)
+        .maybeSingle();
+      const provenance = { ...((lp?.field_provenance as Record<string, unknown>) ?? {}) };
+      const at = new Date().toISOString();
+      for (const k of Object.keys(moved)) provenance[k] = { source: 'direct_answer', confidence: 1, verifiedAt: at };
+      await supabaseAdmin
+        .from('lead_profiles')
+        .update({ ...moved, field_provenance: provenance })
+        .eq('lead_identity_id', result.leadIdentityId);
+    }
 
     // Recalculating is a real engagement signal (worth points in leadScoring): she did not
     // just glance at the number, she argued with it. Fires once per result.

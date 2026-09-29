@@ -8,8 +8,9 @@
 // email the automation sends can never describe two different journeys.
 //
 // What this module deliberately does NOT own (docs/crwn-brain/34-FOUNDER-FOLLOW-UP.md):
-//   - qualification: `lead_profiles.score_band` from leadScoring.ts is the only authority.
-//     This file compares the stored band to 'sales_priority' and computes nothing else.
+//   - qualification: the canonical scorer (leadScoring.ts) is the only authority. The loader
+//     hands this file its band for the lead's CURRENT evidence; this file compares it to
+//     'sales_priority' and computes nothing else.
 //   - setup completion: setupProgress.ts (shared with the wizard).
 //   - Stripe readiness: paymentReadiness.ts (the loader calls it).
 //   - first paid: the `first_paid_conversion` funnel event (the loader reads it).
@@ -41,6 +42,7 @@ export const FOUNDER_GAP_DAYS = 7;
 export const OTHER_EMAIL_GAP_HOURS = 48;
 
 export type FollowUpStage =
+  | 'internal_account'
   | 'not_qualified'
   | 'no_result'
   | 'first_paid'
@@ -53,13 +55,23 @@ export type FollowUpStage =
   | 'ready_no_first_paid';
 
 /** Stages that never produce an email at all. */
-const TERMINAL: ReadonlySet<FollowUpStage> = new Set(['not_qualified', 'no_result', 'first_paid', 'call_booked']);
+const TERMINAL: ReadonlySet<FollowUpStage> = new Set([
+  'internal_account',
+  'not_qualified',
+  'no_result',
+  'first_paid',
+  'call_booked',
+]);
 
 export interface FollowUpEvidence {
   identityId: string;
   instagramUsername: string | null;
-  /** lead_profiles.score_band, as stored by the canonical scorer. */
+  /** An admin account or a founder test artist (profiles.role, artist_profiles.is_founder_test). */
+  internal?: boolean;
+  /** The canonical scorer's band for the lead's CURRENT evidence (rescore.scoreCurrent). */
   scoreBand: string | null;
+  /** lead_profiles.score_band as last written. Display only: it can be stale. */
+  storedBand?: string | null;
   leadScore: number | null;
   reasonCodes: string[];
   /** First name for the greeting: profiles.display_name, else lead_profiles.artist_name. */
@@ -136,6 +148,8 @@ export function founderFollowUpKey(identityId: string, stage: FollowUpStage): st
 /** Stage precedence: who owns this lead right now. First match wins. */
 export function resolveStage(e: FollowUpEvidence): { stage: FollowUpStage; blocker: string | null; setupScreen: SetupScreenKey | null } {
   const none = { blocker: null, setupScreen: null };
+  // The founder's own and test accounts are never followed up, whatever they score.
+  if (e.internal) return { stage: 'internal_account', ...none };
   // Qualification is the canonical scorer's band, read, never recomputed.
   if (e.scoreBand !== 'sales_priority') return { stage: 'not_qualified', ...none };
   // Converted artists are in a different lifecycle. No acquisition email, ever.
