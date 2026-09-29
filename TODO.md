@@ -72,6 +72,12 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **Confirm Prince Dre is OK with AI-generated photos of himself on his page.** His offer
+      pages now show four realistic studio photos of him, generated from his reference photos
+      (videos/output/prince-dre-photos/). They look like real photos of real sessions. Get a yes
+      from him or his team, or swap in real photos they send (drop them in videos/output/ and
+      tell me which slot).
+
 - [ ] **The privacy policy gained one sentence; decide whether it needs a new effective date.**
       [src/app/(public)/privacy/page.tsx](src/app/(public)/privacy/page.tsx) now says an artist sees
       the city a fan enters when voting in their poll (pre-filled from approximate location,

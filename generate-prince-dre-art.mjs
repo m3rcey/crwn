@@ -1,4 +1,4 @@
-// Prince Dre's offer-page art (2026-09-28): two tier heroes and two mock-video covers.
+// Prince Dre's offer-page images (2026-09-28): two tier heroes and two mock-video covers.
 //
 // Brand rule (CLAUDE.md "Brand Imagery"): flat vector poster art, the exact five-colour
 // palette, no text, WebP, 16:9 to match the slots (the offer hero and the preview poster are
@@ -19,7 +19,7 @@ import sharp from "sharp";
 const API_KEY = process.env.GEMINI_API_KEY;
 if (!API_KEY) { console.error("ERROR: GEMINI_API_KEY not set."); process.exit(1); }
 const ai = new GoogleGenAI({ apiKey: API_KEY });
-const OUT = process.argv[2] || "videos/output/prince-dre-art";
+const OUT = process.argv[2] || "videos/output/prince-dre-photos";
 fs.mkdirSync(OUT, { recursive: true });
 
 const REFS = [
@@ -27,27 +27,33 @@ const REFS = [
   "videos/prince dre/Prince Dre 2026 b.jpg",
   "videos/output/Prince Dre - photo.jpg",
 ].map((p) => ({ inlineData: { mimeType: "image/jpeg", data: fs.readFileSync(p).toString("base64") } }));
+// A real control room (founder-supplied, 2026-09-28), passed as a SETTING reference only.
+const ROOM = { inlineData: { mimeType: "image/png", data: fs.readFileSync("videos/prince dre/IMG_1919.png").toString("base64") } };
 
-const STYLE = `Flat vector poster illustration, screen-print aesthetic. Bold geometric shapes and hard-edged flat colour blocks with crisp vector edges. ABSOLUTELY NO gradients, no photographic texture, no realism, no soft shading, no 3D rendering, no drop shadows. Figures are rendered as strong near-black silhouettes with a few sculpted flat highlight planes picking out the face, hands and shoulders. Bold radiating sunburst rays, concentric arcs and repeating dot rows as graphic background geometry. STRICT LIMITED PALETTE, only these five: near-black #0D0D0D, deep charcoal #1A1A1A, warm gold #D4AF37, amber #E8A33D, burnt orange #C2571A. The background is predominantly near-black #0D0D0D. High contrast, premium, editorial poster art. NO text, NO letters, NO numbers, NO words, NO logos, NO watermarks anywhere, including on clothing, chains, screens and equipment. WIDE CINEMATIC HORIZONTAL COMPOSITION, subjects complete inside the frame, nothing cropped at the top or bottom edge. The artwork runs fully to every edge with NO border, NO frame and NO margin.`;
+// PHOTOGRAPHIC (founder direction 2026-09-28): the artist's own page shows real-looking
+// photos of HIM, not CRWN brand poster art. The brand-poster rule governs CRWN's marketing
+// imagery; artist content follows the artist. Dre's team approves use of his likeness (TODO).
+const STYLE = `Photorealistic editorial music photography, shot on a full-frame camera with a 35mm lens, natural skin texture, real studio lighting, shallow depth of field. Moody and premium: a dark recording studio lit by warm amber practical lights, gold rim light, deep shadows. Colour grade: warm golds and ambers against near-black. Candid, authentic, like a behind-the-scenes photo from a real session. Always a RECORDING STUDIO (mixing console, studio monitors, vocal booth, acoustic panels): NEVER DJ turntables, DJ decks, vinyl decks or a DJ booth. NO text, NO captions, NO logos, NO watermarks, NO brand names anywhere in the image, including on clothing, screens and equipment. WIDE HORIZONTAL 16:9 COMPOSITION, subjects complete in the frame. No border or frame.`;
 
-const LIKENESS = `The main figure is the young Black man in the attached reference photos, a hip hop artist aged about 24. Capture HIS likeness from the photos: his face shape, his short cropped natural hair (short and close to the head, NEVER locs, dreadlocks, braids or long hair), his light goatee and thin moustache, a small stud earring, and a gold chain with a round pendant. Render him in the flat vector poster style, not photoreal. The photos are for his likeness only; do not copy their backgrounds, microphones branding or any text from them.`;
+const LIKENESS = `The main figure is the young Black man in the attached reference photos, a hip hop artist aged about 24. Capture HIS likeness from the photos: a slim build and a NARROW, LONG face with high cheekbones (never a broad or round face), short cropped natural hair in waves with a crisp lineup (NEVER locs, dreadlocks, braids or long hair), only a LIGHT chin goatee and a thin moustache (NEVER a full beard along the jaw), a small diamond stud earring, and a gold chain with a round iced pendant shaped like a ring or the letter O (never an oval medallion with a portrait in it). He looks about 22. He must look like the same real person as in the photos. The photos are for his likeness only; do not copy their backgrounds, microphones branding or any text from them.`;
 
 const SCENES = [
   {
     file: "hero-platinum.webp",
-    scene: `Hero banner. He sits at a studio mixing console at the centre of the frame, leaning back confidently, one hand on the faders, wearing headphones around his neck. Behind him, three large flat gold and amber vinyl records hang in a row like three suns, each with concentric groove arcs, radiating sunburst rays between them: three finished projects, all his. Warm gold rim light on his face and shoulders.`,
+    scene: `He sits at a large studio mixing console in a dark recording studio, leaning back confidently in the chair, one hand on the faders, headphones around his neck, looking toward the camera with a slight knowing smile. Warm amber light from the console meters and a gold rim light on his face and shoulders. Studio monitors and acoustic panels in the soft background.`,
   },
   {
     file: "hero-gold.webp",
-    scene: `Hero banner. He stands at the right of the frame holding ONE large flat gold vinyl record up high above his head like a trophy, looking up at it. At the lower left, a crowd of raised hands in near-black silhouette reaches toward the record, a few of the hands holding small glowing phone screens, as if the fans voted it up. A single hard cone of warm gold light falls on the record.`,
+    scene: `In the recording studio, he holds a finished record up in one hand, a plain unlabeled vinyl sleeve, looking at it with pride, standing near the mixing console. Warm amber and gold light, the rest of the studio falling into shadow behind him. Candid behind-the-scenes moment.`,
   },
   {
     file: "session-listening.webp",
-    scene: `A private group listening session in a recording studio control room. He stands at the console at the right, turning around toward the room with one hand raised mid-explanation, big studio monitor speakers either side. On a long low couch at the left sit five young fans in near-black silhouette, a mixed group of young men and young women aged 18 to 30, leaning in, nodding, one with eyes closed. Concentric sound-wave arcs flow from the speakers across the room in gold and amber.`,
+    room: true,
+    scene: `Use the LAST attached image (the empty control room with the console and the couch) as the setting: the same room, now occupied, framed wide enough to show the whole couch. A private group listening session. He stands by the mixing console at the right, turned toward the room, one hand raised as he talks about the song playing. On the couch sit FIVE young Black fans aged 18 to 30. Count them: one, two, three, four, five people, never four and never six. They are THREE young women and TWO young men, ALL seated side by side on the couch, nobody standing or floating behind it, all five fully inside the frame with space at the left edge. They lean in and nod along, one woman with her eyes closed. Warm amber lamps and candles, a relaxed late-night feel.`,
   },
   {
     file: "video-vault.webp",
-    scene: `He is in a vocal booth recording, headphones on, eyes closed, one hand cupping the headphone, singing into a large flat studio condenser microphone with a round pop filter in the foreground. Through the booth glass behind him, a dim studio with a glowing console. Gold sunburst rays behind his head, repeating dot rows along the booth wall.`,
+    scene: `He is in a vocal booth recording, headphones on, eyes closed, one hand cupping the headphone, rapping into a large studio condenser microphone with a round pop filter in the foreground. Acoustic foam on the walls, a warm amber light, the dim control room visible through the booth glass behind him.`,
   },
 ];
 
@@ -59,7 +65,7 @@ for (const s of SCENES) {
   try {
     const res = await ai.models.generateContent({
       model: "gemini-3.1-flash-image-preview",
-      contents: [{ role: "user", parts: [...REFS, { text: `${STYLE}\n\n${LIKENESS}\n\n${s.scene}` }] }],
+      contents: [{ role: "user", parts: [...REFS, ...(s.room ? [ROOM] : []), { text: `${STYLE}\n\n${LIKENESS}\n\n${s.scene}` }] }],
       config: { responseModalities: ["IMAGE"], imageConfig: { aspectRatio: "16:9" } },
     });
     const data = (res.candidates || []).flatMap((c) => c.content?.parts || []).find((p) => p.inlineData?.data)?.inlineData?.data;

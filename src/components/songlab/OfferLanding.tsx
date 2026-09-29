@@ -726,9 +726,8 @@ export function OfferLanding({
         })}
       </div>
 
-      {/* Labels centered with the rest of the screen. The INPUTS keep their own
-          left-aligned text: centered text inside a field fights the caret and is
-          unreadable the moment someone types a long address. */}
+      {/* Labels AND the typed text are centered, matching the rest of the screen (founder
+          decision 2026-09-28, replacing the earlier left-aligned inputs). */}
       {selected && needsIdentity(signedIn) ? (
         <div ref={identityRef} className="space-y-4 mb-6">
           <div>
@@ -744,7 +743,7 @@ export function OfferLanding({
               autoCapitalize="words"
               maxLength={MAX_FIRST_NAME_LENGTH}
               aria-invalid={errorField === 'firstName'}
-              className="w-full min-h-[60px] rounded-2xl bg-crwn-surface px-4 py-4 text-xl text-left text-crwn-text ring-1 ring-white/15 outline-none focus:ring-2 focus:ring-crwn-gold"
+              className="w-full min-h-[60px] rounded-2xl bg-crwn-surface px-4 py-4 text-xl text-center text-crwn-text ring-1 ring-white/15 outline-none focus:ring-2 focus:ring-crwn-gold"
             />
           </div>
           <div>
@@ -763,14 +762,14 @@ export function OfferLanding({
               spellCheck={false}
               maxLength={MAX_EMAIL_LENGTH}
               aria-invalid={errorField === 'email'}
-              className="w-full min-h-[60px] rounded-2xl bg-crwn-surface px-4 py-4 text-xl text-left text-crwn-text ring-1 ring-white/15 outline-none focus:ring-2 focus:ring-crwn-gold"
+              className="w-full min-h-[60px] rounded-2xl bg-crwn-surface px-4 py-4 text-xl text-center text-crwn-text ring-1 ring-white/15 outline-none focus:ring-2 focus:ring-crwn-gold"
             />
           </div>
         </div>
       ) : null}
 
       {selected && online ? (
-        <div className="mb-5 text-left">
+        <div className="mb-5">
           <label htmlFor="ballot-city" className="block text-base font-semibold text-crwn-text mb-1.5 text-center">
             Your city
           </label>
@@ -783,7 +782,7 @@ export function OfferLanding({
             autoCapitalize="words"
             maxLength={80}
             placeholder="Chicago, IL"
-            className="w-full min-h-[52px] rounded-2xl bg-crwn-surface px-4 py-3 text-lg text-left text-crwn-text ring-1 ring-white/15 outline-none focus:ring-2 focus:ring-crwn-gold"
+            className="w-full min-h-[52px] rounded-2xl bg-crwn-surface px-4 py-3 text-lg text-center text-crwn-text ring-1 ring-white/15 outline-none focus:ring-2 focus:ring-crwn-gold"
           />
           <p className="mt-1.5 text-sm text-crwn-text-secondary text-center">{`So ${artistName} knows where to bring the show.`}</p>
         </div>

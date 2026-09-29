@@ -170,9 +170,12 @@ image and look at it before reporting: the face must survive the square crop.
 **Offer art.** Each paid offer takes a `heroImageUrl` (above the promise) and session/video
 previews take a `posterUrl`, which renders as a mock video with a drawn, non-clickable play
 mark. Generate them with [generate-prince-dre-art.mjs](generate-prince-dre-art.mjs) as the
-template: flat vector poster art in the five brand colours (CLAUDE.md brand rule; illustration,
-never fake photos of events that did not happen), 16:9, WebP, likeness from the artist's
-CURRENT-look photos only (leave out other eras so the model cannot blend them). Look at every
+template: REALISTIC photos of the artist in a recording studio (founder correction 2026-09-28:
+an artist's own page shows real-looking photos of them, NOT CRWN poster art; the brand-poster
+rule is for CRWN's marketing). Always a recording studio, never DJ turntables. 16:9, WebP,
+likeness from the artist's CURRENT-look photos only (leave out other eras so the model cannot
+blend them); a founder-supplied room photo can be passed as a SETTING reference. Get the
+artist's team to approve AI images of their likeness before launch (a TODO item). Look at every
 image (a reviewer subagent works when there are several), then upload to
 `album-art/<artistId>/offer/` and reference the public URLs from the config.
 

@@ -41,8 +41,9 @@ const ART = {
   [FPOB]: `${ART_BASE}1790642985217.jpg`,
   [OTOIME]: `${ART_BASE}1790642989221.jpg`,
 };
-// Poster art for the offer (generate-prince-dre-art.mjs, 2026-09-28): flat vector scenes from
-// his current-look photos, uploaded to his public album-art folder.
+// Photos for the offer (generate-prince-dre-art.mjs, 2026-09-28): realistic studio photos of
+// him generated from his current-look reference photos (founder direction: real-looking photos
+// of the artist on his own page, not brand art), uploaded to his public album-art folder.
 const OFFER_ART = 'https://ecpqtuidtsncjfwtkvwc.supabase.co/storage/v1/object/public/album-art/afa05eb6-da91-438a-8e28-3952c1bded83/offer/';
 const COVER = {
   [ROTP]: 'videos/output/Prince Dre - The Return Of The Prince.jpg',
@@ -132,7 +133,7 @@ export const DRE_PLATINUM_OFFER: TierOfferExperience = {
   description: `Everyone else waits to see which project wins the vote. Platinum gets ${ROTP}, ${FPOB} and ${OTOIME}, complete, the moment you join, and hears the next project before anyone else.`,
   cta: 'Unlock All 3 Projects',
   secondaryCue: 'See what you get',
-  heroImageUrl: `${OFFER_ART}hero-platinum.webp`,
+  heroImageUrl: `${OFFER_ART}photo-hero-platinum.webp`,
   vsl: STAND_IN_VSL,
   previews: [
     {
@@ -151,7 +152,7 @@ export const DRE_PLATINUM_OFFER: TierOfferExperience = {
       truth: 'example',
       title: 'Group listening sessions',
       description: 'When Dre opens a listening room for the next project, Platinum is in it. No fixed schedule is promised; when it happens, you are there.',
-      posterUrl: `${OFFER_ART}session-listening.webp`,
+      posterUrl: `${OFFER_ART}photo-session-listening.webp`,
     },
     {
       // Fans do not know Dre has a community on CRWN, so this card introduces it AND shows
@@ -199,7 +200,7 @@ export const DRE_GOLD_OFFER: TierOfferExperience = {
   description: `The project with the most votes by ${DRE_FIRST_UNLOCK_DATE} unlocks for you, every song on it. Until then you get the archive pack now: 6 unreleased songs, 2 from each project.`,
   cta: 'Unlock the Winning Project',
   secondaryCue: 'See what you get',
-  heroImageUrl: `${OFFER_ART}hero-gold.webp`,
+  heroImageUrl: `${OFFER_ART}photo-hero-gold.webp`,
   vsl: STAND_IN_VSL,
   previews: [
     {
@@ -230,7 +231,7 @@ export const DRE_GOLD_OFFER: TierOfferExperience = {
       truth: 'example',
       title: 'The Vault',
       description: 'Cuts, alternate versions and unreleased videos, posted for members as Dre adds them.',
-      posterUrl: `${OFFER_ART}video-vault.webp`,
+      posterUrl: `${OFFER_ART}photo-video-vault.webp`,
     },
     {
       kind: 'status',
