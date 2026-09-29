@@ -5,10 +5,10 @@
 // In My Eyes). scripts/onboard-launch-partner.mjs writes all of it to production.
 //
 //   Vote (free, no account)  hear one song from each project, vote on which unlocks first
-//   Bronze (free, on vote)   the sampler + a bonus unreleased song
-//   Silver $10               the archive pack: 6 songs, 2 from each project
-//   Gold $25                 the complete WINNING project (unlocks on DRE_FIRST_UNLOCK_DATE)
-//   Platinum $100            all 3 complete projects now, first listen to what comes next
+//   Bronze (free, on vote)   the sampler + a bonus unreleased song ("Hannn", from Blood Brothaz)
+//   Silver $10               Blood Brothaz, complete (never on streaming)
+//   Gold $25                 Shotta In Da Jungle, complete, + the WINNING project on DRE_FIRST_UNLOCK_DATE
+//   Platinum $100            everything, the 3 vote projects as Dre adds them, first listen next
 //
 // The vote never closes: a closed ballot stops capturing fans, and the street-team run lasts
 // weeks. "The most votes by DRE_FIRST_UNLOCK_DATE" decides the first unlock; Dre records the
@@ -17,10 +17,9 @@
 // Deliberately NOT carried: merch (CRWN sells no physical goods), "limited" anything (the
 // only real cap is the Founder Window), "priority" (nothing enforces it), any schedule.
 //
-// PLACEHOLDER AUDIO (2026-09-28): Dre has not sent the archive or the full projects yet, so
-// every `placeholder: true` track below is one of the beats in videos/music/, uploaded under
-// the title its real song will replace. Swap each file for the real song as it arrives. The
-// three vote songs are real. Until the real songs are in, previews stay truth: 'example'.
+// NO PLACEHOLDER AUDIO (founder, 2026-09-29): the stand-in beats were removed. What is on his
+// page is real: the three vote songs, Blood Brothaz and Shotta In Da Jungle. The three vote
+// projects' full songs arrive from his team (TODO); until then the copy says "as Dre adds them".
 
 import type { TierOfferExperience } from '../types';
 import type { LaunchPartnerConfig } from './launchPartner';
@@ -41,21 +40,35 @@ const ART = {
   [FPOB]: `${ART_BASE}1790642985217.jpg`,
   [OTOIME]: `${ART_BASE}1790642989221.jpg`,
 };
-// Photos for the offer (generate-prince-dre-art.mjs, 2026-09-28): realistic studio photos of
+// Photos for the offer (scripts/generate-offer-photos.mjs, 2026-09-28): realistic studio photos of
 // him generated from his current-look reference photos (founder direction: real-looking photos
 // of the artist on his own page, not brand art), uploaded to his public album-art folder.
 const OFFER_ART = 'https://ecpqtuidtsncjfwtkvwc.supabase.co/storage/v1/object/public/album-art/afa05eb6-da91-438a-8e28-3952c1bded83/offer/';
+// Two complete projects that were never on streaming (founder, 2026-09-29), placed by the
+// blueprint: BloodBrothaz is "Bronze + Silver archive" (paid archive, so Silver and up), and
+// Shotta In Da Jungle, not named there, goes where the blueprint puts "the unreleased parallel
+// discography": Gold. Real songs, so their previews are truth: 'real'.
+const BB = 'Blood Brothaz';
+const SJ = 'Shotta In Da Jungle';
+const BB_DIR = 'videos/prince dre/Blood Brothaz';
+const SJ_DIR = 'videos/prince dre/Shotta In Da Jungle';
+const BB_SONGS = ['Rebirth (Intro)', 'Hannn', 'Brothers Pt 2', 'All I Know', 'Im A Ridah', 'Turn Up', 'People', 'In Dese Streets', 'Hide N Seek', 'Ready For War', 'Been On My Mind', 'Letter To LA - JMoney', 'Close Yo Mouth', 'I Swear', 'Lately'];
+const SJ_SONGS = ['Intro Danger', 'Round Here', 'Block Head', 'Glizzied Up', 'With Me', 'Taking Chances', 'On Nat Block', 'From The O', 'Cuz', 'TurntUp4JMunna'];
+/** The Bronze bonus song: a real unreleased song, the one every vote promises. */
+const BONUS_SONG = 'Hannn';
 const COVER = {
   [ROTP]: 'videos/output/Prince Dre - The Return Of The Prince.jpg',
   [FPOB]: 'videos/output/Prince Dre - Fresh Prince Of O Block.jpg',
   [OTOIME]: 'videos/output/prince dre - Only The O In My Eyes.jpg',
+  [BB]: `${BB_DIR}/Blood Brothaz (Cover Art).jpg`,
+  [SJ]: `${SJ_DIR}/Shotta In Da Jungle (Cover Art).jpg`,
 };
 
 export const DRE_TIER_PROMISES: Record<string, string> = {
   Bronze: 'Hear the unreleased sampler.',
-  Silver: 'Go deeper into the archive.',
+  Silver: 'A whole project the public never got.',
   Gold: 'Get the full project the fans pick.',
-  Platinum: 'All 3 unreleased projects, right now.',
+  Platinum: 'Every unreleased project, first.',
 };
 
 export const DRE_TIER_PRICES_CENTS: Record<string, number> = {
@@ -75,18 +88,19 @@ export const DRE_APPROVED_BENEFITS: Record<string, string[]> = {
     'First word on the mixtape and every drop',
   ],
   Silver: [
-    'The archive pack: 6 unreleased songs, 2 from each project',
+    'Blood Brothaz: the complete 15-song project, never on streaming',
     'Behind the scenes from every era',
     'Everything in Bronze',
   ],
   Gold: [
-    'The archive pack: 6 unreleased songs, the moment you join',
+    'Shotta In Da Jungle: the complete 10-song project, never on streaming',
     'The Vault: cuts, alternate versions and unreleased videos as Dre adds them',
     `The complete winning project, unlocked ${DRE_FIRST_UNLOCK_DATE}`,
     'Everything in Silver',
   ],
   Platinum: [
-    'All 3 unreleased projects, complete, the moment you join',
+    'All 3 vote projects, complete, the moment Dre adds each one',
+    'Blood Brothaz and Shotta In Da Jungle, complete, today',
     'First listen to the project after the mixtape, before anyone else',
     'Group listening sessions when Dre opens one',
     'Platinum recognition',
@@ -102,7 +116,7 @@ export const DRE_BENEFIT_IDENTITIES: Record<string, { key: string; line: string 
     { key: 'drop_alerts', line: 'First word on the mixtape and every drop' },
   ],
   Silver: [
-    { key: 'exclusive_tracks', line: 'The archive pack: 6 unreleased songs, 2 from each project' },
+    { key: 'exclusive_tracks', line: 'Blood Brothaz: the complete 15-song project, never on streaming' },
     { key: 'exclusive_posts', line: 'Behind the scenes from every era' },
   ],
   Gold: [
@@ -118,9 +132,9 @@ export const DRE_BENEFIT_IDENTITIES: Record<string, { key: string; line: string 
 /** The funnel's standout item for the PRIMARY offer, shown only where a rung has no full
  *  offer experience. */
 export const DRE_FUNNEL_PRIMARY_ITEM = {
-  title: 'All 3 unreleased projects, right now',
+  title: 'Every unreleased project, first',
   description:
-    'Everyone else waits for the vote to see which project unlocks. Platinum gets all 3, complete, the moment they join.',
+    'Everyone else waits for the vote. Platinum gets all 3 projects as Dre adds each one, plus Blood Brothaz and Shotta In Da Jungle today.',
 };
 
 // Dre has not shot his video yet (founder, 2026-09-28): the slot shows the COVER of the video
@@ -132,8 +146,8 @@ const STAND_IN_VSL = {
 };
 
 export const DRE_PLATINUM_OFFER: TierOfferExperience = {
-  promise: 'All 3 unreleased projects, right now.',
-  description: `Everyone else waits to see which project wins the vote. Platinum gets ${ROTP}, ${FPOB} and ${OTOIME}, complete, the moment you join, and hears the next project before anyone else.`,
+  promise: 'Every unreleased project, first.',
+  description: `Everyone else waits to see which project wins the vote. Platinum gets ${ROTP}, ${FPOB} and ${OTOIME}, complete, the moment Dre adds each one, plus Blood Brothaz and Shotta In Da Jungle today.`,
   cta: 'Unlock All 3 Projects',
   secondaryCue: 'See what you get',
   heroImageUrl: `${OFFER_ART}photo-hero-platinum.webp`,
@@ -143,7 +157,7 @@ export const DRE_PLATINUM_OFFER: TierOfferExperience = {
       kind: 'collection',
       truth: 'example',
       title: 'All 3 projects, complete',
-      description: 'Not a sampler. Every song on every project, the moment you join.',
+      description: 'Not a sampler. Every song on every project, the moment Dre adds it.',
       items: [
         { title: ROTP, subtitle: 'Complete project', locked: true, artUrl: ART[ROTP] },
         { title: FPOB, subtitle: 'Complete project', locked: true, artUrl: ART[FPOB] },
@@ -168,7 +182,7 @@ export const DRE_PLATINUM_OFFER: TierOfferExperience = {
       badge: 'PLATINUM',
       thread: [
         { name: 'Tay', badge: 'Gold', text: 'Return Of The Prince better win this vote.' },
-        { name: 'You', badge: 'Platinum', text: 'Already got all 3. Wishing Well is crazy.', you: true },
+        { name: 'You', badge: 'Platinum', text: 'Shotta In Da Jungle on repeat. Wishing Well is crazy.', you: true },
         { name: 'Mook', badge: 'Bronze', text: 'How do I hear the full projects?' },
       ],
     },
@@ -176,16 +190,16 @@ export const DRE_PLATINUM_OFFER: TierOfferExperience = {
   inherited: {
     heading: 'Also included',
     items: [
+      'Shotta In Da Jungle and Blood Brothaz, complete',
       'The complete winning project',
       'The Vault as Dre adds to it',
-      'The archive pack: 6 unreleased songs',
       'The sampler and the bonus song',
     ],
   },
   faqs: [
     {
       q: 'What if I only want the project that wins?',
-      a: `The $25 a month level gets the one project that wins the vote, unlocked ${DRE_FIRST_UNLOCK_DATE}. This level gets all 3 projects complete, today, and hears the project after the mixtape first.`,
+      a: `The $25 a month level gets the one project that wins the vote, unlocked ${DRE_FIRST_UNLOCK_DATE}. This level gets all 3 projects complete as Dre adds each one, and hears the project after the mixtape first.`,
     },
     {
       q: 'Is the mixtape included?',
@@ -200,12 +214,20 @@ export const DRE_PLATINUM_OFFER: TierOfferExperience = {
 
 export const DRE_GOLD_OFFER: TierOfferExperience = {
   promise: 'Get the full project the fans pick.',
-  description: `The project with the most votes by ${DRE_FIRST_UNLOCK_DATE} unlocks for you, every song on it. Until then you get the archive pack now: 6 unreleased songs, 2 from each project.`,
+  description: `Shotta In Da Jungle, all 10 songs, never on streaming, the moment you join. Then the project with the most votes by ${DRE_FIRST_UNLOCK_DATE} unlocks for you too, every song on it.`,
   cta: 'Unlock the Winning Project',
   secondaryCue: 'See what you get',
   heroImageUrl: `${OFFER_ART}photo-hero-gold.webp`,
   vsl: STAND_IN_VSL,
   previews: [
+    {
+      kind: 'audio',
+      truth: 'real',
+      title: `${SJ}, today`,
+      description: 'The complete project, never on streaming. Yours the moment you join.',
+      items: SJ_SONGS.slice(0, 5).map((t) => ({ title: t, subtitle: SJ, locked: true })),
+      actionLabel: 'Unlock the music',
+    },
     {
       kind: 'collection',
       truth: 'example',
@@ -216,18 +238,6 @@ export const DRE_GOLD_OFFER: TierOfferExperience = {
         { title: FPOB, subtitle: 'Complete project', locked: true, artUrl: ART[FPOB] },
         { title: OTOIME, subtitle: 'Complete project', locked: true, artUrl: ART[OTOIME] },
       ],
-    },
-    {
-      kind: 'audio',
-      truth: 'example',
-      title: 'The archive pack, today',
-      description: '2 unreleased songs from each project, yours the moment you join.',
-      items: [
-        { title: ROTP, subtitle: '2 unreleased songs', locked: true, artUrl: ART[ROTP] },
-        { title: FPOB, subtitle: '2 unreleased songs', locked: true, artUrl: ART[FPOB] },
-        { title: OTOIME, subtitle: '2 unreleased songs', locked: true, artUrl: ART[OTOIME] },
-      ],
-      actionLabel: 'Unlock the music',
     },
     {
       kind: 'video',
@@ -244,7 +254,7 @@ export const DRE_GOLD_OFFER: TierOfferExperience = {
       badge: 'GOLD',
       thread: [
         { name: 'You', badge: 'Gold', text: 'Fresh Prince Of O\'Block all day.', you: true },
-        { name: 'Jaye', badge: 'Silver', text: 'The archive pack alone was worth it.' },
+        { name: 'Jaye', badge: 'Silver', text: 'Blood Brothaz alone was worth it.' },
         { name: 'Mook', badge: 'Bronze', text: 'How do I hear the full projects?' },
       ],
     },
@@ -252,16 +262,15 @@ export const DRE_GOLD_OFFER: TierOfferExperience = {
   inherited: {
     heading: 'Also included',
     items: [
-      'The archive pack: 6 unreleased songs',
+      'Blood Brothaz, the complete project',
       'Behind the scenes from every era',
       'The sampler and the bonus song',
-      'First word on the mixtape and every drop',
     ],
   },
   faqs: [
     {
       q: 'What if the project I voted for does not win?',
-      a: `The project with the most votes by ${DRE_FIRST_UNLOCK_DATE} is the one that unlocks here. If you want every project no matter what wins, the $100 a month level gets all 3 today.`,
+      a: `The project with the most votes by ${DRE_FIRST_UNLOCK_DATE} is the one that unlocks here. If you want every project no matter what wins, the $100 a month level gets all 3 as Dre adds each one.`,
     },
     {
       q: 'Is the mixtape included?',
@@ -275,22 +284,19 @@ export const DRE_GOLD_OFFER: TierOfferExperience = {
 };
 
 export const DRE_SILVER_OFFER: TierOfferExperience = {
-  promise: 'Go deeper into the archive.',
-  description: 'The sampler is 3 songs. The archive pack is 6 more: 2 unreleased songs from each project, yours the moment you join.',
-  cta: 'Get the Archive Pack',
+  promise: 'A whole project the public never got.',
+  description: 'Blood Brothaz, all 15 songs, never on streaming. Yours the moment you join.',
+  cta: 'Get Blood Brothaz',
   secondaryCue: 'See what you get',
   vsl: { url: null },
   previews: [
     {
-      kind: 'collection',
-      truth: 'example',
-      title: 'The archive pack',
-      description: '2 unreleased songs from each project.',
-      items: [
-        { title: ROTP, subtitle: '2 unreleased songs', locked: true, artUrl: ART[ROTP] },
-        { title: FPOB, subtitle: '2 unreleased songs', locked: true, artUrl: ART[FPOB] },
-        { title: OTOIME, subtitle: '2 unreleased songs', locked: true, artUrl: ART[OTOIME] },
-      ],
+      kind: 'audio',
+      truth: 'real',
+      title: `${BB}, today`,
+      description: 'The complete project, never on streaming.',
+      items: BB_SONGS.slice(0, 5).map((t) => ({ title: t, subtitle: BB, locked: true })),
+      actionLabel: 'Unlock the music',
     },
   ],
   inherited: {
@@ -315,6 +321,15 @@ export const PRINCE_DRE: LaunchPartnerConfig = {
   funnelPrimary: 'Platinum',
   funnelDownsell: 'Gold',
   funnelPrimaryItem: DRE_FUNNEL_PRIMARY_ITEM,
+  // The second lead magnet (founder, 2026-09-29): "Round Here" from Shotta In Da Jungle, on
+  // the drop funnel. A fan gives an email, hears it through a link that expires, joins Bronze,
+  // and meets the Platinum offer with Gold as the downsell. The song stays Gold-gated on the page.
+  drop: {
+    magnetTrackTitle: 'Round Here',
+    magnetTitle: 'Round Here',
+    magnetDescription: 'Round Here, from Shotta In Da Jungle: a project that was never on streaming. Yours free.',
+    live: true,
+  },
   // The lead magnet: one song from each project, in the founder's order. The label is the
   // PROJECT (what the fan votes on); the song is how they hear it; the cover is the project's.
   vote: {
@@ -337,23 +352,19 @@ export const PRINCE_DRE: LaunchPartnerConfig = {
   // listed on the track too (the gate is an exact match, there is no inheritance).
   content: {
     tracks: [
-      { title: 'Bonus Record', rung: 'Bronze', placeholder: true, file: 'videos/music/primary/7-4 b 135.mp3' },
-      { title: `${ROTP}: Archive 1`, rung: 'Silver', placeholder: true, file: 'videos/music/primary/Makavhan Zodiae.mp3', artFile: COVER[ROTP] },
-      { title: `${ROTP}: Archive 2`, rung: 'Silver', placeholder: true, file: 'videos/music/secondary/Gorgeous - 7-8.mp3', artFile: COVER[ROTP] },
-      { title: `${FPOB}: Archive 1`, rung: 'Silver', placeholder: true, file: 'videos/music/secondary/Triplets - 7-3.mp3', artFile: COVER[FPOB] },
-      { title: `${FPOB}: Archive 2`, rung: 'Silver', placeholder: true, file: 'videos/music/tertiary/7-12 100.mp3', artFile: COVER[FPOB] },
-      { title: `${OTOIME}: Archive 1`, rung: 'Silver', placeholder: true, file: 'videos/music/tertiary/Now Or Never.wav', artFile: COVER[OTOIME] },
-      { title: `${OTOIME}: Archive 2`, rung: 'Silver', placeholder: true, file: 'videos/music/tertiary/Real Rank (Kodak Black x 21 Savage).wav', artFile: COVER[OTOIME] },
-      { title: `${ROTP}: Full Project Cut`, rung: 'Platinum', placeholder: true, file: 'videos/music/primary/7-4 b 135.mp3', artFile: COVER[ROTP] },
-      { title: `${FPOB}: Full Project Cut`, rung: 'Platinum', placeholder: true, file: 'videos/music/primary/Makavhan Zodiae.mp3', artFile: COVER[FPOB] },
-      { title: `${OTOIME}: Full Project Cut`, rung: 'Platinum', placeholder: true, file: 'videos/music/secondary/Triplets - 7-3.mp3', artFile: COVER[OTOIME] },
+      // "Hannn" is the Bronze bonus song every vote promises (founder direction 2026-09-29 to drop
+      // the placeholder beats; the promise is kept with a real song rather than withdrawn).
+      ...BB_SONGS.map((t, i) => ({ title: t, rung: (t === BONUS_SONG ? 'Bronze' : 'Silver') as 'Bronze' | 'Silver', file: `${BB_DIR}/${i + 1} - ${t}.wav`, artFile: COVER[BB] })),
+      ...SJ_SONGS.map((t, i) => ({ title: t, rung: 'Gold' as const, file: `${SJ_DIR}/${i + 1} - ${t}.wav`, artFile: COVER[SJ] })),
     ],
     // Each project is an album on his page: the vote song (free), the 2 archive songs
     // (Silver), then the rest (Platinum, and Gold for the winner once it is recorded).
     projects: [
-      { title: ROTP, artFile: COVER[ROTP], voteLabel: ROTP, trackTitles: ['Wishing Well', `${ROTP}: Archive 1`, `${ROTP}: Archive 2`, `${ROTP}: Full Project Cut`] },
-      { title: FPOB, artFile: COVER[FPOB], voteLabel: FPOB, trackTitles: ['Kill Or Be Killed', `${FPOB}: Archive 1`, `${FPOB}: Archive 2`, `${FPOB}: Full Project Cut`] },
-      { title: OTOIME, artFile: COVER[OTOIME], voteLabel: OTOIME, trackTitles: ['In My Eyes', `${OTOIME}: Archive 1`, `${OTOIME}: Archive 2`, `${OTOIME}: Full Project Cut`] },
+      { title: ROTP, artFile: COVER[ROTP], voteLabel: ROTP, trackTitles: ['Wishing Well'] },
+      { title: FPOB, artFile: COVER[FPOB], voteLabel: FPOB, trackTitles: ['Kill Or Be Killed'] },
+      { title: OTOIME, artFile: COVER[OTOIME], voteLabel: OTOIME, trackTitles: ['In My Eyes'] },
+      { title: BB, artFile: COVER[BB], trackTitles: BB_SONGS },
+      { title: SJ, artFile: COVER[SJ], trackTitles: SJ_SONGS },
     ],
   },
 };

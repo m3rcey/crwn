@@ -46,7 +46,7 @@ export default async function DropPage({ params }: { params: Promise<{ token: st
 
   const { data: automation } = await supabaseAdmin
     .from('fan_automations')
-    .select('id, artist_id, status, public_token, magnet_kind, magnet_title, magnet_description, gold_tier_id, gold_item_title, gold_item_description, silver_tier_id')
+    .select('id, artist_id, status, public_token, magnet_kind, magnet_title, magnet_description, magnet_track_id, gold_tier_id, gold_item_title, gold_item_description, silver_tier_id')
     .eq('public_token', token)
     .in('status', ['active', 'paused', 'draft'])
     .maybeSingle();
@@ -131,6 +131,31 @@ export default async function DropPage({ params }: { params: Promise<{ token: st
   // Tier Offer Experiences, when the artist has them: the full merchandised sales
   // presentation for the primary and downsell tiers, read server-side and fail-soft.
   // No config means the funnel renders its compact cards exactly as before.
+  // The magnet song's PUBLIC metadata for the locked player on the first screen: title, cover,
+  // length and the project it is from. The audio columns are never read here, so the page
+  // carries nothing playable until the claim returns a signed URL.
+  let magnetCover: string | null = null;
+  let magnetProject: string | null = null;
+  let magnetDuration: number | null = null;
+  if (automation.magnet_kind === 'track' && automation.magnet_track_id) {
+    const { data: mt } = await supabaseAdmin
+      .from('tracks')
+      .select('album_art_url, duration')
+      .eq('id', automation.magnet_track_id)
+      .eq('artist_id', artist.id)
+      .maybeSingle();
+    magnetCover = mt?.album_art_url ?? null;
+    magnetDuration = mt?.duration ?? null;
+    const { data: link } = await supabaseAdmin
+      .from('album_tracks')
+      .select('albums(title, artist_id)')
+      .eq('track_id', automation.magnet_track_id)
+      .limit(1)
+      .maybeSingle();
+    const album = (link as { albums?: { title?: string; artist_id?: string } | null } | null)?.albums;
+    if (album && album.artist_id === artist.id) magnetProject = album.title ?? null;
+  }
+
   const experiences = await offerExperiencesForTiers(
     supabaseAdmin,
     artist.id,
@@ -153,6 +178,9 @@ export default async function DropPage({ params }: { params: Promise<{ token: st
         kind: (automation.magnet_kind as 'upload' | 'track' | null) ?? null,
         title: automation.magnet_title || '',
         description: automation.magnet_description || '',
+        coverUrl: magnetCover,
+        project: magnetProject,
+        durationSec: magnetDuration,
       }}
       gold={toOffer(gold, benefitLines)}
       goldItem={{

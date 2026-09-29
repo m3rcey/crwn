@@ -50,9 +50,9 @@ describe('truth discipline', () => {
   ]);
   const lower = everything.toLowerCase();
 
-  it('nothing is presented as REAL while placeholder beats stand in for his songs', () => {
-    const real = OFFERS.flatMap(([, o]) => o.previews).filter((p) => p.truth === 'real').map((p) => p.title);
-    expect(real).toEqual([]);
+  it('only the two uploaded real projects are presented as REAL; placeholder slots stay examples', () => {
+    const real = OFFERS.flatMap(([, o]) => o.previews).filter((p) => p.truth === 'real').map((p) => p.title).sort();
+    expect(real).toEqual(['Blood Brothaz, today', 'Shotta In Da Jungle, today']);
   });
 
   it('the community card survives the write contract with its thread', () => {
