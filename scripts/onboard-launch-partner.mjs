@@ -15,12 +15,19 @@
 //   6. vote magnet   Song Lab project + open poll + public ballot at /<slug>/join/<offerSlug>,
 //                    songs matched by title among the artist's FREE tracks. Skipped (not
 //                    failed) while the songs are not uploaded yet.
+//   7. content       each rung's tracks, gated from their lowest rung UP (the gate is an exact
+//                    match), and the projects as albums. Access is only ever ADDED on a re-run,
+//                    never removed, so a re-run can never lock out a paying member.
+//   8. winner        --unlock-winner: once the artist records the vote's winner in their Song
+//                    Lab manager (CRWN never picks), open that project's Platinum-only tracks
+//                    to Gold. Additive, like the release waterfall.
 //
 // Refuses: a config that fails checkLaunchPartner, a tier whose price differs from the plan,
 // any tier with an active subscription, a slug that is taken or reserved.
 //
 // Run:  npx tsx scripts/onboard-launch-partner.mjs <key>            (dry run)
 //       npx tsx scripts/onboard-launch-partner.mjs <key> --apply    (writes)
+//       add --refresh-art to re-upload covers, --unlock-winner to open the winner to Gold
 
 import { readFileSync, existsSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
@@ -30,6 +37,8 @@ import { normalizeOfferExperience } from '../src/lib/offerExperience/normalize.t
 import { isReservedSlug } from '../src/lib/reservedSlugs.ts';
 import { resolveFunnelOffers } from '../src/lib/fanAutomations/offerTiers.ts';
 import { normalizeOptions, ballotOpenForFreeJoin } from '../src/lib/songLab/core.ts';
+import { fieldsForClass } from '../src/lib/membershipStrategy.ts';
+import { albumInsertPayload, albumTrackRows } from '../src/lib/projectUpload.ts';
 import { LAUNCH_PARTNERS } from '../src/lib/offerExperience/reference/launchPartners.ts';
 import { checkLaunchPartner, LADDER_RUNGS, LADDER_PRICES_CENTS } from '../src/lib/offerExperience/reference/launchPartner.ts';
 
@@ -38,6 +47,7 @@ const APPLY = process.argv.includes('--apply');
 // Re-upload each vote song's cover from its artFile even when the track already exists (a
 // cover was wrong, or the founder sent the project art later). New object, old one kept.
 const REFRESH_ART = process.argv.includes('--refresh-art');
+const UNLOCK_WINNER = process.argv.includes('--unlock-winner');
 const C = LAUNCH_PARTNERS[key];
 const die = (m) => { console.error('ABORT:', m); process.exit(1); };
 if (!C) die(`unknown launch partner "${key}". Registered: ${Object.keys(LAUNCH_PARTNERS).join(', ')}`);
@@ -134,25 +144,38 @@ async function uploadArt(o) {
   return db.storage.from('album-art').getPublicUrl(artPath).data.publicUrl;
 }
 
-/** Upload a vote song exactly as the Studio upload form does: raw file to `audio`, cover to
- *  `album-art`, access from free_forever (is_free, no tiers, no date), then a 128 kbps stream
- *  copy through the one transcode script. Returns the new track id. */
-async function uploadVoteSong(o, position) {
+/** Seconds for any audio file: the WAV header when it is one, ffprobe otherwise. */
+function audioDuration(path) {
+  if (path.toLowerCase().endsWith('.wav')) return wavDuration(path);
+  const out = execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', path]).toString().trim();
+  const secs = Math.round(Number(out));
+  if (!Number.isFinite(secs) || secs <= 0) die(`could not read the duration of ${path}`);
+  return secs;
+}
+const mmss = (secs) => `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}`;
+const AUDIO_TYPES = { wav: 'audio/wav', mp3: 'audio/mpeg', m4a: 'audio/mp4', flac: 'audio/flac', aiff: 'audio/aiff', aif: 'audio/aiff' };
+
+/** Upload a track exactly as the Studio upload form does: the file to `audio`, the cover to
+ *  `album-art`, access from fieldsForClass (the ONE owner of is_free / allowed_tier_ids /
+ *  public_release_date), then a 128 kbps stream copy through the one transcode script for a
+ *  lossless master (an mp3 already is a stream). Returns the new track id. */
+async function uploadTrack(o, position, access) {
   const ext = o.file.split('.').pop().toLowerCase();
-  if (ext !== 'wav') die(`${o.file}: only WAV masters are supported here`);
+  if (!AUDIO_TYPES[ext]) die(`${o.file}: unsupported audio type .${ext}`);
   const bytes = readFileSync(o.file);
-  const audioPath = `${artist.id}/${Date.now()}.wav`;
-  const { error: upErr } = await db.storage.from('audio').upload(audioPath, bytes, { contentType: 'audio/wav', upsert: false });
+  const audioPath = `${artist.id}/${Date.now()}.${ext}`;
+  const { error: upErr } = await db.storage.from('audio').upload(audioPath, bytes, { contentType: AUDIO_TYPES[ext], upsert: false });
   if (upErr) die(`${o.trackTitle} upload: ${upErr.message}`);
   const audioUrl = db.storage.from('audio').getPublicUrl(audioPath).data.publicUrl;
   const artUrl = o.artFile ? await uploadArt(o) : null;
   const { data: row, error } = await db.from('tracks').insert({
     artist_id: artist.id, title: o.trackTitle, audio_url_128: audioUrl, audio_url_320: audioUrl,
-    album_art_url: artUrl, duration: wavDuration(o.file), position,
-    is_free: true, allowed_tier_ids: [], public_release_date: null, is_active: true,
+    album_art_url: artUrl, duration: audioDuration(o.file), position, ...access, is_active: true,
   }).select('id').single();
   if (error) die(`${o.trackTitle} track insert: ${error.message}`);
-  execFileSync('node', ['scripts/transcode-audio.mjs', '--apply', '--limit', '1', '--id', row.id], { stdio: 'inherit' });
+  if (['wav', 'flac', 'aiff', 'aif'].includes(ext)) {
+    execFileSync('node', ['scripts/transcode-audio.mjs', '--apply', '--limit', '1', '--id', row.id], { stdio: 'inherit' });
+  }
   return row.id;
 }
 
@@ -166,8 +189,8 @@ if (C.vote && C.vote.options.length) {
     if (!t && o.file) {
       if (!existsSync(o.file)) { missing.push(`"${o.trackTitle}" file not found: ${o.file}`); continue; }
       if (o.artFile && !existsSync(o.artFile)) { missing.push(`"${o.trackTitle}" cover not found: ${o.artFile}`); continue; }
-      if (!APPLY) { console.log(`will upload "${o.trackTitle}" (${Math.floor(wavDuration(o.file) / 60)}:${String(wavDuration(o.file) % 60).padStart(2, '0')}) as a free track, position ${i}`); voteTracks.push({ label: o.label, trackId: 'pending-upload' }); continue; }
-      const id = await uploadVoteSong(o, i);
+      if (!APPLY) { console.log(`will upload "${o.trackTitle}" (${mmss(audioDuration(o.file))}) as a free track, position ${i}`); voteTracks.push({ label: o.label, trackId: 'pending-upload' }); continue; }
+      const id = await uploadTrack(o, i, fieldsForClass('free_forever'));
       t = { id, title: o.trackTitle, is_free: true, allowed_tier_ids: [], public_release_date: null };
       console.log(`uploaded "${o.trackTitle}" as a free track (${id})`);
     }
@@ -190,7 +213,45 @@ if (C.vote && C.vote.options.length) {
 } else if (C.vote) {
   console.log('\nvote magnet WAITS: no songs listed in the config yet');
 }
-if (!APPLY) { console.log('\n(dry run: benefits, offers, funnel and poll are written on --apply)'); process.exit(0); }
+// ── 7 (planned in dry run too). Rung content ─────────────────────────────────────
+/** Every rung from `rung` up, as tier ids: the gate matches exactly, with no inheritance. */
+const tiersFrom = (rung) => LADDER_RUNGS.slice(LADDER_RUNGS.indexOf(rung)).map((r) => tierIds[r]).filter(Boolean);
+const contentIds = {};
+if (C.content) {
+  const { data: have } = await db.from('tracks').select('id, title, is_free, allowed_tier_ids').eq('artist_id', artist.id);
+  console.log('');
+  for (const [i, t] of C.content.tracks.entries()) {
+    if (!existsSync(t.file)) die(`${t.title}: file not found: ${t.file}`);
+    if (t.artFile && !existsSync(t.artFile)) die(`${t.title}: cover not found: ${t.artFile}`);
+    const want = tiersFrom(t.rung);
+    const found = (have || []).find((x) => x.title.trim().toLowerCase() === t.title.trim().toLowerCase());
+    const tag = t.placeholder ? ' [PLACEHOLDER]' : '';
+    if (!found) {
+      console.log(`${APPLY ? 'uploading' : 'will upload'} "${t.title}" (${mmss(audioDuration(t.file))}) for ${t.rung} and up${tag}`);
+      if (APPLY) contentIds[t.title] = await uploadTrack({ ...t, trackTitle: t.title }, (C.vote?.options.length ?? 0) + i, fieldsForClass('member_only', { tierIds: want }));
+      continue;
+    }
+    contentIds[t.title] = found.id;
+    // ADD missing rungs only. A tier already on the track (a winner opened to Gold) stays.
+    const current = Array.isArray(found.allowed_tier_ids) ? found.allowed_tier_ids : [];
+    const merged = [...new Set([...current, ...want])];
+    if (merged.length !== current.length || found.is_free) {
+      console.log(`${APPLY ? 'opening' : 'will open'} "${found.title}" to ${t.rung} and up`);
+      if (APPLY) {
+        const { error } = await db.from('tracks').update({ ...fieldsForClass('member_only', { tierIds: merged }), updated_at: new Date().toISOString() }).eq('id', found.id).eq('artist_id', artist.id);
+        if (error) die(`${found.title} access: ${error.message}`);
+      }
+    }
+    if (REFRESH_ART && t.artFile && APPLY) {
+      const url = await uploadArt({ ...t, trackTitle: t.title });
+      const { error } = await db.from('tracks').update({ album_art_url: url }).eq('id', found.id).eq('artist_id', artist.id);
+      if (error) die(`${found.title} cover: ${error.message}`);
+    }
+  }
+  for (const p of C.content.projects) console.log(`project "${p.title}": ${p.trackTitles.length} tracks`);
+}
+
+if (!APPLY) { console.log('\n(dry run: benefits, offers, funnel, poll and projects are written on --apply)'); process.exit(0); }
 
 // ── 3. Structured benefit identities (no frequency: nothing lands on the calendar) ──
 for (const name of LADDER_RUNGS) {
@@ -270,6 +331,49 @@ if (voteTracks) {
   };
   const { error: offerErr } = await db.from('song_lab_offers').upsert(offerRow, { onConflict: 'artist_id,slug' });
   if (offerErr) die(`ballot offer: ${offerErr.message}`);
+}
+
+// ── 7b. Projects as albums ─────────────────────────────────────────────────────
+if (C.content) {
+  const { data: all } = await db.from('tracks').select('id, title').eq('artist_id', artist.id);
+  const idOf = (title) => (all || []).find((x) => x.title.trim().toLowerCase() === title.trim().toLowerCase())?.id;
+  for (const p of C.content.projects) {
+    let { data: album } = await db.from('albums').select('id, album_art_url').eq('artist_id', artist.id).eq('title', p.title).maybeSingle();
+    if (!album) {
+      const art = p.artFile ? await uploadArt({ trackTitle: p.title, artFile: p.artFile }) : null;
+      // The album itself is open to browse; each TRACK carries its own gate, so the vote song
+      // plays for anyone and the rest shows its lock.
+      const { data, error } = await db.from('albums').insert(albumInsertPayload({ artistId: artist.id, title: p.title, albumArtUrl: art, access: { isFree: true, allowedTierIds: [] } })).select('id, album_art_url').single();
+      if (error) die(`album ${p.title}: ${error.message}`);
+      album = data;
+    } else if (REFRESH_ART && p.artFile) {
+      const art = await uploadArt({ trackTitle: p.title, artFile: p.artFile });
+      await db.from('albums').update({ album_art_url: art }).eq('id', album.id);
+    }
+    const ids = p.trackTitles.map(idOf);
+    if (ids.some((x) => !x)) die(`album ${p.title}: a listed track is not uploaded`);
+    const { error } = await db.from('album_tracks').upsert(albumTrackRows(album.id, ids, 1), { onConflict: 'album_id,track_id' });
+    if (error) die(`album ${p.title} tracks: ${error.message}`);
+  }
+}
+
+// ── 8. Open the recorded winner to Gold (only with --unlock-winner) ───────────
+if (UNLOCK_WINNER) {
+  if (!C.vote || !C.content) die('--unlock-winner needs a vote and content');
+  const { data: offerRow } = await db.from('song_lab_offers').select('decision_id').eq('artist_id', artist.id).eq('slug', C.vote.offerSlug).single();
+  const { data: poll } = await db.from('song_lab_decisions').select('options, winning_option_id').eq('id', offerRow.decision_id).single();
+  if (!poll.winning_option_id) die('no winner is recorded yet. The artist records it in their Song Lab manager; CRWN never picks one.');
+  const label = poll.options.find((o) => o.id === poll.winning_option_id)?.label;
+  const project = C.content.projects.find((p) => p.voteLabel === label);
+  if (!project) die(`the winner "${label}" has no project in the config`);
+  const platinumOnly = C.content.tracks.filter((t) => t.rung === 'Platinum' && project.trackTitles.includes(t.title));
+  const { data: rows } = await db.from('tracks').select('id, title, allowed_tier_ids').eq('artist_id', artist.id).in('title', platinumOnly.map((t) => t.title));
+  for (const r of rows || []) {
+    const merged = [...new Set([...(r.allowed_tier_ids || []), tierIds.Gold])];
+    const { error } = await db.from('tracks').update({ ...fieldsForClass('member_only', { tierIds: merged }), updated_at: new Date().toISOString() }).eq('id', r.id).eq('artist_id', artist.id);
+    if (error) die(`${r.title}: ${error.message}`);
+    console.log(`opened "${r.title}" to Gold (winner: ${label})`);
+  }
 }
 
 // ── Read-back through the same paths the pages use ────────────────────────────

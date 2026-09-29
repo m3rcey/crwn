@@ -93,6 +93,14 @@ checkout and the inline sign-in code cannot fork. The stage is derived (vote cou
 `?subscription=canceled` = primary, `?subscription=success` = welcome); nothing is stored.
 A live-show ballot (text options) is unchanged.
 
+Prince Dre's ladder (2026-09-28) is the worked example of the standard ICP music ladder: vote
+sampler, Bronze bonus song, Silver archive pack, Gold the WINNING project on a date, Platinum all
+projects now. The config's `content` block uploads each rung's tracks locked from their lowest
+rung up (additive on every re-run) and builds each project as an album; `--unlock-winner` opens
+the artist-recorded winner to Gold. The vote itself never closes (a closed ballot stops capturing
+fans); the decision date lives in the copy. The online-vote access email drops the live-show
+wording (`online` in `liveShowAccessEmail`).
+
 ## The V1 Offer Builder (shipped 2026-09-03, Rise Mode Guided Setup)
 
 An artist writes their own experience through the guided flow at `/build/experience`

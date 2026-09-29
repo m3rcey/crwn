@@ -356,6 +356,8 @@ export async function POST(req: NextRequest) {
             songLabel: (phase.poll.options || []).find((o) => o.id === optionId)?.label ?? null,
             signInUrl,
             artistUrl: `${site}/${artist.slug}`,
+            // Options that carry songs are an online vote, not a room at a show.
+            online: ((phase.poll.options || []) as Array<{ trackId?: string }>).some((o) => !!o.trackId),
           }),
         });
         emailSent = true;

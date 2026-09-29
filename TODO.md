@@ -31,6 +31,20 @@ responsible for. Do not work those.
       the moment charges are enabled. Nothing for you to run. To confirm afterwards, the last column
       of this should read "yes" on Silver, Gold and Platinum:
           npx tsx scripts/onboard-launch-partner.mjs princedre
+      **Do not let a paid tier sell before his real songs replace the placeholders** (next item).
+      Right now Silver, Gold and Platinum play BEATS standing in for his songs. Stripe being
+      unconnected is the only thing stopping a fan from paying $100 for them.
+
+- [ ] **Get Prince Dre's real songs in before October 1 (the mixtape date), and confirm that date.**
+      His ladder now sells, in [src/lib/offerExperience/reference/princeDre.ts](src/lib/offerExperience/reference/princeDre.ts):
+      Bronze gets a bonus song, Silver 6 archive songs (2 per project), Gold the complete winning
+      project on October 1, Platinum all 3 complete projects. Ten of those slots hold placeholder
+      beats from videos/music/ (marked `placeholder: true` in that file). Ask his team for:
+        1. the bonus song, and 2 archive songs from each of the 3 projects
+        2. the rest of each project (every song, in order)
+        3. written confirmation they control the rights to sell those older projects
+        4. that October 1 is the mixtape date (it is on the vote page as the unlock day)
+      Drop the files in videos/output/ and tell me; I swap them in.
 
 
 - [ ] **To finish Team Splits I need a test-mode sandbox. This is the only thing left, and it is
@@ -65,8 +79,9 @@ responsible for. Do not work those.
       confirm with his team the tier lines in
       [src/lib/offerExperience/reference/princeDre.ts](src/lib/offerExperience/reference/princeDre.ts)
       (the blueprint says pricing and benefits are approved by them before launch), including the
-      vote copy: "The project with the most votes drops in the Vault for Gold members" is HIS
-      promise to keep; CRWN counts the votes, he makes the drop.
+      vote copy: "The project with the most votes by October 1 unlocks for Gold" is HIS promise to
+      keep. On October 1 he records the winner in his Song Lab manager (Studio, Lab); CRWN counts
+      the votes and never picks one.
 
 - [ ] **Run [supabase/schema-phase2-artist-gate-caller-only.sql](supabase/schema-phase2-artist-gate-caller-only.sql)
       in the Supabase SQL Editor.** This stops the daily "Onboarding is broken" email. The alert
@@ -1053,10 +1068,16 @@ Things that are never finished. Cadence, then the thing.
 
 ## On Claude's plate (not yours)
 
-- **Prince Dre's vote is live** (https://thecrwn.app/princedre/join/vote, 2026-09-28): three free songs,
-  signed stream copies verified serving audio. Flip Gold/Platinum previews from `example` to `real` in
-  [src/lib/offerExperience/reference/princeDre.ts](src/lib/offerExperience/reference/princeDre.ts) as
-  Vault tracks land, and when the vote closes, record the winner in his Song Lab manager.
+- **Prince Dre's ladder is built on placeholder beats** (2026-09-28): the vote is live
+  (https://thecrwn.app/princedre/join/vote) and 3 project albums hold 10 placeholder tracks. When
+  his files arrive: point each `placeholder: true` entry in
+  [src/lib/offerExperience/reference/princeDre.ts](src/lib/offerExperience/reference/princeDre.ts) at
+  the real file and title, replace the audio (new upload, access kept), flip the offer previews from
+  `example` to `real`, and add the rest of each project. On October 1, once Dre records the winner,
+  run [scripts/onboard-launch-partner.mjs](scripts/onboard-launch-partner.mjs)
+  `princedre --apply --unlock-winner` to open that project to Gold. Also: show the Bronze bonus
+  song on the after-vote screen itself; today it plays only once the voter opens the emailed
+  account link.
 
 - **After the Meta App Review Astra run:** re-run Part D of [docs/fan-automations/astra-meta-app-review.md](docs/fan-automations/astra-meta-app-review.md) if anything blocks Submit. (Reviewer artist `meta-reviewer` is set up, Stripe-priced, and hidden from Explore, verified 2026-09-27.)
 

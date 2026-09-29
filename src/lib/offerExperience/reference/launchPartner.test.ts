@@ -42,8 +42,18 @@ describe('the checks actually refuse what they claim to', () => {
     const c = clone();
     c.vote!.options = [{ label: 'Only', trackTitle: 'Only' }];
     expect(checkLaunchPartner(c).join()).toContain('2 to 4');
+    // Pending: no songs yet, and so no projects built from them.
     c.vote!.options = [];
+    c.content = undefined;
     expect(checkLaunchPartner(c)).toEqual([]);
+  });
+  it('refuses a project that lists a song the launch does not have', () => {
+    const c = clone(); c.content!.projects[0].trackTitles.push('Not A Real Song');
+    expect(checkLaunchPartner(c).join()).toContain('unknown track');
+  });
+  it('refuses two content tracks with the same title', () => {
+    const c = clone(); c.content!.tracks.push({ ...c.content!.tracks[0] });
+    expect(checkLaunchPartner(c).join()).toContain('share a title');
   });
   it('refuses a downsell that is not cheaper than the primary', () => {
     const c = clone(); c.funnelDownsell = 'Platinum';

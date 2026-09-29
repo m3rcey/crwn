@@ -11,8 +11,13 @@ export function liveShowAccessEmail(params: {
   songLabel: string | null;
   signInUrl: string | null;
   artistUrl: string;
+  /** An ONLINE vote (the ballot plays each option's song), not a vote in a live room. The
+   *  same email, without the words "show": the fan was on their phone, not at a venue, and
+   *  their free account is where anything their membership unlocks plays. */
+  online?: boolean;
 }): string {
-  const { firstName, artistName, songLabel, signInUrl, artistUrl } = params;
+  const { firstName, artistName, songLabel, signInUrl, artistUrl, online } = params;
+  const where = online ? '' : ` at ${artistName}'s show`;
   const greeting = firstName ? `Thanks, ${firstName}` : 'Thanks';
   return `
 <!DOCTYPE html>
@@ -30,13 +35,14 @@ export function liveShowAccessEmail(params: {
       <h2 style="color:#FFFFFF;font-size:26px;margin:0 0 16px;">${greeting}, your vote is counted</h2>
       <p style="color:#A0A0A0;font-size:17px;line-height:1.6;margin:0 0 20px;">
         ${songLabel
-          ? `You picked <strong style="color:#FFFFFF;">${songLabel}</strong> at ${artistName}'s show, and it is already in.`
-          : `Your pick at ${artistName}'s show is already in.`}
+          ? `You picked <strong style="color:#FFFFFF;">${songLabel}</strong>${where}, and it is already in.`
+          : `Your pick${where} is already in.`}
         You do not need to do anything else.
       </p>
       <p style="color:#A0A0A0;font-size:17px;line-height:1.6;margin:0 0 24px;">
-        You are now part of ${artistName}'s free fan community, so you will hear the result
-        and news about upcoming shows.
+        ${online
+          ? `You are now part of ${artistName}'s free fan community, so you will hear the result and every new drop. Anything your free membership unlocks plays in your account.`
+          : `You are now part of ${artistName}'s free fan community, so you will hear the result and news about upcoming shows.`}
       </p>
       ${signInUrl ? `
       <div style="border-top:1px solid #333;padding-top:24px;">
@@ -49,7 +55,7 @@ export function liveShowAccessEmail(params: {
           </a>
         </div>
         <p style="color:#6b6b6b;font-size:13px;line-height:1.5;margin:12px 0 0;text-align:center;">
-          If you did not vote at a show, you can ignore this email and nothing else will happen.
+          If you did not vote${online ? '' : ' at a show'}, you can ignore this email and nothing else will happen.
         </p>
       </div>` : ''}
       <div style="text-align:center;margin:28px 0 0;">

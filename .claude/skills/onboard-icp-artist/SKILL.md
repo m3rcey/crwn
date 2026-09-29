@@ -98,6 +98,41 @@ played through the app's one player (`usePlayer`, `MiniPlayer`), so only a FREE 
   and "Not right now" rolls down to the downsell. Stripe returns to the ballot link:
   `?subscription=success` shows the welcome, `?subscription=canceled` reopens the primary.
   Checkout needs the artist's Stripe connected; until then the button errors.
+- **Never set a closing time on the vote.** A closed ballot shows "voting has ended" and stops
+  capturing fans, and street-team and social traffic runs for weeks. Put the decision DATE in
+  the copy instead ("the project with the most votes by October 1 unlocks for Gold"); the vote
+  stays open and keeps feeding the list. To see the after-vote page without voting, open the
+  ballot link with `?subscription=canceled`: it renders the primary offer and writes nothing.
+
+### The ladder's music (`content`)
+
+The standard ICP ladder (founder decision 2026-09-28, Prince Dre is the worked example) gives
+every rung more of the one thing the fans asked for, usually the artist's unreleased music:
+
+| Rung | Gets |
+|---|---|
+| Vote (free, no account) | one song from each project, heard before voting |
+| Bronze | the sampler + a bonus unreleased song |
+| Silver $10 | the archive pack: 2 more songs from each project |
+| Gold $25 | the complete WINNING project, on the decision date |
+| Platinum $100 | all projects complete, now, plus first listen to what comes next |
+
+- `content.tracks`: `{ title, rung, file, artFile?, placeholder? }`. `rung` is the LOWEST rung
+  that hears it; the script locks it to that rung and every rung above it (the gate is an exact
+  match, there is no inheritance). Any audio type works: WAV/FLAC get a 128 kbps stream copy,
+  MP3 is already one. A re-run only ever ADDS rungs to a track, never removes one.
+- `content.projects`: `{ title, artFile, voteLabel, trackTitles }` becomes an album on the
+  artist's page: the vote song free, the rest locked by rung.
+- **Placeholders:** when the artist has not sent the songs, stand in beats from `videos/music/`
+  under the titles the real songs will take, with `placeholder: true`, and add a P0 to TODO.md:
+  **no paid tier may sell while a placeholder is behind it** (Stripe being unconnected is
+  usually what holds that line; say so).
+- **The Gold unlock:** on the decision date the artist records the winner in their Song Lab
+  manager (CRWN never picks), then run the script with `--apply --unlock-winner`. It opens that
+  project's Platinum-only tracks to Gold, additively.
+- **The vote's bonus song arrives through the account email**, not on the after-vote screen: the
+  voter is a captured contact with no session. Word the copy that way ("unlocks a bonus song in
+  the free account we email you"), never "the moment you vote".
 
 Register the config in `launchPartners.ts`, then:
 

@@ -1,32 +1,49 @@
 // Prince Dre: the SECOND reference configuration, built from the founder-assisted launch
-// blueprint (Prince_Dre_CRWN_Launch_Blueprint.pdf, 2026-09-28). Same shape and same truth
-// discipline as gb.ts: content, not code. scripts/onboard-launch-partner.mjs writes these
-// objects to production after validating each through the read path's normalizer.
+// blueprint (Prince_Dre_CRWN_Launch_Blueprint.pdf) and the founder's 2026-09-28 ladder:
+// every rung gives progressively more of the exact thing his fans asked for, his unreleased
+// music from three projects (The Return Of The Prince, Fresh Prince Of O'Block, Only The O
+// In My Eyes). scripts/onboard-launch-partner.mjs writes all of it to production.
 //
-// What the blueprint proposed and this file deliberately does NOT carry:
-//   - "Early merch access" (Gold). CRWN sells no physical goods and has no fulfillment
-//     screen; a merch promise here would be one nothing delivers. Merch lives on his own
-//     store via merch_store_url, a link OUT.
-//   - "Limited group listening sessions" (Platinum). The ladder never promises a limit it
-//     has not set; the only real cap is the Founder Window, which is opt-in per tier.
-//   - "Priority experiences" (Platinum). Nothing enforces a priority.
-//   - Any free unreleased record on Bronze. The lead magnet is a VOTE (below), not a gift.
+//   Vote (free, no account)  hear one song from each project, vote on which unlocks first
+//   Bronze (free, on vote)   the sampler + a bonus unreleased song
+//   Silver $10               the archive pack: 6 songs, 2 from each project
+//   Gold $25                 the complete WINNING project (unlocks on DRE_FIRST_UNLOCK_DATE)
+//   Platinum $100            all 3 complete projects now, first listen to what comes next
 //
-// Truth: nothing is uploaded yet, so every preview is truth: 'example' except Platinum
-// status (recognition is a real CRWN treatment). No cadence is promised anywhere, and no
-// VSL exists (null renders nothing fan-facing).
+// The vote never closes: a closed ballot stops capturing fans, and the street-team run lasts
+// weeks. "The most votes by DRE_FIRST_UNLOCK_DATE" decides the first unlock; Dre records the
+// winner in his Song Lab manager (CRWN never picks) and `--unlock-winner` opens it to Gold.
+//
+// Deliberately NOT carried: merch (CRWN sells no physical goods), "limited" anything (the
+// only real cap is the Founder Window), "priority" (nothing enforces it), any schedule.
+//
+// PLACEHOLDER AUDIO (2026-09-28): Dre has not sent the archive or the full projects yet, so
+// every `placeholder: true` track below is one of the beats in videos/music/, uploaded under
+// the title its real song will replace. Swap each file for the real song as it arrives. The
+// three vote songs are real. Until the real songs are in, previews stay truth: 'example'.
 
 import type { TierOfferExperience } from '../types';
 import type { LaunchPartnerConfig } from './launchPartner';
 
 export const DRE_SLUG = 'princedre';
 export const DRE_DISPLAY_NAME = 'Prince Dre';
+/** The mixtape's release day: the vote count on this day decides the first Gold unlock. */
+export const DRE_FIRST_UNLOCK_DATE = 'October 1';
+
+const ROTP = 'The Return Of The Prince';
+const FPOB = "Fresh Prince Of O'Block";
+const OTOIME = 'Only The O In My Eyes';
+const COVER = {
+  [ROTP]: 'videos/output/Prince Dre - The Return Of The Prince.jpg',
+  [FPOB]: 'videos/output/Prince Dre - Fresh Prince Of O Block.jpg',
+  [OTOIME]: 'videos/output/prince dre - Only The O In My Eyes.jpg',
+};
 
 export const DRE_TIER_PROMISES: Record<string, string> = {
-  Bronze: 'Stay tapped in.',
-  Silver: 'Hear it before everybody else.',
-  Gold: 'Hear the music the public never got.',
-  Platinum: 'Be in the room before the project is finished.',
+  Bronze: 'Hear the unreleased sampler.',
+  Silver: 'Go deeper into the archive.',
+  Gold: 'Get the full project the fans pick.',
+  Platinum: 'All 3 unreleased projects, right now.',
 };
 
 export const DRE_TIER_PRICES_CENTS: Record<string, number> = {
@@ -38,114 +55,103 @@ export const DRE_TIER_PRICES_CENTS: Record<string, number> = {
 
 export const DRE_APPROVED_BENEFITS: Record<string, string[]> = {
   Bronze: [
-    'First word on every new release',
-    'City announcements when Dre is coming through',
-    'Previews and updates from Dre',
+    'The unreleased sampler: one song from each of the 3 projects',
+    'A bonus unreleased song, unlocked when you join',
+    'A vote on which project Dre unlocks first',
+    'First word on the mixtape and every drop',
   ],
   Silver: [
     'Everything in Bronze',
-    'New music before it goes public',
-    'Selected archive material from every era',
-    'Behind the scenes',
-    'Rollout updates as the mixtape comes together',
+    'The archive pack: 6 unreleased songs, 2 from each project',
+    'Behind the scenes from every era',
   ],
   Gold: [
     'Everything in Silver',
-    'The Vault, unreleased music as Dre adds it',
-    'Songs cut from the projects and alternate versions',
-    'Unreleased videos and studio footage',
-    'The Vault organized by era, from O\'Block to the next project',
+    `The complete winning project, unlocked ${DRE_FIRST_UNLOCK_DATE}`,
+    'The Vault: cuts, alternate versions and unreleased videos as Dre adds them',
   ],
   Platinum: [
     'Everything in Gold',
+    'All 3 unreleased projects, complete, the moment you join',
+    'First listen to the project after the mixtape, before anyone else',
     'Group listening sessions when Dre opens one',
-    'Hear projects before they are finished',
-    'Vote on what Dre drops next',
-    'Private group Q and A when Dre opens one',
     'Platinum recognition',
   ],
 };
 
-/** Structured identity per approved line: one registry key per DISTINCT capability, on the
- *  lowest rung that promises it (higher rungs inherit). Same method as GB's
- *  configure-gb-tier-benefits.mjs. No `frequency` anywhere: none was approved. */
+/** One registry key per DISTINCT capability, on the lowest rung that promises it. */
 export const DRE_BENEFIT_IDENTITIES: Record<string, { key: string; line: string }[]> = {
   Bronze: [
-    { key: 'drop_alerts', line: 'First word on every new release' },
-    { key: 'exclusive_posts', line: 'Previews and updates from Dre' },
+    { key: 'welcome_unlock', line: 'A bonus unreleased song, unlocked when you join' },
+    { key: 'creative_voting', line: 'A vote on which project Dre unlocks first' },
+    { key: 'drop_alerts', line: 'First word on the mixtape and every drop' },
   ],
   Silver: [
-    { key: 'early_access', line: 'New music before it goes public' },
-    { key: 'exclusive_tracks', line: 'Selected archive material from every era' },
+    { key: 'exclusive_tracks', line: 'The archive pack: 6 unreleased songs, 2 from each project' },
+    { key: 'exclusive_posts', line: 'Behind the scenes from every era' },
   ],
   Gold: [
-    { key: 'vault_collection', line: 'The Vault, unreleased music as Dre adds it' },
+    { key: 'vault_collection', line: 'The Vault: cuts, alternate versions and unreleased videos as Dre adds them' },
   ],
   Platinum: [
+    { key: 'early_access', line: 'First listen to the project after the mixtape, before anyone else' },
     { key: 'group_live_qa', line: 'Group listening sessions when Dre opens one' },
-    { key: 'creative_voting', line: 'Vote on what Dre drops next' },
     { key: 'member_recognition', line: 'Platinum recognition' },
   ],
 };
 
-/** The funnel's standout item for the PRIMARY offer (Platinum, like GB's), shown only where
- *  a rung has no full offer experience. */
+/** The funnel's standout item for the PRIMARY offer, shown only where a rung has no full
+ *  offer experience. */
 export const DRE_FUNNEL_PRIMARY_ITEM = {
-  title: 'Be in the room before the project is finished',
+  title: 'All 3 unreleased projects, right now',
   description:
-    'Most fans hear the project the day it drops. Platinum hears it while Dre is still making it, votes on what comes next, and gets the Vault too.',
+    'Everyone else waits for the vote to see which project unlocks. Platinum gets all 3, complete, the moment they join.',
+};
+
+// Stand-in until Dre records his own: the same CRWN video GB carries, DISCLOSED by
+// isPlaceholder (the renderer prints the Example video chip). Swap the url, keep the rule.
+const STAND_IN_VSL = {
+  url: 'https://pub-490263a6ac304986851fbf65e6f3ff13.r2.dev/vsl/vsl-1-fan-worth.mp4',
+  posterUrl: 'https://thecrwn.app/vsl/vsl-1-fan-worth.webp',
+  isPlaceholder: true,
 };
 
 export const DRE_PLATINUM_OFFER: TierOfferExperience = {
-  promise: 'Be in the room before the project is finished.',
-  description:
-    'Most fans hear the project the day it drops. Platinum hears it while Dre is still making it, votes on what comes next, and gets in the room when he opens one.',
-  cta: 'Get Me in the Room',
+  promise: 'All 3 unreleased projects, right now.',
+  description: `Everyone else waits to see which project wins the vote. Platinum gets ${ROTP}, ${FPOB} and ${OTOIME}, complete, the moment you join, and hears the next project before anyone else.`,
+  cta: 'Unlock All 3 Projects',
   secondaryCue: 'See what you get',
-  // Stand-in until Dre records his own: the same CRWN video GB carries, DISCLOSED by
-  // isPlaceholder (the renderer prints the Example video chip). Swap the url, keep the rule.
-  vsl: {
-    url: 'https://pub-490263a6ac304986851fbf65e6f3ff13.r2.dev/vsl/vsl-1-fan-worth.mp4',
-    posterUrl: 'https://thecrwn.app/vsl/vsl-1-fan-worth.webp',
-    isPlaceholder: true,
-  },
+  vsl: STAND_IN_VSL,
   previews: [
     {
-      kind: 'session',
+      kind: 'collection',
       truth: 'example',
-      title: 'Group listening sessions',
-      description:
-        'When Dre opens a listening room for a project, Platinum is in it. No fixed schedule is promised; when it happens, you are there.',
-    },
-    {
-      kind: 'decision',
-      truth: 'example',
-      title: 'Choose the next record',
-      description: 'Dre puts unreleased records in front of Platinum. You listen, you pick, the votes count.',
-      options: [
-        { label: 'Record A', sublabel: 'The one fans keep asking for' },
-        { label: 'Record B', sublabel: 'Cut from the mixtape' },
-        { label: 'Record C', sublabel: 'Something new' },
+      title: 'All 3 projects, complete',
+      description: 'Not a sampler. Every song on every project, the moment you join.',
+      items: [
+        { title: ROTP, subtitle: 'Complete project', locked: true },
+        { title: FPOB, subtitle: 'Complete project', locked: true },
+        { title: OTOIME, subtitle: 'Complete project', locked: true },
       ],
-      actionLabel: 'Cast your vote',
     },
     {
       kind: 'timeline',
       truth: 'example',
-      title: 'Where Platinum sits in a project',
-      description: 'The gold steps are where Platinum hears it before anyone else.',
+      title: 'What each level gets',
+      description: 'The gold steps are what Platinum has on day one.',
       steps: [
-        { label: 'Studio', participates: true },
-        { label: 'Rough mix', participates: true },
-        { label: 'Final pick', participates: true },
-        { label: 'Release' },
+        { label: 'Sampler', participates: true },
+        { label: 'Archive pack', participates: true },
+        { label: 'Winning project', participates: true },
+        { label: 'All 3 projects', participates: true },
+        { label: 'Next project first', participates: true },
       ],
     },
     {
       kind: 'session',
       truth: 'example',
-      title: 'Private group Q and A',
-      description: 'When Dre opens a group Q and A, it is Platinum only.',
+      title: 'Group listening sessions',
+      description: 'When Dre opens a listening room for the next project, Platinum is in it. No fixed schedule is promised; when it happens, you are there.',
     },
     {
       kind: 'status',
@@ -158,21 +164,20 @@ export const DRE_PLATINUM_OFFER: TierOfferExperience = {
   inherited: {
     heading: 'Everything in Gold is included',
     items: [
-      'The Vault, unreleased music as Dre adds it',
-      'Songs cut from the projects and alternate versions',
-      'Unreleased videos and studio footage',
-      'New music before it goes public',
-      'Everything in Silver and Bronze too',
+      'The complete winning project',
+      'The Vault as Dre adds to it',
+      'The archive pack: 6 unreleased songs',
+      'The sampler and the bonus song',
     ],
   },
   faqs: [
     {
       q: 'What is the difference between Gold and Platinum?',
-      a: 'Gold gets the Vault: the unreleased music, cuts and footage. Platinum gets all of that plus the room: listening sessions, votes on what drops next, and group Q and A when Dre opens them.',
+      a: `Gold gets the one project that wins the vote, unlocked ${DRE_FIRST_UNLOCK_DATE}. Platinum gets all 3 projects complete, today, and hears the project after the mixtape first.`,
     },
     {
-      q: 'How often are listening sessions?',
-      a: 'There is no fixed schedule. When Dre opens one, Platinum members are in it.',
+      q: 'Is the mixtape included?',
+      a: 'The mixtape drops everywhere, free to stream. These are the projects the public never got.',
     },
     {
       q: 'Can I cancel?',
@@ -182,101 +187,89 @@ export const DRE_PLATINUM_OFFER: TierOfferExperience = {
 };
 
 export const DRE_GOLD_OFFER: TierOfferExperience = {
-  promise: 'Hear the music the public never got.',
-  description:
-    'The records cut from the projects, the alternate versions, and the unreleased videos, organized by era. The mixtape drops everywhere. The Vault does not.',
-  cta: 'Unlock the Vault',
+  promise: 'Get the full project the fans pick.',
+  description: `The project with the most votes by ${DRE_FIRST_UNLOCK_DATE} unlocks for Gold, every song on it. Until then you get the archive pack now: 6 unreleased songs, 2 from each project.`,
+  cta: 'Unlock the Winning Project',
   secondaryCue: 'See what you get',
-  // Stand-in until Dre records his own: the same CRWN video GB carries, DISCLOSED by
-  // isPlaceholder (the renderer prints the Example video chip). Swap the url, keep the rule.
-  vsl: {
-    url: 'https://pub-490263a6ac304986851fbf65e6f3ff13.r2.dev/vsl/vsl-1-fan-worth.mp4',
-    posterUrl: 'https://thecrwn.app/vsl/vsl-1-fan-worth.webp',
-    isPlaceholder: true,
-  },
+  vsl: STAND_IN_VSL,
   previews: [
     {
       kind: 'collection',
       truth: 'example',
-      title: 'The Vault, by era',
-      description: 'Not one giant folder. Every era gets its own Vault as Dre adds to it.',
+      title: `One of these unlocks ${DRE_FIRST_UNLOCK_DATE}`,
+      description: 'Whichever project the fans vote up unlocks for Gold, complete.',
       items: [
-        { title: "O'Block Vault", subtitle: 'The early era', locked: true },
-        { title: 'Prince of Drill Vault', subtitle: 'Cuts and OG versions', locked: true },
-        { title: 'Mixtape Vault', subtitle: 'What did not make it', locked: true },
+        { title: ROTP, subtitle: 'Complete project', locked: true },
+        { title: FPOB, subtitle: 'Complete project', locked: true },
+        { title: OTOIME, subtitle: 'Complete project', locked: true },
       ],
     },
     {
       kind: 'audio',
       truth: 'example',
-      title: 'Cut from the mixtape',
-      description: 'The records that did not make the final list. The public never hears these.',
+      title: 'The archive pack, today',
+      description: '2 unreleased songs from each project, yours the moment you join.',
       items: [
-        { title: 'Mixtape cut', subtitle: 'Did not make the tracklist', locked: true },
-        { title: 'Alternate version', subtitle: 'Different verse, different beat', locked: true },
+        { title: ROTP, subtitle: '2 unreleased songs', locked: true },
+        { title: FPOB, subtitle: '2 unreleased songs', locked: true },
+        { title: OTOIME, subtitle: '2 unreleased songs', locked: true },
       ],
       actionLabel: 'Unlock the music',
     },
     {
       kind: 'video',
       truth: 'example',
-      title: 'Unreleased videos and studio footage',
-      description: 'The visuals and sessions that never went public, posted for members.',
+      title: 'The Vault',
+      description: 'Cuts, alternate versions and unreleased videos, posted for members as Dre adds them.',
     },
   ],
   inherited: {
     heading: 'Everything in Silver and Bronze included',
     items: [
-      'New music before it goes public',
-      'Selected archive material from every era',
-      'Behind the scenes',
-      'First word on every release and city stop',
+      'The archive pack: 6 unreleased songs',
+      'Behind the scenes from every era',
+      'The sampler and the bonus song',
+      'First word on the mixtape and every drop',
     ],
   },
   faqs: [
     {
-      q: 'Is this the mixtape?',
-      a: 'No. The mixtape drops everywhere. The Vault is what the public never gets: the cuts, the alternate versions and the unreleased videos.',
+      q: 'What if the project I voted for does not win?',
+      a: `The project with the most votes by ${DRE_FIRST_UNLOCK_DATE} unlocks for Gold. If you want every project no matter what wins, Platinum gets all 3 today.`,
     },
     {
-      q: 'What is the difference between Gold and Platinum?',
-      a: 'Gold gets the Vault. Platinum gets the Vault plus the room: listening sessions, votes on what drops next, and group Q and A when Dre opens them.',
+      q: 'Is the mixtape included?',
+      a: 'The mixtape drops everywhere, free to stream. These are the projects the public never got.',
     },
     {
       q: 'Can I cancel?',
       a: 'Any time. Your access runs to the end of the billing period you already paid for.',
     },
-    {
-      q: 'What happens if I stay on the free tier?',
-      a: 'You stay on Dre’s list and hear about every release and city stop first. The paid rungs are open whenever you want more.',
-    },
   ],
 };
 
-/** Silver is the funnel's downsell under Gold. */
 export const DRE_SILVER_OFFER: TierOfferExperience = {
-  promise: 'Hear it before everybody else.',
-  description:
-    'New music before it goes public, selected archive material from every era, and the behind the scenes of the rollout.',
-  cta: 'Let Me Hear It First',
+  promise: 'Go deeper into the archive.',
+  description: 'The sampler is 3 songs. The archive pack is 6 more: 2 unreleased songs from each project, yours the moment you join.',
+  cta: 'Get the Archive Pack',
   secondaryCue: 'See what you get',
   vsl: { url: null },
   previews: [
     {
       kind: 'collection',
       truth: 'example',
-      title: 'Before everybody else',
-      description: 'What Silver opens: the music early, the archive, and the making of it.',
+      title: 'The archive pack',
+      description: '2 unreleased songs from each project.',
       items: [
-        { title: 'Early listen', subtitle: 'Before the public', locked: true },
-        { title: 'From the archive', subtitle: 'Every era', locked: true },
-        { title: 'Behind the scenes', subtitle: 'The rollout', locked: true },
+        { title: ROTP, subtitle: '2 unreleased songs', locked: true },
+        { title: FPOB, subtitle: '2 unreleased songs', locked: true },
+        { title: OTOIME, subtitle: '2 unreleased songs', locked: true },
       ],
     },
   ],
   inherited: {
     heading: 'Everything in Bronze included',
-    items: ['First word on every new release', 'City announcements when Dre is coming through'],
+    items: ['The sampler and the bonus song', 'First word on the mixtape and every drop'],
   },
 };
 
@@ -294,25 +287,44 @@ export const PRINCE_DRE: LaunchPartnerConfig = {
   funnelPrimary: 'Platinum',
   funnelDownsell: 'Gold',
   funnelPrimaryItem: DRE_FUNNEL_PRIMARY_ITEM,
-  // The lead magnet (founder brief, 2026-09-28): three unreleased songs, one from each of
-  // three projects. Fans listen, tap one, and name + email cast the vote and join Bronze.
-  // The project with the most votes drops in the Vault for Gold. Order is the founder's
-  // (2026-09-28): Wishing Well, Kill Or Be Killed, In My Eyes.
+  // The lead magnet: one song from each project, in the founder's order. The label is the
+  // PROJECT (what the fan votes on); the song is how they hear it; the cover is the project's.
   vote: {
     offerSlug: 'vote',
-    offerName: 'Next project vote',
-    headline: 'YOU PICK WHAT DRE DROPS NEXT',
-    description:
-      'Three unreleased songs from three different projects. Listen, pick one. The project with the most votes drops in the Vault for Gold members.',
-    question: 'Which project should Dre drop next?',
+    offerName: 'First unlock vote',
+    headline: '3 UNRELEASED PROJECTS. ONE SONG FROM EACH.',
+    description: `Dre has 3 projects fans keep asking about. Listen to one song from each, then vote for the one he unlocks first. Every vote also unlocks a bonus unreleased song in the free account we email you. The project with the most votes by ${DRE_FIRST_UNLOCK_DATE} unlocks for Gold.`,
+    question: 'Which project should Dre unlock first?',
     projectTitle: 'Next project vote',
     stageLabel: 'Next project',
     winnerRung: 'Gold',
     options: [
-      // The fan votes on the PROJECT; the song is how they hear it. Cover = the project's cover.
-      { label: 'The Return Of The Prince', trackTitle: 'Wishing Well', file: 'videos/output/Prince Dre - Wishing Well.wav', artFile: 'videos/output/Prince Dre - The Return Of The Prince.jpg' },
-      { label: "Fresh Prince Of O'Block", trackTitle: 'Kill Or Be Killed', file: 'videos/output/Prince Dre - Kill Or Be Killed.wav', artFile: 'videos/output/Prince Dre - Fresh Prince Of O Block.jpg' },
-      { label: 'Only The O In My Eyes', trackTitle: 'In My Eyes', file: 'videos/output/Prince Dre - In My Eyes.wav', artFile: 'videos/output/prince dre - Only The O In My Eyes.jpg' },
+      { label: ROTP, trackTitle: 'Wishing Well', file: 'videos/output/Prince Dre - Wishing Well.wav', artFile: COVER[ROTP] },
+      { label: FPOB, trackTitle: 'Kill Or Be Killed', file: 'videos/output/Prince Dre - Kill Or Be Killed.wav', artFile: COVER[FPOB] },
+      { label: OTOIME, trackTitle: 'In My Eyes', file: 'videos/output/Prince Dre - In My Eyes.wav', artFile: COVER[OTOIME] },
+    ],
+  },
+  // What each rung holds. `rung` is the LOWEST rung that hears it; every rung above it is
+  // listed on the track too (the gate is an exact match, there is no inheritance).
+  content: {
+    tracks: [
+      { title: 'Bonus Record', rung: 'Bronze', placeholder: true, file: 'videos/music/primary/7-4 b 135.mp3' },
+      { title: `${ROTP}: Archive 1`, rung: 'Silver', placeholder: true, file: 'videos/music/primary/Makavhan Zodiae.mp3', artFile: COVER[ROTP] },
+      { title: `${ROTP}: Archive 2`, rung: 'Silver', placeholder: true, file: 'videos/music/secondary/Gorgeous - 7-8.mp3', artFile: COVER[ROTP] },
+      { title: `${FPOB}: Archive 1`, rung: 'Silver', placeholder: true, file: 'videos/music/secondary/Triplets - 7-3.mp3', artFile: COVER[FPOB] },
+      { title: `${FPOB}: Archive 2`, rung: 'Silver', placeholder: true, file: 'videos/music/tertiary/7-12 100.mp3', artFile: COVER[FPOB] },
+      { title: `${OTOIME}: Archive 1`, rung: 'Silver', placeholder: true, file: 'videos/music/tertiary/Now Or Never.wav', artFile: COVER[OTOIME] },
+      { title: `${OTOIME}: Archive 2`, rung: 'Silver', placeholder: true, file: 'videos/music/tertiary/Real Rank (Kodak Black x 21 Savage).wav', artFile: COVER[OTOIME] },
+      { title: `${ROTP}: Full Project Cut`, rung: 'Platinum', placeholder: true, file: 'videos/music/primary/7-4 b 135.mp3', artFile: COVER[ROTP] },
+      { title: `${FPOB}: Full Project Cut`, rung: 'Platinum', placeholder: true, file: 'videos/music/primary/Makavhan Zodiae.mp3', artFile: COVER[FPOB] },
+      { title: `${OTOIME}: Full Project Cut`, rung: 'Platinum', placeholder: true, file: 'videos/music/secondary/Triplets - 7-3.mp3', artFile: COVER[OTOIME] },
+    ],
+    // Each project is an album on his page: the vote song (free), the 2 archive songs
+    // (Silver), then the rest (Platinum, and Gold for the winner once it is recorded).
+    projects: [
+      { title: ROTP, artFile: COVER[ROTP], voteLabel: ROTP, trackTitles: ['Wishing Well', `${ROTP}: Archive 1`, `${ROTP}: Archive 2`, `${ROTP}: Full Project Cut`] },
+      { title: FPOB, artFile: COVER[FPOB], voteLabel: FPOB, trackTitles: ['Kill Or Be Killed', `${FPOB}: Archive 1`, `${FPOB}: Archive 2`, `${FPOB}: Full Project Cut`] },
+      { title: OTOIME, artFile: COVER[OTOIME], voteLabel: OTOIME, trackTitles: ['In My Eyes', `${OTOIME}: Archive 1`, `${OTOIME}: Archive 2`, `${OTOIME}: Full Project Cut`] },
     ],
   },
 };

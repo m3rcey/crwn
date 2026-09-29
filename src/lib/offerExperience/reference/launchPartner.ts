@@ -44,6 +44,26 @@ export interface VoteMagnetConfig {
   options: { label: string; trackTitle: string; file?: string; artFile?: string }[];
 }
 
+/** A track the launch uploads, gated from its LOWEST rung up. `placeholder` marks stand-in
+ *  audio (a beat) uploaded under the title the real song will take, until the artist sends it. */
+export interface ContentTrack {
+  title: string;
+  rung: Rung;
+  file: string;
+  artFile?: string;
+  placeholder?: boolean;
+}
+
+/** A project (album) on the artist's page. `voteLabel` ties it to a vote option: when the
+ *  artist records that option as the winner, `--unlock-winner` opens its Platinum-only
+ *  tracks to Gold. */
+export interface ContentProject {
+  title: string;
+  artFile?: string;
+  voteLabel?: string;
+  trackTitles: string[];
+}
+
 export interface LaunchPartnerConfig {
   /** Registry key and the script argument. */
   key: string;
@@ -61,6 +81,7 @@ export interface LaunchPartnerConfig {
   funnelDownsell: PaidRung;
   funnelPrimaryItem: { title: string; description: string };
   vote?: VoteMagnetConfig;
+  content?: { tracks: ContentTrack[]; projects: ContentProject[] };
 }
 
 export const LADDER_PRICES_CENTS: Record<Rung, number> = Object.fromEntries(
@@ -96,7 +117,18 @@ export function checkLaunchPartner(c: LaunchPartnerConfig): string[] {
     }
     if (new Set(v.options.map((o) => o.trackTitle.toLowerCase())).size !== v.options.length) errors.push('vote: two options name the same song');
   }
-  const text = JSON.stringify(c);
+  if (c.content) {
+    const titles = c.content.tracks.map((t) => t.title.toLowerCase());
+    if (new Set(titles).size !== titles.length) errors.push('content: two tracks share a title');
+    const known = new Set([...titles, ...(c.vote?.options ?? []).map((o) => o.trackTitle.toLowerCase())]);
+    for (const t of c.content.tracks) if (!LADDER_RUNGS.includes(t.rung)) errors.push(`content: ${t.title} has no valid rung`);
+    for (const p of c.content.projects) {
+      for (const tt of p.trackTitles) if (!known.has(tt.toLowerCase())) errors.push(`content: project ${p.title} lists unknown track "${tt}"`);
+      if (p.voteLabel && !(c.vote?.options ?? []).some((o) => o.label === p.voteLabel)) errors.push(`content: project ${p.title} names a vote option that does not exist`);
+    }
+  }
+  // Copy is checked, not file paths: a beat's filename is not a promise to a fan.
+  const text = JSON.stringify({ ...c, content: undefined, vote: c.vote ? { ...c.vote, options: c.vote.options.map((o) => o.label) } : undefined });
   if (/[—–]/.test(text)) errors.push('an em or en dash is in the copy');
   if (/Join (Platinum|Gold|Silver|Bronze)/.test(text)) errors.push('a Join-tier button is in the copy');
   for (const b of BANNED) if (text.toLowerCase().includes(b)) errors.push(`forbidden promise language: "${b}"`);
