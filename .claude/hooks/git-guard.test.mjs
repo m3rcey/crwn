@@ -109,6 +109,16 @@ test('main checkout: shared, so discarding work there is blocked', () => {
   allowed(MAIN, 'git status && git diff --cached --stat && git commit -F /tmp/msg -- src/x.ts');
 });
 
+test('the launcher and every Stop-hook script run by path are executable', () => {
+  // settings.local.json runs these as `bash -lc '<path>'`, so a lost exec bit is a hook that fails
+  // on every turn with "permission denied" and gates nothing. It has happened twice: files edited
+  // from the Windows side come back 0644 (doc-sync-reminder.sh was dead on master until 2026-09-29).
+  const repo = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..', '..');
+  for (const f of ['scripts/dev/crwn', '.claude/hooks/build-gate.sh', '.claude/hooks/doc-sync-reminder.sh', '.claude/hooks/notify-complete.sh']) {
+    assert.ok(fs.statSync(path.join(repo, f)).mode & 0o100, `${f} is not executable (chmod +x and git update-index --chmod=+x)`);
+  }
+});
+
 test('non-git tools and commands are ignored', () => {
   assert.equal(evaluate({ tool_name: 'Edit', tool_input: { command: 'git push --force origin master' }, cwd: MAIN }), null);
   allowed(MAIN, 'ls -la && npm run lint');
