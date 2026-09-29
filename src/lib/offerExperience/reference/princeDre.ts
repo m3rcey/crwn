@@ -310,7 +310,8 @@ export const PRINCE_DRE: LaunchPartnerConfig = {
     offerSlug: 'vote',
     offerName: 'First unlock vote',
     headline: '3 UNRELEASED PROJECTS. ONE SONG FROM EACH.',
-    description: `Dre has 3 projects fans keep asking about. Listen to one song from each, then vote for the one he unlocks first. Every vote also unlocks a bonus unreleased song in the free account we email you. The project with the most votes by ${DRE_FIRST_UNLOCK_DATE} unlocks in full for his $25 members.`,
+    // Kept to three lines: the covers and the vote button must sit above a laptop's fold.
+    description: `Vote for the one Dre unlocks first. Most votes by ${DRE_FIRST_UNLOCK_DATE} unlocks in full for his $25 members. Every vote gets a bonus unreleased song in the free account we email you.`,
     question: 'Which project should Dre unlock first?',
     projectTitle: 'Next project vote',
     stageLabel: 'Next project',

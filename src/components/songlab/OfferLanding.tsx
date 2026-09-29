@@ -602,9 +602,12 @@ export function OfferLanding({
   }
 
   /* ── Ballot mode: the songs are the page ── */
+  // An online vote (songs on the options) is compact so the covers and "Cast my vote" land
+  // above the fold on a laptop; a live-show ballot keeps the large type a venue needs.
+  const online = ballotTracks.length > 0;
   return (
-    <Shell>
-      <Hero artistName={artistName} avatarUrl={avatarUrl} headline={headline} description={description} uppercase />
+    <Shell compact={online}>
+      <Hero artistName={artistName} avatarUrl={avatarUrl} headline={headline} description={description} uppercase compact={online} />
 
       {/* The clock sits ABOVE the choices: a fan deciding whether to bother needs to know
           how long they have before they read the options, not after. Refreshes the page
@@ -619,9 +622,9 @@ export function OfferLanding({
       <div
         role="radiogroup"
         aria-label={ballot!.question}
-        className="space-y-3 mb-6"
+        className={online ? 'space-y-2 mb-4' : 'space-y-3 mb-6'}
       >
-        <p className="text-lg font-semibold text-crwn-text">
+        <p className={`${online ? 'text-base' : 'text-lg'} font-semibold text-crwn-text`}>
           {ballotTracks.length ? 'Listen, then tap your pick:' : 'Tap your pick:'}
         </p>
         {ballotTracks.length ? (
@@ -763,7 +766,7 @@ export function OfferLanding({
       <button
         onClick={submitBallot}
         disabled={busy || isLoading}
-        className="w-full py-5 rounded-full bg-crwn-gold text-crwn-bg text-xl font-bold uppercase tracking-wide hover:bg-crwn-gold/90 active:scale-[0.98] transition disabled:opacity-60"
+        className={`w-full ${online ? 'py-4 text-lg' : 'py-5 text-xl'} rounded-full bg-crwn-gold text-crwn-bg font-bold uppercase tracking-wide hover:bg-crwn-gold/90 active:scale-[0.98] transition disabled:opacity-60`}
       >
         {busy ? BALLOT_SUBMITTING_LABEL : BALLOT_CTA_LABEL}
       </button>
@@ -793,41 +796,45 @@ export function OfferLanding({
 
 /* ── Shared chrome ── */
 
-function Shell({ children }: { children: React.ReactNode }) {
+function Shell({ children, compact }: { children: React.ReactNode; compact?: boolean }) {
   // The player bar is fixed to the bottom once a song plays; reserve its height so it never
   // covers the vote button or the email fields.
   const { currentTrack } = usePlayer();
   return (
-    <div className={`min-h-screen bg-crwn-bg flex flex-col items-center justify-center px-5 py-10 ${currentTrack ? 'pb-36' : ''}`}>
+    <div className={`min-h-screen bg-crwn-bg flex flex-col items-center justify-center px-5 ${compact ? 'py-5' : 'py-10'} ${currentTrack ? 'pb-36' : ''}`}>
       <div className="w-full max-w-md text-center page-fade-in">{children}</div>
     </div>
   );
 }
 
-function Hero({ artistName, avatarUrl, headline, description, uppercase }: {
+function Hero({ artistName, avatarUrl, headline, description, uppercase, compact }: {
   artistName: string;
   avatarUrl: string | null;
   headline: string;
   description: string | null;
   uppercase?: boolean;
+  /** An online vote: the covers and "Cast my vote" must sit above the fold on a laptop and a
+   *  phone, so the hero gives up size. A live-show ballot keeps the big type a room needs. */
+  compact?: boolean;
 }) {
+  const size = compact ? 52 : 72;
   return (
     <>
       {avatarUrl ? (
         <Image
           src={avatarUrl}
           alt={artistName}
-          width={72}
-          height={72}
-          className="rounded-full mx-auto mb-4 object-cover ring-2 ring-crwn-gold/60"
+          width={size}
+          height={size}
+          className={`rounded-full mx-auto object-cover ring-2 ring-crwn-gold/60 ${compact ? 'mb-2' : 'mb-4'}`}
         />
       ) : null}
-      <p className="text-sm font-semibold tracking-widest uppercase text-crwn-gold mb-3">{artistName}</p>
-      <h1 className={`text-3xl sm:text-4xl font-bold text-crwn-text leading-tight mb-4 ${uppercase ? 'uppercase' : ''}`}>
+      <p className={`text-sm font-semibold tracking-widest uppercase text-crwn-gold ${compact ? 'mb-1.5' : 'mb-3'}`}>{artistName}</p>
+      <h1 className={`${compact ? 'text-2xl sm:text-3xl mb-2' : 'text-3xl sm:text-4xl mb-4'} font-bold text-crwn-text leading-tight ${uppercase ? 'uppercase' : ''}`}>
         {headline}
       </h1>
       {description ? (
-        <p className="text-lg text-crwn-text-secondary mb-4 whitespace-pre-line">{description}</p>
+        <p className={`${compact ? 'text-base leading-snug mb-3' : 'text-lg mb-4'} text-crwn-text-secondary whitespace-pre-line`}>{description}</p>
       ) : null}
     </>
   );
