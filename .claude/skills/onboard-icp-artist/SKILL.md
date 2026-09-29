@@ -176,6 +176,13 @@ artist's page.
   `&` first or the token is clipped). Do not screenshot it from a browser without the
   `crwn_dnt` cookie (it counts as a view), and never submit a test vote with a real address: it
   creates a real user and membership only the founder may delete. The founder does the one tap test.
+- **When the founder tests a vote from their own account** (they will, repeatedly), each vote
+  is a real membership, a badge, a claim and a notification in the artist's inbox. Remove it:
+
+      node scripts/remove-test-vote.mjs <artistSlug> <fanUserId>          (shows the rows)
+      node scripts/remove-test-vote.mjs <artistSlug> <fanUserId> --apply  (deletes exactly those)
+
+  It refuses anything but the synthetic free membership, so it can never delete a paid one.
 
 ## 5. Hand-offs (same commit as the build)
 
