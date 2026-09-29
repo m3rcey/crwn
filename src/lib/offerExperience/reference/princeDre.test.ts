@@ -68,6 +68,20 @@ describe('truth discipline', () => {
     expect(c.previews.find((p) => p.kind === 'status')?.thread).toBeUndefined();
   });
 
+  it('the hero art and the mock-video covers survive the write contract', () => {
+    for (const [name, o] of [['Platinum', DRE_PLATINUM_OFFER], ['Gold', DRE_GOLD_OFFER]] as const) {
+      const c = normalizeOfferExperience(o, name)!;
+      expect(c.heroImageUrl).toMatch(/\/object\/public\/album-art\/.+\.webp$/);
+    }
+    const posters = OFFERS.flatMap(([n, o]) => normalizeOfferExperience(o, n)!.previews).filter((p) => p.posterUrl);
+    expect(posters.map((p) => p.kind).sort()).toEqual(['session', 'video']);
+  });
+
+  it('a signed (private) image is never accepted as hero art', () => {
+    const c = normalizeOfferExperience({ ...DRE_GOLD_OFFER, heroImageUrl: 'https://x.supabase.co/storage/v1/object/sign/audio/a.webp?token=abc' }, 'Gold')!;
+    expect(c.heroImageUrl).toBeUndefined();
+  });
+
   it('fan-facing headings never assume the fan knows a rung name', () => {
     for (const [, o] of OFFERS) expect(o.inherited?.heading).toBe('Also included');
   });

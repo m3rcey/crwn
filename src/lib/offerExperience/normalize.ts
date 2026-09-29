@@ -157,6 +157,9 @@ export function normalizeOfferExperience(raw: unknown, tierName?: string): TierO
   const secondaryCue = str(r.secondaryCue, L.secondaryCue);
   if (secondaryCue) out.secondaryCue = secondaryCue;
 
+  const heroImage = safePosterUrl(r.heroImageUrl);
+  if (heroImage) out.heroImageUrl = heroImage;
+
   if (r.vsl && typeof r.vsl === 'object') {
     const v = r.vsl as Record<string, unknown>;
     const url = typeof v.url === 'string' ? safePosterUrl(v.url) : null;

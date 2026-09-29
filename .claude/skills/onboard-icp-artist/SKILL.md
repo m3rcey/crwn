@@ -167,6 +167,15 @@ artist name; if it is taken or the name is ambiguous, ask the founder before app
 wizard does, only when the artist has no photo (or with `--refresh-art`). Open the uploaded
 image and look at it before reporting: the face must survive the square crop.
 
+**Offer art.** Each paid offer takes a `heroImageUrl` (above the promise) and session/video
+previews take a `posterUrl`, which renders as a mock video with a drawn, non-clickable play
+mark. Generate them with [generate-prince-dre-art.mjs](generate-prince-dre-art.mjs) as the
+template: flat vector poster art in the five brand colours (CLAUDE.md brand rule; illustration,
+never fake photos of events that did not happen), 16:9, WebP, likeness from the artist's
+CURRENT-look photos only (leave out other eras so the model cannot blend them). Look at every
+image (a reviewer subagent works when there are several), then upload to
+`album-art/<artistId>/offer/` and reference the public URLs from the config.
+
 **Offer previews must read to a stranger.** Every card on an offer page is read by a fan who
 has never heard the rung names. No process diagrams (a "Sampler, Archive pack, Winning
 project" timeline was cut on 2026-09-28 for exactly this), no internal words. Show the real

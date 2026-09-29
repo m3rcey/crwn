@@ -121,6 +121,9 @@ export interface TierOfferExperience {
   cta: string;
   /** e.g. "See what you get" (the down-cue). */
   secondaryCue?: string;
+  /** Artwork above the promise (16:9). A public https image only, like every poster: the
+   *  normalizer refuses signed or credentialed URLs. */
+  heroImageUrl?: string;
   vsl?: OfferVsl;
   /** Merchandising order, deliberately independent of entitlement order. */
   previews: OfferPreview[];

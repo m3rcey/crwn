@@ -230,8 +230,19 @@ function PreviewBody({ p, onTry }: { p: OfferPreview; onTry?: () => void }) {
       return (
         <div className="mt-3 rounded-xl overflow-hidden bg-crwn-elevated">
           {p.posterUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={p.posterUrl} alt={p.title} loading="lazy" className="w-full aspect-video object-cover" />
+            <div className="relative">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={p.posterUrl} alt={p.title} loading="lazy" className="w-full aspect-video object-cover" />
+              {p.kind !== 'image' ? (
+                // A session or video preview reads as a video: a drawn play mark, never a
+                // control. There is no video behind it, so nothing is clickable.
+                <span aria-hidden className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                  <span className="w-14 h-14 rounded-full bg-crwn-bg/70 ring-2 ring-crwn-gold flex items-center justify-center">
+                    <Play className="w-6 h-6 text-crwn-gold ml-0.5" fill="currentColor" />
+                  </span>
+                </span>
+              ) : null}
+            </div>
           ) : (
             <div aria-hidden className="w-full aspect-video flex items-center justify-center">
               <Play className="w-8 h-8 text-crwn-gold/50" />
@@ -269,6 +280,10 @@ export function TierOfferExperience({ artist, tier, config, actionSlot, onDeclin
     <div className="space-y-6 pb-24">
       {/* ── HERO: promise, price and the benefit CTA, above the fold. ── */}
       <div className="neu-raised rounded-2xl p-6 bg-crwn-card text-center">
+        {config.heroImageUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={config.heroImageUrl} alt="" className="w-full aspect-video object-cover rounded-xl mb-5" />
+        ) : null}
         <p className="text-xs uppercase tracking-wide text-crwn-gold mb-2">
           {tier.name} · {price(tier.priceCents)}
         </p>
