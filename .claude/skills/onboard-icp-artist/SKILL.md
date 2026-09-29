@@ -167,17 +167,28 @@ artist name; if it is taken or the name is ambiguous, ask the founder before app
 wizard does, only when the artist has no photo (or with `--refresh-art`). Open the uploaded
 image and look at it before reporting: the face must survive the square crop.
 
-**Offer art.** Each paid offer takes a `heroImageUrl` (above the promise) and session/video
-previews take a `posterUrl`, which renders as a mock video with a drawn, non-clickable play
-mark. Generate them with [generate-prince-dre-art.mjs](generate-prince-dre-art.mjs) as the
-template: REALISTIC photos of the artist in a recording studio (founder correction 2026-09-28:
-an artist's own page shows real-looking photos of them, NOT CRWN poster art; the brand-poster
-rule is for CRWN's marketing). Always a recording studio, never DJ turntables. 16:9, WebP,
-likeness from the artist's CURRENT-look photos only (leave out other eras so the model cannot
-blend them); a founder-supplied room photo can be passed as a SETTING reference. Get the
-artist's team to approve AI images of their likeness before launch (a TODO item). Look at every
-image (a reviewer subagent works when there are several), then upload to
-`album-art/<artistId>/offer/` and reference the public URLs from the config.
+**Offer art: every image slot is generated from a reference folder the founder names.** Each
+paid offer takes a `heroImageUrl` (above the promise), session/video previews take a
+`posterUrl` (a mock video with a drawn, non-clickable play mark), and the offer `vsl` takes a
+`posterUrl` with `url: null` until the artist records their video. One command fills all five:
+
+    bash -c 'source ./load-env.sh; npx tsx scripts/generate-offer-photos.mjs <artistKey> --refs "<folder>" [--room <file>] --upload'
+
+- [scripts/generate-offer-photos.mjs](scripts/generate-offer-photos.mjs) writes
+  `hero-platinum`, `hero-gold`, `session-listening`, `video-vault` and `vsl-thumb` (16:9 WebP)
+  to `videos/output/<slug>-photos/`, and `--upload` puts each at
+  `album-art/<artistId>/offer/photo-<slot>.webp`. Reference those URLs from the config the way
+  `princeDre.ts` does (`OFFER_ART`). `--only a,b --force` regenerates one slot.
+- REALISTIC photos of the artist in a recording studio (founder correction 2026-09-28: an
+  artist's own page shows real-looking photos of them, NOT CRWN poster art; the brand-poster
+  rule is for CRWN's marketing). Never DJ turntables.
+- **The reference folder must hold the CURRENT look only.** Ask the founder, or look, and move
+  other eras aside: a mixed folder blends two haircuts. A photo with no person (an empty studio)
+  goes in `--room`, never `--refs`.
+- **Look at every image before it goes live** (likeness, headcount, stray text, turntables); with
+  several, a reviewer subagent that views each file against the references. Regenerate a slot
+  with `--only <slot> --force`, then `--upload` again.
+- Get the artist's team to approve AI images of their likeness before launch (a TODO item).
 
 **Offer previews must read to a stranger.** Every card on an offer page is read by a fan who
 has never heard the rung names. No process diagrams (a "Sampler, Archive pack, Winning

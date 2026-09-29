@@ -31,20 +31,19 @@ responsible for. Do not work those.
       the moment charges are enabled. Nothing for you to run. To confirm afterwards, the last column
       of this should read "yes" on Silver, Gold and Platinum:
           npx tsx scripts/onboard-launch-partner.mjs princedre
-      **Do not let a paid tier sell before his real songs replace the placeholders** (next item).
-      Right now Silver, Gold and Platinum play BEATS standing in for his songs. Stripe being
-      unconnected is the only thing stopping a fan from paying $100 for them.
+      Everything behind the paid tiers is now his real music (the placeholder beats were removed
+      2026-09-29): Silver is Blood Brothaz, Gold adds Shotta In Da Jungle.
 
-- [ ] **Get Prince Dre's real songs in before October 1 (the mixtape date), and confirm that date.**
-      His ladder now sells, in [src/lib/offerExperience/reference/princeDre.ts](src/lib/offerExperience/reference/princeDre.ts):
-      Bronze gets a bonus song, Silver 6 archive songs (2 per project), Gold the complete winning
-      project on October 1, Platinum all 3 complete projects. Ten of those slots hold placeholder
-      beats from videos/music/ (marked `placeholder: true` in that file). Ask his team for:
-        1. the bonus song, and 2 archive songs from each of the 3 projects
-        2. the rest of each project (every song, in order)
-        3. written confirmation they control the rights to sell those older projects
-        4. that October 1 is the mixtape date (it is on the vote page as the unlock day)
-      Drop the files in videos/output/ and tell me; I swap them in.
+- [ ] **Get the three vote projects' full songs from Prince Dre's team before October 1, and confirm
+      that date.** Gold promises "the complete winning project, unlocked October 1" and Platinum
+      "all 3 vote projects, complete, the moment Dre adds each one"
+      ([src/lib/offerExperience/reference/princeDre.ts](src/lib/offerExperience/reference/princeDre.ts)).
+      Only one song of each (the vote songs) is uploaded. Ask his team for:
+        1. every song on The Return Of The Prince, Fresh Prince Of O'Block and Only The O In My Eyes, in order
+        2. written confirmation they control the rights to sell those older projects (and Blood
+           Brothaz and Shotta In Da Jungle, which are already live behind Silver and Gold)
+        3. that October 1 is the mixtape date (it is on the vote page as the unlock day)
+      Drop each project in its own folder under videos/prince dre/ and tell me.
 
 
 - [ ] **To finish Team Splits I need a test-mode sandbox. This is the only thing left, and it is
@@ -1119,12 +1118,12 @@ Things that are never finished. Cadence, then the thing.
   real votes, put that rollup on his Fan CRM (`/studio/fans`) so he can read it himself for the
   venue push. Not before: a screen with no data behind it is guessing at a layout.
 
-- **Prince Dre's ladder is built on placeholder beats** (2026-09-28): the vote is live
-  (https://thecrwn.app/princedre/join/vote) and 3 project albums hold 10 placeholder tracks. When
-  his files arrive: point each `placeholder: true` entry in
-  [src/lib/offerExperience/reference/princeDre.ts](src/lib/offerExperience/reference/princeDre.ts) at
-  the real file and title, replace the audio (new upload, access kept), flip the offer previews from
-  `example` to `real`, and add the rest of each project. On October 1, once Dre records the winner,
+- **Prince Dre's three vote projects** (2026-09-29): the vote is live
+  (https://thecrwn.app/princedre/join/vote); each vote project's album holds only its vote song.
+  When his team's files arrive: add each song to `content.tracks` in
+  [src/lib/offerExperience/reference/princeDre.ts](src/lib/offerExperience/reference/princeDre.ts)
+  at rung `Platinum` and list it on its project, apply, and flip the "All 3 projects" previews from
+  `example` to `real`. On October 1, once Dre records the winner,
   run [scripts/onboard-launch-partner.mjs](scripts/onboard-launch-partner.mjs)
   `princedre --apply --unlock-winner` to open that project to Gold. Also: show the Bronze bonus
   song on the after-vote screen itself; today it plays only once the voter opens the emailed
