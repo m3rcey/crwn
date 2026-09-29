@@ -756,6 +756,16 @@ responsible for. Do not work those.
 
 ### P2 — worth doing, nothing breaks if you never do it
 
+- [ ] **Sync the main checkout once so parallel sessions use the worktree-aware hooks.** Worktree
+      sessions run the Stop hooks from `~/workspace-crwn`, and that copy stays on the old
+      main-checkout-only scripts until the checkout moves to current master. When no session in the
+      main checkout is mid-task, run this in a WSL terminal (it refuses rather than overwrite
+      anything):
+          git -C ~/workspace-crwn merge --ff-only origin/master
+      Optional, so you can type `crwn` instead of `scripts/dev/crwn` (WSL):
+          ln -s ~/workspace-crwn/scripts/dev/crwn ~/.local/bin/crwn
+      How to run parallel sessions: [docs/PARALLEL_CLAUDE_SESSIONS.md](docs/PARALLEL_CLAUDE_SESSIONS.md).
+
 - [ ] **Delete the unused Vercel env var `NEW_ARTIST_WEBHOOK_SECRET`.** Nothing reads it since the
       new-artist alert moved into the signup code (2026-09-26). Vercel > crwn > Settings >
       Environment Variables > delete it. No redeploy needed.
