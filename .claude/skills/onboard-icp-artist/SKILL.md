@@ -56,8 +56,11 @@ the probe. Rules the checks enforce (and why), so write them right the first tim
   (nothing is uploaded at onboarding, so nearly everything is `example`). `vsl: { url: null }`
   until the artist records one.
 - No em or en dashes anywhere. Lead with what the fan misses, not generic hype.
-- Funnel: `funnelPrimary` is the rung the magnet bridges into (usually Gold, the Vault);
-  `funnelDownsell` the cheaper one below it.
+- Funnel: `funnelPrimary` / `funnelDownsell` pick the ladder a fan is sold right after they
+  vote (and on the drop page): the primary rung's full offer page first, and "Not right now"
+  rolls down to the downsell. The founder's default is GB's: **Platinum, then Gold**.
+- Video: until the artist records their own, Platinum and Gold carry the same stand-in CRWN
+  video GB does, with `isPlaceholder: true` (the page labels it an example). Silver has none.
 
 ### The vote magnet (`vote`)
 
@@ -89,6 +92,12 @@ played through the app's one player (`usePlayer`, `MiniPlayer`), so only a FREE 
   matched by `trackTitle` (case-insensitive) and must be free, or it is refused (fans could not
   hear it). The songs also appear on the artist's public page as free tracks: that is the magnet.
 - Once a poll has votes, the script never rewrites its options.
+- After the vote, the SAME page becomes the offer: a "your vote is in" line, then the primary
+  rung's Tier Offer Experience (previews, video, FAQ) with the shared purchase cluster
+  (`useOfferPurchase`: checkout for a signed-in fan, an emailed code for a captured contact),
+  and "Not right now" rolls down to the downsell. Stripe returns to the ballot link:
+  `?subscription=success` shows the welcome, `?subscription=canceled` reopens the primary.
+  Checkout needs the artist's Stripe connected; until then the button errors.
 
 Register the config in `launchPartners.ts`, then:
 

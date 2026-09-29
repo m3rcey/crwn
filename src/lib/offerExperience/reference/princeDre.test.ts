@@ -61,8 +61,15 @@ describe('truth discipline', () => {
     }
   });
 
-  it('no VSL slot renders until Dre records one', () => {
-    for (const [, o] of OFFERS) expect(o.vsl!.url).toBeNull();
+  it('the stand-in video is DISCLOSED on Platinum and Gold, and Silver has none', () => {
+    // Founder direction 2026-09-28: same as GB, the CRWN video stands in until Dre records
+    // his own. isPlaceholder is what prints the Example video chip, so it is required
+    // wherever a stand-in url is.
+    for (const o of [DRE_PLATINUM_OFFER, DRE_GOLD_OFFER]) {
+      expect(o.vsl!.url).toMatch(/^https:\/\//);
+      expect(o.vsl!.isPlaceholder).toBe(true);
+    }
+    expect(DRE_SILVER_OFFER.vsl!.url).toBeNull();
   });
 
   it('no em or en dashes, and no Join-tier buttons', () => {

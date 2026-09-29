@@ -38,6 +38,9 @@ import { preselectedOption, type DecisionOption } from '@/lib/songLab/core';
 import { accountEmailNote } from '@/lib/songLab/liveClaim';
 import { VoteCountdown } from '@/components/songlab/VoteCountdown';
 import { usePlayer } from '@/hooks/usePlayer';
+import { TierOfferExperience } from '@/components/offer/TierOfferExperience';
+import { useOfferPurchase, offerPrice } from '@/components/offer/useOfferPurchase';
+import type { TierOfferExperience as OfferConfig } from '@/lib/offerExperience/types';
 import type { Track } from '@/types';
 import {
   BALLOT_CTA_LABEL,
@@ -60,6 +63,21 @@ import {
  *  is absent when the visitor may not play it). It plays through the app's ONE player, which
  *  is what keeps two songs from playing at once and shows the same bar as the artist page. */
 export type LandingOption = DecisionOption & { track?: Track };
+
+/** The artist's ladder sold under an online vote: the same primary/downsell and offer
+ *  experiences the drop page renders, resolved server-side. */
+export interface LandingOfferTier {
+  id: string;
+  name: string;
+  priceCents: number;
+  description: string;
+  benefits: string[];
+}
+export interface LandingOffers {
+  primary: LandingOfferTier;
+  downsell: LandingOfferTier | null;
+  experiences: Record<string, OfferConfig>;
+}
 
 export interface LandingBallot {
   /** Which show's poll this is. Sent back with the vote so the server can refuse a
@@ -89,6 +107,7 @@ interface OfferLandingProps {
   ctaLabel: string;
   ballot?: LandingBallot | null;
   interlude?: LandingInterlude | null;
+  offers?: LandingOffers | null;
 }
 
 interface ClaimResult {
@@ -118,6 +137,7 @@ export function OfferLanding({
   ctaLabel,
   ballot,
   interlude,
+  offers,
 }: OfferLandingProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -129,12 +149,54 @@ export function OfferLanding({
   const { currentTrack, isPlaying, play, pause } = usePlayer();
   // The ballot's songs, in ballot order: the queue the player advances through.
   const ballotTracks = (ballot?.options ?? []).map((o) => o.track).filter((t): t is Track => !!t);
+
   const [firstName, setFirstName] = useState('');
   const [email, setEmail] = useState('');
   const [needsSignIn, setNeedsSignIn] = useState(false);
   const [done, setDone] = useState<ClaimResult | null>(null);
   const autoClaimed = useRef(false);
   const identityRef = useRef<HTMLDivElement | null>(null);
+
+  // ── The ladder under the result (online vote only) ──
+  // The stage is DERIVED: a counted vote or a cancelled checkout opens the primary offer, a
+  // paid checkout shows the welcome, and only an explicit "Not right now" moves it (to the
+  // downsell). A cancel returns to the PRIMARY: backing out of checkout is not a no.
+  const [declined, setDeclined] = useState(false);
+  const [offerError, setOfferError] = useState('');
+  const purchase = useOfferPurchase({
+    email,
+    setEmail,
+    experiences: offers?.experiences,
+    returnPath: () => `/${artistSlug}/join/${offerSlug}`,
+    attributionSource: 'song_lab_vote',
+    utmCampaignFallback: `${artistSlug}-${offerSlug}`,
+    captureStep: 'Vote above',
+    confirmEmailPrompt: 'Confirm the email you voted with and we will send a code.',
+    onError: setOfferError,
+  });
+  const offerBeacon = useCallback((tierId: string, eventType: 'tier_card_viewed' | 'tier_vsl_started' | 'tier_offer_declined') => {
+    fetch('/api/tier-events', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tierIds: [tierId], eventType, source: 'direct' }),
+    }).catch(() => {});
+  }, []);
+  const hasOffer = !!offers && ballotTracks.length > 0;
+  const returnStatus = hasOffer ? searchParams.get('subscription') : null;
+  const offerStage: 'primary' | 'downsell' | 'joined' | null = !hasOffer
+    ? null
+    : returnStatus === 'success'
+      ? 'joined'
+      : done || returnStatus === 'canceled'
+        ? (declined && offers!.downsell ? 'downsell' : 'primary')
+        : null;
+
+  useEffect(() => {
+    if (!offers) return;
+    if (offerStage === 'primary') offerBeacon(offers.primary.id, 'tier_card_viewed');
+    if (offerStage === 'downsell' && offers.downsell) offerBeacon(offers.downsell.id, 'tier_card_viewed');
+    if (offerStage === 'primary' || offerStage === 'downsell') window.scrollTo({ top: 0 });
+  }, [offerStage, offers, offerBeacon]);
 
   const ballotMode = !!ballot && ballot.options.length >= 2;
   const signedIn = !!user;
@@ -312,6 +374,67 @@ export function OfferLanding({
     );
   }
 
+  /* ── Back from a paid checkout ── */
+  if (offerStage === 'joined') {
+    return (
+      <Shell>
+        <div className="mx-auto mb-6 w-16 h-16 rounded-full bg-crwn-gold flex items-center justify-center">
+          <Check className="w-9 h-9 text-crwn-bg" strokeWidth={3} aria-hidden />
+        </div>
+        <h1 className="text-3xl sm:text-4xl font-bold text-crwn-text mb-4">{"You're in"}</h1>
+        <p className="text-lg text-crwn-text-secondary mb-8">
+          {`Your membership with ${artistName} is active. Your receipt is in your email.`}
+        </p>
+        <a
+          href={`/${artistSlug}`}
+          className="block w-full py-5 rounded-full bg-crwn-gold text-crwn-bg text-xl font-bold hover:bg-crwn-gold/90 transition"
+        >
+          {`Go to ${possessive(artistName)} page`}
+        </a>
+      </Shell>
+    );
+  }
+
+  /* ── The ladder, straight after the vote (online vote only) ──
+     Same presentation and the same purchase cluster as the drop page: the primary rung's
+     full experience, and an explicit "Not right now" rolls down to the cheaper rung. */
+  if (hasOffer && (offerStage === 'primary' || offerStage === 'downsell')) {
+    const tier = offerStage === 'downsell' && offers!.downsell ? offers!.downsell : offers!.primary;
+    const config = offers!.experiences[tier.id];
+    if (config) {
+      const isPrimary = tier.id === offers!.primary.id;
+      return (
+        <div className="min-h-screen bg-crwn-bg">
+          <div className={`w-full max-w-xl mx-auto px-5 pt-8 ${currentTrack ? 'pb-40' : 'pb-16'}`}>
+            <div className="mb-6 rounded-2xl bg-crwn-surface ring-1 ring-crwn-gold/40 px-5 py-4 flex items-center gap-3">
+              <span className="w-9 h-9 rounded-full bg-crwn-gold flex items-center justify-center flex-shrink-0">
+                <Check className="w-5 h-5 text-crwn-bg" strokeWidth={3} aria-hidden />
+              </span>
+              <p className="text-base text-crwn-text text-left">
+                {done?.voted && selectedLabel ? `Your vote for ${selectedLabel} is in.` : 'Your vote is in.'}
+                {done && (done.joined || done.alreadyMember) ? ` You're on ${possessive(artistName)} list.` : ''}
+              </p>
+            </div>
+            <TierOfferExperience
+              artist={{ name: artistName, avatarUrl }}
+              tier={tier}
+              config={config}
+              price={offerPrice}
+              actionSlot={purchase.purchaseAction(tier)}
+              onDecline={isPrimary && offers!.downsell ? () => {
+                offerBeacon(tier.id, 'tier_offer_declined');
+                setDeclined(true);
+              } : undefined}
+              declineLabel={isPrimary && offers!.downsell ? 'Not right now' : undefined}
+              onVslStart={() => offerBeacon(tier.id, 'tier_vsl_started')}
+            />
+            {offerError ? <p className="mt-4 text-sm text-red-400 text-center" role="alert">{offerError}</p> : null}
+          </div>
+        </div>
+      );
+    }
+  }
+
   /* ── Confirmation state ── */
   if (done) {
     // This screen ENDS the journey: the live percentages are right here, so there is
@@ -485,60 +608,72 @@ export function OfferLanding({
         <p className="text-lg font-semibold text-crwn-text">
           {ballotTracks.length ? 'Listen, then tap your pick:' : 'Tap your pick:'}
         </p>
-        {ballot!.options.map((o) => {
+        {ballotTracks.length ? (
+          // Online vote: the album covers ARE the ballot. Shown whole, side by side, no
+          // overlay. The cover + name is the choice; the gold corner button only plays, and
+          // it is a sibling of the choice, never inside it, so a play tap never votes.
+          <div className="grid grid-cols-3 gap-3">
+            {ballot!.options.map((o) => {
+              const t = o.track;
+              const isSelected = selected === o.id;
+              const isThisPlaying = !!t && currentTrack?.id === t.id && isPlaying;
+              const pick = () => {
+                setSelected(o.id);
+                if (errorField === 'option') { setError(null); setErrorField(null); }
+              };
+              return (
+                <div key={o.id}>
+                  <div className="relative aspect-square w-full">
+                    <button
+                      type="button"
+                      role="radio"
+                      aria-checked={isSelected}
+                      aria-label={t ? `${o.label}, ${t.title}` : o.label}
+                      onClick={pick}
+                      className={`absolute inset-0 rounded-xl overflow-hidden bg-crwn-elevated shadow-lg transition focus:outline-none focus-visible:ring-4 focus-visible:ring-crwn-gold/70 ${
+                        isSelected ? 'ring-4 ring-crwn-gold' : 'ring-1 ring-white/15 hover:ring-white/40'
+                      }`}
+                    >
+                      {t?.album_art_url ? (
+                        <Image src={t.album_art_url} alt="" fill sizes="(max-width: 480px) 33vw, 150px" className="object-cover" />
+                      ) : (
+                        <Music className="absolute inset-0 m-auto w-8 h-8 text-crwn-text-secondary" aria-hidden />
+                      )}
+                      {isSelected ? (
+                        <span className="absolute top-1.5 left-1.5 w-7 h-7 rounded-full bg-crwn-gold flex items-center justify-center shadow-md">
+                          <Check className="w-4 h-4 text-crwn-bg" strokeWidth={3} aria-hidden />
+                        </span>
+                      ) : null}
+                    </button>
+                    {t ? (
+                      <button
+                        type="button"
+                        onClick={() => (isThisPlaying ? pause() : play(t, ballotTracks))}
+                        aria-label={isThisPlaying ? `Pause ${t.title}` : `Play ${t.title}`}
+                        className="absolute bottom-1.5 right-1.5 w-10 h-10 rounded-full bg-crwn-gold flex items-center justify-center shadow-lg active:scale-95 transition focus:outline-none focus-visible:ring-4 focus-visible:ring-white/70"
+                      >
+                        {isThisPlaying
+                          ? <Pause className="w-5 h-5 text-crwn-bg" fill="currentColor" aria-hidden />
+                          : <Play className="w-5 h-5 text-crwn-bg ml-0.5" fill="currentColor" aria-hidden />}
+                      </button>
+                    ) : null}
+                  </div>
+                  {/* The name is a larger tap target for the same choice; the radio above
+                      already announces it, so this stays out of the accessibility tree. */}
+                  <div onClick={pick} aria-hidden className="mt-2 cursor-pointer text-center">
+                    <span className={`block text-sm font-bold leading-tight ${isSelected ? 'text-crwn-gold' : 'text-crwn-text'}`}>{o.label}</span>
+                    {t ? (
+                      <span className={`block mt-0.5 text-xs ${isThisPlaying ? 'text-crwn-gold' : 'text-crwn-text-secondary'}`}>
+                        {isThisPlaying ? `Playing: ${t.title}` : t.title}
+                      </span>
+                    ) : null}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : ballot!.options.map((o) => {
           const isSelected = selected === o.id;
-          const t = o.track;
-          const isThisPlaying = !!t && currentTrack?.id === t.id && isPlaying;
-          if (t) {
-            // Online vote: the cover is the play control, the rest of the card is the choice.
-            // Two sibling buttons, never nested, so a play tap never casts a selection.
-            return (
-              <div
-                key={o.id}
-                className={`flex items-center gap-4 p-3 rounded-2xl transition ${
-                  isSelected ? 'bg-crwn-gold/15 ring-2 ring-crwn-gold' : 'bg-crwn-surface ring-1 ring-white/15 hover:ring-white/30'
-                }`}
-              >
-                <button
-                  type="button"
-                  onClick={() => (isThisPlaying ? pause() : play(t, ballotTracks))}
-                  aria-label={isThisPlaying ? `Pause ${t.title}` : `Play ${t.title}`}
-                  className="relative w-20 h-20 flex-shrink-0 rounded-xl overflow-hidden bg-crwn-elevated shadow-lg focus:outline-none focus-visible:ring-4 focus-visible:ring-crwn-gold/70"
-                >
-                  {t.album_art_url ? (
-                    <Image src={t.album_art_url} alt="" fill sizes="80px" className="object-cover" />
-                  ) : (
-                    <Music className="absolute inset-0 m-auto w-8 h-8 text-crwn-text-secondary" aria-hidden />
-                  )}
-                  <span className={`absolute inset-0 flex items-center justify-center transition ${isThisPlaying ? 'bg-black/35' : 'bg-black/25'}`}>
-                    <span className="w-10 h-10 rounded-full bg-crwn-gold flex items-center justify-center shadow-md">
-                      {isThisPlaying
-                        ? <Pause className="w-5 h-5 text-crwn-bg" fill="currentColor" aria-hidden />
-                        : <Play className="w-5 h-5 text-crwn-bg ml-0.5" fill="currentColor" aria-hidden />}
-                    </span>
-                  </span>
-                </button>
-                <button
-                  type="button"
-                  role="radio"
-                  aria-checked={isSelected}
-                  onClick={() => {
-                    setSelected(o.id);
-                    if (errorField === 'option') { setError(null); setErrorField(null); }
-                  }}
-                  className="relative flex-1 min-w-0 min-h-[80px] pr-10 text-left focus:outline-none focus-visible:ring-4 focus-visible:ring-crwn-gold/70 rounded-xl"
-                >
-                  <span className="block text-lg sm:text-xl font-bold text-crwn-text leading-tight">{o.label}</span>
-                  <span className={`block mt-1 text-sm ${isThisPlaying ? 'text-crwn-gold' : 'text-crwn-text-secondary'}`}>
-                    {isThisPlaying ? `Now playing: ${t.title}` : t.title}
-                  </span>
-                  {isSelected ? (
-                    <Check className="absolute right-1 top-1/2 -translate-y-1/2 w-7 h-7 text-crwn-gold" aria-hidden />
-                  ) : null}
-                </button>
-              </div>
-            );
-          }
           return (
             <button
               key={o.id}

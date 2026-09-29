@@ -82,6 +82,17 @@ magnet yet. Paid tiers carry null Stripe ids until his Connect account enables c
 left out on purpose (no physical goods; no unenforced scarcity or priority), pinned by
 `princeDre.test.ts`. Every preview is `example` except Platinum status until his Vault is uploaded.
 
+## The vote page sells the same ladder (2026-09-28)
+
+An ONLINE Song Lab vote (options carry songs) turns into the offer the moment the fan votes:
+the primary rung's experience, then the downsell on "Not right now", resolved from the
+artist's `fan_automations` pointers by `resolveFunnelOffers` exactly as `/drop/[token]` does
+(loaded in `src/app/[slug]/join/[offer]/page.tsx`). The purchase cluster moved out of
+`DropFunnelClient` into `src/components/offer/useOfferPurchase.tsx`, which both pages call, so
+checkout and the inline sign-in code cannot fork. The stage is derived (vote counted or
+`?subscription=canceled` = primary, `?subscription=success` = welcome); nothing is stored.
+A live-show ballot (text options) is unchanged.
+
 ## The V1 Offer Builder (shipped 2026-09-03, Rise Mode Guided Setup)
 
 An artist writes their own experience through the guided flow at `/build/experience`

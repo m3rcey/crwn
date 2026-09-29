@@ -88,11 +88,12 @@ export const DRE_BENEFIT_IDENTITIES: Record<string, { key: string; line: string 
   ],
 };
 
-/** The drop page's standout item for the PRIMARY offer (Gold). */
+/** The funnel's standout item for the PRIMARY offer (Platinum, like GB's), shown only where
+ *  a rung has no full offer experience. */
 export const DRE_FUNNEL_PRIMARY_ITEM = {
-  title: 'The Vault: the music the public never got',
+  title: 'Be in the room before the project is finished',
   description:
-    'Songs cut from the projects, alternate versions and unreleased videos, organized by era. The mixtape drops everywhere. This does not.',
+    'Most fans hear the project the day it drops. Platinum hears it while Dre is still making it, votes on what comes next, and gets the Vault too.',
 };
 
 export const DRE_PLATINUM_OFFER: TierOfferExperience = {
@@ -101,7 +102,13 @@ export const DRE_PLATINUM_OFFER: TierOfferExperience = {
     'Most fans hear the project the day it drops. Platinum hears it while Dre is still making it, votes on what comes next, and gets in the room when he opens one.',
   cta: 'Get Me in the Room',
   secondaryCue: 'See what you get',
-  vsl: { url: null },
+  // Stand-in until Dre records his own: the same CRWN video GB carries, DISCLOSED by
+  // isPlaceholder (the renderer prints the Example video chip). Swap the url, keep the rule.
+  vsl: {
+    url: 'https://pub-490263a6ac304986851fbf65e6f3ff13.r2.dev/vsl/vsl-1-fan-worth.mp4',
+    posterUrl: 'https://thecrwn.app/vsl/vsl-1-fan-worth.webp',
+    isPlaceholder: true,
+  },
   previews: [
     {
       kind: 'session',
@@ -180,7 +187,13 @@ export const DRE_GOLD_OFFER: TierOfferExperience = {
     'The records cut from the projects, the alternate versions, and the unreleased videos, organized by era. The mixtape drops everywhere. The Vault does not.',
   cta: 'Unlock the Vault',
   secondaryCue: 'See what you get',
-  vsl: { url: null },
+  // Stand-in until Dre records his own: the same CRWN video GB carries, DISCLOSED by
+  // isPlaceholder (the renderer prints the Example video chip). Swap the url, keep the rule.
+  vsl: {
+    url: 'https://pub-490263a6ac304986851fbf65e6f3ff13.r2.dev/vsl/vsl-1-fan-worth.mp4',
+    posterUrl: 'https://thecrwn.app/vsl/vsl-1-fan-worth.webp',
+    isPlaceholder: true,
+  },
   previews: [
     {
       kind: 'collection',
@@ -278,8 +291,8 @@ export const PRINCE_DRE: LaunchPartnerConfig = {
   benefits: DRE_APPROVED_BENEFITS as LaunchPartnerConfig['benefits'],
   identities: DRE_BENEFIT_IDENTITIES as LaunchPartnerConfig['identities'],
   offers: { Silver: DRE_SILVER_OFFER, Gold: DRE_GOLD_OFFER, Platinum: DRE_PLATINUM_OFFER },
-  funnelPrimary: 'Gold',
-  funnelDownsell: 'Silver',
+  funnelPrimary: 'Platinum',
+  funnelDownsell: 'Gold',
   funnelPrimaryItem: DRE_FUNNEL_PRIMARY_ITEM,
   // The lead magnet (founder brief, 2026-09-28): three unreleased songs, one from each of
   // three projects. Fans listen, tap one, and name + email cast the vote and join Bronze.

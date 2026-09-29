@@ -1,7 +1,9 @@
 import { notFound } from 'next/navigation';
-import { createClient } from '@supabase/supabase-js';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { attachStreamUrls } from '@/lib/storage/signedAudio';
+import { resolveFunnelOffers, type OfferTierRow } from '@/lib/fanAutomations/offerTiers';
+import { offerExperiencesForTiers } from '@/lib/offerExperience/server';
 import { isPresentableArtistName } from '@/lib/publicName';
 import {
   offerIsLive,
@@ -18,6 +20,7 @@ import {
   type LandingBallot,
   type LandingInterlude,
   type LandingOption,
+  type LandingOffers,
 } from '@/components/songlab/OfferLanding';
 import type { Track } from '@/types';
 import type { Metadata } from 'next';
@@ -111,6 +114,13 @@ export default async function OfferPage({ params }: OfferPageProps) {
     // link still captures a fan instead of showing an empty screen.
   }
 
+  // An ONLINE vote (options carry songs) sells the artist's ladder under the result, exactly
+  // as the drop page does: same funnel pointers, same resolver, same offer experiences. A
+  // live-show ballot (text options) is unchanged.
+  const offers = ballot && ballot.options.some((o) => o.track)
+    ? await loadFunnelOffers(admin, artist.artistId)
+    : null;
+
   // Ballot mode performs a vote, so the artist's join-flavored CTA label is not sent to
   // the client at all: it would ship "Join free" into the payload of a page whose one
   // action is casting a vote.
@@ -127,6 +137,7 @@ export default async function OfferPage({ params }: OfferPageProps) {
       ctaLabel={ctaLabel}
       ballot={ballot}
       interlude={interlude}
+      offers={offers}
     />
   );
 }
@@ -138,6 +149,47 @@ export default async function OfferPage({ params }: OfferPageProps) {
  * comes back without and simply renders no player. Same rule as the track and album pages.
  * Fails soft to the plain text ballot.
  */
+/**
+ * The artist's primary + downsell offer, resolved exactly as /drop/[token] resolves it: the
+ * stored funnel pointers validated against LIVE tiers by resolveFunnelOffers (primary always
+ * paid, downsell strictly cheaper), then the Tier Offer Experiences for those rungs. Metadata
+ * only: names, prices, benefit prose, the merchandised config. Fails soft to no offer.
+ */
+async function loadFunnelOffers(admin: SupabaseClient, artistId: string): Promise<LandingOffers | null> {
+  try {
+    const { data: automation } = await admin
+      .from('fan_automations')
+      .select('gold_tier_id, silver_tier_id')
+      .eq('artist_id', artistId)
+      .neq('status', 'archived')
+      .order('created_at', { ascending: true })
+      .limit(1)
+      .maybeSingle();
+    const { data: tierRows } = await admin
+      .from('subscription_tiers')
+      .select('id, name, price, description, is_active, access_config')
+      .eq('artist_id', artistId)
+      .eq('is_active', true);
+    const rows = (tierRows || []) as Array<OfferTierRow & { access_config: { benefits?: unknown } | null }>;
+    const { primary, downsell } = resolveFunnelOffers(rows, automation || { gold_tier_id: null, silver_tier_id: null });
+    if (!primary) return null;
+    const toTier = (t: OfferTierRow) => {
+      const b = rows.find((r) => r.id === t.id)?.access_config?.benefits;
+      return {
+        id: t.id, name: t.name, priceCents: t.price, description: t.description || '',
+        benefits: (Array.isArray(b) ? b.filter((x): x is string => typeof x === 'string') : []).slice(0, 6),
+      };
+    };
+    const experiences = await offerExperiencesForTiers(
+      admin, artistId, [primary, downsell].filter((t): t is OfferTierRow => !!t).map((t) => ({ id: t.id, name: t.name })),
+    );
+    if (!experiences[primary.id]) return null;
+    return { primary: toTier(primary), downsell: downsell ? toTier(downsell) : null, experiences };
+  } catch {
+    return null;
+  }
+}
+
 async function withListenUrls(options: DecisionOption[], artistId: string): Promise<LandingOption[]> {
   const ids = options.map((o) => o.trackId).filter((t): t is string => !!t);
   if (ids.length === 0) return options;

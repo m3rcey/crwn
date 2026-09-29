@@ -18,13 +18,13 @@
 //     convenience, wrapped in try/catch, and the page works without it.
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Check, Crown, Download, Loader2, Lock, Mail, Play } from 'lucide-react';
-import { supabase } from '@/lib/supabase/client';
+import { Check, Crown, Download, Loader2, Lock, Play } from 'lucide-react';
 import { freeJoinDisclosure } from '@/lib/subscriptions/freeJoinDisclosure';
 import { InlineAudioPlayer } from '@/components/shared/InlineAudioPlayer';
 import { CampaignBanner } from '@/components/drop/CampaignBanner';
 import type { CampaignPresentation } from '@/lib/campaigns/giveaway';
 import { TierOfferExperience } from '@/components/offer/TierOfferExperience';
+import { useOfferPurchase, offerPrice } from '@/components/offer/useOfferPurchase';
 import type { TierOfferExperience as OfferConfig } from '@/lib/offerExperience/types';
 
 export interface DropOfferTier {
@@ -60,26 +60,7 @@ interface Props {
 
 type Phase = 'capture' | 'delivered' | 'silver' | 'joined';
 
-const price = (cents: number) => `$${(cents / 100).toFixed(cents % 100 === 0 ? 0 : 2)}/mo`;
-
-// Supabase auth errors are written for developers. A fan on an artist's offer card must
-// never read "Signups not allowed for otp": it describes a correct refusal (the address
-// has no CRWN contact because the drop was never claimed with it) in words that make a
-// working product look broken. Mapped here, and anything unrecognised falls back to
-// plain language rather than leaking the raw string.
-function codeErrorText(raw: string): string {
-  const m = raw.toLowerCase();
-  if (m.includes('signups not allowed') || m.includes('otp_disabled')) {
-    return 'We do not have that email yet. Claim the drop above with it first, then this unlocks.';
-  }
-  if (m.includes('rate limit') || m.includes('too many')) {
-    return 'That is a lot of codes at once. Wait a minute and try again.';
-  }
-  if (m.includes('invalid') || m.includes('expired')) {
-    return 'That code has expired. Send a new one.';
-  }
-  return 'We could not send the code. Try again in a moment.';
-}
+const price = offerPrice;
 
 export function DropFunnelClient({ token, artist, magnet, gold, goldItem, silver, experiences, campaign }: Props) {
   const storageKey = `crwn_drop_${token}`;
@@ -89,12 +70,19 @@ export function DropFunnelClient({ token, artist, magnet, gold, goldItem, silver
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [claimed, setClaimed] = useState<{ magnet: ClaimMagnet; emailSent: boolean; hasSession: boolean; isOwner: boolean } | null>(null);
-  const [checkoutBusy, setCheckoutBusy] = useState<string | null>(null);
 
-  const [hasSession, setHasSession] = useState(false);
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => setHasSession(!!data.user), () => {});
-  }, []);
+  // The ONE purchase cluster (checkout + inline sign-in code), shared with the vote page.
+  const { hasSession, setHasSession, purchaseAction } = useOfferPurchase({
+    email,
+    setEmail,
+    experiences,
+    returnPath: () => `/drop/${token}${window.location.search}`,
+    attributionSource: 'fan_automation',
+    utmCampaignFallback: token,
+    captureStep: 'Claim the drop above',
+    confirmEmailPrompt: 'Confirm the email you claimed the drop with and we will send a code.',
+    onError: setError,
+  });
 
   // Landing state from the URL: a checkout return or an email deep link.
   useEffect(() => {
@@ -193,130 +181,6 @@ export function DropFunnelClient({ token, artist, magnet, gold, goldItem, silver
     }).catch(() => {});
   }, []);
 
-  // startCheckout is declared below; a ref keeps the verify handler above it honest.
-  const startCheckoutRef = useRef<((tierId: string) => void) | null>(null);
-
-  // ── Inline sign-in code ────────────────────────────────────────────────────
-  //
-  // A captured contact holds a free membership but NEVER a session (see the claim
-  // route), and /api/stripe/checkout requires one. The old path told them to leave for
-  // their inbox and click a link, which on a phone means leaving Instagram, finding the
-  // mail app, and coming back with the intent gone.
-  //
-  // This asks for the SIX DIGIT CODE from the same email instead, on this page. It is
-  // not a weaker check: verifyOtp confirms the address exactly as the link does, so an
-  // unverified typed email still cannot buy anything. It only removes the app switch.
-  // The tier they pressed is remembered, so checkout opens on the thing they wanted
-  // rather than dropping them back on a page to press it again.
-  const [codeForTier, setCodeForTier] = useState<string | null>(null);
-  const [emailForCode, setEmailForCode] = useState('');
-  const [code, setCode] = useState('');
-  const [codeBusy, setCodeBusy] = useState(false);
-  const [codeSent, setCodeSent] = useState(false);
-  const [codeError, setCodeError] = useState('');
-
-  const sendCodeTo = useCallback(async (addr: string, tierId: string) => {
-    setCodeForTier(tierId);
-    setCodeError('');
-    setCode('');
-    setCodeBusy(true);
-    try {
-      const { error: otpError } = await supabase.auth.signInWithOtp({
-        email: addr,
-        options: { shouldCreateUser: false },
-      });
-      if (otpError) setCodeError(codeErrorText(otpError.message));
-      else setCodeSent(true);
-    } catch {
-      setCodeError('Could not send the code. Try again.');
-    } finally {
-      setCodeBusy(false);
-    }
-  }, []);
-
-  const sendCode = useCallback(async (tierId: string) => {
-    setCodeForTier(tierId);
-    setCodeError('');
-    setCode('');
-    if (!email) {
-      // A genuinely fresh tab with no stored address. The box below asks for it rather
-      // than dead-ending, because telling someone to "enter your email again" with no
-      // field to type into is not an instruction, it is a wall.
-      setCodeSent(false);
-      return;
-    }
-    // shouldCreateUser false inside: this address already exists as a captured contact
-    // from the claim. Never mint an account here.
-    await sendCodeTo(email, tierId);
-  }, [email, sendCodeTo]);
-
-  const verifyCode = useCallback(async (tierId: string) => {
-    const token = code.trim();
-    // Supabase issues an EIGHT digit OTP on this project (probe-verified), not the six
-    // most code boxes assume. Accepting 6 or more keeps it working if that ever changes.
-    if (token.length < 6) { setCodeError('Enter the code from the email.'); return; }
-    setCodeBusy(true);
-    setCodeError('');
-    try {
-      // TWO TOKEN TYPES, because a fan can be in either identity state and the page
-      // cannot know which. A captured contact is created by admin.createUser with no
-      // email_confirm, so they are UNCONFIRMED and Supabase issues their code through
-      // the signup confirmation flow ('signup'). A fan who already confirmed an address
-      // gets an ordinary email OTP ('email'). Trying both is not sloppiness: each is a
-      // real state this funnel produces, and neither verifies a token issued for the
-      // other, so a wrong guess fails closed rather than letting anyone in.
-      let vErr = (await supabase.auth.verifyOtp({ email, token, type: 'email' })).error;
-      if (vErr) {
-        vErr = (await supabase.auth.verifyOtp({ email, token, type: 'signup' })).error;
-      }
-      if (vErr) { setCodeError('That code did not work. Check it and try again.'); return; }
-      setHasSession(true);
-      setCodeForTier(null);
-      // Straight into checkout for the tier they pressed. The intent survives.
-      void startCheckoutRef.current?.(tierId);
-    } catch {
-      setCodeError('That code did not work. Try again.');
-    } finally {
-      setCodeBusy(false);
-    }
-  }, [code, email]);
-
-  const startCheckout = useCallback(async (tierId: string) => {
-    setCheckoutBusy(tierId);
-    setError('');
-    try {
-      const res = await fetch('/api/stripe/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          tierId,
-          // The return path keeps the page's query string, so the campaign tags on the
-          // artist's link survive the Stripe round trip. Validated server-side either way.
-          returnUrl: `/drop/${token}${window.location.search}`,
-          attributionSource: 'fan_automation',
-          // Real link tags win over the defaults, so a tagged DM link is traceable on the
-          // Stripe subscription itself; the funnel identity fills silence.
-          utmSource: new URLSearchParams(window.location.search).get('utm_source') || 'fan_automation',
-          utmMedium: new URLSearchParams(window.location.search).get('utm_medium') || '',
-          utmCampaign: new URLSearchParams(window.location.search).get('utm_campaign') || token,
-        }),
-      });
-      const data = await res.json();
-      if (res.ok && data.url) {
-        // External URL (Stripe): the one sanctioned use of window.location.href.
-        window.location.href = data.url;
-        return;
-      }
-      setError(data.error || 'Could not open checkout. Try again.');
-    } catch {
-      setError('Could not open checkout. Try again.');
-    } finally {
-      setCheckoutBusy(null);
-    }
-  }, [token]);
-
-  startCheckoutRef.current = startCheckout;
-
   const header = (
     <div className="flex flex-col items-center text-center gap-2 mb-6">
       {artist.avatarUrl ? (
@@ -364,101 +228,6 @@ export function DropFunnelClient({ token, artist, magnet, gold, goldItem, silver
       {`Get ${magnet.title || 'it'} again`}
     </button>
   ) : null;
-
-  // The ONE purchase cluster: benefit CTA (or historical fallback), checkout for a
-  // session, and the inline sign-in-code flow for a captured contact. The compact offer
-  // card and the full Tier Offer Experience both render exactly this, so checkout and
-  // auth state can never fork between the two presentations.
-  const ctaLabel = (tier: DropOfferTier): string =>
-    experiences?.[tier.id]?.cta ?? `Join ${tier.name} for ${price(tier.priceCents)}`;
-
-  const purchaseAction = (tier: DropOfferTier) => (
-    <>
-        {hasSession ? (
-          <button
-            onClick={() => startCheckout(tier.id)}
-            disabled={checkoutBusy !== null}
-            className="w-full py-3 rounded-full font-semibold bg-crwn-gold text-crwn-bg press-scale disabled:opacity-60"
-          >
-            {checkoutBusy === tier.id ? 'Opening checkout…' : ctaLabel(tier)}
-          </button>
-        ) : codeForTier === tier.id ? (
-          <div className="rounded-xl bg-crwn-elevated p-4">
-            <p className="text-sm text-crwn-text flex items-start gap-2">
-              <Mail className="w-4 h-4 text-crwn-gold mt-0.5 shrink-0" />
-              <span>
-                {codeSent
-                  ? `We sent a code to ${email}. Check spam if it is not in your inbox. Enter it here and checkout opens.`
-                  : email
-                    ? 'Getting your code ready...'
-                    : 'Confirm the email you claimed the drop with and we will send a code.'}
-              </span>
-            </p>
-            {!email && (
-              <div className="mt-3 flex gap-2">
-                <input
-                  type="email"
-                  value={emailForCode}
-                  onChange={(e) => setEmailForCode(e.target.value)}
-                  placeholder="you@email.com"
-                  aria-label="Your email"
-                  className="flex-1 rounded-xl bg-crwn-card px-4 py-3 text-sm text-crwn-text placeholder:text-crwn-text-secondary/50 outline-none"
-                />
-                <button
-                  onClick={() => {
-                    const addr = emailForCode.trim();
-                    setEmail(addr);
-                    void sendCodeTo(addr, tier.id);
-                  }}
-                  disabled={!emailForCode.trim()}
-                  className="px-5 rounded-xl font-semibold bg-crwn-gold text-crwn-bg press-scale disabled:opacity-50"
-                >
-                  Send code
-                </button>
-              </div>
-            )}
-            <div className="mt-3 flex gap-2">
-              <input
-                inputMode="numeric"
-                autoComplete="one-time-code"
-                value={code}
-                onChange={(e) => setCode(e.target.value.replace(/[^0-9]/g, '').slice(0, 8))}
-                placeholder="00000000"
-                aria-label="Sign-in code"
-                className="flex-1 rounded-xl bg-crwn-card px-4 py-3 text-lg tracking-[0.3em] text-crwn-text placeholder:text-crwn-text-secondary/50 outline-none"
-              />
-              <button
-                onClick={() => verifyCode(tier.id)}
-                disabled={codeBusy || code.trim().length < 6}
-                className="px-5 rounded-xl font-semibold bg-crwn-gold text-crwn-bg press-scale disabled:opacity-50"
-              >
-                {codeBusy ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Continue'}
-              </button>
-            </div>
-            {codeError && <p className="mt-2 text-sm text-red-400">{codeError}</p>}
-            <p className="mt-3 text-xs text-crwn-text-secondary">
-              No code yet? Check spam, or{' '}
-              <button onClick={() => sendCode(tier.id)} disabled={codeBusy} className="text-crwn-gold">send it again</button>.
-              The link in that email still works too.
-            </p>
-          </div>
-        ) : (
-          <>
-            <button
-              onClick={() => sendCode(tier.id)}
-              disabled={codeBusy}
-              className="w-full py-3 rounded-full font-semibold bg-crwn-gold text-crwn-bg press-scale disabled:opacity-60"
-            >
-              {ctaLabel(tier)}
-            </button>
-            <p className="mt-2 text-xs text-crwn-text-secondary text-center">
-              We will email you a code to confirm it is you. Already have CRWN?{' '}
-              <a href="/login" className="text-crwn-gold">Sign in</a>.
-            </p>
-          </>
-        )}
-    </>
-  );
 
   // The full merchandised experience for a tier, bound to this funnel's ONE purchase
   // cluster. A plain render FUNCTION, not an inner component: an inner component gets a
