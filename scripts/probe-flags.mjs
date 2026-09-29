@@ -26,6 +26,7 @@ const DECLARED = [
   ['quest_engine', 'Quest Engine / Rise Mode progression'],
   ['popup_engine', 'Pop-up Engine (interruption arbitration)'],
   ['acquisition_engine', 'Instagram/ManyChat acquisition engine'],
+  ['founder_followup', 'Founder follow-up email for sales_priority leads (auto-send)'],
   ['experiments', 'Experiments engine'],
   ['live_tips', 'Live tips + tip goals'],
   ['royalty_readiness', 'Royalty Readiness Check'],

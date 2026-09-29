@@ -1,5 +1,28 @@
 # CRWN Brain — Changelog
 
+## 2026-09-29 - Founder follow-up for sales_priority leads (resolver live, auto-send dark)
+
+**Full doc: 34-FOUNDER-FOLLOW-UP.md.**
+- **Resolver.** One pure resolver (`founderFollowUp.ts`) maps a qualified lead to a journey stage:
+  result / saved plan / in setup / cannot take money / ready, no paying member / asked for a call /
+  converted.
+- **Copy and link.** The stage picks one fixed-template email in Josh's name, with one link that
+  continues that lead's own journey.
+- **Qualification** is the stored `score_band` only.
+- **Owners it reads.** Setup screen comes from the new shared `setupProgress.ts` (the wizard now
+  delegates to it); Stripe from `paymentReadiness.ts`; first paid from `first_paid_conversion`.
+- **Sending.** Sends go through `channels.send()`, keyed `send:founder_followup:v1:<lead>:<stage>`.
+- **Where it runs.** A pass on the existing dispatcher cron, behind `admin_settings.founder_followup`
+  (OFF). The new admin Acquisition -> Founder tab shows every lead's stage, decision and draft, plus
+  "I sent this by hand".
+- **No schema change.** `channels.send` gained optional `from`/`replyTo`; `FOUNDER_FROM` is now one
+  constant.
+- **Found while validating: the DM monetization normalizer misreads negations.** "I have no paid
+  program or subscriptions" matches the bare `i have` alias before the `no` alias and is stored as
+  `direct_some`, which carried @anthony_b_originalfireman to sales_priority.
+- **That normalizer is not fixed here.** The live content test freezes scoring; it is a founder
+  item in TODO.md.
+
 ## 2026-09-28 - Exclude unused homepage originals from Vercel deployments
 
 The live Vercel Resources list still served three March-era homepage PNG originals

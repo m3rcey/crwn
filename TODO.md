@@ -26,8 +26,8 @@ responsible for. Do not work those.
       until he does.** Checked 2026-09-28: he signed up with Google (princedremusicbusiness@gmail.com)
       and stopped on the wizard's FIRST screen, so there was no artist row and no Connect account.
       His page, ladder, offer copy and draft funnel are now built (https://thecrwn.app/princedre).
-      Tell him: sign in, and the wizard resumes at his photo. It still requires ONE track before it
-      finishes; then its Stripe screen connects Stripe, and CRWN creates his Stripe prices on its own
+      Tell him: sign in, and the wizard resumes at his photo, then asks for music (skippable with
+      "I'll add music later", but see the next item); then its Stripe screen connects Stripe, and CRWN creates his Stripe prices on its own
       the moment charges are enabled. Nothing for you to run. To confirm afterwards, the last column
       of this should read "yes" on Silver, Gold and Platinum:
           npx tsx scripts/onboard-launch-partner.mjs princedre
@@ -70,7 +70,41 @@ responsible for. Do not work those.
       cent and decide whether payouts turn on. **They stay off until that passes.**
 
 
+- [ ] **Send Anthony B (@anthony_b_originalfireman) his founder note from your Gmail, then mark it
+      sent.** Tier 1 reggae/dancehall artist, stalled one step from launch. On 2026-09-27 he priced
+      Silver/Gold/Platinum, connected Stripe and added "World of love" to his shop, but uploaded no
+      music and never pressed Launch.
+      1. Open https://thecrwn.app/admin, go to Acquisition, then the Founder tab. Find Anthony B.
+      2. Press "Copy draft" (it includes his address) and paste it into Gmail. Personalize it if
+         you like: you know he has a deep catalog and sells merch, CRWN does not store either.
+      3. Send it, then press "I sent this by hand" so the automation never sends it again.
+      The draft (also in the tab):
+          Subject: Anthony, your CRWN page is set up except for the music
+          Link it carries: https://thecrwn.app/setup (resumes him on the music screen)
+
 ### P1 — real risk or real friction, but nothing is on fire
+
+- [ ] **Decide whether founder follow-up emails send automatically.** Built 2026-09-29, OFF.
+      Every sales_priority lead gets ONE note per journey stage in your name ("Josh at CRWN
+      <hello@thecrwn.app>", replies to your Gmail), only when they are quiet 48h, no other CRWN
+      email went out in 48h, and they consented and are not suppressed. Converted artists and
+      booked calls never get one. How it works: [docs/crwn-brain/34-FOUNDER-FOLLOW-UP.md](docs/crwn-brain/34-FOUNDER-FOLLOW-UP.md).
+      Before turning it on: read the drafts in /admin > Acquisition > Founder, mark anything you
+      already sent by hand, and confirm BUSINESS_POSTAL_ADDRESS is set in Vercel (the footer
+      prints a placeholder without it). To turn it on, run
+      [supabase/founder-followup-flag-on.sql](supabase/founder-followup-flag-on.sql) in the
+      Supabase SQL Editor (its header has the one-line rollback).
+      Open question if you want it to come from your actual Gmail (and sit in your Sent folder):
+      that is a new Gmail OAuth integration, not a setting. Say so and I will scope it.
+
+- [ ] **The DM misreads "no" answers to the money question. Decide the fix once the content test
+      ends.** Anthony B typed "I have no paid program or subscriptions" and CRWN stored "Yes, a few
+      times" (`direct_some`, 30 points), because the bare "i have" alias in
+      [src/lib/acquisition/fieldRegistry.ts](src/lib/acquisition/fieldRegistry.ts) matches before
+      the "no" alias. That one value put him in sales_priority. He does sell merch (you confirmed),
+      which should read `merch_only`, 22 points. Not fixed now because the live content test
+      freezes scoring. The fix is a negation alias ("i have no", "we have no", "no paid",
+      "don't sell") ordered before the bare-yes line, plus a test. Say go when the test is over.
 
 - [ ] **Confirm Prince Dre is OK with AI-generated photos of himself on his page.** His offer
       pages now show four realistic studio photos of him, generated from his reference photos

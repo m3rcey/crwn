@@ -408,6 +408,21 @@ parse it through this module, which is also the length limit and the HTML-safety
 - Funnel stage names stay server-controlled (`FUNNEL_STAGES`), and the admin scorecard's group-by
   dimension is allowlisted server-side. A query string can never name a stage or a column.
 
+## Founder follow-up: one resolver, stored band, one key per stage (2026-09-29)
+
+`src/lib/acquisition/founderFollowUp.ts` (pure) decides, for a `sales_priority` lead, WHICH journey
+stage they are in and what Josh's one email for that stage says; `founderFollowUpServer.ts` only
+reads canonical owners and sends through `channels.send()`. Full doc:
+`docs/crwn-brain/34-FOUNDER-FOLLOW-UP.md`.
+- Qualification is `lead_profiles.score_band` and nothing else. Never add a score threshold or a
+  second ICP formula there (a mutation-tested scan fails the suite).
+- Templates quote only what the artist created or saw in CRWN. Never quote a normalized DM answer
+  (`monetization_status` etc.) back to them, and never state merch/tour/fan/catalog facts.
+- Converted (`first_paid_conversion`) and booked-call leads never get one. Dedupe is the
+  `send:founder_followup:v1:<lead>:<stage>` key; never bump the version casually.
+- Auto-send is gated by `admin_settings.founder_followup` (fails closed). The admin Founder tab's
+  "I sent this by hand" claims the same key.
+
 ## Fan Drives (Virality Engine) — the campaign is a DIMENSION, never a source of truth
 
 `src/lib/campaigns/*` is the thin campaign spine (V1 shipped 2026-08-11; its migration

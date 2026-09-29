@@ -15,6 +15,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { requireAdmin } from '@/lib/auth/requireAdmin';
+import {
+  listFounderFollowUps,
+  markFounderFollowUpSentByHand,
+  isFounderFollowUpEnabled,
+} from '@/lib/acquisition/founderFollowUpServer';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -87,6 +92,34 @@ export async function GET(req: NextRequest) {
   // The engine may not be migrated yet. Every query below is wrapped so the panel renders an
   // honest empty state instead of a stack trace.
   try {
+    // Founder follow-up: every sales_priority lead, resolved through the SAME resolver the daily
+    // runner sends from, with the draft Josh can copy. Evidence stays server-side except the
+    // facts the row shows. The address is returned (as the Leads tab already does) because a
+    // hand-sent draft needs somewhere to go; it is shown only when the lead may be emailed.
+    if (view === 'founder') {
+      const [leads, enabled] = await Promise.all([listFounderFollowUps(), isFounderFollowUpEnabled()]);
+      const rows = leads.map(({ evidence: e, context: c, preview }) => ({
+        id: c.identityId,
+        instagram_username: e.instagramUsername,
+        email: c.emailEligible ? e.email.address : null,
+        name: e.displayName,
+        lead_score: e.leadScore,
+        score_band: e.scoreBand,
+        reason_codes: e.reasonCodes,
+        stage: c.stage,
+        blocker: c.blocker,
+        last_activity: c.lastActivity,
+        email_reason: c.emailReason,
+        decision: c.decision,
+        decision_reason: c.decisionReason,
+        next_eligible_at: c.nextEligibleAt,
+        already_sent: c.alreadySent,
+        dedupe_key: c.dedupeKey,
+        preview: preview ? { subject: preview.subject, text: preview.text } : null,
+      }));
+      return NextResponse.json({ rows, founderFollowUpEnabled: enabled });
+    }
+
     if (view === 'dead_letter') {
       const { data } = await supabaseAdmin
         .from('acquisition_events')
@@ -297,6 +330,14 @@ export async function POST(req: NextRequest) {
         .update({ state: 'nurture', last_activity_at: new Date().toISOString() })
         .eq('id', id)
         .eq('state', 'human_review');
+      break;
+    }
+
+    case 'mark_founder_followup_sent': {
+      // `id` is the LEAD IDENTITY id. Josh sent this stage's note himself; claim the same key the
+      // automation uses so it can never send it again. The stage is re-derived server-side.
+      const r = await markFounderFollowUpSentByHand(id, admin.id);
+      if (!r.ok && r.reason !== 'already_recorded') return NextResponse.json({ error: r.reason }, { status: 409 });
       break;
     }
 

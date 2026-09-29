@@ -58,7 +58,7 @@ const BOOKING_URL = process.env.CRWN_BOOKING_URL || 'https://cal.com/jnwcreative
  * numbers" while sitting in a Zoom with Josh. Which is the exact failure this whole webhook
  * exists to prevent.
  */
-function bookingUrlFor(identityId: string): string {
+export function bookingUrlFor(identityId: string): string {
   const sep = BOOKING_URL.includes('?') ? '&' : '?';
   return `${BOOKING_URL}${sep}metadata[crwn]=${encodeURIComponent(identityId)}`;
 }
@@ -106,7 +106,7 @@ export async function runAcquisitionDispatcher(): Promise<DispatchReport> {
     errors: 0,
   };
 
-  for (const step of [sweepAbandoned, drainOutbox, enforceRetention, cleanupExpiredTokens]) {
+  for (const step of [sweepAbandoned, drainOutbox, founderFollowUps, enforceRetention, cleanupExpiredTokens]) {
     try {
       await step(report);
     } catch (err) {
@@ -116,6 +116,18 @@ export async function runAcquisitionDispatcher(): Promise<DispatchReport> {
   }
 
   return report;
+}
+
+/**
+ * Founder follow-up for qualified (sales_priority) leads: one contextual note per journey stage,
+ * in Josh's name. Runs AFTER the outbox drain so the 24h frequency cap sees anything the drain
+ * just sent. Gated by admin_settings.founder_followup (fails closed); the runner cannot throw.
+ * Dynamic import: founderFollowUpServer imports helpers from this file.
+ */
+async function founderFollowUps(report: DispatchReport): Promise<void> {
+  const { runFounderFollowUps } = await import('./founderFollowUpServer');
+  const r = await runFounderFollowUps();
+  report.sent += r.sent;
 }
 
 // ---------------------------------------------------------------------------
@@ -734,7 +746,7 @@ async function dispatchToBestChannel(
  * message that carries a link therefore has to rotate. The alternative was storing raw
  * tokens, and a database read must never yield a working link.
  */
-async function rotateLink(resultId: string, toolSlug: string): Promise<string | null> {
+export async function rotateLink(resultId: string, toolSlug: string): Promise<string | null> {
   const { raw, hash } = mintToken();
   const { error } = await supabaseAdmin
     .from('lead_magnet_results')
@@ -800,7 +812,7 @@ async function hasEvent(idempotencyKey: string): Promise<boolean> {
   return !!data;
 }
 
-async function loadIdentity(id: string): Promise<LeadIdentity | null> {
+export async function loadIdentity(id: string): Promise<LeadIdentity | null> {
   const { data } = await supabaseAdmin.from('lead_identities').select('*').eq('id', id).maybeSingle();
   if (!data) return null;
   return {

@@ -1172,6 +1172,20 @@ export const FEATURES: readonly FeatureContract[] = [
     migration: null,
   },
   {
+    key: 'founder_followup',
+    title: 'Founder follow-up email for qualified (sales_priority) leads',
+    expectedState: 'dark',
+    flag: 'founder_followup',
+    gateModule: 'src/lib/acquisition/founderFollowUpServer.ts',
+    surfaces: [
+      { file: 'src/lib/acquisition/automationDispatcher.ts', mustContain: 'runFounderFollowUps' },
+      { file: 'src/components/admin/AcquisitionView.tsx', mustContain: 'FounderPanel' },
+    ],
+    migration: null,
+    notes:
+      'Resolver is live (admin Founder tab renders every qualified lead\'s stage and draft); only AUTOMATIC sending is gated. Flip: supabase/founder-followup-flag-on.sql. Qualification is lead_profiles.score_band only; sends go through channels.send (consent, caps, suppression, insert-as-claim) keyed send:founder_followup:v1:<lead>:<stage>. docs/crwn-brain/34-FOUNDER-FOLLOW-UP.md.',
+  },
+  {
     key: 'experiments',
     title: 'Experiments engine',
     expectedState: 'live',

@@ -1,4 +1,4 @@
-import { resend, FROM_EMAIL } from '@/lib/resend';
+import { resend, FROM_EMAIL, FOUNDER_FROM } from '@/lib/resend';
 import { newArtistSignupEmail } from '@/lib/emails/newArtistSignup';
 import { artistWelcomeEmail } from '@/lib/emails/artistWelcome';
 
@@ -50,7 +50,7 @@ export async function sendNewArtistAlerts(params: {
     try {
       const w = artistWelcomeEmail({ name: displayName });
       const { error } = await resend.emails.send({
-        from: 'Josh at CRWN <hello@thecrwn.app>',
+        from: FOUNDER_FROM,
         replyTo: ADMIN_NOTIFY_EMAIL,
         to: artistEmail,
         subject: w.subject,

@@ -119,6 +119,12 @@ in `lib/webhookHandlers.ts` alone. These carry no unsubscribe **on purpose**.
 Daily admin briefing, the onboarding canary, the RLS canary, new-artist alerts, partner
 applications, recruiter qualification, low-score survey alerts. Addressed to CRWN, not customers.
 
+**Founder follow-up (added 2026-09-29, doc 34)** is NOT in this class: it is addressed to a lead, in
+Josh's name (`FOUNDER_FROM`, reply-to his Gmail), so it is MARKETING. It sends only through
+`acquisition/channels.send()` (email consent, caps, `email_suppressions`, one-click unsubscribe,
+postal footer, insert-as-claim dedupe) and is gated by `admin_settings.founder_followup`, OFF by
+default. The † row above counts no new `resend.emails.send` site.
+
 ---
 
 ## What actually fires
@@ -204,6 +210,7 @@ it cannot currently send.
 | `popups` | 1 | I | NO | NO |
 | `admin/agent/briefing` â€  | 1 | I | NO | NO |
 | `acquisition/automationDispatcher` | 1 | M | NO | NO |
+| `acquisition/founderFollowUpServer` (through `acquisition/channels.send`) † | 0 direct | M | YES (send-time) | YES |
 | **38 files** | **58** | | **11 yes** | **9 yes** |
 
 ---

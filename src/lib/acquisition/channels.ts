@@ -45,6 +45,13 @@ export interface SendRequest {
    * list, and dedupe STILL apply, so an unsubscribe or a duplicate is still honored.
    */
   transactional?: boolean;
+  /**
+   * Email only. A sender on the SAME authenticated domain (e.g. FOUNDER_FROM, "Josh at CRWN
+   * <hello@thecrwn.app>") plus where a reply lands. Defaults: FROM_EMAIL, no reply-to. Nothing
+   * else about the send changes: consent, caps, dedupe and suppression all still apply.
+   */
+  from?: string;
+  replyTo?: string;
 }
 
 export type ChannelResult =
@@ -96,7 +103,7 @@ export async function send(req: SendRequest): Promise<ChannelResult> {
       outcome = await sendDm(identity, req.text);
       break;
     case 'email':
-      outcome = await sendEmail(identity, req.subject ?? '', req.html ?? '');
+      outcome = await sendEmail(identity, req.subject ?? '', req.html ?? '', req.from, req.replyTo);
       break;
     case 'sms':
       // DISABLED SAFE ADAPTER, deliberately.
@@ -133,7 +140,13 @@ async function sendDm(identity: LeadIdentity, text: string): Promise<ChannelResu
   return { sent: false, reason: `dm_${outcome.code}` };
 }
 
-async function sendEmail(identity: LeadIdentity, subject: string, html: string): Promise<ChannelResult> {
+async function sendEmail(
+  identity: LeadIdentity,
+  subject: string,
+  html: string,
+  from?: string,
+  replyTo?: string,
+): Promise<ChannelResult> {
   if (!identity.email) return { sent: false, reason: 'no_email' };
   if (!subject || !html) return { sent: false, reason: 'no_email_content' };
 
@@ -158,7 +171,8 @@ async function sendEmail(identity: LeadIdentity, subject: string, html: string):
 
   try {
     const { data, error } = await resend.emails.send({
-      from: FROM_EMAIL,
+      from: from || FROM_EMAIL,
+      ...(replyTo ? { replyTo } : {}),
       to: identity.email,
       subject,
       html: compliantHtml,

@@ -56,6 +56,7 @@ import { recommendPlan, monthlyPlanCostCents, proBreakEvenGmvCents } from '@/lib
 import { TIER_PRICING, TIER_LIMITS } from '@/lib/platformTier';
 import { getAnonId } from '@/lib/experiments/anonId';
 import { slugify } from '@/lib/slugify';
+import { setupScreenDone } from '@/lib/setupProgress';
 import { isEmailLike, isPresentableArtistName } from '@/lib/publicName';
 import type { ProductType } from '@/types';
 
@@ -121,27 +122,10 @@ const SCREENS: ScreenDef[] = [
   { key: 'product-price', group: 'shop', groupRequired: false, title: 'Set the price', subtitle: 'What fans pay. Enter 0 to give it away.', icon: ShoppingBag, create: 'product' },
 ];
 
+// The per-screen rule lives in src/lib/setupProgress.ts so the server can name the same resume
+// screen this page lands on (the founder follow-up resolver reads it).
 function screenDone(s: ScreenDef, setup: ArtistSetupState): boolean {
-  switch (s.key) {
-    case 'artist-name':
-    case 'artist-link':
-      // Identity is saved the moment the artist page exists (an artist who
-      // onboarded through the old /welcome page resumes past these screens).
-      return !!setup.artistId;
-    case 'photo':
-      return setup.hasAvatar;
-    case 'ladder':
-    case 'promises':
-      return setup.hasTier;
-    case 'stripe':
-      return setup.stripeConnected;
-    case 'content-plan':
-    case 'track-audio':
-    case 'track-title':
-      return setup.hasMusic;
-    default:
-      return setup.hasProduct;
-  }
+  return setupScreenDone(s.key, setup);
 }
 
 const isValidPrice = (v: string) => v.trim() !== '' && !isNaN(parseFloat(v)) && parseFloat(v) >= 0;

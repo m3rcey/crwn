@@ -7,6 +7,9 @@
 //   Calls         booked calls waiting on an outcome. Josh says who showed up.
 //   Needs you     leads CRWN could not understand and handed to a human. That human is Josh.
 //   Failed        dead-lettered jobs. Should always be empty.
+//   Founder       every sales_priority lead, where they are in the journey, and the founder note
+//                 the daily runner would send (or why it will not). Josh copies it or marks it
+//                 sent by hand; either way the same stage is never emailed twice.
 //
 // The Calls tab is the one that cannot be automated away. A no-show has to be CONFIRMED by a
 // human, because "sorry we missed you" sent to the artist who actually turned up, and had a
@@ -21,10 +24,52 @@
 // and writes an audit row. Nothing here is trusted.
 
 import { useCallback, useEffect, useState } from 'react';
-import { Loader2, RefreshCw, Check, Ban, Instagram, CalendarClock, UserX, PhoneCall } from 'lucide-react';
+import { Loader2, RefreshCw, Check, Ban, Instagram, CalendarClock, UserX, PhoneCall, Copy, Mail } from 'lucide-react';
 import { OptionSelect } from '@/components/ui/OptionSelect';
 
-type View = 'leads' | 'calls' | 'human_review' | 'dead_letter';
+type View = 'leads' | 'calls' | 'human_review' | 'dead_letter' | 'founder';
+
+// One qualified lead, resolved server-side by founderFollowUp.ts. Display only.
+interface FounderRow {
+  id: string;
+  instagram_username?: string | null;
+  /** Only present when the lead may be emailed (consented, not suppressed). */
+  email?: string | null;
+  name?: string | null;
+  lead_score?: number | null;
+  score_band?: string | null;
+  reason_codes?: string[];
+  stage: string;
+  blocker?: string | null;
+  last_activity?: { label: string; at: string } | null;
+  email_reason: string;
+  decision: 'send' | 'wait' | 'manual_only' | 'none';
+  decision_reason: string;
+  next_eligible_at?: string | null;
+  already_sent?: { status: string; at: string; error: string | null; manual: boolean } | null;
+  dedupe_key?: string | null;
+  preview?: { subject: string; text: string } | null;
+}
+
+const STAGE_LABEL: Record<string, string> = {
+  not_qualified: 'Not qualified',
+  no_result: 'In the DM, no result yet',
+  first_paid: 'Converted (first paid member)',
+  call_booked: 'Call booked',
+  call_requested: 'Asked for a call',
+  result_no_account: 'Saw result, no account',
+  builder_saved_no_account: 'Saved a plan, no account',
+  setup_incomplete: 'In setup',
+  offer_not_payable: 'Launched, cannot take money yet',
+  ready_no_first_paid: 'Ready, no paying member yet',
+};
+
+const DECISION_LABEL: Record<string, string> = {
+  send: 'Sends on the next daily run',
+  wait: 'Waiting',
+  manual_only: 'Hand-send only',
+  none: 'No email',
+};
 
 interface Row {
   id: string;
@@ -130,6 +175,8 @@ export default function AcquisitionView() {
   const [view, setView] = useState<View>('leads');
   const [rows, setRows] = useState<Row[]>([]);
   const [callRequests, setCallRequests] = useState<CallRequestRow[]>([]);
+  const [founderRows, setFounderRows] = useState<FounderRow[]>([]);
+  const [founderEnabled, setFounderEnabled] = useState(false);
   const [config, setConfig] = useState<Config | null>(null);
   const [loading, setLoading] = useState(true);
   const [notReady, setNotReady] = useState(false);
@@ -144,7 +191,13 @@ export default function AcquisitionView() {
       ]);
       const json = await res.json();
       const cjson = await cfg.json();
-      setRows(json.rows ?? []);
+      if (view === 'founder') {
+        setFounderRows(json.rows ?? []);
+        setFounderEnabled(!!json.founderFollowUpEnabled);
+        setRows([]);
+      } else {
+        setRows(json.rows ?? []);
+      }
       setCallRequests(json.callRequests ?? []);
       setConfig(cjson.config ?? null);
       setNotReady(!!json.notReady);
@@ -186,6 +239,7 @@ export default function AcquisitionView() {
     { key: 'calls', label: 'Calls' },
     { key: 'human_review', label: 'Needs you' },
     { key: 'dead_letter', label: 'Failed' },
+    { key: 'founder', label: 'Founder' },
   ];
 
   return (
@@ -275,6 +329,13 @@ export default function AcquisitionView() {
         <div className="flex justify-center py-16">
           <Loader2 className="w-6 h-6 animate-spin text-crwn-gold" />
         </div>
+      ) : view === 'founder' ? (
+        <FounderPanel
+          rows={founderRows}
+          enabled={founderEnabled}
+          busy={busy}
+          onMarkSent={(id) => act('mark_founder_followup_sent', id)}
+        />
       ) : notReady ? (
         <Empty
           title="The acquisition engine is not migrated yet"
@@ -581,6 +642,122 @@ function ConfigStrip({ config }: { config: Config }) {
           ) : (
             <p>Still needed: {blockers.map((b) => b.label).join(', ')}. Hover each item for what it is.</p>
           )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function FounderPanel({
+  rows,
+  enabled,
+  busy,
+  onMarkSent,
+}: {
+  rows: FounderRow[];
+  enabled: boolean;
+  busy: string | null;
+  onMarkSent: (id: string) => void;
+}) {
+  const [open, setOpen] = useState<string | null>(null);
+  const [copied, setCopied] = useState<string | null>(null);
+  const copy = async (r: FounderRow) => {
+    if (!r.preview) return;
+    try {
+      await navigator.clipboard.writeText(
+        `${r.email ? `To: ${r.email}\n` : ''}Subject: ${r.preview.subject}\n\n${r.preview.text}`,
+      );
+      setCopied(r.id);
+      setTimeout(() => setCopied(null), 1500);
+    } catch {
+      // Clipboard blocked: the draft is on screen to select by hand.
+    }
+  };
+  const when = (iso?: string | null) => (iso ? new Date(iso).toLocaleString() : '');
+
+  return (
+    <div>
+      <p className="text-sm text-crwn-text-secondary mb-4">
+        Automatic sending is{' '}
+        <span className={enabled ? 'text-green-400' : 'text-crwn-gold'}>{enabled ? 'ON' : 'OFF'}</span>.{' '}
+        {enabled
+          ? 'Leads marked "Sends on the next daily run" get a note from Josh at CRWN, and replies go to your Gmail.'
+          : 'Nothing sends by itself. Copy a draft into Gmail, then mark it sent so it is never sent twice.'}
+      </p>
+      {rows.length === 0 ? (
+        <Empty
+          title="No qualified leads yet"
+          body="Leads the scorer bands sales_priority land here with their journey stage and a draft."
+        />
+      ) : (
+        <div className="space-y-2">
+          {rows.map((r) => (
+            <div key={r.id} className="bg-crwn-surface-solid rounded-xl p-4">
+              <div className="flex items-start gap-4 flex-wrap">
+                <div className="min-w-0 flex-1">
+                  <p className="text-crwn-text font-medium truncate">
+                    {r.name || 'Unnamed'}
+                    {r.instagram_username ? ` · @${r.instagram_username}` : ''}
+                  </p>
+                  <p className="text-sm text-crwn-text-secondary">
+                    {STAGE_LABEL[r.stage] ?? r.stage}
+                    {r.blocker ? ` · ${r.blocker}` : ''}
+                  </p>
+                  {r.last_activity && (
+                    <p className="text-xs text-crwn-text-secondary">
+                      Last: {r.last_activity.label}, {when(r.last_activity.at)}
+                    </p>
+                  )}
+                  <p className="text-xs text-crwn-text-secondary">
+                    {DECISION_LABEL[r.decision] ?? r.decision} ({r.decision_reason.replace(/_/g, ' ')})
+                    {r.next_eligible_at ? ` until ${when(r.next_eligible_at)}` : ''}
+                    {r.email_reason !== 'eligible' ? ` · email: ${r.email_reason.replace(/_/g, ' ')}` : ''}
+                    {r.already_sent
+                      ? ` · this stage: ${r.already_sent.manual ? 'sent by hand' : r.already_sent.status}${
+                          r.already_sent.error ? ` (${r.already_sent.error})` : ''
+                        } ${when(r.already_sent.at)}`
+                      : ''}
+                  </p>
+                </div>
+                <div className="text-right shrink-0">
+                  <p className={`font-semibold ${BAND_COLOR[r.score_band ?? ''] ?? 'text-crwn-text'}`}>{r.lead_score ?? ''}</p>
+                  <p className="text-xs text-crwn-text-secondary">{(r.reason_codes ?? []).join(', ').replace(/_/g, ' ')}</p>
+                </div>
+              </div>
+              {r.preview && (
+                <div className="mt-3 flex gap-2 flex-wrap">
+                  <button
+                    onClick={() => setOpen(open === r.id ? null : r.id)}
+                    className="px-3 py-1.5 rounded-full text-xs bg-crwn-elevated text-crwn-text flex items-center gap-1"
+                  >
+                    <Mail className="w-3.5 h-3.5" /> {open === r.id ? 'Hide draft' : 'Show draft'}
+                  </button>
+                  <button
+                    onClick={() => copy(r)}
+                    className="px-3 py-1.5 rounded-full text-xs bg-crwn-elevated text-crwn-text flex items-center gap-1"
+                  >
+                    <Copy className="w-3.5 h-3.5" /> {copied === r.id ? 'Copied' : 'Copy draft'}
+                  </button>
+                  {!r.already_sent && (
+                    <button
+                      disabled={busy === r.id}
+                      onClick={() => onMarkSent(r.id)}
+                      className="px-3 py-1.5 rounded-full text-xs bg-crwn-elevated text-crwn-text flex items-center gap-1 disabled:opacity-50"
+                    >
+                      <Check className="w-3.5 h-3.5" /> I sent this by hand
+                    </button>
+                  )}
+                </div>
+              )}
+              {open === r.id && r.preview && (
+                <div className="mt-3 rounded-lg bg-crwn-elevated p-3 text-sm text-crwn-text whitespace-pre-wrap">
+                  {r.email && <p className="text-crwn-text-secondary mb-1">To: {r.email}</p>}
+                  <p className="font-semibold mb-2">{r.preview.subject}</p>
+                  {r.preview.text}
+                </div>
+              )}
+            </div>
+          ))}
         </div>
       )}
     </div>
