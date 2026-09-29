@@ -20,12 +20,12 @@
 
 set -uo pipefail
 
-REPO=/home/merce/workspace-crwn
+source "$(dirname "$0")/session-repo.sh"             # REPO = this session's own checkout (a worktree or main)
 cd "$REPO" 2>/dev/null || exit 0                      # never block on env weirdness
 command -v git >/dev/null 2>&1 || exit 0
 
 # Guard 1: don't re-fire on a Stop that a Stop hook already continued this turn.
-INPUT=$(cat 2>/dev/null || echo "")
+INPUT=$HOOK_INPUT
 case "$INPUT" in
   *'"stop_hook_active":true'*|*'"stop_hook_active": true'*) exit 0 ;;
 esac
@@ -33,7 +33,9 @@ esac
 # HEAD, with an inert test seam (DOCSYNC_TEST_HEAD is never set in production).
 HEAD=${DOCSYNC_TEST_HEAD:-$(git rev-parse HEAD 2>/dev/null)}
 [[ -z "$HEAD" ]] && exit 0
-SENT="$REPO/.claude/hooks/.last-docsync-head"
+# Per worktree, inside .git: a tracked sentinel would hand every new worktree a months-old
+# baseline, and the first Stop there would "remind" about everything since.
+SENT=$(git rev-parse --path-format=absolute --git-path crwn-docsync-head)
 LAST=$(cat "$SENT" 2>/dev/null || echo "")
 
 # First run: record a baseline and stay quiet about pre-existing history.

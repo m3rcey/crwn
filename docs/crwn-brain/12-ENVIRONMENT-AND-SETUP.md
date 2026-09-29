@@ -28,6 +28,12 @@ npm test             # vitest, 820 tests across 50 files (a moving figure: run i
 - After frontend changes, **bump `CACHE_NAME` in `public/sw.js`** (iOS Safari caches aggressively).
 - Cron ≤ once/day (Hobby plan); anything more frequent blocks all deploys.
 - Post-deploy checklist: `POST_DEPLOY_CHECKLIST.md`; verify with the `kai` agent / production smoke.
+- **Parallel Claude sessions** (2026-09-29): `wsl scripts/dev/crwn <task>` starts each session in
+  its own worktree `.claude/worktrees/<task>` on branch `worktree-<task>`.
+  - Env files are copied by `.worktreeinclude`, and `node_modules` is hardlinked by the SessionStart
+    hook. A symlink breaks Turbopack.
+  - Integration is `scripts/dev/crwn land <task>`, a fast-forward to master. That is the deploy.
+  - Guide: `docs/PARALLEL_CLAUDE_SESSIONS.md`.
 
 ### Deployment storage (verified 2026-09-28)
 - Vercel's live Usage attributed the full 10.18 GB Deployment Storage reading to `crwn`.

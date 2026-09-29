@@ -250,6 +250,14 @@ drift the moment anyone adds a test, and a stale count teaches the next agent to
   does NOT reach production until `master` fast-forwards. To verify what is live, check
   `https://thecrwn.app/sw.js` `CACHE_NAME` and probe a new endpoint (a `404` means not deployed).
   Don't assume a code bug on prod until you confirm the code is live.
+- **Parallel sessions (2026-09-29): a task session works in its own worktree and never pushes
+  master.** It pushes its branch and reports it; `scripts/dev/crwn land <task>` fast-forwards master
+  (Josh confirms). `.claude/hooks/git-guard.mjs` blocks, in code:
+  - a master push from a task worktree, and any force, delete or mirror of master;
+  - git writes into another session's checkout;
+  - discarding work in the shared main checkout.
+
+  Guide: `docs/PARALLEL_CLAUDE_SESSIONS.md`.
 
 There is no `npm run verify:security` script. The security suites run inside
 `verify:architecture`; if you add such a script, register it here and in `CLAUDE.md`.

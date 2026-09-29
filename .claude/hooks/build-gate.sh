@@ -10,7 +10,7 @@
 
 set -uo pipefail
 
-REPO=/home/merce/workspace-crwn
+source "$(dirname "$0")/session-repo.sh"            # REPO = this session's own checkout (a worktree or main)
 cd "$REPO" 2>/dev/null || exit 0                     # never block on env weirdness
 command -v npm >/dev/null 2>&1 || exit 0
 
@@ -19,7 +19,7 @@ DIRTY=$(git status --porcelain -- src supabase 2>/dev/null)
 [[ -z "$DIRTY" ]] && exit 0
 
 # 2. Skip if the code trees are byte-identical to the last build that passed.
-CACHE="$REPO/.claude/hooks/.last-build-hash"
+CACHE=$(git rev-parse --path-format=absolute --git-path crwn-last-build-hash)   # per worktree, never in the tree
 HASH=$( {
   git diff HEAD -- src supabase 2>/dev/null
   git ls-files --others --exclude-standard -z -- src supabase 2>/dev/null | xargs -0 -r cat 2>/dev/null
@@ -29,7 +29,7 @@ if [[ -f "$CACHE" && "$(cat "$CACHE" 2>/dev/null)" == "$HASH" ]]; then
 fi
 
 # 3. Build. Cache the hash only on success — a failing tree must re-run next turn.
-LOG=/tmp/crwn-build-gate.log
+LOG=/tmp/crwn-build-gate-$(basename "$REPO").log      # one log per checkout: sessions build in parallel
 if npm run build >"$LOG" 2>&1; then
   echo "$HASH" > "$CACHE"
   exit 0

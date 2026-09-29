@@ -9,18 +9,21 @@
 
 set -uo pipefail
 
-REPO=/home/merce/workspace-crwn
+source "$(dirname "$0")/session-repo.sh"   # REPO = this session's checkout, so the email names its branch
 cd "$REPO" 2>/dev/null || exit 0
 
-TS_FILE="$REPO/.claude/hooks/.last-prompt-ts"
-SENT_FILE="$REPO/.claude/hooks/.last-notify-ts"
+# The UserPromptSubmit hook stamps the main checkout's file for every session, so parallel
+# sessions share one prompt time; the dedup key carries the session so one session's email
+# never suppresses another's.
+TS_FILE="$MAIN_REPO/.claude/hooks/.last-prompt-ts"
+SENT_FILE=$(git rev-parse --path-format=absolute --git-path crwn-last-notify)
 
 [[ -f "$TS_FILE" ]] || exit 0
 TS=$(cat "$TS_FILE" 2>/dev/null)
 [[ "$TS" =~ ^[0-9]+$ ]] || exit 0
 
-# Dedup: already emailed for this prompt.
-[[ -f "$SENT_FILE" && "$(cat "$SENT_FILE" 2>/dev/null)" == "$TS" ]] && exit 0
+# Dedup: already emailed for this prompt in this session.
+[[ -f "$SENT_FILE" && "$(cat "$SENT_FILE" 2>/dev/null)" == "$SESSION_ID:$TS" ]] && exit 0
 
 NOW=$(date +%s)
 ELAPSED=$(( NOW - TS ))
@@ -28,7 +31,7 @@ MIN=${CRWN_NOTIFY_MIN_SECONDS:-120}
 (( ELAPSED >= MIN )) || exit 0
 
 # Resend key from .env.local (never committed, never echoed).
-KEY=$(grep -m1 '^RESEND_API_KEY=' "$REPO/.env.local" 2>/dev/null | cut -d= -f2- | tr -d '"' | tr -d "'")
+KEY=$(grep -h -m1 '^RESEND_API_KEY=' "$REPO/.env.local" "$MAIN_REPO/.env.local" 2>/dev/null | head -1 | cut -d= -f2- | tr -d '"' | tr -d "'")
 [[ -n "$KEY" ]] || exit 0
 
 BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unknown")
@@ -66,7 +69,7 @@ RESP=$(curl -sS -m 15 -X POST "https://api.resend.com/emails" \
 # Mark sent only on success (Resend returns {"id": "..."}). On failure the next
 # Stop for this prompt retries once more.
 if [[ "$RESP" == *'"id"'* ]]; then
-  echo "$TS" > "$SENT_FILE"
+  echo "$SESSION_ID:$TS" > "$SENT_FILE"
 fi
 
 exit 0

@@ -1,5 +1,30 @@
 # CRWN Brain — Changelog
 
+## 2026-09-29 - Parallel Claude sessions: one task, one worktree (developer tooling only)
+
+**Guide: docs/PARALLEL_CLAUDE_SESSIONS.md.** No product behavior changed.
+- **Launcher.** `scripts/dev/crwn <task>` fetches master and starts Claude Code's native
+  `--worktree` inside WSL. It refuses a task name already in use. Subcommands: `ls`, `resume`,
+  `land` (fast-forward only, confirmed), `rm` (keeps the branch, never forces).
+- **Guard.** `.claude/hooks/git-guard.mjs`, a PreToolUse hook in the new tracked
+  `.claude/settings.json`, blocks:
+  - a master push from a task worktree, and a force, delete or mirror of master from anywhere;
+  - git writes into another session's checkout;
+  - discarding work in the shared main checkout.
+
+  It fails open. Its tests are `npm run test:hooks`.
+- **Worktree setup.** `.worktreeinclude` copies `.env.local` and `.env.instagram`. A SessionStart
+  hook hardlinks `node_modules`.
+  - Verified: a symlink makes `npm run build` fail ("points out of the filesystem root"); hardlinks
+    build clean for about 17 MB.
+- **Existing Stop hooks now act on the session's own checkout.** `settings.local.json` is shared
+  with every worktree, and the hooks hardcoded the main checkout, so a worktree session would have
+  built and reminded about the wrong tree.
+  - build-gate, doc-sync and notify now read the hook input's `cwd`.
+  - Their state files moved into `.git`: per worktree, and never tracked.
+- **Superseded rule.** Task sessions no longer push master directly. They push their branch, and
+  landing is a separate confirmed fast-forward.
+
 ## 2026-09-29 - Founder follow-up for sales_priority leads (resolver live, auto-send dark)
 
 **Full doc: 34-FOUNDER-FOLLOW-UP.md.**

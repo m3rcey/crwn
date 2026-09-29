@@ -1,0 +1,32 @@
+{
+  // Parallel Claude Code sessions (docs/PARALLEL_CLAUDE_SESSIONS.md).
+  // Terminal > Run Task > "CRWN: new Claude task", type a task name (blank: Claude picks one).
+  // Every run opens its own terminal, so two runs are two isolated sessions.
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "CRWN: new Claude task",
+      "type": "process",
+      "command": "wsl.exe",
+      "args": ["-d", "Ubuntu", "--cd", "/home/merce/workspace-crwn", "-e", "bash", "-lc", "exec scripts/dev/crwn ${0:+\"$0\"}", "${input:crwnTask}"],
+      "presentation": { "panel": "new", "reveal": "always", "focus": true },
+      "runOptions": { "instanceLimit": 10 },
+      "problemMatcher": []
+    },
+    {
+      "label": "CRWN: list Claude tasks",
+      "type": "process",
+      "command": "wsl.exe",
+      "args": ["-d", "Ubuntu", "--cd", "/home/merce/workspace-crwn", "-e", "bash", "-lc", "scripts/dev/crwn ls"],
+      "presentation": { "panel": "shared", "reveal": "always" },
+      "problemMatcher": []
+    }
+  ],
+  "inputs": [
+    {
+      "id": "crwnTask",
+      "type": "promptString",
+      "description": "Task name, e.g. manychat-fix (leave blank and Claude picks one)"
+    }
+  ]
+}

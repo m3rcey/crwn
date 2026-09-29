@@ -33,6 +33,9 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
+# Claude Code task worktrees (scripts/dev/crwn, docs/PARALLEL_CLAUDE_SESSIONS.md)
+/.claude/worktrees/
+
 # vercel
 .vercel
 

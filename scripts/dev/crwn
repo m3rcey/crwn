@@ -1,0 +1,184 @@
+#!/usr/bin/env bash
+# crwn: one Claude Code session per task, each in its own git worktree and branch.
+# Operating guide: docs/PARALLEL_CLAUDE_SESSIONS.md
+#
+#   crwn <task> [claude args]   new session in .claude/worktrees/<task> on branch worktree-<task>,
+#                               branched from a freshly fetched origin/master
+#   crwn                        same, and Claude picks the name
+#   crwn resume <task>          reopen a task worktree you kept
+#   crwn ls                     every worktree: branch, ahead/behind master, uncommitted files
+#   crwn land <task|branch>     fast-forward master to a finished, reconciled, pushed branch
+#   crwn rm <task>              remove a finished worktree (the branch is kept)
+#
+# Worktrees are created by Claude Code's native --worktree; this script only adds the checks
+# around it: WSL only (Windows git corrupts this repo's colon-named files), a fresh base, and a
+# clear refusal when a task name is already in use.
+set -euo pipefail
+
+die() { printf 'crwn: %s\n' "$*" >&2; exit 1; }
+[[ "$(uname -s)" == Linux ]] || die "run this inside WSL (from PowerShell: wsl scripts/dev/crwn ...). Windows-side git corrupts this repo."
+export PATH="$HOME/.local/bin:$PATH"
+
+# The main checkout, wherever this is run from (a task worktree, or via a ~/.local/bin symlink).
+SELF=$(readlink -f "${BASH_SOURCE[0]}")
+COMMON=$(git -C "$(dirname "$SELF")" rev-parse --path-format=absolute --git-common-dir 2>/dev/null) \
+  || die "cannot find the CRWN repository from $SELF"
+ROOT=$(dirname "$COMMON")
+[[ -f "$ROOT/CLAUDE.md" && "$(git -C "$ROOT" remote get-url origin 2>/dev/null)" == *crwn* ]] \
+  || die "$ROOT does not look like the CRWN repository"
+g() { git -C "$ROOT" "$@"; }
+BASE=$(g symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null | sed 's#^origin/##')
+BASE=${BASE:-master}
+WTS="$ROOT/.claude/worktrees"
+
+# Task names become a directory and the branch worktree-<task>: lowercase letters, digits, dashes.
+task_name() {
+  local raw="$1" t
+  t=$(printf '%s' "$raw" | tr '[:upper:]_ ' '[:lower:]--' | tr -cd 'a-z0-9-' | sed -E 's/-+/-/g; s/^-//; s/-$//' | cut -c1-40)
+  t=${t%-}
+  [[ -n "$t" ]] || die "'$raw' is not a usable task name (use letters, digits and dashes, e.g. manychat-fix)"
+  [[ "$t" == "$raw" ]] || printf 'crwn: using task name "%s"\n' "$t" >&2
+  printf '%s' "$t"
+}
+
+describe() { # one line about an existing task worktree
+  local dir="$1" br dirty last
+  br=$(git -C "$dir" branch --show-current 2>/dev/null || echo '?')
+  dirty=$(git -C "$dir" status --porcelain 2>/dev/null | wc -l)
+  last=$(git -C "$dir" log -1 --format='%h %s (%cr)' 2>/dev/null || echo 'no commits')
+  printf '%s on %s, %s uncommitted file(s), last commit %s' "$dir" "$br" "$dirty" "$last"
+}
+
+in_claude_worktree() { # true inside a Claude session whose cwd is a linked worktree
+  [[ -n "${CLAUDECODE:-}" ]] || return 1
+  local gd cd
+  gd=$(git rev-parse --path-format=absolute --git-dir 2>/dev/null) || return 1
+  cd=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null) || return 1
+  [[ "$gd" != "$cd" ]]
+}
+
+cmd_new() {
+  local task=""
+  if [[ $# -gt 0 && "$1" != -* ]]; then task=$(task_name "$1"); shift; fi
+  if [[ -n "$task" ]]; then
+    [[ -e "$WTS/$task" ]] && die "task '$task' already has a worktree:
+  $(describe "$WTS/$task")
+If its session is still open in another terminal, pick a different name.
+To continue it here: crwn resume $task"
+    g show-ref --verify --quiet "refs/heads/worktree-$task" && die "branch worktree-$task already exists (kept from an earlier task).
+Pick a different name, or reopen it with: crwn resume $task"
+  fi
+  # Claude Code only refreshes the base when the repo has not been fetched for 24h. Fetch now so a
+  # new task never starts from a stale master (offline: fall back to the cached ref, like Claude).
+  g fetch --quiet origin "$BASE" 2>/dev/null || echo "crwn: fetch failed, using cached origin/$BASE" >&2
+  g show-ref --verify --quiet "refs/remotes/origin/worktree-$task" 2>/dev/null && [[ -n "$task" ]] \
+    && die "origin already has a branch worktree-$task from an earlier task. Pick a different name."
+  echo "crwn: base origin/$BASE $(g rev-parse --short "origin/$BASE"), worktree .claude/worktrees/${task:-<named by Claude>}, branch worktree-${task:-<name>}" >&2
+  cd "$ROOT"
+  if [[ -n "$task" ]]; then exec claude --worktree "$task" "$@"; else exec claude --worktree "$@"; fi
+}
+
+cmd_resume() {
+  [[ $# -ge 1 ]] || die "usage: crwn resume <task>"
+  local task; task=$(task_name "$1"); shift
+  if [[ ! -e "$WTS/$task" ]]; then
+    g show-ref --verify --quiet "refs/heads/worktree-$task" || die "no worktree or branch for task '$task' (see: crwn ls)"
+    g worktree add --quiet "$WTS/$task" "worktree-$task"   # recreate the directory for a kept branch
+  fi
+  cd "$ROOT"
+  exec claude --worktree "$task" --resume "$@"
+}
+
+cmd_ls() {
+  g fetch --quiet origin "$BASE" 2>/dev/null || true
+  printf '%-28s %-34s %-12s %-6s %s\n' TASK BRANCH "vs $BASE" DIRTY PUSHED
+  local path br ab dirty pushed
+  while read -r key val; do
+    case "$key" in
+      worktree) path=$val ;;
+      branch)
+        br=${val#refs/heads/}
+        ab=$(g rev-list --left-right --count "origin/$BASE...$br" 2>/dev/null | awk '{print "+"$2" -"$1}')
+        dirty=$(git -C "$path" status --porcelain 2>/dev/null | wc -l)
+        if ! g show-ref --verify --quiet "refs/remotes/origin/$br"; then pushed=no
+        elif [[ "$(g rev-parse "$br")" == "$(g rev-parse "origin/$br")" ]]; then pushed=yes
+        else pushed=behind-local; fi
+        [[ "$path" == "$ROOT" ]] && pushed="(main checkout)"
+        printf '%-28s %-34s %-12s %-6s %s\n' "${path#"$WTS/"}" "$br" "$ab" "$dirty" "$pushed" ;;
+    esac
+  done < <(g worktree list --porcelain)
+}
+
+cmd_land() {
+  [[ $# -ge 1 ]] || die "usage: crwn land <task|branch> [--yes]"
+  in_claude_worktree && die "a task session never lands its own work. Push the branch and report it; Josh lands it."
+  local arg="$1" yes=""; shift
+  [[ "${1:-}" == "--yes" ]] && yes=1
+  local br="$arg"
+  g show-ref --verify --quiet "refs/heads/worktree-$arg" && br="worktree-$arg"
+  g show-ref --verify --quiet "refs/heads/$br" || die "no local branch '$arg' or 'worktree-$arg'"
+  local dir; dir=$(g worktree list --porcelain | awk -v b="branch refs/heads/$br" '/^worktree /{p=$2} $0==b{print p}')
+  if [[ -n "$dir" && "$(git -C "$dir" status --porcelain | wc -l)" -ne 0 ]]; then
+    die "$br has uncommitted changes in $dir. The task is not finished: commit (or drop) them in that session first."
+  fi
+  g fetch --quiet origin "$BASE" "$br" 2>/dev/null || die "fetch failed; is $br pushed? (in the task: git push -u origin HEAD)"
+  local tip; tip=$(g rev-parse "$br")
+  [[ "$tip" == "$(g rev-parse "origin/$br")" ]] || die "$br is not pushed as-is (local $(g rev-parse --short "$br"), origin $(g rev-parse --short "origin/$br")). Push it from the task first."
+  local behind ahead
+  behind=$(g rev-list --count "$tip..origin/$BASE")
+  ahead=$(g rev-list --count "origin/$BASE..$tip")
+  [[ "$ahead" -gt 0 ]] || die "$br has nothing $BASE does not already have."
+  [[ "$behind" -eq 0 ]] || die "$br is $behind commit(s) behind $BASE. Reconcile it in the task session first:
+  git fetch origin && git merge origin/$BASE   (resolve conflicts, rerun tests/build, push)
+then run: crwn land $arg"
+  echo "Landing $br ($ahead commit(s)) onto $BASE as a fast-forward:"
+  g log --oneline "origin/$BASE..$tip" | sed 's/^/  /'
+  g diff --stat "origin/$BASE..$tip" | tail -1 | sed 's/^/  /'
+  local dels; dels=$(g diff --diff-filter=D --name-only "origin/$BASE..$tip")
+  [[ -n "$dels" ]] && { echo "  FILES THIS DELETES:"; printf '%s\n' "$dels" | sed 's/^/    /'; }
+  if [[ -z "$yes" ]]; then
+    [[ -t 0 ]] || die "not a terminal; re-run with --yes to confirm"
+    read -r -p "Push $(g rev-parse --short "$tip") to origin/$BASE (production deploys from $BASE)? [y/N] " ok
+    [[ "$ok" == y || "$ok" == Y ]] || die "not landed"
+  fi
+  # A plain push of a descendant: git and GitHub reject it unless it is a fast-forward, so a master
+  # that moved since the fetch above fails loudly instead of being overwritten. Never --force.
+  g push origin "$tip:refs/heads/$BASE"
+  echo "Landed. origin/$BASE is now $(g rev-parse --short "$tip")."
+  local cur; cur=$(g branch --show-current)
+  [[ "$cur" == "$BASE" ]] && echo "The main checkout ($ROOT) is on $BASE; sync it when no session there is mid-task: git -C $ROOT merge --ff-only origin/$BASE"
+  echo "When you are done with the worktree: crwn rm ${arg#worktree-}"
+}
+
+cmd_rm() {
+  [[ $# -ge 1 ]] || die "usage: crwn rm <task>"
+  local task; task=$(task_name "$1")
+  local dir="$WTS/$task"
+  [[ -d "$dir" ]] || die "no worktree for task '$task' (see: crwn ls)"
+  local br; br=$(git -C "$dir" branch --show-current)
+  local lock="$COMMON/worktrees/$task/locked"
+  if [[ -f "$lock" ]]; then
+    local pid; pid=$(grep -o 'pid [0-9]*' "$lock" | awk '{print $2}')
+    if [[ -n "$pid" ]] && kill -0 "$pid" 2>/dev/null; then
+      die "task '$task' is locked by a Claude session that is still running (pid $pid). Exit that session first."
+    fi
+    g worktree unlock "$dir"   # stale lock from a session that has exited
+  fi
+  # No --force: git refuses a worktree with uncommitted or untracked work, which is the point.
+  g worktree remove "$dir" || die "not removed. Commit or discard the work in $dir first (crwn never forces this)."
+  local state="not pushed"
+  g show-ref --verify --quiet "refs/remotes/origin/$br" && state="pushed"
+  g merge-base --is-ancestor "$br" "origin/$BASE" 2>/dev/null && state="$state, landed in $BASE"
+  echo "Removed .claude/worktrees/$task. Branch $br is kept ($state)."
+  [[ "$state" == *landed* ]] && echo "It is fully landed; delete it when you like: git branch -d $br"
+  return 0
+}
+
+case "${1:-}" in
+  -h|--help|help) sed -n '2,13p' "$SELF" | sed 's/^# \{0,1\}//' ;;
+  ls|list) shift; cmd_ls "$@" ;;
+  land) shift; cmd_land "$@" ;;
+  rm|remove) shift; cmd_rm "$@" ;;
+  resume) shift; cmd_resume "$@" ;;
+  *) cmd_new "$@" ;;
+esac

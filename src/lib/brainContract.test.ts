@@ -1,5 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync, existsSync } from 'node:fs';
+import { execSync } from 'node:child_process';
+import { dirname, join } from 'node:path';
 
 // Z12: the CRWN Brain contract.
 //
@@ -161,7 +163,14 @@ describe('docs do not hardcode figures that go stale the next commit', () => {
 describe('the process safeguard that complements this file still exists', () => {
   it('the doc-sync Stop hook is present and wired', () => {
     expect(existsSync('.claude/hooks/doc-sync-reminder.sh')).toBe(true);
-    const settings = read('.claude/settings.json') + read('.claude/settings.local.json');
+    // Inside a task worktree Claude Code reads settings.local.json from the MAIN checkout (it is
+    // gitignored, so the worktree has none). Read it where Claude Code does, or this fails in
+    // every worktree (docs/PARALLEL_CLAUDE_SESSIONS.md).
+    let mainRoot = '.';
+    try {
+      mainRoot = dirname(execSync('git rev-parse --path-format=absolute --git-common-dir', { encoding: 'utf8' }).trim());
+    } catch { /* not a git checkout: the local file, if any, is here */ }
+    const settings = read('.claude/settings.json') + read('.claude/settings.local.json') + read(join(mainRoot, '.claude/settings.local.json'));
     expect(settings).toContain('doc-sync-reminder.sh');
   });
 });

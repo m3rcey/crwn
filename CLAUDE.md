@@ -265,6 +265,29 @@ applying it at write time.
 Same for any other file you ask him to open: `scripts/*.mjs`, docs, components. When more than one
 SQL file is involved, give the RUN ORDER. Never fence SQL inline (see the TODO.md rule below).
 
+## Parallel sessions: one task, one worktree (2026-09-29)
+
+Josh runs several Claude sessions at once. Each extra task runs in its own git worktree and branch
+(`wsl scripts/dev/crwn <task>`; operating guide
+[docs/PARALLEL_CLAUDE_SESSIONS.md](docs/PARALLEL_CLAUDE_SESSIONS.md)). The main checkout is the
+integration checkout, and its uncommitted files may be another session's work.
+
+- **Implementation work stays on your own task branch.** Commit there and `git push -u origin HEAD`.
+  **A task worktree never pushes master**: a finished branch lands through `scripts/dev/crwn land`,
+  a fast-forward Josh confirms.
+- **Another session's uncommitted work is never disposable.** Never reset, restore, check out paths
+  over, clean or stash-drop in the main checkout, and never run a git write in a checkout that is
+  not yours.
+- **Before you report done**, reconcile with the latest master:
+  1. `git fetch origin && git merge origin/master`.
+  2. Resolve conflicts deliberately.
+  3. Rerun the relevant tests and build after the merge.
+  4. Push.
+  5. Report the branch, the worktree path and the commit.
+- **Enforced in code, not only here.** `.claude/hooks/git-guard.mjs` (wired in
+  `.claude/settings.json`) blocks the master push, the force pushes and the cross-checkout writes. A
+  block is the rule working, so do not route around it.
+
 ## TODO.md — you maintain it, Josh works it
 
 `TODO.md` at the repo root is Josh's list. It has three sections: **Do Now** (one-shot,
@@ -1635,7 +1658,10 @@ see and the fan was sold a shipment nobody was told to send.
 - **Always run `npm run build` after changes** — never push code that doesn't build clean.
 - **Surgical, one-file-at-a-time fixes** — don't refactor adjacent code unless asked.
 - SQL migrations go in `supabase/schema-phase2-[name].sql` — DO NOT auto-run. Josh applies them manually in the Supabase SQL Editor. **End every migration with a self-verify assertion block** (see Onboarding Safety Net above).
-- Git workflow: `npm run build && git add -A && git commit -m "description" && git push`
+- Git workflow (inside WSL):
+  - **Task worktree:** `npm run build && git add <your paths> && git commit -F msg && git push -u origin HEAD`. Report the branch; it lands with `scripts/dev/crwn land <task>`.
+  - **Main checkout:** stage explicit paths only, and read `git diff --cached --stat` first, because the index there is shared.
+  - Never `git add -A` (see "Parallel sessions" above).
 
 ### Domain & Infrastructure
 

@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
+    "test:hooks": "node --test .claude/hooks/git-guard.test.mjs",
     "verify:architecture": "vitest run --config vitest.architecture.config.ts",
     "verify:quests": "node scripts/verify-quest-catalog.mjs",
     "verify:migrations": "node scripts/probe-migrations.mjs",

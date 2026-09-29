@@ -1,0 +1,27 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "IN=$(cat); case \"$IN\" in *git*|*'gh '*) printf '%s' \"$IN\" | node \"$(cygpath -w \"$CLAUDE_PROJECT_DIR\" 2>/dev/null || printf %s \"$CLAUDE_PROJECT_DIR\")/.claude/hooks/git-guard.mjs\" ;; esac",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$(cygpath -w \"$CLAUDE_PROJECT_DIR\" 2>/dev/null || printf %s \"$CLAUDE_PROJECT_DIR\")/.claude/hooks/worktree-setup.mjs\"",
+            "timeout": 120
+          }
+        ]
+      }
+    ]
+  }
+}
