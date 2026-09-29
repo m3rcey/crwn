@@ -92,13 +92,14 @@ describe('truth discipline', () => {
     }
   });
 
-  it('the stand-in video is DISCLOSED on Platinum and Gold, and Silver has none', () => {
-    // Founder direction 2026-09-28: same as GB, the CRWN video stands in until Dre records
-    // his own. isPlaceholder is what prints the Example video chip, so it is required
-    // wherever a stand-in url is.
+  it('no video plays until Dre records one: Platinum and Gold show only its cover', () => {
+    // Founder direction 2026-09-28: he has not shot his video, so the slot is a cover still
+    // (renderer: drawn play mark, "coming soon", nothing clickable). Silver has no slot.
     for (const o of [DRE_PLATINUM_OFFER, DRE_GOLD_OFFER]) {
-      expect(o.vsl!.url).toMatch(/^https:\/\//);
-      expect(o.vsl!.isPlaceholder).toBe(true);
+      expect(o.vsl!.url).toBeNull();
+      expect(o.vsl!.posterUrl).toMatch(/photo-vsl-thumb\.webp$/);
+      const c = normalizeOfferExperience(o, 'Gold')!;
+      expect(c.vsl?.posterUrl).toBe(o.vsl!.posterUrl);
     }
     expect(DRE_SILVER_OFFER.vsl!.url).toBeNull();
   });

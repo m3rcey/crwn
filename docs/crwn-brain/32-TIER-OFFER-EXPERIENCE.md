@@ -109,6 +109,18 @@ illustrative, so the normalizer keeps a thread only on a `truth: 'example'` prev
 AND comments (commenters were missing until the same day). Offer copy never assumes the fan
 knows a rung name: inherited strips read "Also included", and other levels are named by price.
 
+## Founder changes to the renderer (2026-09-28)
+
+- **The disclosure chip reads "What it looks like"** (was "Example experience", which read as
+  jargon to a fan). It is still the disclosure: printed from `truth: 'example'`, nowhere else.
+- **A video cover before the video exists.** An exception to "null url renders nothing": a
+  `vsl` with `url: null` and a `posterUrl` renders the cover as a still with a drawn play mark
+  and "Video from <artist> coming soon", nothing clickable. Set `url` when the artist records
+  it and the same slot becomes the player. No cover and no url still renders nothing.
+- **Artist-page tier cards list the songs each rung newly unlocks** (`src/lib/tierSongs.ts`,
+  tested): the lowest rung that gets a gated song shows it once, with a play button when the
+  player's own gate says the visitor may hear it and a lock otherwise.
+
 ## The V1 Offer Builder (shipped 2026-09-03, Rise Mode Guided Setup)
 
 An artist writes their own experience through the guided flow at `/build/experience`

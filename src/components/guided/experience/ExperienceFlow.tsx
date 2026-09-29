@@ -313,7 +313,7 @@ export default function ExperienceFlow({ context, entry }: GuidedFlowProps) {
             options={[
               ...(canUseReal(facts.state) ? [{ value: 'real', label: 'Show the real thing', hint: facts.fact }] : []),
               ...(media.length ? [{ value: 'media', label: 'Use my artwork', hint: 'A photo or cover you already publish' }] : []),
-              { value: 'example', label: 'Show a labelled example', hint: 'Fans see an "Example experience" chip on it' },
+              { value: 'example', label: 'Show a labelled example', hint: 'Fans see a "What it looks like" label on it' },
               { value: 'skip', label: 'Leave it as words', hint: 'It stays in the list, with no preview' },
             ]}
             value={decision.choice}

@@ -6,12 +6,14 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/components/shared/Toast';
 import { useSearchParams } from 'next/navigation';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
-import { TierConfig } from '@/types';
+import { TierConfig, type Track } from '@/types';
+import { usePlayer } from '@/hooks/usePlayer';
+import { songsNewAtTier } from '@/lib/tierSongs';
 import { hapticLight, hapticMedium, hapticSuccess, hapticError } from '@/lib/haptics';
 import { getPersistedReferralCode, getPersistedAttributionSource } from '@/components/shared/ReferralPersist';
 import { useTierViewTracker } from '@/hooks/useTierViewTracker';
 import { useArtistPreview } from '@/hooks/useArtistPreview';
-import { Check, Clock, Loader2, X } from 'lucide-react';
+import { Check, Clock, Loader2, Lock, Pause, Play, X } from 'lucide-react';
 import { PURCHASE_BLOCKED_LABEL, PURCHASE_BLOCKER_MESSAGE } from '@/lib/stripe/paymentReadiness';
 import { safeInternalPath } from '@/lib/journey/resolveJourneyDestination';
 import { memberSinceLabel } from '@/lib/recognition/status';
@@ -190,6 +192,51 @@ interface TierCardsProps {
   tiers: TierConfig[];
   artistSlug: string;
   artistId: string;
+  /** The page's tracks, read from tracks_public AS THE VISITOR. Each card lists the gated
+   *  songs its rung newly unlocks; playability comes from the player's own gate, so a card
+   *  can never offer a song the visitor may not hear. */
+  tracks?: Track[];
+}
+
+function TierSongs({ songs, queue }: { songs: Track[]; queue: Track[] }) {
+  const { currentTrack, isPlaying, play, pause, canPlayTrack } = usePlayer();
+  if (!songs.length) return null;
+  const shown = songs.slice(0, 6);
+  return (
+    <div className="mt-4 text-left">
+      <p className="text-[11px] uppercase tracking-wide text-crwn-gold mb-2">Songs you unlock</p>
+      <ul className="space-y-1.5">
+        {shown.map((t) => {
+          const open = canPlayTrack(t);
+          const playing = currentTrack?.id === t.id && isPlaying;
+          return (
+            <li key={t.id} className="flex items-center gap-2 rounded-lg bg-crwn-elevated px-2 py-1.5">
+              {t.album_art_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={t.album_art_url} alt="" className="w-8 h-8 rounded object-cover flex-shrink-0" />
+              ) : null}
+              <span className="flex-1 min-w-0 truncate text-sm text-crwn-text">{t.title}</span>
+              {open ? (
+                <button
+                  type="button"
+                  onClick={() => (playing ? pause() : play(t, queue))}
+                  aria-label={playing ? `Pause ${t.title}` : `Play ${t.title}`}
+                  className="w-7 h-7 rounded-full bg-crwn-gold flex items-center justify-center flex-shrink-0"
+                >
+                  {playing ? <Pause className="w-3.5 h-3.5 text-crwn-bg" fill="currentColor" /> : <Play className="w-3.5 h-3.5 text-crwn-bg ml-0.5" fill="currentColor" />}
+                </button>
+              ) : (
+                <Lock className="w-4 h-4 text-crwn-text-secondary flex-shrink-0" aria-label="Locked" />
+              )}
+            </li>
+          );
+        })}
+      </ul>
+      {songs.length > shown.length ? (
+        <p className="mt-1.5 text-xs text-crwn-text-secondary">{`+ ${songs.length - shown.length} more`}</p>
+      ) : null}
+    </div>
+  );
 }
 
 // Where to send a signed-out fan back to. It is the CURRENT url, search string included,
@@ -203,7 +250,7 @@ function loginWithReturn(): string {
   return here ? `/login?next=${encodeURIComponent(here)}` : '/login';
 }
 
-export function TierCards({ tiers, artistSlug, artistId }: TierCardsProps) {
+export function TierCards({ tiers, artistSlug, artistId, tracks = [] }: TierCardsProps) {
   const { embedded } = useArtistPreview();
   const { user } = useAuth();
   const router = useRouter();
@@ -533,6 +580,8 @@ export function TierCards({ tiers, artistSlug, artistId }: TierCardsProps) {
                 <p className="text-crwn-muted-tint text-sm mt-2">{tier.description}</p>
               )}
               
+              <TierSongs songs={songsNewAtTier(tracks, tiers, tier.id)} queue={tracks.filter((t) => !!t.audio_url_128)} />
+
               {tier.benefits && tier.benefits.length > 0 && (
                 <ul className="mt-4 space-y-2 flex-1">
                   {tier.benefits.map((benefit, idx) => (

@@ -65,6 +65,8 @@ export const DRE_TIER_PRICES_CENTS: Record<string, number> = {
   Platinum: 10000,
 };
 
+// Each card leads with what the fan gets THE MOMENT they join (founder, 2026-09-28); the
+// "Everything in" line is last, because a stranger reads the top of a card, not the bottom.
 export const DRE_APPROVED_BENEFITS: Record<string, string[]> = {
   Bronze: [
     'The unreleased sampler: one song from each of the 3 projects',
@@ -73,21 +75,22 @@ export const DRE_APPROVED_BENEFITS: Record<string, string[]> = {
     'First word on the mixtape and every drop',
   ],
   Silver: [
-    'Everything in Bronze',
     'The archive pack: 6 unreleased songs, 2 from each project',
     'Behind the scenes from every era',
+    'Everything in Bronze',
   ],
   Gold: [
-    'Everything in Silver',
-    `The complete winning project, unlocked ${DRE_FIRST_UNLOCK_DATE}`,
+    'The archive pack: 6 unreleased songs, the moment you join',
     'The Vault: cuts, alternate versions and unreleased videos as Dre adds them',
+    `The complete winning project, unlocked ${DRE_FIRST_UNLOCK_DATE}`,
+    'Everything in Silver',
   ],
   Platinum: [
-    'Everything in Gold',
     'All 3 unreleased projects, complete, the moment you join',
     'First listen to the project after the mixtape, before anyone else',
     'Group listening sessions when Dre opens one',
     'Platinum recognition',
+    'Everything in Gold',
   ],
 };
 
@@ -120,12 +123,12 @@ export const DRE_FUNNEL_PRIMARY_ITEM = {
     'Everyone else waits for the vote to see which project unlocks. Platinum gets all 3, complete, the moment they join.',
 };
 
-// Stand-in until Dre records his own: the same CRWN video GB carries, DISCLOSED by
-// isPlaceholder (the renderer prints the Example video chip). Swap the url, keep the rule.
+// Dre has not shot his video yet (founder, 2026-09-28): the slot shows the COVER of the video
+// he is about to make, as a non-playable still with "coming soon". When he records it, set
+// `url` to the hosted mp4 and the same slot becomes the player.
 const STAND_IN_VSL = {
-  url: 'https://pub-490263a6ac304986851fbf65e6f3ff13.r2.dev/vsl/vsl-1-fan-worth.mp4',
-  posterUrl: 'https://thecrwn.app/vsl/vsl-1-fan-worth.webp',
-  isPlaceholder: true,
+  url: null,
+  posterUrl: 'https://ecpqtuidtsncjfwtkvwc.supabase.co/storage/v1/object/public/album-art/afa05eb6-da91-438a-8e28-3952c1bded83/offer/photo-vsl-thumb.webp',
 };
 
 export const DRE_PLATINUM_OFFER: TierOfferExperience = {

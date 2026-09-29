@@ -52,6 +52,11 @@ const SCENES = [
     scene: `Use the LAST attached image (the empty control room with the console and the couch) as the setting: the same room, now occupied, framed wide enough to show the whole couch. A private group listening session. He stands by the mixing console at the right, turned toward the room, one hand raised as he talks about the song playing. On the couch sit FIVE young Black fans aged 18 to 30. Count them: one, two, three, four, five people, never four and never six. They are THREE young women and TWO young men, ALL seated side by side on the couch, nobody standing or floating behind it, all five fully inside the frame with space at the left edge. They lean in and nod along, one woman with her eyes closed. Warm amber lamps and candles, a relaxed late-night feel.`,
   },
   {
+    // The cover for the video he has not shot yet: the classic talking-head opener.
+    file: "vsl-thumb.webp",
+    scene: `A talking-head video frame. He sits on a stool in the recording studio facing the camera directly, centered, looking straight into the lens mid-sentence with a serious, honest expression, leaning slightly forward, forearms on his knees, hands loosely together, as if telling his fans something that matters. Behind him, softly out of focus: the mixing console, studio monitors and warm amber lamps. Framed from the knees up with space either side of him.`,
+  },
+  {
     file: "video-vault.webp",
     scene: `He is in a vocal booth recording, headphones on, eyes closed, one hand cupping the headphone, rapping into a large studio condenser microphone with a round pop filter in the foreground. Acoustic foam on the walls, a warm amber light, the dim control room visible through the booth glass behind him.`,
   },

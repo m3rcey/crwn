@@ -9,7 +9,7 @@
 // truth never passes through it.
 //
 // REAL vs EXAMPLE is a field, not a convention. Every preview carries `truth`, and the
-// renderer prints the "Example experience" disclosure from that field, so honesty cannot
+// renderer prints the "What it looks like" disclosure from that field, so honesty cannot
 // depend on a developer remembering a label. The normalizer refuses a preview without it.
 
 /** The preview vocabulary. Small on purpose: each kind is one way of making a benefit

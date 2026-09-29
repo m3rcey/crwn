@@ -260,7 +260,7 @@ export function ArtistProfileContent({
           <section data-tour="artist-page-tiers">
             <h2 className="text-xl font-semibold text-crwn-text mb-4">Subscription Tiers</h2>
             {tiers.length > 0 ? (
-              <TierCards tiers={tiers} artistSlug={artist.slug} artistId={artist.id} />
+              <TierCards tiers={tiers} artistSlug={artist.slug} artistId={artist.id} tracks={tracks} />
             ) : (
               <SubscribeCTA
                 artistName={artist.profile?.display_name || 'this artist'}

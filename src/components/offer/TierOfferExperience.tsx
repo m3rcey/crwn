@@ -45,11 +45,14 @@ interface Props {
   price: (cents: number) => string;
 }
 
-/** The one truth chip. Rendered from data, never from a developer remembering. */
+/** The one truth chip. Rendered from data, never from a developer remembering. The words
+ *  are the founder's (2026-09-28): "What it looks like" says the card illustrates the benefit
+ *  in plain language a fan reads, where "Example experience" read as internal jargon. It is
+ *  still the disclosure: it prints on every truth: 'example' preview and nowhere else. */
 function ExampleChip() {
   return (
     <span className="inline-flex items-center gap-1 text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-full bg-crwn-elevated text-crwn-text-secondary">
-      <Sparkles className="w-3 h-3" /> Example experience
+      <Sparkles className="w-3 h-3" /> What it looks like
     </span>
   );
 }
@@ -275,6 +278,10 @@ export function TierOfferExperience({ artist, tier, config, actionSlot, onDeclin
   }, []);
 
   const vsl = config.vsl && config.vsl.url ? config.vsl : null;
+  // No video yet, but a cover for it (founder decision 2026-09-28, an exception to "null url
+  // renders nothing"): the slot shows the cover of the video the artist is about to shoot, as
+  // a still with a drawn play mark and a plain "coming soon" line. Nothing is clickable.
+  const vslCover = !vsl && config.vsl?.posterUrl ? config.vsl.posterUrl : null;
 
   return (
     <div className="space-y-6 pb-24">
@@ -325,6 +332,21 @@ export function TierOfferExperience({ artist, tier, config, actionSlot, onDeclin
               <source src={vsl.url ?? undefined} type="video/mp4" />
             </video>
           </div>
+        </div>
+      )}
+
+      {vslCover && (
+        <div className="neu-raised rounded-2xl overflow-hidden bg-crwn-card p-4">
+          <div className="relative">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={vslCover} alt={`${artist.name}`} className="w-full rounded-xl aspect-video object-cover" />
+            <span aria-hidden className="pointer-events-none absolute inset-0 flex items-center justify-center">
+              <span className="w-16 h-16 rounded-full bg-crwn-bg/70 ring-2 ring-crwn-gold flex items-center justify-center">
+                <Play className="w-7 h-7 text-crwn-gold ml-0.5" fill="currentColor" />
+              </span>
+            </span>
+          </div>
+          <p className="mt-2 text-xs text-center text-crwn-text-secondary">{`Video from ${artist.name} coming soon`}</p>
         </div>
       )}
 
