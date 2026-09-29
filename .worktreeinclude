@@ -1,7 +1,9 @@
 # Gitignored files every task worktree needs (docs/PARALLEL_CLAUDE_SESSIONS.md).
 # Claude Code copies a file only when it matches here AND is gitignored, so nothing listed is
 # ever committed. The values stay on this machine; this file names them, it holds none.
-# node_modules is deliberately absent: the SessionStart hook hardlinks it (a copy is ~1 GB, and
-# a symlink breaks Turbopack's build).
+#
+# Deliberately absent:
+#   node_modules    hardlinked by the SessionStart hook (.claude/hooks/deps.mjs)
+#   .env.instagram  read in place from the main checkout (tools/instagram-mcp/envFile.mjs): the
+#                   MCP server refreshes that token in place, and a copy would drift
 .env.local
-.env.instagram

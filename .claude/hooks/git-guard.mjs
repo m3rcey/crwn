@@ -16,6 +16,11 @@
 //      checkout/restore of paths, stash drop/clear. Plus, anywhere: worktree remove --force and
 //      branch -D, the two commands that delete another session's work without asking.
 //
+// And one thing it DOES rather than blocks: before a dependency-changing npm command (install,
+// uninstall, update, rebuild...) in a task worktree whose node_modules is still hardlinked to the
+// main checkout's, it gives that worktree its own copy (deps.mjs), so the change cannot reach
+// another checkout. If that copy fails, the command is blocked.
+//
 // Everything else passes, including commits and pushes of the session's own feature branch.
 // It FAILS OPEN on any internal error: it is a seatbelt against accidents, not an authorization
 // boundary, and it must never brick the Bash tool.
@@ -24,6 +29,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { isLinked, isolateDeps, mutatesDeps } from './deps.mjs';
 
 const READ_ONLY = new Set([
   'status', 'log', 'diff', 'show', 'fetch', 'rev-parse', 'rev-list', 'ls-files', 'ls-tree',
@@ -245,10 +251,16 @@ function deletesOthersWork(sub, args) {
 
 // ---------------------------------------------------------------- the decision
 
-export function evaluate(input, env = process.env) {
-  if (!input || !['Bash', 'PowerShell'].includes(input.tool_name)) return null;
+export const evaluate = (input, env = process.env) => evaluateAll(input, env).reason;
+
+// { reason: why to block, or null; isolate: task worktrees whose hardlinked node_modules must get
+//   their own copy before this command runs (deps.mjs) }
+export function evaluateAll(input, env = process.env) {
+  const isolate = new Set();
+  const none = { reason: null, isolate: [] };
+  if (!input || !['Bash', 'PowerShell'].includes(input.tool_name)) return none;
   const command = input.tool_input?.command;
-  if (typeof command !== 'string' || !/\b(git|gh)(\.exe)?\b/.test(command)) return null;
+  if (typeof command !== 'string' || !/\b(git|gh|npm)(\.exe|\.cmd)?\b/.test(command)) return none;
 
   const cwd = input.cwd || process.cwd();
   const { toLocal, resolveDir } = makeResolver(cwd);
@@ -281,6 +293,12 @@ export function evaluate(input, env = process.env) {
         continue;
       }
       if (NOT_A_GIT_CALL.has(head)) continue;
+
+      if (mutatesDeps(seg)) {
+        const info = repoInfo(segDir, toLocal);
+        if (info?.linked && isLinked(info.root)) isolate.add(info.root);
+        continue;
+      }
 
       const ghAt = seg.findIndex((t) => path.basename(t).replace(/\.exe$/i, '') === 'gh');
       if (ghAt >= 0 && seg[ghAt + 1] === 'pr' && seg[ghAt + 2] === 'merge' && implementation) {
@@ -320,7 +338,7 @@ export function evaluate(input, env = process.env) {
     return null;
   };
 
-  return walk(command, cwd);
+  return { reason: walk(command, cwd), isolate: [...isolate] };
 }
 
 // ---------------------------------------------------------------- hook entry point
@@ -328,11 +346,23 @@ export function evaluate(input, env = process.env) {
 function main() {
   let raw = '';
   try { raw = fs.readFileSync(0, 'utf8'); } catch { process.exit(0); }
-  let reason = null;
-  try { reason = evaluate(JSON.parse(raw)); } catch { process.exit(0); }
-  if (!reason) process.exit(0);
-  process.stderr.write(`git-guard blocked this command: ${reason}\n(See docs/PARALLEL_CLAUDE_SESSIONS.md. The guard is .claude/hooks/git-guard.mjs.)\n`);
-  process.exit(2);
+  let result = { reason: null, isolate: [] };
+  try { result = evaluateAll(JSON.parse(raw)); } catch { process.exit(0); }
+  if (result.reason) {
+    process.stderr.write(`git-guard blocked this command: ${result.reason}\n(See docs/PARALLEL_CLAUDE_SESSIONS.md. The guard is .claude/hooks/git-guard.mjs.)\n`);
+    process.exit(2);
+  }
+  // A dependency change in a task worktree: give it its own node_modules first. This one path
+  // fails CLOSED, because letting the command run on shared inodes is the leak it exists to stop.
+  for (const root of result.isolate) {
+    try {
+      isolateDeps(root);
+    } catch (e) {
+      process.stderr.write(`git-guard blocked this npm command: this worktree's node_modules is still shared with the main checkout, and giving it its own copy failed (${String(e.message).slice(0, 200)}). Free some disk, or run npm ci here (it replaces node_modules for this worktree only), then retry.\n`);
+      process.exit(2);
+    }
+  }
+  process.exit(0);
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(fileURLToPath(import.meta.url))) main();

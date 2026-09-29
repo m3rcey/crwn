@@ -19,14 +19,13 @@
 // returned empty comment and DM lists with no error.
 
 import { readFileSync, writeFileSync } from 'node:fs';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { createInterface } from 'node:readline';
 import { MESSAGE_FIELDS, enrichMessages, findConversation } from './messages.mjs';
+import { instagramEnvFile } from './envFile.mjs';
 
 const HOST = 'https://graph.instagram.com';
 const V = 'v26.0';
-const ENV_FILE = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '.env.instagram');
+const ENV_FILE = instagramEnvFile();   // the main checkout's file, even from a task worktree
 const REFRESH_AFTER_MS = 7 * 24 * 60 * 60 * 1000;
 
 // ── token ────────────────────────────────────────────────────────────────────────────────────

@@ -2,10 +2,10 @@
 // SessionStart hook (wired in .claude/settings.json). Does nothing outside a task worktree.
 //
 // In a task worktree (docs/PARALLEL_CLAUDE_SESSIONS.md) it:
-//   1. gives the worktree a node_modules by HARDLINKING the main checkout's (cp -al: ~4s,
-//      ~17 MB of directory entries instead of ~1 GB). A symlink is not an option: Turbopack
-//      refuses a node_modules that points outside the project root, so `npm run build` and the
-//      build-gate Stop hook would fail in every worktree (verified 2026-09-29).
+//   1. gives the worktree a node_modules by HARDLINKING the main checkout's (deps.mjs: ~4s,
+//      ~17 MB instead of ~1 GB). A symlink is not an option: Turbopack refuses a node_modules
+//      that points outside the project root, so `npm run build` and the build-gate Stop hook
+//      would fail in every worktree (verified 2026-09-29).
 //   2. tells Claude which task branch it is on and the three rules that keep sessions apart.
 //      SessionStart stdout is added to the session's context, so only task sessions pay for it.
 //
@@ -13,8 +13,8 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
-import { spawnSync } from 'node:child_process';
 import { repoInfo } from './git-guard.mjs';
+import { linkDeps } from './deps.mjs';
 
 function main() {
   if (process.platform === 'win32') return; // task sessions run in WSL (git must, see CLAUDE.md)
@@ -24,13 +24,11 @@ function main() {
   if (!info?.linked || !info.mainRoot) return;
 
   const notes = [];
-  const mine = path.join(info.root, 'node_modules');
-  const shared = path.join(info.mainRoot, 'node_modules');
-  if (!fs.existsSync(mine) && fs.existsSync(shared)) {
-    const r = spawnSync('cp', ['-al', shared, mine], { encoding: 'utf8' });
-    notes.push(r.status === 0
-      ? 'node_modules: hardlinked from the main checkout (no extra disk). If this branch changes package.json, run npm ci here; it replaces the links with real files for this worktree only.'
-      : `node_modules: hardlink copy failed (${(r.stderr || '').trim().slice(0, 200)}). Run: cp -al ${shared} ${mine}`);
+  try {
+    const note = linkDeps(info.root, info.mainRoot);
+    if (note) notes.push(note);
+  } catch (e) {
+    notes.push(`node_modules: could not hardlink it (${String(e.message).slice(0, 200)}). Run npm ci in this worktree.`);
   }
 
   const head = fs.readFileSync(path.join(info.gitDir, 'HEAD'), 'utf8').trim().replace(/^ref: refs\/heads\//, '');

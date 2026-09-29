@@ -19,6 +19,7 @@
 
 import { readFileSync } from 'node:fs';
 import { createClient } from '@supabase/supabase-js';
+import { instagramEnvFile } from '../tools/instagram-mcp/envFile.mjs';
 
 const arg = (name, d) => {
   const i = process.argv.indexOf(`--${name}`);
@@ -63,7 +64,7 @@ const keywordOf = (text) => {
 async function instagram() {
   let token = '';
   try {
-    token = (readFileSync(new URL('../.env.instagram', import.meta.url), 'utf8').match(/^IG_READ_TOKEN=(.+)$/m) || [])[1]?.trim() || '';
+    token = (readFileSync(instagramEnvFile(), 'utf8').match(/^IG_READ_TOKEN=(.+)$/m) || [])[1]?.trim() || '';
   } catch { /* no token file */ }
   if (process.argv.includes('--no-instagram')) { out('INSTAGRAM'); console.log('  skipped (--no-instagram)'); return []; }
   if (!token) { out('INSTAGRAM'); console.log('  no .env.instagram token; skipped'); return []; }

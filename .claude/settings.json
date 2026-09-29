@@ -6,8 +6,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "IN=$(cat); case \"$IN\" in *git*|*'gh '*) printf '%s' \"$IN\" | node \"$(cygpath -w \"$CLAUDE_PROJECT_DIR\" 2>/dev/null || printf %s \"$CLAUDE_PROJECT_DIR\")/.claude/hooks/git-guard.mjs\" ;; esac",
-            "timeout": 15
+            "command": "IN=$(cat); case \"$IN\" in *git*|*'gh '*|*npm*) printf '%s' \"$IN\" | node \"$(cygpath -w \"$CLAUDE_PROJECT_DIR\" 2>/dev/null || printf %s \"$CLAUDE_PROJECT_DIR\")/.claude/hooks/git-guard.mjs\" ;; esac",
+            "timeout": 120
           }
         ]
       }

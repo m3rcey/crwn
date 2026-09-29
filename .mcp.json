@@ -2,7 +2,7 @@
   "mcpServers": {
     "instagram": {
       "command": "node",
-      "args": ["\\\\wsl.localhost\\Ubuntu\\home\\merce\\workspace-crwn\\tools\\instagram-mcp\\server.mjs"]
+      "args": ["tools/instagram-mcp/server.mjs"]
     }
   }
 }
