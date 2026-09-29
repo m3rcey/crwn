@@ -162,6 +162,33 @@ function PreviewBody({ p, onTry }: { p: OfferPreview; onTry?: () => void }) {
         </div>
       );
     case 'status':
+      if (p.thread && p.thread.length) {
+        // Drawn like CommentItem: avatar initial, name, the gold rung pill, the comment. The
+        // fan's own row is outlined so they can see where they would sit among the others.
+        return (
+          <div className="mt-3 space-y-2 text-left">
+            {p.thread.map((c, i) => (
+              <div
+                key={i}
+                className={`flex gap-3 rounded-xl px-3 py-3 ${c.you ? 'bg-crwn-gold/10 ring-1 ring-crwn-gold/60' : 'bg-crwn-elevated'}`}
+              >
+                <span className={`w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-sm font-bold ${c.you ? 'bg-crwn-gold text-crwn-bg' : 'bg-crwn-card text-crwn-text-secondary'}`}>
+                  {c.name.charAt(0).toUpperCase()}
+                </span>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-medium text-crwn-text text-sm">{c.name}</span>
+                    {c.badge ? (
+                      <span className="px-2 py-0.5 text-xs font-medium bg-crwn-gold/20 text-crwn-gold rounded-full">{c.badge}</span>
+                    ) : null}
+                  </div>
+                  <p className="mt-0.5 text-sm text-crwn-text-secondary">{c.text}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        );
+      }
       return (
         <div className="mt-3 flex items-center justify-center gap-3 rounded-xl bg-crwn-elevated px-4 py-3">
           <span className="text-xs font-bold uppercase tracking-wide px-2.5 py-1 rounded-full bg-crwn-gold text-crwn-bg">{p.badge || 'Member'}</span>

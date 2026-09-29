@@ -16,9 +16,11 @@
 // public on purpose (a signed-out reader of a public page must see the same badges as
 // everyone else), so without a bound it would answer "is this person a member of this
 // artist, and on which rung" for any user id somebody cared to paste. Every id is
-// therefore intersected with the people who have actually POSTED on this artist's page.
-// Disclosure then equals exactly what the page already renders, and an id that never
-// posted comes back with nothing at all.
+// therefore intersected with the people who have actually POSTED or COMMENTED on this
+// artist's page: both render by name there, so disclosure equals exactly what the page
+// already shows, and an id that never took part comes back with nothing at all.
+// (Commenters were missing until 2026-09-28, so a member who only commented, the common
+// case, carried no badge while CommentSection asked for exactly those authors.)
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
@@ -49,7 +51,14 @@ export async function GET(req: NextRequest) {
     .eq('artist_id', artistId)
     .in('author_id', asked);
 
-  const visible = new Set((authors || []).map((a: { author_id: string }) => a.author_id));
+  const { data: commenters } = await supabaseAdmin
+    .from('community_comments')
+    .select('author_id, community_posts!inner(artist_id)')
+    .eq('community_posts.artist_id', artistId)
+    .in('author_id', asked);
+  const visible = new Set(
+    [...(authors || []), ...(commenters || [])].map((a: { author_id: string }) => a.author_id),
+  );
   const fanIds = asked.filter((id) => visible.has(id));
   if (!fanIds.length) return NextResponse.json({ recognition: {} });
 

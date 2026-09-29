@@ -101,6 +101,14 @@ the artist-recorded winner to Gold. The vote itself never closes (a closed ballo
 fans); the decision date lives in the copy. The online-vote access email drops the live-show
 wording (`online` in `liveShowAccessEmail`).
 
+**Community card (2026-09-28).** A `status` preview may carry a `thread` (max 4 comments): it
+renders like `CommentItem`, with the fan's own row outlined, so a stranger sees that the artist
+HAS a community and where their rung label would sit beside other fans. The names are
+illustrative, so the normalizer keeps a thread only on a `truth: 'example'` preview
+(mutation-tested). The pill is real: `/api/recognition` labels members on the artist's posts
+AND comments (commenters were missing until the same day). Offer copy never assumes the fan
+knows a rung name: inherited strips read "Also included", and other levels are named by price.
+
 ## The V1 Offer Builder (shipped 2026-09-03, Rise Mode Guided Setup)
 
 An artist writes their own experience through the guided flow at `/build/experience`

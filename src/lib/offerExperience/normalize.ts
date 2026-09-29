@@ -109,6 +109,21 @@ function normalizePreview(raw: unknown): OfferPreview | null {
       .slice(0, L.maxSteps);
     if (steps.length) p.steps = steps;
   }
+  if (Array.isArray(r.thread)) {
+    const thread = r.thread
+      .map((o) => {
+        const row = o as Record<string, unknown>;
+        const name = str(row?.name, 40);
+        const text = str(row?.text, 160);
+        if (!name || !text) return null;
+        const badge = str(row?.badge, 30);
+        return { name, text, ...(badge ? { badge } : {}), ...(row?.you === true ? { you: true as const } : {}) };
+      })
+      .filter((x): x is NonNullable<typeof x> => !!x)
+      .slice(0, L.maxThread);
+    // The names in a thread are illustrative, so a thread only ever rides an EXAMPLE preview.
+    if (thread.length && p.truth === 'example') p.thread = thread;
+  }
   if (Array.isArray(r.fields)) {
     const fields = r.fields
       .map((o) => {

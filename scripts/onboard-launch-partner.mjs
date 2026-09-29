@@ -84,6 +84,28 @@ if (APPLY) {
   const { error } = await db.from('profiles').update({ display_name: C.displayName, onboarding_completed: true }).eq('id', user.id);
   if (error) die(`profile update: ${error.message}`);
 }
+
+// ── 1b. Profile photo: the wizard's convention (avatars/<user>/avatar/<ts>.jpg), cropped to
+// a centered square because every surface shows it in a circle. Never overwrites a photo the
+// artist chose, unless --refresh-art.
+if (C.photoFile) {
+  if (!existsSync(C.photoFile)) die(`photo not found: ${C.photoFile}`);
+  const { data: prof } = await db.from('profiles').select('avatar_url').eq('id', user.id).single();
+  if (prof?.avatar_url && !process.argv.includes('--refresh-art')) {
+    console.log('profile photo: already set, left alone');
+  } else if (!APPLY) {
+    console.log(`profile photo: will set from ${C.photoFile}`);
+  } else {
+    const square = execFileSync('ffmpeg', ['-v', 'error', '-i', C.photoFile, '-vf', "crop='min(iw,ih)':'min(iw,ih)',scale=720:720", '-q:v', '3', '-f', 'mjpeg', 'pipe:1'], { maxBuffer: 20 * 1024 * 1024 });
+    const path = `${user.id}/avatar/${Date.now()}.jpg`;
+    const { error: upErr } = await db.storage.from('avatars').upload(path, square, { contentType: 'image/jpeg', upsert: false });
+    if (upErr) die(`photo upload: ${upErr.message}`);
+    const url = db.storage.from('avatars').getPublicUrl(path).data.publicUrl;
+    const { error } = await db.from('profiles').update({ avatar_url: url }).eq('id', user.id);
+    if (error) die(`photo save: ${error.message}`);
+    console.log(`profile photo: set (${path})`);
+  }
+}
 if (!artist) { console.log('\n(dry run stops here: everything else hangs off the artist row)'); process.exit(0); }
 
 // ── 2. Ladder ──────────────────────────────────────────────────────────────────

@@ -836,7 +836,8 @@ describe('SEC-SERVICE — service-role routes are the only authorization boundar
     // same badges every other reader sees, so requiring a session would make the feature
     // depend on who is looking. It reads no other tenant's rows in any meaningful sense:
     // every requested fan id is first intersected with the authors of that artist's own
-    // public posts, and what comes back is a tier NAME the page already displays. No
+    // posts and comments (both rendered by name on the page), and what comes back is a tier
+    // NAME the page already displays. No
     // price, spend, status, tier id or date leaves this route.
     'src/app/api/recognition/route.ts',
     // Internal SMS alert consent. Public because a Twilio campaign reviewer has no CRWN

@@ -33,6 +33,14 @@ export const DRE_FIRST_UNLOCK_DATE = 'October 1';
 const ROTP = 'The Return Of The Prince';
 const FPOB = "Fresh Prince Of O'Block";
 const OTOIME = 'Only The O In My Eyes';
+// The covers as they are served from his page (public album-art objects), so the offer
+// cards show the actual projects. Plain public https: the offer normalizer accepts these.
+const ART_BASE = 'https://ecpqtuidtsncjfwtkvwc.supabase.co/storage/v1/object/public/album-art/afa05eb6-da91-438a-8e28-3952c1bded83/album-art/';
+const ART = {
+  [ROTP]: `${ART_BASE}1790642982534.jpg`,
+  [FPOB]: `${ART_BASE}1790642985217.jpg`,
+  [OTOIME]: `${ART_BASE}1790642989221.jpg`,
+};
 const COVER = {
   [ROTP]: 'videos/output/Prince Dre - The Return Of The Prince.jpg',
   [FPOB]: 'videos/output/Prince Dre - Fresh Prince Of O Block.jpg',
@@ -129,22 +137,9 @@ export const DRE_PLATINUM_OFFER: TierOfferExperience = {
       title: 'All 3 projects, complete',
       description: 'Not a sampler. Every song on every project, the moment you join.',
       items: [
-        { title: ROTP, subtitle: 'Complete project', locked: true },
-        { title: FPOB, subtitle: 'Complete project', locked: true },
-        { title: OTOIME, subtitle: 'Complete project', locked: true },
-      ],
-    },
-    {
-      kind: 'timeline',
-      truth: 'example',
-      title: 'What each level gets',
-      description: 'The gold steps are what Platinum has on day one.',
-      steps: [
-        { label: 'Sampler', participates: true },
-        { label: 'Archive pack', participates: true },
-        { label: 'Winning project', participates: true },
-        { label: 'All 3 projects', participates: true },
-        { label: 'Next project first', participates: true },
+        { title: ROTP, subtitle: 'Complete project', locked: true, artUrl: ART[ROTP] },
+        { title: FPOB, subtitle: 'Complete project', locked: true, artUrl: ART[FPOB] },
+        { title: OTOIME, subtitle: 'Complete project', locked: true, artUrl: ART[OTOIME] },
       ],
     },
     {
@@ -154,15 +149,23 @@ export const DRE_PLATINUM_OFFER: TierOfferExperience = {
       description: 'When Dre opens a listening room for the next project, Platinum is in it. No fixed schedule is promised; when it happens, you are there.',
     },
     {
+      // Fans do not know Dre has a community on CRWN, so this card introduces it AND shows
+      // where they would sit in it. The pill is the real one: /api/recognition labels a
+      // member's name with their rung on every post and comment on his page.
       kind: 'status',
-      truth: 'real',
-      title: 'Platinum status',
-      description: 'Your rung and your member-since date, on your card.',
+      truth: 'example',
+      title: "Dre's community on CRWN",
+      description: 'Dre posts here for his fans, and fans talk under every post. Platinum shows beside your name every time you comment.',
       badge: 'PLATINUM',
+      thread: [
+        { name: 'Tay', badge: 'Gold', text: 'Return Of The Prince better win this vote.' },
+        { name: 'You', badge: 'Platinum', text: 'Already got all 3. Wishing Well is crazy.', you: true },
+        { name: 'Mook', badge: 'Bronze', text: 'How do I hear the full projects?' },
+      ],
     },
   ],
   inherited: {
-    heading: 'Everything in Gold is included',
+    heading: 'Also included',
     items: [
       'The complete winning project',
       'The Vault as Dre adds to it',
@@ -172,8 +175,8 @@ export const DRE_PLATINUM_OFFER: TierOfferExperience = {
   },
   faqs: [
     {
-      q: 'What is the difference between Gold and Platinum?',
-      a: `Gold gets the one project that wins the vote, unlocked ${DRE_FIRST_UNLOCK_DATE}. Platinum gets all 3 projects complete, today, and hears the project after the mixtape first.`,
+      q: 'What if I only want the project that wins?',
+      a: `The $25 a month level gets the one project that wins the vote, unlocked ${DRE_FIRST_UNLOCK_DATE}. This level gets all 3 projects complete, today, and hears the project after the mixtape first.`,
     },
     {
       q: 'Is the mixtape included?',
@@ -188,7 +191,7 @@ export const DRE_PLATINUM_OFFER: TierOfferExperience = {
 
 export const DRE_GOLD_OFFER: TierOfferExperience = {
   promise: 'Get the full project the fans pick.',
-  description: `The project with the most votes by ${DRE_FIRST_UNLOCK_DATE} unlocks for Gold, every song on it. Until then you get the archive pack now: 6 unreleased songs, 2 from each project.`,
+  description: `The project with the most votes by ${DRE_FIRST_UNLOCK_DATE} unlocks for you, every song on it. Until then you get the archive pack now: 6 unreleased songs, 2 from each project.`,
   cta: 'Unlock the Winning Project',
   secondaryCue: 'See what you get',
   vsl: STAND_IN_VSL,
@@ -197,11 +200,11 @@ export const DRE_GOLD_OFFER: TierOfferExperience = {
       kind: 'collection',
       truth: 'example',
       title: `One of these unlocks ${DRE_FIRST_UNLOCK_DATE}`,
-      description: 'Whichever project the fans vote up unlocks for Gold, complete.',
+      description: 'Whichever project the fans vote up unlocks for you, complete.',
       items: [
-        { title: ROTP, subtitle: 'Complete project', locked: true },
-        { title: FPOB, subtitle: 'Complete project', locked: true },
-        { title: OTOIME, subtitle: 'Complete project', locked: true },
+        { title: ROTP, subtitle: 'Complete project', locked: true, artUrl: ART[ROTP] },
+        { title: FPOB, subtitle: 'Complete project', locked: true, artUrl: ART[FPOB] },
+        { title: OTOIME, subtitle: 'Complete project', locked: true, artUrl: ART[OTOIME] },
       ],
     },
     {
@@ -210,9 +213,9 @@ export const DRE_GOLD_OFFER: TierOfferExperience = {
       title: 'The archive pack, today',
       description: '2 unreleased songs from each project, yours the moment you join.',
       items: [
-        { title: ROTP, subtitle: '2 unreleased songs', locked: true },
-        { title: FPOB, subtitle: '2 unreleased songs', locked: true },
-        { title: OTOIME, subtitle: '2 unreleased songs', locked: true },
+        { title: ROTP, subtitle: '2 unreleased songs', locked: true, artUrl: ART[ROTP] },
+        { title: FPOB, subtitle: '2 unreleased songs', locked: true, artUrl: ART[FPOB] },
+        { title: OTOIME, subtitle: '2 unreleased songs', locked: true, artUrl: ART[OTOIME] },
       ],
       actionLabel: 'Unlock the music',
     },
@@ -222,9 +225,21 @@ export const DRE_GOLD_OFFER: TierOfferExperience = {
       title: 'The Vault',
       description: 'Cuts, alternate versions and unreleased videos, posted for members as Dre adds them.',
     },
+    {
+      kind: 'status',
+      truth: 'example',
+      title: "Dre's community on CRWN",
+      description: 'Dre posts here for his fans, and fans talk under every post. Gold shows beside your name every time you comment.',
+      badge: 'GOLD',
+      thread: [
+        { name: 'You', badge: 'Gold', text: 'Fresh Prince Of O\'Block all day.', you: true },
+        { name: 'Jaye', badge: 'Silver', text: 'The archive pack alone was worth it.' },
+        { name: 'Mook', badge: 'Bronze', text: 'How do I hear the full projects?' },
+      ],
+    },
   ],
   inherited: {
-    heading: 'Everything in Silver and Bronze included',
+    heading: 'Also included',
     items: [
       'The archive pack: 6 unreleased songs',
       'Behind the scenes from every era',
@@ -235,7 +250,7 @@ export const DRE_GOLD_OFFER: TierOfferExperience = {
   faqs: [
     {
       q: 'What if the project I voted for does not win?',
-      a: `The project with the most votes by ${DRE_FIRST_UNLOCK_DATE} unlocks for Gold. If you want every project no matter what wins, Platinum gets all 3 today.`,
+      a: `The project with the most votes by ${DRE_FIRST_UNLOCK_DATE} is the one that unlocks here. If you want every project no matter what wins, the $100 a month level gets all 3 today.`,
     },
     {
       q: 'Is the mixtape included?',
@@ -261,14 +276,14 @@ export const DRE_SILVER_OFFER: TierOfferExperience = {
       title: 'The archive pack',
       description: '2 unreleased songs from each project.',
       items: [
-        { title: ROTP, subtitle: '2 unreleased songs', locked: true },
-        { title: FPOB, subtitle: '2 unreleased songs', locked: true },
-        { title: OTOIME, subtitle: '2 unreleased songs', locked: true },
+        { title: ROTP, subtitle: '2 unreleased songs', locked: true, artUrl: ART[ROTP] },
+        { title: FPOB, subtitle: '2 unreleased songs', locked: true, artUrl: ART[FPOB] },
+        { title: OTOIME, subtitle: '2 unreleased songs', locked: true, artUrl: ART[OTOIME] },
       ],
     },
   ],
   inherited: {
-    heading: 'Everything in Bronze included',
+    heading: 'Also included',
     items: ['The sampler and the bonus song', 'First word on the mixtape and every drop'],
   },
 };
@@ -280,6 +295,8 @@ export const PRINCE_DRE: LaunchPartnerConfig = {
   userId: '7cece8ba-bd78-4cd6-9fa4-55849c2bf144',
   slug: DRE_SLUG,
   displayName: DRE_DISPLAY_NAME,
+  // Founder-supplied for now (2026-09-28); Dre can replace it from his profile any time.
+  photoFile: 'videos/output/Prince Dre - photo.jpg',
   promises: DRE_TIER_PROMISES as LaunchPartnerConfig['promises'],
   benefits: DRE_APPROVED_BENEFITS as LaunchPartnerConfig['benefits'],
   identities: DRE_BENEFIT_IDENTITIES as LaunchPartnerConfig['identities'],
@@ -293,7 +310,7 @@ export const PRINCE_DRE: LaunchPartnerConfig = {
     offerSlug: 'vote',
     offerName: 'First unlock vote',
     headline: '3 UNRELEASED PROJECTS. ONE SONG FROM EACH.',
-    description: `Dre has 3 projects fans keep asking about. Listen to one song from each, then vote for the one he unlocks first. Every vote also unlocks a bonus unreleased song in the free account we email you. The project with the most votes by ${DRE_FIRST_UNLOCK_DATE} unlocks for Gold.`,
+    description: `Dre has 3 projects fans keep asking about. Listen to one song from each, then vote for the one he unlocks first. Every vote also unlocks a bonus unreleased song in the free account we email you. The project with the most votes by ${DRE_FIRST_UNLOCK_DATE} unlocks in full for his $25 members.`,
     question: 'Which project should Dre unlock first?',
     projectTitle: 'Next project vote',
     stageLabel: 'Next project',

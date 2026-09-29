@@ -72,6 +72,9 @@ export interface LaunchPartnerConfig {
   userId: string;
   slug: string;
   displayName: string;
+  /** The artist's profile photo (repo-relative). Cropped to a centered square and uploaded as
+   *  the setup wizard does; set only when the profile has none, or with --refresh-art. */
+  photoFile?: string;
   promises: Record<Rung, string>;
   benefits: Record<Rung, string[]>;
   identities: Record<Rung, { key: string; line: string }[]>;

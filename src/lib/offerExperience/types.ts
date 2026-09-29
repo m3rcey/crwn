@@ -53,6 +53,16 @@ export interface TimelineStep {
   participates?: boolean;
 }
 
+/** One line of a demonstrated community thread (status previews): how a member's name,
+ *  rung label and comment sit beside other fans'. Always illustrative, so a preview that
+ *  carries a thread must be truth: 'example'. `you` marks the row that stands for the fan. */
+export interface ThreadComment {
+  name: string;
+  badge?: string;
+  text: string;
+  you?: boolean;
+}
+
 export interface SubmissionField {
   label: string;
   placeholder?: string;
@@ -75,6 +85,8 @@ export interface OfferPreview {
   actionLabel?: string;
   /** status */
   badge?: string;
+  /** status: a demonstrated comment thread, rendered like the real community comments. */
+  thread?: ThreadComment[];
   /** window */
   windowState?: 'open' | 'upcoming' | 'closed';
   /** image/video/audio/session poster. PUBLIC urls only; the normalizer refuses
@@ -130,6 +142,7 @@ export const OFFER_LIMITS = {
   maxOptions: 4,
   maxItems: 6,
   maxSteps: 6,
+  maxThread: 4,
   maxFields: 4,
   maxFaqs: 8,
   faqQ: 120,

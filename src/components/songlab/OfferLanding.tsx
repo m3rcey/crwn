@@ -267,6 +267,22 @@ export function OfferLanding({
     }
   }, [isLoading, user, searchParams, claim, ballot]);
 
+  // The ballot always opens at the TOP: the artist, the headline, then the songs. A browser
+  // restores the old scroll position on reload and back/forward, which dropped a returning
+  // fan straight onto the vote button with the artist and the headline scrolled away.
+  useEffect(() => {
+    if (!ballotMode) return;
+    let previous: ScrollRestoration | null = null;
+    try {
+      previous = window.history.scrollRestoration;
+      window.history.scrollRestoration = 'manual';
+    } catch { /* fine */ }
+    window.scrollTo(0, 0);
+    return () => {
+      try { if (previous) window.history.scrollRestoration = previous; } catch { /* fine */ }
+    };
+  }, [ballotMode]);
+
   // Bring the newly revealed identity fields into view without stealing focus (a forced
   // focus mid-flow is hostile to a screen reader and pops the keyboard over the choices).
   useEffect(() => {

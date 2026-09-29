@@ -50,9 +50,26 @@ describe('truth discipline', () => {
   ]);
   const lower = everything.toLowerCase();
 
-  it('the only REAL preview is Platinum status: nothing else is uploaded yet', () => {
+  it('nothing is presented as REAL while placeholder beats stand in for his songs', () => {
     const real = OFFERS.flatMap(([, o]) => o.previews).filter((p) => p.truth === 'real').map((p) => p.title);
-    expect(real).toEqual(['Platinum status']);
+    expect(real).toEqual([]);
+  });
+
+  it('the community card survives the write contract with its thread', () => {
+    const c = normalizeOfferExperience(DRE_PLATINUM_OFFER, 'Platinum')!;
+    const card = c.previews.find((p) => p.kind === 'status')!;
+    expect(card.thread?.length).toBe(3);
+    expect(card.thread?.find((t) => t.you)?.badge).toBe('Platinum');
+  });
+
+  it('a thread never rides a REAL preview (its names are illustrative)', () => {
+    const forged = { ...DRE_PLATINUM_OFFER, previews: DRE_PLATINUM_OFFER.previews.map((p) => (p.kind === 'status' ? { ...p, truth: 'real' as const } : p)) };
+    const c = normalizeOfferExperience(forged, 'Platinum')!;
+    expect(c.previews.find((p) => p.kind === 'status')?.thread).toBeUndefined();
+  });
+
+  it('fan-facing headings never assume the fan knows a rung name', () => {
+    for (const [, o] of OFFERS) expect(o.inherited?.heading).toBe('Also included');
   });
 
   it('promises no merch, no scarcity, no priority, no cadence, no rights', () => {

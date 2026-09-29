@@ -154,6 +154,17 @@ second run must report everything as existing and change nothing.
 Creating the identity writes the artist's permanent public link (`slug`). Pick it from their
 artist name; if it is taken or the name is ambiguous, ask the founder before applying.
 
+**Profile photo:** if the founder sends one, set `photoFile` (repo-relative, e.g. in
+`videos/output/`). The script crops it to a centered square and uploads it the way the setup
+wizard does, only when the artist has no photo (or with `--refresh-art`). Open the uploaded
+image and look at it before reporting: the face must survive the square crop.
+
+**Offer previews must read to a stranger.** Every card on an offer page is read by a fan who
+has never heard the rung names. No process diagrams (a "Sampler, Archive pack, Winning
+project" timeline was cut on 2026-09-28 for exactly this), no internal words. Show the real
+thing instead: project cards with `artUrl` set to the album covers as served from the
+artist's page.
+
 ## 4. Verify what a fan will see
 
 - `curl -s https://thecrwn.app/<slug>` returns 200 and contains the Bronze and Gold promises.
