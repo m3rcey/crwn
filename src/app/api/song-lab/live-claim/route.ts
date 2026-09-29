@@ -33,6 +33,7 @@ import { normalizeClaimSource } from '@/lib/songLab/claimSource';
 import { normalizeEmail, cleanFirstName, identityDecision, NEEDS_SIGN_IN_MESSAGE } from '@/lib/songLab/liveClaim';
 import { isPlausibleEmail } from '@/lib/songLab/voteForm';
 import { joinFreeTier } from '@/lib/subscriptions/freeJoin';
+import { cleanCity, recordVoterContact } from '@/lib/songLab/fanCity';
 import { notifyNewSubscriber } from '@/lib/notifications';
 import { resend, FROM_EMAIL } from '@/lib/resend';
 import { liveShowAccessEmail, liveShowAccessSubject } from '@/lib/emails/liveShowAccess';
@@ -252,6 +253,10 @@ export async function POST(req: NextRequest) {
     if (join.status === 'error') {
       return NextResponse.json({ error: 'Could not finish that. Try again.' }, { status: 500 });
     }
+    // Where the fan is, as they confirmed it on the ballot (the artist's venue planning).
+    // Only here, on the CAPTURED-contact path: a verified account's address returned above
+    // without a membership, and CRWN writes nothing in that person's name.
+    await recordVoterContact(supabaseAdmin, { artistId: artist.artistId, email, name: firstName || null, city: cleanCity(body.city) });
 
     // ── The vote, through the same authority as every other vote ──
     const { data: sub } = await supabaseAdmin

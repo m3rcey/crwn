@@ -108,6 +108,8 @@ interface OfferLandingProps {
   ballot?: LandingBallot | null;
   interlude?: LandingInterlude | null;
   offers?: LandingOffers | null;
+  /** Online vote: the city suggested from the request's location, editable by the fan. */
+  cityHint?: string | null;
 }
 
 interface ClaimResult {
@@ -138,6 +140,7 @@ export function OfferLanding({
   ballot,
   interlude,
   offers,
+  cityHint,
 }: OfferLandingProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -152,6 +155,7 @@ export function OfferLanding({
 
   const [firstName, setFirstName] = useState('');
   const [email, setEmail] = useState('');
+  const [city, setCity] = useState(cityHint ?? '');
   const [needsSignIn, setNeedsSignIn] = useState(false);
   const [done, setDone] = useState<ClaimResult | null>(null);
   const autoClaimed = useRef(false);
@@ -226,6 +230,7 @@ export function OfferLanding({
           ...(ballot?.decisionId ? { decisionId: ballot.decisionId } : {}),
           ...(sourceParam ? { source: sourceParam } : {}),
           // The page's own query string, so link tags survive into the claim row.
+          ...(city.trim() ? { city: city.trim() } : {}),
           query: typeof window !== 'undefined' ? window.location.search : '',
         }),
       });
@@ -252,7 +257,7 @@ export function OfferLanding({
       setError(BALLOT_NETWORK_ERROR);
       setBusy(false);
     }
-  }, [artistSlug, offerSlug, router, ballotMode]);
+  }, [artistSlug, offerSlug, router, ballotMode, city]);
 
   // Back from signup/verification with ?claim=1: finish without another tap. The carried
   // choice is re-validated against the real ballot; an unknown value still joins them and
@@ -321,6 +326,7 @@ export function OfferLanding({
           email: email.trim(),
           ...(sourceParam ? { source: sourceParam } : {}),
           // The page's own query string, so link tags survive into the claim row.
+          ...(city.trim() ? { city: city.trim() } : {}),
           query: typeof window !== 'undefined' ? window.location.search : '',
         }),
       });
@@ -760,6 +766,26 @@ export function OfferLanding({
               className="w-full min-h-[60px] rounded-2xl bg-crwn-surface px-4 py-4 text-xl text-left text-crwn-text ring-1 ring-white/15 outline-none focus:ring-2 focus:ring-crwn-gold"
             />
           </div>
+        </div>
+      ) : null}
+
+      {selected && online ? (
+        <div className="mb-5 text-left">
+          <label htmlFor="ballot-city" className="block text-base font-semibold text-crwn-text mb-1.5 text-center">
+            Your city
+          </label>
+          <input
+            id="ballot-city"
+            type="text"
+            value={city}
+            onChange={(e) => setCity(e.target.value)}
+            autoComplete="address-level2"
+            autoCapitalize="words"
+            maxLength={80}
+            placeholder="Chicago, IL"
+            className="w-full min-h-[52px] rounded-2xl bg-crwn-surface px-4 py-3 text-lg text-left text-crwn-text ring-1 ring-white/15 outline-none focus:ring-2 focus:ring-crwn-gold"
+          />
+          <p className="mt-1.5 text-sm text-crwn-text-secondary text-center">{`So ${artistName} knows where to bring the show.`}</p>
         </div>
       ) : null}
 

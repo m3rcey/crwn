@@ -35,6 +35,7 @@ import {
   type SongLabDecisionCore,
 } from '@/lib/songLab/core';
 import { joinFreeTier } from '@/lib/subscriptions/freeJoin';
+import { cleanCity, recordVoterContact } from '@/lib/songLab/fanCity';
 import { notifyNewSubscriber } from '@/lib/notifications';
 import { parseCampaignAttribution, hasAttribution } from '@/lib/analytics/campaignAttribution';
 
@@ -93,6 +94,11 @@ export async function POST(req: NextRequest) {
     const join = await joinFreeTier(supabaseAdmin, user.id, tierId);
     if (join.status === 'error') {
       return NextResponse.json({ error: 'Could not complete the free join' }, { status: 500 });
+    }
+    // Where the fan is, as they confirmed it on the ballot: the artist's venue planning.
+    // The address is the SESSION's, never a typed one. Reporting only; never fails the claim.
+    if (user.email) {
+      await recordVoterContact(supabaseAdmin, { artistId: artist.artistId, email: user.email.toLowerCase(), city: cleanCity(body.city) });
     }
 
     // The attribution row. UNIQUE(offer_id, fan_id) + ignoreDuplicates keeps the FIRST

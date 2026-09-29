@@ -1,4 +1,6 @@
 import { notFound } from 'next/navigation';
+import { headers } from 'next/headers';
+import { cityHintFromHeaders } from '@/lib/songLab/fanCity';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { attachStreamUrls } from '@/lib/storage/signedAudio';
@@ -117,9 +119,15 @@ export default async function OfferPage({ params }: OfferPageProps) {
   // An ONLINE vote (options carry songs) sells the artist's ladder under the result, exactly
   // as the drop page does: same funnel pointers, same resolver, same offer experiences. A
   // live-show ballot (text options) is unchanged.
-  const offers = ballot && ballot.options.some((o) => o.track)
-    ? await loadFunnelOffers(admin, artist.artistId)
-    : null;
+  const online = !!ballot && ballot.options.some((o) => o.track);
+  const offers = online ? await loadFunnelOffers(admin, artist.artistId) : null;
+  // A suggestion for the vote form's city field, from Vercel's request geolocation. The fan
+  // sees it, can change or clear it, and only what they submit is stored.
+  let cityHint: string | null = null;
+  if (online) {
+    const h = await headers();
+    cityHint = cityHintFromHeaders((n) => h.get(n));
+  }
 
   // Ballot mode performs a vote, so the artist's join-flavored CTA label is not sent to
   // the client at all: it would ship "Join free" into the payload of a page whose one
@@ -138,6 +146,7 @@ export default async function OfferPage({ params }: OfferPageProps) {
       ballot={ballot}
       interlude={interlude}
       offers={offers}
+      cityHint={cityHint}
     />
   );
 }

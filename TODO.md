@@ -72,6 +72,12 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **The privacy policy gained one sentence; decide whether it needs a new effective date.**
+      [src/app/(public)/privacy/page.tsx](src/app/(public)/privacy/page.tsx) now says an artist sees
+      the city a fan enters when voting in their poll (pre-filled from approximate location,
+      editable). The page still reads "Effective Date: August 25, 2026". Changing a legal date is
+      your call, so I did not.
+
 - [ ] **Decide how Prince Dre's Platinum listening sessions run.** Platinum now promises "Group
       listening sessions when Dre opens one" (no schedule, no cap). CRWN Live is a Pro feature and he
       is on Launch. Pick one: he moves to Pro ($49/mo + 8%, which the blueprint recommends), you give
@@ -1067,6 +1073,11 @@ Things that are never finished. Cadence, then the thing.
 ---
 
 ## On Claude's plate (not yours)
+
+- **Fans by city, in the app.** Voters now leave a city (fan_contacts.city) and paid fans carry a
+  billing city, and [scripts/fan-cities.mjs](scripts/fan-cities.mjs) prints the table. Once Dre has
+  real votes, put that rollup on his Fan CRM (`/studio/fans`) so he can read it himself for the
+  venue push. Not before: a screen with no data behind it is guessing at a layout.
 
 - **Prince Dre's ladder is built on placeholder beats** (2026-09-28): the vote is live
   (https://thecrwn.app/princedre/join/vote) and 3 project albums hold 10 placeholder tracks. When

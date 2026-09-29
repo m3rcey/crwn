@@ -104,6 +104,14 @@ played through the app's one player (`usePlayer`, `MiniPlayer`), so only a FREE 
   stays open and keeps feeding the list. To see the after-vote page without voting, open the
   ballot link with `?subscription=canceled`: it renders the primary offer and writes nothing.
 
+**Fan cities (venue planning).** An online vote asks "Your city", pre-filled from the visitor's
+Vercel location (`cityHintFromHeaders`) and editable, and stores what the fan submitted on the
+artist's `fan_contacts.city` (`recordVoterContact`, tag `song-lab-vote`). Before this, a free
+fan had no city at all: only paid checkouts carried one. To hand an artist the list:
+
+    node scripts/fan-cities.mjs <artistSlug>          (table: fans and paying fans per city)
+    node scripts/fan-cities.mjs <artistSlug> --csv    (for a sheet)
+
 ### The ladder's music (`content`)
 
 The standard ICP ladder (founder decision 2026-09-28, Prince Dre is the worked example) gives
