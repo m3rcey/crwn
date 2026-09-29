@@ -29,6 +29,21 @@ npm test             # vitest, 820 tests across 50 files (a moving figure: run i
 - Cron ≤ once/day (Hobby plan); anything more frequent blocks all deploys.
 - Post-deploy checklist: `POST_DEPLOY_CHECKLIST.md`; verify with the `kai` agent / production smoke.
 
+### Deployment storage (verified 2026-09-28)
+- Vercel's live Usage attributed the full 10.18 GB Deployment Storage reading to `crwn`.
+- The current deployment included three retired homepage PNG originals totaling
+  63,510,294 bytes (78.9% of the 80,537,677 tracked public-asset bytes). They were
+  added in March and have no references in the current tracked application source.
+- `.vercelignore` excludes those exact three originals, retaining the files in Git.
+  Do not remove these exclusions unless a real application reference is added.
+- Content tooling under `videos/` and `scripts/reel/` is already excluded. Local
+  `.next/cache` and `node_modules` disk size is not a measurement of deployed output.
+- The dashboard policy was 30 days for all deployment types. Hundreds of historical
+  deployments were already in Recently Deleted before this investigation; recovery
+  entries and the Usage meter must not be confused with active deployments.
+- Inspect live Resources and Usage after deployment. Do not claim storage reclaimed
+  from a Git change alone, or assume a period usage metric updates immediately.
+
 ## 5. Environment variables
 
 **Client-exposed (`NEXT_PUBLIC_`, bundled into browser JS):**

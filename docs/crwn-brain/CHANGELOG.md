@@ -1,5 +1,14 @@
 # CRWN Brain — Changelog
 
+## 2026-09-28 - Exclude unused homepage originals from Vercel deployments
+
+The live Vercel Resources list still served three March-era homepage PNG originals
+(21,935,462 + 21,636,518 + 19,938,314 bytes) with no current application references.
+Exclude only these files through `.vercelignore`; preserve the originals in Git.
+Expected saving is 63,510,294 bytes per future deployment. Product code, current
+production, user data, and rollback deployments are not changed by this exclusion.
+Live deployment output and storage usage require separate post-push verification.
+
 ## 2026-09-27 - Storyboard planning is its own skill (method separated from art direction)
 
 New skill `.claude/skills/fan-economy-storyboard/`: plans a Fan Economy script's visuals

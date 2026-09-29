@@ -7,3 +7,9 @@ flatten-one.mjs
 fetch-person-ref.mjs
 # Fan Economy reel editor: content production, never deployed
 scripts/reel/
+
+# Retired homepage originals: no application references (verified 2026-09-28).
+# Keep the originals in Git, but omit 63,510,294 bytes from every deployment.
+public/homepage_artistdashboard.png
+public/homepage_explore.png
+public/homepage_library.png
