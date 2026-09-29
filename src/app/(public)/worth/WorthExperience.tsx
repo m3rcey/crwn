@@ -190,8 +190,24 @@ export function WorthExperience({
   //
   // Debounced, because this fires on every keystroke and every slider drag. Guarded on
   // resultToken, so the homepage and /worth do exactly what they did before: nothing.
+  //
+  // NOT on first render (2026-09-29). This effect used to post the page's INITIAL values 1.5s
+  // after load, so simply opening a result was stored as "she recalculated": empty fields were
+  // saved as 0, recalculated_at was stamped, and the scorer paid engagement points for a view.
+  // The first inputs seen are the baseline; only a change from them is hers. (The route also
+  // no-ops an unchanged save, so a cached old page cannot fake it either.)
+  const recalcBaseline = useRef<string | null>(null);
+  const recalcEdited = useRef(false);
   useEffect(() => {
     if (!resultToken) return;
+    const key = `${inputs.monthlyListeners}:${inputs.engagedFollowers}:${inputs.currentStreamingCents}`;
+    if (recalcBaseline.current === null) {
+      recalcBaseline.current = key;
+      return;
+    }
+    // Once she has edited, every change saves, including an edit back to the original.
+    if (!recalcEdited.current && key === recalcBaseline.current) return;
+    recalcEdited.current = true;
 
     const t = setTimeout(() => {
       fetch(`/api/lead-results/${encodeURIComponent(resultToken)}/recalculate`, {
