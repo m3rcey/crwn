@@ -312,6 +312,25 @@ if (funnel) {
   if (error) die(`funnel insert: ${error.message}`);
   funnel = row;
 }
+// The drop funnel's lead magnet: a track of the artist's, matched by title. It keeps its rung
+// gate; the claim route hands the claimer a signed link that expires (see its header).
+if (C.drop) {
+  const { data: magnet } = await db.from('tracks').select('id, title').eq('artist_id', artist.id)
+    .ilike('title', C.drop.magnetTrackTitle).maybeSingle();
+  if (!magnet) {
+    console.log(`drop funnel WAITS: no track titled "${C.drop.magnetTrackTitle}"`);
+  } else {
+    const { data: cur } = await db.from('fan_automations').select('status, activated_at').eq('id', funnel.id).single();
+    const live = C.drop.live
+      ? { status: 'active', ...(cur?.activated_at ? {} : { activated_at: new Date().toISOString() }) }
+      : {};
+    const { error } = await db.from('fan_automations').update({
+      magnet_kind: 'track', magnet_track_id: magnet.id, magnet_file_key: null, magnet_file_name: null,
+      magnet_title: C.drop.magnetTitle, magnet_description: C.drop.magnetDescription, ...live,
+    }).eq('id', funnel.id);
+    if (error) die(`drop magnet: ${error.message}`);
+  }
+}
 
 // ── 6. Vote magnet ─────────────────────────────────────────────────────────────
 if (voteTracks) {
@@ -416,7 +435,7 @@ for (const name of Object.keys(C.offers)) {
   if (!back) die(`${name} stored offer fails the read contract`);
   console.log(`${name} offer: active=${row.is_active} cta="${back.cta}" previews=${back.previews.length}`);
 }
-const { data: f } = await db.from('fan_automations').select('status, public_token, gold_tier_id, silver_tier_id').eq('id', funnel.id).single();
+const { data: f } = await db.from('fan_automations').select('status, public_token, gold_tier_id, silver_tier_id, magnet_title, magnet_kind').eq('id', funnel.id).single();
 const { primary, downsell } = resolveFunnelOffers(tiers, f);
 console.log(`funnel: ${f.status} /drop/${f.public_token} | primary=${primary?.name} downsell=${downsell?.name}`);
 if (primary?.name !== C.funnelPrimary || downsell?.name !== C.funnelDownsell) die('funnel does not resolve to the configured rungs');
@@ -429,4 +448,6 @@ if (voteTracks) {
   console.log(`ballot link: https://thecrwn.app/${artist.slug}/join/${C.vote.offerSlug}`);
 }
 console.log(`\npublic page: https://thecrwn.app/${artist.slug}`);
-console.log(`drop page (owner-only preview while draft): https://thecrwn.app/drop/${f.public_token}`);
+console.log(f.status === 'active'
+  ? `drop funnel LIVE: https://thecrwn.app/drop/${f.public_token} (magnet: ${f.magnet_title || 'none'})`
+  : `drop page (owner-only preview while draft): https://thecrwn.app/drop/${f.public_token}`);

@@ -112,6 +112,16 @@ fan had no city at all: only paid checkouts carried one. To hand an artist the l
     node scripts/fan-cities.mjs <artistSlug>          (table: fans and paying fans per city)
     node scripts/fan-cities.mjs <artistSlug> --csv    (for a sheet)
 
+### A second lead magnet: the drop funnel (`drop`)
+
+Besides the vote, a launch can run the drop funnel (`/drop/<token>`) with ONE song as the
+magnet. Set `drop: { magnetTrackTitle, magnetTitle, magnetDescription, live: true }`; the
+script points the artist's funnel at that track and turns it on. The fan gives name and email,
+hears the song through a signed link that expires, joins Bronze, then meets the primary offer
+(Platinum) with the downsell (Gold). **The song keeps its rung gate** on the artist page: pick
+a paid-tier song (Prince Dre's is "Round Here", Gold) and the magnet is a taste of what Gold
+holds, not a giveaway. The claim route is designed for exactly that (see its header).
+
 ### The ladder's music (`content`)
 
 The standard ICP ladder (founder decision 2026-09-28, Prince Dre is the worked example) gives

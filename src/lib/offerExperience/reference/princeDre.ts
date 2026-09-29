@@ -321,6 +321,15 @@ export const PRINCE_DRE: LaunchPartnerConfig = {
   funnelPrimary: 'Platinum',
   funnelDownsell: 'Gold',
   funnelPrimaryItem: DRE_FUNNEL_PRIMARY_ITEM,
+  // The second lead magnet (founder, 2026-09-29): "Round Here" from Shotta In Da Jungle, on
+  // the drop funnel. A fan gives an email, hears it through a link that expires, joins Bronze,
+  // and meets the Platinum offer with Gold as the downsell. The song stays Gold-gated on the page.
+  drop: {
+    magnetTrackTitle: 'Round Here',
+    magnetTitle: 'Round Here',
+    magnetDescription: 'Round Here, from Shotta In Da Jungle: a project that was never on streaming. Yours free.',
+    live: true,
+  },
   // The lead magnet: one song from each project, in the founder's order. The label is the
   // PROJECT (what the fan votes on); the song is how they hear it; the cover is the project's.
   vote: {

@@ -84,6 +84,10 @@ export interface LaunchPartnerConfig {
   funnelPrimary: PaidRung;
   funnelDownsell: PaidRung;
   funnelPrimaryItem: { title: string; description: string };
+  /** The drop funnel's lead magnet (/drop/<token>): one of the artist's own tracks, matched by
+   *  title. The claim hands the fan a short-lived signed link to it and a free membership; the
+   *  track itself keeps its rung gate on the artist page. `live` turns the funnel on. */
+  drop?: { magnetTrackTitle: string; magnetTitle: string; magnetDescription: string; live: boolean };
   vote?: VoteMagnetConfig;
   content?: { tracks: ContentTrack[]; projects: ContentProject[] };
 }
