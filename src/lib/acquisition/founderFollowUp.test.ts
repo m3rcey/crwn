@@ -227,6 +227,36 @@ describe('founder follow-up: copy', () => {
     expect(noDone.text).toContain('You started setting up your CRWN page.');
   });
 
+  it('never quotes a calculator input back as something the artist said (provenance)', () => {
+    // Audience numbers, follower counts and streaming income may be a DM answer, a default the
+    // form filled, or a figure CRWN estimated. None of them is ever restated in a founder note.
+    const cases = [
+      lead(),
+      lead({ result: { ...lead().result!, builderSaved: true } }),
+      lead({ call: { requested: true, booked: false } }),
+      lead({ account: account({ setupCompleted: false, setup: { ...fullSetup, hasMusic: false } }) }),
+      lead({ account: account({ paidTiers: [] }) }),
+      lead({ account: account() }),
+    ];
+    for (const e of cases) {
+      const t = render(e)!.text;
+      expect(t).not.toMatch(/listener|follower|streaming pays|streams|you told us|you said|you have no/i);
+    }
+  });
+
+  it('the founder’s own and test accounts are never followed up, whatever they score', () => {
+    const c = resolve(lead({ internal: true, account: account() }));
+    expect(c.stage).toBe('internal_account');
+    expect(c.decision).toBe('none');
+    expect(c.dedupeKey).toBeNull();
+  });
+
+  it('a stale stored band never qualifies a lead: the live band decides', () => {
+    const c = resolve(lead({ scoreBand: 'nurture', storedBand: 'sales_priority' }));
+    expect(c.stage).toBe('not_qualified');
+    expect(c.decision).toBe('none');
+  });
+
   it('never quotes the monetization answer (a normalizer can be wrong)', () => {
     for (const e of [lead(), lead({ account: account() }), lead({ account: account({ setupCompleted: false }) })]) {
       const m = render(e)!;
@@ -282,6 +312,10 @@ describe('founder follow-up: boundaries', () => {
       expect(src).not.toMatch(/monthly_listeners|social_followers|monetization_status/);
     }
     expect(read('founderFollowUp.ts')).toMatch(/scoreBand !== 'sales_priority'/);
+    // The band comes from the canonical scorer over live evidence, never the stored snapshot.
+    const server = read('founderFollowUpServer.ts');
+    expect(server).toMatch(/const live = await scoreCurrent\(identityId\);/);
+    expect(server).toMatch(/scoreBand: live\.band,/);
   });
 
   it('sends only through the channels.send choke point, as the founder, keyed by stage', () => {

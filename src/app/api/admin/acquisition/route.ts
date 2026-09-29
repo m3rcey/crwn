@@ -20,6 +20,7 @@ import {
   markFounderFollowUpSentByHand,
   isFounderFollowUpEnabled,
 } from '@/lib/acquisition/founderFollowUpServer';
+import { planRenormalization, applyRenormalization } from '@/lib/acquisition/renormalize';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -96,6 +97,12 @@ export async function GET(req: NextRequest) {
     // runner sends from, with the draft Josh can copy. Evidence stays server-side except the
     // facts the row shows. The address is returned (as the Leads tab already does) because a
     // hand-sent draft needs somewhere to go; it is shown only when the lead may be emailed.
+    // Stored DM answers the CURRENT normalizer reads differently, plus stored bands the canonical
+    // scorer no longer agrees with. Read-only; applying is a separate, audited POST.
+    if (view === 'renormalize') {
+      return NextResponse.json({ rows: await planRenormalization() });
+    }
+
     if (view === 'founder') {
       const [leads, enabled] = await Promise.all([listFounderFollowUps(), isFounderFollowUpEnabled()]);
       const rows = leads.map(({ evidence: e, context: c, preview }) => ({
@@ -105,6 +112,7 @@ export async function GET(req: NextRequest) {
         name: e.displayName,
         lead_score: e.leadScore,
         score_band: e.scoreBand,
+        stored_band: e.storedBand ?? null,
         reason_codes: e.reasonCodes,
         stage: c.stage,
         blocker: c.blocker,
@@ -331,6 +339,22 @@ export async function POST(req: NextRequest) {
         .eq('id', id)
         .eq('state', 'human_review');
       break;
+    }
+
+    case 'apply_renormalization': {
+      // `id` must be 'all'. Re-plans server-side (never trusts a client list), applies only
+      // 'repair' and 'rescore' rows, leaves 'review' rows alone. Each write is guarded on the
+      // value it planned from and recorded in field_provenance; scores go through recomputeScore.
+      if (id !== 'all') return NextResponse.json({ error: 'id must be all' }, { status: 400 });
+      const r = await applyRenormalization();
+      await supabaseAdmin.from('agent_action_log').insert({
+        admin_id: admin.id,
+        action_type: 'acquisition_apply_renormalization',
+        action_label: `Acquisition: re-read DM answers (${r.repaired} repaired, ${r.rescored} rescored)`,
+        action_params: r,
+        result: 'success',
+      });
+      return NextResponse.json({ ok: true, ...r });
     }
 
     case 'mark_founder_followup_sent': {

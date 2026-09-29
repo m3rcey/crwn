@@ -75,7 +75,8 @@ responsible for. Do not work those.
 - [ ] **Send Anthony B (@anthony_b_originalfireman) his founder note from your Gmail, then mark it
       sent.** Tier 1 reggae/dancehall artist, stalled one step from launch. On 2026-09-27 he priced
       Silver/Gold/Platinum, connected Stripe and added "World of love" to his shop, but uploaded no
-      music and never pressed Launch.
+      music and never pressed Launch. (His DM answer was misread, so once you apply the corrections
+      below his score drops to nurture. The note is still right: it only states what he did in setup.)
       1. Open https://thecrwn.app/admin, go to Acquisition, then the Founder tab. Find Anthony B.
       2. Press "Copy draft" (it includes his address) and paste it into Gmail. Personalize it if
          you like: you know he has a deep catalog and sells merch, CRWN does not store either.
@@ -99,14 +100,27 @@ responsible for. Do not work those.
       Open question if you want it to come from your actual Gmail (and sit in your Sent folder):
       that is a new Gmail OAuth integration, not a setting. Say so and I will scope it.
 
-- [ ] **The DM misreads "no" answers to the money question. Decide the fix once the content test
-      ends.** Anthony B typed "I have no paid program or subscriptions" and CRWN stored "Yes, a few
-      times" (`direct_some`, 30 points), because the bare "i have" alias in
-      [src/lib/acquisition/fieldRegistry.ts](src/lib/acquisition/fieldRegistry.ts) matches before
-      the "no" alias. That one value put him in sales_priority. He does sell merch (you confirmed),
-      which should read `merch_only`, 22 points. Not fixed now because the live content test
-      freezes scoring. The fix is a negation alias ("i have no", "we have no", "no paid",
-      "don't sell") ordered before the bare-yes line, plus a test. Say go when the test is over.
+- [ ] **Review and apply the corrected DM answers (4 leads, 1 rescore).** The parser is fixed
+      (negation is read first), but the answers it already stored wrong are still stored wrong,
+      so Anthony still scores sales_priority until you apply. Open https://thecrwn.app/admin, go to
+      Acquisition, then the Founder tab, press "Check stored answers", read the list, then press
+      "Apply". What you will see (checked 2026-09-29):
+          @anthony_b_originalfireman  "I have no paid program or subscriptions"  yes -> no  (67 sales_priority -> about 27 nurture)
+          @bpmg_official  "No but I kno that when I drop everything..."  yes -> no  (36 -> 10)
+          @djblive  "I don't have anyone of Patreon etc"  yes -> no  (38 -> 6)
+          @uuumaskman  "Yes merch, vinyl, verses, memberships yes"  merch only -> yes  (37 -> 42)
+          @b345t9  rescore only (its "recalculation" was a page load)  nurture -> unqualified
+      It does NOT touch @phil_moreland (marked "Needs you"): their stored "answer" is another bot's
+      auto-reply ("Drop your email below..."), so no parser can say what they meant. Your call.
+
+- [ ] **Decide whether founder-verified research should count in the lead score.** You know
+      Anthony sells merch; CRWN has no field for that, so after the correction the scorer reads him
+      as "no sales evidence" and applies the reach-without-proof penalty. Recommended: a
+      "founder verified" source you can set on a lead's answer from the admin tab, with a note,
+      that counts in scoring but is never quoted back to the artist. With merch verified, Anthony
+      would score about 62 (self_serve), still not sales_priority under the current weights.
+      Details: [docs/crwn-brain/34-FOUNDER-FOLLOW-UP.md](docs/crwn-brain/34-FOUNDER-FOLLOW-UP.md)
+      (Provenance). Say yes and I will build it.
 
 - [ ] **Confirm Prince Dre is OK with AI-generated photos of himself on his page.** His offer
       pages now show four realistic studio photos of him, generated from his reference photos
@@ -1115,6 +1129,11 @@ Things that are never finished. Cadence, then the thing.
 ---
 
 ## On Claude's plate (not yours)
+
+- **The worth result calls an estimate a fact.** With no streaming income given, the DM result
+  labels a figure estimated from monthly listeners "What streaming pays you now" and says
+  "Streaming currently pays you about $X". Relabel it as an estimate (the calculator's own
+  assumption), without changing any number. Logged 2026-09-29 in doc 34, Provenance.
 
 - **Fans by city, in the app.** Voters now leave a city (fan_contacts.city) and paid fans carry a
   billing city, and [scripts/fan-cities.mjs](scripts/fan-cities.mjs) prints the table. Once Dre has

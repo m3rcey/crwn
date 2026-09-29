@@ -19,7 +19,9 @@
 import { supabaseAdmin } from './db';
 import { scoreLead, type ScoreBehavior } from './leadScoring';
 import { enqueue } from './eventOutbox';
+import { inputsChanged } from './inputProvenance';
 import type { LeadProfileValues } from './toolAdapters';
+import type { LeadScore } from './types';
 
 export interface RescoreOptions {
   sessionId?: string | null;
@@ -34,16 +36,7 @@ export interface RescoreOptions {
  */
 export async function recomputeScore(identityId: string, opts: RescoreOptions = {}): Promise<void> {
   try {
-    const [{ data: profile }, behavior] = await Promise.all([
-      supabaseAdmin.from('lead_profiles').select('*').eq('lead_identity_id', identityId).maybeSingle(),
-      loadBehavior(identityId),
-    ]);
-
-    const score = scoreLead({
-      profile: (profile ?? {}) as LeadProfileValues,
-      behavior,
-      claudeSignal: opts.claudeSignal ?? (profile?.claude_score_signal as number | null) ?? 0,
-    });
+    const score = await scoreCurrent(identityId, opts.claudeSignal);
 
     await supabaseAdmin.from('lead_profiles').upsert(
       {
@@ -81,16 +74,34 @@ export async function recomputeScore(identityId: string, opts: RescoreOptions = 
 }
 
 /**
+ * The canonical score of a lead's CURRENT evidence, READ-ONLY: the same profile, the same
+ * behavior loader and the same scoreLead() that recomputeScore persists, minus every write and
+ * the alert. For a reader that must not trust a stored band that may predate a fix or a
+ * progression (founder follow-up). It is not a second scorer; it IS the scorer.
+ */
+export async function scoreCurrent(identityId: string, claudeSignal?: number | null): Promise<LeadScore> {
+  const [{ data: profile }, behavior] = await Promise.all([
+    supabaseAdmin.from('lead_profiles').select('*').eq('lead_identity_id', identityId).maybeSingle(),
+    loadBehavior(identityId),
+  ]);
+  return scoreLead({
+    profile: (profile ?? {}) as LeadProfileValues,
+    behavior,
+    claudeSignal: claudeSignal ?? (profile?.claude_score_signal as number | null) ?? 0,
+  });
+}
+
+/**
  * What she has ACTUALLY done, read from the database.
  *
  * Not what she said. What she did. Behavior outranks claims every time, which is why this is
  * the heaviest bucket in the scorer that is not about who she is.
  */
-async function loadBehavior(identityId: string): Promise<ScoreBehavior> {
+export async function loadBehavior(identityId: string): Promise<ScoreBehavior> {
   const [{ data: results }, { data: identity }, { count: sessionCount }, { data: booked }] = await Promise.all([
     supabaseAdmin
       .from('lead_magnet_results')
-      .select('viewed_at, recalculated_at, claimed_at, tool_slug')
+      .select('viewed_at, recalculated_at, claimed_at, tool_slug, input_data, original_input_data')
       .eq('lead_identity_id', identityId),
     supabaseAdmin
       .from('lead_identities')
@@ -133,7 +144,11 @@ async function loadBehavior(identityId: string): Promise<ScoreBehavior> {
     resultViewed: rows.some((r) => !!r.viewed_at),
     // She did not just glance at the number. She ARGUED with it. That is the strongest
     // engagement signal in the whole funnel and it was worth nothing until today.
-    resultRecalculated: rows.some((r) => !!r.recalculated_at),
+    // A recalculation counts only if it CHANGED a modeled number. Until 2026-09-29 the result page
+    // auto-saved its initial values on load, stamping recalculated_at on a mere view; those rows
+    // are still in production, and comparing the two snapshots is what stops them counting,
+    // with no rewrite of the data.
+    resultRecalculated: rows.some((r) => !!r.recalculated_at && inputsChanged(r.original_input_data, r.input_data)),
     accountClaimed: !!identity?.claimed_at || !!identity?.user_id,
     setupStarted,
     setupCompleted,

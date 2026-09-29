@@ -5,7 +5,10 @@
 // SERVER ONLY (service role). Full contract: docs/crwn-brain/34-FOUNDER-FOLLOW-UP.md.
 //
 // Where each fact comes from, and why that source:
-//   qualified        lead_profiles.score_band (leadScoring.ts via rescore.ts). Read, never recomputed.
+//   qualified        the canonical scorer over the lead's CURRENT evidence (rescore.scoreCurrent:
+//                    the same loader + scoreLead that write lead_profiles.score_band, read-only).
+//                    NOT the stored band: that snapshot only moves when an event rescores, so it
+//                    can outlive a fixed normalizer or a phantom recalculation (2026-09-29).
 //   setup screen     setupProgress.ts over the same facts useArtistSetup reads.
 //   Stripe/payable   paymentReadiness.ts (stripeChargesReady, tierPurchaseBlocker).
 //   first paid       funnel_events stage 'first_paid_conversion' (paidConversion.ts, one per artist).
@@ -19,6 +22,7 @@
 
 import { supabaseAdmin } from './db';
 import { send } from './channels';
+import { scoreCurrent } from './rescore';
 import { loadIdentity, rotateLink, bookingUrlFor } from './automationDispatcher';
 import {
   resolveFounderFollowUp,
@@ -69,15 +73,9 @@ export async function loadFollowUpEvidence(identityId: string): Promise<FollowUp
   const userId = s(identity.user_id);
   const email = s(identity.email);
 
-  const [{ data: profile }, { data: history }, { data: resultsByLead }, { data: resultsByUser }, { data: events }, { data: sessions }] =
+  const [{ data: profile }, { data: resultsByLead }, { data: resultsByUser }, { data: events }, { data: sessions }] =
     await Promise.all([
-      supabaseAdmin.from('lead_profiles').select('score_band, lead_score, artist_name').eq('lead_identity_id', identityId).maybeSingle(),
-      supabaseAdmin
-        .from('lead_score_history')
-        .select('reason_codes')
-        .eq('lead_identity_id', identityId)
-        .order('created_at', { ascending: false })
-        .limit(1),
+      supabaseAdmin.from('lead_profiles').select('score_band, artist_name').eq('lead_identity_id', identityId).maybeSingle(),
       supabaseAdmin
         .from('lead_magnet_results')
         .select('id, tool_slug, title, input_data, viewed_at, recalculated_at, claimed_at, created_at')
@@ -160,20 +158,22 @@ export async function loadFollowUpEvidence(identityId: string): Promise<FollowUp
   );
 
   let displayName = s(profile?.artist_name);
+  let internal = false;
   let account: FollowUpEvidence['account'] = null;
 
   if (userId) {
     const [{ data: prof }, { data: artist }, { data: fevents }, { data: enrollments }] = await Promise.all([
-      supabaseAdmin.from('profiles').select('display_name, avatar_url').eq('id', userId).maybeSingle(),
+      supabaseAdmin.from('profiles').select('display_name, avatar_url, role').eq('id', userId).maybeSingle(),
       supabaseAdmin
         .from('artist_profiles')
-        .select('id, setup_completed, stripe_connect_id, activation_milestones')
+        .select('id, setup_completed, stripe_connect_id, activation_milestones, is_founder_test')
         .eq('user_id', userId)
         .maybeSingle(),
       supabaseAdmin.from('funnel_events').select('stage, created_at').eq('user_id', userId),
       supabaseAdmin.from('platform_sequence_enrollments').select('id').eq('artist_user_id', userId),
     ]);
     displayName = s(prof?.display_name) ?? displayName;
+    internal = prof?.role === 'admin' || artist?.is_founder_test === true;
     for (const f of (fevents ?? []) as Row[]) {
       const stage = String(f.stage);
       if (stage === 'page_viewed') continue; // a visit to their page is a fan's action, not theirs
@@ -250,6 +250,10 @@ export async function loadFollowUpEvidence(identityId: string): Promise<FollowUp
     };
   }
 
+  // Qualification from the canonical scorer over live evidence. The stored band rides along
+  // for the admin row only, so a stale snapshot is visible rather than trusted.
+  const live = await scoreCurrent(identityId);
+
   const lastActivity = acts.reduce<{ label: string; at: string } | null>((m, a) => (!m || a.at > m.at ? a : m), null);
   const inputData = (newest?.input_data ?? null) as Row | null;
   const slug = s(newest?.tool_slug);
@@ -257,9 +261,11 @@ export async function loadFollowUpEvidence(identityId: string): Promise<FollowUp
   return {
     identityId,
     instagramUsername: s(identity.instagram_username),
-    scoreBand: s(profile?.score_band),
-    leadScore: typeof profile?.lead_score === 'number' ? profile.lead_score : null,
-    reasonCodes: ((history?.[0]?.reason_codes as string[] | undefined) ?? []).slice(),
+    internal,
+    scoreBand: live.band,
+    storedBand: s(profile?.score_band),
+    leadScore: live.total,
+    reasonCodes: live.reasonCodes.slice(),
     displayName,
     email: {
       address: email,
@@ -323,6 +329,10 @@ async function sendUrl(ctx: FollowUpContext): Promise<string | null> {
 
 /** Qualified leads, for the admin Founder tab. Newest-updated first. */
 export async function listFounderFollowUps(now = new Date()): Promise<LeadFollowUp[]> {
+  // Candidates by STORED band (a cheap filter), then each is re-qualified live by
+  // getLeadFollowUpContext. A lead whose live band is no longer
+  // sales_priority resolves to not_qualified and is never emailed. (A lead who BECOMES qualified
+  // only on a live rescore is rescored by their next event, which writes the stored band.)
   const { data } = await supabaseAdmin
     .from('lead_profiles')
     .select('lead_identity_id')

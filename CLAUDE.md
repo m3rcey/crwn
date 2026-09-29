@@ -440,8 +440,16 @@ parse it through this module, which is also the length limit and the HTML-safety
 stage they are in and what Josh's one email for that stage says; `founderFollowUpServer.ts` only
 reads canonical owners and sends through `channels.send()`. Full doc:
 `docs/crwn-brain/34-FOUNDER-FOLLOW-UP.md`.
-- Qualification is `lead_profiles.score_band` and nothing else. Never add a score threshold or a
-  second ICP formula there (a mutation-tested scan fails the suite).
+- Qualification is the canonical scorer over CURRENT evidence (`rescore.scoreCurrent`, the
+  read-only half of `recomputeScore`), never the stored `score_band` snapshot, and never a score
+  threshold or second formula (a mutation-tested scan fails the suite). Admin and founder-test
+  accounts are `internal_account` and never emailed.
+- **DM answers: NEGATION IS RESOLVED BEFORE POSITIVE INTENT MATCHING** (`fieldRegistry.ts`
+  `negatedValue`). Never test an alias rule against the whole sentence for a field with
+  `negatedValue`. Stored rows are corrected only through `renormalize.ts` (admin, reviewed).
+- **A calculator auto-save is not an artist action.** The recalculate route no-ops unchanged
+  numbers, and a recalculation counts as behavior only when `original_input_data` and `input_data`
+  differ. `input_data._provenance` says who supplied each field; a row without it is `unknown`.
 - Templates quote only what the artist created or saw in CRWN. Never quote a normalized DM answer
   (`monetization_status` etc.) back to them, and never state merch/tour/fan/catalog facts.
 - Converted (`first_paid_conversion`) and booked-call leads never get one. Dedupe is the
