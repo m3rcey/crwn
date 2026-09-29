@@ -122,6 +122,13 @@ hears the song through a signed link that expires, joins Bronze, then meets the 
 a paid-tier song (Prince Dre's is "Round Here", Gold) and the magnet is a taste of what Gold
 holds, not a giveaway. The claim route is designed for exactly that (see its header).
 
+**Every funnel link is personalized, never the random token** (founder, 2026-09-29). The script
+sets the drop link to `/drop/<artist slug>-<magnet song>` (`dropLinkSlug`; Prince Dre's is
+`/drop/princedre-round-here`), refusing one another funnel already uses. Name a different one
+with `drop.linkSlug`. Renaming kills the old link, so rename BEFORE the link is shared, and tell
+the founder the new one. The token is a pointer, never authority: drafts still open only for
+their owner, so a readable link exposes nothing.
+
 ### The ladder's music (`content`)
 
 The standard ICP ladder (founder decision 2026-09-28, Prince Dre is the worked example) gives

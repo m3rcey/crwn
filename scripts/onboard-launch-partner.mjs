@@ -40,7 +40,7 @@ import { normalizeOptions, ballotOpenForFreeJoin } from '../src/lib/songLab/core
 import { fieldsForClass } from '../src/lib/membershipStrategy.ts';
 import { albumInsertPayload, albumTrackRows } from '../src/lib/projectUpload.ts';
 import { LAUNCH_PARTNERS } from '../src/lib/offerExperience/reference/launchPartners.ts';
-import { checkLaunchPartner, LADDER_RUNGS, LADDER_PRICES_CENTS } from '../src/lib/offerExperience/reference/launchPartner.ts';
+import { checkLaunchPartner, dropLinkSlug, LADDER_RUNGS, LADDER_PRICES_CENTS } from '../src/lib/offerExperience/reference/launchPartner.ts';
 
 const key = process.argv.slice(2).find((a) => !a.startsWith('--'));
 const APPLY = process.argv.includes('--apply');
@@ -320,7 +320,16 @@ if (C.drop) {
   if (!magnet) {
     console.log(`drop funnel WAITS: no track titled "${C.drop.magnetTrackTitle}"`);
   } else {
-    const { data: cur } = await db.from('fan_automations').select('status, activated_at').eq('id', funnel.id).single();
+    const { data: cur } = await db.from('fan_automations').select('status, activated_at, public_token').eq('id', funnel.id).single();
+    // The personalized link (/drop/<artist>-<song>), never the random token.
+    const link = dropLinkSlug(C);
+    if (link && cur.public_token !== link) {
+      const { data: taken } = await db.from('fan_automations').select('id').eq('public_token', link).neq('id', funnel.id).maybeSingle();
+      if (taken) die(`drop link "${link}" is already another funnel's`);
+      const { error: linkErr } = await db.from('fan_automations').update({ public_token: link }).eq('id', funnel.id);
+      if (linkErr) die(`drop link: ${linkErr.message}`);
+      console.log(`drop link: /drop/${cur.public_token} -> /drop/${link}`);
+    }
     const live = C.drop.live
       ? { status: 'active', ...(cur?.activated_at ? {} : { activated_at: new Date().toISOString() }) }
       : {};

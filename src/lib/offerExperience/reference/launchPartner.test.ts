@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { LAUNCH_PARTNERS } from './launchPartners';
-import { checkLaunchPartner, LADDER_PRICES_CENTS, type LaunchPartnerConfig } from './launchPartner';
+import { checkLaunchPartner, dropLinkSlug, LADDER_PRICES_CENTS, type LaunchPartnerConfig } from './launchPartner';
 import { PRINCE_DRE } from './princeDre';
 
 describe('every registered launch partner passes the launch checks', () => {
@@ -58,6 +58,11 @@ describe('the checks actually refuse what they claim to', () => {
   it('refuses a vote headline a link preview would cut off', () => {
     const c = clone(); c.vote!.headline = '3 UNRELEASED PROJECTS. ONE SONG FROM EACH.';
     expect(checkLaunchPartner(c).join()).toContain('link preview');
+  });
+  it('the drop link is personalized: artist slug plus the magnet song, never a random token', () => {
+    expect(dropLinkSlug(PRINCE_DRE)).toBe('princedre-round-here');
+    const c = clone(); c.drop!.linkSlug = 'Not A Slug!';
+    expect(checkLaunchPartner(c).join()).toContain('clean lowercase slug');
   });
   it('refuses a downsell that is not cheaper than the primary', () => {
     const c = clone(); c.funnelDownsell = 'Platinum';

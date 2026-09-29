@@ -35,7 +35,7 @@ responsible for. Do not work those.
       2026-09-29): Silver is Blood Brothaz, Gold adds Shotta In Da Jungle.
       Two lead magnets are LIVE and both sell into these tiers: the vote
       (https://thecrwn.app/princedre/join/vote) and "Round Here" on the drop funnel
-      (https://thecrwn.app/drop/I_FZxgYtcNzc). Every checkout button on both fails until he connects.
+      (https://thecrwn.app/drop/princedre-round-here). Every checkout button on both fails until he connects.
 
 - [ ] **Get the three vote projects' full songs from Prince Dre's team before October 1, and confirm
       that date.** Gold promises "the complete winning project, unlocked October 1" and Platinum

@@ -18,6 +18,7 @@ import { benefitDelivery } from '../../benefitRegistry';
 import { RECOMMENDED_LADDER } from '../../tierTemplate';
 import { normalizeOptions, normalizeOfferSlug, MIN_OPTIONS, MAX_OPTIONS } from '../../songLab/core';
 import { SHARE_TITLE_MAX } from '../../shareMetadata';
+import { slugify } from '../../slugify';
 
 export const LADDER_RUNGS = ['Bronze', 'Silver', 'Gold', 'Platinum'] as const;
 export type Rung = (typeof LADDER_RUNGS)[number];
@@ -87,10 +88,19 @@ export interface LaunchPartnerConfig {
   /** The drop funnel's lead magnet (/drop/<token>): one of the artist's own tracks, matched by
    *  title. The claim hands the fan a short-lived signed link to it and a free membership; the
    *  track itself keeps its rung gate on the artist page. `live` turns the funnel on. */
-  drop?: { magnetTrackTitle: string; magnetTitle: string; magnetDescription: string; live: boolean };
+  drop?: { magnetTrackTitle: string; magnetTitle: string; magnetDescription: string; live: boolean; linkSlug?: string };
   vote?: VoteMagnetConfig;
   content?: { tracks: ContentTrack[]; projects: ContentProject[] };
 }
+
+/** The drop funnel's public link segment, personalized (founder, 2026-09-29): never the random
+ *  token, always `<artist slug>-<magnet song>` unless the config names one. /drop/<this>. It is
+ *  a pointer to the funnel row, never authority (drafts still open only for their owner). */
+export function dropLinkSlug(c: LaunchPartnerConfig): string | null {
+  if (!c.drop) return null;
+  return c.drop.linkSlug ?? `${c.slug}-${slugify(c.drop.magnetTrackTitle)}`;
+}
+const DROP_SLUG_RE = /^[a-z0-9][a-z0-9-]{1,62}[a-z0-9]$/;
 
 export const LADDER_PRICES_CENTS: Record<Rung, number> = Object.fromEntries(
   LADDER_RUNGS.map((r) => [r, RECOMMENDED_LADDER.find((l) => l.name === r)!.priceCents]),
@@ -138,6 +148,8 @@ export function checkLaunchPartner(c: LaunchPartnerConfig): string[] {
     }
   }
   // Copy is checked, not file paths: a beat's filename is not a promise to a fan.
+  const link = dropLinkSlug(c);
+  if (link !== null && !DROP_SLUG_RE.test(link)) errors.push(`drop: link "${link}" is not a clean lowercase slug`);
   const text = JSON.stringify({ ...c, content: undefined, vote: c.vote ? { ...c.vote, options: c.vote.options.map((o) => o.label) } : undefined });
   if (/[—–]/.test(text)) errors.push('an em or en dash is in the copy');
   if (/Join (Platinum|Gold|Silver|Bronze)/.test(text)) errors.push('a Join-tier button is in the copy');
