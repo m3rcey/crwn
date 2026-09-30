@@ -22,16 +22,6 @@ responsible for. Do not work those.
 
 ### P0 — money flows or acquisition are blocked
 
-- [ ] **Run the track-cap comp before October 1, then tell me.** Prince Dre's upload stopped at 50
-      tracks (the Launch cap). You chose to comp him unlimited tracks. 44 songs are waiting:
-      O Block Ass Nigga, the rest of the three vote projects, and 2 of Im Reloaded. Gold is
-      promised the WINNING vote project on October 1, and its songs are among the 44, so this has to
-      run first. Open and run in the Supabase SQL Editor:
-      [supabase/schema-phase2-track-cap-comp.sql](supabase/schema-phase2-track-cap-comp.sql)
-      It ends with "schema-phase2-track-cap-comp: OK". Then tell me and I finish the upload, the tier
-      copy, the albums and the 14 drop pages in one run (or run it yourself from the repo root):
-          npx tsx scripts/onboard-launch-partner.mjs princedre --apply
-
 - [ ] **To finish Team Splits I need a test-mode sandbox. This is the only thing left, and it is
       environment setup, not code.** Nothing to run in SQL.
       I checked rather than assumed: your Stripe key really is live (I asked Stripe, and the balance
