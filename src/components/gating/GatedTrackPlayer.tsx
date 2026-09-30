@@ -19,9 +19,14 @@ interface GatedTrackPlayerProps {
   artistId: string;
   artistSlug?: string;
   trackList?: Track[];
+  /**
+   * A narrow row (the Music tab's Top Songs columns): drops like and add-to-playlist so the
+   * title keeps its line. Share stays. Gating and playback are identical either way.
+   */
+  compact?: boolean;
 }
 
-export function GatedTrackPlayer({ track, artistId, artistSlug, trackList }: GatedTrackPlayerProps) {
+export function GatedTrackPlayer({ track, artistId, artistSlug, trackList, compact = false }: GatedTrackPlayerProps) {
   const router = useRouter();
   const { play, pause, currentTrack, isPlaying } = usePlayer();
   const { isSubscribed, tierId, isLoading } = useSubscription(artistId);
@@ -199,14 +204,16 @@ export function GatedTrackPlayer({ track, artistId, artistSlug, trackList }: Gat
             If a locked row ever needs its own control again, give the title its line
             first, because the title is the thing a fan is choosing between. */}
         {/* Track Action Buttons (Like & Add to Playlist) */}
+        {!compact && (
         <div onClick={(e) => e.stopPropagation()}>
-        <TrackActionButtons 
-          trackId={track.id} 
-          size="sm" 
+        <TrackActionButtons
+          trackId={track.id}
+          size="sm"
           isLiked={trackIsLiked}
           onToggleLike={() => toggleFavorite(track.id)}
         />
         </div>
+        )}
 
         {/* Share Button */}
         {artistSlug && (
