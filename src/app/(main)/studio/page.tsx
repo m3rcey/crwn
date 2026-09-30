@@ -6,6 +6,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
+import { useSongLabEnabled } from '@/hooks/useSongLabEnabled';
 import { Loader2, Sparkles } from 'lucide-react';
 
 interface StudioCard {
@@ -77,6 +78,28 @@ const STUDIO_CARDS: StudioCard[] = [
 // CTA still lands on it, which is the funnel path that matters. Only the Studio tile is gone, so
 // the grid is not asking an artist to consider a diagnostic before they have anything to diagnose.
 
+/**
+ * SONG LAB — the one PER-ARTIST tile, appended only for an artist who actually has it
+ * (2026-09-30, founder decision). Song Lab was built as a hidden route with no entry point
+ * anywhere, which was right while it was one artist's experiment and wrong the moment that
+ * artist asked where it lived: he had three projects, an open vote and a link with thirty views,
+ * and could not reach the control room without being handed the URL.
+ *
+ * Capability, not a slug list. `useSongLabEnabled` reads `GET /api/song-lab/artist`, which is
+ * `artist_profiles.song_lab_enabled` behind the session. Widening Song Lab stays a database
+ * UPDATE and never a deploy, and an artist without it sees the same five tiles as before.
+ *
+ * Declared as a card const, NOT inlined into the render, so its `href` literal is visible to the
+ * NAV-001 Studio-to-Hub parity scan. Hiding it from that scan would be how the hamburger entry
+ * silently goes missing later.
+ */
+const SONG_LAB_CARD: StudioCard = {
+  href: '/studio/lab',
+  title: 'Song Lab',
+  image: '/studio_lab.jpg',
+  hueRotate: 255,
+};
+
 // Studio is a hub artists bounce in and out of all day. Without a cache the
 // page blocks on a Supabase round trip behind a full-page spinner on EVERY
 // mount, which is what makes backing out of a sub-page feel slow.
@@ -100,6 +123,11 @@ export default function StudioPage() {
   const [isArtist, setIsArtist] = useState<boolean | null>(
     () => (user && knownArtists.has(user.id) ? true : null)
   );
+
+  // The only per-artist tile. False for everyone else, and false while the answer is in flight,
+  // so the grid never flashes a tool the artist does not have.
+  const songLabEnabled = useSongLabEnabled();
+  const cards = songLabEnabled ? [...STUDIO_CARDS, SONG_LAB_CARD] : STUDIO_CARDS;
 
 
   useEffect(() => {
@@ -171,7 +199,7 @@ export default function StudioPage() {
             tile's route chunk while the grid is on screen, so tapping a tool
             paints immediately instead of spinning while its code downloads.
             That download-on-tap was what made the old dashboard tabs feel slow. */}
-        {STUDIO_CARDS.map((card) => (
+        {cards.map((card) => (
           <Link
             key={card.href}
             href={card.href}
