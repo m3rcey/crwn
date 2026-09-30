@@ -40,7 +40,7 @@ import { normalizeOptions, ballotOpenForFreeJoin } from '../src/lib/songLab/core
 import { fieldsForClass } from '../src/lib/membershipStrategy.ts';
 import { albumInsertPayload, albumTrackRows } from '../src/lib/projectUpload.ts';
 import { LAUNCH_PARTNERS } from '../src/lib/offerExperience/reference/launchPartners.ts';
-import { checkLaunchPartner, LADDER_RUNGS, LADDER_PRICES_CENTS } from '../src/lib/offerExperience/reference/launchPartner.ts';
+import { checkLaunchPartner, dropLinkSlug, LADDER_RUNGS, LADDER_PRICES_CENTS } from '../src/lib/offerExperience/reference/launchPartner.ts';
 
 const key = process.argv.slice(2).find((a) => !a.startsWith('--'));
 const APPLY = process.argv.includes('--apply');
@@ -312,6 +312,34 @@ if (funnel) {
   if (error) die(`funnel insert: ${error.message}`);
   funnel = row;
 }
+// The drop funnel's lead magnet: a track of the artist's, matched by title. It keeps its rung
+// gate; the claim route hands the claimer a signed link that expires (see its header).
+if (C.drop) {
+  const { data: magnet } = await db.from('tracks').select('id, title').eq('artist_id', artist.id)
+    .ilike('title', C.drop.magnetTrackTitle).maybeSingle();
+  if (!magnet) {
+    console.log(`drop funnel WAITS: no track titled "${C.drop.magnetTrackTitle}"`);
+  } else {
+    const { data: cur } = await db.from('fan_automations').select('status, activated_at, public_token').eq('id', funnel.id).single();
+    // The personalized link (/drop/<artist>-<song>), never the random token.
+    const link = dropLinkSlug(C);
+    if (link && cur.public_token !== link) {
+      const { data: taken } = await db.from('fan_automations').select('id').eq('public_token', link).neq('id', funnel.id).maybeSingle();
+      if (taken) die(`drop link "${link}" is already another funnel's`);
+      const { error: linkErr } = await db.from('fan_automations').update({ public_token: link }).eq('id', funnel.id);
+      if (linkErr) die(`drop link: ${linkErr.message}`);
+      console.log(`drop link: /drop/${cur.public_token} -> /drop/${link}`);
+    }
+    const live = C.drop.live
+      ? { status: 'active', ...(cur?.activated_at ? {} : { activated_at: new Date().toISOString() }) }
+      : {};
+    const { error } = await db.from('fan_automations').update({
+      magnet_kind: 'track', magnet_track_id: magnet.id, magnet_file_key: null, magnet_file_name: null,
+      magnet_title: C.drop.magnetTitle, magnet_description: C.drop.magnetDescription, ...live,
+    }).eq('id', funnel.id);
+    if (error) die(`drop magnet: ${error.message}`);
+  }
+}
 
 // ── 6. Vote magnet ─────────────────────────────────────────────────────────────
 if (voteTracks) {
@@ -416,7 +444,7 @@ for (const name of Object.keys(C.offers)) {
   if (!back) die(`${name} stored offer fails the read contract`);
   console.log(`${name} offer: active=${row.is_active} cta="${back.cta}" previews=${back.previews.length}`);
 }
-const { data: f } = await db.from('fan_automations').select('status, public_token, gold_tier_id, silver_tier_id').eq('id', funnel.id).single();
+const { data: f } = await db.from('fan_automations').select('status, public_token, gold_tier_id, silver_tier_id, magnet_title, magnet_kind').eq('id', funnel.id).single();
 const { primary, downsell } = resolveFunnelOffers(tiers, f);
 console.log(`funnel: ${f.status} /drop/${f.public_token} | primary=${primary?.name} downsell=${downsell?.name}`);
 if (primary?.name !== C.funnelPrimary || downsell?.name !== C.funnelDownsell) die('funnel does not resolve to the configured rungs');
@@ -429,4 +457,6 @@ if (voteTracks) {
   console.log(`ballot link: https://thecrwn.app/${artist.slug}/join/${C.vote.offerSlug}`);
 }
 console.log(`\npublic page: https://thecrwn.app/${artist.slug}`);
-console.log(`drop page (owner-only preview while draft): https://thecrwn.app/drop/${f.public_token}`);
+console.log(f.status === 'active'
+  ? `drop funnel LIVE: https://thecrwn.app/drop/${f.public_token} (magnet: ${f.magnet_title || 'none'})`
+  : `drop page (owner-only preview while draft): https://thecrwn.app/drop/${f.public_token}`);
