@@ -27,7 +27,8 @@ import {
 } from '@/lib/membershipStrategy';
 import { buildWaterfall, earlyAccessDaysByTier, type WaterfallEntry } from '@/lib/waterfall';
 import { ReleaseCreditsModal } from './ReleaseCreditsModal';
-import { Edit2, X, Upload, Plus, Loader2, Music, Award } from 'lucide-react';
+import { Edit2, X, Upload, Plus, Loader2, Music, Award, Pin } from 'lucide-react';
+import { nextPinRank, pinnedCount, TOP_SONGS_LIMIT } from '@/lib/artistMusicLayout';
 import { hapticMedium } from '@/lib/haptics';
 import { TierAccessSelect } from '@/components/shared/TierAccessSelect';
 import { readBenefitPointer } from '@/lib/benefitRegistry';
@@ -286,6 +287,25 @@ export function TrackUploadForm() {
 
   const handleDeleteTrack = async (track: Track) => {
     setConfirmDeleteTrack(track);
+  };
+
+  // Top Songs on the public page: pinned tracks lead in pin order, plays fill the rest
+  // (src/lib/artistMusicLayout.ts). A new pin goes after the existing ones.
+  const handleTogglePin = async (track: Track) => {
+    const pinning = track.pin_rank == null;
+    if (pinning && pinnedCount(tracks) >= TOP_SONGS_LIMIT) {
+      showToast(`Top Songs holds ${TOP_SONGS_LIMIT} pins. Unpin one first.`, 'error');
+      return;
+    }
+    const pin_rank = pinning ? nextPinRank(tracks) : null;
+    const { error } = await supabase.from('tracks').update({ pin_rank }).eq('id', track.id);
+    if (error) {
+      console.error('Pin error:', error);
+      showToast(pinning ? 'Could not pin this track' : 'Could not unpin this track', 'error');
+      return;
+    }
+    setTracks((prev) => prev.map((t) => (t.id === track.id ? { ...t, pin_rank } : t)));
+    showToast(pinning ? 'Pinned to Top Songs' : 'Unpinned from Top Songs', 'success');
   };
 
   const executeDeleteTrack = async (track: Track) => {
@@ -1255,7 +1275,14 @@ export function TrackUploadForm() {
             }}
             renderActions={(track) => (
               <div className="flex items-center gap-2">
-
+                <button
+                  onClick={() => handleTogglePin(track)}
+                  className={`p-2 transition-colors ${track.pin_rank != null ? 'text-crwn-gold' : 'text-crwn-text-secondary hover:text-crwn-gold'}`}
+                  title={track.pin_rank != null ? 'Unpin from Top Songs' : 'Pin to Top Songs'}
+                  aria-pressed={track.pin_rank != null}
+                >
+                  <Pin size={16} fill={track.pin_rank != null ? 'currentColor' : 'none'} />
+                </button>
                 <button
                   onClick={() => handleEditTrack(track)}
                   className="p-2 text-crwn-text-secondary hover:text-crwn-gold transition-colors"

@@ -81,6 +81,19 @@ responsible for. Do not work those.
       (both now dated September 30, 2026). If counsel changes the words in substance, bump
       ARTIST_TERMS_VERSION in the first file and every artist is asked to sign again.
 
+- [ ] **Run two SQL files so artist pages get Top Songs pins, then Prince Dre's 16 songs lead.**
+      The Music tab now reads like a streaming artist page (newest release, Top Songs, Albums).
+      Until these run, Top Songs ranks by plays, then running order, and the Studio pin button errors.
+      Run order in the Supabase SQL editor:
+        1. [supabase/schema-phase2-track-pins.sql](supabase/schema-phase2-track-pins.sql)
+        2. [supabase/princedre-top-songs-pins.sql](supabase/princedre-top-songs-pins.sql)
+      Each ends with a check that raises an error if anything did not land. Then run
+          npm run verify:migrations
+      and open thecrwn.app/princedre: Top Songs should open on Wishing Well, Hommie, MunnaGang, From The O.
+      Separately: Dre's albums carry their UPLOAD date (Sep 29 to 30) as the release date, so the
+      "newest release" card shows whichever project was uploaded last, not his real newest. Give each
+      album its real release date in Studio > Music > Albums if that matters to him.
+
 - [ ] **Tell GB his vote funnel already works, then let him decide the general-engagement
       question.** Song Lab is now reachable for him (Studio tile plus hamburger entry, live
       2026-09-30) at /studio/lab, which is the only thing that was actually missing.
