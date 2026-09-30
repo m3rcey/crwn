@@ -22,7 +22,7 @@ import { GUARANTEE_MIN_CONTACTS, GUARANTEE_MIN_PROVEN_BUYERS } from '@/lib/launc
 
 export const ARTIST_TERMS_VERSION = '2026-09-30';
 export const LAUNCH_ADDENDUM_VERSION = '2026-09-30';
-export const OPERATOR = 'JNW Creative Enterprises, Inc.';
+export const OPERATOR = 'JNW Creative Enterprises Inc.';
 
 /** What the artist agrees to, in the order the gate shows it. Full text: /artist-agreement. */
 export const ARTIST_TERMS_POINTS: string[] = [

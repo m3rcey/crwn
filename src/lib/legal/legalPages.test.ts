@@ -6,7 +6,7 @@ import { join } from 'path';
 // else in the repository can notice when a required disclosure disappears from them.
 //
 // These assertions exist for one concrete reason: from 2026-08-24 the A2P 10DLC campaign for
-// JNW Creative Enterprises, Inc. depends on https://thecrwn.app/privacy and
+// JNW Creative Enterprises Inc. depends on https://thecrwn.app/privacy and
 // https://thecrwn.app/terms carrying specific language. A carrier vetting failure is not a bug
 // report that arrives in an inbox. The campaign simply stops being approved, and the
 // speed-to-lead alert stops arriving, silently.
@@ -54,8 +54,8 @@ describe('LEGAL-SMS-001 the privacy policy carries the A2P 10DLC mobile disclosu
   });
 
   it('names the operating entity and describes the program as internal, not marketing', () => {
-    expect(privacy).toContain('JNW Creative Enterprises, Inc.');
-    expect(privacy.toLowerCase()).toContain('authorized jnw creative enterprises, inc. representative');
+    expect(privacy).toContain('JNW Creative Enterprises Inc.');
+    expect(privacy.toLowerCase()).toContain('authorized jnw creative enterprises inc. representative');
     expect(privacy.toLowerCase()).toContain('not sent to artists, fans, prospects, or customers');
   });
 
@@ -74,8 +74,8 @@ describe('LEGAL-SMS-002 the terms carry the SMS program terms', () => {
   });
 
   it('identifies the sender, the recipients and the purpose', () => {
-    expect(terms).toContain('JNW Creative Enterprises, Inc., the company that operates CRWN');
-    expect(terms.toLowerCase()).toContain('only authorized jnw creative enterprises, inc. personnel');
+    expect(terms).toContain('JNW Creative Enterprises Inc., the company that operates CRWN');
+    expect(terms.toLowerCase()).toContain('only authorized jnw creative enterprises inc. personnel');
     expect(terms.toLowerCase()).toContain('are not recipients of this program');
   });
 

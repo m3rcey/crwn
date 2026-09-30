@@ -28,12 +28,16 @@ async function resolve() {
   if (!user) return null;
   // Service role for both reads: launch_partner may not be readable by the browser roles, and
   // the metadata must be FRESH (the session's JWT copy lags an acceptance until it refreshes).
-  const [{ data: artist }, { data: fresh }] = await Promise.all([
+  const [{ data: artist }, { data: fresh }, { data: profile }] = await Promise.all([
     admin.from('artist_profiles').select('id, launch_partner').eq('user_id', user.id).maybeSingle(),
     admin.auth.admin.getUserById(user.id),
+    admin.from('profiles').select('role').eq('id', user.id).maybeSingle(),
   ]);
   const appMetadata = fresh?.user?.app_metadata ?? user.app_metadata ?? {};
-  const status = artistTermsStatus(appMetadata, { isArtist: !!artist, launchPartner: artist?.launch_partner === true });
+  // Admins (the founder, operating CRWN) are never held behind the artist terms, on any surface:
+  // MainShell already exempted them, and this makes the tool-page guard agree.
+  const isArtist = !!artist && profile?.role !== 'admin';
+  const status = artistTermsStatus(appMetadata, { isArtist, launchPartner: artist?.launch_partner === true });
   return { user, appMetadata, status };
 }
 

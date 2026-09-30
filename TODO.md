@@ -517,7 +517,7 @@ responsible for. Do not work those.
       512(c) safe harbor requires the designated agent to be registered in the Copyright
       Office's online directory (dmca.copyright.gov, $6, renew every 3 years). Without it,
       hosting user-uploaded music has no takedown shield. Ten minutes, one form, entity
-      JNW Creative Enterprises, Inc., agent email dmca@thecrwn.app.
+      JNW Creative Enterprises Inc., agent email dmca@thecrwn.app.
 
 - [ ] **P2: Read the new Partner Program Terms before recruiting anyone you don't know.**
       /partner and /recruit publicly promise cash and now link /partner-terms (qualifying
@@ -541,7 +541,7 @@ responsible for. Do not work those.
         Terms & Conditions URL:    https://thecrwn.app/terms
       The campaign description and sample messages must MATCH what those pages say, or the
       reviewer rejects it as conflicting information. Describe it as:
-      *JNW Creative Enterprises, Inc., operating the CRWN platform (thecrwn.app), sends
+      *JNW Creative Enterprises Inc., operating the CRWN platform (thecrwn.app), sends
       internal operational alerts to its own authorized personnel. When an artist requests a
       call through a CRWN calculator and qualifies, an alert with the lead's details and
       callback number is sent to an authorized representative so they can return the call.
@@ -556,7 +556,7 @@ responsible for. Do not work those.
 - [ ] **P0: Paste this into Twilio's "How do end-users consent to receive messages?" field.**
       Copy it verbatim; it matches the live page, the privacy policy and the terms, and a
       mismatch between them is the rejection reason:
-        Authorized personnel of JNW Creative Enterprises, Inc. opt in at
+        Authorized personnel of JNW Creative Enterprises Inc. opt in at
         https://thecrwn.app/sms-alert-consent, a publicly accessible web form. The person enters
         their mobile number and actively checks an unchecked consent box reading: "I agree to
         receive low-volume internal CRWN operational lead alerts by SMS from JNW Creative

@@ -49,7 +49,7 @@ export default function LiveAgreementPage() {
 
           <h2 className="text-xl font-semibold text-crwn-text">3. Indemnification</h2>
           <p>
-            You agree to defend, indemnify, and hold harmless CRWN and JNW Creative Enterprises,
+            You agree to defend, indemnify, and hold harmless CRWN and JNW Creative Enterprises
             Inc., its officers, and its agents from and against any claims, damages, liabilities,
             losses, and expenses (including reasonable attorneys&apos; fees) arising out of or
             related to the content you broadcast, your live sessions, or your breach of this Live
@@ -117,7 +117,7 @@ export default function LiveAgreementPage() {
         </div>
 
         <div className="mt-12 pt-6 border-t border-crwn-elevated text-center text-xs text-crwn-text-secondary">
-          JNW Creative Enterprises, Inc. © 2026. All rights reserved.
+          JNW Creative Enterprises Inc. © 2026. All rights reserved.
         </div>
       </div>
     </div>

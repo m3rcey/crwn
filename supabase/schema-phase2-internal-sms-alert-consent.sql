@@ -1,6 +1,6 @@
 -- Internal speed-to-lead SMS alert consent (2026-08-25)
 --
--- ONE table holding the consent of JNW Creative Enterprises, Inc.'s own authorized personnel to
+-- ONE table holding the consent of JNW Creative Enterprises Inc.'s own authorized personnel to
 -- receive internal operational lead alerts by SMS. Written only by /api/sms-alert-consent, which
 -- is the server behind the public form at /sms-alert-consent.
 --

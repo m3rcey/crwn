@@ -181,7 +181,7 @@ Source: `src/lib/teamSplits/*`. `Confirmed`.
 - **Call-request consent (2026-07-30, alert channel changed 2026-07-31):** a founder alert fires ONLY when calculator completed + server-recomputed `sales_priority` + valid callback number + explicit versioned consent + an active request. Inferred interest never alerts; unqualified requests are recorded in the admin Calls tab but never alerted. One alert per phone per day, DB-claimed. Since the SMS removal the alert is EMAIL always (joshn.wms@gmail.com), optionally mirrored to a carrier email-to-SMS gateway via `FOUNDER_ALERT_SMS_EMAIL` (plain Resend, no Twilio). `Confirmed`.
 - **SMS: REMOVED 2026-07-31** (founder decision: A2P 10DLC compliance cost not worth it). The Pro+ gating, quiet hours, 1 SMS/mo/fan cap and `sms-reset` cron are all gone with the feature; `sms_*` tables stay dormant for consent history. Terms §13 (SMS Messaging Program) was removed from the legal pages. **A different, narrower §13
 was added on 2026-08-24** (founder decision): it describes ONE automated SMS program whose only
-recipients are authorized JNW Creative Enterprises, Inc. personnel receiving a speed-to-lead alert
+recipients are authorized JNW Creative Enterprises Inc. personnel receiving a speed-to-lead alert
 when a qualified artist requests a call. It explicitly states CRWN operates no marketing or
 promotional SMS program and gives artists no tool for texting fans. Privacy Policy section 8
 carries the matching mobile-number and messaging-consent disclosures. Both are pinned by
@@ -191,7 +191,7 @@ carries the matching mobile-number and messaging-consent disclosures. Both are p
 
 - **Artist terms gate (2026-09-30, founder decision):** every ARTIST (has an `artist_profiles`
   row) signs the artist content terms before using CRWN: rights warranty, license, and a defend /
-  indemnify / hold harmless of JNW Creative Enterprises, Inc. for content they upload or post. ONE
+  indemnify / hold harmless of JNW Creative Enterprises Inc. for content they upload or post. ONE
   definition: [src/lib/legal/artistTerms.ts](src/lib/legal/artistTerms.ts) (version, words, status
   rule). The record is `auth.users.app_metadata.artist_terms`, an append-only list (version, typed
   name, time, IP, user agent) written ONLY by the service role in `/api/artist/terms`; the session is
@@ -204,10 +204,12 @@ carries the matching mobile-number and messaging-consent disclosures. Both are p
   100 fans or 40 proven buyers, send the launch campaign and post on their page. Its numbers are
   imported from `src/lib/launchPartner.ts`, the checklist that decides it, so the signed promise and
   the measured one cannot drift. The Terms of Service (section 5) and Artist Agreement (section 3) carry
-  the same hold-harmless clause. Pinned by `src/lib/legal/artistTerms.test.ts`. Known gap: `/build`,
-  `/offers` and the other bare-layout connector pages are outside `MainShell`, so the gate catches an
-  artist on the next app page, not on those; track uploads live under `/studio` (gated) and `/setup`
-  (gated). `Confirmed`.
+  the same hold-harmless clause. Pinned by `src/lib/legal/artistTerms.test.ts`. The 13 artist-tool pages
+  with their own bare layout (`/build`, `/offers`, `/campaigns`, `/missions` and the rest) wrap their
+  children in `ArtistTermsGuard`, the same hook and screen, so a direct link cannot skip it. The
+  gate is a full screen, not a dismissible modal: closing the app, refreshing, or signing out and
+  back in shows it again until the record exists. Admins are exempt in the route itself.
+  `Confirmed`.
 - **The owner hears their whole page (2026-09-30):** `can_play_track` already returns true for a
   track's owner, so `tracks_public` hands them every locator. The public page and the track page now
   treat a present `audio_url_128` as the unlock (`GatedTrackPlayer`, `TrackShareContent`), which only

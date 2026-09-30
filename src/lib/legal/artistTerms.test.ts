@@ -69,7 +69,7 @@ describe('artist terms: the words', () => {
   const all = [...ARTIST_TERMS_POINTS, LAUNCH_ADDENDUM_INTRO, ...LAUNCH_ADDENDUM_STEPS, LAUNCH_ADDENDUM_OUTRO].join('\n');
 
   it('names the operating company in the hold-harmless point', () => {
-    expect(ARTIST_TERMS_POINTS.some((p) => /defend, indemnify and hold harmless JNW Creative Enterprises, Inc\./.test(p))).toBe(true);
+    expect(ARTIST_TERMS_POINTS.some((p) => /defend, indemnify and hold harmless JNW Creative Enterprises Inc\./.test(p))).toBe(true);
   });
 
   it('the launch conditions use the SAME numbers the launch checklist measures', () => {
@@ -91,12 +91,12 @@ describe('artist terms: the legal pages say the same thing', () => {
   const agreement = readFileSync('src/app/(public)/artist-agreement/page.tsx', 'utf8');
 
   it('the Terms of Service hold JNW Creative Enterprises harmless for uploaded content', () => {
-    expect(terms).toMatch(/defend, indemnify, and hold harmless JNW Creative Enterprises, Inc\./);
+    expect(terms).toMatch(/defend, indemnify, and hold harmless JNW Creative Enterprises Inc\./);
     expect(terms).toMatch(/If you upload or post any content/);
   });
 
   it('the Artist Agreement does too, and says acceptance is recorded', () => {
-    expect(agreement).toMatch(/defend, indemnify, and hold harmless JNW Creative Enterprises, Inc\./);
+    expect(agreement).toMatch(/defend, indemnify, and hold harmless JNW Creative Enterprises Inc\./);
     expect(agreement).toMatch(/accept the artist terms by signing with your name/);
   });
 
@@ -104,5 +104,14 @@ describe('artist terms: the legal pages say the same thing', () => {
     expect(terms).toContain('Effective Date: September 30, 2026');
     expect(agreement).toContain('Effective Date: September 30, 2026');
     expect(ARTIST_TERMS_VERSION).toBe('2026-09-30');
+  });
+});
+
+describe('the operating entity is spelled one way (founder, 2026-09-30)', () => {
+  it('no source file writes "JNW Creative Enterprises, Inc" (the entity has no comma)', async () => {
+    const { readdirSync } = await import('node:fs');
+    const files = (readdirSync('src', { recursive: true }) as string[]).filter((f) => /\.(tsx?|mjs|js)$/.test(f) && !f.endsWith('artistTerms.test.ts'));
+    const offenders = files.filter((f) => /Creative Enterprises,\s*Inc/i.test(readFileSync(`src/${f}`, 'utf8')));
+    expect(offenders).toEqual([]);
   });
 });

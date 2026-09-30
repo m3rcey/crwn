@@ -18,7 +18,7 @@ export default function TermsPage() {
         <div className="prose prose-invert max-w-none space-y-6 text-crwn-text-secondary">
           <h2 className="text-xl font-semibold text-crwn-text">1. Acceptance of Terms</h2>
           <p>By creating an account on CRWN ("the Platform"), accessible at thecrwn.app, you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, do not use the Platform.</p>
-          <p>CRWN is operated by JNW Creative Enterprises, Inc. ("we," "us," or "our"). These Terms constitute a legally binding agreement between you and JNW Creative Enterprises, Inc.</p>
+          <p>CRWN is operated by JNW Creative Enterprises Inc. ("we," "us," or "our"). These Terms constitute a legally binding agreement between you and JNW Creative Enterprises Inc.</p>
           <p>We may update these Terms from time to time. Continued use of the Platform after changes constitutes acceptance of the revised Terms. We will notify you of material changes via email or in-app notification.</p>
 
           <h2 className="text-xl font-semibold text-crwn-text">2. Account Registration</h2>
@@ -45,7 +45,7 @@ export default function TermsPage() {
           <h2 className="text-xl font-semibold text-crwn-text">5. Content and Intellectual Property</h2>
           <p>You retain ownership of all content you upload to CRWN. By uploading content, you grant CRWN a non-exclusive, worldwide, royalty-free license to host, display, stream, distribute, and promote your content on the Platform.</p>
           <p>You are solely responsible for the content you upload and represent that you own or have obtained all necessary rights and permissions, including for every recording, composition, sample, featured artist, and likeness in it.</p>
-          <p><strong>Indemnification:</strong> If you upload or post any content to CRWN (music, video, artwork, text or anything else), you agree to defend, indemnify, and hold harmless JNW Creative Enterprises, Inc., which operates CRWN, and its officers, directors, employees, and agents from and against any claim, lawsuit, demand, damage, loss, liability, settlement, cost, or expense, including reasonable attorneys&apos; fees, arising out of or related to that content, including any claim that it infringes or misappropriates another person&apos;s copyright, trademark, right of publicity, or other right, or arising out of your breach of these Terms. This obligation survives the end of your account.</p>
+          <p><strong>Indemnification:</strong> If you upload or post any content to CRWN (music, video, artwork, text or anything else), you agree to defend, indemnify, and hold harmless JNW Creative Enterprises Inc., which operates CRWN, and its officers, directors, employees, and agents from and against any claim, lawsuit, demand, damage, loss, liability, settlement, cost, or expense, including reasonable attorneys&apos; fees, arising out of or related to that content, including any claim that it infringes or misappropriates another person&apos;s copyright, trademark, right of publicity, or other right, or arising out of your breach of these Terms. This obligation survives the end of your account.</p>
           <p><strong>DMCA:</strong> If you believe content on CRWN infringes your copyright, submit a DMCA notice to dmca@thecrwn.app.</p>
 
           <h2 className="text-xl font-semibold text-crwn-text">6. Community Guidelines</h2>
@@ -61,18 +61,18 @@ export default function TermsPage() {
           <p>We may suspend or terminate your account for violation of these Terms. Upon termination, fan subscriptions are canceled, artists receive outstanding payouts within 30 days, and content may be removed.</p>
 
           <h2 className="text-xl font-semibold text-crwn-text">10. Disclaimers and Limitation of Liability</h2>
-          <p>THE PLATFORM IS PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND. TO THE MAXIMUM EXTENT PERMITTED BY LAW, JNW CREATIVE ENTERPRISES, INC. SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES.</p>
+          <p>THE PLATFORM IS PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND. TO THE MAXIMUM EXTENT PERMITTED BY LAW, JNW CREATIVE ENTERPRISES INC. SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES.</p>
 
           <h2 className="text-xl font-semibold text-crwn-text">11. Dispute Resolution</h2>
-          <p>Disputes shall be resolved through binding arbitration in Missouri. You waive the right to participate in class actions against JNW Creative Enterprises, Inc.</p>
+          <p>Disputes shall be resolved through binding arbitration in Missouri. You waive the right to participate in class actions against JNW Creative Enterprises Inc.</p>
 
           <h2 className="text-xl font-semibold text-crwn-text">12. General Provisions</h2>
           <p><strong>Governing Law:</strong> State of Missouri.</p>
           <p><strong>Contact:</strong> support@thecrwn.app</p>
           <h2 className="text-xl font-semibold text-crwn-text">13. SMS Messaging</h2>
-          <p><strong>Sender:</strong> text messages associated with CRWN are sent by JNW Creative Enterprises, Inc., the company that operates CRWN.</p>
-          <p><strong>What the program is:</strong> JNW Creative Enterprises, Inc. operates one automated SMS program, an internal operational alert. When an artist uses the optional &quot;Get a call now&quot; request on a CRWN calculator and qualifies for a conversation with our team, the system sends a notification to an authorized JNW Creative Enterprises, Inc. representative with the information needed to identify the artist and return their call.</p>
-          <p><strong>Recipients:</strong> only authorized JNW Creative Enterprises, Inc. personnel who agreed in advance to receive these operational alerts. Artists, fans, prospects, and customers are not recipients of this program.</p>
+          <p><strong>Sender:</strong> text messages associated with CRWN are sent by JNW Creative Enterprises Inc., the company that operates CRWN.</p>
+          <p><strong>What the program is:</strong> JNW Creative Enterprises Inc. operates one automated SMS program, an internal operational alert. When an artist uses the optional &quot;Get a call now&quot; request on a CRWN calculator and qualifies for a conversation with our team, the system sends a notification to an authorized JNW Creative Enterprises Inc. representative with the information needed to identify the artist and return their call.</p>
+          <p><strong>Recipients:</strong> only authorized JNW Creative Enterprises Inc. personnel who agreed in advance to receive these operational alerts. Artists, fans, prospects, and customers are not recipients of this program.</p>
           <p><strong>What we do not send:</strong> CRWN does not operate a marketing or promotional SMS program. We do not send marketing text messages to artists or fans, we provide artists with no tool for texting their fans, and we do not sell or rent mobile numbers.</p>
           <p><strong>Frequency:</strong> message frequency varies and depends on inbound requests. This is a low volume program.</p>
           <p><strong>Charges:</strong> message and data rates may apply. Charges from your mobile carrier are your responsibility.</p>
@@ -90,7 +90,7 @@ export default function TermsPage() {
         </div>
 
         <div className="mt-12 pt-6 border-t border-crwn-elevated text-center text-xs text-crwn-text-secondary">
-          JNW Creative Enterprises, Inc. © 2026. All rights reserved.
+          JNW Creative Enterprises Inc. © 2026. All rights reserved.
         </div>
       </div>
     </div>

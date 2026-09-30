@@ -1,6 +1,6 @@
 // The internal speed-to-lead SMS alert consent, as data.
 //
-// WHAT THIS IS. JNW Creative Enterprises, Inc. registered ONE A2P 10DLC campaign whose only
+// WHAT THIS IS. JNW Creative Enterprises Inc. registered ONE A2P 10DLC campaign whose only
 // recipients are its own authorized personnel: when a qualified artist asks to speak with the
 // CRWN team, an operational alert goes to a representative so they can return the call. Twilio
 // refused "we hold a signed paper form" as an opt-in description and asked to SEE the consent
@@ -27,7 +27,7 @@ import { normalizeCallbackPhone } from '@/lib/acquisition/callRequest';
 export const ALERT_CONSENT_VERSION = 'internal-sms-alert-consent-2026-08-25.v1';
 
 /** The legal entity that sends. Named in the consent itself, because a brand must identify itself. */
-export const ALERT_CONSENT_BRAND = 'JNW Creative Enterprises, Inc.';
+export const ALERT_CONSENT_BRAND = 'JNW Creative Enterprises Inc.';
 
 /**
  * The checkbox label. This exact string is what a person agrees to and what the server stores.
@@ -38,7 +38,7 @@ export const ALERT_CONSENT_BRAND = 'JNW Creative Enterprises, Inc.';
  */
 export const ALERT_CONSENT_TEXT =
   'I agree to receive low-volume internal CRWN operational lead alerts by SMS from ' +
-  'JNW Creative Enterprises, Inc. at the mobile number I provide. Message frequency varies. ' +
+  'JNW Creative Enterprises Inc. at the mobile number I provide. Message frequency varies. ' +
   'Message and data rates may apply. Reply STOP to opt out or HELP for help.';
 
 /**
@@ -51,7 +51,7 @@ export const ALERT_CONSENT_FOOTNOTE =
 
 /** What the page tells a reviewer, in one sentence, before anything else. */
 export const ALERT_CONSENT_PURPOSE =
-  'This form is for authorized personnel of JNW Creative Enterprises, Inc., which operates the ' +
+  'This form is for authorized personnel of JNW Creative Enterprises Inc., which operates the ' +
   'CRWN platform (thecrwn.app). It records their consent to receive internal operational alerts ' +
   'by text message. It is not a signup for customers, artists, or fans, and CRWN sends no ' +
   'marketing or promotional text messages to anyone.';

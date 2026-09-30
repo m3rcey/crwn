@@ -38,20 +38,26 @@ const ART: Record<string, string> = {
   [ROTP]: `${ART_BASE}1790642982534.jpg`,
   [FPOB]: `${ART_BASE}1790642985217.jpg`,
   [OTOIME]: `${ART_BASE}1790642989221.jpg`,
+  // Uploaded with the album on 2026-09-30 (key is the project title; OBAN is declared below).
+  'O Block Ass Nigga': `${ART_BASE}1790800739483.jpg`,
 };
 // Photos for the offer (scripts/generate-offer-photos.mjs, 2026-09-28): realistic studio photos of
 // him generated from his current-look reference photos (founder direction: real-looking photos
 // of the artist on his own page, not brand art), uploaded to his public album-art folder.
 const OFFER_ART = 'https://ecpqtuidtsncjfwtkvwc.supabase.co/storage/v1/object/public/album-art/afa05eb6-da91-438a-8e28-3952c1bded83/offer/';
 // The whole catalog (founder, 2026-09-30): eight projects from `videos/prince dre/<project>/
-// <n> - <song>.wav`, each placed by how hard it is to find and hear today (web research,
-// 2026-09-30; 1 = on Apple Music, 4 = no working full-album stream in the US):
-//   Silver    Blood Brothaz (2: Audiomack, YouTube Music) + Life I Live (1: Apple Music)
-//   Gold      Shotta In Da Jungle (3: Audiomack only) + Im Reloaded (3: LiveMixtapes only)
-//   Platinum  O Block Ass Nigga (4, the hardest) + the 3 vote projects (the vote mechanic:
-//             Platinum has all three, Gold gets the winner on DRE_FIRST_UNLOCK_DATE)
-// NONE of them is "never on streaming" or "unreleased": each can be found somewhere, so the copy
-// sells the COMPLETE project in one place, never scarcity it does not have.
+// <n> - <song>.wav`, each placed by how hard it is to find and hear today. Where each one lives,
+// per the founder (2026-09-30), which outranks the web research the same day:
+//   Silver    Life I Live (Apple Music, per research; the easiest) + Blood Brothaz (Audiomack)
+//   Gold      Shotta In Da Jungle (Audiomack) + Im Reloaded (Certified Mixtapes)
+//   Platinum  O Block Ass Nigga (the hardest: only single tracks on YouTube, uploaded by someone
+//             else and never under the project's title) + the 3 vote projects: Return Of The
+//             Prince (Certified Mixtapes), Fresh Prince Of O'Block (DaMixHub), Only The O In My
+//             Eyes (LiveMixtapes). The vote mechanic keeps them here: Platinum has all three,
+//             Gold gets the winner on DRE_FIRST_UNLOCK_DATE.
+// Shotta is as easy to find as Blood Brothaz but stays in Gold: Gold and the Round Here drop
+// already sell it. NONE of them is "never on streaming" or "unreleased": each can be found
+// somewhere, so the copy sells the COMPLETE project in one place, never scarcity it does not have.
 const BB = 'Blood Brothaz';
 const SJ = 'Shotta In Da Jungle';
 const LIL = 'Life I Live';
