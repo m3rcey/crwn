@@ -3,8 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ArrowRight, Lightbulb } from 'lucide-react';
-import { AlbumsSection } from '@/components/artist/AlbumCard';
-import { ArtistPlaylistsSection } from '@/components/artist/ArtistPlaylistCard';
+import { ArtistMusicSection } from '@/components/artist/ArtistMusicSection';
 import { ShopSection } from '@/components/artist/ShopSection';
 import { MemberFilesSection } from '@/components/artist/MemberFilesSection';
 import { TierCards } from '@/components/artist/SubscribeSection';
@@ -15,7 +14,6 @@ import { FanLeaderboard } from '@/components/community/FanLeaderboard';
 import { LiveSessionsList } from '@/components/live/LiveSessionsList';
 import { LiveSession } from '@/types/live';
 import { TierConfig, Album, Playlist, Product, Track } from '@/types';
-import { GatedTrackPlayer } from '@/components/gating';
 import { FadeIn } from '@/components/ui/FadeIn';
 import { hapticLight } from '@/lib/haptics';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -58,6 +56,8 @@ interface ArtistProfileContentProps {
   playlists: (Playlist & { track_count: number })[];
   products: Product[];
   tracks: Track[];
+  /** Ids of the tracks that sit on an album (a track on none is a single). */
+  albumTrackIds?: string[];
   /** True ONLY for the artist who owns this page (never "viewer is an artist"). */
   isOwner: boolean;
   commissionRate?: number;
@@ -71,6 +71,7 @@ export function ArtistProfileContent({
   playlists,
   products,
   tracks,
+  albumTrackIds = [],
   isOwner,
   commissionRate = 10,
   liveSessions = [],
@@ -224,29 +225,21 @@ export function ArtistProfileContent({
 
         {activeTab === 'music' && (
           <div data-tour="artist-page-music">
-            {/* Albums */}
-            <AlbumsSection albums={albums} artistSlug={artist.slug} />
-
-            {/* Artist Playlists */}
-            <ArtistPlaylistsSection playlists={playlists || []} artistSlug={artist.slug} />
+            {tracks && tracks.length > 0 ? (
+              <ArtistMusicSection
+                artistId={artist.id}
+                artistSlug={artist.slug}
+                tracks={tracks}
+                albums={albums}
+                playlists={playlists || []}
+                albumTrackIds={albumTrackIds}
+              />
+            ) : (
+              <EmptyState icon="🎵" title="No Music Yet" description="This artist hasn't uploaded any tracks yet. Check back soon!" />
+            )}
 
             {/* Member downloads (stems and packs). Renders nothing when the artist has none. */}
             <MemberFilesSection artistId={artist.id} />
-
-
-            {/* Tracks */}
-            <section>
-              <h2 className="text-xl font-semibold text-crwn-text mb-4">Music</h2>
-              {tracks && tracks.length > 0 ? (
-                <div>
-                  {tracks.map((track) => (
-                    <GatedTrackPlayer key={track.id} track={track} artistId={artist.id} artistSlug={artist.slug} trackList={tracks} />
-                  ))}
-                </div>
-              ) : (
-                <EmptyState icon="🎵" title="No Music Yet" description="This artist hasn't uploaded any tracks yet. Check back soon!" />
-              )}
-            </section>
           </div>
         )}
 

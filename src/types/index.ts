@@ -79,6 +79,8 @@ export interface Track {
   public_release_date: string | null; // For early access feature
   play_count: number;
   position: number | null; // For ordering tracks in artist dashboard
+  /** The artist's Top Songs pin (1 leads). Absent until schema-phase2-track-pins.sql is applied. */
+  pin_rank?: number | null;
   genre?: string | null;
   record_label?: string | null;
   isrc?: string | null;
