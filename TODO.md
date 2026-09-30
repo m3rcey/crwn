@@ -91,20 +91,18 @@ responsible for. Do not work those.
       (both now dated September 30, 2026). If counsel changes the words in substance, bump
       ARTIST_TERMS_VERSION in the first file and every artist is asked to sign again.
 
-- [ ] **Tell GB three things about his votes before he runs the ManyChat campaign.** Song Lab is
-      now reachable for him (Studio tile + hamburger entry, live 2026-09-30), so he can open it at
-      /studio/lab. Three things in his own setup will stop the campaign working, and all three are
-      his calls, not mine:
-      1. **His "Final Vote" link points at no vote.** The offer `final-vote` has a null
-         decision_id, so thecrwn.app/gb/join/final-vote (30 views already) is a generic landing
-         rather than his Hook vote. In Song Lab, Offers, edit it and bind it to the decision.
-      2. **His only vote is members-only**, not free. As a lead magnet to acquire strangers from
-         a DM, a gated vote cannot work: a fan who has not joined cannot take part. Either make
-         the vote free, or accept it is a members-only perk and not an acquisition magnet.
-      3. **He has one of his three ABC stages built** (Hook). Beat and Melody do not exist yet.
-      He also asked whether this should become a general fan-engagement tool (questions, feedback,
-      discussions, not only voting). That is a product decision for you, and CRWN already has
-      adjacent surfaces for parts of it, so it should be decided rather than grown into.
+- [ ] **Tell GB his vote funnel already works, then let him decide the general-engagement
+      question.** Song Lab is now reachable for him (Studio tile plus hamburger entry, live
+      2026-09-30) at /studio/lab, which is the only thing that was actually missing.
+      Verified live: thecrwn.app/gb/join/final-vote serves his Hook ballot right now
+      (Hook A / Hook B / Hook C, "Cast my vote"), and a stranger who taps it joins Bronze free
+      and votes in one step. Nothing in his setup needs fixing. What is left is just work he
+      has not done yet: he has one of his three ABC stages built (Hook), so Beat and Melody are
+      two more votes to create, and if he wants a link per stage rather than his one evergreen
+      link, that is one Lead magnet per stage bound to that vote.
+      The real decision for you: he asked whether this should become a general fan-engagement
+      tool (questions, feedback, discussions, not only voting). CRWN already has adjacent
+      surfaces for parts of that, so it is worth deciding deliberately rather than growing into.
 
 - [ ] **Decide whether founder follow-up emails send automatically.** Built 2026-09-29, OFF.
       Every sales_priority lead gets ONE note per journey stage in your name ("Josh at CRWN
