@@ -864,14 +864,22 @@ never by lowering the completeness bar.
 - **Hamburger AccountHub** (`src/components/layout/AccountHub.tsx`, top-left) — the index of the
   DEFAULT product. Since 2026-08-13 it is no longer the complete index of everything ever built:
   the pre-PMF surface reduction cut it to the path to a first paying member (Grow: Rise Mode,
-  Studio, Analytics, Fan CRM, Promise Calendar, Fan Proof / Music and shop: the five core tools /
+  Studio, Analytics, Fan CRM, Promise Calendar, Fan Proof / Music and shop: the five core tools,
+  plus Song Lab for an artist who has it /
   Your business: page, tiers, payouts, billing, referrals / Account / Support). Hidden
   destinations (quests, Manager, Needs You, playbooks, fan mechanics, Team Splits, Sync, DMs...)
   keep their ROUTES and are reachable by link or calculator CTA; they are simply not indexed.
   **If you add a destination to Studio, add it here too** (NAV-001 asserts that parity). First
   group renders expanded.
 - **Studio** (`/studio`) — the work destinations you MAKE/ACT in, as a visual grid. Since
-  2026-08-13: exactly five tiles (Music, Albums, Shop, Offer Builder, Live). Everything else
+  2026-08-13: five tiles for every artist (Music, Albums, Shop, Offer Builder, Live), plus ONE
+  per-artist tile since 2026-09-30: **Song Lab** appears only when
+  `artist_profiles.song_lab_enabled` is true, read through `GET /api/song-lab/artist` because
+  that column is revoked from the browser (naming it in a client select `42501`s the whole
+  statement). `useSongLabEnabled` is the one client reader and both surfaces share it. A
+  per-artist tile must be declared as a card CONST, never inlined into the render, or its `href`
+  literal is invisible to the NAV-001 parity scan and its hamburger entry can silently go
+  missing. Everything else
   (Manager, Sync, campaigns, missions, bounties, squads, Needs You, playbooks, clip controls,
   Royalty Readiness) was hidden, NOT deleted: the routes work, and four of them are live
   calculator CTA destinations (/missions/new, /proof-of-demand/new, /bounties/new,

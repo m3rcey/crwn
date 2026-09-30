@@ -32,6 +32,10 @@ const ICONS = [
   ['studio_analytics.jpg', 'a charcoal 3D upward bar chart with a rising gold trend arrow above the bars'],
   ['studio_manager.jpg', 'a charcoal 3D human brain with faint gold circuit-board traces across it'],
   ['studio_sync.jpg', 'a charcoal 3D film clapperboard, closed and angled, with the iconic gold-and-charcoal striped clapper bar across the top; the slate face is a COMPLETELY BLANK smooth matte charcoal panel with absolutely NO text, NO letters, NO numbers, NO ruled lines, NO writing of any kind anywhere on it'],
+  // Song Lab: fans pick between unreleased options at each stage. A fader bank reads as the
+  // creative choice itself (music production, several options, one raised) without needing a
+  // ballot or a chart, either of which would read as analytics rather than co-creation.
+  ['studio_lab.jpg', 'a charcoal 3D mixing-desk fader bank, four vertical channel faders side by side seen at a slight angle, each fader cap a polished gold knob, the second fader pushed noticeably higher than the other three; smooth blank matte charcoal console face with absolutely NO text, NO letters, NO numbers, NO tick marks, NO scale markings of any kind'],
 ];
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));

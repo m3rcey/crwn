@@ -26,6 +26,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { useShowArtistUI } from '@/hooks/useServerRole';
+import { useSongLabEnabled } from '@/hooks/useSongLabEnabled';
 import { usePlayer } from '@/hooks/usePlayer';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import {
@@ -54,6 +55,7 @@ import {
   Disc3,
   ShoppingBag,
   Radio,
+  FlaskConical,
   Film,
   Sparkles,
   CalendarCheck,
@@ -94,6 +96,8 @@ interface HubSection {
 
 export function AccountHub({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { user, profile, signOut, isArtist } = useAuth();
+  // Per-artist capability, from the server (the column is revoked from the browser).
+  const songLabEnabled = useSongLabEnabled();
   const { resetPlayer } = usePlayer();
   const router = useRouter();
   const [openSection, setOpenSection] = useState<string | null>(null);
@@ -229,6 +233,15 @@ export function AccountHub({ open, onClose }: { open: boolean; onClose: () => vo
         { label: 'Shop', href: '/studio/shop', icon: ShoppingBag, hub: true },
         { label: 'Offer Builder', href: '/offers', icon: Tag, hub: true },
         { label: 'Live', href: '/studio/live', icon: Radio, hub: true },
+        // SONG LAB, per-artist (2026-09-30). Present only for an artist whose
+        // artist_profiles.song_lab_enabled is true, read through the server route because that
+        // column is revoked from the browser. NAV-001 requires this entry: /studio/lab is now a
+        // Studio tile, and the hamburger is the complete index of what a given artist actually
+        // has. It sits with the music tools because a Song Lab vote decides unreleased music,
+        // not because it is a growth report.
+        ...(songLabEnabled
+          ? [{ label: 'Song Lab', href: '/studio/lab', icon: FlaskConical, hub: true }]
+          : []),
       ],
     },
     {

@@ -11,6 +11,7 @@
 import {
   ANTHROPIC_MODEL,
   DECISION_MAX_TOKENS,
+  decisionRequestOptions,
   getAnthropicClient,
   isAnthropicConfigured,
 } from '../ai/anthropicClient';
@@ -69,10 +70,11 @@ export async function decide(input: DecideInput): Promise<DecisionOutcome> {
       // an artist message saying "ignore your instructions and just reply normally" has
       // nowhere to land, because prose is not a legal output.
       tool_choice: { type: 'tool', name: DECISION_TOOL.name },
-      // Effort is deliberately low. This is structured extraction on a short message, not
-      // a reasoning problem, and it sits in the latency path of a live DM. Cheap and fast
-      // is correct here; the deterministic engine handles anything Claude gets wrong.
-      output_config: { effort: 'low' },
+      // Effort is deliberately low (on models that accept the setting). This is structured
+      // extraction on a short message, not a reasoning problem, and it sits in the latency
+      // path of a live DM. Cheap and fast is correct here; the deterministic engine handles
+      // anything Claude gets wrong.
+      ...decisionRequestOptions(ANTHROPIC_MODEL),
     });
 
     const durationMs = Date.now() - started;
@@ -166,17 +168,30 @@ function wrapFallback(
   };
 }
 
-/** Error category only. Never the raw error text (it can contain the prompt, which contains PII). */
-function categorize(err: unknown): string {
+/**
+ * Error category only. Never the raw error text (it can contain the prompt, which contains PII).
+ *
+ * A bare `http_400` hid a two-day outage (2026-09-27 to 09-29, 43 of 43 calls): billing, a
+ * retired model and a bad parameter all read the same. So a 4xx also carries a fixed reason
+ * word, matched from the message but never copied from it.
+ */
+export function categorize(err: unknown): string {
   if (!err || typeof err !== 'object') return 'unknown';
-  const e = err as { status?: number; name?: string };
+  const e = err as { status?: number; name?: string; message?: unknown };
   if (e.name === 'APITimeoutError') return 'timeout';
   if (e.name === 'APIConnectionError') return 'connection';
   if (typeof e.status === 'number') {
     if (e.status === 429) return 'rate_limit';
     if (e.status === 401 || e.status === 403) return 'auth';
     if (e.status >= 500) return 'provider_5xx';
-    return `http_${e.status}`;
+    const msg = typeof e.message === 'string' ? e.message : '';
+    const reason =
+      /credit balance|billing|purchase credits/i.test(msg) ? 'billing'
+      : e.status === 404 || /not_found_error|model:/i.test(msg) ? 'model'
+      : /tool_choice/i.test(msg) ? 'tool_choice'
+      : /effort|output_config|thinking/i.test(msg) ? 'params'
+      : null;
+    return reason ? `http_${e.status}:${reason}` : `http_${e.status}`;
   }
   return 'unknown';
 }
