@@ -22,33 +22,6 @@ responsible for. Do not work those.
 
 ### P0 — money flows or acquisition are blocked
 
-- [ ] **Prince Dre has NOT connected Stripe. Get him to do it; his three paid tiers cannot sell
-      until he does.** Checked 2026-09-28: he signed up with Google (princedremusicbusiness@gmail.com)
-      and stopped on the wizard's FIRST screen, so there was no artist row and no Connect account.
-      His page, ladder, offer copy and draft funnel are now built (https://thecrwn.app/princedre).
-      Tell him: sign in, and the wizard resumes at his photo, then asks for music (skippable with
-      "I'll add music later", but see the next item); then its Stripe screen connects Stripe, and CRWN creates his Stripe prices on its own
-      the moment charges are enabled. Nothing for you to run. To confirm afterwards, the last column
-      of this should read "yes" on Silver, Gold and Platinum:
-          npx tsx scripts/onboard-launch-partner.mjs princedre
-      Everything behind the paid tiers is now his real music (the placeholder beats were removed
-      2026-09-29): Silver is Blood Brothaz, Gold adds Shotta In Da Jungle.
-      Two lead magnets are LIVE and both sell into these tiers: the vote
-      (https://thecrwn.app/princedre/join/vote) and "Round Here" on the drop funnel
-      (https://thecrwn.app/drop/princedre-round-here). Every checkout button on both fails until he connects.
-
-- [ ] **Get the three vote projects' full songs from Prince Dre's team before October 1, and confirm
-      that date.** Gold promises "the complete winning project, unlocked October 1" and Platinum
-      "all 3 vote projects, complete, the moment Dre adds each one"
-      ([src/lib/offerExperience/reference/princeDre.ts](src/lib/offerExperience/reference/princeDre.ts)).
-      Only one song of each (the vote songs) is uploaded. Ask his team for:
-        1. every song on The Return Of The Prince, Fresh Prince Of O'Block and Only The O In My Eyes, in order
-        2. written confirmation they control the rights to sell those older projects (and Blood
-           Brothaz and Shotta In Da Jungle, which are already live behind Silver and Gold)
-        3. that October 1 is the mixtape date (it is on the vote page as the unlock day)
-      Drop each project in its own folder under videos/prince dre/ and tell me.
-
-
 - [ ] **To finish Team Splits I need a test-mode sandbox. This is the only thing left, and it is
       environment setup, not code.** Nothing to run in SQL.
       I checked rather than assumed: your Stripe key really is live (I asked Stripe, and the balance
@@ -86,6 +59,27 @@ responsible for. Do not work those.
           Link it carries: https://thecrwn.app/setup (resumes him on the music screen)
 
 ### P1 — real risk or real friction, but nothing is on fire
+
+- [ ] **Get Prince Dre's written OK that he can sell all eight projects now on his page, and
+      confirm October 1.** His whole catalog is live behind his tiers since 2026-09-30 (94 songs).
+      Web research turned up other names on some of it; ask his team about each one:
+        - Blood Brothaz: YouTube Music lists "(P) 2015 Create Music Group", and it is a joint project
+          with JB Binladen (co-owner?).
+        - Life I Live: TSO Music Group / Munna Gang Inc (Apple Music). O Block Ass Nigga: Munna Gang Inc.
+        - Fresh Prince Of O'Block and Only The O In My Eyes: their Spotify albums are region
+          restricted and Only The O was pulled from Apple Music; ask who pulled them and why.
+        - October 1 is still the day the vote winner opens to Gold (it is on the vote page).
+      He also signs the new artist terms on his next login (he warrants the rights and holds JNW
+      Creative Enterprises harmless), which protects you but does not replace asking.
+
+- [ ] **Have a lawyer read the new artist terms and the hold-harmless clauses.** Every artist now
+      signs these before using CRWN, and I wrote them, not counsel:
+      [src/lib/legal/artistTerms.ts](src/lib/legal/artistTerms.ts) (the screen they sign, including
+      the First Revenue Launch conditions), section 5 of
+      [src/app/(public)/terms/page.tsx](src/app/(public)/terms/page.tsx) and section 3 of
+      [src/app/(public)/artist-agreement/page.tsx](src/app/(public)/artist-agreement/page.tsx)
+      (both now dated September 30, 2026). If counsel changes the words in substance, bump
+      ARTIST_TERMS_VERSION in the first file and every artist is asked to sign again.
 
 - [ ] **Decide whether founder follow-up emails send automatically.** Built 2026-09-29, OFF.
       Every sales_priority lead gets ONE note per journey stage in your name ("Josh at CRWN
@@ -1140,13 +1134,9 @@ Things that are never finished. Cadence, then the thing.
   real votes, put that rollup on his Fan CRM (`/studio/fans`) so he can read it himself for the
   venue push. Not before: a screen with no data behind it is guessing at a layout.
 
-- **Prince Dre's three vote projects** (2026-09-29): the vote is live
-  (https://thecrwn.app/princedre/join/vote); each vote project's album holds only its vote song.
-  When his team's files arrive: add each song to `content.tracks` in
-  [src/lib/offerExperience/reference/princeDre.ts](src/lib/offerExperience/reference/princeDre.ts)
-  at rung `Platinum` and list it on its project, apply, and flip the "All 3 projects" previews from
-  `example` to `real`. On October 1, once Dre records the winner,
-  run [scripts/onboard-launch-partner.mjs](scripts/onboard-launch-partner.mjs)
+- **Prince Dre's vote winner, October 1.** All three vote projects are uploaded complete and open
+  to Platinum (2026-09-30). Once Dre records the winner in his Song Lab manager, run
+  [scripts/onboard-launch-partner.mjs](scripts/onboard-launch-partner.mjs)
   `princedre --apply --unlock-winner` to open that project to Gold. Also: show the Bronze bonus
   song on the after-vote screen itself; today it plays only once the voter opens the emailed
   account link.

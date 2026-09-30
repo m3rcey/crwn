@@ -170,6 +170,39 @@ every rung more of the one thing the fans asked for, usually the artist's unrele
   voter is a captured contact with no session. Word the copy that way ("unlocks a bonus song in
   the free account we email you"), never "the moment you vote".
 
+### A whole back catalog (founder, 2026-09-30; Prince Dre is the worked example)
+
+When the founder hands over every project (`videos/<artist>/<project>/<n> - <song>.wav` plus a
+cover), research BEFORE placing or writing a word of copy. Send a web-research subagent for, per
+project: where it can be heard today, a 1-5 find-and-listen difficulty, and the two most-watched
+YouTube videos of its songs (with view counts and links, official uploads first).
+
+- **Place projects by difficulty:** the easiest to find go to Silver, the middle to Gold, the
+  hardest to Platinum. The vote projects stay in Platinum (Gold gets the winner): that promise is
+  already live and outranks the difficulty order.
+- **The two most-watched songs of every project go to Bronze**, free. Only a video that verifiably
+  is that project's song counts: pass over a likely remix or an unconfirmed match for the next one
+  down, and write the counts and the passed-over videos in a comment beside the list
+  (`DRE_BRONZE_SINGLES`).
+- **Every Bronze single gets its own drop page** (`drops`, one entry each), so each video's
+  audience has a link to send them to.
+- **The research polices the copy.** Prince Dre's copy said "never on streaming" and
+  "unreleased" until research found every project somewhere (Audiomack, YouTube, Apple Music,
+  LiveMixtapes). Sell the COMPLETE project in one place, never scarcity it does not have;
+  `princeDre.test.ts` refuses those phrases. Put every rights line the research finds (a label, a
+  distributor, a co-owner) in TODO.md for the founder to confirm with the artist.
+- **Two recordings with one title** (Prince Dre's "Ready For War" is on two projects) need two
+  titles on the page; the script matches tracks by title. Retitle the later one
+  (`Ready For War (Life I Live)`) and `checkLaunchPartner` refuses a duplicate.
+- **Derive every count from the song lists** (`N[...]`), never type one: the founder caught a
+  hand-typed total once.
+- **The artist hears everything on their own page** without subscribing: the database already
+  grants the owner, and the page trusts that grant. Nothing to configure.
+- **The artist signs the artist terms** on their next visit (the rights warranty and the
+  hold-harmless). Put the artist in the First Revenue Launch cohort
+  (`artist_profiles.launch_partner = true`) when the founder is running that launch for them, and
+  they sign the launch conditions too. Both are in `src/lib/legal/artistTerms.ts`.
+
 Register the config in `launchPartners.ts`, then:
 
     npx vitest run src/lib/offerExperience/reference/

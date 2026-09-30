@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   DRE_PLATINUM_OFFER, DRE_GOLD_OFFER, DRE_SILVER_OFFER, DRE_APPROVED_BENEFITS,
   DRE_BENEFIT_IDENTITIES, DRE_TIER_PRICES_CENTS, DRE_TIER_PROMISES, DRE_FUNNEL_PRIMARY_ITEM,
+  DRE_BRONZE_SINGLES, PRINCE_DRE,
 } from './princeDre';
 import { normalizeOfferExperience } from '../normalize';
 import { benefitDelivery } from '../../benefitRegistry';
@@ -50,9 +51,31 @@ describe('truth discipline', () => {
   ]);
   const lower = everything.toLowerCase();
 
-  it('only the two uploaded real projects are presented as REAL; placeholder slots stay examples', () => {
-    const real = OFFERS.flatMap(([, o]) => o.previews).filter((p) => p.truth === 'real').map((p) => p.title).sort();
-    expect(real).toEqual(['Blood Brothaz, today', 'Shotta In Da Jungle, today']);
+  it('a REAL preview names only songs and projects this launch actually uploads', () => {
+    const uploaded = new Set([
+      ...PRINCE_DRE.content!.tracks.map((t) => t.title),
+      ...PRINCE_DRE.content!.projects.map((p) => p.title),
+      ...PRINCE_DRE.vote!.options.map((o) => o.trackTitle),
+    ]);
+    const real = OFFERS.flatMap(([, o]) => o.previews).filter((p) => p.truth === 'real');
+    expect(real.length).toBeGreaterThan(0);
+    for (const p of real) for (const item of p.items ?? []) expect(uploaded.has(item.title), `${p.title}: ${item.title}`).toBe(true);
+  });
+
+  it('the copy never claims scarcity the research disproved (2026-09-30)', () => {
+    // Every project can be found somewhere (Audiomack, YouTube, Apple Music, LiveMixtapes), so
+    // "never on streaming", "unreleased" and "the public never got" are false.
+    for (const phrase of ['never on streaming', 'unreleased project', 'unreleased sampler', 'public never got']) {
+      expect(lower, phrase).not.toContain(phrase);
+    }
+  });
+
+  it('every song of every project is uploaded exactly once, and the counts in the copy come from it', () => {
+    const titles = PRINCE_DRE.content!.tracks.map((t) => t.title);
+    expect(new Set(titles).size).toBe(titles.length);
+    const onPage = titles.length + PRINCE_DRE.vote!.options.length;
+    expect(everything).toContain(`(${onPage} songs)`);
+    for (const t of DRE_BRONZE_SINGLES) expect(PRINCE_DRE.content!.tracks.find((x) => x.title === t)?.rung, t).toBe('Bronze');
   });
 
   it('the community card survives the write contract with its thread', () => {

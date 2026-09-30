@@ -45,6 +45,9 @@ describe('the checks actually refuse what they claim to', () => {
     // Pending: no songs yet, and so no projects built from them.
     c.vote!.options = [];
     c.content = undefined;
+    // With no songs uploaded there is nothing to drop either; a drop naming a missing song is refused.
+    expect(checkLaunchPartner(c).join()).toContain('is not a song this launch uploads');
+    c.drops = undefined;
     expect(checkLaunchPartner(c)).toEqual([]);
   });
   it('refuses a project that lists a song the launch does not have', () => {
@@ -60,7 +63,7 @@ describe('the checks actually refuse what they claim to', () => {
     expect(checkLaunchPartner(c).join()).toContain('link preview');
   });
   it('the drop link is personalized: artist slug plus the magnet song, never a random token', () => {
-    expect(PRINCE_DRE.drops!.map((d) => dropLinkSlug(PRINCE_DRE, d))).toEqual(['princedre-round-here', 'princedre-letter-to-la']);
+    expect(PRINCE_DRE.drops!.map((d) => dropLinkSlug(PRINCE_DRE, d)).slice(0, 3)).toEqual(['princedre-round-here', 'princedre-letter-to-la', 'princedre-send-it-up']);
     const c = clone(); c.drops![0].linkSlug = 'Not A Slug!';
     expect(checkLaunchPartner(c).join()).toContain('clean lowercase slug');
     const d = clone(); d.drops![1].linkSlug = 'princedre-round-here';

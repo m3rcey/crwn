@@ -324,6 +324,23 @@ Rules:
   do not copy claims out of the Brain or CLAUDE.md without checking the code, because both
   have been wrong.
 
+## Artists sign the artist terms before using CRWN (founder decision, 2026-09-30)
+
+[src/lib/legal/artistTerms.ts](src/lib/legal/artistTerms.ts) is the ONE definition: the version,
+the words (rights warranty, license, and a defend / indemnify / hold harmless of JNW Creative
+Enterprises, Inc. for anything an artist uploads or posts), the First Revenue Launch addendum for
+`launch_partner` artists, and the rule for who still owes a signature.
+- **The record is `auth.users.app_metadata.artist_terms`**, append-only, written ONLY by the
+  service role in `/api/artist/terms` from the session. Never read or write it anywhere else, never
+  add a second acceptance table for the same terms, and never trust a client-sent flag.
+- **`ArtistTermsGate` renders in `MainShell` (the third gate) and in `/setup`** once the artist row
+  exists, so nobody uploads before signing. Admins are never gated.
+- **Bump `ARTIST_TERMS_VERSION` only for a change in substance**: every artist re-signs.
+- **The addendum's numbers are imported from `src/lib/launchPartner.ts`**, the checklist that
+  decides the launch promise. Never retype them.
+- The ToS (section 5) and Artist Agreement (section 3) carry the same hold-harmless clause;
+  `artistTerms.test.ts` pins all three.
+
 ## The public artist page — `isOwner` is the OWNER, and preview only removes access
 
 Two rules on `src/app/[slug]/page.tsx` and everything under it:

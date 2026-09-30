@@ -56,7 +56,9 @@ export function TrackShareContent({ track, artist, tiers }: TrackShareContentPro
 
   const isFree = track.is_free !== false;
   const hasPurchased = purchasedTrackIds.has(track.id) || justPurchased;
-  const hasAccess = isFree || justSubscribed || hasPurchased || (tierId && track.allowed_tier_ids?.includes(tierId));
+  // `audio_url_128` on a `tracks_public` row is the database's own yes (`can_play_track`),
+  // which covers the track's owner. No preview lens exists on this page, so it is trusted as is.
+  const hasAccess = isFree || justSubscribed || hasPurchased || !!track.audio_url_128 || (tierId && track.allowed_tier_ids?.includes(tierId));
   const canBuy = !isFree && !!track.price && track.price > 0 && !hasPurchased;
   const shareUrl = `https://thecrwn.app/${artist.slug}/track/${track.id}`;
 

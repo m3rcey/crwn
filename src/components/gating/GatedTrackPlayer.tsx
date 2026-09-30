@@ -41,7 +41,14 @@ export function GatedTrackPlayer({ track, artistId, artistSlug, trackList }: Gat
   // In preview the owner's OWN purchase history must not unlock the track: the
   // fan they are previewing has not bought anything.
   const hasPurchased = !previewing && purchasedTrackIds.has(track.id);
-  const canAccess = hasPurchased
+  // 0. The SERVER already granted this viewer the audio. The row comes from `tracks_public`,
+  //    which carries `audio_url_128` only when `can_play_track` says yes, and that oracle
+  //    says yes to the track's OWNER for every track. This is what lets an artist play their
+  //    whole page without subscribing to themselves (founder, 2026-09-30). It never widens
+  //    access: it only stops the UI locking what the database already handed over. In preview
+  //    it is ignored, because the owner is looking through a fan's eyes (remove access only).
+  const serverGranted = !previewing && !!track.audio_url_128;
+  const canAccess = serverGranted || hasPurchased
     ? true
     : isEarlyAccess
       ? !!(tierId && track.allowed_tier_ids?.includes(tierId))

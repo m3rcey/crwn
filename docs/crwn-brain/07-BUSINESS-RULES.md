@@ -189,6 +189,31 @@ carries the matching mobile-number and messaging-consent disclosures. Both are p
 - **Suppression:** hard bounce → global suppress; spam complaint → opt out of all artist marketing; senders check before send. `Confirmed`.
 - **Sequences:** triggers `new_subscription|new_purchase|new_post|abandoned_cart|tier_upgrade|loyalty_survey`; multi-step delays; auto-enroll on trigger; conversion checked in a 7-day window. `Confirmed`.
 
+- **Artist terms gate (2026-09-30, founder decision):** every ARTIST (has an `artist_profiles`
+  row) signs the artist content terms before using CRWN: rights warranty, license, and a defend /
+  indemnify / hold harmless of JNW Creative Enterprises, Inc. for content they upload or post. ONE
+  definition: [src/lib/legal/artistTerms.ts](src/lib/legal/artistTerms.ts) (version, words, status
+  rule). The record is `auth.users.app_metadata.artist_terms`, an append-only list (version, typed
+  name, time, IP, user agent) written ONLY by the service role in `/api/artist/terms`; the session is
+  the only authority, so an artist can accept only for themselves and cannot forge it (users can write
+  user_metadata, never app_metadata). No migration. Shown by `ArtistTermsGate` in `MainShell` (third
+  gate, after onboarding and setup; admins never gated) and in `/setup` the moment the artist row
+  exists, so a new artist signs before the first upload. Bump `ARTIST_TERMS_VERSION` only for a change
+  in substance and every artist re-signs. Launch partners (`artist_profiles.launch_partner`) also sign
+  the First Revenue Launch addendum: the rebuild and relaunch holds only if they connect Stripe, import
+  100 fans or 40 proven buyers, send the launch campaign and post on their page. Its numbers are
+  imported from `src/lib/launchPartner.ts`, the checklist that decides it, so the signed promise and
+  the measured one cannot drift. The Terms of Service (section 5) and Artist Agreement (section 3) carry
+  the same hold-harmless clause. Pinned by `src/lib/legal/artistTerms.test.ts`. Known gap: `/build`,
+  `/offers` and the other bare-layout connector pages are outside `MainShell`, so the gate catches an
+  artist on the next app page, not on those; track uploads live under `/studio` (gated) and `/setup`
+  (gated). `Confirmed`.
+- **The owner hears their whole page (2026-09-30):** `can_play_track` already returns true for a
+  track's owner, so `tracks_public` hands them every locator. The public page and the track page now
+  treat a present `audio_url_128` as the unlock (`GatedTrackPlayer`, `TrackShareContent`), which only
+  mirrors what the database granted and never widens it. In owner preview it is ignored (preview only
+  removes access). `Confirmed`.
+
 ## 12. Onboarding & role rules
 - Signup → `/welcome` (name/phone/role, creates `artist_profiles`) → `/setup` wizard (9 one-field screens; photo + one track mandatory; Monetize/Shop skippable). `Confirmed`.
 - **Editable CRWN link at `/welcome`:** artists set their public handle via an editable `thecrwn.app/[handle]` field, auto-filled from the name via `slugify` until edited, validated against reserved handles (`isReservedSlug`) and Postgres 23505 unique collisions (inline error). The slug is created from the chosen handle, not the prefilled legal display name (which previously produced `thecrwn.app/fulllegalname`). `Confirmed`.

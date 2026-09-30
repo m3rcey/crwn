@@ -158,6 +158,9 @@ export function checkLaunchPartner(c: LaunchPartnerConfig): string[] {
     }
   }
   // Copy is checked, not file paths: a beat's filename is not a promise to a fan.
+  // A drop names a song the launch actually uploads, or it would wait forever with no error.
+  const songs = new Set([...(c.content?.tracks ?? []).map((t) => t.title.toLowerCase()), ...(c.vote?.options ?? []).map((o) => o.trackTitle.toLowerCase())]);
+  for (const d of c.drops ?? []) if (!songs.has(d.magnetTrackTitle.toLowerCase())) errors.push(`drop: "${d.magnetTrackTitle}" is not a song this launch uploads`);
   const links = (c.drops ?? []).map((d) => dropLinkSlug(c, d));
   for (const link of links) if (!DROP_SLUG_RE.test(link)) errors.push(`drop: link "${link}" is not a clean lowercase slug`);
   if (new Set(links).size !== links.length) errors.push('drop: two funnels share a link');

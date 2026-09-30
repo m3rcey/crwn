@@ -13,7 +13,7 @@ export default function TermsPage() {
           ← Back to CRWN
         </Link>
         <h1 className="text-3xl font-bold text-crwn-gold mb-2">Terms of Service</h1>
-        <p className="text-crwn-text-secondary mb-8">Effective Date: August 25, 2026</p>
+        <p className="text-crwn-text-secondary mb-8">Effective Date: September 30, 2026</p>
 
         <div className="prose prose-invert max-w-none space-y-6 text-crwn-text-secondary">
           <h2 className="text-xl font-semibold text-crwn-text">1. Acceptance of Terms</h2>
@@ -44,7 +44,8 @@ export default function TermsPage() {
 
           <h2 className="text-xl font-semibold text-crwn-text">5. Content and Intellectual Property</h2>
           <p>You retain ownership of all content you upload to CRWN. By uploading content, you grant CRWN a non-exclusive, worldwide, royalty-free license to host, display, stream, distribute, and promote your content on the Platform.</p>
-          <p>You are solely responsible for the content you upload and represent that you own or have obtained all necessary rights and permissions.</p>
+          <p>You are solely responsible for the content you upload and represent that you own or have obtained all necessary rights and permissions, including for every recording, composition, sample, featured artist, and likeness in it.</p>
+          <p><strong>Indemnification:</strong> If you upload or post any content to CRWN (music, video, artwork, text or anything else), you agree to defend, indemnify, and hold harmless JNW Creative Enterprises, Inc., which operates CRWN, and its officers, directors, employees, and agents from and against any claim, lawsuit, demand, damage, loss, liability, settlement, cost, or expense, including reasonable attorneys&apos; fees, arising out of or related to that content, including any claim that it infringes or misappropriates another person&apos;s copyright, trademark, right of publicity, or other right, or arising out of your breach of these Terms. This obligation survives the end of your account.</p>
           <p><strong>DMCA:</strong> If you believe content on CRWN infringes your copyright, submit a DMCA notice to dmca@thecrwn.app.</p>
 
           <h2 className="text-xl font-semibold text-crwn-text">6. Community Guidelines</h2>
