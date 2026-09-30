@@ -140,6 +140,15 @@ any change to the drop page, measure every live funnel at 390x745 and 1280x590 w
 that stamps `crwn_dnt` before navigating; the Unlock button's bottom must be under the fold
 height. Measured 2026-09-29: 534px on a phone and 486px on a laptop, for both of Dre's funnels.
 
+**The rule covers every screen AFTER the opt-in too** (founder, 2026-09-30): the drop's unlocked
+screen and its Silver step, the vote page after a pick, and the Gold offer and downsell after a
+vote. The unlocked song is ONE compact row (`MagnetPlayer layout="row"`), and the offer's hero
+photo sits UNDER its buy button, which is what keeps that button on screen. Measure with
+`node scripts/probe-fan-fold.mjs` (Windows node; `--host=http://localhost:<port>` for a local
+`next dev`). It checks 390x745, 375x667, 1280x590 and 1920x872, stamps `crwn_dnt`, and blocks
+every non-GET `/api/` call, answering the claim locally so the post-opt-in screens render with no
+write. Measured 2026-09-30: every state passes at all four sizes.
+
 ### The ladder's music (`content`)
 
 The standard ICP ladder (founder decision 2026-09-28, Prince Dre is the worked example) gives

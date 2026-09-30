@@ -1,5 +1,20 @@
 # CRWN Brain — Changelog
 
+## 2026-09-30 - Fan funnel buttons above the fold, before and after the opt-in
+
+Measured with the new `scripts/probe-fan-fold.mjs` at 390x745, 375x667, 1280x590 and 1920x872.
+- **Drop, after the opt-in:** the Gold buy button sat 489px below a phone fold, because the
+  unlocked song rendered as the full ~520px card and the offer's 16:9 photo sat above its promise.
+  The song is now one compact row (`MagnetPlayer layout="row"`).
+- **Offer hero (drop and vote):** the photo moved UNDER the buy button (doc 32). The vote's Gold
+  offer and downsell were 54 to 74px below a laptop fold.
+- **Vote, after a pick:** revealing the name and email pushed "Cast my vote" 53 to 212px off
+  screen. The pick now scrolls the fields, the button and its disclosure into view as one block.
+- **Live-show ballot (GB):** short viewports (under 700px tall) get tighter spacing; it was 47px
+  below a laptop fold. Phones of normal height keep the large type.
+- Not changed: the vote confirmation screen has no button when the offer has no reward path (all
+  three live votes), by design.
+
 ## 2026-09-29 - DM answer negation, phantom recalculations, and live qualification
 
 **Full doc: 34-FOUNDER-FOLLOW-UP.md (Provenance, Monetization answers).**
