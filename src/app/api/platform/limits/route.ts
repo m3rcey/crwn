@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
-import { getTierLimitsV2 } from '@/lib/platformTier';
+import { getTierLimitsV2, hasUnlimitedTracksComp } from '@/lib/platformTier';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
 
   const { data: artist } = await supabaseAdmin
     .from('artist_profiles')
-    .select('platform_tier, user_id')
+    .select('platform_tier, user_id, plan_feature_overrides')
     .eq('id', artistId)
     .single();
 
@@ -33,7 +33,10 @@ export async function GET(req: NextRequest) {
   }
 
   const tier = artist?.platform_tier || 'starter';
-  const limits = getTierLimitsV2(tier);
+  // A comped unlimited-tracks artist must not be warned about a cap the database no longer
+  // applies (enforce_track_plan_cap reads the same key).
+  const planLimits = getTierLimitsV2(tier);
+  const limits = hasUnlimitedTracksComp(artist?.plan_feature_overrides) ? { ...planLimits, tracks: -1 } : planLimits;
 
   // Count current usage. Deleting a track soft-deletes it (is_active false), so
   // counting every row meant a deleted track kept consuming the artist's

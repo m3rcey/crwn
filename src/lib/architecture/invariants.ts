@@ -1410,6 +1410,11 @@ export const EXPECTED_MIGRATION_STATE: ReadonlyArray<{
   // Per-artist comped plan capabilities. PENDING: every gate reads getEffectiveLimits,
   // and a missing column reads as "no override", so the plan answer stands until it runs.
   { file: 'schema-phase2-artist-plan-overrides.sql', state: 'applied', note: 'Founder-applied 2026-09-01 and probe-verified: anon reads the column 42501 (server-only), gb comped with allowsLive + allowsDMs. The FIRST run raised on its own self-verify AFTER commit; probing showed the column and the comp had landed and the assertion was wrong (it matched ANY privilege, and authenticated legitimately holds UPDATE because artists edit their own profile). Scoped to SELECT, as launch_partner does it. That chase also found a real hole: the freeze trigger is a DENYLIST, so a new column is unprotected and any artist could have granted THEMSELVES live + DMs from the browser. plan_feature_overrides and song_lab_enabled are both named in freeze_artist_profiles_protected_cols now, asserted by the migration.' },
+  // The one numeric comp: {"unlimitedTracks": true} on plan_feature_overrides lifts the Launch
+  // track cap for one artist (founder, 2026-09-30, Prince Dre's 94-song catalog). PENDING until the
+  // founder runs it; until then the old trigger stands and the comped artist stops at 50, which is
+  // the state before the comp, never a wider one. A trigger body is invisible to PostgREST.
+  { file: 'schema-phase2-track-cap-comp.sql', state: 'pending', liveCheck: 'sql-check', note: 'Replaces enforce_track_plan_cap to honor plan_feature_overrides.unlimitedTracks and comps princedre. Self-verifies with pg_get_functiondef. hasUnlimitedTracksComp in platformTier.ts reads the same key for the upload forms.' },
   // Who may SUBMIT to an Executive Producer Session, separately from who may watch.
   // PENDING and fail-soft in both directions: canSubmitMaterial treats a missing column as
   // "no restriction", and the create form retries without the field if the column is absent.

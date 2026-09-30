@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { applyPlanOverrides, getEffectiveLimits, getTierLimits } from './platformTier';
+import { readFileSync } from 'node:fs';
+import { applyPlanOverrides, getEffectiveLimits, getTierLimits, hasUnlimitedTracksComp } from './platformTier';
 
 const launch = getTierLimits('starter');
 const pro = getTierLimits('pro');
@@ -45,6 +46,24 @@ describe('applyPlanOverrides — comped capabilities are ADDITIVE ONLY', () => {
     }
     expect(getEffectiveLimits('starter')).toEqual(launch);
     expect(getEffectiveLimits('starter', {})).toEqual(launch);
+  });
+
+  it('unlimitedTracks (exactly true) lifts the track cap and nothing else', () => {
+    const comped = applyPlanOverrides(launch, { unlimitedTracks: true });
+    expect(comped.maxTracks).toBe(-1);
+    expect(comped.platformFeePercent).toBe(launch.platformFeePercent);
+    expect(comped.maxMembers).toBe(launch.maxMembers);
+    expect(comped.maxFanTiers).toBe(launch.maxFanTiers);
+    for (const v of ['true', 1, false, {}]) expect(applyPlanOverrides(launch, { unlimitedTracks: v }).maxTracks).toBe(launch.maxTracks);
+    expect(getTierLimits('starter').maxTracks).toBe(50);
+    expect(hasUnlimitedTracksComp({ unlimitedTracks: true })).toBe(true);
+    expect(hasUnlimitedTracksComp({ unlimitedTracks: 'true' })).toBe(false);
+  });
+
+  it('the database trigger reads the SAME comp key the code does', () => {
+    const sql = readFileSync('supabase/schema-phase2-track-cap-comp.sql', 'utf8');
+    expect(sql).toMatch(/plan_feature_overrides ->> 'unlimitedTracks'/);
+    expect(sql).toMatch(/WHEN 'starter' THEN 50/);
   });
 
   it('getEffectiveLimits composes plan + comp', () => {

@@ -252,6 +252,18 @@ const COMPABLE_CAPABILITIES: readonly ComposableCapability[] = [
 ];
 
 /**
+ * The ONE numeric comp: unlimited tracks (founder decision 2026-09-30, first for Prince Dre,
+ * whose concierge launch put his whole 94-song catalog behind his tiers on Launch). It is a
+ * BOOLEAN that can only lift the cap to unlimited, never a number, so it cannot lower anyone's
+ * allowance and it touches no money: the fee, members and tiers stay un-overridable. The
+ * database enforces the same key (enforce_track_plan_cap, schema-phase2-track-cap-comp.sql);
+ * this is what keeps the upload forms from warning about a cap the database no longer applies.
+ */
+export function hasUnlimitedTracksComp(overrides: unknown): boolean {
+  return !!overrides && typeof overrides === 'object' && !Array.isArray(overrides) && (overrides as Record<string, unknown>).unlimitedTracks === true;
+}
+
+/**
  * Merge a comped override onto the plan's limits.
  *
  * ADDITIVE ONLY, and this is the whole safety property. `true` grants a capability;
@@ -260,9 +272,10 @@ const COMPABLE_CAPABILITIES: readonly ComposableCapability[] = [
  * invisible in the billing record and undiscoverable in a support conversation. If a
  * capability ever needs removing, that is a plan change, which is visible and billed.
  *
- * Numeric limits (tracks, members, tiers, fee) are deliberately NOT overridable: a comped
- * fee percent would silently change what CRWN earns on a real transaction, and that is a
- * money decision, not a feature toggle.
+ * Numeric limits (members, tiers, fee) are deliberately NOT overridable: a comped fee percent
+ * would silently change what CRWN earns on a real transaction, and that is a money decision,
+ * not a feature toggle. The one exception is `unlimitedTracks` (see hasUnlimitedTracksComp),
+ * a grant-only boolean that lifts the track cap and moves no money.
  */
 export function applyPlanOverrides(limits: TierLimits, overrides: unknown): TierLimits {
   if (!overrides || typeof overrides !== 'object' || Array.isArray(overrides)) return limits;
@@ -273,6 +286,10 @@ export function applyPlanOverrides(limits: TierLimits, overrides: unknown): Tier
       if (next === limits) next = { ...limits };
       next[key] = true;
     }
+  }
+  if (hasUnlimitedTracksComp(src) && limits.maxTracks !== -1) {
+    if (next === limits) next = { ...limits };
+    next.maxTracks = -1;
   }
   return next;
 }

@@ -368,6 +368,11 @@ third state.
 - **Tracks (50 on Launch): enforced by a DB trigger** (`schema-phase2-track-cap-enforcement.sql`),
   because tracks are inserted straight from the browser client and no API guard can cover that.
   The UI must warn BEFORE an upload starts and translate `TRACK_LIMIT_REACHED` into plain words.
+  **One comp exists** (founder decision 2026-09-30): `plan_feature_overrides.unlimitedTracks = true`
+  lifts the cap for ONE artist (Prince Dre first). It is a grant-only boolean, never a number, read
+  by the trigger ([supabase/schema-phase2-track-cap-comp.sql](supabase/schema-phase2-track-cap-comp.sql))
+  and by `hasUnlimitedTracksComp` in `platformTier.ts` for the upload forms. Fee, members and tiers
+  stay un-overridable: those move money.
 - **Email blasts: enforced at CREATE and, authoritatively, at SEND** through
   `src/lib/emailQuota.ts`. A draft costs nothing; only a send spends the quota. Never write a
   second copy of that rule.
