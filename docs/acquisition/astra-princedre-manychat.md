@@ -1,131 +1,110 @@
-# Astra prompt: Prince Dre's ManyChat automations, one tap and in his voice
+# Astra prompt: finish Prince Dre's ManyChat automations
 
 **For:** GPT-6 Astra (computer use), driven by Josh.
-**Status:** VOTE exists and is Live from the first run (2026-10-01), but it still makes fans tap
-twice and its copy is wrong ("Tap to hear all 3" promises three projects; the page plays one song
-from each). This file has **two parts, pasted separately**:
 
-- **Part 1** fixes VOTE: one tap, Dre's voice, true copy. Then Astra stops.
-- **You test VOTE on your phone** (below).
-- **Part 2** builds the 16 song automations by duplicating the fixed VOTE.
+**Where this picks up:** the first run (2026-10-01) built **VOTE** and set it Live, with the old
+two-tap flow and old copy, and built no songs. This run starts by checking what already exists,
+so it is safe to paste again after any interruption: it finishes VOTE, then builds whichever of
+the 16 songs are missing, and skips anything already done.
 
-The test in between is the reason for two parts: every song copies VOTE, so a fault in VOTE would
-be copied 16 times.
-
-**Before Part 1:**
+**Before pasting:**
 
 1. ManyChat open in a normal Chrome window on **Prince Dre's** account, on **Automation**, with
-   the ManyChat tab selected. No Instagram tab is needed: neither part sends a DM.
+   the ManyChat tab selected. No Instagram tab is needed: this run sends no DMs.
 2. Chrome maximized (not F11 full screen), the address bar visible, zoom 100% (Ctrl+0), in front,
    on the main monitor. No lock, no sleep.
 
-**Between Part 1 and Part 2 (your phone test):**
+**While it runs, test VOTE on your phone** as soon as Astra says VOTE is done (or once you see the
+single message node in ManyChat):
 
 1. In the Instagram **app**, signed in as **@thecrwnapp**, open the chat with **@1princedre** and
    send `VOTE`.
-2. You should get, within a few seconds: "you pick which project i drop first tap the button and
-   vote and i'mma send you a bonus song for it 👇🏾" with one button, **vote**.
-3. Tap **vote**. The vote page should open. **Do not vote, and do not type a name or email.**
-4. If the reply has **no button** on your phone, do not run Part 2. Tell Claude.
+2. You should get "you pick which project i drop first tap the button and vote and i'mma send you
+   a bonus song for it 👇🏾" with one button, **vote**.
+3. Tap **vote** and check the vote page opens. **Do not vote, and do not type a name or email.**
+4. **If there is no button on your phone, stop Astra right away and tell Claude.** Every song
+   copies VOTE, so each minute it keeps going is another copy to fix.
 
-Copy the part you are running: everything between its line and the next part's heading.
+Paste everything below the line.
 
 ---
-
-## PART 1: fix VOTE
 
 You are working in Prince Dre's ManyChat account, already open in **Josh's Chrome window that is
 open on screen right now**. Do all of the work in that window. Do not open your own browser, a new
 browser window, a new Chrome profile, or Incognito. A new tab inside that same window is fine. If
 the window has been closed, stop and report.
 
-Edit the existing automation **VOTE** so a fan taps one button instead of two, and change its
-words. Do not create any automation. **Do not send any DM.** Do not explore ManyChat settings,
-billing, other accounts, or anything not named here. Do not read documentation.
+This continues an earlier run. An automation named **VOTE** already exists and is Live. Your job:
+bring VOTE to its final form, then build up to 16 song automations by duplicating it. Some of this
+may already be done; check before you change anything, and only do what is missing. **Do not send
+any DM, from any account.** Do not explore ManyChat settings, billing, other accounts, or anything
+not named here. Do not read documentation.
 
-**How to replace text in ManyChat:** typing into a field ADDS to what is already there. To replace
-a field: click into it, press **Ctrl+A**, press **Backspace**, type the new value, then read the
-field back and confirm it shows only the new value. Do this for every change.
+## How to replace text in ManyChat (read this first)
 
-1. Click **Automation** in the left navigation, then **My Automations**. Use **Search all
-   Automations** to find `VOTE`, and open it. If there is more than one VOTE, stop and report.
-2. On the **When** node, open **User comments on your Post or Reel**. Go to its **Public Reply**
-   screen. Replace the three replies with exactly these four, one per variation (add a fourth
-   variation with its add control):
-   `just dm'd you g`
-   `sent it to you bro`
-   `i just sent it to you`
-   `i just dm'd you`
-   Keep them lowercase exactly as written. Leave "All Posts or Reels" and the keyword VOTE as they
-   are. Save.
-3. Click the **first Send Message** node (the one that says "You asked for it. Tap below and I'll
-   send it", set **As private reply**). Replace its text with exactly:
-   `you pick which project i drop first tap the button and vote and i'mma send you a bonus song for it 👇🏾`
-4. In that same first node, click the **Send it** button. If the click only ends text editing,
-   click it again. In the **Edit Button** panel, change the action so the button **opens a
-   website** (choose **Open website**). Set **Button title** to `vote` and **Website URL** to
-   exactly `https://thecrwn.app/princedre/join/vote`. Click **Done**. Keep the node set to **As
-   private reply**.
-5. Delete the **second Send Message** node (the one that says "Pick which project drops first. Tap
-   to hear all 3:" with the **Hear them** button), using its own remove control. The first node
-   must now connect to nothing.
-6. Leave the **User sends a message** trigger (message contains VOTE, vote, Vote) as it is.
-7. Make sure the top bar shows **Live** and **Saved**. If it shows Set Live or an unsaved state,
-   click **Set Live**.
-8. Reopen VOTE and check by eye: two triggers; four public replies exactly as above; ONE Send
-   Message node, As private reply, with the new text and one button titled `vote` that opens
-   `https://thecrwn.app/princedre/join/vote`; no second node; Live.
+Typing into a ManyChat field ADDS to what is already there. To replace a field: click into it,
+press **Ctrl+A**, press **Backspace**, type the new value, then read the field back and confirm it
+shows only the new value. Do this for every name, keyword, message and URL you change.
 
-**Known problems:**
+## Step 0: find out where things stand
 
-| What you see | What to do |
-|---|---|
-| A field shows the old and new text run together | It was appended. Ctrl+A, Backspace, type again, read it back. |
-| ManyChat refuses a website button on the first node, or offers no Open website action there | Do NOT delete anything else. Put the button back to `Send it` connected to the second node, leave the second node in place, change only the texts (step 3 text on the first node with `Send it` kept; second node text `vote below and i'mma send you a bonus song for it 👇🏾`, button `vote`), keep Live, and report the exact message ManyChat showed. |
-| "Manychat has been updated. Please, save your work and reload the page." | Make sure the top bar shows Saved, then reload and check your last change stuck. |
-| "Keywords are not case-sensitive. You can remove the duplicates." | Ignore it. Leave VOTE's message trigger alone. |
-| "could not determine the current browser URL" | Click the ManyChat tab once so it is selected, retry once, then stop and report. |
-| "window capture timed out" or "FrameArrived timed out" | Bring Chrome to the front and retry. If native capture keeps failing, connect to the existing Chrome tabs through the browser extension. |
+Click **Automation** in the left navigation, then **My Automations**. Write down, for your report,
+every automation listed and whether each is Live. Then:
 
-**Stop only if:** ManyChat asks you to log in, for a code or 2FA, or to change or buy a plan; the
-same step fails three times; or you are close to running out of credits (then make sure VOTE is
-Live and saved, and report exactly which of steps 2 to 8 are done). Do not stop for anything else.
+- If there is more than one automation named VOTE, or more than one with the same song keyword,
+  stop and report. Do not delete anything.
+- Compare VOTE against "VOTE: the final form" below. If it already matches, go straight to the
+  songs. If not, do "Finish VOTE".
+- For the songs, skip every row whose automation already exists AND matches "Done means" below.
+  An existing row that does not match: open it and fix it. A missing row: build it.
 
-**Never:** send a DM or broadcast; create, edit or delete any automation other than VOTE; open
-ManyChat Settings, billing, team or Instagram connection settings; use the account switcher;
-type a dash of any kind.
+## VOTE: the final form
 
-**Report:**
+- Two triggers on the **When** node, unchanged from the first run: **User comments on your Post or
+  Reel** (All Posts or Reels, keyword VOTE) and **User sends a message** (message contains VOTE,
+  vote, Vote).
+- The comment trigger's **Public Reply** has exactly these four variations, lowercase as written:
+  `just dm'd you g`
+  `sent it to you bro`
+  `i just sent it to you`
+  `i just dm'd you`
+- ONE **Send Message** node, set **As private reply**, with exactly this text:
+  `you pick which project i drop first tap the button and vote and i'mma send you a bonus song for it 👇🏾`
+  and one button titled `vote` that opens the website `https://thecrwn.app/princedre/join/vote`.
+- No second message node. Live and Saved.
 
-- `VOTE | Live yes/no | triggers: <count and type> | public replies: <the four as shown> | nodes: <count> | button: <title> -> <URL>`
-- Whether the one-tap website button was accepted on the first node, or you used the fallback,
-  and the exact text of any ManyChat message about it.
-- Confirmation that you sent no DM and changed no other automation.
+## Finish VOTE
 
----
+1. Search for `VOTE` and open it.
+2. On the **When** node, open **User comments on your Post or Reel** and go to its **Public
+   Reply** screen. Replace the replies with the four above, adding a fourth variation with its add
+   control. Leave All Posts or Reels and the keyword VOTE alone. Save.
+3. Click the **first Send Message** node (As private reply). Replace its text with the VOTE text
+   above.
+4. In that node, click its button (it may read `Send it`). If the click only ends text editing,
+   click it again. In **Edit Button**, choose the **Open website** action, set **Button title** to
+   `vote` and **Website URL** to exactly `https://thecrwn.app/princedre/join/vote`. Click **Done**.
+   Keep the node **As private reply**.
+5. If a **second Send Message** node still exists (old text "Pick which project drops first. Tap to
+   hear all 3:" with a **Hear them** button), delete it with its own remove control.
+6. Leave the **User sends a message** trigger as it is.
+7. Make sure the top bar shows **Live** and **Saved**; if not, click **Set Live**.
+8. Reopen VOTE and check it against "VOTE: the final form". Then write one line in your notes:
+   `VOTE done` (Josh tests it on his phone at this point).
 
-## PART 2: the 16 song automations
+**If ManyChat will not allow a website button on the first node** (no Open website action, or an
+error when you choose it): do not delete the second node. Put the first node's button back to
+`Send it` connected to the second node, set the first node's text to the VOTE text above, set the
+second node's text to `vote below and i'mma send you a bonus song for it 👇🏾` with its button
+titled `vote` opening the vote link, keep Live, note the exact ManyChat message, and continue to
+the songs using the two-node notes in step 8 of the song steps.
 
-You are working in Prince Dre's ManyChat account, already open in **Josh's Chrome window that is
-open on screen right now**. Do all of the work in that window. Do not open your own browser, a new
-browser window, a new Chrome profile, or Incognito. A new tab inside that same window is fine. If
-the window has been closed, stop and report.
+## The 16 songs
 
-An automation named **VOTE** exists, is Live, and has been tested on Josh's phone. Build 16 more by
-duplicating it, one per row below, changing only the name, the trigger, the message text and the
-button. **Do not send any DM in this run, from any account.** Do not explore ManyChat settings,
-billing, other accounts, or anything not named here. Do not read documentation.
-
-### Done means
-
-- **Each of the 16 song automations** is named its keyword and reads **Live**. On its **When**
-  node it has exactly one trigger, **User sends a message**, set to exact match, with only its own
-  keyword. Its message text is the row's text. Its one button is titled `get it` and opens the
-  row's link. It has **no** comment trigger.
-- **VOTE is unchanged.**
-- Nothing else in the account changed.
-
-### The 16 values
+Done means, for each row: the automation is named the row's keyword and reads **Live**; its
+**When** node has exactly one trigger, **User sends a message**, set to exact match, with only that
+keyword; its message text is the row's text; its one button is titled `get it` and opens the row's
+link; it has **no** comment trigger.
 
 | # | Keyword | Link | Message text |
 |---|---|---|---|
@@ -147,18 +126,11 @@ billing, other accounts, or anything not named here. Do not read documentation.
 | 17 | MADE | https://thecrwn.app/drop/princedre-always-made-it | tap the button and i'mma send you Always Made It for free 👇🏾 |
 
 Copy links and text character for character. Do not shorten, retype from memory, or "correct"
-them. Do not use a dash of any kind in anything you type.
+them. Do not type a dash of any kind.
 
-**How to replace text in ManyChat:** typing into a field ADDS to what is already there. To replace
-a field: click into it, press **Ctrl+A**, press **Backspace**, type the new value, then read the
-field back and confirm it shows only the new value. Do this for every change.
+### Steps, for each missing row in table order
 
-### Steps, for each row in table order
-
-1. Click **Automation** in the left navigation, then **My Automations**. Use **Search all
-   Automations** to find `VOTE` and open it. If a row's keyword already exists as an automation
-   (from an interrupted run), open that one instead, check it against steps 4 to 8, fix what
-   differs, and move to the next row. Never create a second automation with the same name.
+1. Search for `VOTE` and open it.
 2. In VOTE's top bar, open **More Actions** (the ⋮ at the far right, beside Saved) and choose
    **Duplicate**. If it is not there, go back to **My Automations**, open the ⋮ on VOTE's row, and
    choose **Duplicate**. Do not edit VOTE itself.
@@ -171,74 +143,78 @@ field back and confirm it shows only the new value. Do this for every change.
    **+ New Trigger** to add another message trigger.
 6. In the same panel, change the matching selector from **message contains** to the exact match
    option (it may read **message is**). Save.
-7. Click the **Send Message** node. Replace its text with the row's message text.
-8. Click its button (`vote`). If the click only ends text editing, click it again. In **Edit
-   Button**, set **Button title** to `get it` and **Website URL** to the row's link. Click
-   **Done**.
+7. Click the **Send Message** node, replace its text with the row's message text, then click its
+   button (`vote`; click again if the first click only ends text editing). In **Edit Button**, set
+   **Button title** to `get it` and **Website URL** to the row's link. Click **Done**.
+8. Only if VOTE used the two-node fallback: set the FIRST node's text to the row's message text and
+   keep its `Send it` button, then set the SECOND node's text to `here go it's yours 👇🏾` and its
+   button to `get it` with the row's link.
 9. Click **Set Live**. Wait until the top bar shows **Live** and **Saved**.
-10. After every fourth automation, reopen those four and check by eye: name is the keyword; one
-    trigger only, **User sends a message**, with only that keyword on exact match; message text
-    from the table; one button `get it` with the row's link. Fix any that differ, then carry on.
+10. After every fourth automation, reopen those four and check them against "Done means". Fix any
+    that differ, then carry on.
 
-If Part 1 used the fallback (VOTE still has two message nodes), then in step 7 change the FIRST
-node's text to the row's message text, keep its `Send it` button, and in step 8 change the SECOND
-node's text to `here go it's yours 👇🏾` and its button to `get it` with the row's link.
-
-### Known problems and the exact fix
+## Known problems and the exact fix
 
 | What you see | What to do |
 |---|---|
 | A field shows the old and new text run together | It was appended. Ctrl+A, Backspace, type again, read it back. |
 | Clicking the button does not open Edit Button | It only ended text editing. Click again. |
 | "Manychat has been updated. Please, save your work and reload the page." | Make sure Saved shows, reload, reopen the automation and check your last change stuck. |
+| "Keywords are not case-sensitive. You can remove the duplicates." | On VOTE, ignore it. On a song, keep only the row's keyword. |
 | A copy still shows VOTE in its message trigger | Step 5 added instead of replaced. Remove every keyword except the row's. |
-| Two automations with the same name | Stop and report which exist and whether each is Live. Do not delete either. |
 | An automation will not switch to Live | Report which one and its exact error. Do not touch the plan or billing. |
 | "could not determine the current browser URL" | Click the ManyChat tab once, retry once, then stop and report. |
-| "window capture timed out" or "FrameArrived timed out" | Bring Chrome to the front and retry. If it keeps failing, connect to the existing Chrome tabs through the browser extension. |
+| "window capture timed out" or "FrameArrived timed out" | Bring Chrome to the front and retry. If it keeps failing, connect to the existing Chrome tabs through the browser extension, as the first run did. |
 
-### Stop only if
+## Stop only if
 
+- Josh stops you.
 - ManyChat asks you to log in, for a code or 2FA, or to change, renew or buy a plan, or says the
   trial has ended.
-- Something would delete or change VOTE or any automation not in the table.
+- Two automations share a name (see Step 0).
+- Something would delete or change an automation that is not VOTE or one of the 16 rows.
 - The same step fails three times.
 - You are close to running out of credits or usage. Follow "If you are about to run out".
 
 Do not stop for anything else.
 
-### If you are about to run out
+## If you are about to run out
 
 Stop building **before** your credits, usage or time run out, keeping enough for these three
-things. Josh finishes by hand from what you write.
+things. Josh finishes by hand, or pastes this prompt again, from what you write.
 
-1. **Leave nothing half built.** Finish the copy you are on (Live, checked by eye) or make sure it
+1. **Leave nothing half built.** Finish the automation you are on (Live, checked) or make sure it
    is **not Live**, and say which. A half-edited copy that is Live can still answer VOTE.
-2. **Give the usual report** for every row you reached.
+2. **Give the usual report** for everything you reached.
 3. **Write Josh the hand-build steps for one song**, using the exact labels you saw, including
    where Duplicate and the exact match option actually were, plus any trap you hit. Then list the
    rows still to build, with keyword, link and message text copied from the table.
 
-### Never
+## Never
 
 - Never open your own browser, another browser window, another Chrome profile, or Incognito.
 - Never use the account switcher, and never open another ManyChat account.
 - Never send a DM, a test message or a broadcast, from any account.
-- Never edit, pause or delete VOTE or any automation not in the table.
+- Never edit, pause or delete any automation other than VOTE and the 16 rows.
 - Never change billing, the plan, team members, or Instagram connection settings, and never open
   ManyChat Settings.
-- Never add a comment trigger to a song in this run.
-- Never change the copy beyond what the table says, and never type a dash of any kind.
+- Never add a comment trigger to a song.
+- Never change the copy beyond what this prompt says, and never type a dash of any kind.
 
-### Report
+## Report
 
-One line per row, in table order:
+First, what Step 0 found: every automation that existed when you started, and whether each was
+Live.
 
-`<keyword> | Live yes/no | triggers: <count and type, matching> | text checked: yes/no | button: <title> -> <URL checked yes/no>`
+Then one line each:
+
+`VOTE | Live yes/no | changed: <what you changed, or "already final"> | one tap: yes, or fallback`
+
+`<keyword> | Live yes/no | built/fixed/skipped | triggers: <count and type, matching> | text checked: yes/no | button: <title> -> <URL checked yes/no>`
 
 Then:
 
 - Where Duplicate and the exact match option actually were, in ManyChat's own words.
 - The exact text of any error you saw.
-- Confirmation that you sent no DM and did not change VOTE.
-- If you stopped before row 17 for any reason, the hand-build steps and the remaining rows.
+- Confirmation that you sent no DM.
+- If you stopped before finishing for any reason, the hand-build steps and the remaining rows.
