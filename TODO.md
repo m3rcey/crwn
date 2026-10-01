@@ -35,22 +35,13 @@ responsible for. Do not work those.
       card is on file for the plan that follows the trial, and put the trial's end date in your
       calendar with a reminder to open his Automations that day and check all 17 read Live.
 
-- [ ] **Run the member drip SQL before October 16, then tell me.** Dre's Gold becomes "one more
-      project each month you stay", counted from each member's own signup (your call, 2026-10-01),
-      and his vote retires. Until this runs his live page still promises the old October 16 vote
-      unlock, and the launch script refuses to switch anything over. Run order in the SQL editor:
-        1. [supabase/schema-phase2-tier-unlock-months.sql](supabase/schema-phase2-tier-unlock-months.sql)
-           (ends with a check that raises an error if anything did not land)
-        2. [supabase/verify-tier-unlock-months.sql](supabase/verify-tier-unlock-months.sql)
-           (proves the behaviour with throwaway rows and rolls back; you should see one PASS row, 14 checks)
-      Then run
-          npm run verify:migrations
-      and tell me. I run the launch script: it adds Gold to the three projects with the wait in
-      the same write, takes the vote page down and rewrites his offer copy.
-      Then tell Dre: Gold hears Only The O In My Eyes after month 1, Fresh Prince Of O'Block after
-      month 2, The Return Of The Prince after month 3 (my pick, weakest to best by YouTube views;
-      he can reorder). Cancelling and rejoining restarts the count. Ask how long the mixtape stays
-      CRWN-only, and get the files.
+- [ ] **Tell Dre how his Gold works now, and get the mixtape.** Live since 2026-10-01: Gold hears
+      Shotta In Da Jungle and Im Reloaded the day they join, then Only The O In My Eyes after month 1,
+      Fresh Prince Of O'Block after month 2, The Return Of The Prince after month 3, counted from
+      each member's own signup. Platinum has all 8 today. The vote page is down. The order was my
+      pick (weakest to best by YouTube views); if he wants another, tell me and I swap it.
+      Cancelling and rejoining restarts the count. Ask how long the mixtape stays CRWN-only, and
+      get the files.
 
 - [ ] **To finish Team Splits I need a test-mode sandbox. This is the only thing left, and it is
       environment setup, not code.** Nothing to run in SQL.
@@ -1180,11 +1171,6 @@ Things that are never finished. Cadence, then the thing.
   real votes, put that rollup on his Fan CRM (`/studio/fans`) so he can read it himself for the
   venue push. Not before: a screen with no data behind it is guessing at a layout.
 
-- **Switch Dre to the member drip once Josh has run the SQL.** From the main checkout after this
-  branch lands (it holds his media): `npx tsx scripts/onboard-launch-partner.mjs princedre`, read
-  the plan, then `--apply`; the read-back must show each drip project's tracks opening to Gold at
-  months 1, 2 and 3, the ballot inactive and the poll closed. Then open thecrwn.app/princedre as a
-  logged-out visitor and confirm the Gold offer reads "A new project each month you stay".
 - **Player toast for a waiting member.** usePlayer still says "Subscribe to listen" when a
   waiting Gold member plays a drip track from the library or Explore (the artist page, album,
   playlist and track page already say "Unlocks in N days"). Low traffic today; fix it when a
