@@ -22,14 +22,11 @@ responsible for. Do not work those.
 
 ### P0 — money flows or acquisition are blocked
 
-- [ ] **When Dre posts a song, give it a comment trigger with the Astra prompt.** The 16 song
-      automations answer DMs only; their short keywords (LIFE, COME, MADE...) would fire on ordinary
-      comments on every post, so each listens only on the post that asks for it.
+- [ ] **Run the Astra prompt that gives Dre's 16 songs their comment triggers.**
       [docs/acquisition/astra-princedre-song-comment-triggers.md](docs/acquisition/astra-princedre-song-comment-triggers.md)
-      finds every post whose caption asks fans to comment a song keyword ("comment ROUND...") and
-      adds that post's trigger with Dre's 20 replies. Re-runnable: paste it again (new Astra chat)
-      after each batch of song posts. Tell Dre the caption must ask for the exact keyword, or the
-      post gets no trigger. Until a song has one, its caption should say "DM me ROUND".
+      adds one trigger per song on All Posts or Reels with Dre's 20 replies (your call, 2026-10-01:
+      all posts, accepting that "come thru" or "made my day" will also get a song DM). New Astra
+      chat. Safe to paste again. Send Claude the report.
 - [ ] **Find out when Prince Dre's ManyChat trial ends, and make sure it will not lapse.** His
       account shows a **TRIAL** badge under his name in ManyChat, not a paid Pro plan. When a
       ManyChat plan lapses, every automation switches OFF and does NOT switch back on when the plan
