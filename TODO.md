@@ -22,13 +22,13 @@ responsible for. Do not work those.
 
 ### P0 — money flows or acquisition are blocked
 
-- [ ] **Finish Prince Dre's ManyChat: paste the prompt once, test VOTE on your phone while it runs.**
+- [ ] **Finish Prince Dre's ManyChat: paste the prompt once, answer its one question.**
       [docs/acquisition/astra-princedre-manychat.md](docs/acquisition/astra-princedre-manychat.md)
       picks up where the first run stopped: it checks what exists, makes VOTE one tap in Dre's
-      voice, then builds whichever of the 16 songs are missing. Safe to paste again after any
-      interruption. When Astra says VOTE is done, DM `VOTE` from @thecrwnapp in the Instagram app,
-      tap **vote**, check the page opens (do not vote); no button means stop Astra and tell Claude.
-      Send Claude the report.
+      voice, then PAUSES and asks you to test VOTE before copying any song. Test: in the Instagram
+      app as @thecrwnapp, DM `VOTE` to @1princedre, tap **vote**, check the page opens (do not
+      vote), then reply `go` in the same chat. No button: reply `no button` and tell Claude.
+      Safe to paste again after an interruption. Send Claude the report.
 
 - [ ] **When each of Dre's song posts goes up, add its comment trigger in ManyChat.** The 16 song
       automations answer DMs only until then. Open the song's automation, **+ New Trigger**, **Post

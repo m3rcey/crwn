@@ -14,16 +14,19 @@ the 16 songs are missing, and skips anything already done.
 2. Chrome maximized (not F11 full screen), the address bar visible, zoom 100% (Ctrl+0), in front,
    on the main monitor. No lock, no sleep.
 
-**While it runs, test VOTE on your phone** as soon as Astra says VOTE is done (or once you see the
-single message node in ManyChat):
+**Astra pauses once, after VOTE, and asks you to test it.** It will not copy any song until you
+answer in the same chat. When it asks:
 
 1. In the Instagram **app**, signed in as **@thecrwnapp**, open the chat with **@1princedre** and
    send `VOTE`.
 2. You should get "you pick which project i drop first tap the button and vote and i'mma send you
    a bonus song for it 👇🏾" with one button, **vote**.
 3. Tap **vote** and check the vote page opens. **Do not vote, and do not type a name or email.**
-4. **If there is no button on your phone, stop Astra right away and tell Claude.** Every song
-   copies VOTE, so each minute it keeps going is another copy to fix.
+4. Reply **`go`** if the button showed and the page opened. Reply **`no button`** if it did not,
+   and tell Claude: every song copies VOTE, so it has to be fixed first.
+
+**Re-pasting after an interruption, with VOTE already tested?** Type `VOTE already tested` on the
+line above the prompt when you paste, and Astra skips the pause.
 
 Paste everything below the line.
 
@@ -89,15 +92,23 @@ every automation listed and whether each is Live. Then:
    hear all 3:" with a **Hear them** button), delete it with its own remove control.
 6. Leave the **User sends a message** trigger as it is.
 7. Make sure the top bar shows **Live** and **Saved**; if not, click **Set Live**.
-8. Reopen VOTE and check it against "VOTE: the final form". Then write one line in your notes:
-   `VOTE done` (Josh tests it on his phone at this point).
+8. Reopen VOTE and check it against "VOTE: the final form".
+9. **Pause and ask Josh**, in exactly these words: "VOTE is done. Test it on your phone: DM VOTE
+   to @1princedre from @thecrwnapp and tap the vote button. Reply go if the button showed and the
+   page opened, or no button if it did not." Then wait. Do not start any song until he replies.
+   - **go:** continue to the songs.
+   - **no button**, or anything else: build nothing, and report.
+
+If VOTE already matched its final form at Step 0, still ask the question in step 9 before the
+first song, unless Josh's message that started this run says VOTE was already tested.
 
 **If ManyChat will not allow a website button on the first node** (no Open website action, or an
 error when you choose it): do not delete the second node. Put the first node's button back to
 `Send it` connected to the second node, set the first node's text to the VOTE text above, set the
 second node's text to `vote below and i'mma send you a bonus song for it 👇🏾` with its button
-titled `vote` opening the vote link, keep Live, note the exact ManyChat message, and continue to
-the songs using the two-node notes in step 8 of the song steps.
+titled `vote` opening the vote link, keep Live, and note the exact ManyChat message. Then do steps
+6 to 9 above (including the pause), and build the songs using the two-node notes in step 8 of the
+song steps.
 
 ## The 16 songs
 
@@ -168,7 +179,7 @@ them. Do not type a dash of any kind.
 
 ## Stop only if
 
-- Josh stops you.
+- Josh stops you, or replies anything but go at the VOTE pause.
 - ManyChat asks you to log in, for a code or 2FA, or to change, renew or buy a plan, or says the
   trial has ended.
 - Two automations share a name (see Step 0).
@@ -176,7 +187,8 @@ them. Do not type a dash of any kind.
 - The same step fails three times.
 - You are close to running out of credits or usage. Follow "If you are about to run out".
 
-Do not stop for anything else.
+Do not stop for anything else. The VOTE pause in step 9 is the one planned question; ask nothing
+else.
 
 ## If you are about to run out
 
