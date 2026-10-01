@@ -22,20 +22,14 @@ responsible for. Do not work those.
 
 ### P0 — money flows or acquisition are blocked
 
-- [ ] **Prince Dre has NOT connected Stripe. Get him to do it; his three paid tiers cannot sell
-      until he does.** Checked 2026-09-28: he signed up with Google (princedremusicbusiness@gmail.com)
-      and stopped on the wizard's FIRST screen, so there was no artist row and no Connect account.
-      His page, ladder, offer copy and draft funnel are now built (https://thecrwn.app/princedre).
-      Tell him: sign in, and the wizard resumes at his photo, then asks for music (skippable with
-      "I'll add music later", but see the next item); then its Stripe screen connects Stripe, and CRWN creates his Stripe prices on its own
-      the moment charges are enabled. Nothing for you to run. To confirm afterwards, the last column
-      of this should read "yes" on Silver, Gold and Platinum:
-          npx tsx scripts/onboard-launch-partner.mjs princedre
-      Everything behind the paid tiers is now his real music (the placeholder beats were removed
-      2026-09-29): Silver is Blood Brothaz, Gold adds Shotta In Da Jungle.
-      Two lead magnets are LIVE and both sell into these tiers: the vote
-      (https://thecrwn.app/princedre/join/vote) and "Round Here" on the drop funnel
-      (https://thecrwn.app/drop/princedre-round-here). Every checkout button on both fails until he connects.
+- [ ] **Run the Astra prompt that builds Prince Dre's 17 ManyChat automations, VOTE first.**
+      Prompt: [docs/acquisition/astra-princedre-manychat.md](docs/acquisition/astra-princedre-manychat.md).
+      Three things to do yourself first, listed in that file's header: switch ManyChat to Dre's
+      account and leave it on Automations, DM Dre's Instagram from @m3rcey so a test contact exists
+      (comments do not create one), and keep Chrome maximized and in front. His 16 drop links and
+      the vote link were all verified live on 2026-10-01, and his Stripe charges are enabled, so
+      every one of these 17 links can take money today. Send Claude Astra's report when it finishes;
+      Claude verifies it independently before this gets ticked.
 
 - [ ] **Get the three vote projects' full songs from Prince Dre's team before October 1, and confirm
       that date.** Gold promises "the complete winning project, unlocked October 1" and Platinum
