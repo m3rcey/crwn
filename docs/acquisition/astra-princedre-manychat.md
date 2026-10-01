@@ -23,7 +23,7 @@ be copied 16 times.
 
 1. In the Instagram **app**, signed in as **@thecrwnapp**, open the chat with **@1princedre** and
    send `VOTE`.
-2. You should get, within a few seconds: "you pick which project i drop first, tap the button and
+2. You should get, within a few seconds: "you pick which project i drop first tap the button and
    vote and i'mma send you a bonus song for it 👇🏾" with one button, **vote**.
 3. Tap **vote**. The vote page should open. **Do not vote, and do not type a name or email.**
 4. If the reply has **no button** on your phone, do not run Part 2. Tell Claude.
@@ -60,7 +60,7 @@ field back and confirm it shows only the new value. Do this for every change.
    are. Save.
 3. Click the **first Send Message** node (the one that says "You asked for it. Tap below and I'll
    send it", set **As private reply**). Replace its text with exactly:
-   `you pick which project i drop first, tap the button and vote and i'mma send you a bonus song for it 👇🏾`
+   `you pick which project i drop first tap the button and vote and i'mma send you a bonus song for it 👇🏾`
 4. In that same first node, click the **Send it** button. If the click only ends text editing,
    click it again. In the **Edit Button** panel, change the action so the button **opens a
    website** (choose **Open website**). Set **Button title** to `vote` and **Website URL** to
@@ -182,7 +182,7 @@ field back and confirm it shows only the new value. Do this for every change.
 
 If Part 1 used the fallback (VOTE still has two message nodes), then in step 7 change the FIRST
 node's text to the row's message text, keep its `Send it` button, and in step 8 change the SECOND
-node's text to `here go, it's yours 👇🏾` and its button to `get it` with the row's link.
+node's text to `here go it's yours 👇🏾` and its button to `get it` with the row's link.
 
 ### Known problems and the exact fix
 
