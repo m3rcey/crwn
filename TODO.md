@@ -22,19 +22,14 @@ responsible for. Do not work those.
 
 ### P0 — money flows or acquisition are blocked
 
-- [ ] **When each of Dre's song posts goes up, add its comment trigger in ManyChat.** The 16 song
-      automations answer DMs only until then. Open the song's automation, **+ New Trigger**, **Post
-      or Reel Comments**, **Specific Post or Reel**, pick the post, keyword = the song's keyword,
-      and in **Reply to their comment too** add the 20 replies listed in
-      [docs/acquisition/astra-princedre-comment-replies.md](docs/acquisition/astra-princedre-comment-replies.md), in order. Delete any
-      replies ManyChat already put there first ("Check your DM's", "Sent you a DM"...): they are not
-      Dre's voice. 20 is ManyChat's cap, so the list fits exactly. The duplicates lost VOTE's public replies when
-      their any-post trigger was deleted, so the replies have to be typed in with each new trigger.
-      Then click **Update** and make sure the new trigger is switched on: Astra found that publishing
-      a change and enabling the trigger are two separate steps. Until a song has its trigger, tell
-      fans to DM the word rather than comment it. All 17 are Live as of 2026-10-01 (VOTE answers
-      comments on any post plus DMs; the 16 songs answer an exact-match DM of their keyword).
-
+- [ ] **When Dre posts a song, give it a comment trigger with the Astra prompt.** The 16 song
+      automations answer DMs only; their short keywords (LIFE, COME, MADE...) would fire on ordinary
+      comments on every post, so each listens only on the post that asks for it.
+      [docs/acquisition/astra-princedre-song-comment-triggers.md](docs/acquisition/astra-princedre-song-comment-triggers.md)
+      finds every post whose caption asks fans to comment a song keyword ("comment ROUND...") and
+      adds that post's trigger with Dre's 20 replies. Re-runnable: paste it again (new Astra chat)
+      after each batch of song posts. Tell Dre the caption must ask for the exact keyword, or the
+      post gets no trigger. Until a song has one, its caption should say "DM me ROUND".
 - [ ] **Find out when Prince Dre's ManyChat trial ends, and make sure it will not lapse.** His
       account shows a **TRIAL** badge under his name in ManyChat, not a paid Pro plan. When a
       ManyChat plan lapses, every automation switches OFF and does NOT switch back on when the plan
