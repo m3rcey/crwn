@@ -22,17 +22,13 @@ responsible for. Do not work those.
 
 ### P0 — money flows or acquisition are blocked
 
-- [ ] **Run the Astra audit of Prince Dre's comment replies.** A comment trigger was found
-      replying with ManyChat's defaults ("Check your DM's", "Sent you a DM"...) instead of Dre's
-      voice. [docs/acquisition/astra-princedre-comment-replies.md](docs/acquisition/astra-princedre-comment-replies.md)
-      opens every comment trigger on all 17 automations and sets the replies to Dre's, changing
-      nothing else and sending nothing. New Astra chat. Send Claude the report.
-
 - [ ] **When each of Dre's song posts goes up, add its comment trigger in ManyChat.** The 16 song
       automations answer DMs only until then. Open the song's automation, **+ New Trigger**, **Post
       or Reel Comments**, **Specific Post or Reel**, pick the post, keyword = the song's keyword,
       and in **Reply to their comment too** add the 20 replies listed in
-      [docs/acquisition/astra-princedre-comment-replies.md](docs/acquisition/astra-princedre-comment-replies.md), in order. The duplicates lost VOTE's public replies when
+      [docs/acquisition/astra-princedre-comment-replies.md](docs/acquisition/astra-princedre-comment-replies.md), in order. Delete any
+      replies ManyChat already put there first ("Check your DM's", "Sent you a DM"...): they are not
+      Dre's voice. 20 is ManyChat's cap, so the list fits exactly. The duplicates lost VOTE's public replies when
       their any-post trigger was deleted, so the replies have to be typed in with each new trigger.
       Then click **Update** and make sure the new trigger is switched on: Astra found that publishing
       a change and enabling the trigger are two separate steps. Until a song has its trigger, tell
