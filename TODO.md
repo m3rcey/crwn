@@ -22,16 +22,6 @@ responsible for. Do not work those.
 
 ### P0 — money flows or acquisition are blocked
 
-- [ ] **Run the track-cap comp before October 1, then tell me.** Prince Dre's upload stopped at 50
-      tracks (the Launch cap). You chose to comp him unlimited tracks. 44 songs are waiting:
-      O Block Ass Nigga, the rest of the three vote projects, and 2 of Im Reloaded. Gold is
-      promised the WINNING vote project on October 1, and its songs are among the 44, so this has to
-      run first. Open and run in the Supabase SQL Editor:
-      [supabase/schema-phase2-track-cap-comp.sql](supabase/schema-phase2-track-cap-comp.sql)
-      It ends with "schema-phase2-track-cap-comp: OK". Then tell me and I finish the upload, the tier
-      copy, the albums and the 14 drop pages in one run (or run it yourself from the repo root):
-          npx tsx scripts/onboard-launch-partner.mjs princedre --apply
-
 - [ ] **Run the Astra prompt that builds Prince Dre's 17 ManyChat automations, VOTE first.**
       Prompt: [docs/acquisition/astra-princedre-manychat.md](docs/acquisition/astra-princedre-manychat.md).
       Three things to do yourself first, listed in that file's header: switch ManyChat to Dre's
@@ -39,9 +29,9 @@ responsible for. Do not work those.
       (comments do not create one), and keep Chrome maximized and in front. His 16 drop links and
       the vote link were all verified live on 2026-10-01, and his Stripe charges are enabled, so
       every one of these 17 links can take money today. Send Claude Astra's report when it finishes;
-      Claude verifies it independently before this gets ticked. Note: the track-cap comp above adds
-      14 more drop pages, so this keyword set grows after it runs. The 17 in the prompt are the ones
-      live now, and VOTE is the only one with an October 1 deadline, so do not wait for the comp.
+      Claude verifies it independently before this gets ticked. The 17 are every lead magnet he has
+      live (probed 2026-10-01: 16 active drop funnels plus the vote). If a session adds more drop
+      pages later, that run owns adding the matching keywords.
 
 - [ ] **Get the three vote projects' full songs from Prince Dre's team before October 1, and confirm
       that date.** Gold promises "the complete winning project, unlocked October 1" and Platinum
