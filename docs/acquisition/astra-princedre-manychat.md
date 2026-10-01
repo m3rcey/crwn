@@ -3,7 +3,7 @@
 **For:** GPT-6 Astra (computer use), driven by Josh.
 **Deadline:** VOTE must be live today (2026-10-01). The 16 song flows are same-day but second.
 
-**Josh does these three things BEFORE pasting the prompt:**
+**Josh does these four things BEFORE pasting the prompt:**
 
 1. Sign in to ManyChat, switch to **Prince Dre's** account, and leave the browser on
    **Automations**. Astra must never use the account switcher.
@@ -18,6 +18,15 @@
    Spot-check a song or two yourself afterwards from an account that is not @thecrwnapp, if you
    want to.
 3. Chrome maximized, in front, on the main monitor. Not Incognito. No lock, no sleep.
+4. **The address bar must be visible and readable.** Astra reads the URL before every action and
+   stops if it cannot (the first run, 2026-10-01, ended on "could not determine the current browser
+   URL" before changing anything). So:
+   - **Not full screen.** If the address bar is hidden, press **F11** to leave full screen. Use
+     the maximize button instead.
+   - **A normal Chrome window, not an installed app window.** If ManyChat has its own window with
+     no tabs and no address bar, close it and open https://app.manychat.com in a normal tab.
+   - **Zoom at 100%** (Ctrl+0), and the ManyChat tab selected, so the bar shows an
+     `app.manychat.com/...` address.
 
 Paste everything below the line.
 
@@ -145,6 +154,7 @@ Work in table order, rows 2 through 17. For each row:
 | An automation shows a bare "Automation powered by @Manychat" with an empty body | The ManyChat plan has lapsed. Stop and report. This is not fixable in the builder. |
 | An automation will not switch to Live | Report which one and its exact error text. Do not touch the plan or billing. |
 | "window capture timed out" or "FrameArrived timed out" | Chrome was hidden or the machine locked. Bring Chrome to the front and retry the same step. |
+| "could not determine the current browser URL" | Click once on the ManyChat tab so it is the selected tab, then retry the same step once. If it happens again, stop and report: the address bar is hidden or unreadable, and Josh fixes that, not you. |
 | Start From Scratch gave a builder with no way to add a block | Delete it and start again from a Flow Builder template. |
 | The DM test gets no reply at all and the automation reads Live | Instagram message access may be off, which needs Dre's own login. Stop and report. |
 

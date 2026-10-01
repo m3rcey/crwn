@@ -70,6 +70,13 @@ Ask the founder only for what recon cannot answer, and ask once, before handing 
   Every prompt says so in its mission paragraph, and its Never list forbids opening another
   browser, window or profile. If the open window has been closed, Astra stops and reports instead
   of starting its own. New tabs inside that same window are fine when a step needs one.
+- **The address bar must be visible and readable.** Computer use reads the current URL before
+  every action to enforce its site policy, and stops when it cannot (2026-10-01: the Prince Dre
+  ManyChat run ended on "could not determine the current browser URL confidently enough to
+  enforce policy" before its first click). Every prompt's founder setup says: not full screen
+  (F11 hides the bar), a normal Chrome window rather than an installed-app window, zoom 100%,
+  the target tab selected. Its known-errors table maps that message to "select the tab, retry
+  once, then stop and report", since only the founder can fix the window.
 - **Never send Astra into Chrome Incognito.** The ChatGPT desktop app's browser connection cannot
   reach Incognito windows, and its screen capture fails often. A task that needs a second login
   (a reviewer or test account) is the founder's by hand, or a separate step after Astra.
