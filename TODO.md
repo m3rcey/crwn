@@ -22,20 +22,16 @@ responsible for. Do not work those.
 
 ### P0 — money flows or acquisition are blocked
 
-- [ ] **Finish Prince Dre's ManyChat: paste the prompt once, answer its one question.**
-      [docs/acquisition/astra-princedre-manychat.md](docs/acquisition/astra-princedre-manychat.md)
-      picks up where the first run stopped: it checks what exists, makes VOTE one tap in Dre's
-      voice, then PAUSES and asks you to test VOTE before copying any song. Test: in the Instagram
-      app as @thecrwnapp, DM `VOTE` to @1princedre, tap **vote**, check the page opens (do not
-      vote), then reply `go` in the same chat. No button: reply `no button` and tell Claude.
-      Safe to paste again after an interruption. Send Claude the report.
-
 - [ ] **When each of Dre's song posts goes up, add its comment trigger in ManyChat.** The 16 song
       automations answer DMs only until then. Open the song's automation, **+ New Trigger**, **Post
       or Reel Comments**, **Specific Post or Reel**, pick the post, keyword = the song's keyword,
       and on the Public Reply screen add the four replies: `just dm'd you g`, `sent it to you bro`,
       `i just sent it to you`, `i just dm'd you`. The duplicates lost VOTE's public replies when
       their any-post trigger was deleted, so the replies have to be typed in with each new trigger.
+      Then click **Update** and make sure the new trigger is switched on: Astra found that publishing
+      a change and enabling the trigger are two separate steps. Until a song has its trigger, tell
+      fans to DM the word rather than comment it. All 17 are Live as of 2026-10-01 (VOTE answers
+      comments on any post plus DMs; the 16 songs answer an exact-match DM of their keyword).
 
 - [ ] **Find out when Prince Dre's ManyChat trial ends, and make sure it will not lapse.** His
       account shows a **TRIAL** badge under his name in ManyChat, not a paid Pro plan. When a
