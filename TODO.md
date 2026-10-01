@@ -43,11 +43,6 @@ responsible for. Do not work those.
       the date and I change the one constant and redeploy. All three projects are already uploaded
       in full (9, 15 and 8 tracks), so nothing else is waiting on his team for the unlock.
 
-- [ ] **Get written confirmation from Dre's team that they control the rights to sell all 8
-      projects on CRWN.** Every one of the 94 tracks is now live behind his tiers, including the
-      older projects. An email reply from his team saying so is enough; forward it to yourself so
-      it is on record.
-
 - [ ] **To finish Team Splits I need a test-mode sandbox. This is the only thing left, and it is
       environment setup, not code.** Nothing to run in SQL.
       I checked rather than assumed: your Stripe key really is live (I asked Stripe, and the balance
