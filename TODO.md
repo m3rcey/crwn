@@ -103,10 +103,6 @@ responsible for. Do not work those.
       (both now dated September 30, 2026). If counsel changes the words in substance, bump
       ARTIST_TERMS_VERSION in the first file and every artist is asked to sign again.
 
-- [ ] **Give Dre's albums their real release dates, if that matters to him.** They carry their
-      UPLOAD date (Sep 29 to 30), so the page's "newest release" card shows whichever project was
-      uploaded last, not his real newest. Studio > Music > Albums.
-
 - [ ] **Tell GB his vote funnel already works, then let him decide the general-engagement
       question.** Song Lab is now reachable for him (Studio tile plus hamburger entry, live
       2026-09-30) at /studio/lab, which is the only thing that was actually missing.
