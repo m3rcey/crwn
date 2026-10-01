@@ -22,18 +22,24 @@ responsible for. Do not work those.
 
 ### P0 — money flows or acquisition are blocked
 
-- [ ] **Run the Astra prompt that builds Prince Dre's 17 ManyChat automations, VOTE first.**
-      Prompt: [docs/acquisition/astra-princedre-manychat.md](docs/acquisition/astra-princedre-manychat.md).
-      Three things to do yourself first, listed in that file's header: switch ManyChat to Dre's
-      account and leave it on Automations, have a tab in that same Chrome window signed in to
-      instagram.com as @thecrwnapp (Astra sends ONE test DM, `VOTE`, from it; no DM to Dre
-      beforehand, and no song tests, because CRWN's own `free` keyword is in every song reply), and keep
-      Chrome maximized and in front. His 16 drop links and
-      the vote link were all verified live on 2026-10-01, and his Stripe charges are enabled, so
-      every one of these 17 links can take money today. Send Claude Astra's report when it finishes;
-      Claude verifies it independently before this gets ticked. The 17 are every lead magnet he has
-      live (probed 2026-10-01: 16 active drop funnels plus the vote). If a session adds more drop
-      pages later, that run owns adding the matching keywords.
+- [ ] **Test Prince Dre's VOTE automation on your phone, then run the Astra prompt for his 16
+      song automations.** VOTE is built and Live (first Astra run, 2026-10-01). Its test DM arrived
+      with the right opening message, but instagram.com showed no `Send it` button; the website most
+      likely does not render buttons, the phone app should. In the Instagram app as @thecrwnapp,
+      open the chat with @1princedre, tap **Send it**, then **Hear them**, and check the vote page
+      opens. Do not vote. If the phone shows no button either, stop and tell Claude before running
+      anything, because all 16 songs copy that flow. If it works, run
+      [docs/acquisition/astra-princedre-manychat.md](docs/acquisition/astra-princedre-manychat.md)
+      (rewritten for the 16 songs only, no DMs, using the labels Astra actually saw). Send Claude
+      Astra's report when it finishes.
+
+- [ ] **Find out when Prince Dre's ManyChat trial ends, and make sure it will not lapse.** His
+      account shows a **TRIAL** badge under his name in ManyChat, not a paid Pro plan. When a
+      ManyChat plan lapses, every automation switches OFF and does NOT switch back on when the plan
+      is renewed: each one has to be turned back on by hand, and nothing in CRWN can see it happen
+      (that is how CRWN's own funnel was dead from 2026-08-26 to 2026-09-08). Ask Dre to confirm a
+      card is on file for the plan that follows the trial, and put the trial's end date in your
+      calendar with a reminder to open his Automations that day and check all 17 read Live.
 
 - [ ] **Pick a new vote unlock date with Dre, and tell me the date.** The vote page and Gold's
       offer both promise "unlocked October 1" (`DRE_FIRST_UNLOCK_DATE` in

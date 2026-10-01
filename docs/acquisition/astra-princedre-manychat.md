@@ -1,66 +1,55 @@
-# Astra prompt: build Prince Dre's 17 ManyChat automations
+# Astra prompt: build Prince Dre's 16 song automations in ManyChat
 
 **For:** GPT-6 Astra (computer use), driven by Josh.
-**Deadline:** VOTE must be live today (2026-10-01). The 16 song flows are same-day but second.
+**Status:** VOTE was built and set Live by the first run (2026-10-01). This run builds the 16 song
+automations by duplicating it. It sends **no DMs at all**.
 
-**Josh does these four things BEFORE pasting the prompt:**
+**Josh does these three things BEFORE pasting the prompt:**
 
-1. Sign in to ManyChat, switch to **Prince Dre's** account, and leave the browser on
-   **Automations**. Astra must never use the account switcher.
-2. In that same Chrome window, open a tab on instagram.com and make sure it is signed in as
-   **@thecrwnapp**. Astra sends ONE test DM (`VOTE`) from that tab. No DM to Dre is needed
-   beforehand: that test creates the contact in Dre's ManyChat and tests the flow at the same
-   time. Nothing in this build selects a contact inside ManyChat.
-   **Why only one test:** @thecrwnapp runs CRWN's own ManyChat funnel, and `free` is one of its
-   live DM keywords (the Opportunity Calculator). Every song reply says "Yours free", so a song
-   test would land "Yours free" in @thecrwnapp's inbox and could fire CRWN's own funnel back at
-   Dre's account. The VOTE replies contain none of CRWN's keywords, so that one test is safe.
-   Spot-check a song or two yourself afterwards from an account that is not @thecrwnapp, if you
-   want to.
-3. Chrome maximized, in front, on the main monitor. Not Incognito. No lock, no sleep.
-4. **The address bar must be visible and readable.** Astra reads the URL before every action and
-   stops if it cannot (the first run, 2026-10-01, ended on "could not determine the current browser
-   URL" before changing anything). So:
-   - **Not full screen.** If the address bar is hidden, press **F11** to leave full screen. Use
-     the maximize button instead.
-   - **A normal Chrome window, not an installed app window.** If ManyChat has its own window with
-     no tabs and no address bar, close it and open https://app.manychat.com in a normal tab.
-   - **Zoom at 100%** (Ctrl+0), and the ManyChat tab selected, so the bar shows an
-     `app.manychat.com/...` address.
+1. **Finish the VOTE test on your phone.** The first run's test DM reached @thecrwnapp with the
+   right opening message, but on instagram.com no `Send it` button appeared. Instagram's website
+   most likely does not show the buttons automated DMs carry. The phone app should.
+   - In the Instagram **app**, signed in as **@thecrwnapp**, open the chat with **@1princedre**.
+   - Under "You asked for it. Tap below and I'll send it 👇" there should be a **Send it** button.
+     Tap it.
+   - The next message should be "Pick which project drops first. Tap to hear all 3:" with a
+     **Hear them** button. Tap it and check that the vote page opens. **Do not vote, and do not
+     type a name or email.**
+   - **If there is no button on the phone either, do not run this prompt.** Tell Claude: every
+     song automation copies this flow, so it would copy the same fault 16 times.
+2. ManyChat open in a normal Chrome window on **Prince Dre's** account, on **Automation**, with the
+   ManyChat tab selected. No Instagram tab is needed this time.
+3. Chrome maximized (not F11 full screen), the address bar visible, zoom 100% (Ctrl+0), in front,
+   on the main monitor. No lock, no sleep.
 
 Paste everything below the line.
 
 ---
 
-You are working in Prince Dre's ManyChat account, already open on the Automations page in **Josh's
-Chrome window that is open on screen right now**. Do all of the work in that window. Do not open
-your own browser, a new browser window, a new Chrome profile, or Incognito: none of them are signed
-in to Dre's account. A new tab inside that same window is fine. If that window has been closed,
-stop and report rather than starting a browser of your own.
+You are working in Prince Dre's ManyChat account, already open in **Josh's Chrome window that is
+open on screen right now**. Do all of the work in that window. Do not open your own browser, a new
+browser window, a new Chrome profile, or Incognito. A new tab inside that same window is fine. If
+the window has been closed, stop and report.
 
-Build 17 Instagram automations. Each one replies to a comment publicly, opens a DM, and sends one
-link. Build **VOTE first and smoke-test it before building any other**, because the other 16 are
-duplicates of it and will inherit any mistake. Do not explore ManyChat settings, billing, other
-accounts, or anything not named in these steps. Do not read documentation.
+An automation named **VOTE** already exists, is Live, and has been tested. Your job is to build
+16 more by duplicating it, one per row of the table below, changing only the keyword, the trigger
+and the link. **Do not send any DM in this run, from any account.** Do not explore ManyChat
+settings, billing, other accounts, or anything not named in these steps. Do not read
+documentation.
 
 ## Done means
 
-- **VOTE**: status reads **Live**. Triggers are exactly two: a comment trigger on **any post or
-  reel** with keyword VOTE, and a DM keyword trigger for VOTE. DMing `VOTE` from @thecrwnapp returns
-  the opening DM, and tapping its button returns a message with a link button to
-  `https://thecrwn.app/princedre/join/vote`.
-- **Each of the 16 song automations**: status reads **Live**. Its DM keyword trigger is its own
-  keyword set to exact match. Its link button points at its own URL from the table. It has **no**
-  any-post comment trigger and **no** other keyword.
+- **Each of the 16 song automations** is named its keyword and reads **Live**. On its **When**
+  node it has exactly one **User sends a message** trigger, set to exact match, with only its own
+  keyword. Its link button is titled `Get it` and points at its own link from the table. It has
+  **no** comment trigger on All Posts or Reels.
+- **VOTE is unchanged**: still Live, still its two triggers, still its `Hear them` link.
 - Nothing else in the account changed.
 
-## The 17 values
-
-Keyword, the exact link, and the line of DM text that sits above the link button.
+## The 16 values
 
 | # | Keyword | Link | DM text |
 |---|---|---|---|
-| 1 | VOTE | https://thecrwn.app/princedre/join/vote | Pick which project drops first. Tap to hear all 3: |
 | 2 | ROUND | https://thecrwn.app/drop/princedre-round-here | Round Here. Yours free: |
 | 3 | LETTER | https://thecrwn.app/drop/princedre-letter-to-la | Letter To LA, with JMoney. Yours free: |
 | 4 | SEND | https://thecrwn.app/drop/princedre-send-it-up | Send It Up. Yours free: |
@@ -82,146 +71,104 @@ Copy these links character for character. Do not shorten them, retype them from 
 "correct" them. Do not add any text to the DM lines. Do not use a dash of any kind in anything
 you type.
 
-## Stage A: build and test VOTE
+## How to replace text in ManyChat (read this first)
 
-0. **First, look at the Automations list for one named `VOTE`.** Josh may have started it by hand.
-   If it exists, do NOT create another. Open it, check that steps 1 to 3 below are already true
-   (Flow Builder, named VOTE, an Instagram comment trigger on any post or reel with keyword VOTE),
-   fix anything that differs, and continue from step 4. If there is more than one automation named
-   VOTE, stop and report. Only if none exists, start at step 1.
-1. Click **+ New Automation**. Choose a template whose card is labelled **Flow Builder**. If a
-   dialog offers **Start From Scratch**, do not use it: it gives a fixed builder you cannot add
-   blocks to, and its only menu option is Delete. If the only route in is a template gallery, pick
-   any Instagram comment template labelled Flow Builder and delete the blocks you do not need.
-2. Name it `VOTE`.
-3. Set the trigger to an Instagram **comment** trigger. In "When someone comments on", choose
-   **any post or reel**. Set the keyword to `VOTE`. Match on the specific word, not the whole
-   message.
-4. Turn on the public comment reply and give it these three variations, one per line:
-   `Check your DMs 👑`
-   `Sent 🔥`
-   `In your DMs`
-5. Opening DM text: `You asked for it. Tap below and I'll send it 👇` with one button labelled
-   `Send it`. Leave it set to send **as a private reply**. Do not delete this node and do not turn
-   it into a question: Instagram allows one private reply, and the fan must tap it before anything
-   else is allowed to send.
-6. On the node after the tap, set the text to row 1's DM text, and add a **URL button** labelled
-   `Hear them` pointing at row 1's link.
-7. Add a second trigger: a DM keyword trigger ("User sends a message") with keyword `VOTE`, plus
-   the variants `vote` and `Vote`. For VOTE only, leave this matching as contains, not exact.
-8. Set it **Live**.
-9. **Smoke test.** In the instagram.com tab, which is signed in as **@thecrwnapp**, DM Prince
-   Dre's account the word `VOTE`. You must receive the opening DM. Tap `Send it`. You must then
-   receive row 1's text with a tappable button. Tap it and confirm the vote page opens, then close
-   that tab. **Do not vote, and do not type a name or email on that page**: a vote there is
-   counted in Dre's real poll. If no DM arrives, redo steps 7 and 8 at most twice, then stop and
-   report. This is the only test DM of the whole run.
-10. **If the smoke test fails, stop and report. Do not build the other 16.**
+Typing into a ManyChat field **adds to** what is already there instead of replacing it. To replace
+the contents of any field: click into it, press **Ctrl+A**, press **Backspace**, then type the new
+value. Then read the field back and confirm it shows only the new value. Do this for every name,
+keyword, message and URL you change.
 
-## Stage B: the 16 song automations
+## Steps, for each row in table order
 
-Work in table order, rows 2 through 17. For each row:
-
-11. Open the **VOTE** automation, open its ⋮ menu, and choose **Duplicate**.
-12. Rename the copy to the row's keyword.
-13. **Open the copy's triggers before adding anything.** A duplicate KEEPS both of VOTE's triggers.
-    - **Delete** the comment trigger it carried over (the any-post one).
-    - **Edit** the DM keyword trigger it carried: replace `VOTE` and its variants with the row's
-      keyword only. Set it to **exact match** ("message is"), not contains. Do not add a second
-      trigger beside it, or the copy also answers VOTE.
-    - If that song's Instagram post already exists, also add one comment trigger set to **a
-      specific post or reel**, pick that post, and use the row's keyword. If the post does not
-      exist yet, add no comment trigger and say so in your report. Never set a song automation to
-      **any post or reel**, and never to **next post**.
-14. Change the text on the node after the tap to the row's DM text, and change the URL button to
-    the row's link. The button label becomes `Get it`. Leave the opening DM and the three public
-    reply variations exactly as VOTE has them.
-15. Set it **Live**.
-16. Do not DM any song keyword to test it. Instead, after every fourth automation, open those four
-    and check by eye that each one has exactly one DM keyword trigger, it is that row's keyword on
-    exact match, there is no any-post comment trigger, and the URL button is that row's link. If
-    one also carries VOTE, the trigger edit in step 13 added a keyword instead of replacing one.
-    Fix that automation, then carry on.
+1. Click **Automation** in the left navigation, then **My Automations**. Use **Search all
+   Automations** to find `VOTE` and open it. If a row's keyword already exists as an automation
+   (from an earlier, interrupted run), open that one instead, check it against steps 4 to 9, fix
+   what differs, and move to the next row. Never create a second automation with the same name.
+2. In VOTE's top bar, open **More Actions** (the ⋮ at the far right, beside Saved). Choose
+   **Duplicate**. If Duplicate is not in that menu, go back to **My Automations**, open the ⋮ on
+   VOTE's row there, and choose **Duplicate**. Do not edit VOTE itself.
+3. Open the copy. Click the **pencil** beside its name in the top bar, replace the name with the
+   row's keyword (Ctrl+A, Backspace, type), and press Enter.
+4. On the **When** node, open the trigger **User comments on your Post or Reel** and **delete** it
+   from the copy. Only delete triggers inside the copy. Never delete a message node.
+5. Open the trigger **User sends a message** on the same When node. Replace its keywords (VOTE,
+   vote, Vote) with only the row's keyword: clear each keyword field with Ctrl+A, Backspace, and
+   delete the extra keyword fields so exactly one remains. Do not use **+ New Trigger** to add
+   another message trigger.
+6. In the same panel, open the matching selector, which currently reads **message contains**, and
+   change it to the exact match option (it may read **message is**). Save.
+7. Leave song posts alone: do **not** add any comment trigger in this run. Josh adds a Specific
+   Post or Reel trigger to each song when its post goes up.
+8. Click the second **Send Message** node (the one connected from **Send it**). In its left
+   sidebar, replace the text with the row's DM text. Leave the first node, "You asked for it. Tap
+   below and I'll send it 👇" with its **Send it** button, exactly as it is.
+9. In that second node, click the button label (`Hear them`). If the click only ends text editing,
+   click the label again. The **Edit Button** panel shows **Button title** and **Website URL**,
+   with the action **Open website**. Replace Button title with `Get it` and Website URL with the
+   row's link. Click **Done**.
+10. Click **Set Live** in the upper right. Wait until the top bar shows **Live** and **Saved**.
+11. After every fourth automation, reopen those four and check by eye: the name is the keyword,
+    exactly one **User sends a message** trigger with only that keyword on exact match, no comment
+    trigger, the second message's text from the table, and the `Get it` button's Website URL from
+    the table. Fix any that differ, then carry on.
 
 ## Known problems and the exact fix
 
 | What you see | What to do |
 |---|---|
-| A duplicate answers VOTE as well as its own keyword | Its carried trigger was added to, not edited. Open its triggers and delete every keyword except the row's. |
-| The wrong song's link arrives | Same cause. Check that automation's triggers and its URL button. |
-| Two automations both fire on one comment | One of them still has an any-post comment trigger. Only VOTE may have one. |
-| Two automations named VOTE | Stop and report which ones exist and whether each is Live. Do not delete either. |
-| An automation shows a bare "Automation powered by @Manychat" with an empty body | The ManyChat plan has lapsed. Stop and report. This is not fixable in the builder. |
+| A field shows the old value and the new one run together | The text was appended. Ctrl+A, Backspace, type again, read it back. |
+| Clicking the button label does not open Edit Button | It only ended text editing. Click the label again. |
+| "Manychat has been updated. Please, save your work and reload the page." | Make sure the top bar shows Saved, then reload. Reopen the automation and check your last change stuck. |
+| "Keywords are not case-sensitive. You can remove the duplicates." | Fine. Each song has one keyword, so this should not appear; if it does, keep only the row's keyword. |
+| A copy still shows VOTE in its message trigger | Step 5 added instead of replaced. Remove every keyword except the row's. |
+| Two automations with the same name | Stop and report which ones exist and whether each is Live. Do not delete either. |
 | An automation will not switch to Live | Report which one and its exact error text. Do not touch the plan or billing. |
-| "window capture timed out" or "FrameArrived timed out" | Chrome was hidden or the machine locked. Bring Chrome to the front and retry the same step. |
-| "could not determine the current browser URL" | Click once on the ManyChat tab so it is the selected tab, then retry the same step once. If it happens again, stop and report: the address bar is hidden or unreadable, and Josh fixes that, not you. |
-| Start From Scratch gave a builder with no way to add a block | Delete it and start again from a Flow Builder template. |
-| The DM test gets no reply at all and the automation reads Live | Instagram message access may be off, which needs Dre's own login. Stop and report. |
+| "could not determine the current browser URL" | Click the ManyChat tab once so it is selected, retry the same step once, then stop and report. |
+| "window capture timed out" or "FrameArrived timed out" | Bring Chrome to the front and retry the same step. If native capture keeps failing, connect to the existing Chrome tabs through the browser extension, as the first run did. |
 
 ## Stop only if
 
-- Instagram or ManyChat asks you to log in, or for a code, or for 2FA.
-- ManyChat asks you to change, renew or buy a plan.
-- The VOTE smoke test in step 9 fails after two retries.
-- Something would delete or change an automation that is not one of these 17.
+- ManyChat asks you to log in, for a code, or for 2FA.
+- ManyChat asks you to change, renew or buy a plan, or says the trial has ended.
+- Something would delete or change VOTE or any automation not in the table.
 - The same step fails three times.
-- You are close to running out of credits or usage. Follow "If you are about to run out" below.
+- You are close to running out of credits or usage. Follow "If you are about to run out".
 
 Do not stop for anything else.
 
 ## If you are about to run out
 
-If you can tell that your credits, usage or time are running low, stop building **before** they
-run out. Keep enough left to do the three things below, in order. Josh will finish the rest by
-hand from what you write here, so this matters more than one more automation.
+Stop building **before** your credits, usage or time run out, keeping enough to do these three
+things. Josh finishes by hand from what you write.
 
-1. **Leave nothing half built.** If you are partway through a duplicate, either finish it (Live,
-   tested) or switch it off so it is **not Live**, and say which. A half-edited copy that is Live
-   can still answer VOTE, which sends fans to the wrong song.
-2. **Give the usual report** (the format under "Report") for every row you reached.
-3. **Write Josh the steps to build one more song automation himself.** Write them from what you
-   actually saw on screen, not from this prompt: use the real button names, menu names and field
-   names ManyChat showed you, and say where on the screen each one is. Number every click. Cover,
-   in this order:
-   - Finding the VOTE automation and duplicating it.
-   - Renaming the copy.
-   - Deleting the carried any-post comment trigger.
-   - Editing the carried DM keyword trigger to the new keyword, with exact match, without adding
-     a second trigger.
-   - Adding a specific-post comment trigger, for when the song's post exists.
-   - Changing the DM text and the link button, and the button label `Get it`.
-   - Setting it Live.
-   - Checking it by eye: one DM keyword trigger, the right keyword, exact match, the right link.
-   Add any trap you hit during this run and how you got past it. Then list the rows Josh still has
-   to build, with their keyword, link and DM text copied from the table, so he works from one
-   list.
+1. **Leave nothing half built.** If you are partway through a copy, either finish it (Live,
+   checked by eye) or make sure it is **not Live**, and say which. A half-edited copy that is Live
+   can still answer VOTE and send fans to the wrong song.
+2. **Give the usual report** for every row you reached.
+3. **Write Josh the hand-build steps for one song**, using the exact labels you saw, including
+   where Duplicate and the exact match option actually were, plus any trap you hit and how you got
+   past it. Then list the rows still to build, with keyword, link and DM text copied from the table.
 
 ## Never
 
-- Never open your own browser, another browser window, another Chrome profile, or Incognito. Work
-  only in Josh's Chrome window that was already open.
+- Never open your own browser, another browser window, another Chrome profile, or Incognito.
 - Never use the account switcher, and never open another ManyChat account.
-- Never change billing, the plan, team members, or Instagram connection settings.
-- Never edit, pause or delete an automation that is not one of these 17.
-- Never send a broadcast. The only DM you send in this whole run is the single `VOTE` from
-  @thecrwnapp in step 9. Never DM a song keyword from @thecrwnapp.
-- Never vote on the vote page, and never type a name or email into any CRWN page.
+- Never send a DM, a test message or a broadcast, from any account.
+- Never edit, pause or delete VOTE or any automation not in the table.
+- Never change billing, the plan, team members, or Instagram connection settings, and never open
+  ManyChat Settings.
+- Never add a comment trigger on All Posts or Reels or on Next Post or Reel to a song.
 - Never change the copy beyond what the table says, and never type a dash of any kind.
-- Never open ManyChat Settings, and never reveal or copy an API key or token.
 
 ## Report
 
-One line per automation, in table order:
+One line per row, in table order:
 
-`<keyword> | Live yes/no | triggers: <count and type> | link tested: pass/fail/not tested | post trigger: yes/no`
-
-For VOTE, also say whether you created it or found it already started, and what you changed.
+`<keyword> | Live yes/no | triggers: <count and type, matching> | URL checked: yes/no | button title: <title>`
 
 Then:
 
-- Which keywords have no comment trigger because that post does not exist yet.
+- Where Duplicate and the exact match option actually were, in ManyChat's own words.
 - The exact text of any error you saw.
-- Confirmation that the single `VOTE` from @thecrwnapp was the only DM you sent, and that you did
-  not vote.
-- If you stopped before row 17 for any reason, the hand-build steps and the remaining rows from
-  "If you are about to run out", even if credits were not the reason.
+- Confirmation that you sent no DM and did not change VOTE.
+- If you stopped before row 17 for any reason, the hand-build steps and the remaining rows.
