@@ -22,6 +22,12 @@ responsible for. Do not work those.
 
 ### P0 — money flows or acquisition are blocked
 
+- [ ] **Run the Astra audit of Prince Dre's comment replies.** A comment trigger was found
+      replying with ManyChat's defaults ("Check your DM's", "Sent you a DM"...) instead of Dre's
+      voice. [docs/acquisition/astra-princedre-comment-replies.md](docs/acquisition/astra-princedre-comment-replies.md)
+      opens every comment trigger on all 17 automations and sets the replies to Dre's, changing
+      nothing else and sending nothing. New Astra chat. Send Claude the report.
+
 - [ ] **When each of Dre's song posts goes up, add its comment trigger in ManyChat.** The 16 song
       automations answer DMs only until then. Open the song's automation, **+ New Trigger**, **Post
       or Reel Comments**, **Specific Post or Reel**, pick the post, keyword = the song's keyword,
