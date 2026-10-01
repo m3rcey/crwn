@@ -33,16 +33,20 @@ responsible for. Do not work those.
       live (probed 2026-10-01: 16 active drop funnels plus the vote). If a session adds more drop
       pages later, that run owns adding the matching keywords.
 
-- [ ] **Get the three vote projects' full songs from Prince Dre's team before October 1, and confirm
-      that date.** Gold promises "the complete winning project, unlocked October 1" and Platinum
-      "all 3 vote projects, complete, the moment Dre adds each one"
-      ([src/lib/offerExperience/reference/princeDre.ts](src/lib/offerExperience/reference/princeDre.ts)).
-      Only one song of each (the vote songs) is uploaded. Ask his team for:
-        1. every song on The Return Of The Prince, Fresh Prince Of O'Block and Only The O In My Eyes, in order
-        2. written confirmation they control the rights to sell those older projects (and Blood
-           Brothaz and Shotta In Da Jungle, which are already live behind Silver and Gold)
-        3. that October 1 is the mixtape date (it is on the vote page as the unlock day)
-      Drop each project in its own folder under videos/prince dre/ and tell me.
+- [ ] **Pick a new vote unlock date with Dre, and tell me the date.** The vote page and Gold's
+      offer both promise "unlocked October 1" (`DRE_FIRST_UNLOCK_DATE` in
+      [src/lib/offerExperience/reference/princeDre.ts](src/lib/offerExperience/reference/princeDre.ts)),
+      and October 1 is today. Probed 2026-10-01: the poll has **0 votes**, no winner, and Dre has
+      **0 subscribers**, so moving the date breaks no fan's promise. It cannot run today in any
+      meaningful way, because VOTE in ManyChat (the item above) is what drives votes and it is not
+      built yet. Give the vote at least a week of posts after the VOTE automation is live. Tell me
+      the date and I change the one constant and redeploy. All three projects are already uploaded
+      in full (9, 15 and 8 tracks), so nothing else is waiting on his team for the unlock.
+
+- [ ] **Get written confirmation from Dre's team that they control the rights to sell all 8
+      projects on CRWN.** Every one of the 94 tracks is now live behind his tiers, including the
+      older projects. An email reply from his team saying so is enough; forward it to yourself so
+      it is on record.
 
 - [ ] **To finish Team Splits I need a test-mode sandbox. This is the only thing left, and it is
       environment setup, not code.** Nothing to run in SQL.
