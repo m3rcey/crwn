@@ -145,11 +145,24 @@ const CONTENT_TRACKS = [BB, SJ, LIL, IR, OBAN, ROTP, FPOB, OTOIME].flatMap((proj
     })),
 );
 
+// WHAT THE COPY SELLS, AND WHY (YouTube comment read, 2026-09-30: 16,445 comments across his 128
+// videos plus 14 third-party uploads of his project songs).
+//   1. The single biggest fan request is ACCESS, not exclusivity: at least 12 comments and ~100
+//      likes asking "put this on Spotify / Apple". Nobody asks to be given something other fans
+//      cannot have. So every rung sells HEARING IT, in one place, in order.
+//   2. The most-requested thing on the whole channel is Dre with JB Binladen ("need that JB and
+//      prince Dre blood brothers 2", 47 likes; "we need another tape from them", 9). Blood Brothaz
+//      IS that tape, so Silver leads with the pairing instead of a song count.
+//   3. Fans do NOT name old songs they want. The apparent song mentions were fans quoting Wishing
+//      Well's lyrics ("if I had one wish", 574 likes). So no rung is built around one old song.
+// What the copy may never say: that any project is unavailable, exclusive or never released. His
+// catalog is spread over Audiomack, DaMixHub, LiveMixtapes and Certified Mixtapes (founder,
+// 2026-09-30), so the honest and tested claim is one place, in order, complete.
 export const DRE_TIER_PROMISES: Record<string, string> = {
   Bronze: 'His most-watched songs, free.',
-  Silver: 'Two whole projects, complete.',
+  Silver: 'Dre and JB, back to back.',
   Gold: 'Get the full project the fans pick.',
-  Platinum: 'Every project, complete, today.',
+  Platinum: 'His whole catalog, one place.',
 };
 
 export const DRE_TIER_PRICES_CENTS: Record<string, number> = {
@@ -169,7 +182,7 @@ export const DRE_APPROVED_BENEFITS: Record<string, string[]> = {
     'First word on the mixtape and every drop',
   ],
   Silver: [
-    `Blood Brothaz and Life I Live, complete (${SILVER_SONGS} songs)`,
+    `Blood Brothaz with JB Binladen, and Life I Live, complete (${SILVER_SONGS} songs)`,
     'Behind the scenes from every era',
     'Everything in Bronze',
   ],
@@ -180,7 +193,7 @@ export const DRE_APPROVED_BENEFITS: Record<string, string[]> = {
     'Everything in Silver',
   ],
   Platinum: [
-    `All ${PROJECTS} projects, complete, today (${ALL_SONGS} songs)`,
+    `All ${PROJECTS} projects in one place, in order, complete (${ALL_SONGS} songs)`,
     `${OBAN}, his hardest project to find, and all 3 vote projects`,
     'First listen to the project after the mixtape, before anyone else',
     'Group listening sessions when Dre opens one',
@@ -197,7 +210,7 @@ export const DRE_BENEFIT_IDENTITIES: Record<string, { key: string; line: string 
     { key: 'drop_alerts', line: 'First word on the mixtape and every drop' },
   ],
   Silver: [
-    { key: 'exclusive_tracks', line: `Blood Brothaz and Life I Live, complete (${SILVER_SONGS} songs)` },
+    { key: 'exclusive_tracks', line: `Blood Brothaz with JB Binladen, and Life I Live, complete (${SILVER_SONGS} songs)` },
     { key: 'exclusive_posts', line: 'Behind the scenes from every era' },
   ],
   Gold: [
@@ -213,8 +226,8 @@ export const DRE_BENEFIT_IDENTITIES: Record<string, { key: string; line: string 
 /** The funnel's standout item for the PRIMARY offer, shown only where a rung has no full
  *  offer experience. */
 export const DRE_FUNNEL_PRIMARY_ITEM = {
-  title: 'Every project, complete',
-  description: `Everyone else waits for the vote. Platinum gets all ${PROJECTS} projects, ${ALL_SONGS} songs, today.`,
+  title: 'His whole catalog, one place',
+  description: `You have been hunting these tapes across old mixtape sites. Platinum is all ${PROJECTS} projects, ${ALL_SONGS} songs, in one place and in order.`,
 };
 
 // Dre has not shot his video yet (founder, 2026-09-28): the slot shows the COVER of the video
@@ -226,8 +239,8 @@ const STAND_IN_VSL = {
 };
 
 export const DRE_PLATINUM_OFFER: TierOfferExperience = {
-  promise: 'Every project, complete, today.',
-  description: `Everyone else waits to see which project wins the vote. Platinum gets all ${PROJECTS} projects, ${ALL_SONGS} songs, the moment you join: ${ROTP}, ${FPOB}, ${OTOIME}, ${OBAN} (his hardest project to find), and everything in the levels below.`,
+  promise: 'His whole catalog, one place.',
+  description: `You have been hunting these tapes across old mixtape sites, one song at a time. This is all ${PROJECTS} projects, ${ALL_SONGS} songs, in order and in one place the moment you join: ${ROTP}, ${FPOB}, ${OTOIME}, ${OBAN} (the hardest one to find anywhere), and everything in the levels below.`,
   cta: `Unlock All ${PROJECTS} Projects`,
   secondaryCue: 'See what you get',
   heroImageUrl: `${OFFER_ART}photo-hero-platinum.webp`,
@@ -238,7 +251,7 @@ export const DRE_PLATINUM_OFFER: TierOfferExperience = {
       // Real since 2026-09-30: these projects are uploaded, complete, and open to Platinum.
       truth: 'real',
       title: 'Only in Platinum, complete',
-      description: 'Not a sampler. Every song on every project, the moment you join.',
+      description: 'Not a sampler. Every song on every project, in order, the moment you join.',
       items: [
         { title: ROTP, subtitle: `${N[ROTP]} songs`, locked: true, artUrl: ART[ROTP] },
         { title: FPOB, subtitle: `${N[FPOB]} songs`, locked: true, artUrl: ART[FPOB] },
@@ -296,7 +309,7 @@ export const DRE_PLATINUM_OFFER: TierOfferExperience = {
 
 export const DRE_GOLD_OFFER: TierOfferExperience = {
   promise: 'Get the full project the fans pick.',
-  description: `Shotta In Da Jungle and Im Reloaded, ${GOLD_SONGS} songs, the moment you join. Then the project with the most votes by ${DRE_FIRST_UNLOCK_DATE} unlocks for you too, every song on it.`,
+  description: `Shotta In Da Jungle and Im Reloaded, ${GOLD_SONGS} songs, in one place the moment you join. Then the project with the most votes by ${DRE_FIRST_UNLOCK_DATE} unlocks for you too, every song on it.`,
   cta: 'Unlock the Winning Project',
   secondaryCue: 'See what you get',
   heroImageUrl: `${OFFER_ART}photo-hero-gold.webp`,
@@ -305,8 +318,8 @@ export const DRE_GOLD_OFFER: TierOfferExperience = {
     {
       kind: 'audio',
       truth: 'real',
-      title: 'Two projects, today',
-      description: 'Both complete. Yours the moment you join.',
+      title: 'Two projects, in one place',
+      description: 'Both complete, both in order. Yours the moment you join.',
       items: [
         ...SJ_SONGS.filter((t) => !DRE_BRONZE_SINGLES.includes(t)).slice(0, 3).map((t) => ({ title: t, subtitle: SJ, locked: true })),
         ...IR_SONGS.filter((t) => !DRE_BRONZE_SINGLES.includes(t)).slice(0, 2).map((t) => ({ title: t, subtitle: IR, locked: true })),
@@ -369,17 +382,17 @@ export const DRE_GOLD_OFFER: TierOfferExperience = {
 };
 
 export const DRE_SILVER_OFFER: TierOfferExperience = {
-  promise: 'Two whole projects, complete.',
-  description: `Blood Brothaz and Life I Live, all ${SILVER_SONGS} songs. Yours the moment you join.`,
-  cta: 'Get Both Projects',
+  promise: 'Dre and JB, back to back.',
+  description: `Blood Brothaz, the tape his fans keep asking him to run back with JB Binladen, plus Life I Live. All ${SILVER_SONGS} songs, in one place and in order.`,
+  cta: 'Get Blood Brothaz',
   secondaryCue: 'See what you get',
   vsl: { url: null },
   previews: [
     {
       kind: 'audio',
       truth: 'real',
-      title: 'Two projects, today',
-      description: 'Both complete. Yours the moment you join.',
+      title: 'Dre and JB, back to back',
+      description: 'Blood Brothaz complete, plus Life I Live. Both in order, both in one place.',
       items: [
         ...BB_SONGS.filter((t) => t !== BONUS_SONG && !DRE_BRONZE_SINGLES.includes(t)).slice(0, 3).map((t) => ({ title: t, subtitle: BB, locked: true })),
         ...LIL_SONGS.filter((t) => !DRE_BRONZE_SINGLES.includes(t)).slice(0, 2).map((t) => ({ title: t, subtitle: LIL, locked: true })),
