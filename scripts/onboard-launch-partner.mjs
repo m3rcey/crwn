@@ -18,9 +18,16 @@
 //   7. content       each rung's tracks, gated from their lowest rung UP (the gate is an exact
 //                    match), and the projects as albums. Access is only ever ADDED on a re-run,
 //                    never removed, so a re-run can never lock out a paying member.
+//   7c. drip         the member drip (schema-phase2-tier-unlock-months.sql): each drip project
+//                    opens to the drip rung N months after THAT member subscribed. Its access
+//                    and its delay are written in ONE update, so the rung can never hold the
+//                    project without the wait, and it refuses to change a rung that already
+//                    has a track (that would move paying members' access). Written BEFORE the
+//                    offer copy, and the whole run refuses to start until the column exists.
 //   8. winner        --unlock-winner: once the artist records the vote's winner in their Song
 //                    Lab manager (CRWN never picks), open that project's Platinum-only tracks
-//                    to Gold. Additive, like the release waterfall.
+//                    to Gold. Additive, like the release waterfall. A RETIRED vote closes its
+//                    poll and takes the ballot down instead of opening it.
 //
 // Refuses: a config that fails checkLaunchPartner, a tier whose price differs from the plan,
 // any tier with an active subscription, a slug that is taken or reserved.
@@ -60,6 +67,13 @@ const db = createClient(pick('NEXT_PUBLIC_SUPABASE_URL'), pick('SUPABASE_SERVICE
   auth: { autoRefreshToken: false, persistSession: false },
 });
 console.log(`${C.displayName} (${C.key}) | ${APPLY ? 'MODE: APPLY' : 'MODE: DRY RUN (pass --apply to write)'}`);
+
+// ── 0. A drip needs its migration. Checked before ANY write: without the column the oracle
+// cannot delay, and the copy would promise a wait that nothing enforces.
+if (C.drip) {
+  const { error } = await db.from('tracks').select('tier_unlock_months').limit(1);
+  if (error) die(`the drip needs supabase/schema-phase2-tier-unlock-months.sql applied first (${error.message}). Nothing was written.`);
+}
 
 // ── 1. Identity ────────────────────────────────────────────────────────────────
 const { data: { user } } = await db.auth.admin.getUserById(C.userId);
@@ -202,7 +216,9 @@ async function uploadTrack(o, position, access) {
 }
 
 let voteTracks = null;
-if (C.vote && C.vote.options.length) {
+if (C.vote?.retired) {
+  console.log(`\nvote: RETIRED, the poll is closed and /${artist.slug}/join/${C.vote.offerSlug} comes down on --apply`);
+} else if (C.vote && C.vote.options.length) {
   let { data: tracks } = await db.from('tracks').select('id, title, is_free, allowed_tier_ids, public_release_date').eq('artist_id', artist.id);
   voteTracks = [];
   const missing = [];
@@ -271,6 +287,45 @@ if (C.content) {
     }
   }
   for (const p of C.content.projects) console.log(`project "${p.title}": ${p.trackTitles.length} tracks`);
+}
+
+// ── 7c. Member drip (planned in dry run too; written before the offer copy) ───────
+if (C.drip) {
+  const dripTier = tierIds[C.drip.rung];
+  if (!dripTier) die(`drip: there is no ${C.drip.rung} tier`);
+  const above = LADDER_RUNGS.slice(LADDER_RUNGS.indexOf(C.drip.rung) + 1);
+  const { data: rows, error: rowsErr } = await db.from('tracks').select('id, title, allowed_tier_ids, tier_unlock_months').eq('artist_id', artist.id);
+  if (rowsErr) die(`drip read: ${rowsErr.message}`);
+  console.log('');
+  for (const p of C.drip.projects) {
+    const project = C.content.projects.find((x) => x.title === p.title);
+    // Only tracks gated ABOVE the drip rung: its free and lower-rung songs are left alone.
+    const titles = project.trackTitles.filter((tt) => {
+      const t = C.content.tracks.find((x) => x.title.toLowerCase() === tt.toLowerCase());
+      return t && above.includes(t.rung);
+    });
+    let changed = 0;
+    for (const tt of titles) {
+      const r = (rows || []).find((x) => x.title.trim().toLowerCase() === tt.trim().toLowerCase());
+      if (!r) { if (APPLY) die(`drip: "${tt}" is not uploaded`); console.log(`drip WAITS: "${tt}" is not uploaded yet`); continue; }
+      const allowed = Array.isArray(r.allowed_tier_ids) ? r.allowed_tier_ids : [];
+      const delays = r.tier_unlock_months && typeof r.tier_unlock_months === 'object' && !Array.isArray(r.tier_unlock_months) ? r.tier_unlock_months : {};
+      if (allowed.includes(dripTier)) {
+        if (delays[dripTier] === p.months) continue;
+        die(`drip: "${r.title}" already opens to ${C.drip.rung} ${delays[dripTier] === undefined ? 'with no wait' : `after ${delays[dripTier]} months`}. Changing that moves paying members' access, so it is never done by this script.`);
+      }
+      changed += 1;
+      if (APPLY) {
+        const { error } = await db.from('tracks').update({
+          ...fieldsForClass('member_only', { tierIds: [...new Set([...allowed, dripTier])] }),
+          tier_unlock_months: { ...delays, [dripTier]: p.months },
+          updated_at: new Date().toISOString(),
+        }).eq('id', r.id).eq('artist_id', artist.id);
+        if (error) die(`drip "${r.title}": ${error.message}`);
+      }
+    }
+    console.log(`drip: "${p.title}" ${changed ? (APPLY ? 'now opens' : 'will open') : 'already opens'} to ${C.drip.rung} after month ${p.months} of each membership (${titles.length} tracks)`);
+  }
 }
 
 if (!APPLY) { console.log('\n(dry run: benefits, offers, funnel, poll and projects are written on --apply)'); process.exit(0); }
@@ -354,6 +409,19 @@ if (!(C.drops ?? []).length) {
 }
 
 // ── 6. Vote magnet ─────────────────────────────────────────────────────────────
+if (C.vote?.retired) {
+  // Take the ballot down and close the poll. The songs stay free tracks; votes already cast stay
+  // in the poll's history. A closed decision never reopens (songLab/core.ts).
+  const { data: offerRow } = await db.from('song_lab_offers').select('id, decision_id').eq('artist_id', artist.id).eq('slug', C.vote.offerSlug).maybeSingle();
+  if (offerRow) {
+    const { error } = await db.from('song_lab_offers').update({ is_active: false, updated_at: new Date().toISOString() }).eq('id', offerRow.id);
+    if (error) die(`ballot retire: ${error.message}`);
+    if (offerRow.decision_id) {
+      const { error: pollErr } = await db.from('song_lab_decisions').update({ status: 'closed' }).eq('id', offerRow.decision_id).eq('artist_id', artist.id);
+      if (pollErr) die(`poll close: ${pollErr.message}`);
+    }
+  }
+}
 if (voteTracks) {
   const v = C.vote;
   const options = normalizeOptions(voteTracks);
@@ -422,6 +490,7 @@ if (C.content) {
 // ── 8. Open the recorded winner to Gold (only with --unlock-winner) ───────────
 if (UNLOCK_WINNER) {
   if (!C.vote || !C.content) die('--unlock-winner needs a vote and content');
+  if (C.vote.retired) die('the vote is retired; this launch opens projects through its drip instead');
   const { data: offerRow } = await db.from('song_lab_offers').select('decision_id').eq('artist_id', artist.id).eq('slug', C.vote.offerSlug).single();
   const { data: poll } = await db.from('song_lab_decisions').select('options, winning_option_id').eq('id', offerRow.decision_id).single();
   if (!poll.winning_option_id) die('no winner is recorded yet. The artist records it in their Song Lab manager; CRWN never picks one.');
@@ -471,6 +540,23 @@ if (voteTracks) {
   console.log(`vote ballot: ${open ? 'OPEN to anyone' : 'NOT OPEN'} | ${poll.options.length} songs | joins Bronze=${offer.tier_id === tierIds.Bronze}`);
   if (!open) die('the ballot would not render for a new fan');
   console.log(`ballot link: https://thecrwn.app/${artist.slug}/join/${C.vote.offerSlug}`);
+}
+if (C.vote?.retired) {
+  const { data: offer } = await db.from('song_lab_offers').select('is_active, decision_id').eq('artist_id', artist.id).eq('slug', C.vote.offerSlug).maybeSingle();
+  const { data: poll } = offer?.decision_id ? await db.from('song_lab_decisions').select('status').eq('id', offer.decision_id).single() : { data: null };
+  console.log(`vote: retired | ballot active=${offer?.is_active ?? 'no row'} | poll ${poll?.status ?? 'none'}`);
+  if (offer?.is_active) die('the retired ballot is still up');
+}
+if (C.drip) {
+  const dripTier = tierIds[C.drip.rung];
+  const { data: rows } = await db.from('tracks').select('title, allowed_tier_ids, tier_unlock_months').eq('artist_id', artist.id);
+  for (const p of C.drip.projects) {
+    const project = C.content.projects.find((x) => x.title === p.title);
+    const mine = (rows || []).filter((r) => project.trackTitles.some((tt) => tt.toLowerCase() === r.title.trim().toLowerCase()));
+    const dripping = mine.filter((r) => (r.allowed_tier_ids || []).includes(dripTier) && r.tier_unlock_months?.[dripTier] === p.months);
+    console.log(`drip: "${p.title}" ${dripping.length} tracks open to ${C.drip.rung} after month ${p.months}`);
+    if (!dripping.length) die(`drip: "${p.title}" has no track dripping to ${C.drip.rung}`);
+  }
 }
 console.log(`\npublic page: https://thecrwn.app/${artist.slug}`);
 for (const l of liveLinks) console.log(`drop funnel LIVE: ${l}`);
