@@ -63,6 +63,13 @@ Ask the founder only for what recon cannot answer, and ask once, before handing 
   pasting, and step 1 repeats the route as a fallback. A business/account switcher is a place
   Astra stalls (2026-09-27: it could not select M3rcey in Meta's business picker, while "Edit
   roles in Meta Business Suite" on the app's App roles page opens that portfolio directly).
+- **Astra works in the founder's Chrome window that is already open, never a browser of its
+  own.** Josh's window is the one signed in to the right account, on the right page; a browser
+  Astra launches itself (a built-in or agent browser, a new window, a new profile) has none of his
+  sessions, so it either stalls on a login it must not attempt or works in the wrong account.
+  Every prompt says so in its mission paragraph, and its Never list forbids opening another
+  browser, window or profile. If the open window has been closed, Astra stops and reports instead
+  of starting its own. New tabs inside that same window are fine when a step needs one.
 - **Never send Astra into Chrome Incognito.** The ChatGPT desktop app's browser connection cannot
   reach Incognito windows, and its screen capture fails often. A task that needs a second login
   (a reviewer or test account) is the founder's by hand, or a separate step after Astra.

@@ -16,7 +16,12 @@ Paste everything below the line.
 
 ---
 
-You are working in Prince Dre's ManyChat account, already open on the Automations page in Chrome.
+You are working in Prince Dre's ManyChat account, already open on the Automations page in **Josh's
+Chrome window that is open on screen right now**. Do all of the work in that window. Do not open
+your own browser, a new browser window, a new Chrome profile, or Incognito: none of them are signed
+in to Dre's account. A new tab inside that same window is fine. If that window has been closed,
+stop and report rather than starting a browser of your own.
+
 Build 17 Instagram automations. Each one replies to a comment publicly, opens a DM, and sends one
 link. Build **VOTE first and smoke-test it before building any other**, because the other 16 are
 duplicates of it and will inherit any mistake. Do not explore ManyChat settings, billing, other
@@ -166,6 +171,8 @@ hand from what you write here, so this matters more than one more automation.
 
 ## Never
 
+- Never open your own browser, another browser window, another Chrome profile, or Incognito. Work
+  only in Josh's Chrome window that was already open.
 - Never use the account switcher, and never open another ManyChat account.
 - Never change billing, the plan, team members, or Instagram connection settings.
 - Never edit, pause or delete an automation that is not one of these 17.
