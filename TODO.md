@@ -26,7 +26,7 @@ responsible for. Do not work those.
       [docs/acquisition/astra-princedre-manychat.md](docs/acquisition/astra-princedre-manychat.md).
       VOTE is Live but still asks fans to tap twice and its copy promised "all 3" projects (the
       page plays one song from each). Part 1 (Astra) makes it one tap, in Dre's voice. Then you DM
-      `VOTE` from @thecrwnapp in the Instagram app, tap **Vote**, and check the page opens (do not
+      `VOTE` from @thecrwnapp in the Instagram app, tap **vote**, and check the page opens (do not
       vote). Part 2 (Astra) duplicates it into the 16 songs. Send Claude each report.
 
 - [ ] **When each of Dre's song posts goes up, add its comment trigger in ManyChat.** The 16 song

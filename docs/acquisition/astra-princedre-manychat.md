@@ -23,9 +23,9 @@ be copied 16 times.
 
 1. In the Instagram **app**, signed in as **@thecrwnapp**, open the chat with **@1princedre** and
    send `VOTE`.
-2. You should get, within a few seconds: "You pick which project I drop first. Tap the button and
-   vote, I'mma send you a bonus song for it 👇" with one button, **Vote**.
-3. Tap **Vote**. The vote page should open. **Do not vote, and do not type a name or email.**
+2. You should get, within a few seconds: "you pick which project i drop first, tap the button and
+   vote and i'mma send you a bonus song for it 👇🏾" with one button, **vote**.
+3. Tap **vote**. The vote page should open. **Do not vote, and do not type a name or email.**
 4. If the reply has **no button** on your phone, do not run Part 2. Tell Claude.
 
 Copy the part you are running: everything between its line and the next part's heading.
@@ -60,10 +60,10 @@ field back and confirm it shows only the new value. Do this for every change.
    are. Save.
 3. Click the **first Send Message** node (the one that says "You asked for it. Tap below and I'll
    send it", set **As private reply**). Replace its text with exactly:
-   `You pick which project I drop first. Tap the button and vote, I'mma send you a bonus song for it 👇`
+   `you pick which project i drop first, tap the button and vote and i'mma send you a bonus song for it 👇🏾`
 4. In that same first node, click the **Send it** button. If the click only ends text editing,
    click it again. In the **Edit Button** panel, change the action so the button **opens a
-   website** (choose **Open website**). Set **Button title** to `Vote` and **Website URL** to
+   website** (choose **Open website**). Set **Button title** to `vote` and **Website URL** to
    exactly `https://thecrwn.app/princedre/join/vote`. Click **Done**. Keep the node set to **As
    private reply**.
 5. Delete the **second Send Message** node (the one that says "Pick which project drops first. Tap
@@ -73,7 +73,7 @@ field back and confirm it shows only the new value. Do this for every change.
 7. Make sure the top bar shows **Live** and **Saved**. If it shows Set Live or an unsaved state,
    click **Set Live**.
 8. Reopen VOTE and check by eye: two triggers; four public replies exactly as above; ONE Send
-   Message node, As private reply, with the new text and one button titled `Vote` that opens
+   Message node, As private reply, with the new text and one button titled `vote` that opens
    `https://thecrwn.app/princedre/join/vote`; no second node; Live.
 
 **Known problems:**
@@ -81,7 +81,7 @@ field back and confirm it shows only the new value. Do this for every change.
 | What you see | What to do |
 |---|---|
 | A field shows the old and new text run together | It was appended. Ctrl+A, Backspace, type again, read it back. |
-| ManyChat refuses a website button on the first node, or offers no Open website action there | Do NOT delete anything else. Put the button back to `Send it` connected to the second node, leave the second node in place, change only the texts (step 3 text on the first node with `Send it` kept; second node text `Vote below and I'mma send you a bonus song for it 👇`, button `Vote`), keep Live, and report the exact message ManyChat showed. |
+| ManyChat refuses a website button on the first node, or offers no Open website action there | Do NOT delete anything else. Put the button back to `Send it` connected to the second node, leave the second node in place, change only the texts (step 3 text on the first node with `Send it` kept; second node text `vote below and i'mma send you a bonus song for it 👇🏾`, button `vote`), keep Live, and report the exact message ManyChat showed. |
 | "Manychat has been updated. Please, save your work and reload the page." | Make sure the top bar shows Saved, then reload and check your last change stuck. |
 | "Keywords are not case-sensitive. You can remove the duplicates." | Ignore it. Leave VOTE's message trigger alone. |
 | "could not determine the current browser URL" | Click the ManyChat tab once so it is selected, retry once, then stop and report. |
@@ -120,7 +120,7 @@ billing, other accounts, or anything not named here. Do not read documentation.
 
 - **Each of the 16 song automations** is named its keyword and reads **Live**. On its **When**
   node it has exactly one trigger, **User sends a message**, set to exact match, with only its own
-  keyword. Its message text is the row's text. Its one button is titled `Get it` and opens the
+  keyword. Its message text is the row's text. Its one button is titled `get it` and opens the
   row's link. It has **no** comment trigger.
 - **VOTE is unchanged.**
 - Nothing else in the account changed.
@@ -129,22 +129,22 @@ billing, other accounts, or anything not named here. Do not read documentation.
 
 | # | Keyword | Link | Message text |
 |---|---|---|---|
-| 2 | ROUND | https://thecrwn.app/drop/princedre-round-here | Round Here, yours free. Tap the button and I'mma send it 👇 |
-| 3 | LETTER | https://thecrwn.app/drop/princedre-letter-to-la | Letter To LA with JMoney, yours free. Tap the button and I'mma send it 👇 |
-| 4 | SEND | https://thecrwn.app/drop/princedre-send-it-up | Send It Up, yours free. Tap the button and I'mma send it 👇 |
-| 5 | HOMMIE | https://thecrwn.app/drop/princedre-hommie | Hommie, yours free. Tap the button and I'mma send it 👇 |
-| 6 | MUNNA | https://thecrwn.app/drop/princedre-munnagang | MunnaGang, yours free. Tap the button and I'mma send it 👇 |
-| 7 | SAVAGE | https://thecrwn.app/drop/princedre-my-savages | My Savages, yours free. Tap the button and I'mma send it 👇 |
-| 8 | SEEK | https://thecrwn.app/drop/princedre-hide-n-seek | Hide N Seek, yours free. Tap the button and I'mma send it 👇 |
-| 9 | RIDAH | https://thecrwn.app/drop/princedre-im-a-ridah | Im A Ridah, yours free. Tap the button and I'mma send it 👇 |
-| 10 | FROM | https://thecrwn.app/drop/princedre-from-the-o | From The O, yours free. Tap the button and I'mma send it 👇 |
-| 11 | TURNT | https://thecrwn.app/drop/princedre-turntup4jmunna | TurntUp4JMunna, yours free. Tap the button and I'mma send it 👇 |
-| 12 | LIFE | https://thecrwn.app/drop/princedre-life-i-live | Life I Live, yours free. Tap the button and I'mma send it 👇 |
-| 13 | COME | https://thecrwn.app/drop/princedre-come-from | Come From, yours free. Tap the button and I'mma send it 👇 |
-| 14 | CHASIN | https://thecrwn.app/drop/princedre-chasin-dough | Chasin Dough, yours free. Tap the button and I'mma send it 👇 |
-| 15 | RELOADED | https://thecrwn.app/drop/princedre-reloaded | Reloaded, yours free. Tap the button and I'mma send it 👇 |
-| 16 | HIGH | https://thecrwn.app/drop/princedre-i-get-high | I Get High, yours free. Tap the button and I'mma send it 👇 |
-| 17 | MADE | https://thecrwn.app/drop/princedre-always-made-it | Always Made It, yours free. Tap the button and I'mma send it 👇 |
+| 2 | ROUND | https://thecrwn.app/drop/princedre-round-here | tap the button and i'mma send you Round Here for free 👇🏾 |
+| 3 | LETTER | https://thecrwn.app/drop/princedre-letter-to-la | tap the button and i'mma send you Letter To LA with JMoney for free 👇🏾 |
+| 4 | SEND | https://thecrwn.app/drop/princedre-send-it-up | tap the button and i'mma send you Send It Up for free 👇🏾 |
+| 5 | HOMMIE | https://thecrwn.app/drop/princedre-hommie | tap the button and i'mma send you Hommie for free 👇🏾 |
+| 6 | MUNNA | https://thecrwn.app/drop/princedre-munnagang | tap the button and i'mma send you MunnaGang for free 👇🏾 |
+| 7 | SAVAGE | https://thecrwn.app/drop/princedre-my-savages | tap the button and i'mma send you My Savages for free 👇🏾 |
+| 8 | SEEK | https://thecrwn.app/drop/princedre-hide-n-seek | tap the button and i'mma send you Hide N Seek for free 👇🏾 |
+| 9 | RIDAH | https://thecrwn.app/drop/princedre-im-a-ridah | tap the button and i'mma send you Im A Ridah for free 👇🏾 |
+| 10 | FROM | https://thecrwn.app/drop/princedre-from-the-o | tap the button and i'mma send you From The O for free 👇🏾 |
+| 11 | TURNT | https://thecrwn.app/drop/princedre-turntup4jmunna | tap the button and i'mma send you TurntUp4JMunna for free 👇🏾 |
+| 12 | LIFE | https://thecrwn.app/drop/princedre-life-i-live | tap the button and i'mma send you Life I Live for free 👇🏾 |
+| 13 | COME | https://thecrwn.app/drop/princedre-come-from | tap the button and i'mma send you Come From for free 👇🏾 |
+| 14 | CHASIN | https://thecrwn.app/drop/princedre-chasin-dough | tap the button and i'mma send you Chasin Dough for free 👇🏾 |
+| 15 | RELOADED | https://thecrwn.app/drop/princedre-reloaded | tap the button and i'mma send you Reloaded for free 👇🏾 |
+| 16 | HIGH | https://thecrwn.app/drop/princedre-i-get-high | tap the button and i'mma send you I Get High for free 👇🏾 |
+| 17 | MADE | https://thecrwn.app/drop/princedre-always-made-it | tap the button and i'mma send you Always Made It for free 👇🏾 |
 
 Copy links and text character for character. Do not shorten, retype from memory, or "correct"
 them. Do not use a dash of any kind in anything you type.
@@ -172,17 +172,17 @@ field back and confirm it shows only the new value. Do this for every change.
 6. In the same panel, change the matching selector from **message contains** to the exact match
    option (it may read **message is**). Save.
 7. Click the **Send Message** node. Replace its text with the row's message text.
-8. Click its button (`Vote`). If the click only ends text editing, click it again. In **Edit
-   Button**, set **Button title** to `Get it` and **Website URL** to the row's link. Click
+8. Click its button (`vote`). If the click only ends text editing, click it again. In **Edit
+   Button**, set **Button title** to `get it` and **Website URL** to the row's link. Click
    **Done**.
 9. Click **Set Live**. Wait until the top bar shows **Live** and **Saved**.
 10. After every fourth automation, reopen those four and check by eye: name is the keyword; one
     trigger only, **User sends a message**, with only that keyword on exact match; message text
-    from the table; one button `Get it` with the row's link. Fix any that differ, then carry on.
+    from the table; one button `get it` with the row's link. Fix any that differ, then carry on.
 
 If Part 1 used the fallback (VOTE still has two message nodes), then in step 7 change the FIRST
 node's text to the row's message text, keep its `Send it` button, and in step 8 change the SECOND
-node's text to `Here go, it's yours 👇` and its button to `Get it` with the row's link.
+node's text to `here go, it's yours 👇🏾` and its button to `get it` with the row's link.
 
 ### Known problems and the exact fix
 
