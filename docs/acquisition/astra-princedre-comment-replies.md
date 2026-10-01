@@ -5,7 +5,7 @@
 **Why:** every comment trigger should publicly reply to the fan in Dre's voice so they know to
 check their DMs. A trigger seen on 2026-10-01 ("Post or Reel Comments #2") carried ManyChat's
 default replies ("Check your DM's", "Sent you a DM", "Just DM'd you", "Just sent you a DM", "Check
-your inbox") instead of Dre's four. This run checks every comment trigger on all 17 automations and
+your inbox") instead of Dre's replies. This run checks every comment trigger on all 17 automations and
 fixes the replies. It changes nothing else and sends nothing.
 
 **Before pasting:**
@@ -26,19 +26,41 @@ browser window, a new Chrome profile, or Incognito. A new tab inside that same w
 the window has been closed, stop and report.
 
 Your job: open every automation listed below, check every **comment** trigger on it, and make sure
-each one publicly replies to the fan's comment with exactly Dre's four replies. **Do not send any
+each one publicly replies to the fan's comment with exactly Dre's 20 replies. **Do not send any
 DM or comment.** Do not change any message, button, link, keyword or DM trigger. Do not explore
 ManyChat settings, billing, other accounts, or anything not named here. Do not read documentation.
 
-## The four replies
+## The 20 replies
 
 Every comment trigger's **Reply to their comment too** section (section 3 of the trigger) must be
-switched ON and contain exactly these four replies, lowercase as written, and nothing else:
+switched ON and contain exactly these 20 replies, in this order, lowercase and with the emojis
+exactly as written (the hand emojis are the brown skin tone), and nothing else. ManyChat sends
+each fan one of them at random.
 
-`just dm'd you g`
-`sent it to you bro`
-`i just sent it to you`
-`i just dm'd you`
+1. `just dm'd you g`
+2. `sent it to you bro`
+3. `i just sent it to you`
+4. `i just dm'd you`
+5. `check your requests g`
+6. `check your dms g`
+7. `it's in your dms`
+8. `sent it gang`
+9. `it's in your message requests`
+10. `just slid in your dms`
+11. `in your dms bro`
+12. `check the dm twin`
+13. `i got you check your dms`
+14. `sent it to you gang`
+15. `you good check your dms`
+16. `sent it check your requests bro`
+17. `just dm'd you 🤝🏾`
+18. `sent it to you bro 🔥`
+19. `check your dms g 💯`
+20. `i got you 👊🏾`
+
+If ManyChat caps how many replies a trigger can hold, keep as many as it allows **from the top of
+this list down**, and report the cap. The order is deliberate: number 5 tells fans who do not
+follow Dre to look in Message Requests, where his DM lands for them.
 
 ## The 17 automations
 
@@ -65,15 +87,15 @@ shows only the new value.
    caption start), its keyword, and the replies it currently has in **Reply to their comment
    too**.
 5. Scroll to **Reply to their comment too**. If it is switched off, switch it on. Make the replies
-   exactly the four above: replace the text of existing replies one at a time (Ctrl+A, Backspace,
-   type, read back), remove any extra replies with their own remove control, and add replies with
-   the section's add control if there are fewer than four.
+   exactly the 20 above, in order: replace the text of existing replies one at a time (Ctrl+A,
+   Backspace, type, read back), remove any reply not on the list with its own remove control, and
+   add the rest with the section's add control.
 6. Do not change the trigger's post choice or keyword, even if it looks wrong. Note it instead
    (see "Report these, do not fix them").
 7. Save the trigger. If the automation shows **Update** or an unsaved state, click it, and make
    sure the trigger you edited is still switched **on** afterwards (publishing and enabling a
    trigger are separate steps in this account). The top bar must end on **Live** and **Saved**.
-8. Reopen the trigger and check the four replies by eye.
+8. Reopen the trigger and check all 20 replies by eye, emojis included.
 
 ## Report these, do not fix them
 
@@ -89,7 +111,7 @@ shows only the new value.
 | What you see | What to do |
 |---|---|
 | A reply shows old and new text run together | It was appended. Ctrl+A, Backspace, type again, read it back. |
-| ManyChat will not allow a fourth reply, or has a different limit | Keep as many of the four as it allows, in the order listed, and report the limit. |
+| ManyChat will not allow more replies | Keep as many as it allows from the top of the list, and report the cap. |
 | "Manychat has been updated. Please, save your work and reload the page." | Make sure Saved shows, reload, reopen the trigger and check your change stuck. |
 | "could not determine the current browser URL" | Click the ManyChat tab once, retry once, then stop and report. |
 | "window capture timed out" or "FrameArrived timed out" | Bring Chrome to the front and retry. If it keeps failing, connect to the existing Chrome tabs through the browser extension. |
@@ -112,7 +134,7 @@ Do not stop for anything else.
 - Never add, delete or re-point a trigger, and never change a keyword, message, button or link.
 - Never edit any automation not in the list.
 - Never open ManyChat Settings, billing, team or Instagram connection settings.
-- Never type a dash of any kind, and never change the four replies' wording or capitals.
+- Never type a dash of any kind, and never change the replies' wording, capitals or emojis.
 
 ## Report
 

@@ -31,8 +31,8 @@ responsible for. Do not work those.
 - [ ] **When each of Dre's song posts goes up, add its comment trigger in ManyChat.** The 16 song
       automations answer DMs only until then. Open the song's automation, **+ New Trigger**, **Post
       or Reel Comments**, **Specific Post or Reel**, pick the post, keyword = the song's keyword,
-      and on the Public Reply screen add the four replies: `just dm'd you g`, `sent it to you bro`,
-      `i just sent it to you`, `i just dm'd you`. The duplicates lost VOTE's public replies when
+      and in **Reply to their comment too** add the 20 replies listed in
+      [docs/acquisition/astra-princedre-comment-replies.md](docs/acquisition/astra-princedre-comment-replies.md), in order. The duplicates lost VOTE's public replies when
       their any-post trigger was deleted, so the replies have to be typed in with each new trigger.
       Then click **Update** and make sure the new trigger is switched on: Astra found that publishing
       a change and enabling the trigger are two separate steps. Until a song has its trigger, tell
