@@ -70,6 +70,14 @@ describe('the checks actually refuse what they claim to', () => {
     const d = clone(); d.drops![1].linkSlug = 'princedre-round-here';
     expect(checkLaunchPartner(d).join()).toContain('share a link');
   });
+  it('refuses a price override that inverts the ladder, is not whole dollars, or names Bronze', () => {
+    const c = clone(); c.prices = { Platinum: 2500 };
+    expect(checkLaunchPartner(c).join()).toContain('Platinum must cost more than Gold');
+    const d = clone(); d.prices = { Platinum: 4999 };
+    expect(checkLaunchPartner(d).join()).toContain('whole dollars');
+    const e = clone(); (e.prices as Record<string, number>) = { Bronze: 500 };
+    expect(checkLaunchPartner(e).join()).toContain('not a paid rung');
+  });
   it('refuses a downsell that is not cheaper than the primary', () => {
     const c = clone(); c.funnelDownsell = 'Platinum';
     expect(checkLaunchPartner(c).join()).toContain('downsell');

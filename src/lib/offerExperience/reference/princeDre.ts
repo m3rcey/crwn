@@ -8,7 +8,10 @@
 //   Silver $10               Blood Brothaz + Life I Live, complete
 //   Gold $25                 Shotta In Da Jungle + Im Reloaded, complete, the day you join; then
 //                            one more project each month you stay (DRE_DRIP), ending with the best
-//   Platinum $100            everything: O Block Ass Nigga + the 3 drip projects, complete, today
+//   Platinum $50             everything: O Block Ass Nigga + the 3 drip projects, complete, today
+//                            ($50, not the ladder's $100: founder, 2026-10-01, from his avatar. A
+//                            working-class, access-first audience pays monthly for closeness, not for
+//                            files they can find free, and the drip leaves Platinum a modest lead.)
 //
 // THE MEMBER DRIP (founder, 2026-10-01). Gold gets the three remaining projects one a month,
 // counted from EACH MEMBER'S OWN start, and ends with the strongest. It replaced a fan vote on a
@@ -191,7 +194,7 @@ export const DRE_TIER_PRICES_CENTS: Record<string, number> = {
   Bronze: 0,
   Silver: 1000,
   Gold: 2500,
-  Platinum: 10000,
+  Platinum: 5000,
 };
 
 // Each card leads with what the fan gets THE MOMENT they join (founder, 2026-09-28); the
@@ -315,7 +318,7 @@ export const DRE_PLATINUM_OFFER: TierOfferExperience = {
   faqs: [
     {
       q: 'Why not wait on the $25 level?',
-      a: `The $25 a month level gets ${DRIP1.title}, ${DRIP2.title} and ${DRIP3.title} one at a time, a month apart from the day you join, and never gets ${OBAN}. This level gets all ${PROJECTS} projects complete today, and hears the project after the mixtape first.`,
+      a: `The $${DRE_TIER_PRICES_CENTS.Gold / 100} a month level gets ${DRIP1.title}, ${DRIP2.title} and ${DRIP3.title} one at a time, a month apart from the day you join, and never gets ${OBAN}. This level gets all ${PROJECTS} projects complete today, and hears the project after the mixtape first.`,
     },
     {
       q: 'Is the mixtape included?',
@@ -385,7 +388,7 @@ export const DRE_GOLD_OFFER: TierOfferExperience = {
   faqs: [
     {
       q: 'When do the other projects open?',
-      a: `Counted from the day you join: ${DRIP1.title} after your first month, ${DRIP2.title} after your second, ${DRIP3.title} after your third. If you cancel and come back, the count starts again. If you want all ${PROJECTS} today, the $100 a month level has every project now.`,
+      a: `Counted from the day you join: ${DRIP1.title} after your first month, ${DRIP2.title} after your second, ${DRIP3.title} after your third. If you cancel and come back, the count starts again. If you want all ${PROJECTS} today, the $${DRE_TIER_PRICES_CENTS.Platinum / 100} a month level has every project now.`,
     },
     {
       q: 'Is the mixtape included?',
@@ -471,6 +474,8 @@ export const PRINCE_DRE: LaunchPartnerConfig = {
     ],
   },
   drip: { rung: 'Gold', projects: DRE_DRIP.map((d) => ({ title: d.title, months: d.months })) },
+  // Founder-approved, 2026-10-01: Platinum at $50 instead of the ladder's $100 (see the header).
+  prices: { Platinum: DRE_TIER_PRICES_CENTS.Platinum },
   // What each rung holds: every song on every project (see CONTENT_TRACKS). `rung` is the LOWEST
   // rung that hears it; every rung above it is listed on the track too (the gate is an exact
   // match, there is no inheritance). The script only ever ADDS rungs to a track already there.

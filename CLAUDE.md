@@ -27,6 +27,14 @@ names and prices, so drift fails `npm test` instead of reaching an artist.
   APPLIED 2026-08-28, enforced in `/api/stripe/checkout`), it is opt-in per tier in `TierManager`,
   and the template's fulfillment note now points the artist at it instead of asserting the cap.
   Never re-add a scarcity claim to a template rung without wiring it to that column.
+- **A launch partner may carry a founder-approved price for a paid rung** (`prices` in its
+  launch config, read through `ladderPricesFor`). Prince Dre's Platinum is $50, not $100
+  (founder, 2026-10-01: an access-first, working-class audience). The template stays the default
+  for everyone else and the ladder must still climb (`checkLaunchPartner`). The launch script
+  reprices only a tier with NO active subscription, creates the new Stripe product and prices
+  first, then moves `price` and its Stripe ids in one update, because checkout charges whatever
+  `stripe_price_id` the tier points at and never re-reads the amount. Its read-back fails if any
+  paid tier's Stripe amount differs from the price fans are shown.
 - The internal keys stay `wave | inner_circle | vault | throne`. They are referenced across the
   calculators, drafts and offer builder, and renaming them moves data for no artist-visible gain.
 - Each rung carries `legacyNames`. The ladder's "already added" check matches those too, so an

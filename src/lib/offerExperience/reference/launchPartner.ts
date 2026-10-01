@@ -7,7 +7,8 @@
 // would ship a forbidden promise fails `npm test` instead of reaching a fan.
 //
 // Content rules this enforces, each a ratified CRWN rule (see CLAUDE.md):
-//   - the four stock rungs at the recommended prices (tierTemplate.ts is the source of truth);
+//   - the four stock rungs at the recommended prices (tierTemplate.ts is the source of truth),
+//     unless the config carries a founder-approved `prices` override for a paid rung;
 //   - every structured identity is a SUPPORTED registry key standing for an approved line;
 //   - offers pass the Tier Offer Experience write contract (benefit CTA, declared truth);
 //   - no merch, no scarcity, no priority, no cadence, no rights language; no em/en dashes.
@@ -118,6 +119,11 @@ export interface LaunchPartnerConfig {
   vote?: VoteMagnetConfig;
   content?: { tracks: ContentTrack[]; projects: ContentProject[] };
   drip?: DripConfig;
+  /** A FOUNDER-APPROVED price for a paid rung, in cents, where this artist's audience calls for
+   *  something other than the recommended ladder (Prince Dre's Platinum at $50, 2026-10-01).
+   *  Rungs not named keep RECOMMENDED_LADDER's price. The script reprices only a tier with no
+   *  active subscription, and moves the price and its Stripe price ids in one update. */
+  prices?: Partial<Record<PaidRung, number>>;
 }
 
 /** The drop funnel's public link segment, personalized (founder, 2026-09-29): never the random
@@ -131,6 +137,12 @@ const DROP_SLUG_RE = /^[a-z0-9][a-z0-9-]{1,62}[a-z0-9]$/;
 export const LADDER_PRICES_CENTS: Record<Rung, number> = Object.fromEntries(
   LADDER_RUNGS.map((r) => [r, RECOMMENDED_LADDER.find((l) => l.name === r)!.priceCents]),
 ) as Record<Rung, number>;
+
+/** What each rung actually costs for this artist: the recommended ladder, overridden only where
+ *  the config carries a founder-approved price. The script, the checks and the copy read this. */
+export function ladderPricesFor(c: Pick<LaunchPartnerConfig, 'prices'>): Record<Rung, number> {
+  return { ...LADDER_PRICES_CENTS, ...(c.prices ?? {}) };
+}
 
 const BANNED = ['merch', 'limited', 'priority', 'weekly', 'monthly', 'every month', 'royalt', 'ownership', 'guarantee', 'exclusive rights'];
 
@@ -149,7 +161,17 @@ export function checkLaunchPartner(c: LaunchPartnerConfig): string[] {
   for (const rung of ['Silver', 'Gold', 'Platinum'] as PaidRung[]) {
     if (!normalizeOfferExperience(c.offers[rung], rung)) errors.push(`${rung}: offer fails the write contract`);
   }
-  if (LADDER_PRICES_CENTS[c.funnelDownsell] >= LADDER_PRICES_CENTS[c.funnelPrimary]) errors.push('funnel downsell must be cheaper than the primary');
+  const prices = ladderPricesFor(c);
+  for (const [rung, cents] of Object.entries(c.prices ?? {})) {
+    if (rung === 'Bronze' || !LADDER_RUNGS.includes(rung as Rung)) errors.push(`prices: ${rung} is not a paid rung`);
+    if (!Number.isInteger(cents) || cents < 100 || cents % 100 !== 0) errors.push(`prices: ${rung} must be whole dollars, at least $1 (in cents)`);
+  }
+  // The ladder must climb: the release waterfall staggers on PRICE order, and an inverted ladder
+  // sells less for more.
+  for (let i = 1; i < LADDER_RUNGS.length; i++) {
+    if (prices[LADDER_RUNGS[i]] <= prices[LADDER_RUNGS[i - 1]]) errors.push(`prices: ${LADDER_RUNGS[i]} must cost more than ${LADDER_RUNGS[i - 1]}`);
+  }
+  if (prices[c.funnelDownsell] >= prices[c.funnelPrimary]) errors.push('funnel downsell must be cheaper than the primary');
   if (c.vote) {
     const v = c.vote;
     if (normalizeOfferSlug(v.offerSlug) !== v.offerSlug) errors.push(`vote: offer slug "${v.offerSlug}" is not a legal link`);

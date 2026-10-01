@@ -29,6 +29,9 @@
 //                    to Gold. Additive, like the release waterfall. A RETIRED vote closes its
 //                    poll and takes the ballot down instead of opening it.
 //
+// Reprices a paid tier ONLY to a founder-approved `prices` override, ONLY while it has no active
+// subscription: new Stripe product + prices first, then the price and its ids in one update, then the
+// old prices archived. The read-back fails if any paid tier's Stripe amount differs from its price.
 // Refuses: a config that fails checkLaunchPartner, a tier whose price differs from the plan,
 // any tier with an active subscription, a slug that is taken or reserved.
 //
@@ -40,6 +43,7 @@ import { readFileSync, existsSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { randomBytes } from 'node:crypto';
 import { createClient } from '@supabase/supabase-js';
+import Stripe from 'stripe';
 import { normalizeOfferExperience } from '../src/lib/offerExperience/normalize.ts';
 import { isReservedSlug } from '../src/lib/reservedSlugs.ts';
 import { resolveFunnelOffers } from '../src/lib/fanAutomations/offerTiers.ts';
@@ -47,7 +51,7 @@ import { normalizeOptions, ballotOpenForFreeJoin } from '../src/lib/songLab/core
 import { fieldsForClass } from '../src/lib/membershipStrategy.ts';
 import { albumInsertPayload, albumTrackRows } from '../src/lib/projectUpload.ts';
 import { LAUNCH_PARTNERS } from '../src/lib/offerExperience/reference/launchPartners.ts';
-import { checkLaunchPartner, dropLinkSlug, LADDER_RUNGS, LADDER_PRICES_CENTS } from '../src/lib/offerExperience/reference/launchPartner.ts';
+import { checkLaunchPartner, dropLinkSlug, LADDER_RUNGS, ladderPricesFor } from '../src/lib/offerExperience/reference/launchPartner.ts';
 
 const key = process.argv.slice(2).find((a) => !a.startsWith('--'));
 const APPLY = process.argv.includes('--apply');
@@ -67,6 +71,11 @@ const db = createClient(pick('NEXT_PUBLIC_SUPABASE_URL'), pick('SUPABASE_SERVICE
   auth: { autoRefreshToken: false, persistSession: false },
 });
 console.log(`${C.displayName} (${C.key}) | ${APPLY ? 'MODE: APPLY' : 'MODE: DRY RUN (pass --apply to write)'}`);
+/** What each rung costs for THIS artist: the ladder, plus any founder-approved override. */
+const PRICES = ladderPricesFor(C);
+// Platform-account Stripe (prices live on the platform, never on the connected account).
+const stripeKey = pick('STRIPE_SECRET_KEY');
+const stripe = stripeKey ? new Stripe(stripeKey) : null;
 
 // ── 0. A drip needs its migration. Checked before ANY write: without the column the oracle
 // cannot delay, and the copy would promise a wait that nothing enforces.
@@ -124,16 +133,51 @@ if (!artist) { console.log('\n(dry run stops here: everything else hangs off the
 
 // ── 2. Ladder ──────────────────────────────────────────────────────────────────
 const { data: existing } = await db.from('subscription_tiers')
-  .select('id, name, price, access_config').eq('artist_id', artist.id).eq('is_active', true);
+  .select('id, name, price, access_config, stripe_price_id, stripe_annual_price_id, stripe_product_id, offers_annual, annual_discount_percent')
+  .eq('artist_id', artist.id).eq('is_active', true);
+/** Move an UNSOLD tier to a new price. Checkout charges whatever stripe_price_id the tier points
+ *  at (it never re-reads the amount), so the price and the price ids change in ONE update, after
+ *  the new Stripe objects exist. A tier with no Stripe price yet only changes its number: the
+ *  Connect backfill creates its prices later, at the new price. */
+async function repriceTier(t, name, price) {
+  const fields = { price };
+  if (t.stripe_price_id) {
+    if (!stripe) die('STRIPE_SECRET_KEY is not in .env.local; cannot reprice a tier that already has Stripe prices');
+    const old = await stripe.prices.retrieve(t.stripe_price_id).catch((e) => die(`${name}: this Stripe key cannot read the tier's current price (${e.message}); wrong account or mode, refusing`));
+    if (old.unit_amount !== t.price) die(`${name}: Stripe charges ${old.unit_amount}, the tier says ${t.price}; fix that by hand first`);
+    const discount = Math.min(50, Math.max(0, Math.round(Number(t.annual_discount_percent ?? 25) || 0)));
+    const product = await stripe.products.create({ name, description: C.promises[name], metadata: { artist_id: artist.id } });
+    const monthly = await stripe.prices.create({ product: product.id, unit_amount: price, currency: 'usd', recurring: { interval: 'month' } });
+    let annualId = null;
+    if (t.offers_annual !== false) {
+      const annual = await stripe.prices.create({ product: product.id, unit_amount: Math.round(price * 12 * (1 - discount / 100)), currency: 'usd', recurring: { interval: 'year' } });
+      annualId = annual.id;
+    }
+    Object.assign(fields, { stripe_product_id: product.id, stripe_price_id: monthly.id, stripe_annual_price_id: annualId });
+  }
+  const { error } = await db.from('subscription_tiers').update(fields).eq('id', t.id).eq('artist_id', artist.id);
+  if (error) die(`${name} reprice: ${error.message} (new Stripe objects exist but nothing points at them; the tier still charges its old price)`);
+  // Retire the old prices so nothing can start a subscription on them. Best effort: the tier no
+  // longer points at them either way.
+  for (const id of [t.stripe_price_id, t.stripe_annual_price_id].filter(Boolean)) {
+    await stripe.prices.update(id, { active: false }).catch((e) => console.log(`  (could not archive old price ${id}: ${e.message})`));
+  }
+  console.log(`${name}: now $${price / 100}/mo${fields.stripe_price_id ? ` (Stripe ${fields.stripe_price_id})` : ''}`);
+}
 const tierIds = {};
 for (const name of LADDER_RUNGS) {
-  const price = LADDER_PRICES_CENTS[name];
+  const price = PRICES[name];
   const access_config = { benefits: C.benefits[name], card_lines: 'prose_only' };
   const found = (existing || []).find((t) => t.name === name);
   if (found) {
-    if (found.price !== price) die(`${name} exists at ${found.price}, plan says ${price}; refusing`);
     const { count } = await db.from('subscriptions').select('id', { count: 'exact', head: true }).eq('tier_id', found.id).eq('status', 'active');
     if (count) die(`${name} has ${count} active subscriptions; refusing to rewrite a sold tier`);
+    if (found.price !== price) {
+      // Only a founder-approved override moves a price. Anything else is drift, and refused.
+      if (C.prices?.[name] !== price) die(`${name} exists at ${found.price}, plan says ${price}; refusing`);
+      console.log(`${name}: ${APPLY ? 'repricing' : 'will reprice'} $${found.price / 100} -> $${price / 100}/mo${found.stripe_price_id ? ' (new Stripe product + prices, old ones archived)' : ' (no Stripe price yet)'}`);
+      if (APPLY) await repriceTier(found, name, price);
+    }
     console.log(`${name}: exists (${found.id}), will set promise + prose`);
     if (APPLY) {
       const { error } = await db.from('subscription_tiers')
@@ -518,6 +562,16 @@ for (const t of tiers) {
   const { data: b } = await db.from('tier_benefits').select('benefit_type, config').eq('tier_id', t.id).order('sort_order');
   if ((b || []).some((r) => r.config?.frequency)) die(`${t.name}: a frequency was written`);
   console.log(`${t.name.padEnd(9)} $${String(t.price / 100).padEnd(4)} "${t.description}" | ${t.access_config?.benefits?.length} lines | keys: ${(b || []).map((r) => r.benefit_type).join(', ')} | stripe: ${t.stripe_price_id ? 'yes' : 'pending connect'}`);
+}
+// What a fan is SHOWN must be what Stripe CHARGES, for every paid tier.
+if (stripe) {
+  const { data: priced } = await db.from('subscription_tiers').select('name, price, stripe_price_id').eq('artist_id', artist.id).eq('is_active', true).gt('price', 0);
+  for (const t of priced || []) {
+    if (!t.stripe_price_id) continue;
+    const sp = await stripe.prices.retrieve(t.stripe_price_id);
+    console.log(`${t.name}: shown $${t.price / 100}, Stripe charges $${sp.unit_amount / 100} (${sp.active ? 'active' : 'ARCHIVED'})`);
+    if (sp.unit_amount !== t.price || !sp.active) die(`${t.name}: the Stripe price does not match the tier`);
+  }
 }
 for (const name of Object.keys(C.offers)) {
   const { data: row } = await db.from('tier_offer_experiences').select('config, is_active').eq('tier_id', tierIds[name]).single();

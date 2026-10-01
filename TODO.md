@@ -35,10 +35,11 @@ responsible for. Do not work those.
       card is on file for the plan that follows the trial, and put the trial's end date in your
       calendar with a reminder to open his Automations that day and check all 17 read Live.
 
-- [ ] **Tell Dre how his Gold works now, and get the mixtape.** Live since 2026-10-01: Gold hears
-      Shotta In Da Jungle and Im Reloaded the day they join, then Only The O In My Eyes after month 1,
-      Fresh Prince Of O'Block after month 2, The Return Of The Prince after month 3, counted from
-      each member's own signup. Platinum has all 8 today. The vote page is down. The order was my
+- [ ] **Tell Dre how his Gold and Platinum work now, and get the mixtape.** Live since 2026-10-01:
+      Gold ($25) hears Shotta In Da Jungle and Im Reloaded the day they join, then Only The O In My
+      Eyes after month 1, Fresh Prince Of O'Block after month 2, The Return Of The Prince after month
+      3, counted from each member's own signup. Platinum is now **$50/mo** (was $100; $450/yr) and has
+      all 8 today. The vote page is down. The order was my
       pick (weakest to best by YouTube views); if he wants another, tell me and I swap it.
       Cancelling and rejoining restarts the count. Ask how long the mixtape stays CRWN-only, and
       get the files.

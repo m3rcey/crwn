@@ -7,6 +7,7 @@ import {
 import { normalizeOfferExperience } from '../normalize';
 import { benefitDelivery } from '../../benefitRegistry';
 import { RECOMMENDED_LADDER } from '../../tierTemplate';
+import { ladderPricesFor } from './launchPartner';
 
 const OFFERS = [
   ['Platinum', DRE_PLATINUM_OFFER],
@@ -26,11 +27,23 @@ describe('Prince Dre reference configs pass the write contract', () => {
 });
 
 describe('the ladder matches the recommended rungs', () => {
-  it('names and prices are the four stock rungs at the recommended prices', () => {
+  it('names are the four stock rungs; prices are the ladder except the founder-approved Platinum', () => {
     const ladder = Object.fromEntries(RECOMMENDED_LADDER.map((r) => [r.name, r.priceCents]));
-    expect(DRE_TIER_PRICES_CENTS).toEqual({ Bronze: 0, Silver: 1000, Gold: 2500, Platinum: 10000 });
-    for (const [name, cents] of Object.entries(DRE_TIER_PRICES_CENTS)) expect(ladder[name]).toBe(cents);
+    // Founder, 2026-10-01: Platinum $50 for Dre's audience; every other rung stays on the ladder.
+    expect(DRE_TIER_PRICES_CENTS).toEqual({ Bronze: 0, Silver: 1000, Gold: 2500, Platinum: 5000 });
+    for (const name of ['Bronze', 'Silver', 'Gold']) expect(ladder[name]).toBe(DRE_TIER_PRICES_CENTS[name]);
+    expect(PRINCE_DRE.prices).toEqual({ Platinum: 5000 });
+    expect(ladderPricesFor(PRINCE_DRE)).toEqual(DRE_TIER_PRICES_CENTS);
     expect(Object.keys(DRE_TIER_PROMISES).sort()).toEqual(Object.keys(DRE_TIER_PRICES_CENTS).sort());
+  });
+
+  it('every price the copy states is the price the tier charges', () => {
+    const copy = JSON.stringify([DRE_PLATINUM_OFFER, DRE_GOLD_OFFER, DRE_SILVER_OFFER, DRE_APPROVED_BENEFITS]);
+    const stated = [...copy.matchAll(/\$(\d+) a month level/g)].map((m) => Number(m[1]) * 100);
+    expect(stated.length).toBeGreaterThan(0);
+    const real = Object.values(DRE_TIER_PRICES_CENTS);
+    for (const cents of stated) expect(real).toContain(cents);
+    expect(copy).not.toContain('$100');
   });
 
   it('every structured identity is a supported registry key standing for an approved line', () => {
