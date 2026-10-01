@@ -9,7 +9,7 @@ import {
 export const metadata = {
   title: 'Internal SMS Alert Consent | CRWN',
   description:
-    'Consent form for authorized personnel of JNW Creative Enterprises, Inc. to receive internal CRWN operational lead alerts by SMS.',
+    'Consent form for authorized personnel of JNW Creative Enterprises Inc. to receive internal CRWN operational lead alerts by SMS.',
 };
 
 // PUBLIC and unauthenticated on purpose. Twilio asked to SEE the opt-in experience rather than
@@ -40,13 +40,13 @@ export default function SmsAlertConsentPage() {
               <div>
                 <dt className="inline font-semibold text-crwn-text">Sender: </dt>
                 <dd className="inline">
-                  JNW Creative Enterprises, Inc., operating the CRWN platform (thecrwn.app).
+                  JNW Creative Enterprises Inc., operating the CRWN platform (thecrwn.app).
                 </dd>
               </div>
               <div>
                 <dt className="inline font-semibold text-crwn-text">Recipients: </dt>
                 <dd className="inline">
-                  Authorized personnel of JNW Creative Enterprises, Inc. only. Artists, fans,
+                  Authorized personnel of JNW Creative Enterprises Inc. only. Artists, fans,
                   prospects, and customers are not recipients of this program.
                 </dd>
               </div>
@@ -97,7 +97,7 @@ export default function SmsAlertConsentPage() {
         </div>
 
         <div className="mt-12 pt-6 border-t border-crwn-elevated text-center text-xs text-crwn-text-secondary">
-          JNW Creative Enterprises, Inc. © 2026. All rights reserved.
+          JNW Creative Enterprises Inc. © 2026. All rights reserved.
         </div>
       </div>
     </div>

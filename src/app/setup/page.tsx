@@ -30,6 +30,8 @@ import { BulkUploadForm } from '@/components/artist/BulkUploadForm';
 import { OnboardingProjectUpload } from '@/components/onboarding/OnboardingProjectUpload';
 import { LivePagePreview } from '@/components/onboarding/LivePagePreview';
 import { SetupAccountBar } from '@/components/onboarding/SetupAccountBar';
+import { useArtistTermsStatus } from '@/hooks/useArtistTermsStatus';
+import { ArtistTermsGate } from '@/components/legal/ArtistTermsGate';
 import { previewSignature } from '@/lib/onboardingPreview';
 import { PROJECT_TYPE_OPTIONS } from '@/lib/projectUpload';
 import { FanImportModal } from '@/components/artist/FanImportModal';
@@ -212,6 +214,9 @@ function SetupWizard() {
   // The wizard is the only place that reads `stripeConnected`, so it is the only
   // place that pays for the Stripe round trip.
   const setup = useArtistSetup({ withStripe: true });
+  // The artist terms, BEFORE the first upload: owed from the moment the artist row exists (the
+  // identity screens create it), so a new artist accepts right after naming their page.
+  const { status: artistTerms, refresh: refreshArtistTerms } = useArtistTermsStatus(!!setup.artistId);
   const { loading, isArtist, onboardingCompleted, artistId, slug, setupCompleted, steps, stripeConnected, avatarUrl, refresh, markComplete } =
     setup;
 
@@ -685,6 +690,11 @@ function SetupWizard() {
         }}
       />
     );
+  }
+
+  // The artist terms sit between naming the page and the first upload (see the hook above).
+  if (artistId && artistTerms?.required) {
+    return <ArtistTermsGate needsAddendum={artistTerms.needsAddendum} onAccepted={() => void refreshArtistTerms()} />;
   }
 
   // "Welcome them back to their plan": a claimed calculator result greets the

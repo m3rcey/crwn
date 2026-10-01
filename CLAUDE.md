@@ -324,6 +324,25 @@ Rules:
   do not copy claims out of the Brain or CLAUDE.md without checking the code, because both
   have been wrong.
 
+## Artists sign the artist terms before using CRWN (founder decision, 2026-09-30)
+
+[src/lib/legal/artistTerms.ts](src/lib/legal/artistTerms.ts) is the ONE definition: the version,
+the words (rights warranty, license, and a defend / indemnify / hold harmless of JNW Creative
+Enterprises, Inc. for anything an artist uploads or posts), the First Revenue Launch addendum for
+`launch_partner` artists, and the rule for who still owes a signature.
+- **The record is `auth.users.app_metadata.artist_terms`**, append-only, written ONLY by the
+  service role in `/api/artist/terms` from the session. Never read or write it anywhere else, never
+  add a second acceptance table for the same terms, and never trust a client-sent flag.
+- **`ArtistTermsGate` renders in `MainShell` (the third gate), in `/setup`** once the artist row
+  exists, **and through `ArtistTermsGuard` in every bare-layout artist-tool page** (`/build`,
+  `/offers`, `/campaigns`...). A new artist-tool layout outside `(main)` wraps its children in
+  `ArtistTermsGuard` too. Admins are exempt in `/api/artist/terms` itself.
+- **Bump `ARTIST_TERMS_VERSION` only for a change in substance**: every artist re-signs.
+- **The addendum's numbers are imported from `src/lib/launchPartner.ts`**, the checklist that
+  decides the launch promise. Never retype them.
+- The ToS (section 5) and Artist Agreement (section 3) carry the same hold-harmless clause;
+  `artistTerms.test.ts` pins all three.
+
 ## The public artist page — `isOwner` is the OWNER, and preview only removes access
 
 Two rules on `src/app/[slug]/page.tsx` and everything under it:
@@ -351,6 +370,11 @@ third state.
 - **Tracks (50 on Launch): enforced by a DB trigger** (`schema-phase2-track-cap-enforcement.sql`),
   because tracks are inserted straight from the browser client and no API guard can cover that.
   The UI must warn BEFORE an upload starts and translate `TRACK_LIMIT_REACHED` into plain words.
+  **One comp exists** (founder decision 2026-09-30): `plan_feature_overrides.unlimitedTracks = true`
+  lifts the cap for ONE artist (Prince Dre first). It is a grant-only boolean, never a number, read
+  by the trigger ([supabase/schema-phase2-track-cap-comp.sql](supabase/schema-phase2-track-cap-comp.sql))
+  and by `hasUnlimitedTracksComp` in `platformTier.ts` for the upload forms. Fee, members and tiers
+  stay un-overridable: those move money.
 - **Email blasts: enforced at CREATE and, authoritatively, at SEND** through
   `src/lib/emailQuota.ts`. A draft costs nothing; only a send spends the quota. Never write a
   second copy of that rule.

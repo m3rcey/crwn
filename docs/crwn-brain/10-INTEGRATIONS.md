@@ -185,7 +185,7 @@ removal and the exceptions together: the exceptions do not restore anything on t
 - **Founder alerts:** hot-lead call-request alerts are now EMAIL always (joshn.wms@gmail.com), plus an optional carrier email-to-SMS gateway via `FOUNDER_ALERT_SMS_EMAIL` (plain Resend email, no Twilio).
 - **Twilio (INBOUND ONLY, since 2026-08-21):** CRWN still sends no SMS. One route, `/api/sms/inbound`, answers a texted keyword with a link, via TwiML, so the reply leaves from whichever number received it. It runs on its OWN number, `TWILIO_JUBO_PHONE_NUMBER`, and ignores messages sent to any other number; `TWILIO_PHONE_NUMBER` is reserved for a different purpose and is test-pinned out of that route. Signature verification is HMAC-SHA1 in `src/lib/webhookSignatures.ts` (no SDK), pinned against Twilio's published vector. STOP/HELP belong to the carrier and Twilio Advanced Opt-Out; CRWN stays silent on them. Live traffic additionally requires A2P 10DLC registration.
 - **Twilio (INTERNAL OUTBOUND, AUTHORIZED 2026-08-24, NOT YET BUILT):** the founder authorized ONE
-  outbound A2P 10DLC campaign, registered to **JNW Creative Enterprises, Inc.** (Low Volume
+  outbound A2P 10DLC campaign, registered to **JNW Creative Enterprises Inc.** (Low Volume
   Standard), whose ONLY recipient is authorized internal company personnel. When a qualified
   artist submits the `CallRequestCard` hand-raiser, an operational alert naming the lead and their
   callback number goes to an authorized representative so they can return the call **by phone**.

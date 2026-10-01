@@ -152,7 +152,7 @@ export function campaignEmail({
         Powered by <a href="https://thecrwn.app" style="color:#D4AF37;text-decoration:none;">CRWN</a>
       </p>` : ''}
       <p style="color:#666;font-size:12px;margin:8px 0 0;">
-        &copy; ${new Date().getFullYear()} JNW Creative Enterprises, Inc.
+        &copy; ${new Date().getFullYear()} JNW Creative Enterprises Inc.
         <a href="https://thecrwn.app/terms" style="color:#666;text-decoration:underline;">Terms</a> &middot;
         <a href="https://thecrwn.app/privacy" style="color:#666;text-decoration:underline;">Privacy</a>
       </p>

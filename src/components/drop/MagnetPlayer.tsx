@@ -92,6 +92,47 @@ export function MagnetPlayer({
 
   const pct = duration ? (current / duration) * 100 : 0;
 
+  // LOCKED: compact, so the opt-in button below it stays above the fold on a phone and a laptop
+  // (measured, 2026-09-29). Nothing can play, so there is no transport and no big play button:
+  // the lock sits on the cover, and tapping it points the fan at the email field.
+  if (locked) {
+    return (
+      <div className="relative w-full max-w-sm mx-auto">
+        {/* Larger on a phone, which has room under the fold; a short laptop viewport does not. */}
+        <div className="relative mx-auto w-56 h-56 sm:w-44 sm:h-44">
+          {coverUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={coverUrl} alt="" aria-hidden className="absolute inset-2 w-[calc(100%-1rem)] h-[calc(100%-1rem)] object-cover rounded-2xl blur-xl opacity-50 scale-110" />
+          ) : null}
+          <button
+            type="button"
+            onClick={toggle}
+            aria-label={`${title} is locked. Enter your email below to unlock it`}
+            className="relative block w-full h-full rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/10 bg-crwn-elevated focus:outline-none focus-visible:ring-4 focus-visible:ring-crwn-gold/70"
+          >
+            {coverUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={coverUrl} alt={`${project || title} cover`} className="w-full h-full object-cover" />
+            ) : (
+              <Music className="absolute inset-0 m-auto w-10 h-10 text-crwn-text-secondary" aria-hidden />
+            )}
+            <span className="absolute inset-0 flex items-center justify-center bg-black/25">
+              <span className="w-14 h-14 rounded-full bg-crwn-bg/80 ring-2 ring-crwn-gold flex items-center justify-center">
+                <Lock className="w-6 h-6 text-crwn-gold" aria-hidden />
+              </span>
+            </span>
+          </button>
+        </div>
+        <div className="mt-3 text-center">
+          <p className="text-lg font-bold text-crwn-text leading-tight">{title}</p>
+          <p className="mt-0.5 text-sm text-crwn-text-secondary">
+            {artistName}{project ? ` · ${project}` : ''}{durationSec ? ` · ${fmt(durationSec)}` : ''}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="relative w-full max-w-sm mx-auto">
       {src ? <audio ref={audioRef} src={src} preload="metadata" /> : null}

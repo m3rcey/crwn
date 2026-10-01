@@ -825,7 +825,7 @@ answers correctly. An unknown tier id expands to NOBODY, never everybody.
 could not inspect.** Its documented evidence standard is "a live, publicly-accessible website with
 opt-in functionality", so `/sms-alert-consent` is now that website. This is the same narrow
 2026-08-24 exception, not a new one: recipients are still only authorized personnel of JNW
-Creative Enterprises, Inc., and broad CRWN SMS marketing is still removed. Yesterday's
+Creative Enterprises Inc., and broad CRWN SMS marketing is still removed. Yesterday's
 "consent is a business record outside the product" conclusion is SUPERSEDED, not deleted: it was
 correct about the rules and wrong about what this reviewer would accept.
 
@@ -1050,7 +1050,7 @@ says so.
 ## 2026-08-24 - The legal pages learn to say what CRWN actually does with a phone number
 
 **Founder decision: ONE narrow Twilio A2P 10DLC campaign is authorized, and broad CRWN SMS
-marketing stays removed.** The campaign is registered to **JNW Creative Enterprises, Inc.** (Low
+marketing stays removed.** The campaign is registered to **JNW Creative Enterprises Inc.** (Low
 Volume Standard), and its ONLY recipients are authorized internal company personnel: when a
 qualified artist raises their hand through `CallRequestCard`, an operational alert identifying the
 lead and carrying their callback number reaches a representative who then CALLS them. The artist is

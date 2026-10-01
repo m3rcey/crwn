@@ -1,3 +1,4 @@
+import { ArtistTermsGuard } from '@/components/legal/ArtistTermsGuard';
 import { BackgroundImage } from '@/components/ui/BackgroundImage';
 
 // Full-screen, no sidebar or bottom bar. A guided flow is one task with one exit: the X and the
@@ -9,7 +10,7 @@ export default function BuildLayout({ children }: { children: React.ReactNode })
   return (
     <div className="relative min-h-screen bg-crwn-bg">
       <BackgroundImage src="/backgrounds/bg-dashboard.jpg" overlayOpacity="bg-black/85" />
-      <div className="relative z-10">{children}</div>
+      <div className="relative z-10"><ArtistTermsGuard>{children}</ArtistTermsGuard></div>
     </div>
   );
 }

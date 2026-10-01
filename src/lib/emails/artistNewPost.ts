@@ -31,7 +31,7 @@ export function artistNewPostEmail(artistName: string, fanName: string, postPrev
     </div>
     <div style="text-align:center;margin-top:32px;">
       <p style="color:#666;font-size:12px;margin:0;">
-        &copy; ${new Date().getFullYear()} JNW Creative Enterprises, Inc. All rights reserved.
+        &copy; ${new Date().getFullYear()} JNW Creative Enterprises Inc. All rights reserved.
       </p>
       <p style="color:#666;font-size:12px;margin:8px 0 0;">
         <a href="https://thecrwn.app/terms" style="color:#666;text-decoration:underline;">Terms</a> &middot;

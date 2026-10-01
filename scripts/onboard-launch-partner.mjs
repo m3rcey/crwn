@@ -295,49 +295,61 @@ for (const [name, config] of Object.entries(C.offers)) {
   if (error) die(`${name} offer write: ${error.message}`);
 }
 
-// ── 5. Draft drop-page funnel ──────────────────────────────────────────────────
-let { data: funnel } = await db.from('fan_automations').select('id').eq('artist_id', artist.id).neq('status', 'archived').maybeSingle();
+// ── 5. Drop funnels: one per configured magnet song, each at its personalized link ──────
+// Every one of the artist's funnels sells the same ladder (primary + downsell). A funnel is found
+// by its link first, then by its song, then (for the first drop only) any link-less funnel left
+// from before links were personalized; otherwise it is created.
 const pointers = {
   gold_tier_id: tierIds[C.funnelPrimary], silver_tier_id: tierIds[C.funnelDownsell],
   gold_item_title: C.funnelPrimaryItem.title, gold_item_description: C.funnelPrimaryItem.description,
   updated_at: new Date().toISOString(),
 };
-if (funnel) {
-  const { error } = await db.from('fan_automations').update(pointers).eq('id', funnel.id);
-  if (error) die(`funnel update: ${error.message}`);
-} else {
-  const { data: row, error } = await db.from('fan_automations').insert({
-    artist_id: artist.id, provider: 'link', status: 'draft', public_token: randomBytes(9).toString('base64url'), ...pointers,
-  }).select('id').single();
-  if (error) die(`funnel insert: ${error.message}`);
-  funnel = row;
-}
-// The drop funnel's lead magnet: a track of the artist's, matched by title. It keeps its rung
-// gate; the claim route hands the claimer a signed link that expires (see its header).
-if (C.drop) {
-  const { data: magnet } = await db.from('tracks').select('id, title').eq('artist_id', artist.id)
-    .ilike('title', C.drop.magnetTrackTitle).maybeSingle();
-  if (!magnet) {
-    console.log(`drop funnel WAITS: no track titled "${C.drop.magnetTrackTitle}"`);
+const { data: existingFunnels } = await db.from('fan_automations')
+  .select('id, public_token, magnet_track_id, status, activated_at').eq('artist_id', artist.id).neq('status', 'archived');
+const funnelIds = [];
+for (const [i, d] of (C.drops ?? []).entries()) {
+  const link = dropLinkSlug(C, d);
+  const { data: magnet } = await db.from('tracks').select('id').eq('artist_id', artist.id).ilike('title', d.magnetTrackTitle).maybeSingle();
+  if (!magnet) { console.log(`drop funnel WAITS: no track titled "${d.magnetTrackTitle}"`); continue; }
+  let row = (existingFunnels || []).find((f) => f.public_token === link)
+    || (existingFunnels || []).find((f) => f.magnet_track_id === magnet.id)
+    || (i === 0 ? (existingFunnels || []).find((f) => !f.magnet_track_id && !/^[a-z0-9-]+$/.test(f.public_token)) : null);
+  const { data: taken } = await db.from('fan_automations').select('id').eq('public_token', link).maybeSingle();
+  if (taken && (!row || taken.id !== row.id)) die(`drop link "${link}" is already another funnel's`);
+  const live = d.live ? { status: 'active', ...(row?.activated_at ? {} : { activated_at: new Date().toISOString() }) } : {};
+  const fields = {
+    ...pointers, public_token: link,
+    magnet_kind: 'track', magnet_track_id: magnet.id, magnet_file_key: null, magnet_file_name: null,
+    magnet_title: d.magnetTitle, magnet_description: d.magnetDescription, ...live,
+  };
+  if (row) {
+    if (row.public_token !== link) console.log(`drop link: /drop/${row.public_token} -> /drop/${link}`);
+    const { error } = await db.from('fan_automations').update(fields).eq('id', row.id);
+    if (error) die(`drop funnel ${link}: ${error.message}`);
+    funnelIds.push(row.id);
   } else {
-    const { data: cur } = await db.from('fan_automations').select('status, activated_at, public_token').eq('id', funnel.id).single();
-    // The personalized link (/drop/<artist>-<song>), never the random token.
-    const link = dropLinkSlug(C);
-    if (link && cur.public_token !== link) {
-      const { data: taken } = await db.from('fan_automations').select('id').eq('public_token', link).neq('id', funnel.id).maybeSingle();
-      if (taken) die(`drop link "${link}" is already another funnel's`);
-      const { error: linkErr } = await db.from('fan_automations').update({ public_token: link }).eq('id', funnel.id);
-      if (linkErr) die(`drop link: ${linkErr.message}`);
-      console.log(`drop link: /drop/${cur.public_token} -> /drop/${link}`);
+    const { data: made, error } = await db.from('fan_automations').insert({
+      artist_id: artist.id, provider: 'link', status: 'draft', ...fields,
+    }).select('id').single();
+    if (error) die(`drop funnel ${link}: ${error.message}`);
+    console.log(`drop funnel created: /drop/${link}`);
+    funnelIds.push(made.id);
+  }
+}
+// A launch with no drop configured still gets its (draft) funnel for the offer pointers.
+if (!(C.drops ?? []).length) {
+  if ((existingFunnels || []).length) {
+    for (const f of existingFunnels) {
+      const { error } = await db.from('fan_automations').update(pointers).eq('id', f.id);
+      if (error) die(`funnel update: ${error.message}`);
+      funnelIds.push(f.id);
     }
-    const live = C.drop.live
-      ? { status: 'active', ...(cur?.activated_at ? {} : { activated_at: new Date().toISOString() }) }
-      : {};
-    const { error } = await db.from('fan_automations').update({
-      magnet_kind: 'track', magnet_track_id: magnet.id, magnet_file_key: null, magnet_file_name: null,
-      magnet_title: C.drop.magnetTitle, magnet_description: C.drop.magnetDescription, ...live,
-    }).eq('id', funnel.id);
-    if (error) die(`drop magnet: ${error.message}`);
+  } else {
+    const { data: made, error } = await db.from('fan_automations').insert({
+      artist_id: artist.id, provider: 'link', status: 'draft', public_token: randomBytes(9).toString('base64url'), ...pointers,
+    }).select('id').single();
+    if (error) die(`funnel insert: ${error.message}`);
+    funnelIds.push(made.id);
   }
 }
 
@@ -444,10 +456,14 @@ for (const name of Object.keys(C.offers)) {
   if (!back) die(`${name} stored offer fails the read contract`);
   console.log(`${name} offer: active=${row.is_active} cta="${back.cta}" previews=${back.previews.length}`);
 }
-const { data: f } = await db.from('fan_automations').select('status, public_token, gold_tier_id, silver_tier_id, magnet_title, magnet_kind').eq('id', funnel.id).single();
-const { primary, downsell } = resolveFunnelOffers(tiers, f);
-console.log(`funnel: ${f.status} /drop/${f.public_token} | primary=${primary?.name} downsell=${downsell?.name}`);
-if (primary?.name !== C.funnelPrimary || downsell?.name !== C.funnelDownsell) die('funnel does not resolve to the configured rungs');
+const { data: funnels } = await db.from('fan_automations').select('status, public_token, gold_tier_id, silver_tier_id, magnet_title, magnet_kind').in('id', funnelIds);
+const liveLinks = [];
+for (const f of funnels || []) {
+  const { primary, downsell } = resolveFunnelOffers(tiers, f);
+  console.log(`funnel: ${f.status} /drop/${f.public_token} | magnet=${f.magnet_title || 'none'} | primary=${primary?.name} downsell=${downsell?.name}`);
+  if (primary?.name !== C.funnelPrimary || downsell?.name !== C.funnelDownsell) die('funnel does not resolve to the configured rungs');
+  if (f.status === 'active') liveLinks.push(`https://thecrwn.app/drop/${f.public_token} (${f.magnet_title})`);
+}
 if (voteTracks) {
   const { data: offer } = await db.from('song_lab_offers').select('slug, is_active, decision_id, tier_id').eq('artist_id', artist.id).eq('slug', C.vote.offerSlug).single();
   const { data: poll } = await db.from('song_lab_decisions').select('id, status, options, is_free, allowed_tier_ids, opens_at, closes_at, winning_option_id').eq('id', offer.decision_id).single();
@@ -457,6 +473,4 @@ if (voteTracks) {
   console.log(`ballot link: https://thecrwn.app/${artist.slug}/join/${C.vote.offerSlug}`);
 }
 console.log(`\npublic page: https://thecrwn.app/${artist.slug}`);
-console.log(f.status === 'active'
-  ? `drop funnel LIVE: https://thecrwn.app/drop/${f.public_token} (magnet: ${f.magnet_title || 'none'})`
-  : `drop page (owner-only preview while draft): https://thecrwn.app/drop/${f.public_token}`);
+for (const l of liveLinks) console.log(`drop funnel LIVE: ${l}`);

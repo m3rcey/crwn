@@ -9,6 +9,8 @@ import { BackgroundImage } from '@/components/ui/BackgroundImage';
 import { ClaimRedeemer } from '@/components/lead-magnets/ClaimRedeemer';
 import { PopupHost } from '@/components/popups/PopupHost';
 import { ServerRoleProvider, type ServerRole } from '@/hooks/useServerRole';
+import { useArtistTermsStatus } from '@/hooks/useArtistTermsStatus';
+import { ArtistTermsGate } from '@/components/legal/ArtistTermsGate';
 
 
 // The client half of the (main) layout. `serverRole` is the role the SERVER already
@@ -43,7 +45,7 @@ export default function MainShell({
   // The context lag is already documented right here for `role`, and the same lag
   // applies to every column on that profile. So the rule is now the whole rule: this
   // shell redirects on what the database says, and on nothing else.
-  const [gate, setGate] = useState<{ needsOnboarding: boolean; needsSetup: boolean } | null>(null);
+  const [gate, setGate] = useState<{ needsOnboarding: boolean; needsSetup: boolean; isArtist: boolean } | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -51,7 +53,7 @@ export default function MainShell({
       if (isLoading || !user || !profile) return;
       // Admins (the founder) are never gated.
       if (profile.role === 'admin') {
-        setGate({ needsOnboarding: false, needsSetup: false });
+        setGate({ needsOnboarding: false, needsSetup: false, isArtist: false });
         return;
       }
       const supabase = createBrowserSupabaseClient();
@@ -70,6 +72,8 @@ export default function MainShell({
         // No artist_profiles row → a fan, nothing to gate. Row with setup_completed
         // false → an artist mid-setup, hold them in the wizard.
         needsSetup: !!artist.data && artist.data.setup_completed === false,
+        // Only an artist uploads, so only an artist owes the artist terms (third gate).
+        isArtist: !!artist.data,
       });
     }
     checkGates();
@@ -80,6 +84,12 @@ export default function MainShell({
 
   const needsOnboarding = gate?.needsOnboarding === true;
   const needsSetup = gate?.needsSetup === true;
+
+  // Third gate: the artist terms (src/lib/legal/artistTerms.ts). An artist who has not accepted
+  // the current version sees the terms INSTEAD of the app, rendered here rather than redirected,
+  // so there is no second route to keep in sync. Admins never reach it (isArtist is false for
+  // them above). The route decides from the session and the service-role record.
+  const { status: terms, refresh: refreshTerms } = useArtistTermsStatus(gate?.isArtist === true && !needsSetup && !needsOnboarding);
 
   useEffect(() => {
     if (isLoading) return;
@@ -120,6 +130,14 @@ export default function MainShell({
   }
   if (needsOnboarding || needsSetup) {
     return null;
+  }
+  // An artist's terms status is unresolved: hold the shell for one request, never show the app
+  // and then yank it away.
+  if (gate?.isArtist && terms === null) {
+    return null;
+  }
+  if (terms?.required) {
+    return <ArtistTermsGate needsAddendum={terms.needsAddendum} onAccepted={() => void refreshTerms()} />;
   }
 
   return (

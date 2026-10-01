@@ -28,7 +28,7 @@ export default function SubmissionAgreementPage() {
           <p className="text-crwn-text-secondary text-sm italic">
             This document is a plain-language summary of what happens when you submit material to a
             session. It is not legal advice and is subject to change. Where it is silent, the CRWN
-            Terms of Service control. CRWN is operated by JNW Creative Enterprises, Inc.
+            Terms of Service control. CRWN is operated by JNW Creative Enterprises Inc.
             (&quot;CRWN,&quot; &quot;we,&quot; &quot;us&quot;).
           </p>
 
@@ -110,7 +110,7 @@ export default function SubmissionAgreementPage() {
         </div>
 
         <div className="mt-12 pt-6 border-t border-crwn-elevated text-center text-xs text-crwn-text-secondary">
-          JNW Creative Enterprises, Inc. © 2026. All rights reserved.
+          JNW Creative Enterprises Inc. © 2026. All rights reserved.
         </div>
       </div>
     </div>
