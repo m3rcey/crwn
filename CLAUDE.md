@@ -279,6 +279,20 @@ applying it at write time.
 Same for any other file you ask him to open: `scripts/*.mjs`, docs, components. When more than one
 SQL file is involved, give the RUN ORDER. Never fence SQL inline (see the TODO.md rule below).
 
+**The link must OPEN, which means it must resolve against the main checkout.** VSCode resolves a
+repo-relative link against `~/workspace-crwn`, so a file that exists only on an unlanded task
+branch opens NOTHING when clicked (2026-10-01: two migrations handed over as `supabase/...` links
+from a worktree; Josh could not open either to copy it). Before handing over any file in a chat
+reply:
+- If the file is on master, link it repo-relative as usual.
+- If it exists only on your task branch, link it by its worktree path:
+  `[.claude/worktrees/<task>/supabase/foo.sql](.claude/worktrees/<task>/supabase/foo.sql)`.
+- **Check the link target exists from the main checkout** (`test -e ~/workspace-crwn/<link>`)
+  before you send it. A link you did not test is a guess.
+TODO.md links stay repo-relative: a TODO item lands in the same commit as its file, so its link
+resolves the moment the item is on master for Josh to read. The trap is only the CHAT reply,
+which he reads before the branch lands.
+
 ## Parallel sessions: one task, one worktree (2026-09-29)
 
 Josh runs several Claude sessions at once. Each extra task runs in its own git worktree and branch
