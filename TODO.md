@@ -35,15 +35,12 @@ responsible for. Do not work those.
       card is on file for the plan that follows the trial, and put the trial's end date in your
       calendar with a reminder to open his Automations that day and check all 17 read Live.
 
-- [ ] **Pick a new vote unlock date with Dre, and tell me the date.** The vote page and Gold's
-      offer both promise "unlocked October 1" (`DRE_FIRST_UNLOCK_DATE` in
-      [src/lib/offerExperience/reference/princeDre.ts](src/lib/offerExperience/reference/princeDre.ts)),
-      and October 1 is today. Probed 2026-10-01: the poll has **0 votes**, no winner, and Dre has
-      **0 subscribers**, so moving the date breaks no fan's promise. It cannot run today in any
-      meaningful way, because VOTE in ManyChat (the item above) is what drives votes and it is not
-      built yet. Give the vote at least a week of posts after the VOTE automation is live. Tell me
-      the date and I change the one constant and redeploy. All three projects are already uploaded
-      in full (9, 15 and 8 tracks), so nothing else is waiting on his team for the unlock.
+- [ ] **Tell Dre his Gold unlock dates, and that he records each winner.** Live since 2026-10-01:
+      Gold gets the 3 vote projects one at a time, on **October 16, November 16 and December 16**,
+      in the order fans vote (his vote page and Gold offer say so). CRWN never picks a winner, so
+      on each date Dre opens Studio, Lab and records the project with the most votes. If he has
+      not, the date passes and Gold's promise breaks. Put all three dates in his calendar and
+      yours. Also ask him how long the mixtape stays CRWN-only, and send it when it is ready.
 
 - [ ] **To finish Team Splits I need a test-mode sandbox. This is the only thing left, and it is
       environment setup, not code.** Nothing to run in SQL.
@@ -84,14 +81,14 @@ responsible for. Do not work those.
 ### P1 — real risk or real friction, but nothing is on fire
 
 - [ ] **Get Prince Dre's written OK that he can sell all eight projects now on his page, and
-      confirm October 1.** His whole catalog is live behind his tiers since 2026-09-30 (94 songs).
+      confirm the unlock dates.** His whole catalog is live behind his tiers since 2026-09-30 (94 songs).
       Web research turned up other names on some of it; ask his team about each one:
         - Blood Brothaz: YouTube Music lists "(P) 2015 Create Music Group", and it is a joint project
           with JB Binladen (co-owner?).
         - Life I Live: TSO Music Group / Munna Gang Inc (Apple Music). O Block Ass Nigga: Munna Gang Inc.
         - Fresh Prince Of O'Block and Only The O In My Eyes: their Spotify albums are region
           restricted and Only The O was pulled from Apple Music; ask who pulled them and why.
-        - October 1 is still the day the vote winner opens to Gold (it is on the vote page).
+        - The vote projects open to Gold on October 16, November 16 and December 16, in vote order.
       He also signs the new artist terms on his next login (he warrants the rights and holds JNW
       Creative Enterprises harmless), which protects you but does not replace asking.
 
@@ -184,9 +181,9 @@ responsible for. Do not work those.
       confirm with his team the tier lines in
       [src/lib/offerExperience/reference/princeDre.ts](src/lib/offerExperience/reference/princeDre.ts)
       (the blueprint says pricing and benefits are approved by them before launch), including the
-      vote copy: "The project with the most votes by October 1 unlocks for Gold" is HIS promise to
-      keep. On October 1 he records the winner in his Song Lab manager (Studio, Lab); CRWN counts
-      the votes and never picks one.
+      unlock schedule: the 3 vote projects open to Gold on October 16, November 16 and December 16
+      is HIS promise to keep. On each date he records the winner in his Song Lab manager (Studio,
+      Lab); CRWN counts the votes and never picks one.
 
 - [ ] **Run [supabase/schema-phase2-artist-gate-caller-only.sql](supabase/schema-phase2-artist-gate-caller-only.sql)
       in the Supabase SQL Editor.** This stops the daily "Onboarding is broken" email. The alert
@@ -1183,12 +1180,21 @@ Things that are never finished. Cadence, then the thing.
   real votes, put that rollup on his Fan CRM (`/studio/fans`) so he can read it himself for the
   venue push. Not before: a screen with no data behind it is guessing at a layout.
 
-- **Prince Dre's vote winner, October 1.** All three vote projects are uploaded complete and open
-  to Platinum (2026-09-30). Once Dre records the winner in his Song Lab manager, run
+- **Prince Dre's Gold unlocks: October 16, November 16, December 16.** On each date, once Dre
+  records the winner in his Song Lab manager, run
   [scripts/onboard-launch-partner.mjs](scripts/onboard-launch-partner.mjs)
-  `princedre --apply --unlock-winner` to open that project to Gold. Also: show the Bronze bonus
-  song on the after-vote screen itself; today it plays only once the voter opens the emailed
-  account link.
+  `princedre --apply --unlock-winner` to open that project to Gold. After rounds 1 and 2, start
+  the next round in [src/lib/offerExperience/reference/princeDre.ts](src/lib/offerExperience/reference/princeDre.ts):
+  a new `stageLabel` (a fresh poll), the options cut to the projects still locked, the ballot
+  description naming the next date, and `--apply` (the ballot link follows the new poll). After
+  December 16, ROTP, FPOB and OTOIME are all Gold, and the vote page needs a new purpose or to come
+  down. Also: show the Bronze bonus song on the after-vote screen itself; today it plays only once
+  the voter opens the emailed account link.
+
+- **Prince Dre's mixtape, when the files arrive.** It lives only on CRWN (founder, 2026-10-01).
+  Upload it as an album; every paid rung gets it the day it drops, and Bronze is added to its
+  tracks 7 days later (both paid FAQs promise exactly that). Check whether the release waterfall
+  can schedule the Bronze opening; if it cannot, run the re-gate by hand on day 7.
 
 - **After the Meta App Review Astra run:** re-run Part D of [docs/fan-automations/astra-meta-app-review.md](docs/fan-automations/astra-meta-app-review.md) if anything blocks Submit. (Reviewer artist `meta-reviewer` is set up, Stripe-priced, and hidden from Explore, verified 2026-09-27.)
 

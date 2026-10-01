@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   DRE_PLATINUM_OFFER, DRE_GOLD_OFFER, DRE_SILVER_OFFER, DRE_APPROVED_BENEFITS,
   DRE_BENEFIT_IDENTITIES, DRE_TIER_PRICES_CENTS, DRE_TIER_PROMISES, DRE_FUNNEL_PRIMARY_ITEM,
-  DRE_BRONZE_SINGLES, PRINCE_DRE,
+  DRE_BRONZE_SINGLES, PRINCE_DRE, DRE_UNLOCK_DATES, DRE_FIRST_UNLOCK_DATE,
 } from './princeDre';
 import { normalizeOfferExperience } from '../normalize';
 import { benefitDelivery } from '../../benefitRegistry';
@@ -130,5 +130,41 @@ describe('truth discipline', () => {
   it('no em or en dashes, and no Join-tier buttons', () => {
     expect(/[—–]/.test(everything)).toBe(false);
     expect(/Join (Platinum|Gold|Silver|Bronze)/.test(everything)).toBe(false);
+  });
+});
+
+// Founder, 2026-10-01: Gold gets the three vote projects one at a time, on three named dates, in
+// the order the fans vote. Every surface that states a date must state the SAME dates, or a fan
+// reads one promise on the vote page and another on the offer.
+describe('the Gold unlock schedule', () => {
+  const gold = JSON.stringify(DRE_GOLD_OFFER) + DRE_APPROVED_BENEFITS.Gold.join(' ');
+  const platinum = JSON.stringify(DRE_PLATINUM_OFFER);
+
+  it('is one date per vote project, and the vote decides the first', () => {
+    expect(DRE_UNLOCK_DATES.length).toBe(PRINCE_DRE.vote!.options.length);
+    expect(DRE_FIRST_UNLOCK_DATE).toBe(DRE_UNLOCK_DATES[0]);
+    expect(PRINCE_DRE.vote!.description).toContain(DRE_FIRST_UNLOCK_DATE);
+  });
+
+  it('Gold and Platinum name every unlock date', () => {
+    for (const d of DRE_UNLOCK_DATES) {
+      expect(gold, `Gold is missing ${d}`).toContain(d);
+      expect(platinum, `Platinum is missing ${d}`).toContain(d);
+    }
+  });
+
+  it('no copy still promises the passed October 1 unlock', () => {
+    const all = gold + platinum + PRINCE_DRE.vote!.description;
+    expect(/October 1(?!\d)/.test(all)).toBe(false);
+  });
+
+  it('Platinum no longer claims the vote projects are Platinum-only', () => {
+    expect(platinum.toLowerCase()).not.toContain('only in platinum');
+  });
+
+  it('both paid offers give the same mixtape answer', () => {
+    const answer = (o: typeof DRE_GOLD_OFFER) => o.faqs!.find((f) => f.q === 'Is the mixtape included?')!.a;
+    expect(answer(DRE_GOLD_OFFER)).toBe(answer(DRE_PLATINUM_OFFER));
+    expect(answer(DRE_GOLD_OFFER)).toContain('lives on CRWN');
   });
 });

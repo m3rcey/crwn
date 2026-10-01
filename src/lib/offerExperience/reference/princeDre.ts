@@ -7,12 +7,22 @@
 //   Vote (free, no account)  hear one song from each project, vote on which unlocks first
 //   Bronze (free, on vote)   the 2 most-watched songs from every project + a bonus song ("Hannn")
 //   Silver $10               Blood Brothaz + Life I Live, complete
-//   Gold $25                 Shotta In Da Jungle + Im Reloaded, complete, + the WINNING vote project
+//   Gold $25                 Shotta In Da Jungle + Im Reloaded, complete, + the 3 vote projects,
+//                            one on each of DRE_UNLOCK_DATES, in the order the fans vote
 //   Platinum $100            everything: O Block Ass Nigga + all 3 vote projects, complete, today
 //
 // The vote never closes: a closed ballot stops capturing fans, and the street-team run lasts
-// weeks. "The most votes by DRE_FIRST_UNLOCK_DATE" decides the first unlock; Dre records the
-// winner in his Song Lab manager (CRWN never picks) and `--unlock-winner` opens it to Gold.
+// weeks. Gold gets the vote projects ONE AT A TIME (founder, 2026-10-01): a single unlock gave a
+// $25 member every reason to join, take the winner and cancel, and the fans' first ask is to HEAR
+// the catalog, so Gold earns all of it by staying. The vote sets the ORDER. Each round, Dre
+// records the winner in his Song Lab manager (CRWN never picks) and `--unlock-winner` opens it to
+// Gold; the next round is a new poll (new `stageLabel`) over the projects still locked. The dates
+// are stated as DATES, never as a cadence word: the launch checks ban "monthly" so no copy implies
+// a schedule nobody chose, and this one was chosen.
+//
+// THE MIXTAPE lives only on CRWN for now (founder, 2026-10-01; how long is not decided). When it
+// is uploaded: every paid rung hears it the day it drops, Bronze a week later (added to the
+// tracks' allowed tiers, additive like every unlock here). That is what both FAQs promise.
 //
 // Deliberately NOT carried: merch (CRWN sells no physical goods), "limited" anything (the
 // only real cap is the Founder Window), "priority" (nothing enforces it), any schedule.
@@ -25,8 +35,13 @@ import type { LaunchPartnerConfig } from './launchPartner';
 
 export const DRE_SLUG = 'princedre';
 export const DRE_DISPLAY_NAME = 'Prince Dre';
-/** The mixtape's release day: the vote count on this day decides the first Gold unlock. */
-export const DRE_FIRST_UNLOCK_DATE = 'October 1';
+/** The days a vote project opens to Gold, one project each, in the order the fans vote.
+ *  October 1 (the original single unlock) passed with no votes cast; the vote went live in
+ *  ManyChat that day, so the first round gets two weeks of posts. */
+export const DRE_UNLOCK_DATES = ['October 16', 'November 16', 'December 16'] as const;
+/** The day the current vote's count decides the first Gold unlock. */
+export const DRE_FIRST_UNLOCK_DATE = DRE_UNLOCK_DATES[0];
+const UNLOCK_SCHEDULE = `${DRE_UNLOCK_DATES[0]}, ${DRE_UNLOCK_DATES[1]} and ${DRE_UNLOCK_DATES[2]}`;
 
 const ROTP = 'The Return Of The Prince';
 const FPOB = "Fresh Prince Of O'Block";
@@ -53,8 +68,8 @@ const OFFER_ART = 'https://ecpqtuidtsncjfwtkvwc.supabase.co/storage/v1/object/pu
 //   Platinum  O Block Ass Nigga (the hardest: only single tracks on YouTube, uploaded by someone
 //             else and never under the project's title) + the 3 vote projects: Return Of The
 //             Prince (Certified Mixtapes), Fresh Prince Of O'Block (DaMixHub), Only The O In My
-//             Eyes (LiveMixtapes). The vote mechanic keeps them here: Platinum has all three,
-//             Gold gets the winner on DRE_FIRST_UNLOCK_DATE.
+//             Eyes (LiveMixtapes). The vote mechanic keeps them here: Platinum has all three
+//             today, Gold gets them one at a time on DRE_UNLOCK_DATES.
 // Shotta is as easy to find as Blood Brothaz but stays in Gold: Gold and the Round Here drop
 // already sell it. NONE of them is "never on streaming" or "unreleased": each can be found
 // somewhere, so the copy sells the COMPLETE project in one place, never scarcity it does not have.
@@ -161,7 +176,7 @@ const CONTENT_TRACKS = [BB, SJ, LIL, IR, OBAN, ROTP, FPOB, OTOIME].flatMap((proj
 export const DRE_TIER_PROMISES: Record<string, string> = {
   Bronze: 'His most-watched songs, free.',
   Silver: 'Dre and JB, back to back.',
-  Gold: 'Get the full project the fans pick.',
+  Gold: 'Three more projects. You pick the order.',
   Platinum: 'His whole catalog, one place.',
 };
 
@@ -189,7 +204,7 @@ export const DRE_APPROVED_BENEFITS: Record<string, string[]> = {
   Gold: [
     `Shotta In Da Jungle and Im Reloaded, complete (${GOLD_SONGS} songs)`,
     'The Vault: cuts, alternate versions and unreleased videos as Dre adds them',
-    `The complete winning project, unlocked ${DRE_FIRST_UNLOCK_DATE}`,
+    `3 more projects, complete, one each on ${UNLOCK_SCHEDULE}, in the order fans vote`,
     'Everything in Silver',
   ],
   Platinum: [
@@ -249,9 +264,10 @@ export const DRE_PLATINUM_OFFER: TierOfferExperience = {
     {
       kind: 'collection',
       // Real since 2026-09-30: these projects are uploaded, complete, and open to Platinum.
+      // Not "only in Platinum": the three vote projects open to Gold one at a time.
       truth: 'real',
-      title: 'Only in Platinum, complete',
-      description: 'Not a sampler. Every song on every project, in order, the moment you join.',
+      title: 'All of it, today',
+      description: 'Not a sampler. Every song on every project, in order, the moment you join. No waiting on a vote.',
       items: [
         { title: ROTP, subtitle: `${N[ROTP]} songs`, locked: true, artUrl: ART[ROTP] },
         { title: FPOB, subtitle: `${N[FPOB]} songs`, locked: true, artUrl: ART[FPOB] },
@@ -293,12 +309,12 @@ export const DRE_PLATINUM_OFFER: TierOfferExperience = {
   },
   faqs: [
     {
-      q: 'What if I only want the project that wins?',
-      a: `The $25 a month level gets the one project that wins the vote, unlocked ${DRE_FIRST_UNLOCK_DATE}. This level gets all ${PROJECTS} projects complete today, and hears the project after the mixtape first.`,
+      q: 'Why not wait on the $25 level?',
+      a: `The $25 a month level gets the 3 vote projects one at a time: ${UNLOCK_SCHEDULE}. This level gets all ${PROJECTS} projects complete today, including ${OBAN}, and hears the project after the mixtape first.`,
     },
     {
       q: 'Is the mixtape included?',
-      a: 'The mixtape drops everywhere, free to stream. This is his whole catalog, every project complete, in one place.',
+      a: 'Yes. The mixtape lives on CRWN, not on streaming apps. Every paid level hears it the day it drops. Free members get it a week later.',
     },
     {
       q: 'Can I cancel?',
@@ -308,9 +324,9 @@ export const DRE_PLATINUM_OFFER: TierOfferExperience = {
 };
 
 export const DRE_GOLD_OFFER: TierOfferExperience = {
-  promise: 'Get the full project the fans pick.',
-  description: `Shotta In Da Jungle and Im Reloaded, ${GOLD_SONGS} songs, in one place the moment you join. Then the project with the most votes by ${DRE_FIRST_UNLOCK_DATE} unlocks for you too, every song on it.`,
-  cta: 'Unlock the Winning Project',
+  promise: 'Three more projects. You pick the order.',
+  description: `Shotta In Da Jungle and Im Reloaded, ${GOLD_SONGS} songs, in one place the moment you join. Then 3 more projects unlock for you, every song on each, one on each of ${UNLOCK_SCHEDULE}. The fans vote on the order.`,
+  cta: 'Unlock Two Projects Today',
   secondaryCue: 'See what you get',
   heroImageUrl: `${OFFER_ART}photo-hero-gold.webp`,
   vsl: STAND_IN_VSL,
@@ -329,8 +345,8 @@ export const DRE_GOLD_OFFER: TierOfferExperience = {
     {
       kind: 'collection',
       truth: 'example',
-      title: `One of these unlocks ${DRE_FIRST_UNLOCK_DATE}`,
-      description: 'Whichever project the fans vote up unlocks for you, complete.',
+      title: `All 3 unlock for you, starting ${DRE_FIRST_UNLOCK_DATE}`,
+      description: `One each on ${UNLOCK_SCHEDULE}, complete, in the order the fans vote.`,
       items: [
         { title: ROTP, subtitle: 'Complete project', locked: true, artUrl: ART[ROTP] },
         { title: FPOB, subtitle: 'Complete project', locked: true, artUrl: ART[FPOB] },
@@ -368,11 +384,11 @@ export const DRE_GOLD_OFFER: TierOfferExperience = {
   faqs: [
     {
       q: 'What if the project I voted for does not win?',
-      a: `The project with the most votes by ${DRE_FIRST_UNLOCK_DATE} is the one that unlocks here. If you want every project no matter what wins, the $100 a month level gets all ${PROJECTS} today.`,
+      a: `It still unlocks for you, just later. All 3 open here, one on each of ${UNLOCK_SCHEDULE}. The vote only sets the order. If you want every project today, the $100 a month level has all ${PROJECTS}.`,
     },
     {
       q: 'Is the mixtape included?',
-      a: 'The mixtape drops everywhere, free to stream. This is his whole catalog, every project complete, in one place.',
+      a: 'Yes. The mixtape lives on CRWN, not on streaming apps. Every paid level hears it the day it drops. Free members get it a week later.',
     },
     {
       q: 'Can I cancel?',
@@ -439,7 +455,7 @@ export const PRINCE_DRE: LaunchPartnerConfig = {
     offerName: 'First unlock vote',
     headline: '3 FULL PROJECTS. YOU PICK ONE.',
     // Kept to three lines: the covers and the vote button must sit above a laptop's fold.
-    description: `Vote for the one Dre unlocks first. Most votes by ${DRE_FIRST_UNLOCK_DATE} unlocks in full for his $25 members. Every vote gets a bonus song in the free account we email you.`,
+    description: `Vote for the one Dre unlocks first. Most votes by ${DRE_FIRST_UNLOCK_DATE} opens first, in full, for his $25 members. Every vote gets a bonus song in the free account we email you.`,
     question: 'Which project should Dre unlock first?',
     projectTitle: 'Next project vote',
     stageLabel: 'Next project',
