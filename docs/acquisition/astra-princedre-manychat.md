@@ -133,8 +133,36 @@ Work in table order, rows 2 through 17. For each row:
 - The VOTE smoke test in step 9 fails after two retries.
 - Something would delete or change an automation that is not one of these 17.
 - The same step fails three times.
+- You are close to running out of credits or usage. Follow "If you are about to run out" below.
 
 Do not stop for anything else.
+
+## If you are about to run out
+
+If you can tell that your credits, usage or time are running low, stop building **before** they
+run out. Keep enough left to do the three things below, in order. Josh will finish the rest by
+hand from what you write here, so this matters more than one more automation.
+
+1. **Leave nothing half built.** If you are partway through a duplicate, either finish it (Live,
+   tested) or switch it off so it is **not Live**, and say which. A half-edited copy that is Live
+   can still answer VOTE, which sends fans to the wrong song.
+2. **Give the usual report** (the format under "Report") for every row you reached.
+3. **Write Josh the steps to build one more song automation himself.** Write them from what you
+   actually saw on screen, not from this prompt: use the real button names, menu names and field
+   names ManyChat showed you, and say where on the screen each one is. Number every click. Cover,
+   in this order:
+   - Finding the VOTE automation and duplicating it.
+   - Renaming the copy.
+   - Deleting the carried any-post comment trigger.
+   - Editing the carried DM keyword trigger to the new keyword, with exact match, without adding
+     a second trigger.
+   - Adding a specific-post comment trigger, for when the song's post exists.
+   - Changing the DM text and the link button, and the button label `Get it`.
+   - Setting it Live.
+   - Testing it by DMing the keyword from @m3rcey.
+   Add any trap you hit during this run and how you got past it. Then list the rows Josh still has
+   to build, with their keyword, link and DM text copied from the table, so he works from one
+   list.
 
 ## Never
 
@@ -156,3 +184,5 @@ Then:
 - Which keywords have no comment trigger because that post does not exist yet.
 - The exact text of any error you saw.
 - Confirmation that @m3rcey is the only contact you messaged.
+- If you stopped before row 17 for any reason, the hand-build steps and the remaining rows from
+  "If you are about to run out", even if credits were not the reason.
