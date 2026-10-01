@@ -25,8 +25,9 @@ responsible for. Do not work those.
 - [ ] **Run the Astra prompt that builds Prince Dre's 17 ManyChat automations, VOTE first.**
       Prompt: [docs/acquisition/astra-princedre-manychat.md](docs/acquisition/astra-princedre-manychat.md).
       Three things to do yourself first, listed in that file's header: switch ManyChat to Dre's
-      account and leave it on Automations, DM Dre's Instagram from @m3rcey so a test contact exists
-      (comments do not create one), and keep Chrome maximized and in front. His 16 drop links and
+      account and leave it on Automations, have a tab in that same Chrome window signed in to
+      instagram.com as @m3rcey (Astra sends its test DMs from it; no DM to Dre beforehand), and keep
+      Chrome maximized and in front. His 16 drop links and
       the vote link were all verified live on 2026-10-01, and his Stripe charges are enabled, so
       every one of these 17 links can take money today. Send Claude Astra's report when it finishes;
       Claude verifies it independently before this gets ticked. The 17 are every lead magnet he has

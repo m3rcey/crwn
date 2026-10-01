@@ -7,9 +7,10 @@
 
 1. Sign in to ManyChat, switch to **Prince Dre's** account, and leave the browser on
    **Automations**. Astra must never use the account switcher.
-2. From Instagram as **@m3rcey**, send Prince Dre's account any DM (for example `hey`). Comments
-   do not create ManyChat contacts, only DMs do, so without this there is no test contact in Dre's
-   account and the smoke test cannot run.
+2. In that same Chrome window, open a tab on instagram.com and make sure it is signed in as
+   **@m3rcey**. Astra sends the test DMs from that tab. No DM to Dre is needed beforehand: the
+   first test DM (`VOTE`) creates the @m3rcey contact in Dre's ManyChat and tests the flow at the
+   same time. Nothing in this build selects a contact inside ManyChat.
 3. Chrome maximized, in front, on the main monitor. Not Incognito. No lock, no sleep.
 
 Paste everything below the line.
