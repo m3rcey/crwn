@@ -9,6 +9,11 @@ the 16 songs are missing, and skips anything already done.
 
 **Before pasting:**
 
+0. **Start a NEW Astra chat.** The earlier chat still holds the first prompt, whose rules ("the
+   smoke test blocks the 16 copies", "the only DM is step 9") contradict this one, and Astra keeps
+   following them. Also make sure your editor shows this version: the first line of this file
+   reads "finish Prince Dre's ManyChat automations". If it does not, close the tab and reopen the
+   file.
 1. ManyChat open in a normal Chrome window on **Prince Dre's** account, on **Automation**, with
    the ManyChat tab selected. No Instagram tab is needed: this run sends no DMs.
 2. Chrome maximized (not F11 full screen), the address bar visible, zoom 100% (Ctrl+0), in front,
