@@ -44,6 +44,21 @@ export interface VoteMagnetConfig {
    *  not on the artist's page yet, the script uploads it (free forever, the Studio upload
    *  convention) and gives it a 128 kbps stream copy. Without them it waits for an upload. */
   options: { label: string; trackTitle: string; file?: string; artFile?: string }[];
+  /** The vote no longer decides anything: the script closes the poll and takes the ballot page
+   *  down instead of opening it. The option songs stay where they are (free tracks), and the
+   *  config is kept so the songs stay known to the content and drop checks. */
+  retired?: boolean;
+}
+
+/** Member drip (schema-phase2-tier-unlock-months.sql): each listed project opens to `rung`
+ *  `months` after THAT MEMBER subscribed, while the rungs above keep it from day one. The
+ *  script adds `rung` to the project's tracks and writes the delay in the SAME update, so the
+ *  rung can never get the access without the delay. Only tracks gated ABOVE `rung` are
+ *  touched: delaying a track the rung already has would take access away from paying members. */
+export interface DripConfig {
+  rung: PaidRung;
+  /** In unlock order. `months` counts from the member's own start; whole months, 1 to 24. */
+  projects: { title: string; months: number }[];
 }
 
 /** A track the launch uploads, gated from its LOWEST rung up. `placeholder` marks stand-in
@@ -102,6 +117,7 @@ export interface LaunchPartnerConfig {
   drops?: DropConfig[];
   vote?: VoteMagnetConfig;
   content?: { tracks: ContentTrack[]; projects: ContentProject[] };
+  drip?: DripConfig;
 }
 
 /** The drop funnel's public link segment, personalized (founder, 2026-09-29): never the random
@@ -157,6 +173,32 @@ export function checkLaunchPartner(c: LaunchPartnerConfig): string[] {
       if (p.voteLabel && !(c.vote?.options ?? []).some((o) => o.label === p.voteLabel)) errors.push(`content: project ${p.title} names a vote option that does not exist`);
     }
   }
+  if (c.drip) {
+    const d = c.drip;
+    const above = LADDER_RUNGS.slice(LADDER_RUNGS.indexOf(d.rung) + 1);
+    if (!above.length) errors.push(`drip: ${d.rung} is the top rung, so no rung keeps the projects from day one`);
+    if (!c.content) errors.push('drip: needs content to drip');
+    const seen = new Set<string>();
+    let last = 0;
+    for (const p of d.projects) {
+      if (!Number.isInteger(p.months) || p.months < 1 || p.months > 24) errors.push(`drip: ${p.title} needs whole months from 1 to 24`);
+      if (p.months <= last) errors.push(`drip: ${p.title} must open after the project before it`);
+      last = p.months;
+      if (seen.has(p.title)) errors.push(`drip: ${p.title} is listed twice`);
+      seen.add(p.title);
+      const project = c.content?.projects.find((x) => x.title === p.title);
+      if (!project) { errors.push(`drip: ${p.title} is not a project this launch uploads`); continue; }
+      // At least one of its tracks must sit above the drip rung, or the drip delays nothing.
+      const gated = project.trackTitles.filter((tt) => {
+        const t = c.content!.tracks.find((x) => x.title.toLowerCase() === tt.toLowerCase());
+        return t && above.includes(t.rung as Rung);
+      });
+      if (!gated.length) errors.push(`drip: ${p.title} has no track above ${d.rung}, so there is nothing to delay`);
+    }
+    if (c.vote && !c.vote.retired && (c.content?.projects ?? []).some((p) => p.voteLabel && seen.has(p.title))) {
+      errors.push('drip: a project cannot both drip on a clock and wait on a live vote');
+    }
+  }
   // Copy is checked, not file paths: a beat's filename is not a promise to a fan.
   // A drop names a song the launch actually uploads, or it would wait forever with no error.
   const songs = new Set([...(c.content?.tracks ?? []).map((t) => t.title.toLowerCase()), ...(c.vote?.options ?? []).map((o) => o.trackTitle.toLowerCase())]);
@@ -164,7 +206,8 @@ export function checkLaunchPartner(c: LaunchPartnerConfig): string[] {
   const links = (c.drops ?? []).map((d) => dropLinkSlug(c, d));
   for (const link of links) if (!DROP_SLUG_RE.test(link)) errors.push(`drop: link "${link}" is not a clean lowercase slug`);
   if (new Set(links).size !== links.length) errors.push('drop: two funnels share a link');
-  const text = JSON.stringify({ ...c, content: undefined, vote: c.vote ? { ...c.vote, options: c.vote.options.map((o) => o.label) } : undefined });
+  // A retired vote's copy is never published, so it is not checked as a promise.
+  const text = JSON.stringify({ ...c, content: undefined, vote: c.vote && !c.vote.retired ? { ...c.vote, options: c.vote.options.map((o) => o.label) } : undefined });
   if (/[—–]/.test(text)) errors.push('an em or en dash is in the copy');
   if (/Join (Platinum|Gold|Silver|Bronze)/.test(text)) errors.push('a Join-tier button is in the copy');
   for (const b of BANNED) if (text.toLowerCase().includes(b)) errors.push(`forbidden promise language: "${b}"`);

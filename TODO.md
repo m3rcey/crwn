@@ -35,12 +35,22 @@ responsible for. Do not work those.
       card is on file for the plan that follows the trial, and put the trial's end date in your
       calendar with a reminder to open his Automations that day and check all 17 read Live.
 
-- [ ] **Tell Dre his Gold unlock dates, and that he records each winner.** Live since 2026-10-01:
-      Gold gets the 3 vote projects one at a time, on **October 16, November 16 and December 16**,
-      in the order fans vote (his vote page and Gold offer say so). CRWN never picks a winner, so
-      on each date Dre opens Studio, Lab and records the project with the most votes. If he has
-      not, the date passes and Gold's promise breaks. Put all three dates in his calendar and
-      yours. Also ask him how long the mixtape stays CRWN-only, and send it when it is ready.
+- [ ] **Run the member drip SQL before October 16, then tell me.** Dre's Gold becomes "one more
+      project each month you stay", counted from each member's own signup (your call, 2026-10-01),
+      and his vote retires. Until this runs his live page still promises the old October 16 vote
+      unlock, and the launch script refuses to switch anything over. Run order in the SQL editor:
+        1. [supabase/schema-phase2-tier-unlock-months.sql](supabase/schema-phase2-tier-unlock-months.sql)
+           (ends with a check that raises an error if anything did not land)
+        2. [supabase/verify-tier-unlock-months.sql](supabase/verify-tier-unlock-months.sql)
+           (proves the behaviour with throwaway rows and rolls back; you should see one PASS row, 14 checks)
+      Then run
+          npm run verify:migrations
+      and tell me. I run the launch script: it adds Gold to the three projects with the wait in
+      the same write, takes the vote page down and rewrites his offer copy.
+      Then tell Dre: Gold hears Only The O In My Eyes after month 1, Fresh Prince Of O'Block after
+      month 2, The Return Of The Prince after month 3 (my pick, weakest to best by YouTube views;
+      he can reorder). Cancelling and rejoining restarts the count. Ask how long the mixtape stays
+      CRWN-only, and get the files.
 
 - [ ] **To finish Team Splits I need a test-mode sandbox. This is the only thing left, and it is
       environment setup, not code.** Nothing to run in SQL.
@@ -88,7 +98,7 @@ responsible for. Do not work those.
         - Life I Live: TSO Music Group / Munna Gang Inc (Apple Music). O Block Ass Nigga: Munna Gang Inc.
         - Fresh Prince Of O'Block and Only The O In My Eyes: their Spotify albums are region
           restricted and Only The O was pulled from Apple Music; ask who pulled them and why.
-        - The vote projects open to Gold on October 16, November 16 and December 16, in vote order.
+        - Gold hears the three Platinum-only projects one a month from each member's own signup.
       He also signs the new artist terms on his next login (he warrants the rights and holds JNW
       Creative Enterprises harmless), which protects you but does not replace asking.
 
@@ -101,18 +111,9 @@ responsible for. Do not work those.
       (both now dated September 30, 2026). If counsel changes the words in substance, bump
       ARTIST_TERMS_VERSION in the first file and every artist is asked to sign again.
 
-- [ ] **Run two SQL files so artist pages get Top Songs pins, then Prince Dre's 16 songs lead.**
-      The Music tab now reads like a streaming artist page (newest release, Top Songs, Albums).
-      Until these run, Top Songs ranks by plays, then running order, and the Studio pin button errors.
-      Run order in the Supabase SQL editor:
-        1. [supabase/schema-phase2-track-pins.sql](supabase/schema-phase2-track-pins.sql)
-        2. [supabase/princedre-top-songs-pins.sql](supabase/princedre-top-songs-pins.sql)
-      Each ends with a check that raises an error if anything did not land. Then run
-          npm run verify:migrations
-      and open thecrwn.app/princedre: Top Songs should open on Wishing Well, Hommie, MunnaGang, From The O.
-      Separately: Dre's albums carry their UPLOAD date (Sep 29 to 30) as the release date, so the
-      "newest release" card shows whichever project was uploaded last, not his real newest. Give each
-      album its real release date in Studio > Music > Albums if that matters to him.
+- [ ] **Give Dre's albums their real release dates, if that matters to him.** They carry their
+      UPLOAD date (Sep 29 to 30), so the page's "newest release" card shows whichever project was
+      uploaded last, not his real newest. Studio > Music > Albums.
 
 - [ ] **Tell GB his vote funnel already works, then let him decide the general-engagement
       question.** Song Lab is now reachable for him (Studio tile plus hamburger entry, live
@@ -181,9 +182,8 @@ responsible for. Do not work those.
       confirm with his team the tier lines in
       [src/lib/offerExperience/reference/princeDre.ts](src/lib/offerExperience/reference/princeDre.ts)
       (the blueprint says pricing and benefits are approved by them before launch), including the
-      unlock schedule: the 3 vote projects open to Gold on October 16, November 16 and December 16
-      is HIS promise to keep. On each date he records the winner in his Song Lab manager (Studio,
-      Lab); CRWN counts the votes and never picks one.
+      member drip: Gold hears one more project each month a member stays (CRWN enforces the
+      timing, so there is nothing for him to do on any date).
 
 - [ ] **Run [supabase/schema-phase2-artist-gate-caller-only.sql](supabase/schema-phase2-artist-gate-caller-only.sql)
       in the Supabase SQL Editor.** This stops the daily "Onboarding is broken" email. The alert
@@ -1180,16 +1180,15 @@ Things that are never finished. Cadence, then the thing.
   real votes, put that rollup on his Fan CRM (`/studio/fans`) so he can read it himself for the
   venue push. Not before: a screen with no data behind it is guessing at a layout.
 
-- **Prince Dre's Gold unlocks: October 16, November 16, December 16.** On each date, once Dre
-  records the winner in his Song Lab manager, run
-  [scripts/onboard-launch-partner.mjs](scripts/onboard-launch-partner.mjs)
-  `princedre --apply --unlock-winner` to open that project to Gold. After rounds 1 and 2, start
-  the next round in [src/lib/offerExperience/reference/princeDre.ts](src/lib/offerExperience/reference/princeDre.ts):
-  a new `stageLabel` (a fresh poll), the options cut to the projects still locked, the ballot
-  description naming the next date, and `--apply` (the ballot link follows the new poll). After
-  December 16, ROTP, FPOB and OTOIME are all Gold, and the vote page needs a new purpose or to come
-  down. Also: show the Bronze bonus song on the after-vote screen itself; today it plays only once
-  the voter opens the emailed account link.
+- **Switch Dre to the member drip once Josh has run the SQL.** From the main checkout after this
+  branch lands (it holds his media): `npx tsx scripts/onboard-launch-partner.mjs princedre`, read
+  the plan, then `--apply`; the read-back must show each drip project's tracks opening to Gold at
+  months 1, 2 and 3, the ballot inactive and the poll closed. Then open thecrwn.app/princedre as a
+  logged-out visitor and confirm the Gold offer reads "A new project each month you stay".
+- **Player toast for a waiting member.** usePlayer still says "Subscribe to listen" when a
+  waiting Gold member plays a drip track from the library or Explore (the artist page, album,
+  playlist and track page already say "Unlocks in N days"). Low traffic today; fix it when a
+  member first reaches one.
 
 - **Prince Dre's mixtape, when the files arrive.** It lives only on CRWN (founder, 2026-10-01).
   Upload it as an album; every paid rung gets it the day it drops, and Bronze is added to its

@@ -121,6 +121,20 @@ class** (free forever / paid first / member only, how one piece of content is ga
   tiers); malformed entries open immediately rather than stranding a paid tier. Do not implement
   per-tier windows inside `can_play_track` or any gate; the schedule-mutates-fields approach is
   the deliberate design.
+- **The member drip is the ONE exception, and it lives IN the oracle on purpose** (founder,
+  2026-10-01). `tracks.tier_unlock_months` (`{ tierId: months }`,
+  [supabase/schema-phase2-tier-unlock-months.sql](supabase/schema-phase2-tier-unlock-months.sql))
+  opens a track to a tier N months after EACH MEMBER'S OWN start, which a shared schedule cannot
+  express. That is why it is not the waterfall. It is one clause at the END of `can_play_track`,
+  after `allowed_tier_ids` has matched, so it can only delay a tier the track already names,
+  never grant; owner, purchase and public tracks return before it; malformed values fail OPEN.
+  The clock is `COALESCE(started_at, created_at)`, and every paid checkout resets `started_at`,
+  so rejoining restarts the count (copy must say so). `src/lib/memberDrip.ts` is the same rule
+  for RENDERING only ("Unlocks in 12 days"), pinned to the SQL by `memberDrip.test.ts`; the
+  owner preview has no start date and shows the day-one lock. A launch config's `drip` writes the
+  rung AND its delay in one update and refuses to touch a rung that already has the track
+  (`checkLaunchPartner`), because adding a delay to content a tier already holds would take it
+  away from paying members. Behaviour proof: `supabase/verify-tier-unlock-months.sql`.
 
 ## UX Rule — multi-option selectors are DROPDOWNS
 

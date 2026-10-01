@@ -4,28 +4,34 @@
 // music from three projects (The Return Of The Prince, Fresh Prince Of O'Block, Only The O
 // In My Eyes). scripts/onboard-launch-partner.mjs writes all of it to production.
 //
-//   Vote (free, no account)  hear one song from each project, vote on which unlocks first
-//   Bronze (free, on vote)   the 2 most-watched songs from every project + a bonus song ("Hannn")
+//   Bronze (free)            the 2 most-watched songs from every project + a bonus song ("Hannn")
 //   Silver $10               Blood Brothaz + Life I Live, complete
-//   Gold $25                 Shotta In Da Jungle + Im Reloaded, complete, + the 3 vote projects,
-//                            one on each of DRE_UNLOCK_DATES, in the order the fans vote
-//   Platinum $100            everything: O Block Ass Nigga + all 3 vote projects, complete, today
+//   Gold $25                 Shotta In Da Jungle + Im Reloaded, complete, the day you join; then
+//                            one more project each month you stay (DRE_DRIP), ending with the best
+//   Platinum $100            everything: O Block Ass Nigga + the 3 drip projects, complete, today
 //
-// The vote never closes: a closed ballot stops capturing fans, and the street-team run lasts
-// weeks. Gold gets the vote projects ONE AT A TIME (founder, 2026-10-01): a single unlock gave a
-// $25 member every reason to join, take the winner and cancel, and the fans' first ask is to HEAR
-// the catalog, so Gold earns all of it by staying. The vote sets the ORDER. Each round, Dre
-// records the winner in his Song Lab manager (CRWN never picks) and `--unlock-winner` opens it to
-// Gold; the next round is a new poll (new `stageLabel`) over the projects still locked. The dates
-// are stated as DATES, never as a cadence word: the launch checks ban "monthly" so no copy implies
-// a schedule nobody chose, and this one was chosen.
+// THE MEMBER DRIP (founder, 2026-10-01). Gold gets the three remaining projects one a month,
+// counted from EACH MEMBER'S OWN start, and ends with the strongest. It replaced a fan vote on a
+// shared calendar the same day: a calendar gives anyone who joins after the last date everything
+// on day one, so the reason to stay decays; a per-member clock never decays, and the best project
+// sits at the point people usually cancel. can_play_track enforces it
+// (schema-phase2-tier-unlock-months.sql); the script writes Gold's access and its delay in ONE
+// update, so Gold can never hold these projects without the wait. The clock is the membership's
+// started_at, which every paid checkout resets, so cancelling and rejoining starts the count again
+// (the Gold FAQ says so). The order is the founder's pick from his YouTube views, ending with the
+// V Roy letter; Dre confirms it.
+//
+// The vote is RETIRED: it decided the order, and nothing is left to decide. Its three songs stay
+// free tracks on his page; the script closes the poll and takes the ballot page down.
 //
 // THE MIXTAPE lives only on CRWN for now (founder, 2026-10-01; how long is not decided). When it
 // is uploaded: every paid rung hears it the day it drops, Bronze a week later (added to the
 // tracks' allowed tiers, additive like every unlock here). That is what both FAQs promise.
 //
 // Deliberately NOT carried: merch (CRWN sells no physical goods), "limited" anything (the
-// only real cap is the Founder Window), "priority" (nothing enforces it), any schedule.
+// only real cap is the Founder Window), "priority" (nothing enforces it), any calendar date.
+// The drip is not a calendar promise: it is relative to each member and enforced by the oracle,
+// and the copy describes it as "each month you stay", never as a cadence word the checks ban.
 //
 // NO PLACEHOLDER AUDIO (founder, 2026-09-29). Since 2026-09-30 his whole catalog is on the page:
 // eight projects, every song real.
@@ -35,17 +41,18 @@ import type { LaunchPartnerConfig } from './launchPartner';
 
 export const DRE_SLUG = 'princedre';
 export const DRE_DISPLAY_NAME = 'Prince Dre';
-/** The days a vote project opens to Gold, one project each, in the order the fans vote.
- *  October 1 (the original single unlock) passed with no votes cast; the vote went live in
- *  ManyChat that day, so the first round gets two weeks of posts. */
-export const DRE_UNLOCK_DATES = ['October 16', 'November 16', 'December 16'] as const;
-/** The day the current vote's count decides the first Gold unlock. */
-export const DRE_FIRST_UNLOCK_DATE = DRE_UNLOCK_DATES[0];
-const UNLOCK_SCHEDULE = `${DRE_UNLOCK_DATES[0]}, ${DRE_UNLOCK_DATES[1]} and ${DRE_UNLOCK_DATES[2]}`;
-
 const ROTP = 'The Return Of The Prince';
 const FPOB = "Fresh Prince Of O'Block";
 const OTOIME = 'Only The O In My Eyes';
+/** Gold's drip, in unlock order, months from each member's own start. Ordered weakest to best
+ *  by YouTube views (top two songs, 2026-09-30): Only The O ~870K, Fresh Prince ~2.5M, Return Of
+ *  The Prince ~2.5M with Wishing Well, the V Roy letter, so it closes the run. */
+export const DRE_DRIP = [
+  { title: OTOIME, months: 1 },
+  { title: FPOB, months: 2 },
+  { title: ROTP, months: 3 },
+] as const;
+const [DRIP1, DRIP2, DRIP3] = DRE_DRIP;
 // The covers as they are served from his page (public album-art objects), so the offer
 // cards show the actual projects. Plain public https: the offer normalizer accepts these.
 const ART_BASE = 'https://ecpqtuidtsncjfwtkvwc.supabase.co/storage/v1/object/public/album-art/afa05eb6-da91-438a-8e28-3952c1bded83/album-art/';
@@ -69,7 +76,7 @@ const OFFER_ART = 'https://ecpqtuidtsncjfwtkvwc.supabase.co/storage/v1/object/pu
 //             else and never under the project's title) + the 3 vote projects: Return Of The
 //             Prince (Certified Mixtapes), Fresh Prince Of O'Block (DaMixHub), Only The O In My
 //             Eyes (LiveMixtapes). The vote mechanic keeps them here: Platinum has all three
-//             today, Gold gets them one at a time on DRE_UNLOCK_DATES.
+//             today, Gold gets them one a month on DRE_DRIP.
 // Shotta is as easy to find as Blood Brothaz but stays in Gold: Gold and the Round Here drop
 // already sell it. NONE of them is "never on streaming" or "unreleased": each can be found
 // somewhere, so the copy sells the COMPLETE project in one place, never scarcity it does not have.
@@ -176,7 +183,7 @@ const CONTENT_TRACKS = [BB, SJ, LIL, IR, OBAN, ROTP, FPOB, OTOIME].flatMap((proj
 export const DRE_TIER_PROMISES: Record<string, string> = {
   Bronze: 'His most-watched songs, free.',
   Silver: 'Dre and JB, back to back.',
-  Gold: 'Three more projects. You pick the order.',
+  Gold: 'A new project each month you stay.',
   Platinum: 'His whole catalog, one place.',
 };
 
@@ -193,7 +200,6 @@ export const DRE_APPROVED_BENEFITS: Record<string, string[]> = {
   Bronze: [
     `${FREE_SONGS} songs free: the 2 most-watched from all ${PROJECTS} projects`,
     'A bonus song, unlocked when you join',
-    'A vote on which project Dre unlocks first',
     'First word on the mixtape and every drop',
   ],
   Silver: [
@@ -204,12 +210,12 @@ export const DRE_APPROVED_BENEFITS: Record<string, string[]> = {
   Gold: [
     `Shotta In Da Jungle and Im Reloaded, complete (${GOLD_SONGS} songs)`,
     'The Vault: cuts, alternate versions and unreleased videos as Dre adds them',
-    `3 more projects, complete, one each on ${UNLOCK_SCHEDULE}, in the order fans vote`,
+    `A new full project each month you stay: ${DRIP1.title}, then ${DRIP2.title}, then ${DRIP3.title}`,
     'Everything in Silver',
   ],
   Platinum: [
     `All ${PROJECTS} projects in one place, in order, complete (${ALL_SONGS} songs)`,
-    `${OBAN}, his hardest project to find, and all 3 vote projects`,
+    `${OBAN}, his hardest project to find, and the 3 projects Gold waits months for`,
     'First listen to the project after the mixtape, before anyone else',
     'Group listening sessions when Dre opens one',
     'Platinum recognition',
@@ -221,7 +227,6 @@ export const DRE_APPROVED_BENEFITS: Record<string, string[]> = {
 export const DRE_BENEFIT_IDENTITIES: Record<string, { key: string; line: string }[]> = {
   Bronze: [
     { key: 'welcome_unlock', line: 'A bonus song, unlocked when you join' },
-    { key: 'creative_voting', line: 'A vote on which project Dre unlocks first' },
     { key: 'drop_alerts', line: 'First word on the mixtape and every drop' },
   ],
   Silver: [
@@ -267,7 +272,7 @@ export const DRE_PLATINUM_OFFER: TierOfferExperience = {
       // Not "only in Platinum": the three vote projects open to Gold one at a time.
       truth: 'real',
       title: 'All of it, today',
-      description: 'Not a sampler. Every song on every project, in order, the moment you join. No waiting on a vote.',
+      description: 'Not a sampler. Every song on every project, in order, the moment you join. No waiting.',
       items: [
         { title: ROTP, subtitle: `${N[ROTP]} songs`, locked: true, artUrl: ART[ROTP] },
         { title: FPOB, subtitle: `${N[FPOB]} songs`, locked: true, artUrl: ART[FPOB] },
@@ -292,7 +297,7 @@ export const DRE_PLATINUM_OFFER: TierOfferExperience = {
       description: 'Dre posts here for his fans, and fans talk under every post. Platinum shows beside your name every time you comment.',
       badge: 'PLATINUM',
       thread: [
-        { name: 'Tay', badge: 'Gold', text: 'Return Of The Prince better win this vote.' },
+        { name: 'Tay', badge: 'Gold', text: 'Two months in. Return Of The Prince is next.' },
         { name: 'You', badge: 'Platinum', text: 'Shotta In Da Jungle on repeat. Wishing Well is crazy.', you: true },
         { name: 'Mook', badge: 'Bronze', text: 'How do I hear the full projects?' },
       ],
@@ -310,7 +315,7 @@ export const DRE_PLATINUM_OFFER: TierOfferExperience = {
   faqs: [
     {
       q: 'Why not wait on the $25 level?',
-      a: `The $25 a month level gets the 3 vote projects one at a time: ${UNLOCK_SCHEDULE}. This level gets all ${PROJECTS} projects complete today, including ${OBAN}, and hears the project after the mixtape first.`,
+      a: `The $25 a month level gets ${DRIP1.title}, ${DRIP2.title} and ${DRIP3.title} one at a time, a month apart from the day you join, and never gets ${OBAN}. This level gets all ${PROJECTS} projects complete today, and hears the project after the mixtape first.`,
     },
     {
       q: 'Is the mixtape included?',
@@ -324,8 +329,8 @@ export const DRE_PLATINUM_OFFER: TierOfferExperience = {
 };
 
 export const DRE_GOLD_OFFER: TierOfferExperience = {
-  promise: 'Three more projects. You pick the order.',
-  description: `Shotta In Da Jungle and Im Reloaded, ${GOLD_SONGS} songs, in one place the moment you join. Then 3 more projects unlock for you, every song on each, one on each of ${UNLOCK_SCHEDULE}. The fans vote on the order.`,
+  promise: 'A new project each month you stay.',
+  description: `Shotta In Da Jungle and Im Reloaded, ${GOLD_SONGS} songs, in one place the moment you join. Then one more full project each month you stay, counted from the day you join: ${DRIP1.title}, then ${DRIP2.title}, and ${DRIP3.title} last.`,
   cta: 'Unlock Two Projects Today',
   secondaryCue: 'See what you get',
   heroImageUrl: `${OFFER_ART}photo-hero-gold.webp`,
@@ -345,13 +350,9 @@ export const DRE_GOLD_OFFER: TierOfferExperience = {
     {
       kind: 'collection',
       truth: 'example',
-      title: `All 3 unlock for you, starting ${DRE_FIRST_UNLOCK_DATE}`,
-      description: `One each on ${UNLOCK_SCHEDULE}, complete, in the order the fans vote.`,
-      items: [
-        { title: ROTP, subtitle: 'Complete project', locked: true, artUrl: ART[ROTP] },
-        { title: FPOB, subtitle: 'Complete project', locked: true, artUrl: ART[FPOB] },
-        { title: OTOIME, subtitle: 'Complete project', locked: true, artUrl: ART[OTOIME] },
-      ],
+      title: 'One more each month you stay',
+      description: 'Counted from the day you join. Each one complete, every song.',
+      items: DRE_DRIP.map((d) => ({ title: d.title, subtitle: `After month ${d.months}`, locked: true, artUrl: ART[d.title] })),
     },
     {
       kind: 'video',
@@ -383,8 +384,8 @@ export const DRE_GOLD_OFFER: TierOfferExperience = {
   },
   faqs: [
     {
-      q: 'What if the project I voted for does not win?',
-      a: `It still unlocks for you, just later. All 3 open here, one on each of ${UNLOCK_SCHEDULE}. The vote only sets the order. If you want every project today, the $100 a month level has all ${PROJECTS}.`,
+      q: 'When do the other projects open?',
+      a: `Counted from the day you join: ${DRIP1.title} after your first month, ${DRIP2.title} after your second, ${DRIP3.title} after your third. If you cancel and come back, the count starts again. If you want all ${PROJECTS} today, the $100 a month level has every project now.`,
     },
     {
       q: 'Is the mixtape included?',
@@ -450,12 +451,15 @@ export const PRINCE_DRE: LaunchPartnerConfig = {
   ],
   // The lead magnet: one song from each project, in the founder's order. The label is the
   // PROJECT (what the fan votes on); the song is how they hear it; the cover is the project's.
+  // RETIRED 2026-10-01 (see the header): kept so its three songs stay known to the content and
+  // drop checks; the script closes the poll and takes the ballot page down.
   vote: {
+    retired: true,
     offerSlug: 'vote',
     offerName: 'First unlock vote',
     headline: '3 FULL PROJECTS. YOU PICK ONE.',
     // Kept to three lines: the covers and the vote button must sit above a laptop's fold.
-    description: `Vote for the one Dre unlocks first. Most votes by ${DRE_FIRST_UNLOCK_DATE} opens first, in full, for his $25 members. Every vote gets a bonus song in the free account we email you.`,
+    description: 'Vote for the one Dre unlocks first. Most votes unlocks in full for his $25 members. Every vote gets a bonus song in the free account we email you.',
     question: 'Which project should Dre unlock first?',
     projectTitle: 'Next project vote',
     stageLabel: 'Next project',
@@ -466,6 +470,7 @@ export const PRINCE_DRE: LaunchPartnerConfig = {
       { label: OTOIME, trackTitle: 'In My Eyes', file: 'videos/output/Prince Dre - In My Eyes.wav', artFile: COVER[OTOIME] },
     ],
   },
+  drip: { rung: 'Gold', projects: DRE_DRIP.map((d) => ({ title: d.title, months: d.months })) },
   // What each rung holds: every song on every project (see CONTENT_TRACKS). `rung` is the LOWEST
   // rung that hears it; every rung above it is listed on the track too (the gate is an exact
   // match, there is no inheritance). The script only ever ADDS rungs to a track already there.

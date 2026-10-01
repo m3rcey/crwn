@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   DRE_PLATINUM_OFFER, DRE_GOLD_OFFER, DRE_SILVER_OFFER, DRE_APPROVED_BENEFITS,
   DRE_BENEFIT_IDENTITIES, DRE_TIER_PRICES_CENTS, DRE_TIER_PROMISES, DRE_FUNNEL_PRIMARY_ITEM,
-  DRE_BRONZE_SINGLES, PRINCE_DRE, DRE_UNLOCK_DATES, DRE_FIRST_UNLOCK_DATE,
+  DRE_BRONZE_SINGLES, PRINCE_DRE, DRE_DRIP,
 } from './princeDre';
 import { normalizeOfferExperience } from '../normalize';
 import { benefitDelivery } from '../../benefitRegistry';
@@ -133,33 +133,52 @@ describe('truth discipline', () => {
   });
 });
 
-// Founder, 2026-10-01: Gold gets the three vote projects one at a time, on three named dates, in
-// the order the fans vote. Every surface that states a date must state the SAME dates, or a fan
-// reads one promise on the vote page and another on the offer.
-describe('the Gold unlock schedule', () => {
-  const gold = JSON.stringify(DRE_GOLD_OFFER) + DRE_APPROVED_BENEFITS.Gold.join(' ');
+// Founder, 2026-10-01: Gold gets the three remaining projects one a month, counted from each
+// member's OWN start, ending with the best. It replaced the fan vote on a shared calendar. The
+// copy must name the same projects in the same order the config drips them, and must not claim
+// anything the oracle does not do.
+describe('the Gold member drip', () => {
+  const gold = JSON.stringify(DRE_GOLD_OFFER) + DRE_APPROVED_BENEFITS.Gold.join(' ') + DRE_TIER_PROMISES.Gold;
   const platinum = JSON.stringify(DRE_PLATINUM_OFFER);
 
-  it('is one date per vote project, and the vote decides the first', () => {
-    expect(DRE_UNLOCK_DATES.length).toBe(PRINCE_DRE.vote!.options.length);
-    expect(DRE_FIRST_UNLOCK_DATE).toBe(DRE_UNLOCK_DATES[0]);
-    expect(PRINCE_DRE.vote!.description).toContain(DRE_FIRST_UNLOCK_DATE);
+  it('drips one project a month for three months to Gold, ending with The Return Of The Prince', () => {
+    expect(DRE_DRIP.map((d) => d.months)).toEqual([1, 2, 3]);
+    expect(DRE_DRIP[DRE_DRIP.length - 1].title).toBe('The Return Of The Prince');
+    expect(PRINCE_DRE.drip).toEqual({ rung: 'Gold', projects: DRE_DRIP.map((d) => ({ title: d.title, months: d.months })) });
   });
 
-  it('Gold and Platinum name every unlock date', () => {
-    for (const d of DRE_UNLOCK_DATES) {
-      expect(gold, `Gold is missing ${d}`).toContain(d);
-      expect(platinum, `Platinum is missing ${d}`).toContain(d);
-    }
+  it('Gold names every drip project, in drip order', () => {
+    const at = DRE_DRIP.map((d) => DRE_APPROVED_BENEFITS.Gold.join(' ').indexOf(d.title));
+    expect(at.every((i) => i >= 0)).toBe(true);
+    expect([...at].sort((a, b) => a - b)).toEqual(at);
+    for (const d of DRE_DRIP) expect(gold).toContain(d.title);
   });
 
-  it('no copy still promises the passed October 1 unlock', () => {
-    const all = gold + platinum + PRINCE_DRE.vote!.description;
-    expect(/October 1(?!\d)/.test(all)).toBe(false);
+  it('says the count restarts on rejoining, because started_at resets on every paid checkout', () => {
+    expect(gold).toContain('the count starts again');
   });
 
-  it('Platinum no longer claims the vote projects are Platinum-only', () => {
+  it('Platinum keeps all of it today and says Gold waits', () => {
     expect(platinum.toLowerCase()).not.toContain('only in platinum');
+    for (const d of DRE_DRIP) expect(platinum).toContain(d.title);
+  });
+
+  it('no paid offer, card or promise mentions the retired vote or a passed date', () => {
+    const all = gold + platinum + JSON.stringify(DRE_APPROVED_BENEFITS) + JSON.stringify(DRE_TIER_PROMISES);
+    expect(all.toLowerCase()).not.toContain('vote');
+    expect(/October 1(?!\d)/.test(all)).toBe(false);
+    expect(PRINCE_DRE.vote!.retired).toBe(true);
+    expect(DRE_BENEFIT_IDENTITIES.Bronze.map((i) => i.key)).not.toContain('creative_voting');
+  });
+
+  it('every drip project has tracks above Gold to delay, and its Bronze singles stay free', () => {
+    for (const d of DRE_DRIP) {
+      const project = PRINCE_DRE.content!.projects.find((p) => p.title === d.title)!;
+      const rungs = project.trackTitles.map((t) => PRINCE_DRE.content!.tracks.find((x) => x.title === t)?.rung ?? 'vote-song');
+      expect(rungs).toContain('Platinum');
+      expect(rungs).not.toContain('Gold');
+      expect(rungs).not.toContain('Silver');
+    }
   });
 
   it('both paid offers give the same mixtape answer', () => {

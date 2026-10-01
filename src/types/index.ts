@@ -81,6 +81,9 @@ export interface Track {
   position: number | null; // For ordering tracks in artist dashboard
   /** The artist's Top Songs pin (1 leads). Absent until schema-phase2-track-pins.sql is applied. */
   pin_rank?: number | null;
+  /** Member drip: { tierId: months } a tier waits from each member's own start
+   *  (src/lib/memberDrip.ts). Absent until schema-phase2-tier-unlock-months.sql is applied. */
+  tier_unlock_months?: Record<string, number> | null;
   genre?: string | null;
   record_label?: string | null;
   isrc?: string | null;

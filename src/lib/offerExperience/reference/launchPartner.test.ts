@@ -45,6 +45,7 @@ describe('the checks actually refuse what they claim to', () => {
     // Pending: no songs yet, and so no projects built from them.
     c.vote!.options = [];
     c.content = undefined;
+    c.drip = undefined;
     // With no songs uploaded there is nothing to drop either; a drop naming a missing song is refused.
     expect(checkLaunchPartner(c).join()).toContain('is not a song this launch uploads');
     c.drops = undefined;
@@ -72,5 +73,37 @@ describe('the checks actually refuse what they claim to', () => {
   it('refuses a downsell that is not cheaper than the primary', () => {
     const c = clone(); c.funnelDownsell = 'Platinum';
     expect(checkLaunchPartner(c).join()).toContain('downsell');
+  });
+});
+
+// The member drip may only DELAY a rung on content it does not yet have. These are the ways a
+// config could turn it into taking access away from paying members, or into a promise that
+// nothing delivers.
+describe('the drip checks refuse what would strand a member', () => {
+  const clone = (): LaunchPartnerConfig => JSON.parse(JSON.stringify(PRINCE_DRE));
+
+  it('refuses dripping the top rung (nobody would keep the projects from day one)', () => {
+    const c = clone(); c.drip!.rung = 'Platinum';
+    expect(checkLaunchPartner(c).join()).toContain('top rung');
+  });
+  it('refuses a project with nothing above the drip rung (it would delay content the rung already has)', () => {
+    const c = clone(); c.drip!.projects[0] = { title: 'Shotta In Da Jungle', months: 1 };
+    expect(checkLaunchPartner(c).join()).toContain('nothing to delay');
+  });
+  it('refuses months out of order, fractional, or out of range', () => {
+    const c = clone(); c.drip!.projects[1].months = 1;
+    expect(checkLaunchPartner(c).join()).toContain('must open after');
+    const d = clone(); d.drip!.projects[0].months = 1.5;
+    expect(checkLaunchPartner(d).join()).toContain('whole months');
+    const e = clone(); e.drip!.projects[2].months = 25;
+    expect(checkLaunchPartner(e).join()).toContain('whole months');
+  });
+  it('refuses a project the launch does not upload', () => {
+    const c = clone(); c.drip!.projects[0].title = 'Not A Tape';
+    expect(checkLaunchPartner(c).join()).toContain('not a project this launch uploads');
+  });
+  it('refuses a project that would drip on a clock AND wait on a live vote', () => {
+    const c = clone(); c.vote!.retired = false;
+    expect(checkLaunchPartner(c).join()).toContain('live vote');
   });
 });
