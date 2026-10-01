@@ -75,6 +75,11 @@ you type.
 
 ## Stage A: build and test VOTE
 
+0. **First, look at the Automations list for one named `VOTE`.** Josh may have started it by hand.
+   If it exists, do NOT create another. Open it, check that steps 1 to 3 below are already true
+   (Flow Builder, named VOTE, an Instagram comment trigger on any post or reel with keyword VOTE),
+   fix anything that differs, and continue from step 4. If there is more than one automation named
+   VOTE, stop and report. Only if none exists, start at step 1.
 1. Click **+ New Automation**. Choose a template whose card is labelled **Flow Builder**. If a
    dialog offers **Start From Scratch**, do not use it: it gives a fixed builder you cannot add
    blocks to, and its only menu option is Delete. If the only route in is a template gallery, pick
@@ -136,6 +141,7 @@ Work in table order, rows 2 through 17. For each row:
 | A duplicate answers VOTE as well as its own keyword | Its carried trigger was added to, not edited. Open its triggers and delete every keyword except the row's. |
 | The wrong song's link arrives | Same cause. Check that automation's triggers and its URL button. |
 | Two automations both fire on one comment | One of them still has an any-post comment trigger. Only VOTE may have one. |
+| Two automations named VOTE | Stop and report which ones exist and whether each is Live. Do not delete either. |
 | An automation shows a bare "Automation powered by @Manychat" with an empty body | The ManyChat plan has lapsed. Stop and report. This is not fixable in the builder. |
 | An automation will not switch to Live | Report which one and its exact error text. Do not touch the plan or billing. |
 | "window capture timed out" or "FrameArrived timed out" | Chrome was hidden or the machine locked. Bring Chrome to the front and retry the same step. |
@@ -198,6 +204,8 @@ hand from what you write here, so this matters more than one more automation.
 One line per automation, in table order:
 
 `<keyword> | Live yes/no | triggers: <count and type> | link tested: pass/fail/not tested | post trigger: yes/no`
+
+For VOTE, also say whether you created it or found it already started, and what you changed.
 
 Then:
 
