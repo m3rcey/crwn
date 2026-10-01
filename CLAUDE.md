@@ -1564,6 +1564,11 @@ can no longer cancel the original. It bills forever. Guards, all of which must s
 - `album_tracks` uses `track_number` NOT `position`.
 - `playlist_tracks` uses `position`.
 - Albums use `is_active` (not `is_published`), and have no `slug` field.
+- **Albums are not sold individually** (founder decision, 2026-10-01). Projects reach fans through
+  tier access only. `albums.price` stays in the schema but nothing reads, displays or charges it, so
+  neither `AlbumManager` nor `QuickCreateAlbumModal` offers it any more (it used to promise "Fans
+  can buy the album outright"). Re-adding a price field needs an album checkout, a webhook handler
+  and an entitlement path in `can_play_track` first. Three old rows still carry a value; it is inert.
 
 ### Onboarding Safety Net — DO NOT REMOVE
 
