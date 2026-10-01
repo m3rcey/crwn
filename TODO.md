@@ -22,16 +22,19 @@ responsible for. Do not work those.
 
 ### P0 — money flows or acquisition are blocked
 
-- [ ] **Test Prince Dre's VOTE automation on your phone, then run the Astra prompt for his 16
-      song automations.** VOTE is built and Live (first Astra run, 2026-10-01). Its test DM arrived
-      with the right opening message, but instagram.com showed no `Send it` button; the website most
-      likely does not render buttons, the phone app should. In the Instagram app as @thecrwnapp,
-      open the chat with @1princedre, tap **Send it**, then **Hear them**, and check the vote page
-      opens. Do not vote. If the phone shows no button either, stop and tell Claude before running
-      anything, because all 16 songs copy that flow. If it works, run
-      [docs/acquisition/astra-princedre-manychat.md](docs/acquisition/astra-princedre-manychat.md)
-      (rewritten for the 16 songs only, no DMs, using the labels Astra actually saw). Send Claude
-      Astra's report when it finishes.
+- [ ] **Finish Prince Dre's ManyChat: Part 1, phone test, Part 2.** All three steps are in
+      [docs/acquisition/astra-princedre-manychat.md](docs/acquisition/astra-princedre-manychat.md).
+      VOTE is Live but still asks fans to tap twice and its copy promised "all 3" projects (the
+      page plays one song from each). Part 1 (Astra) makes it one tap, in Dre's voice. Then you DM
+      `VOTE` from @thecrwnapp in the Instagram app, tap **Vote**, and check the page opens (do not
+      vote). Part 2 (Astra) duplicates it into the 16 songs. Send Claude each report.
+
+- [ ] **When each of Dre's song posts goes up, add its comment trigger in ManyChat.** The 16 song
+      automations answer DMs only until then. Open the song's automation, **+ New Trigger**, **Post
+      or Reel Comments**, **Specific Post or Reel**, pick the post, keyword = the song's keyword,
+      and on the Public Reply screen add the four replies: `just dm'd you g`, `sent it to you bro`,
+      `i just sent it to you`, `i just dm'd you`. The duplicates lost VOTE's public replies when
+      their any-post trigger was deleted, so the replies have to be typed in with each new trigger.
 
 - [ ] **Find out when Prince Dre's ManyChat trial ends, and make sure it will not lapse.** His
       account shows a **TRIAL** badge under his name in ManyChat, not a paid Pro plan. When a
