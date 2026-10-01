@@ -26,7 +26,8 @@ responsible for. Do not work those.
       Prompt: [docs/acquisition/astra-princedre-manychat.md](docs/acquisition/astra-princedre-manychat.md).
       Three things to do yourself first, listed in that file's header: switch ManyChat to Dre's
       account and leave it on Automations, have a tab in that same Chrome window signed in to
-      instagram.com as @m3rcey (Astra sends its test DMs from it; no DM to Dre beforehand), and keep
+      instagram.com as @thecrwnapp (Astra sends ONE test DM, `VOTE`, from it; no DM to Dre
+      beforehand, and no song tests, because CRWN's own `free` keyword is in every song reply), and keep
       Chrome maximized and in front. His 16 drop links and
       the vote link were all verified live on 2026-10-01, and his Stripe charges are enabled, so
       every one of these 17 links can take money today. Send Claude Astra's report when it finishes;

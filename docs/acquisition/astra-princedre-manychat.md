@@ -8,9 +8,15 @@
 1. Sign in to ManyChat, switch to **Prince Dre's** account, and leave the browser on
    **Automations**. Astra must never use the account switcher.
 2. In that same Chrome window, open a tab on instagram.com and make sure it is signed in as
-   **@m3rcey**. Astra sends the test DMs from that tab. No DM to Dre is needed beforehand: the
-   first test DM (`VOTE`) creates the @m3rcey contact in Dre's ManyChat and tests the flow at the
-   same time. Nothing in this build selects a contact inside ManyChat.
+   **@thecrwnapp**. Astra sends ONE test DM (`VOTE`) from that tab. No DM to Dre is needed
+   beforehand: that test creates the contact in Dre's ManyChat and tests the flow at the same
+   time. Nothing in this build selects a contact inside ManyChat.
+   **Why only one test:** @thecrwnapp runs CRWN's own ManyChat funnel, and `free` is one of its
+   live DM keywords (the Opportunity Calculator). Every song reply says "Yours free", so a song
+   test would land "Yours free" in @thecrwnapp's inbox and could fire CRWN's own funnel back at
+   Dre's account. The VOTE replies contain none of CRWN's keywords, so that one test is safe.
+   Spot-check a song or two yourself afterwards from an account that is not @thecrwnapp, if you
+   want to.
 3. Chrome maximized, in front, on the main monitor. Not Incognito. No lock, no sleep.
 
 Paste everything below the line.
@@ -31,7 +37,7 @@ accounts, or anything not named in these steps. Do not read documentation.
 ## Done means
 
 - **VOTE**: status reads **Live**. Triggers are exactly two: a comment trigger on **any post or
-  reel** with keyword VOTE, and a DM keyword trigger for VOTE. DMing `VOTE` from @m3rcey returns
+  reel** with keyword VOTE, and a DM keyword trigger for VOTE. DMing `VOTE` from @thecrwnapp returns
   the opening DM, and tapping its button returns a message with a link button to
   `https://thecrwn.app/princedre/join/vote`.
 - **Each of the 16 song automations**: status reads **Live**. Its DM keyword trigger is its own
@@ -90,10 +96,12 @@ you type.
 7. Add a second trigger: a DM keyword trigger ("User sends a message") with keyword `VOTE`, plus
    the variants `vote` and `Vote`. For VOTE only, leave this matching as contains, not exact.
 8. Set it **Live**.
-9. **Smoke test.** From Instagram as **@m3rcey**, DM Prince Dre's account the word `VOTE`. You must
-   receive the opening DM. Tap `Send it`. You must then receive row 1's text with a tappable button
-   that opens the vote page. If no DM arrives, redo steps 7 and 8 at most twice, then stop and
-   report.
+9. **Smoke test.** In the instagram.com tab, which is signed in as **@thecrwnapp**, DM Prince
+   Dre's account the word `VOTE`. You must receive the opening DM. Tap `Send it`. You must then
+   receive row 1's text with a tappable button. Tap it and confirm the vote page opens, then close
+   that tab. **Do not vote, and do not type a name or email on that page**: a vote there is
+   counted in Dre's real poll. If no DM arrives, redo steps 7 and 8 at most twice, then stop and
+   report. This is the only test DM of the whole run.
 10. **If the smoke test fails, stop and report. Do not build the other 16.**
 
 ## Stage B: the 16 song automations
@@ -115,9 +123,11 @@ Work in table order, rows 2 through 17. For each row:
     the row's link. The button label becomes `Get it`. Leave the opening DM and the three public
     reply variations exactly as VOTE has them.
 15. Set it **Live**.
-16. After every fourth automation, DM one of those four keywords from @m3rcey and confirm the right
-    link comes back. If the wrong song's link comes back, the trigger edit in step 13 added a
-    keyword instead of replacing one. Fix that automation, then carry on.
+16. Do not DM any song keyword to test it. Instead, after every fourth automation, open those four
+    and check by eye that each one has exactly one DM keyword trigger, it is that row's keyword on
+    exact match, there is no any-post comment trigger, and the URL button is that row's link. If
+    one also carries VOTE, the trigger edit in step 13 added a keyword instead of replacing one.
+    Fix that automation, then carry on.
 
 ## Known problems and the exact fix
 
@@ -165,7 +175,7 @@ hand from what you write here, so this matters more than one more automation.
    - Adding a specific-post comment trigger, for when the song's post exists.
    - Changing the DM text and the link button, and the button label `Get it`.
    - Setting it Live.
-   - Testing it by DMing the keyword from @m3rcey.
+   - Checking it by eye: one DM keyword trigger, the right keyword, exact match, the right link.
    Add any trap you hit during this run and how you got past it. Then list the rows Josh still has
    to build, with their keyword, link and DM text copied from the table, so he works from one
    list.
@@ -177,7 +187,9 @@ hand from what you write here, so this matters more than one more automation.
 - Never use the account switcher, and never open another ManyChat account.
 - Never change billing, the plan, team members, or Instagram connection settings.
 - Never edit, pause or delete an automation that is not one of these 17.
-- Never send a broadcast, and never send a test message to any contact other than @m3rcey.
+- Never send a broadcast. The only DM you send in this whole run is the single `VOTE` from
+  @thecrwnapp in step 9. Never DM a song keyword from @thecrwnapp.
+- Never vote on the vote page, and never type a name or email into any CRWN page.
 - Never change the copy beyond what the table says, and never type a dash of any kind.
 - Never open ManyChat Settings, and never reveal or copy an API key or token.
 
@@ -191,6 +203,7 @@ Then:
 
 - Which keywords have no comment trigger because that post does not exist yet.
 - The exact text of any error you saw.
-- Confirmation that @m3rcey is the only contact you messaged.
+- Confirmation that the single `VOTE` from @thecrwnapp was the only DM you sent, and that you did
+  not vote.
 - If you stopped before row 17 for any reason, the hand-build steps and the remaining rows from
   "If you are about to run out", even if credits were not the reason.
