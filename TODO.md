@@ -800,24 +800,6 @@ responsible for. Do not work those.
 
 ### P2 — worth doing, nothing breaks if you never do it
 
-- [ ] **Compact the WSL disk to give about 6.5 GB back to C:.** Deleting files inside WSL never
-      shrinks `ext4.vhdx`: on 2026-10-02 it was 20.6 GB on C: with 14 GB actually used. Sparse mode
-      is refused on this WSL build ("potential data corruption"), so never use `--allow-unsafe`.
-      Compact it by hand instead, any time C: runs low again. Worktree caches are now cleaned
-      automatically (`crwn clean`, [docs/PARALLEL_CLAUDE_SESSIONS.md](docs/PARALLEL_CLAUDE_SESSIONS.md)).
-      The diskpart steps are already written to `C:\Users\Josh\compact-wsl-disk.txt` (attach
-      read-only, compact, detach). The free space was already trimmed on 2026-10-02 (fstrim).
-      1. Close VS Code and every Claude session: anything open on `\\wsl.localhost` restarts WSL.
-      2. In an ADMIN PowerShell, run these two lines:
-
-             wsl --shutdown
-             diskpart /s C:\Users\Josh\compact-wsl-disk.txt
-
-      It should end with "DiskPart successfully detached the virtual disk file." If it says the
-      file is in use, WSL restarted: run both lines again. If it stops on any other error, restart
-      Windows (that detaches the disk), then tell Claude. When it succeeds, tell Claude, and it
-      will check the new size.
-
 - [ ] **Delete the unused Vercel env var `NEW_ARTIST_WEBHOOK_SECRET`.** Nothing reads it since the
       new-artist alert moved into the signup code (2026-09-26). Vercel > crwn > Settings >
       Environment Variables > delete it. No redeploy needed.

@@ -228,7 +228,28 @@ the guard.
 
 Deleting files inside WSL does NOT shrink
 `C:\Users\Josh\AppData\Local\Packages\CanonicalGroupLimited.Ubuntu_79rhkp1fndgsc\LocalState\ext4.vhdx`.
-The file only grows. Compacting it stops every WSL session, so it is a manual step (see TODO.md).
+The file only grows. When C: runs low, compact it by hand. This stops every WSL session.
+
+- **Never use sparse mode.** `wsl --manage Ubuntu --set-sparse true` is refused on this WSL build
+  ("potential data corruption"), and `--allow-unsafe` is not worth the risk.
+- `Optimize-VHD` is not installed here, so use `diskpart`, which ships with Windows. Its steps are
+  saved in `C:\Users\Josh\compact-wsl-disk.txt`: attach read-only, compact, detach.
+
+The steps:
+1. Close VS Code and every Claude session. Anything open on `\\wsl.localhost` restarts WSL.
+2. In an admin PowerShell, run these three lines. Do not type the diskpart steps into PowerShell
+   yourself: PowerShell reads them as its own commands.
+
+       wsl -u root fstrim -av
+       wsl --shutdown
+       diskpart /s C:\Users\Josh\compact-wsl-disk.txt
+
+3. It should end with "DiskPart successfully detached the virtual disk file."
+   - "File in use" means WSL restarted. Run the last two lines again.
+   - On any other error, restart Windows, which detaches the disk.
+
+The first run, on 2026-10-02, took the vhdx from 20.56 GB to 17.19 GB with 14 GB in use. The
+vhdx always sits about 3 GB above what `df` reports, because ext4's own structures live there too.
 
 ## The safeguard
 
