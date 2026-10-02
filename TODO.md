@@ -800,6 +800,19 @@ responsible for. Do not work those.
 
 ### P2 — worth doing, nothing breaks if you never do it
 
+- [ ] **Let the WSL disk give space back to C:.** Deleting files inside WSL never shrinks
+      `ext4.vhdx`: on 2026-10-02 it was 20.6 GB on C: with 17 GB actually used, and C: had 16.9 GB
+      free. Worktree caches are now cleaned automatically (`crwn clean`,
+      [docs/PARALLEL_CLAUDE_SESSIONS.md](docs/PARALLEL_CLAUDE_SESSIONS.md)). A sparse VHD then hands
+      freed space back to Windows by itself. This stops every WSL session, so close all Claude
+      sessions first, then in PowerShell run these two lines:
+
+          wsl --shutdown
+          wsl --manage Ubuntu --set-sparse true
+
+      If it prints a data-corruption warning and asks for `--allow-unsafe`, do NOT force it. Tell
+      Claude, and it will give you the one-off compaction steps instead.
+
 - [ ] **Delete the unused Vercel env var `NEW_ARTIST_WEBHOOK_SECRET`.** Nothing reads it since the
       new-artist alert moved into the signup code (2026-09-26). Vercel > crwn > Settings >
       Environment Variables > delete it. No redeploy needed.
