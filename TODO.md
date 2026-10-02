@@ -35,14 +35,17 @@ responsible for. Do not work those.
       card is on file for the plan that follows the trial, and put the trial's end date in your
       calendar with a reminder to open his Automations that day and check all 17 read Live.
 
-- [ ] **Tell Dre how his Gold and Platinum work now, and get the mixtape.** Live since 2026-10-01:
+- [ ] **Tell Dre how his Gold and Platinum work now, and get his SOULJA DRE cuts.** Live since 2026-10-01:
       Gold ($25) hears Shotta In Da Jungle and Im Reloaded the day they join, then Only The O In My
       Eyes after month 1, Fresh Prince Of O'Block after month 2, The Return Of The Prince after month
       3, counted from each member's own signup. Platinum is now **$50/mo** (was $100; $450/yr) and has
       all 8 today. The vote page is down. The order was my
       pick (weakest to best by YouTube views); if he wants another, tell me and I swap it.
-      Cancelling and rejoining restarts the count. Ask how long the mixtape stays CRWN-only, and
-      get the files.
+      Cancelling and rejoining restarts the count. SOULJA DRE itself is with his label, so ask him
+      for the songs that did NOT make the album (the posters' free song), plus what he has from each
+      era that is nowhere else: unreleased songs, videos, photos, notepad screenshots, any unreleased
+      project. That is what his monthly drop is made of. And have him record the VSL (script in
+      chat, 2026-10-01).
 
 - [ ] **To finish Team Splits I need a test-mode sandbox. This is the only thing left, and it is
       environment setup, not code.** Nothing to run in SQL.
@@ -1173,13 +1176,11 @@ Things that are never finished. Cadence, then the thing.
   playlist and track page already say "Unlocks in N days"). Low traffic today; fix it when a
   member first reaches one.
 
-- **Prince Dre's mixtape SOULJA DRE, when the files arrive.** It lives only on CRWN and is the
-  lead magnet (founder, 2026-10-01): upload it as an album, free to Bronze and every paid rung
-  from the day it drops (both paid FAQs say so). Then swap the placeholder behind the two printed
-  poster links in `drops` (DRE_POSTER_LINKS): `princedre-souljadre` gets the unreleased single Dre
-  picks (live before Oct 30), `princedre-souljadre-album` gets the album opener (on Oct 30). Change
-  only magnetTrackTitle/magnetTitle, never the link: the QR codes are printed. Re-run the launch
-  script, scan both posters' codes, and confirm each page plays the new song.
+- **Prince Dre's SOULJA DRE cuts, when the files arrive.** The album is with his label (founder,
+  2026-10-01); CRWN gets only the songs that did not make it. Upload the cuts, then swap the
+  placeholder (Hommie) behind both printed poster links in `drops` (DRE_POSTER_LINKS) to a cut
+  song each. Change only magnetTrackTitle/magnetTitle, never the link: the QR codes are printed.
+  Re-run the launch script, scan both posters' codes, and confirm each page plays the new song.
 
 - **After the Meta App Review Astra run:** re-run Part D of [docs/fan-automations/astra-meta-app-review.md](docs/fan-automations/astra-meta-app-review.md) if anything blocks Submit. (Reviewer artist `meta-reviewer` is set up, Stripe-priced, and hidden from Explore, verified 2026-09-27.)
 
