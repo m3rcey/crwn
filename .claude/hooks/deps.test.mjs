@@ -64,3 +64,15 @@ test('isolateDeps gives the worktree its own copy; the main checkout keeps its f
   const iso = evaluateAll({ tool_name: 'Bash', tool_input: { command: 'npm install x' }, cwd: WT }, { CLAUDE_PROJECT_DIR: WT }).isolate;
   assert.deepEqual(iso, [], 'an isolated worktree needs nothing more');
 });
+
+test('linkDeps never hands main\'s packages to a worktree whose lockfile differs', () => {
+  const WT2 = path.join(MAIN, '.claude', 'worktrees', 'task-b');
+  w(path.join(WT2, '.git'), 'gitdir: elsewhere\n');
+  w(path.join(MAIN, 'package-lock.json'), '{"lockfileVersion":3,"packages":{"":{}}}\n');
+  w(path.join(WT2, 'package-lock.json'), '{"lockfileVersion":3,"packages":{"":{},"node_modules/zod":{}}}\n');
+  assert.match(linkDeps(WT2, MAIN), /npm ci/, 'it says what to do instead');
+  assert.equal(fs.existsSync(path.join(WT2, 'node_modules')), false, 'nothing was linked');
+  fs.copyFileSync(path.join(MAIN, 'package-lock.json'), path.join(WT2, 'package-lock.json'));
+  assert.match(linkDeps(WT2, MAIN), /hardlinked/, 'the same lockfile links as before');
+  assert.ok(isLinked(WT2));
+});

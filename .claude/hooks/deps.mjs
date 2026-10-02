@@ -47,6 +47,13 @@ export function linkDeps(root, mainRoot) {
   const mine = path.join(root, 'node_modules');
   const shared = path.join(mainRoot, 'node_modules');
   if (fs.existsSync(mine) || !fs.existsSync(shared)) return null;
+  // The main checkout's tree is only right for a worktree that asks for the same packages. A task
+  // that changed dependencies and later lost node_modules to `crwn clean` must not be handed main's.
+  const lock = (r) => { try { return fs.readFileSync(path.join(r, 'package-lock.json')); } catch { return null; } };
+  const wantLock = lock(root), mainLock = lock(mainRoot);
+  if (wantLock && mainLock && !wantLock.equals(mainLock)) {
+    return "node_modules: missing, and this worktree's package-lock.json differs from the main checkout's, so it was NOT linked from there. Run npm ci in this worktree before building or testing.";
+  }
   run('cp', ['-al', shared, mine]);
   for (const p of REWRITTEN_IN_PLACE) unshare(path.join(mine, p));
   fs.writeFileSync(path.join(mine, MARKER), 'Hardlinked from the main checkout. Isolated automatically before any npm command that changes dependencies.\n');
