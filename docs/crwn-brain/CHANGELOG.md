@@ -1,5 +1,27 @@
 # CRWN Brain — Changelog
 
+## 2026-10-02 - Lifecycle emails follow the reader's current situation
+
+**Full doc: 35-LIFECYCLE-EMAIL-STRATEGY.md.**
+- **Artist emails are re-decided at send time** (`lifecycle/artistEmailGate.ts`): one current
+  gap (music, paid tier, payouts, first paid fan), one email per artist per run, closed gaps
+  complete, not-current gaps cancel. The Stripe nudge no longer outlives a connected Stripe.
+- **The Pro upsell needs real revenue.** It went to 10 zero-revenue artists in a week; it now
+  enrolls only at trailing 30-day GMV at or above the Pro break-even. One-off cleanup for the 9
+  still active: `supabase/cancel-zero-revenue-pro-upsell.sql`.
+- **Promise reminder emails start at the first paying member.** One welcome per new artist.
+- **Fans get a real welcome** on every join (free, paid, upgrade): one track to play, the tier
+  card's own lines, and for free members one concrete thing the next rung adds. The artist-page
+  Join Free now goes through `joinFreeTier` (artist notified, nurture enrolled, no paid row
+  overwritten).
+- **Cancel offers the next cheaper paid tier first** (founder decision). Building it found that a
+  downgrade never reached Stripe (the fan would have kept paying the higher price forever; 0
+  production rows were affected). Downgrades are now a Stripe schedule at the paid boundary,
+  proven 17/17 on a test clock by `scripts/verify-downgrade-schedule.mjs`.
+- **Fixed:** downgraders got "You just upgraded"; the cancel notification never reached the
+  artist (wrong id); fan sequences outlived their premise (`sequences/stillApplies.ts`); the vote
+  email promised a result notification nobody sends.
+
 ## 2026-09-30 - Fan funnel buttons above the fold, before and after the opt-in
 
 Measured with the new `scripts/probe-fan-fold.mjs` at 390x745, 375x667, 1280x590 and 1920x872.

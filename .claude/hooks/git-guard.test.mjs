@@ -66,6 +66,10 @@ test('task worktree: every route to the integration branch is blocked', () => {
   blocked(A, 'bash scripts/dev/crwn sync');
   allowed(A, 'scripts/dev/crwn ls');
   allowed(MAIN, 'scripts/dev/crwn land task-a --yes');
+  blocked(A, 'scripts/dev/crwn clean --apply');
+  blocked(A, `wsl.exe -e bash -lc 'cd /x && crwn clean --skip task-b --apply'`);
+  allowed(A, 'scripts/dev/crwn clean');
+  allowed(MAIN, 'scripts/dev/crwn clean --apply');
 });
 
 test('task worktree: cannot write into another checkout', () => {

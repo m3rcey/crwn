@@ -63,6 +63,34 @@ Ask the founder only for what recon cannot answer, and ask once, before handing 
   pasting, and step 1 repeats the route as a fallback. A business/account switcher is a place
   Astra stalls (2026-09-27: it could not select M3rcey in Meta's business picker, while "Edit
   roles in Meta Business Suite" on the app's App roles page opens that portfolio directly).
+- **Astra works in the founder's Chrome window that is already open, never a browser of its
+  own.** Josh's window is the one signed in to the right account, on the right page; a browser
+  Astra launches itself (a built-in or agent browser, a new window, a new profile) has none of his
+  sessions, so it either stalls on a login it must not attempt or works in the wrong account.
+  Every prompt says so in its mission paragraph, and its Never list forbids opening another
+  browser, window or profile. If the open window has been closed, Astra stops and reports instead
+  of starting its own. New tabs inside that same window are fine when a step needs one.
+- **The address bar must be visible and readable.** Computer use reads the current URL before
+  every action to enforce its site policy, and stops when it cannot (2026-10-01: the Prince Dre
+  ManyChat run ended on "could not determine the current browser URL confidently enough to
+  enforce policy" before its first click). Every prompt's founder setup says: not full screen
+  (F11 hides the bar), a normal Chrome window rather than an installed-app window, zoom 100%,
+  the target tab selected. Its known-errors table maps that message to "select the tab, retry
+  once, then stop and report", since only the founder can fix the window.
+- **One paste, one planned pause, never a second paste.** When a later step must wait on
+  something only the founder can check (a phone test, a payment, a login), have Astra finish the
+  first part, ask in FIXED words, and wait for `go` in the same chat (2026-10-01, Prince Dre's
+  ManyChat: build VOTE, pause for a phone test, then duplicate 16). Splitting into two pastes was
+  friction the founder rejected; running on without the check would copy one fault 16 times.
+- **Make every prompt resumable.** Start with a Step 0 that lists what already exists and only does
+  what is missing, so the same prompt is safe to paste again after any interruption.
+- **A revised prompt goes into a NEW Astra chat.** The old chat keeps following the old rules (it
+  re-applied a superseded "smoke test blocks the copies" step and did nothing). The founder's
+  editor may also hold a stale copy of a file Claude rewrote over the `\wsl.localhost` path, so
+  give a one-line way to tell versions apart, and paste the block in chat if they disagree.
+- **Buttons are only testable in the phone app**, and ManyChat fields APPEND when typed into:
+  every replacement is Ctrl+A, Backspace, type, read back. Both are in
+  [docs/acquisition/manychat-setup-guide.md](../../../docs/acquisition/manychat-setup-guide.md).
 - **Never send Astra into Chrome Incognito.** The ChatGPT desktop app's browser connection cannot
   reach Incognito windows, and its screen capture fails often. A task that needs a second login
   (a reviewer or test account) is the founder's by hand, or a separate step after Astra.

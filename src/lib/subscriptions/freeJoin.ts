@@ -48,6 +48,9 @@ export async function joinFreeTier(
   // free_join sequence. Validation happens inside enrollInSequence: a stale or
   // cross-artist id enrolls nobody.
   nurture?: EnrollOptions,
+  // A free tier can run a Founder Window too. The caller has ALREADY enforced its cap and
+  // deadline (/api/stripe/checkout); this only records the flag on the row it writes.
+  extra?: { isFounder?: boolean },
 ): Promise<FreeJoinResult> {
   const { data: tier, error: tierError } = await admin
     .from('subscription_tiers')
@@ -80,6 +83,7 @@ export async function joinFreeTier(
       stripe_subscription_id: syntheticFreeSubId(fanId, tier.artist_id),
       status: 'active',
       started_at: new Date().toISOString(),
+      ...(extra?.isFounder ? { is_founder: true } : {}),
     }, { onConflict: 'fan_id,artist_id' });
 
   if (insertError) {

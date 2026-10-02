@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { proBreakEvenGmvCents } from '@/lib/planRecommendation';
+import { upgradeNudgeEligible } from '@/lib/lifecycle/artistEmailGate';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -11,14 +13,22 @@ const INACTIVE_DAYS = 14;
 type PipelineStage = 'signed_up' | 'onboarding' | 'free' | 'paid' | 'at_risk' | 'churned';
 
 // Pipeline stage → sequence trigger mapping
+//
+// `free` (a Connect id exists, on Launch) maps to NOTHING. It used to start the Pro upsell ("you
+// are ready for Pro", $49/mo, "you are making sales"), and a Connect id is written the moment an
+// artist STARTS Stripe onboarding: in the week to 2026-10-02 ten brand-new artists got it, every
+// one with zero fans and zero revenue. The upsell now enrolls on the same evidence the
+// break-even pop-up uses, real trailing 30-day GMV at or above the Pro break-even (see below).
 const STAGE_TRIGGERS: Record<PipelineStage, string | null> = {
   signed_up: 'new_signup',
   onboarding: 'onboarding_incomplete',
-  free: 'starter_upgrade_nudge',
+  free: null,
   paid: null, // no auto-sequence for healthy paid artists
   at_risk: 'paid_at_risk',
   churned: 'paid_churned',
 };
+
+const UPGRADE_TRIGGER = 'starter_upgrade_nudge';
 
 function computeLeadScore(artist: {
   has_stripe: boolean;
@@ -57,6 +67,54 @@ function computeLeadScore(artist: {
   if (artist.is_paid) score += 25;
 
   return score;
+}
+
+/**
+ * Enroll once per artist per sequence (an active or completed enrollment blocks a second).
+ * Returns true when a new enrollment was written. Never throws.
+ */
+async function enrollInPlatformSequence(triggerType: string, artistUserId: string): Promise<boolean> {
+  try {
+    const { data: sequence } = await supabaseAdmin
+      .from('platform_sequences')
+      .select('id')
+      .eq('trigger_type', triggerType)
+      .eq('is_active', true)
+      .limit(1)
+      .maybeSingle();
+    if (!sequence) return false;
+
+    const { data: existing } = await supabaseAdmin
+      .from('platform_sequence_enrollments')
+      .select('id')
+      .eq('sequence_id', sequence.id)
+      .eq('artist_user_id', artistUserId)
+      .in('status', ['active', 'completed'])
+      .limit(1)
+      .maybeSingle();
+    if (existing) return false;
+
+    const { data: firstStep } = await supabaseAdmin
+      .from('platform_sequence_steps')
+      .select('delay_days')
+      .eq('sequence_id', sequence.id)
+      .eq('step_number', 1)
+      .single();
+    if (!firstStep) return false;
+
+    const nextSendAt = new Date(Date.now() + firstStep.delay_days * 24 * 60 * 60 * 1000).toISOString();
+    const { error } = await supabaseAdmin.from('platform_sequence_enrollments').insert({
+      sequence_id: sequence.id,
+      artist_user_id: artistUserId,
+      current_step: 0,
+      status: 'active',
+      next_send_at: nextSendAt,
+    });
+    return !error;
+  } catch (err) {
+    console.error(`Platform sequence enrollment failed (${triggerType}):`, err);
+    return false;
+  }
 }
 
 export async function GET(req: NextRequest) {
@@ -117,6 +175,22 @@ export async function GET(req: NextRequest) {
   (earnings || []).forEach(e => {
     revenueMap[e.artist_id] = (revenueMap[e.artist_id] || 0) + (e.net_amount || 0);
   });
+
+  // Trailing 30-day GROSS GMV, the break-even pop-up's own definition. Null on a failed read:
+  // unknown revenue never sells a plan.
+  const since30 = new Date(Date.now() - 30 * 86400000).toISOString();
+  const { data: recentEarnings, error: recentErr } = await supabaseAdmin
+    .from('earnings')
+    .select('artist_id, gross_amount')
+    .in('artist_id', artistIds)
+    .gte('created_at', since30);
+  const gmv30d: Record<string, number> | null = recentErr ? null : {};
+  if (gmv30d) {
+    (recentEarnings || []).forEach(e => {
+      gmv30d[e.artist_id] = (gmv30d[e.artist_id] || 0) + (Number(e.gross_amount) || 0);
+    });
+  }
+  const proBreakEven = proBreakEvenGmvCents();
 
   // Community posts per user
   const { data: posts } = await supabaseAdmin
@@ -193,53 +267,23 @@ export async function GET(req: NextRequest) {
 
     updated++;
 
+    // The Pro upsell: only on real revenue past the break-even, on Launch, once. The send cron
+    // re-checks the same rule before every step (artistEmailGate.decideLifecycleSend).
+    const upgradeFacts = {
+      milestones: {},
+      hasPaidTier: false,
+      platformTier: artist.platform_tier ?? null,
+      gmv30dCents: gmv30d ? gmv30d[artist.id] || 0 : null,
+    };
+    if (upgradeNudgeEligible(upgradeFacts, proBreakEven)) {
+      if (await enrollInPlatformSequence(UPGRADE_TRIGGER, artist.user_id)) enrolled++;
+    }
+
     // Auto-enroll in sequence if stage changed and there's a matching trigger
     if (stageChanged) {
       const triggerType = STAGE_TRIGGERS[newStage];
-      if (triggerType) {
-        try {
-          const { data: sequence } = await supabaseAdmin
-            .from('platform_sequences')
-            .select('id')
-            .eq('trigger_type', triggerType)
-            .eq('is_active', true)
-            .limit(1)
-            .maybeSingle();
-
-          if (sequence) {
-            // Check not already enrolled
-            const { data: existing } = await supabaseAdmin
-              .from('platform_sequence_enrollments')
-              .select('id')
-              .eq('sequence_id', sequence.id)
-              .eq('artist_user_id', artist.user_id)
-              .in('status', ['active', 'completed'])
-              .maybeSingle();
-
-            if (!existing) {
-              const { data: firstStep } = await supabaseAdmin
-                .from('platform_sequence_steps')
-                .select('delay_days')
-                .eq('sequence_id', sequence.id)
-                .eq('step_number', 1)
-                .single();
-
-              if (firstStep) {
-                const nextSendAt = new Date(Date.now() + firstStep.delay_days * 24 * 60 * 60 * 1000).toISOString();
-                await supabaseAdmin.from('platform_sequence_enrollments').insert({
-                  sequence_id: sequence.id,
-                  artist_user_id: artist.user_id,
-                  current_step: 0,
-                  status: 'active',
-                  next_send_at: nextSendAt,
-                });
-                enrolled++;
-              }
-            }
-          }
-        } catch (err) {
-          console.error(`Platform sequence enrollment failed for ${artist.id}:`, err);
-        }
+      if (triggerType && (await enrollInPlatformSequence(triggerType, artist.user_id))) {
+        enrolled++;
       }
     }
   }

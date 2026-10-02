@@ -244,7 +244,7 @@ function TierSongs({ songs, queue }: { songs: Track[]; queue: Track[] }) {
 // tagged url and the attribution the checkout call reads is still on it. Sending them to a
 // bare /login dropped the artist AND the campaign: the deep link worked right up to the
 // moment the fan acted on it.
-function loginWithReturn(): string {
+export function loginWithReturn(): string {
   if (typeof window === 'undefined') return '/login';
   const here = safeInternalPath(`${window.location.pathname}${window.location.search}`);
   return here ? `/login?next=${encodeURIComponent(here)}` : '/login';
@@ -517,7 +517,9 @@ export function TierCards({ tiers, artistSlug, artistId, tracks = [] }: TierCard
           )}
         </div>
       )}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      {/* Phone: one swipeable row, Bronze to Platinum, with the next card peeking so it reads
+          as a row (founder, 2026-09-30). sm and up: the grid. */}
+      <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory -mx-4 px-4 scroll-px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:overflow-visible sm:mx-0 sm:px-0 sm:pb-0">
         {tiers.map((tier) => {
           const isThisTierSubscribed = subscribedTierId === tier.id;
           const isAnySubscribed = subscribedTierId !== null;
@@ -528,7 +530,7 @@ export function TierCards({ tiers, artistSlug, artistId, tracks = [] }: TierCard
               // Tier evidence: reports this rung as viewed once half the card is on screen,
               // once per page load and once per visitor per day at the DB.
               ref={trackTierRef(tier.id)}
-              className={`neu-card-hover p-6 flex flex-col rounded-2xl ${
+              className={`snap-start shrink-0 w-[85%] sm:w-auto neu-card-hover p-6 flex flex-col rounded-2xl ${
                 isThisTierSubscribed ? 'ring-2 ring-crwn-gold' : ''
               }`}
               style={{

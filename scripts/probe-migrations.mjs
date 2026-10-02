@@ -40,6 +40,12 @@ const PROBES = [
   ['founder window columns', 'subscription_tiers?select=founder_window_enabled&limit=1', 'schema-phase2-founder-window.sql'],
   ['track waterfall column', 'tracks?select=waterfall&limit=1', 'schema-phase2-track-waterfall.sql'],
   ['track pins column', 'tracks_public?select=pin_rank&limit=1', 'schema-phase2-track-pins.sql'],
+  // The view column proves the column, its grant and the view rebuild landed. The oracle's
+  // BEHAVIOUR cannot be seen by an anon read; supabase/verify-tier-unlock-months.sql proves it.
+  ['member drip column', 'tracks_public?select=tier_unlock_months&limit=1', 'schema-phase2-tier-unlock-months.sql'],
+  // The write checks (comments/likes on locked posts) are invisible to anon; the migration's
+  // own DO block asserts them. This proves the room columns and the rebuilt view landed.
+  ['community tier rooms', 'community_posts_feed?select=channel_id,media_previews&limit=1', 'schema-phase2-community-tier-rooms.sql'],
   ['home featured opt-in column', 'artist_profiles_public?select=featured_on_home&limit=1', 'schema-phase2-featured-on-home-opt-in.sql'],
   ['support chat resolution columns', 'support_conversations?select=resolved_by&limit=1', 'schema-phase2-support-chat-resolution.sql'],
   // Z3. The anon key sees the table but no rows (owner-only RLS), which is the correct pass here:
