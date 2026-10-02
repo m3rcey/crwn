@@ -27,10 +27,10 @@
 // The vote is RETIRED: it decided the order, and nothing is left to decide. Its three songs stay
 // free tracks on his page; the script closes the poll and takes the ballot page down.
 //
-// THE MIXTAPE (SOULJA DRE) lives only on CRWN for now (founder, 2026-10-01; how long is not
-// decided). It is the LEAD MAGNET, so it is free to every free member from the day it drops
-// (Bronze and every paid rung on its tracks): the paid tiers sell the catalog, the drip, the Vault
-// and first listen to the next project, not a week's head start on the tape. Both FAQs say so.
+// SOULJA DRE IS NOT ON CRWN (founder, 2026-10-01): the album is with his label and lives on
+// streaming. What CRWN can carry is the songs that did NOT make the album, and those are what the
+// two posters' QR links will serve once Dre sends them. No CRWN copy may say the album lives here,
+// is free here, or is heard first here (princeDre.test.ts scans for it).
 //
 // Deliberately NOT carried: merch (CRWN sells no physical goods), "limited" anything (the
 // only real cap is the Founder Window), "priority" (nothing enforces it), any calendar date.
@@ -206,7 +206,7 @@ export const DRE_APPROVED_BENEFITS: Record<string, string[]> = {
   Bronze: [
     `${FREE_SONGS} songs free: the 2 most-watched from all ${PROJECTS} projects`,
     'A bonus song, unlocked when you join',
-    'First word on the mixtape and every drop',
+    'First word on every drop',
   ],
   Silver: [
     `Blood Brothaz with JB Binladen, and Life I Live, complete (${SILVER_SONGS} songs)`,
@@ -222,7 +222,7 @@ export const DRE_APPROVED_BENEFITS: Record<string, string[]> = {
   Platinum: [
     `All ${PROJECTS} projects in one place, in order, complete (${ALL_SONGS} songs)`,
     `${OBAN}, his hardest project to find, and the 3 projects Gold waits months for`,
-    'First listen to the project after the mixtape, before anyone else',
+    'First listen to new music here, before anyone else',
     'Group listening sessions when Dre opens one',
     'Platinum recognition',
     'Everything in Gold',
@@ -233,7 +233,7 @@ export const DRE_APPROVED_BENEFITS: Record<string, string[]> = {
 export const DRE_BENEFIT_IDENTITIES: Record<string, { key: string; line: string }[]> = {
   Bronze: [
     { key: 'welcome_unlock', line: 'A bonus song, unlocked when you join' },
-    { key: 'drop_alerts', line: 'First word on the mixtape and every drop' },
+    { key: 'drop_alerts', line: 'First word on every drop' },
   ],
   Silver: [
     { key: 'exclusive_tracks', line: `Blood Brothaz with JB Binladen, and Life I Live, complete (${SILVER_SONGS} songs)` },
@@ -243,7 +243,7 @@ export const DRE_BENEFIT_IDENTITIES: Record<string, { key: string; line: string 
     { key: 'vault_collection', line: 'The Vault: cuts, alternate versions and unreleased videos as Dre adds them' },
   ],
   Platinum: [
-    { key: 'early_access', line: 'First listen to the project after the mixtape, before anyone else' },
+    { key: 'early_access', line: 'First listen to new music here, before anyone else' },
     { key: 'group_live_qa', line: 'Group listening sessions when Dre opens one' },
     { key: 'member_recognition', line: 'Platinum recognition' },
   ],
@@ -321,11 +321,7 @@ export const DRE_PLATINUM_OFFER: TierOfferExperience = {
   faqs: [
     {
       q: 'Why not wait on the $25 level?',
-      a: `The $${DRE_TIER_PRICES_CENTS.Gold / 100} a month level gets ${DRIP1.title}, ${DRIP2.title} and ${DRIP3.title} one at a time, a month apart from the day you join, and never gets ${OBAN}. This level gets all ${PROJECTS} projects complete today, and hears the project after the mixtape first.`,
-    },
-    {
-      q: 'Is the mixtape included?',
-      a: 'Yes, and so does everyone with a free account: the mixtape lives on CRWN, not on streaming apps, and it is free the day it drops.',
+      a: `The $${DRE_TIER_PRICES_CENTS.Gold / 100} a month level gets ${DRIP1.title}, ${DRIP2.title} and ${DRIP3.title} one at a time, a month apart from the day you join, and never gets ${OBAN}. This level gets all ${PROJECTS} projects complete today, and hears new music here first.`,
     },
     {
       q: 'Can I cancel?',
@@ -394,10 +390,6 @@ export const DRE_GOLD_OFFER: TierOfferExperience = {
       a: `Counted from the day you join: ${DRIP1.title} after your first month, ${DRIP2.title} after your second, ${DRIP3.title} after your third. If you cancel and come back, the count starts again. If you want all ${PROJECTS} today, the $${DRE_TIER_PRICES_CENTS.Platinum / 100} a month level has every project now.`,
     },
     {
-      q: 'Is the mixtape included?',
-      a: 'Yes, and so does everyone with a free account: the mixtape lives on CRWN, not on streaming apps, and it is free the day it drops.',
-    },
-    {
       q: 'Can I cancel?',
       a: 'Any time. Your access runs to the end of the billing period you already paid for.',
     },
@@ -425,7 +417,7 @@ export const DRE_SILVER_OFFER: TierOfferExperience = {
   ],
   inherited: {
     heading: 'Also included',
-    items: [`The ${FREE_SONGS} free songs and the bonus song`, 'First word on the mixtape and every drop'],
+    items: [`The ${FREE_SONGS} free songs and the bonus song`, 'First word on every drop'],
   },
 };
 
@@ -455,9 +447,9 @@ export const PRINCE_DRE: LaunchPartnerConfig = {
     { magnetTrackTitle: 'Letter To LA - JMoney', magnetTitle: 'Letter To LA', magnetDescription: 'With JMoney. Yours free.', live: true, linkSlug: 'princedre-letter-to-la' },
     ...DRE_BRONZE_SINGLES.map((t) => ({ magnetTrackTitle: t, magnetTitle: t, magnetDescription: 'Yours free.', live: true })),
     // SOULJA DRE posters (founder, 2026-10-01). Each QR prints a PERMANENT link; the song behind it
-    // is swapped here, so a printed poster never needs reprinting. Hommie is the PLACEHOLDER until
-    // the album's files land: then the release-date poster gets the album's unreleased single and
-    // the out-now poster gets the album opener (its free join unlocks the whole album).
+    // is swapped here, so a printed poster never needs reprinting. The album itself is the label's;
+    // the posters' magnet is a song that DIDN'T make the album, which only CRWN has. Hommie is the
+    // PLACEHOLDER until Dre sends those cuts.
     { magnetTrackTitle: 'Hommie', magnetTitle: 'Hommie', magnetDescription: 'Yours free.', live: true, linkSlug: DRE_POSTER_LINKS.releaseDate },
     { magnetTrackTitle: 'Hommie', magnetTitle: 'Hommie', magnetDescription: 'Yours free.', live: true, linkSlug: DRE_POSTER_LINKS.outNow },
   ],

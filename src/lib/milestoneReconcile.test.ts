@@ -174,7 +174,7 @@ const RECONCILE = readFileSync('src/lib/milestoneReconcile.ts', 'utf8');
 describe('F-04 wiring', () => {
   it('the nudge cron reconciles truth BEFORE evaluating rules, via the shared module', () => {
     expect(CRON).toContain('reconcileAllActivationMilestones');
-    expect(CRON).toContain('shouldEnrollForRule');
+    expect(CRON).toContain('shouldEnrollForGap');
     // The reconcile call must precede the artist fetch used for rule evaluation.
     expect(CRON.indexOf('reconcileAllActivationMilestones(')).toBeLessThan(
       CRON.indexOf(".not('pipeline_stage'"),

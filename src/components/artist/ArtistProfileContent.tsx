@@ -93,7 +93,9 @@ export function ArtistProfileContent({
   // through to the normal default.
   const requestedTab = searchParams.get('tab');
   const [activeTab, setActiveTab] = useState<'movement' | 'music' | 'live' | 'tiers' | 'shop' | 'community' | 'leaderboard'>(
-    returningFromCheckout ? 'tiers' : requestedTab === 'community' ? 'community' : 'music',
+    // A join started inside a community room returns to that room (?tab=community&room=),
+    // so the explicit tab wins over the checkout default.
+    requestedTab === 'community' ? 'community' : returningFromCheckout ? 'tiers' : 'music',
   );
 
   // Trigger artist page tour on first visit (only when viewing own page)

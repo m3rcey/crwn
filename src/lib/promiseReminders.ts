@@ -14,6 +14,8 @@ import {
   obligationHasNoEligibleRecipient,
   type EligibilityMember,
 } from '@/lib/calendarProjection';
+// The ONE "is this member paying" rule (active, priced, not an active campaign prize).
+import { countsAsPaying, type PrizeAwareSubscription } from '@/lib/campaigns/prizeState';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Admin = any;
@@ -90,18 +92,44 @@ export async function sendPromiseReminders(admin: Admin): Promise<{ artistsEmail
     const artistIds = [...new Set(fanEvents.map((e) => e.artist_id))];
     const membersByArtist = new Map<string, EligibilityMember[]>();
     const subsLoaded = { ok: false };
+    // ---- The first-paying-member gate (2026-10-02) ----
+    // A promise reminder tells the artist someone is waiting on them. Before the first PAYING
+    // member that is never the artist's real problem: their constraint is getting paid at all,
+    // and the reminder pulls them toward fulfilling for nobody (August 2026: artists with zero
+    // members were emailed "Monthly Vault unlock" and "Private group listening event"). So this
+    // channel starts at the first paying member, by the same rule the roadmap and the constraint
+    // assembler use (`countsAsPaying`: an active, priced, non-prize subscription). The Promise
+    // Calendar still shows every promise; only the email waits. Unknown never suppresses.
+    const payingArtists = new Set<string>();
+    const payingLoaded = { ok: false };
     try {
       const { data: subs, error: subErr } = await admin
         .from('subscriptions')
-        .select('artist_id, tier_id, status')
+        .select('artist_id, tier_id, status, prize_campaign_id, pending_change_date')
         .in('artist_id', artistIds)
         .eq('status', 'active');
       if (!subErr) {
         subsLoaded.ok = true;
-        for (const s of (subs ?? []) as { artist_id: string; tier_id: string | null }[]) {
+        type SubRow = PrizeAwareSubscription & { artist_id: string; tier_id: string | null };
+        const rows = (subs ?? []) as SubRow[];
+        for (const s of rows) {
           const list = membersByArtist.get(s.artist_id) ?? [];
           list.push({ tierId: s.tier_id });
           membersByArtist.set(s.artist_id, list);
+        }
+        const tierIds = [...new Set(rows.map((s) => s.tier_id).filter((v): v is string => !!v))];
+        const { data: tiers, error: tierErr } = tierIds.length
+          ? await admin.from('subscription_tiers').select('id, price').in('id', tierIds)
+          : { data: [], error: null };
+        if (!tierErr) {
+          payingLoaded.ok = true;
+          const priceById = new Map<string, number>(
+            ((tiers ?? []) as { id: string; price: number | null }[]).map((t) => [t.id, Number(t.price) || 0]),
+          );
+          const nowDate = new Date(now);
+          for (const s of rows) {
+            if (countsAsPaying(s, priceById.get(s.tier_id ?? '') ?? 0, nowDate)) payingArtists.add(s.artist_id);
+          }
         }
       }
     } catch {
@@ -113,6 +141,7 @@ export async function sendPromiseReminders(admin: Admin): Promise<{ artistsEmail
     for (const e of fanEvents) {
       const ob = obById.get(e.obligation_id);
       if (!ob || ob.status !== 'active') continue;
+      if (payingLoaded.ok && !payingArtists.has(e.artist_id)) continue;
       if (
         subsLoaded.ok &&
         obligationHasNoEligibleRecipient(ob, membersByArtist.get(e.artist_id) ?? [])

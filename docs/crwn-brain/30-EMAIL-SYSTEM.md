@@ -21,6 +21,12 @@ Known gaps and are real.
 
 ---
 
+> **Strategy:** which email a person gets, and when, is doc 35
+> ([35-LIFECYCLE-EMAIL-STRATEGY.md](35-LIFECYCLE-EMAIL-STRATEGY.md)). Since 2026-10-02 every
+> artist lifecycle step is re-decided at send time against the artist's current gap
+> (`lifecycle/artistEmailGate.ts`), at most one per artist per run, and every fan join gets the
+> member welcome (`emails/memberWelcome.ts`).
+
 ## The four audiences
 
 | Audience | Who | Systems that reach them |
@@ -123,7 +129,7 @@ applications, recruiter qualification, low-score survey alerts. Addressed to CRW
 Josh's name (`FOUNDER_FROM`, reply-to his Gmail), so it is MARKETING. It sends only through
 `acquisition/channels.send()` (email consent, caps, `email_suppressions`, one-click unsubscribe,
 postal footer, insert-as-claim dedupe) and is gated by `admin_settings.founder_followup`, OFF by
-default. The � row above counts no new `resend.emails.send` site.
+default. The � row above counts no new `resend.emails.send` site.
 
 ---
 
@@ -178,7 +184,7 @@ it cannot currently send.
 | `cron/platform-sequences` | 1 | M | yes | yes |
 | `cron/sequences` (artist to fan) | 1 | M | yes | yes |
 | `cron/fan-digest` † | 1 | M | yes | yes |
-| `cron/onboarding-reminder` | 1 | **M** | **NO** | **NO** |
+| `cron/onboarding-reminder` | 1 | **M** | yes | **NO** |
 | `cron/scheduled-releases` | 1 | T | NO | NO |
 | `cron/clipper-rate-drops` † | 1 | T | NO | NO |
 | `cron/recruiter-qualify` † | 1 | I | NO | NO |
@@ -210,7 +216,7 @@ it cannot currently send.
 | `popups` | 1 | I | NO | NO |
 | `admin/agent/briefing` † | 1 | I | NO | NO |
 | `acquisition/automationDispatcher` | 1 | M | NO | NO |
-| `acquisition/founderFollowUpServer` (through `acquisition/channels.send`) � | 0 direct | M | YES (send-time) | YES |
+| `acquisition/founderFollowUpServer` (through `acquisition/channels.send`) � | 0 direct | M | YES (send-time) | YES |
 | **38 files** | **58** | | **11 yes** | **9 yes** |
 
 ---
@@ -360,9 +366,9 @@ Sequence names are editable; trigger types are the stable key.
 
 ## Known gaps
 
-1. **`cron/onboarding-reminder` is marketing with no suppression check and no unsubscribe.** It
-   nudges artists who have not finished onboarding, on a delay after signup. It is the one
-   clearly-misclassified sender in the inventory. `code-verified`, not yet fixed.
+1. **`cron/onboarding-reminder` is marketing with no unsubscribe link.** It nudges artists who
+   have not finished onboarding, on a delay after signup. It checks `email_suppressions` since
+   2026-10-02; the link is still missing.
 2. **`emails/artist-new-post` and `acquisition/automationDispatcher`** are marketing-ish with
    neither gate. Lower volume, worth a decision.
 3. **Three senders still emit unsigned unsubscribe links**, which is why

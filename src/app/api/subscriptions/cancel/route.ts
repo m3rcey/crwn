@@ -3,6 +3,7 @@ import { stripe } from '@/lib/stripe/client';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createClient } from '@supabase/supabase-js';
 import { isFreeSubscriptionId } from '@/lib/subscriptions/freeJoin';
+import { releaseCrwnDowngrade } from '@/lib/subscriptions/downgradeServer';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -57,6 +58,10 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ success: true, cancelAtPeriodEnd: false });
       }
 
+      // Canceling replaces a step-down the fan had scheduled: release that schedule first so the
+      // subscription is an ordinary one again (downgradeServer.ts), then cancel at period end.
+      const released = await releaseCrwnDowngrade(stripe, sub.stripe_subscription_id);
+
       // Cancel on Stripe (end of period)
       await stripe.subscriptions.update(sub.stripe_subscription_id, {
         cancel_at_period_end: true,
@@ -65,7 +70,11 @@ export async function POST(req: NextRequest) {
       // Update local status
       await supabaseAdmin
         .from('subscriptions')
-        .update({ cancel_at_period_end: true, updated_at: new Date().toISOString() })
+        .update({
+          cancel_at_period_end: true,
+          ...(released === 'released' ? { pending_tier_id: null, pending_change_date: null } : {}),
+          updated_at: new Date().toISOString(),
+        })
         .eq('id', sub.id);
 
       return NextResponse.json({ success: true, cancelAtPeriodEnd: true });
