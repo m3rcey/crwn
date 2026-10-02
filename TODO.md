@@ -1173,10 +1173,13 @@ Things that are never finished. Cadence, then the thing.
   playlist and track page already say "Unlocks in N days"). Low traffic today; fix it when a
   member first reaches one.
 
-- **Prince Dre's mixtape, when the files arrive.** It lives only on CRWN (founder, 2026-10-01).
-  Upload it as an album; every paid rung gets it the day it drops, and Bronze is added to its
-  tracks 7 days later (both paid FAQs promise exactly that). Check whether the release waterfall
-  can schedule the Bronze opening; if it cannot, run the re-gate by hand on day 7.
+- **Prince Dre's mixtape SOULJA DRE, when the files arrive.** It lives only on CRWN and is the
+  lead magnet (founder, 2026-10-01): upload it as an album, free to Bronze and every paid rung
+  from the day it drops (both paid FAQs say so). Then swap the placeholder behind the two printed
+  poster links in `drops` (DRE_POSTER_LINKS): `princedre-souljadre` gets the unreleased single Dre
+  picks (live before Oct 30), `princedre-souljadre-album` gets the album opener (on Oct 30). Change
+  only magnetTrackTitle/magnetTitle, never the link: the QR codes are printed. Re-run the launch
+  script, scan both posters' codes, and confirm each page plays the new song.
 
 - **After the Meta App Review Astra run:** re-run Part D of [docs/fan-automations/astra-meta-app-review.md](docs/fan-automations/astra-meta-app-review.md) if anything blocks Submit. (Reviewer artist `meta-reviewer` is set up, Stripe-priced, and hidden from Explore, verified 2026-09-27.)
 

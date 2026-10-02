@@ -27,9 +27,10 @@
 // The vote is RETIRED: it decided the order, and nothing is left to decide. Its three songs stay
 // free tracks on his page; the script closes the poll and takes the ballot page down.
 //
-// THE MIXTAPE lives only on CRWN for now (founder, 2026-10-01; how long is not decided). When it
-// is uploaded: every paid rung hears it the day it drops, Bronze a week later (added to the
-// tracks' allowed tiers, additive like every unlock here). That is what both FAQs promise.
+// THE MIXTAPE (SOULJA DRE) lives only on CRWN for now (founder, 2026-10-01; how long is not
+// decided). It is the LEAD MAGNET, so it is free to every free member from the day it drops
+// (Bronze and every paid rung on its tracks): the paid tiers sell the catalog, the drip, the Vault
+// and first listen to the next project, not a week's head start on the tape. Both FAQs say so.
 //
 // Deliberately NOT carried: merch (CRWN sells no physical goods), "limited" anything (the
 // only real cap is the Founder Window), "priority" (nothing enforces it), any calendar date.
@@ -43,6 +44,8 @@ import type { TierOfferExperience } from '../types';
 import type { LaunchPartnerConfig } from './launchPartner';
 
 export const DRE_SLUG = 'princedre';
+/** The SOULJA DRE poster QR links. Printed, so NEVER rename: change the song behind them instead. */
+export const DRE_POSTER_LINKS = { releaseDate: 'princedre-souljadre', outNow: 'princedre-souljadre-album' } as const;
 export const DRE_DISPLAY_NAME = 'Prince Dre';
 const ROTP = 'The Return Of The Prince';
 const FPOB = "Fresh Prince Of O'Block";
@@ -322,7 +325,7 @@ export const DRE_PLATINUM_OFFER: TierOfferExperience = {
     },
     {
       q: 'Is the mixtape included?',
-      a: 'Yes. The mixtape lives on CRWN, not on streaming apps. Every paid level hears it the day it drops. Free members get it a week later.',
+      a: 'Yes, and so does everyone with a free account: the mixtape lives on CRWN, not on streaming apps, and it is free the day it drops.',
     },
     {
       q: 'Can I cancel?',
@@ -392,7 +395,7 @@ export const DRE_GOLD_OFFER: TierOfferExperience = {
     },
     {
       q: 'Is the mixtape included?',
-      a: 'Yes. The mixtape lives on CRWN, not on streaming apps. Every paid level hears it the day it drops. Free members get it a week later.',
+      a: 'Yes, and so does everyone with a free account: the mixtape lives on CRWN, not on streaming apps, and it is free the day it drops.',
     },
     {
       q: 'Can I cancel?',
@@ -451,6 +454,12 @@ export const PRINCE_DRE: LaunchPartnerConfig = {
     { magnetTrackTitle: 'Round Here', magnetTitle: 'Round Here', magnetDescription: 'Yours free.', live: true },
     { magnetTrackTitle: 'Letter To LA - JMoney', magnetTitle: 'Letter To LA', magnetDescription: 'With JMoney. Yours free.', live: true, linkSlug: 'princedre-letter-to-la' },
     ...DRE_BRONZE_SINGLES.map((t) => ({ magnetTrackTitle: t, magnetTitle: t, magnetDescription: 'Yours free.', live: true })),
+    // SOULJA DRE posters (founder, 2026-10-01). Each QR prints a PERMANENT link; the song behind it
+    // is swapped here, so a printed poster never needs reprinting. Hommie is the PLACEHOLDER until
+    // the album's files land: then the release-date poster gets the album's unreleased single and
+    // the out-now poster gets the album opener (its free join unlocks the whole album).
+    { magnetTrackTitle: 'Hommie', magnetTitle: 'Hommie', magnetDescription: 'Yours free.', live: true, linkSlug: DRE_POSTER_LINKS.releaseDate },
+    { magnetTrackTitle: 'Hommie', magnetTitle: 'Hommie', magnetDescription: 'Yours free.', live: true, linkSlug: DRE_POSTER_LINKS.outNow },
   ],
   // The lead magnet: one song from each project, in the founder's order. The label is the
   // PROJECT (what the fan votes on); the song is how they hear it; the cover is the project's.

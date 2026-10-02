@@ -410,8 +410,11 @@ for (const [i, d] of (C.drops ?? []).entries()) {
   const link = dropLinkSlug(C, d);
   const { data: magnet } = await db.from('tracks').select('id').eq('artist_id', artist.id).ilike('title', d.magnetTrackTitle).maybeSingle();
   if (!magnet) { console.log(`drop funnel WAITS: no track titled "${d.magnetTrackTitle}"`); continue; }
+  // A drop with its OWN named link (a poster QR, a DM button) is that link and nothing else:
+  // matching it by song would rename another live funnel that shares the magnet (the poster
+  // links use Hommie as a placeholder, and princedre-hommie is a live ManyChat button).
   let row = (existingFunnels || []).find((f) => f.public_token === link)
-    || (existingFunnels || []).find((f) => f.magnet_track_id === magnet.id)
+    || (d.linkSlug ? null : (existingFunnels || []).find((f) => f.magnet_track_id === magnet.id))
     || (i === 0 ? (existingFunnels || []).find((f) => !f.magnet_track_id && !/^[a-z0-9-]+$/.test(f.public_token)) : null);
   const { data: taken } = await db.from('fan_automations').select('id').eq('public_token', link).maybeSingle();
   if (taken && (!row || taken.id !== row.id)) die(`drop link "${link}" is already another funnel's`);

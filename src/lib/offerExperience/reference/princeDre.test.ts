@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   DRE_PLATINUM_OFFER, DRE_GOLD_OFFER, DRE_SILVER_OFFER, DRE_APPROVED_BENEFITS,
   DRE_BENEFIT_IDENTITIES, DRE_TIER_PRICES_CENTS, DRE_TIER_PROMISES, DRE_FUNNEL_PRIMARY_ITEM,
-  DRE_BRONZE_SINGLES, PRINCE_DRE, DRE_DRIP,
+  DRE_BRONZE_SINGLES, PRINCE_DRE, DRE_DRIP, DRE_POSTER_LINKS,
 } from './princeDre';
 import { normalizeOfferExperience } from '../normalize';
 import { benefitDelivery } from '../../benefitRegistry';
@@ -198,5 +198,20 @@ describe('the Gold member drip', () => {
     const answer = (o: typeof DRE_GOLD_OFFER) => o.faqs!.find((f) => f.q === 'Is the mixtape included?')!.a;
     expect(answer(DRE_GOLD_OFFER)).toBe(answer(DRE_PLATINUM_OFFER));
     expect(answer(DRE_GOLD_OFFER)).toContain('lives on CRWN');
+  });
+});
+
+// The SOULJA DRE posters print these links as QR codes (2026-10-01). Renaming one strands every
+// printed poster, so the song behind a link changes and the link never does.
+describe('the printed poster links', () => {
+  it('are frozen', () => {
+    expect(DRE_POSTER_LINKS).toEqual({ releaseDate: 'princedre-souljadre', outNow: 'princedre-souljadre-album' });
+  });
+  it('are live drops with their own named links', () => {
+    for (const link of Object.values(DRE_POSTER_LINKS)) {
+      const d = PRINCE_DRE.drops!.find((x) => x.linkSlug === link);
+      expect(d, link).toBeDefined();
+      expect(d!.live).toBe(true);
+    }
   });
 });
