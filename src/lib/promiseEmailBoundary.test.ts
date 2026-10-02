@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { classifyNotification, isGovernable } from './comms/taxonomy';
+import { ACTIVATION_GAPS, decideLifecycleSend } from './lifecycle/artistEmailGate';
 
 // PROMISE CALENDAR + LIFECYCLE EMAIL BOUNDARY.
 //
@@ -58,6 +59,21 @@ describe('exactly one sender owns fan promises', () => {
   });
 });
 
+describe('promise reminder emails start at the first PAYING member (2026-10-02)', () => {
+  // August 2026: artists with zero members were emailed "Monthly Vault unlock" and "Private group
+  // listening event". Before a paying member exists the artist's constraint is getting paid, not
+  // fulfilling, so this channel waits. The rule is the shared one, never a re-expression.
+  it('uses the one paying rule, countsAsPaying', () => {
+    expect(PROMISE).toContain('countsAsPaying(');
+    expect(PROMISE).not.toMatch(/price\s*>\s*0/);
+  });
+  it('skips an artist with no paying member before any offset is considered', () => {
+    const gate = PROMISE.indexOf('payingArtists.has(');
+    expect(gate).toBeGreaterThan(-1);
+    expect(gate).toBeLessThan(PROMISE.indexOf('remindedOffsetsOf(e.metadata)'));
+  });
+});
+
 describe('fan-obligation language stays on real obligations', () => {
   it('promiseReminders still filters to fan promises and still says "Promise due"', () => {
     expect(PROMISE).toContain('onlyFanPromises');
@@ -90,29 +106,29 @@ describe('the notification chokepoint is no longer bypassed here', () => {
 });
 
 describe('lifecycle email is state-aware, not a blind drip', () => {
-  it('activation nudges gate on a milestone PRESENT and a milestone MISSING', () => {
-    // This is what stops "connect Stripe" reaching an artist who already connected it.
-    expect(NUDGES).toContain('requiresMilestone');
-    expect(NUDGES).toContain('missingMilestone');
+  // Since 2026-10-02 the chain lives in lifecycle/artistEmailGate.ts and is read by BOTH the
+  // enrollment cron and the send cron, so these are asserted as behavior, not source shape.
+  it('activation nudges enroll through the shared gate', () => {
+    expect(NUDGES).toContain('shouldEnrollForGap');
   });
 
-  it('each rule names the stall it is actually detecting', () => {
-    for (const pair of [
-      ["requiresMilestone: 'onboarding_completed'", "missingMilestone: 'first_track_uploaded'"],
-      ["requiresMilestone: 'first_track_uploaded'", "missingMilestone: 'tiers_created'"],
-      ["requiresMilestone: 'tiers_created'", "missingMilestone: 'stripe_connected'"],
-      ["requiresMilestone: 'stripe_connected'", "missingMilestone: 'first_subscriber'"],
-    ]) {
-      expect(NUDGES).toContain(pair[0]);
-      expect(NUDGES).toContain(pair[1]);
-    }
+  it('each gap is the stall it names, in the wizard order', () => {
+    expect(ACTIVATION_GAPS.map((g) => [g.gap, g.triggerType])).toEqual([
+      ['music', 'activation_no_track'],
+      ['paid_tier', 'activation_no_tiers'],
+      ['stripe', 'activation_no_stripe'],
+      ['first_paid', 'activation_no_subscribers'],
+    ]);
   });
 
   it('a stripe-connected artist cannot receive the connect-Stripe nudge', () => {
-    // The rule requires `tiers_created` and the ABSENCE of `stripe_connected`, so possessing the
-    // milestone is itself the disqualifier. Asserted on the rule shape because the cron is I/O.
-    const rule = NUDGES.match(/triggerType: 'activation_no_stripe'[\s\S]{0,200}?\}/)![0];
-    expect(rule).toContain("missingMilestone: 'stripe_connected'");
+    const connected = {
+      milestones: { onboarding_completed: 'x', first_track_uploaded: 'x', stripe_connected: 'x' },
+      hasPaidTier: true,
+      platformTier: 'starter',
+      gmv30dCents: 0,
+    };
+    expect(decideLifecycleSend('activation_no_stripe', connected, 1).action).toBe('complete');
   });
 
   it('onboarding reminders are send-once and only for unfinished onboarding', () => {

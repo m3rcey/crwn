@@ -510,18 +510,47 @@ export function parseCount(raw: string): number | null {
   if (typeof raw !== 'string') return null;
   const s = raw.toLowerCase().replace(/,/g, '').trim();
 
-  // A bare-ish number with an optional k/m suffix, ignoring surrounding words.
-  const m = s.match(/(\d+(?:\.\d+)?)\s*([km])?\b/);
-  if (!m) return null;
-
-  const n = parseFloat(m[1]);
-  if (!Number.isFinite(n)) return null;
-
-  const mult = m[2] === 'm' ? 1_000_000 : m[2] === 'k' ? 1_000 : 1;
-  const value = Math.round(n * mult);
+  // A bare-ish number with an optional suffix, ignoring surrounding words: "40k", "1.5 million",
+  // "2mill", "40 thousand". Longest suffix first, so "mill" is not read as "m" + junk.
+  const m = s.match(/(\d+(?:\.\d+)?)\s*(thousand|million|mill|mil|k|m)?\b/);
+  let value: number | null = null;
+  if (m) {
+    const n = parseFloat(m[1]);
+    // A spelled-out suffix after a number already in the thousands is redundant, not a
+    // multiplier: a real lead typed "40000 thousand" and meant 40,000.
+    const redundant = n >= 1000 && m[2] !== undefined && m[2].length > 1;
+    value = Math.round(n * (redundant ? 1 : SUFFIX_MULT[m[2] ?? '']));
+  } else {
+    value = parseCountWords(s);
+  }
+  if (value === null || !Number.isFinite(value)) return null;
 
   if (value < 0 || value > MAX_AUDIENCE) return null;
   return value;
+}
+
+const SUFFIX_MULT: Record<string, number> = {
+  '': 1, k: 1_000, thousand: 1_000, m: 1_000_000, mil: 1_000_000, mill: 1_000_000, million: 1_000_000,
+};
+
+/**
+ * Counts written as words, which the DM gets constantly ("about a million", "a few hundred",
+ * "zero"). Before this, every one of them cost a Claude call or a re-ask: "Around a million"
+ * from a ~1M-follower artist was re-asked twice and the lead was stored as unqualified.
+ * Deliberately narrow: "hundreds" and "a lot" stay null, because no number is honest there.
+ */
+function parseCountWords(s: string): number | null {
+  // The whole reply is a zero word ("zero", "none yet", "nothing right now").
+  if (/^(zero|none|nothing|nada)( yet| right now| rn| at the moment)?[.!]*$/.test(s)) return 0;
+  const unit = (u: string) => (u === 'hundred' ? 100 : u === 'thousand' ? 1_000 : 1_000_000);
+  if (/\bhalf (a|of a) (million|mil|mill)\b/.test(s)) return 500_000;
+  const fewThousand = s.match(/\b(few|couple(?: of)?) hundred thousand\b/);
+  if (fewThousand) return (fewThousand[1] === 'few' ? 3 : 2) * 100_000;
+  const few = s.match(/\b(few|couple(?: of)?) (hundred|thousand|million|mil|mill)\b/);
+  if (few) return (few[1] === 'few' ? 3 : 2) * unit(few[2]);
+  const one = s.match(/\b(a|one) (hundred|thousand|million|mil|mill)\b/);
+  if (one) return unit(one[2]);
+  return null;
 }
 
 /** Dollars typed by a human -> integer cents. CLAUDE.md: money is ALWAYS cents. */

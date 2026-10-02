@@ -8,6 +8,7 @@
 // Instagram; there is no acceptable failure mode where the artist is left hanging because a
 // model provider had a bad minute.
 
+import { APIConnectionError, APIConnectionTimeoutError } from '@anthropic-ai/sdk';
 import {
   ANTHROPIC_MODEL,
   DECISION_MAX_TOKENS,
@@ -178,8 +179,10 @@ function wrapFallback(
 export function categorize(err: unknown): string {
   if (!err || typeof err !== 'object') return 'unknown';
   const e = err as { status?: number; name?: string; message?: unknown };
-  if (e.name === 'APITimeoutError') return 'timeout';
-  if (e.name === 'APIConnectionError') return 'connection';
+  // The SDK's timeout is APIConnectionTimeoutError, and its `name` is not the class name, so
+  // the old name check never matched: every 4s timeout on 2026-09-29/30 was logged `unknown`.
+  if (err instanceof APIConnectionTimeoutError || e.name === 'APITimeoutError') return 'timeout';
+  if (err instanceof APIConnectionError || e.name === 'APIConnectionError') return 'connection';
   if (typeof e.status === 'number') {
     if (e.status === 429) return 'rate_limit';
     if (e.status === 401 || e.status === 403) return 'auth';
