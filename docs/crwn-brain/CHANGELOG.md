@@ -1,5 +1,31 @@
 # CRWN Brain — Changelog
 
+## 2026-10-02 - Playback engine: one owner, next track prepared, survives a deploy
+
+**Full doc: 04-ARCHITECTURE.md (Playback).** Audit of four reported problems, measured with
+`scripts/probe-playback.mjs` against production before changing anything.
+- **Track to track was a cold network request.** Nothing was fetched before `ended`; every next
+  song started an uncached Storage request (`cf-cache-status: MISS`, 0.7-1.0s to first byte on a
+  fast desktop link), 0.84-0.93s of silence, far more on a phone or when the page's pre-signed
+  urls were over 50 minutes old (one more serverless round trip). Now the next track is fetched
+  into memory while the current one plays and `ended` starts it synchronously. Caught by the
+  throttled phone run, not desktop: an unfinished prefetch racing the stream of the same file
+  made a first build WORSE (2.8-8.0s on 4G); an unfinished copy is now aborted when its track
+  starts, and preparation waits until the playing song cannot be starved.
+- **Navigation did not stop audio by itself.** Signed in and out, `/home`, another artist,
+  `/community`, `/profile`: same element, no pause. What stops it is a DEPLOY: Next.js
+  hard-reloads an open tab on its next navigation when the build id changed (14 to 40 production
+  deploys a day; Skew Protection is Pro-only). The engine now resumes the listen across that reload.
+- **The provider owned the element** and paused it on unmount; the `ended` listener was a React
+  closure re-bound every render; shuffle picked a random index AT `ended`, so the next track could
+  never be known in advance. All three are gone: `src/lib/player/engine.ts` owns playback, shuffle
+  reorders the queue once.
+- **Play history now records automatic advances and queue ends.** The old provider logged a listen
+  only when `play()` started a different track, so every song that ended into the next one went
+  unrecorded. Same formula, same do-not-track rule.
+- Latent: `MiniPlayer` and `FullScreenPlayer` called hooks after an early return. Probed on
+  production: no crash today. Fixed anyway.
+
 ## 2026-09-29 - DM answer negation, phantom recalculations, and live qualification
 
 **Full doc: 34-FOUNDER-FOLLOW-UP.md (Provenance, Monetization answers).**

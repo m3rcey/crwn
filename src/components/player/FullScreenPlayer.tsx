@@ -45,9 +45,8 @@ export function FullScreenPlayer() {
     toggleFavorite,
   } = usePlayer();
 
-  if (!currentTrack || !isExpanded) return null;
-
-  const isTrackFavorite = isFavorite(currentTrack.id);
+  // Every hook runs before the early return. They used to sit after it, so opening the
+  // player changed the hook count of a component that lives in the ROOT layout.
   const [isDragging, setIsDragging] = useState(false);
   const [dragTime, setDragTime] = useState(0);
   const progressRef = useRef<HTMLDivElement>(null);
@@ -56,6 +55,10 @@ export function FullScreenPlayer() {
   const [swipeY, setSwipeY] = useState(0);
   const [swipeStartY, setSwipeStartY] = useState<number | null>(null);
   const swipeThreshold = 80;
+
+  if (!currentTrack || !isExpanded) return null;
+
+  const isTrackFavorite = isFavorite(currentTrack.id);
 
   const handleSwipeStart = (e: React.TouchEvent) => {
     setSwipeStartY(e.touches[0].clientY);

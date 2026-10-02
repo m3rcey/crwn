@@ -33,13 +33,15 @@ export function MiniPlayer() {
   // a public page (a ballot, a drop, an artist page) has no tab bar, and a fixed 64px lift left
   // the player floating over the content with a gap beneath it.
   const navVisible = useNavigationVisible();
+  // Every hook runs before the early return below. They used to sit after it, so the hook
+  // count changed the moment a first track loaded.
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragTime, setDragTime] = useState(0);
+  const progressRef = useRef<HTMLDivElement>(null);
 
   if (!currentTrack) return null;
 
   const isTrackFavorite = isFavorite(currentTrack.id);
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragTime, setDragTime] = useState(0);
-  const progressRef = useRef<HTMLDivElement>(null);
   
   const displayProgress = isDragging && duration ? (dragTime / duration) * 100 : (duration > 0 ? (currentTime / duration) * 100 : 0);
 

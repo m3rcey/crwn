@@ -250,10 +250,29 @@ the browser asked for any audio. Rules that keep it fixed:
   a locator in one Storage call and attaches `stream_url` + `stream_url_expires_at`. The locator on
   a `tracks_public` row IS the grant, the same fact the stream route keys on, so this widens
   nothing. Never feed it rows read with the admin client.
-- **`usePlayer.setAudioSource` is still the ONE client seam.** It uses a fresh pre-signed url
-  (`freshStreamUrl`, 10-minute margin) and otherwise mints through the route. `play()` starts the
-  source FIRST; metadata reads and history writes never sit ahead of it. Do not add an await
-  before `setAudioSource` in any play path.
+- **The playback engine is the ONE owner of the app player** (2026-10-02,
+  [src/lib/player/engine.ts](src/lib/player/engine.ts)). One per tab, created outside React by
+  `getPlayerEngine()`; `usePlayer` only subscribes and forwards, with the same API for every
+  consumer. Never give a component the `<audio>`, never pause it from a React cleanup, never
+  create a second one (`boundary.test.ts`). Its source order is: the in-memory copy, a url it
+  already minted, a fresh pre-signed url (`freshStreamUrl`, 10-minute margin), then the route.
+  Metadata reads and history writes never sit ahead of `play()`.
+- **The next track is prepared while the current one plays, and `ended` starts it
+  SYNCHRONOUSLY.** When the current song can no longer be starved (the browser reports its network
+  idle with `suspend`, the file is fully buffered, or within 60s of the end with 15s buffered
+  ahead; always in the last 20s), the engine resolves the next url through the same two sources
+  and fetches the whole file into a `blob:` url (up to 32 MB). `ended` swaps `src` and calls
+  `play()` inside the event handler. **If that copy is not finished when its track starts, it is
+  aborted**: the first build let it race the stream of the same file and measured 2.8-8.0s on 4G,
+  worse than no prefetch at all. Never put an await, a
+  timer, a React effect or an animation frame between two songs: that is the 0.8-0.9s gap the
+  audit measured, and it is what stops iOS from advancing with the screen locked. ONE element on
+  purpose: iOS lets only the element the listener unlocked with a tap start from the background.
+- **A deploy reloads open tabs on their next navigation, and the listen survives it.** Next.js
+  hard-navigates when the server build id differs from the tab's; Vercel Skew Protection would
+  prevent that but is Pro-only, and CRWN is on Hobby. The engine saves its session to
+  `sessionStorage` and resumes at the same position (paused there when a browser demands a tap).
+  `reset()` (sign-out, or a different account in the tab) clears it.
 - **`audio_url_128` is the STREAM COPY, `audio_url_320` is the master.** Uploads land raw in
   both columns; [scripts/transcode-audio.mjs](scripts/transcode-audio.mjs) (`npm run
   transcode:audio -- --apply`, read-only without the flag) gives every wav/aiff/flac stream file
@@ -264,8 +283,12 @@ the browser asked for any audio. Rules that keep it fixed:
   Deleting a track removes BOTH objects. Do not "fix" a slow start with a bigger preload, a
   second player, or transcoding inside a Vercel function (a 30 MB master plus ffmpeg does not
   fit a Hobby function).
-- **Measure, do not guess.** The headless-Chrome timeline script and method are in the memory
-  note `playback-latency-presigned-stream-urls`; rerun it after touching the play path.
+- **Measure, do not guess.** [scripts/probe-playback.mjs](scripts/probe-playback.mjs) measures
+  tap-to-audible, ended-to-audible (the media clock moving, not `playing`), the network in the
+  gap, navigation persistence and the rapid-tap race against any URL, old engine or new;
+  [scripts/probe-deploy-skew.mjs](scripts/probe-deploy-skew.mjs) reproduces a deploy under a
+  playing tab. The 6-frame budget is 200 ms (6 frames at 30 fps). Rerun both after touching the
+  play path.
 
 ## Copy Rule — NEVER use em dashes
 

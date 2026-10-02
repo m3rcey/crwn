@@ -800,6 +800,17 @@ responsible for. Do not work those.
 
 ### P2 — worth doing, nothing breaks if you never do it
 
+- [ ] **Run the 10-minute phone check of the new player once it is live.** Lock screen, background
+      and the installed home-screen app cannot be automated from here; desktop and phone-sized
+      Chrome were measured. The steps and what each should show:
+      [docs/PLAYBACK_DEVICE_TESTS.md](docs/PLAYBACK_DEVICE_TESTS.md). Tell Claude any row that fails.
+- [ ] **Decide whether Vercel Pro is worth it for Skew Protection.** After every deploy, the next
+      in-app tap in any open CRWN tab reloads the whole page (Next.js does this when the version
+      changed; Skew Protection, Pro and Enterprise only, is what prevents it). The player now resumes
+      the song across that reload, but there is still a short silence, and on an iPhone it may wait
+      for one tap on play. With 14 to 40 deploys a day that happens often. Pro is per-seat monthly;
+      if you upgrade, turn on Settings > Advanced > Skew Protection and tell Claude.
+
 - [ ] **Delete the unused Vercel env var `NEW_ARTIST_WEBHOOK_SECRET`.** Nothing reads it since the
       new-artist alert moved into the signup code (2026-09-26). Vercel > crwn > Settings >
       Environment Variables > delete it. No redeploy needed.
