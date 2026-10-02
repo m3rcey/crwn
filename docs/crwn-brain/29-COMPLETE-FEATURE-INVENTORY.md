@@ -384,7 +384,7 @@ running), **DEAD** (present in the repo, nothing reaches it).
 - **Does:** persistent tier-gated chat channels with realtime.
 - **Evidence:** 1 channel (an open chat channel with 1 message), production read 2026-10-02.
 
-### D-04b Community tier rooms · BUILT, migration pending (2026-10-02)
+### D-04b Community tier rooms · LIVE (2026-10-02)
 - **Does:** one room per membership rung. The artist posts into a room; that rung and every
   rung above it get the full post and the comments. Everyone else stands at the rope: a video
   shows its thumbnail, play button and caption; a photo shows its caption and a pre-blurred
@@ -397,7 +397,12 @@ running), **DEAD** (present in the repo, nothing reaches it).
   caller. Writes (comments, likes, filing a post in a room) are entitlement-checked in RLS.
   Rooms are additive only (`planTierRooms`). A comment's tier badge shows wherever the
   comment shows, so inside a gated room only members see it.
-- **Evidence:** none yet. There are 0 rooms until `schema-phase2-community-tier-rooms.sql` is applied.
+- **Rooms are not chat channels.** Both are `community_channels` rows; a room carries `tier_id`
+  and lives under Posts (artist-only posting, teasers at the rope), and `CommunityChannels`
+  filters it out of Chat. Chat stays the separate, artist-opened live fan chat, so an artist
+  with rooms and no chat channel shows an empty Chat tab.
+- **Evidence:** migration applied (probe-verified 2026-10-02). Prince Dre has 4 rooms (one per
+  active tier) and no chat channel.
 
 ### D-05 Direct messages and voice notes · LIVE (Pro-gated)
 - **Does:** artist to fan DMs, including recorded voice notes, private bucket with signed audio.
