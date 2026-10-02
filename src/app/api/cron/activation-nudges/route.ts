@@ -1,48 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { reconcileAllActivationMilestones, shouldEnrollForRule } from '@/lib/milestoneReconcile';
+import { reconcileAllActivationMilestones } from '@/lib/milestoneReconcile';
+import { ACTIVATION_GAPS, shouldEnrollForGap, type ArtistEmailFacts } from '@/lib/lifecycle/artistEmailGate';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
   process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy-service-key-for-build'
 );
 
-interface NudgeRule {
-  triggerType: string;
-  /** Milestone that must exist before this nudge applies */
-  requiresMilestone: string | null;
-  /** Milestone that must NOT exist (this is the stall) */
-  missingMilestone: string;
-  /** Days after requiresMilestone (or signup if null) before nudging */
-  stallDays: number;
-}
-
-const NUDGE_RULES: NudgeRule[] = [
-  {
-    triggerType: 'activation_no_track',
-    requiresMilestone: 'onboarding_completed',
-    missingMilestone: 'first_track_uploaded',
-    stallDays: 3,
-  },
-  {
-    triggerType: 'activation_no_tiers',
-    requiresMilestone: 'first_track_uploaded',
-    missingMilestone: 'tiers_created',
-    stallDays: 2,
-  },
-  {
-    triggerType: 'activation_no_stripe',
-    requiresMilestone: 'tiers_created',
-    missingMilestone: 'stripe_connected',
-    stallDays: 1,
-  },
-  {
-    triggerType: 'activation_no_subscribers',
-    requiresMilestone: 'stripe_connected',
-    missingMilestone: 'first_subscriber',
-    stallDays: 7,
-  },
-];
+// The activation chain (music, a paid tier, payouts, the first paid fan) is defined ONCE, in
+// `lifecycle/artistEmailGate.ts`, and read by this cron AND by the send cron. Enrolling on the
+// same rule the sender re-checks is what stops an email describing a gap that is not the artist's
+// current one (2026-10-02: a Stripe nudge kept going after Stripe connected, and a "you've
+// uploaded music" email reached artists with no music).
 
 export async function GET(req: NextRequest) {
   const authHeader = req.headers.get('authorization');
@@ -81,7 +51,7 @@ export async function GET(req: NextRequest) {
   const { data: sequences } = await supabaseAdmin
     .from('platform_sequences')
     .select('id, trigger_type')
-    .in('trigger_type', NUDGE_RULES.map(r => r.triggerType))
+    .in('trigger_type', ACTIVATION_GAPS.map(g => g.triggerType))
     .eq('is_active', true);
 
   if (!sequences || sequences.length === 0) {
@@ -102,22 +72,37 @@ export async function GET(req: NextRequest) {
     (existingEnrollments || []).map(e => `${e.sequence_id}:${e.artist_user_id}`)
   );
 
+  // Which artists have a PAID tier live. The free Bronze rung the wizard always creates never
+  // closes the paid-tier gap. One read for every artist. A failed read leaves the set empty, which
+  // only ever holds back the later emails (Stripe, first fan): it can never send one early.
+  const { data: paidTierRows } = await supabaseAdmin
+    .from('subscription_tiers')
+    .select('artist_id')
+    .eq('is_active', true)
+    .gt('price', 0);
+  const hasPaidTier = new Set((paidTierRows || []).map((t: { artist_id: string }) => t.artist_id));
+
   for (const artist of artists) {
     checked++;
-    const milestones = (artist.activation_milestones || {}) as Record<string, string>;
+    const facts: ArtistEmailFacts = {
+      milestones: (artist.activation_milestones || {}) as Record<string, string>,
+      hasPaidTier: hasPaidTier.has(artist.id),
+      // Enrollment never sells a plan, so the plan facts are not needed here.
+      platformTier: null,
+      gmv30dCents: null,
+    };
 
-    for (const rule of NUDGE_RULES) {
+    for (const rule of ACTIVATION_GAPS) {
       const sequenceId = sequenceMap.get(rule.triggerType);
       if (!sequenceId) continue;
 
       // Check if already enrolled
       if (enrolledSet.has(`${sequenceId}:${artist.user_id}`)) continue;
 
-      // One shared, tested rule evaluation (milestoneReconcile.ts): prerequisite present,
-      // target missing, stalled >= stallDays AND within the freshness window. The window is
-      // what makes reconciliation backfill safe — a six-month-old stall is recorded truth,
-      // never a fresh lifecycle event (Decision D).
-      if (!shouldEnrollForRule(rule, milestones, artist.created_at, now)) continue;
+      // One shared, tested rule (artistEmailGate.ts): this gap is the artist's CURRENT one, it has
+      // been current for at least stallDays, and the stall is inside the freshness window. The
+      // window is what keeps reconciled history from becoming a fresh email (Decision D).
+      if (!shouldEnrollForGap(rule, facts, now)) continue;
 
       // Enroll in the sequence
       try {

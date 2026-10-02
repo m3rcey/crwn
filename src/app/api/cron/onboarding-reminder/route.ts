@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { resend, FROM_EMAIL } from '@/lib/resend';
 import { onboardingReminderEmail } from '@/lib/emails/onboardingReminder';
+import { isEmailSuppressed } from '@/lib/leadMagnets/server';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -55,6 +56,13 @@ export async function GET(req: NextRequest) {
 
     // Skip missing emails and synthetic canary/test accounts.
     if (!email || /canary/i.test(email) || email.includes('+test')) {
+      skipped++;
+      continue;
+    }
+
+    // This is a lifecycle nudge, so it is MARKETING (doc 30, known gap 1): an address that
+    // unsubscribed from any CRWN email, bounced or complained must not get it.
+    if (await isEmailSuppressed(supabaseAdmin, email)) {
       skipped++;
       continue;
     }

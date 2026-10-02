@@ -19,6 +19,8 @@ interface Channel {
   is_free: boolean;
   allowed_tier_ids: string[] | null;
   artist_only_posting: boolean;
+  /** Set on a tier room (schema-phase2-community-tier-rooms.sql). Rooms live in Posts, not Chat. */
+  tier_id?: string | null;
 }
 
 interface ChannelMessage {
@@ -69,7 +71,9 @@ export function CommunityChannels({ artistId, artistSlug, isArtistProfile, tiers
       .eq('is_active', true)
       .order('position', { ascending: true })
       .order('created_at', { ascending: true });
-    const list = (data || []) as Channel[];
+    // Tier rooms are post feeds (CommunityFeed), not chat. Filtered here rather than in the
+    // query so this still works before the column exists.
+    const list = ((data || []) as Channel[]).filter((c) => !c.tier_id);
     setChannels(list);
     setActiveId((prev) => prev && list.some((c) => c.id === prev) ? prev : (list[0]?.id ?? null));
     setLoadingChannels(false);
