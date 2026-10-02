@@ -42,10 +42,16 @@ export function decidePendingApply(input: PendingApplyInput): PendingApplyDecisi
   // and the next event with a resolvable price decides.
   if (!input.pendingTierStripePriceId || !input.liveStripePriceId) return { apply: false };
   if (input.liveStripePriceId !== input.pendingTierStripePriceId) return { apply: false };
+  // NEVER the upgrade nurture from here (2026-10-02). The only non-prize writer of
+  // pending_tier_id is a scheduled DOWNGRADE (/api/stripe/subscription-update: upgrades apply
+  // immediately, downgrades wait for the period end), so enrolling `tier_upgrade` here sent a fan
+  // who had just stepped DOWN the seeded "You just upgraded" email, while real upgraders got
+  // nothing. A real upgrade now enrolls in the subscription-update route, at the moment Stripe
+  // accepts it.
   return {
     apply: true,
     source: input.isPrize ? 'campaign_prize' : 'scheduled_downgrade',
-    enrollUpgradeNurture: !input.isPrize,
+    enrollUpgradeNurture: false,
   };
 }
 

@@ -82,6 +82,14 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **Before Saturday 2026-10-04: stop the "you are ready for Pro" emails going to artists with
+      $0 revenue.** Nine new artists (Prince Dre among them) are mid-sequence, and step 2 ("What
+      stays locked on Launch") goes out from Oct 4. Open and run the whole file in the Supabase SQL
+      editor: [supabase/cancel-zero-revenue-pro-upsell.sql](supabase/cancel-zero-revenue-pro-upsell.sql).
+      Its first result should list 9 rows, all with gmv30d_cents 0; it cancels exactly those and
+      fails loudly if any remain. Nothing is deleted (to undo, set those ids back to active). The
+      code that stops new ones is on the `worktree-email-sequences` branch.
+
 - [ ] **Get Prince Dre's written OK that he can sell all eight projects now on his page, and
       confirm the unlock dates.** His whole catalog is live behind his tiers since 2026-09-30 (94 songs).
       Web research turned up other names on some of it; ask his team about each one:
@@ -1157,6 +1165,12 @@ Things that are never finished. Cadence, then the thing.
 ---
 
 ## On Claude's plate (not yours)
+
+- **Lifecycle email phase 2** (plan in docs/crwn-brain/35-LIFECYCLE-EMAIL-STRATEGY.md, "Next"):
+  code-owned artist emails for the First Revenue steps Rise Mode shows (offer, magnet, sales page,
+  follow-up, turn on, test, launch), driven by the same next move; a default free-member nurture
+  with a goal tier (two gives, then one direct offer); the paid non-starter nudge once per-fan play
+  evidence is readable by a cron. The cancel step-down offer needs your call before it is built.
 
 - **The worth result calls an estimate a fact.** With no streaming income given, the DM result
   labels a figure estimated from monthly listeners "What streaming pays you now" and says

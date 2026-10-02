@@ -5,6 +5,9 @@ import { createClient } from '@supabase/supabase-js';
 import { recordTierTransition } from '@/lib/tierTransitionStore';
 import { checkRateLimit } from '@/lib/rateLimit';
 import { isFreeSubscriptionId } from '@/lib/subscriptions/freeJoin';
+import { exitConvertedEnrollments } from '@/lib/sequences/goalExit';
+import { enrollInSequence } from '@/lib/sequences/enroll';
+import { sendMemberWelcome } from '@/lib/emails/memberWelcomeServer';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -128,6 +131,22 @@ export async function POST(req: NextRequest) {
         source: 'stripe_subscription_update',
         evidence: 'observed',
       });
+
+      // What a real upgrade starts, all best-effort (the upgrade itself already happened):
+      //  - any nurture whose goal this tier now meets ends (no more selling Gold to a Gold member),
+      //  - the artist's tier_upgrade sequence, which used to fire only on DOWNGRADES,
+      //  - the member welcome for the NEW rung: what it unlocks and one thing to play now.
+      try {
+        await exitConvertedEnrollments(supabaseAdmin, artistId, currentSubscription.fan_id);
+        await enrollInSequence(supabaseAdmin, artistId, currentSubscription.fan_id, 'tier_upgrade');
+        await sendMemberWelcome(supabaseAdmin, {
+          fanId: currentSubscription.fan_id,
+          artistId,
+          tierId: newTierId,
+        });
+      } catch (e) {
+        console.error('Upgrade follow-up failed (non-fatal):', e);
+      }
 
       return NextResponse.json({ success: true });
     } else {
