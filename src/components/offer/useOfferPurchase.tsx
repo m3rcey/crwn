@@ -16,6 +16,7 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { Loader2, Mail } from 'lucide-react';
 import { supabase } from '@/lib/supabase/client';
+import { getPersistedReferralCode } from '@/components/shared/ReferralPersist';
 import type { TierOfferExperience as OfferConfig } from '@/lib/offerExperience/types';
 
 export interface PurchasableTier {
@@ -161,6 +162,12 @@ export function useOfferPurchase(o: Options) {
           // artist's link survive the Stripe round trip. Validated server-side either way.
           returnUrl: returnPath(),
           attributionSource,
+          // A fan's share link (/<artist>/r/<code>, or ?ref= on any page) is kept for 30 days
+          // by ReferralPersist. Every poster, QR code and DM lands on a funnel page, so without
+          // this a referred fan who bought HERE credited nobody, while the same purchase on the
+          // artist page credited the sharer. A pointer like the rest: the server resolves the
+          // code, refuses self-referral and charges the artist's own rate.
+          referralCode: getPersistedReferralCode(q.get('ref') || ''),
           // Real link tags win over the defaults, so a tagged link is traceable on the
           // Stripe subscription itself; the funnel identity fills silence.
           utmSource: q.get('utm_source') || attributionSource,

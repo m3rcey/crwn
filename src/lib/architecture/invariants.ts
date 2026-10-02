@@ -178,6 +178,17 @@ export const INVARIANTS: Invariant[] = [
     enforcedBy: ['src/lib/stripe/paymentReadiness.test.ts', 'src/lib/architecture/financial.test.ts'],
     docs: ['docs/crwn-brain/07-BUSINESS-RULES.md'],
   },
+  {
+    id: 'MONEY-011',
+    severity: 'P1',
+    category: 'money',
+    rule: 'Every client surface that opens a tier checkout sends the persisted referral code (getPersistedReferralCode). The share card promises a commission on every subscription through the link; a checkout that drops the code pays the sharer nothing while the artist page pays them. The server stays the authority: it resolves the code, refuses self-referral and charges the artist\'s own rate.',
+    owner: 'src/components/shared/ReferralPersist.tsx (cookie) + src/app/api/stripe/checkout/route.ts (authority)',
+    sourceOfTruth: 'crwn_ref cookie -> checkout metadata.referral_code -> processReferral',
+    enforcement: 'test',
+    enforcedBy: ['src/lib/architecture/financial.test.ts'],
+    docs: ['docs/crwn-brain/07-BUSINESS-RULES.md'],
+  },
 
   // -------------------------------------------------------------- OWNERSHIP
   {

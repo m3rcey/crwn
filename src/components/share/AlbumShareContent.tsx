@@ -8,6 +8,7 @@ import { useSubscription } from '@/hooks/useSubscription';
 import { useToast } from '@/components/shared/Toast';
 import { ShareButtons } from '@/components/shared/ShareButtons';
 import { ShareEarnWrapper } from '@/components/shared/ShareEarnWrapper';
+import { getPersistedReferralCode, getPersistedAttributionSource } from '@/components/shared/ReferralPersist';
 import { ReleaseCredits } from '@/components/share/ReleaseCredits';
 import { Lock, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -132,6 +133,8 @@ export function AlbumShareContent({ album, tracks, artist, tiers }: AlbumShareCo
           showToast(data.error || 'Failed to subscribe', 'error');
         }
       } else {
+        // A shared album link carries the sharer's ?ref=; send it like the artist page does.
+        const q = new URLSearchParams(window.location.search);
         const res = await fetch('/api/stripe/checkout', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -140,6 +143,8 @@ export function AlbumShareContent({ album, tracks, artist, tiers }: AlbumShareCo
             artistSlug: artist.slug,
             returnUrl: `/${artist.slug}/album/${album.id}`,
             interval: 'month',
+            referralCode: getPersistedReferralCode(q.get('ref') || ''),
+            attributionSource: getPersistedAttributionSource(q.get('src') || ''),
           }),
         });
         const data = await res.json();

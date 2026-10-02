@@ -2,6 +2,7 @@
 // MONEY-004  no new earnings writer appears anywhere in src
 // MONEY-005  Post-Win referral code can never reach the recruiter money rail
 // MEASURE-001/002  no admin logic re-derives "activated" off-canon
+// MONEY-011  every client tier checkout carries the sharer's referral code
 import { describe, it, expect } from 'vitest';
 import { listSourceFiles, readStripped, violation } from './sourceScan';
 import { ADMIN_ACTIVATED_EXCEPTIONS, EARNINGS_WRITER_EXCEPTIONS } from './exceptions';
@@ -172,5 +173,45 @@ describe('MONEY-010 — paid checkout may never be created on a Stripe account i
       /price\s*<=\s*0|!args\.price/.test(src),
       violation('MONEY-010', `${RULE_MODULE} no longer short-circuits on a free tier; a $0 join must never require Stripe.`, { owner: RULE_MODULE }),
     ).toBe(true);
+  });
+});
+
+describe('MONEY-011 — every client tier checkout carries the referral code', () => {
+  // Why this walk exists (2026-10-02). The share card ("Earn with <artist>") promises a commission
+  // on every subscription through the fan's link, and ReferralPersist keeps that link's code in a
+  // 30-day cookie. Only the artist page's tier cards sent it: the drop funnel, the Song Lab offer
+  // and the track/album share pages (the URLs TrackShareButton tags with ?ref=) opened checkout
+  // without it, so a referred fan who bought there paid the sharer nothing. The server already
+  // resolves, validates and charges correctly; the gap was only ever the client dropping the code.
+  const CHECKOUT_CALL = /fetch\(\s*['"`]\/api\/stripe\/checkout['"`]/;
+  const clientCallers = files.filter(
+    f => (f.startsWith('src/components/') || (f.startsWith('src/app/') && !f.startsWith('src/app/api/'))) && CHECKOUT_CALL.test(collapsed(f)),
+  );
+
+  it('the scan still finds the known checkout surfaces', () => {
+    // Positive control: if the call pattern changes, this fails instead of examining nothing.
+    for (const known of [
+      'src/components/artist/SubscribeSection.tsx',
+      'src/components/offer/useOfferPurchase.tsx',
+      'src/components/share/TrackShareContent.tsx',
+      'src/components/share/AlbumShareContent.tsx',
+    ]) {
+      expect(clientCallers, `MONEY-011 scan no longer detects ${known} opening a tier checkout`).toContain(known);
+    }
+  });
+
+  it('each of them sends getPersistedReferralCode to the checkout', () => {
+    // Read from the cookie, AND put in the request body (inline, or as the shorthand
+    // `referralCode,` SubscribeSection uses after reading it into a local).
+    const sends = (src: string) => /getPersistedReferralCode\(/.test(src) && /\breferralCode\s*[,:}]/.test(src);
+    const offenders = clientCallers.filter(f => !sends(collapsed(f)));
+    expect(
+      offenders,
+      violation(
+        'MONEY-011',
+        `tier checkout opened without the persisted referral code in: ${offenders.join(', ')}. Send referralCode: getPersistedReferralCode(q.get('ref') || '') like SubscribeSection does, or a fan who shared the link is promised a commission this checkout never pays.`,
+        { owner: 'src/components/shared/ReferralPersist.tsx', docs: 'docs/crwn-brain/07-BUSINESS-RULES.md' },
+      ),
+    ).toEqual([]);
   });
 });
