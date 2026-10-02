@@ -7,7 +7,8 @@
 #   crwn                        same, and Claude picks the name
 #   crwn resume <task>          reopen a task worktree you kept
 #   crwn ls                     every worktree: branch, ahead/behind master, uncommitted files
-#   crwn land <task|branch>     fast-forward the REMOTE master to a finished, reconciled, pushed branch
+#   crwn land <task|branch>     fast-forward the REMOTE master to a finished, reconciled, pushed, built
+#                               branch. A task session lands its own with --yes
 #   crwn sync                   fast-forward the LOCAL main checkout to origin/master; never touches
 #                               uncommitted files (git refuses, and so does this)
 #   crwn rm <task>              remove a finished worktree (the branch is kept)
@@ -126,7 +127,6 @@ cmd_ls() {
 
 cmd_land() {
   [[ $# -ge 1 ]] || die "usage: crwn land <task|branch> [--yes]"
-  in_claude_worktree && die "a task session never lands its own work. Push the branch and report it; Josh lands it."
   local arg="$1" yes=""; shift
   [[ "${1:-}" == "--yes" ]] && yes=1
   local br="$arg"
@@ -146,6 +146,18 @@ cmd_land() {
   [[ "$behind" -eq 0 ]] || die "$br is $behind commit(s) behind $BASE. Reconcile it in the task session first:
   git fetch origin && git merge origin/$BASE   (resolve conflicts, rerun tests/build, push)
 then run: crwn land $arg"
+  # A task session lands its own branch (founder, 2026-10-02), so the proof that it builds lives
+  # here instead of in a human reading the diff: a change that reaches the app needs a production
+  # build that finished AFTER the branch's last commit, in that clean worktree. Docs, hooks, dev
+  # tooling and video assets do not feed next build, so a change to only those skips the check.
+  local app; app=$(g diff --name-only "origin/$BASE..$tip" | grep -v -E '(\.md$|^docs/|^\.claude/|^scripts/dev/|^videos/)' || true)
+  if [[ -n "$app" ]]; then
+    [[ -n "$dir" ]] || die "$br changes the app but has no worktree here, so there is no build to check. Land it from its worktree after npm run build."
+    local bid="$dir/.next/BUILD_ID"
+    [[ -f "$bid" ]] || die "$br changes the app and $dir has no .next/BUILD_ID. Run npm run build there (inside WSL) first."
+    [[ "$(stat -c %Y "$bid")" -ge "$(g log -1 --format=%ct "$tip")" ]] \
+      || die "$br's last build is older than its last commit. Rerun npm run build in $dir, then land."
+  fi
   echo "Landing $br ($ahead commit(s)) onto $BASE as a fast-forward:"
   g log --oneline "origin/$BASE..$tip" | sed 's/^/  /'
   g diff --stat "origin/$BASE..$tip" | tail -1 | sed 's/^/  /'
@@ -162,8 +174,13 @@ then run: crwn land $arg"
   echo "Landed: the REMOTE origin/$BASE is now $(g rev-parse --short "$tip") (production deploys from it)."
   echo "Your local main checkout ($ROOT) was not touched. Update it when no session there is mid-task: crwn sync"
   # Remove that task's worktree now if it is clean and idle. Otherwise this says what keeps it
-  # (usually its session is still open), and the next sweep removes it.
-  sweep --no-fetch --only "${arg#worktree-}"
+  # (usually its session is still open), and the next sweep removes it. Run from inside the
+  # landed worktree, its own session is the one running, so it is kept for the next sweep.
+  if [[ -n "$dir" && "$PWD/" == "$dir/"* ]]; then
+    echo "Keeping $dir (this ran from inside it). The next crwn clean removes it once idle."
+  else
+    sweep --no-fetch --only "${arg#worktree-}"
+  fi
 }
 
 cmd_sync() { # fast-forward the LOCAL main checkout to origin/$BASE, never touching uncommitted work

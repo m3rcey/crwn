@@ -251,12 +251,13 @@ drift the moment anyone adds a test, and a stale count teaches the next agent to
   `https://thecrwn.app/sw.js` `CACHE_NAME` and probe a new endpoint (a `404` means not deployed).
   Don't assume a code bug on prod until you confirm the code is live.
 - **Parallel sessions (2026-09-29): a task session works in its own worktree and never pushes
-  master.** It pushes its branch and reports it; `scripts/dev/crwn land <task>` fast-forwards master
-  (Josh confirms). `.claude/hooks/git-guard.mjs` blocks, in code:
+  master directly.** It pushes its branch and lands it itself with `scripts/dev/crwn land <task>
+  --yes` (since 2026-10-02), which only fast-forwards, refuses a branch behind master, and refuses
+  an app change with no build newer than its last commit. `.claude/hooks/git-guard.mjs` blocks, in code:
   - a master push from a task worktree, and any force, delete or mirror of master;
   - git writes into another session's checkout;
   - discarding work in the shared main checkout;
-  - `crwn clean --apply` from a task session.
+  - `crwn sync` and `crwn clean --apply` from a task session.
 
   Finished and idle worktrees are cleaned by `crwn clean` (`scripts/dev/worktree-clean.mjs`, run
   automatically by `crwn land` and `crwn <task>`): landed+clean+idle worktrees are removed, other

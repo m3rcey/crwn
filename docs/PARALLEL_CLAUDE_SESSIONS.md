@@ -41,7 +41,7 @@ the same.
 |---|---|
 | `wsl scripts/dev/crwn ls` | Every worktree: branch, commits ahead/behind master, uncommitted files, pushed or not |
 | `wsl scripts/dev/crwn resume <task>` | Reopen a task you kept, in a new terminal |
-| `wsl scripts/dev/crwn land <task>` | Fast-forward the REMOTE master to that finished task (asks first) |
+| `wsl scripts/dev/crwn land <task>` | Fast-forward the REMOTE master to that finished task. Each session runs this itself with `--yes`; you only need it for a branch no session owns |
 | `wsl scripts/dev/crwn sync` | Fast-forward your LOCAL main checkout to the remote master |
 | `wsl scripts/dev/crwn rm <task>` | Remove a finished task's folder (the branch is kept) |
 | `wsl scripts/dev/crwn clean` | Every task worktree: landed or not, dirty or clean, in use or idle, disk. A dry run: changes nothing |
@@ -84,25 +84,28 @@ Tools are read-only. The first use in a session still asks permission, as it doe
 
 ## Integration: how work reaches master
 
-A task session never pushes master; the guard blocks it. When it finishes, it does these steps:
+A task session never pushes master directly; the guard blocks it. It lands its own branch
+through `crwn land` instead (since 2026-10-02; before that, you ran every land by hand). When it
+finishes, it does these steps:
 1. Commits to its branch.
 2. Runs `git fetch origin && git merge origin/master`, and resolves any conflicts deliberately.
 3. Reruns the tests and build.
 4. Runs `git push -u origin HEAD`.
-5. Reports the branch, folder and commit.
-
-Then you land it:
-
-    wsl scripts/dev/crwn land manychat-fix
+5. Runs `scripts/dev/crwn land <task> --yes`, then does any follow-up that needs the code live.
+6. Reports the commit now on master.
 
 **When `land` refuses:**
 - the task has uncommitted files;
 - the branch is not pushed as-is;
-- master moved on since the task reconciled (it prints the merge the task must run).
+- master moved on since the task reconciled (it prints the merge the task must run);
+- the branch changes the app and its last build (`.next/BUILD_ID` in that worktree) is older than
+  its last commit, or missing. Changes to only docs, `.claude/`, `scripts/dev/` and `videos/`
+  skip this check, because they do not feed the build.
 
-Otherwise it shows the commits and any deleted files, asks, and pushes to master as a **plain
+Otherwise it shows the commits and any deleted files and pushes to master as a **plain
 fast-forward**. If master moved in the meantime, GitHub rejects it. It never forces, and a
-failure changes nothing. Production deploys from master.
+failure changes nothing. Production deploys from master. Without `--yes` it asks first, which is
+what you get when you run it yourself.
 
 **What `land` does not touch:** your local main checkout. Update it when no session there is
 mid-task:
@@ -116,7 +119,8 @@ mid-task:
 
 Otherwise your uncommitted files stay exactly as they are.
 
-Land one task at a time. The next one will be behind master: reconcile it in its session, then land it.
+Lands happen one at a time. A session whose land is refused because another one landed first
+merges master again, rebuilds, pushes and retries.
 
 ## Cleanup: the worktree lifecycle
 
@@ -259,7 +263,7 @@ in every session. This is code, not an instruction.
 **Blocked from a task session:**
 - a push to master (or `main`, or `origin/HEAD`'s branch);
 - `gh pr merge`;
-- `crwn land`, `crwn sync` and `crwn clean --apply`;
+- `crwn sync` and `crwn clean --apply` (`crwn land` is allowed: it is how a session lands its own branch);
 - any git write into a checkout that is not its own.
 
 **Blocked from anywhere:**

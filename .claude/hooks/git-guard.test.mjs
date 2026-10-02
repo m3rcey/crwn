@@ -62,8 +62,11 @@ test('task worktree: every route to the integration branch is blocked', () => {
   blocked(A, `cd ${MAIN} && git push`);
   blocked(A, `wsl.exe -d Ubuntu -e bash -lc 'cd /anywhere && git push origin HEAD:master'`);
   blocked(A, 'gh pr merge 42 --merge');
-  blocked(A, `cd ${MAIN} && scripts/dev/crwn land task-a --yes`);
+  // A task session lands its own branch (founder, 2026-10-02); it still never syncs main.
+  allowed(A, 'scripts/dev/crwn land task-a --yes');
+  allowed(A, `cd ${MAIN} && scripts/dev/crwn land task-a --yes`);
   blocked(A, 'bash scripts/dev/crwn sync');
+  blocked(A, `cd ${MAIN} && scripts/dev/crwn sync`);
   allowed(A, 'scripts/dev/crwn ls');
   allowed(MAIN, 'scripts/dev/crwn land task-a --yes');
   blocked(A, 'scripts/dev/crwn clean --apply');

@@ -6,8 +6,9 @@
 // It blocks (exit 2, reason on stderr, which Claude reads):
 //
 //   1. A push that targets the integration branch (origin/HEAD, plus master and main) from an
-//      implementation session, meaning a session whose checkout is a linked worktree. Land a
-//      finished branch with `scripts/dev/crwn land <task>` instead, which only fast-forwards.
+//      implementation session, meaning a session whose checkout is a linked worktree. The session
+//      lands its own finished branch with `scripts/dev/crwn land <task> --yes` instead, which
+//      only fast-forwards and checks the build. `crwn sync` stays blocked for task sessions.
 //   2. A force push, a delete, or a mirror of the integration branch, from anywhere.
 //   3. `gh pr merge` from an implementation session (that is also a write to master).
 //   4. Any git WRITE aimed at a checkout the session does not own (another worktree, or the main
@@ -294,11 +295,12 @@ export function evaluateAll(input, env = process.env) {
       }
       if (NOT_A_GIT_CALL.has(head)) continue;
 
-      // `crwn land` / `crwn sync` refuse a task session by its cwd; this also covers a task
-      // session that cds to the main checkout first.
+      // A task session lands its OWN branch with `crwn land` (founder, 2026-10-02): it only
+      // fast-forwards, refuses a branch behind master, and checks the build. `crwn sync` still
+      // never runs from one, because it moves the main checkout every other session shares.
       const crwnAt = seg.findIndex((t) => path.basename(t) === 'crwn');
-      if (crwnAt >= 0 && ['land', 'sync'].includes(seg[crwnAt + 1]) && implementation) {
-        return `crwn ${seg[crwnAt + 1]} changes master or the main checkout, which a task session never does. Push your branch and report it; Josh lands it.`;
+      if (crwnAt >= 0 && seg[crwnAt + 1] === 'sync' && implementation) {
+        return 'crwn sync moves the main checkout, which other sessions share and a task session never touches. Land your branch with crwn land <task> --yes; Josh syncs the main checkout.';
       }
       if (crwnAt >= 0 && seg[crwnAt + 1] === 'clean' && seg.includes('--apply') && implementation) {
         return 'crwn clean --apply removes and trims OTHER task worktrees, which a task session never does. A dry run (crwn clean) is fine; Josh applies it.';
@@ -332,7 +334,7 @@ export function evaluateAll(input, env = process.env) {
           return `force-pushing, deleting or mirroring the integration branch (${[...guarded].join('/')}) is never allowed from Claude.`;
         }
         if (hitsGuarded && implementation) {
-          return `this session is a task worktree, and task sessions never push to the integration branch (${[...guarded].join('/')}). Push your own branch instead: git push -u origin HEAD. Then report the branch; it lands with \`scripts/dev/crwn land <task>\`, which only fast-forwards.`;
+          return `this session is a task worktree, and task sessions never push to the integration branch (${[...guarded].join('/')}) directly. Push your own branch (git push -u origin HEAD), then land it with \`scripts/dev/crwn land <task> --yes\`, which only fast-forwards and checks the build.`;
         }
       }
       if (notOwned && !READ_ONLY.has(sub) && !(sub === 'stash' && args[0] === 'list') && !(sub === 'worktree' && args[0] === 'list') && !(sub === 'branch' && args.every((a) => a.startsWith('-') && !/^-[dDmMcCf]/.test(a) && a !== '--delete'))) {
