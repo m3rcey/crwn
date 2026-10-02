@@ -1414,7 +1414,7 @@ export const EXPECTED_MIGRATION_STATE: ReadonlyArray<{
   // track cap for one artist (founder, 2026-09-30, Prince Dre's 94-song catalog). PENDING until the
   // founder runs it; until then the old trigger stands and the comped artist stops at 50, which is
   // the state before the comp, never a wider one. A trigger body is invisible to PostgREST.
-  { file: 'schema-phase2-track-cap-comp.sql', state: 'pending', liveCheck: 'sql-check', note: 'Replaces enforce_track_plan_cap to honor plan_feature_overrides.unlimitedTracks and comps princedre. Self-verifies with pg_get_functiondef. hasUnlimitedTracksComp in platformTier.ts reads the same key for the upload forms.' },
+  { file: 'schema-phase2-track-cap-comp.sql', state: 'applied', liveCheck: 'sql-check', note: 'Founder-applied 2026-09-30; the service-role read-back is the evidence (princedre carries plan_feature_overrides.unlimitedTracks = true; 94 tracks). Replaces enforce_track_plan_cap to honor plan_feature_overrides.unlimitedTracks and comps princedre. Self-verifies with pg_get_functiondef. hasUnlimitedTracksComp in platformTier.ts reads the same key for the upload forms.' },
   // Who may SUBMIT to an Executive Producer Session, separately from who may watch.
   // PENDING and fail-soft in both directions: canSubmitMaterial treats a missing column as
   // "no restriction", and the create form retries without the field if the column is absent.

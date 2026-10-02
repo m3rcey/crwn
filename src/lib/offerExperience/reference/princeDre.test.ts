@@ -194,10 +194,13 @@ describe('the Gold member drip', () => {
     }
   });
 
-  it('both paid offers give the same mixtape answer', () => {
-    const answer = (o: typeof DRE_GOLD_OFFER) => o.faqs!.find((f) => f.q === 'Is the mixtape included?')!.a;
-    expect(answer(DRE_GOLD_OFFER)).toBe(answer(DRE_PLATINUM_OFFER));
-    expect(answer(DRE_GOLD_OFFER)).toContain('lives on CRWN');
+  it('never claims the label album (SOULJA DRE) lives on, is free on, or is heard first on CRWN', () => {
+    // Founder, 2026-10-01: SOULJA DRE is with his label. CRWN carries only the songs that did not
+    // make it, so no fan-facing line may mention the album or a mixtape at all.
+    const copy = JSON.stringify([DRE_GOLD_OFFER, DRE_PLATINUM_OFFER, DRE_SILVER_OFFER, DRE_APPROVED_BENEFITS, DRE_BENEFIT_IDENTITIES, DRE_TIER_PROMISES]).toLowerCase();
+    // "old mixtape sites" (where fans hunt his old tapes) is true and stays; THE mixtape is the album.
+    expect(copy).not.toMatch(/the mixtape/);
+    expect(copy).not.toContain('soulja');
   });
 });
 
