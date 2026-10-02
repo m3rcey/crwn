@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { exitConvertedEnrollments } from '@/lib/sequences/goalExit';
-import { sequenceStillApplies } from '@/lib/sequences/stillApplies';
+import { sequenceStillApplies, stepGapDays } from '@/lib/sequences/stillApplies';
 import { createClient } from '@supabase/supabase-js';
 import { resend, FROM_EMAIL } from '@/lib/resend';
 import { campaignEmail, resolveTokens } from '@/lib/emails/campaignEmail';
@@ -184,7 +184,10 @@ export async function GET(req: NextRequest) {
 
       const artistName = artistProfile?.display_name || 'Artist';
       const fanName = fanProfile?.display_name || fanProfile?.username || 'Fan';
-      const firstName = fanName.split(' ')[0];
+      // display_name defaults to the signup EMAIL, and the old 'Fan' fallback greeted people as
+      // "Hey Fan,". Neither is a name: both greet as "there".
+      const firstWord = fanName.trim().split(/\s+/)[0] || '';
+      const firstName = !firstWord || firstWord.includes('@') || fanName === 'Fan' ? 'there' : firstWord;
 
       // Get subscription info
       const { data: sub } = await supabaseAdmin
@@ -324,8 +327,12 @@ export async function GET(req: NextRequest) {
         .maybeSingle();
 
       if (nextStep) {
-        // Schedule next step
-        const nextSendAt = new Date(Date.now() + nextStep.delay_days * 24 * 60 * 60 * 1000).toISOString();
+        // Schedule next step. delay_days is "day N after the fan entered" (every builder labels it
+        // that way and every stored sequence is increasing), so the wait is the GAP between this
+        // step and the next. Adding the whole delay again stretched a 0/2/5/9/14 nurture to
+        // 0/2/7/16/30 (found 2026-10-02).
+        const gapDays = stepGapDays(step.delay_days, nextStep.delay_days);
+        const nextSendAt = new Date(Date.now() + gapDays * 24 * 60 * 60 * 1000).toISOString();
         await supabaseAdmin
           .from('sequence_enrollments')
           .update({ current_step: nextStepNumber, next_send_at: nextSendAt })

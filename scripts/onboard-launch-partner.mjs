@@ -24,6 +24,10 @@
 //                    project without the wait, and it refuses to change a rung that already
 //                    has a track (that would move paying members' access). Written BEFORE the
 //                    offer copy, and the whole run refuses to start until the column exists.
+//   7d. nurture      the free-member follow-up: the artist's ONE active free_join sequence, every
+//                    message printed in the dry run for the founder's read, stopping when a fan
+//                    holds the goal rung. Never overwrites a sequence the artist built, never
+//                    rewrites messages while a fan is part-way through them.
 //   8. winner        --unlock-winner: once the artist records the vote's winner in their Song
 //                    Lab manager (CRWN never picks), open that project's Platinum-only tracks
 //                    to Gold. Additive, like the release waterfall. A RETIRED vote closes its
@@ -52,6 +56,7 @@ import { fieldsForClass } from '../src/lib/membershipStrategy.ts';
 import { albumInsertPayload, albumTrackRows } from '../src/lib/projectUpload.ts';
 import { LAUNCH_PARTNERS } from '../src/lib/offerExperience/reference/launchPartners.ts';
 import { checkLaunchPartner, dropLinkSlug, LADDER_RUNGS, ladderPricesFor } from '../src/lib/offerExperience/reference/launchPartner.ts';
+import { FREE_JOIN_STARTER_NAME } from '../src/lib/sequences/freeJoinStarter.ts';
 
 const key = process.argv.slice(2).find((a) => !a.startsWith('--'));
 const APPLY = process.argv.includes('--apply');
@@ -372,6 +377,54 @@ if (C.drip) {
   }
 }
 
+// ── 7d. Free-member follow-up (planned in dry run too: the dry run IS the founder's read) ──────
+// The artist's ONE active free_join sequence, which every free join enters. The dry run prints
+// every message so the founder approves the exact words before --apply. Never overwrites a
+// sequence the artist built themselves, and never rewrites steps while a fan is part-way through
+// them (that would shift their next message). Stops the moment a fan holds the goal rung.
+if (C.nurture) {
+  const goalTier = tierIds[C.nurture.goalRung];
+  if (!goalTier) die(`nurture: no ${C.nurture.goalRung} tier to stop on`);
+  const { data: seqs, error: seqErr } = await db.from('sequences')
+    .select('id, name, is_active, goal_tier_id').eq('artist_id', artist.id).eq('trigger_type', 'free_join');
+  if (seqErr) die(`nurture: ${seqErr.message}`);
+  const mine = (seqs || []).find((s) => s.name === FREE_JOIN_STARTER_NAME);
+  const theirs = (seqs || []).filter((s) => s.is_active && s.id !== mine?.id);
+  if (theirs.length) die(`nurture: the artist already runs "${theirs[0].name}" for free members; change one of them by hand`);
+  console.log(`\nnurture: "${FREE_JOIN_STARTER_NAME}", stops when a fan holds ${C.nurture.goalRung} or higher`);
+  for (const s of C.nurture.steps) console.log(`\n  day ${s.delay_days}: ${s.subject}\n${s.body.split('\n').map((l) => '    | ' + l).join('\n')}`);
+  const want = C.nurture.steps.map((s, i) => ({ step_number: i + 1, delay_days: s.delay_days, subject: s.subject, body: s.body }));
+  let current = false;
+  if (mine) {
+    const { data: have } = await db.from('sequence_steps').select('step_number, delay_days, subject, body').eq('sequence_id', mine.id).order('step_number');
+    current = mine.is_active && mine.goal_tier_id === goalTier && JSON.stringify(have || []) === JSON.stringify(want);
+  }
+  if (current) {
+    console.log('\nnurture: already current');
+  } else if (APPLY) {
+    let id = mine?.id;
+    if (id) {
+      const { count } = await db.from('sequence_enrollments').select('id', { count: 'exact', head: true }).eq('sequence_id', id).eq('status', 'active');
+      if (count) die(`nurture: ${count} fans are part-way through it; changing the messages now would shift their next one`);
+      const { error } = await db.from('sequences').update({ is_active: true, goal_tier_id: goalTier, updated_at: new Date().toISOString() }).eq('id', id);
+      if (error) die(`nurture: ${error.message}`);
+      const { error: delErr } = await db.from('sequence_steps').delete().eq('sequence_id', id);
+      if (delErr) die(`nurture steps: ${delErr.message}`);
+    } else {
+      const { data: row, error } = await db.from('sequences').insert({
+        artist_id: artist.id, name: FREE_JOIN_STARTER_NAME, trigger_type: 'free_join', is_active: true, goal_tier_id: goalTier,
+      }).select('id').single();
+      if (error) die(`nurture: ${error.message}`);
+      id = row.id;
+    }
+    const { error: stepErr } = await db.from('sequence_steps').insert(want.map((w) => ({ ...w, sequence_id: id })));
+    if (stepErr) die(`nurture steps: ${stepErr.message}`);
+    console.log(`\nnurture: ${mine ? 'updated' : 'created'} and ON (${want.length} messages)`);
+  } else {
+    console.log(`\nnurture: will be ${mine ? 'updated' : 'created'} and switched ON with --apply`);
+  }
+}
+
 if (!APPLY) { console.log('\n(dry run: benefits, offers, funnel, poll and projects are written on --apply)'); process.exit(0); }
 
 // ── 3. Structured benefit identities (no frequency: nothing lands on the calendar) ──
@@ -614,6 +667,12 @@ if (C.drip) {
     console.log(`drip: "${p.title}" ${dripping.length} tracks open to ${C.drip.rung} after month ${p.months}`);
     if (!dripping.length) die(`drip: "${p.title}" has no track dripping to ${C.drip.rung}`);
   }
+}
+if (C.nurture) {
+  const { data: seq } = await db.from('sequences').select('id, is_active, goal_tier_id').eq('artist_id', artist.id).eq('trigger_type', 'free_join').eq('name', FREE_JOIN_STARTER_NAME).maybeSingle();
+  const { count } = seq ? await db.from('sequence_steps').select('id', { count: 'exact', head: true }).eq('sequence_id', seq.id) : { count: 0 };
+  console.log(`nurture: ${seq?.is_active ? 'ON' : 'OFF'} | ${count} messages | stops at ${C.nurture.goalRung}=${seq?.goal_tier_id === tierIds[C.nurture.goalRung]}`);
+  if (!seq?.is_active || count !== C.nurture.steps.length || seq.goal_tier_id !== tierIds[C.nurture.goalRung]) die('the free-member follow-up is not what the config says');
 }
 console.log(`\npublic page: https://thecrwn.app/${artist.slug}`);
 for (const l of liveLinks) console.log(`drop funnel LIVE: ${l}`);

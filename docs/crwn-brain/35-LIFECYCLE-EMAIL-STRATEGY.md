@@ -121,8 +121,22 @@ is closed, so "your music is up" / "your tiers are live" cannot be false when it
 - **Cancel notice** resolves the artist's user id first. Vote email says the artist CAN reach the
   fan with what fans picked, not that CRWN will.
 
+### Free-member follow-up for founder-assisted launches (shipped 2026-10-02)
+- Production that day: Prince Dre had about 20 live funnels (drops, both poster QR links) and NO
+  follow-up; only GB had one. A fan got the song, then silence.
+- `LaunchPartnerConfig.nurture` + step 7d of `scripts/onboard-launch-partner.mjs` write the
+  artist's ONE active `free_join` sequence from founder-approved copy; the dry run prints every
+  message as the approval read. `checkLaunchPartner` enforces the copy rules (see the
+  onboard-icp-artist skill). `DRE_NURTURE` is the worked example: days 1, 3, 6, 10, 16, 24; two
+  gives, then Silver (the JB tape), Gold (the drip), the cancel answer, a last word; stops at Silver.
+- **Fixed in the same pass: every artist sequence ran on a stretched clock.** Builders label
+  `delay_days` "day N" and every stored sequence is increasing, but the cron added the whole delay
+  after each send, so 0/2/5/9/14 sent on 0/2/7/16/30. `stepGapDays` now waits the gap.
+- **"Hey Fan," and "Hey tasha@gmail.com,"**: the cron greeted by display_name (which defaults to
+  the signup email) or the literal "Fan". Both now greet "there".
+
 ### Next (not built yet)
-- **A default free-member nurture.** Only an artist who finishes `/build/followup` has one, so
+- **A default free-member nurture for artists who build their own launch.** Only an artist who finishes `/build/followup` has one, so
   most free members still hear nothing after the welcome. Shape from the books: day 0 welcome
   (shipped), two gives with no ask (day 2-3, day 5-7, the second naming one paid item as the
   bonus), a direct offer with a real reason (day 10-14), then a plain-text question to the silent

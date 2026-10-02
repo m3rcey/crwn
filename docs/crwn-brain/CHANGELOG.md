@@ -1,5 +1,15 @@
 # CRWN Brain — Changelog
 
+## 2026-10-02 - Free members hear something after the song
+
+**Full doc: 35-LIFECYCLE-EMAIL-STRATEGY.md.**
+- **Launch configs carry a free-member follow-up** (`nurture`), written by the launch-partner
+  script as the artist's one active `free_join` sequence. Prince Dre's: six messages over 24 days,
+  two gives before the first ask, stops when a fan pays for any rung. Copy rules are checks.
+- **Every artist sequence ran on a stretched clock** (each step's "day N" was added after the
+  previous send). The cron now waits the gap; production had no fan mid-sequence.
+- **Fan sequences no longer greet "Hey Fan," or an email address.**
+
 ## 2026-10-02 - Playback engine: one owner, next track prepared, survives a deploy
 
 **Full doc: 04-ARCHITECTURE.md (Playback).** Audit of four reported problems, measured with

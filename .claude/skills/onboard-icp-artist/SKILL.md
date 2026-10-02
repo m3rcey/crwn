@@ -212,6 +212,21 @@ YouTube videos of its songs (with view counts and links, official uploads first)
   (`artist_profiles.launch_partner = true`) when the founder is running that launch for them, and
   they sign the launch conditions too. Both are in `src/lib/legal/artistTerms.ts`.
 
+### The free-member follow-up (`nurture`, 2026-10-02)
+
+Every funnel puts fans in Bronze and hands them ONE email (the magnet). Without `nurture` that is
+the last thing a free member ever hears, so every launch carries one. It becomes the artist's ONE
+active `free_join` sequence, which every free join enters. Write it in the artist's voice from the
+SAME constants the cards use (counts, prices, project names), so it cannot drift. Rules the checks
+enforce: 2 to 8 messages on increasing days (`delay_days` is day N after the join), only the
+`{{first_name}}` and `{{artist_name}}` tokens, a link to the artist's page in every message, no
+price in the first message, never "reply" (replies reach CRWN, not the artist), and the shared
+dash and banned-word scan. Shape: two gives before the first ask, one concrete thing per ask,
+`goalRung: 'Silver'` so buying any paid rung ends it. Never name one magnet song: several funnels
+feed it. Worked example: `DRE_NURTURE` in `princeDre.ts`. The dry run prints every message; that
+print IS the founder's approval read. The script refuses to replace a sequence the artist built
+and refuses to rewrite messages while a fan is part-way through them.
+
 Register the config in `launchPartners.ts`, then:
 
     npx vitest run src/lib/offerExperience/reference/

@@ -21,6 +21,19 @@ export type StillAppliesDecision = 'send' | 'complete' | 'cancel';
 /** Triggers that address a CURRENT member. Without a membership they no longer apply. */
 const MEMBER_TRIGGERS = new Set(['free_join', 'new_subscription', 'tier_upgrade', 'inactive_subscriber', 'loyalty_survey']);
 
+/**
+ * Days to wait between one step and the next. A step's `delay_days` is "day N after the fan
+ * entered the sequence": the builder labels it "day N", new steps default to the last day + 3, and
+ * every stored sequence is strictly increasing (production, 2026-10-02). So the wait is the GAP.
+ * A non-increasing pair (never stored today) waits one day, so a typo can never send two steps at
+ * once and never stalls a fan for the whole delay again.
+ */
+export function stepGapDays(currentDelay: number | null | undefined, nextDelay: number | null | undefined): number {
+  const cur = Number(currentDelay) || 0;
+  const next = Number(nextDelay) || 0;
+  return next > cur ? next - cur : 1;
+}
+
 export function sequenceStillApplies(triggerType: string | null | undefined, f: FanMembershipFacts): StillAppliesDecision {
   const t = triggerType ?? '';
   if (MEMBER_TRIGGERS.has(t)) {

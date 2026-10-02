@@ -93,6 +93,20 @@ export interface DropConfig {
   linkSlug?: string;
 }
 
+/** The free-member follow-up (2026-10-02): what a fan who joined FREE hears after the welcome,
+ *  until they buy. Written as the artist's ONE active `free_join` sequence, which every free join
+ *  enters (artist page, share pages, votes, drops). Founder-approved copy in the artist's voice;
+ *  `delay_days` is day N after the join. It stops the moment the fan holds `goalRung` or higher
+ *  (sequences.goal_tier_id), so a fan who buys is never sold the thing they own. Shape, from
+ *  docs/crwn-brain/35: two gives before the first ask, one concrete thing per ask, no deadline. */
+export interface NurtureConfig {
+  goalRung: PaidRung;
+  steps: { delay_days: number; subject: string; body: string }[];
+}
+
+/** The only tokens the fan sequence cron resolves. Anything else would reach a fan raw. */
+export const NURTURE_TOKENS = ['{{first_name}}', '{{artist_name}}'] as const;
+
 export interface LaunchPartnerConfig {
   /** Registry key and the script argument. */
   key: string;
@@ -124,6 +138,7 @@ export interface LaunchPartnerConfig {
    *  Rungs not named keep RECOMMENDED_LADDER's price. The script reprices only a tier with no
    *  active subscription, and moves the price and its Stripe price ids in one update. */
   prices?: Partial<Record<PaidRung, number>>;
+  nurture?: NurtureConfig;
 }
 
 /** The drop funnel's public link segment, personalized (founder, 2026-09-29): never the random
@@ -220,6 +235,27 @@ export function checkLaunchPartner(c: LaunchPartnerConfig): string[] {
     if (c.vote && !c.vote.retired && (c.content?.projects ?? []).some((p) => p.voteLabel && seen.has(p.title))) {
       errors.push('drip: a project cannot both drip on a clock and wait on a live vote');
     }
+  }
+  if (c.nurture) {
+    const n = c.nurture;
+    if (!LADDER_RUNGS.includes(n.goalRung) || n.goalRung === ('Bronze' as Rung)) errors.push('nurture: goalRung must be a paid rung');
+    if (n.steps.length < 2 || n.steps.length > 8) errors.push('nurture: needs 2 to 8 messages');
+    let last = -1;
+    n.steps.forEach((s, i) => {
+      const at = `nurture message ${i + 1}`;
+      if (!Number.isInteger(s.delay_days) || s.delay_days < 0 || s.delay_days > 60) errors.push(`${at}: day must be a whole number from 0 to 60`);
+      if (s.delay_days <= last) errors.push(`${at}: must come after the message before it`);
+      last = s.delay_days;
+      if (!s.subject.trim() || s.subject.length > 70) errors.push(`${at}: subject must be 1 to 70 characters`);
+      for (const tok of `${s.subject} ${s.body}`.match(/\{\{[^}]*\}\}/g) ?? []) {
+        if (!(NURTURE_TOKENS as readonly string[]).includes(tok)) errors.push(`${at}: ${tok} is not a token the sender resolves`);
+      }
+      // Replies to a fan sequence land in CRWN's inbox, not the artist's: never ask for one.
+      if (/\breply\b/i.test(s.body)) errors.push(`${at}: asks the fan to reply, and replies never reach the artist`);
+      if (!s.body.includes(`thecrwn.app/${c.slug}`)) errors.push(`${at}: needs a link to the artist's page`);
+    });
+    // The first message must GIVE, not ask: the welcome already said what the paid rungs are.
+    if (n.steps[0] && /\$\d/.test(n.steps[0].body)) errors.push('nurture message 1: names a price; the first message gives');
   }
   // Copy is checked, not file paths: a beat's filename is not a promise to a fan.
   // A drop names a song the launch actually uploads, or it would wait forever with no error.

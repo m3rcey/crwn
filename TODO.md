@@ -85,6 +85,17 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **Read Prince Dre's free-member follow-up, then switch it on.** Every fan who joins him free
+      (drops, posters, share pages) gets the song and then nothing; this is six emails in his voice
+      over 24 days, stopping the moment they pay for any tier. Once this item is on master, in a
+      WSL terminal from ~/workspace-crwn, read the dry run (it prints all six messages):
+          npx tsx scripts/onboard-launch-partner.mjs princedre
+      If the words are right, switch it on (every other step re-runs as a no-op):
+          npx tsx scripts/onboard-launch-partner.mjs princedre --apply
+      To change a word, edit DRE_NURTURE in
+      [src/lib/offerExperience/reference/princeDre.ts](src/lib/offerExperience/reference/princeDre.ts)
+      and run it again. Dre can also see and edit it in his Fan CRM, Sequences tab.
+
 - [ ] **Approve Prince Dre's VSL storyboard, then fill the four blanks.** Open
       [docs/vsl/prince-dre/storyboard-wireframes.png](docs/vsl/prince-dre/storyboard-wireframes.png)
       and [docs/vsl/prince-dre/STORYBOARD.md](docs/vsl/prince-dre/STORYBOARD.md); edit any frame,
@@ -1189,9 +1200,9 @@ Things that are never finished. Cadence, then the thing.
 
 - **Lifecycle email phase 2** (plan in docs/crwn-brain/35-LIFECYCLE-EMAIL-STRATEGY.md, "Next"):
   code-owned artist emails for the First Revenue steps Rise Mode shows (offer, magnet, sales page,
-  follow-up, turn on, test, launch), driven by the same next move; a default free-member nurture
-  with a goal tier (two gives, then one direct offer); the paid non-starter nudge once per-fan play
-  evidence is readable by a cron.
+  follow-up, turn on, test, launch), driven by the same next move, which is also what moves a
+  self-serve artist to build their own free-member follow-up; the paid non-starter nudge once
+  per-fan play evidence is readable by a cron.
 
 - **The worth result calls an estimate a fact.** With no streaming income given, the DM result
   labels a figure estimated from monthly listeners "What streaming pays you now" and says

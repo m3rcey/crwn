@@ -422,6 +422,53 @@ export const DRE_SILVER_OFFER: TierOfferExperience = {
 };
 
 /** The whole launch as data, written by scripts/onboard-launch-partner.mjs princedre. */
+// THE FREE-MEMBER FOLLOW-UP (2026-10-02, docs/crwn-brain/35). Every Dre funnel (each drop song,
+// both posters, the share pages) puts a fan in Bronze and they got ONE email, the song. Nothing
+// came after it, so the only path from free to paid was a fan deciding on their own. This is what
+// a free member hears next, in Dre's voice, until they pay for any rung (the goal is Silver, so
+// buying ANY paid rung ends it). It never names which song brought them in, because twenty
+// different funnels feed it. Two gives before the first ask; each ask sells ONE concrete thing from
+// the card it belongs to (the JB pairing fans asked for most, then Gold's drip, then the whole
+// catalog); prices and counts come from the same constants as the cards, so they cannot drift.
+// No "reply" (replies reach CRWN, not Dre), no dates, no scarcity.
+const DRE_PAGE = `https://thecrwn.app/${DRE_SLUG}`;
+const usd = (rung: string) => `$${DRE_TIER_PRICES_CENTS[rung] / 100}`;
+export const DRE_NURTURE: NonNullable<LaunchPartnerConfig['nurture']> = {
+  goalRung: 'Silver',
+  steps: [
+    {
+      delay_days: 1,
+      subject: 'Start with these',
+      body: `Hey {{first_name}},\n\nYou're in. Here's what's already yours, free: ${FREE_SONGS} songs, the 2 most-watched from all ${PROJECTS} of my projects, plus ${BONUS_SONG}, a bonus song that opened up when you joined.\n\nIf you only play one tonight, play ${BONUS_SONG}.\n\n${DRE_PAGE}\n\n{{artist_name}}`,
+    },
+    {
+      delay_days: 3,
+      subject: 'Why it is all on one page now',
+      body: `Hey {{first_name}},\n\nFor years you had to dig for my tapes across old mixtape sites, a song here and a link there. So I put every project on one page, in order.\n\nThe free songs are the best of each project. Hear where every era went before you decide anything.\n\n${DRE_PAGE}\n\n{{artist_name}}`,
+    },
+    {
+      delay_days: 6,
+      subject: 'Me and JB, back to back',
+      body: `Hey {{first_name}},\n\nWhat people ask me for most is me and JB Binladen. ${BB} is that tape, and it's in Silver, complete, with ${LIL} (${SILVER_SONGS} songs).\n\nSilver is ${usd('Silver')} a month, cancel any time, and it all plays the moment you're in.\n\n${DRE_PAGE}\n\n{{artist_name}}`,
+    },
+    {
+      delay_days: 10,
+      subject: 'One more project each month you stay',
+      body: `Hey {{first_name}},\n\nGold is how the rest comes out. ${SJ} and ${IR} complete (${GOLD_SONGS} songs) the day you join, then one more full project each month you stay: ${DRIP1.title}, then ${DRIP2.title}, then ${DRIP3.title}.\n\nGold is ${usd('Gold')} a month. If you leave and come back, the count starts over.\n\n${DRE_PAGE}\n\n{{artist_name}}`,
+    },
+    {
+      delay_days: 16,
+      subject: 'If it is not for you',
+      body: `Hey {{first_name}},\n\nIf you're wondering what happens when it's not for you: you cancel from your account whenever you want and keep everything until the end of the month you paid for. Nothing to email, nobody to convince.\n\nSilver is ${usd('Silver')}. Gold is ${usd('Gold')}. Platinum is ${usd('Platinum')} for all ${PROJECTS} projects today, ${ALL_SONGS} songs.\n\n${DRE_PAGE}\n\n{{artist_name}}`,
+    },
+    {
+      delay_days: 24,
+      subject: 'Last one from me on this',
+      body: `Hey {{first_name}},\n\nLast one from me about this. Your free songs stay yours either way, and you'll hear about the next drop first.\n\nWhenever you want the rest, it's all on one page.\n\n${DRE_PAGE}\n\n{{artist_name}}`,
+    },
+  ],
+};
+
 export const PRINCE_DRE: LaunchPartnerConfig = {
   key: 'princedre',
   email: 'princedremusicbusiness@gmail.com',
@@ -477,6 +524,7 @@ export const PRINCE_DRE: LaunchPartnerConfig = {
   drip: { rung: 'Gold', projects: DRE_DRIP.map((d) => ({ title: d.title, months: d.months })) },
   // Founder-approved, 2026-10-01: Platinum at $50 instead of the ladder's $100 (see the header).
   prices: { Platinum: DRE_TIER_PRICES_CENTS.Platinum },
+  nurture: DRE_NURTURE,
   // What each rung holds: every song on every project (see CONTENT_TRACKS). `rung` is the LOWEST
   // rung that hears it; every rung above it is listed on the track too (the gate is an exact
   // match, there is no inheritance). The script only ever ADDS rungs to a track already there.
