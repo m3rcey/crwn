@@ -6,12 +6,16 @@ import { useAuth } from '@/hooks/useAuth';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useArtistPreview } from '@/hooks/useArtistPreview';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
-import { CommunityPost } from '@/types';
+import { CommunityPost, TierConfig } from '@/types';
 import { CommentSection } from './CommentSection';
+import { RoomJoinSheet } from './RoomJoinSheet';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Heart, MessageCircle, Lock, Crown, MoreHorizontal, Trash2, Share2 } from 'lucide-react';
+import { Heart, MessageCircle, Lock, Crown, MoreHorizontal, Trash2, Share2, Play } from 'lucide-react';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
+import {
+  roomAccessFor, entryTierFor, teaserKindFor, ropeHeadline, type RoomChannel,
+} from '@/lib/community/rooms';
 
 function AutoPlayVideo({ src, poster }: { src: string; poster?: string }) {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -63,6 +67,10 @@ interface CommunityPostCardProps {
   post: CommunityPost;
   artistSlug: string;
   artistId: string;
+  /** The tier room this post is filed in, when it is in one. Room access decides the post. */
+  room?: RoomChannel | null;
+  /** The artist's active tiers, for naming the rung that opens a locked post. */
+  tiers?: TierConfig[];
   artistTierId?: string;
   isPostAuthor?: boolean;
   isArtistProfile?: boolean;
@@ -75,7 +83,8 @@ export function CommunityPostCard({
   post,
   artistSlug,
   artistId,
-  artistTierId,
+  room = null,
+  tiers = [],
   isPostAuthor,
   isArtistProfile,
   onLikeChanged,
@@ -85,24 +94,26 @@ export function CommunityPostCard({
   const { user } = useAuth();
   const supabase = createBrowserSupabaseClient();
   const { tierId } = useSubscription(post.artist_id);
-  
+
   const [isLiked, setIsLiked] = useState(post.has_liked || false);
   const [likesCount, setLikesCount] = useState(post.likes_count || 0);
   const [showMenu, setShowMenu] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const [commentsCount, setCommentsCount] = useState(post.comments_count || 0);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [ropeOpen, setRopeOpen] = useState(false);
 
-  // Entitlement is decided by the DATABASE now (community_posts_feed.can_view).
-  // The client check remains only as a fallback for callers that still hand us a
-  // raw row. It is no longer what protects the content: the view NULLs the body
-  // and media for anyone it marks can_view = false.
+  // Entitlement is decided by the DATABASE (community_posts_feed.can_view). A room post is
+  // decided by its room there too (can_read_community_post delegates to the room).
   //
-  // In owner preview, can_view is TRUE for every post (the owner is entitled to
-  // their own), so trusting it would show an unlocked feed while claiming to be
-  // a fan. Fall back to the tier math against the previewed persona instead.
+  // In owner preview, can_view is TRUE for every post (the owner is entitled to their own),
+  // so trusting it would show an unlocked feed while claiming to be a fan. Fall back to the
+  // tier math against the previewed persona instead: the room mirror for a room post, the
+  // exact-match list for a legacy one. Both only ever REMOVE access.
   const { previewing } = useArtistPreview();
-  const tierMatch = post.is_free || (tierId && post.allowed_tier_ids?.includes(tierId));
+  const tierMatch = room
+    ? roomAccessFor(room, tierId, false)
+    : post.is_free || (!!tierId && !!post.allowed_tier_ids?.includes(tierId));
   const canView = previewing ? tierMatch : post.can_view ?? tierMatch;
 
   const formatTimestamp = (dateStr: string) => {
@@ -130,16 +141,18 @@ export function CommunityPostCard({
 
     try {
       if (newLiked) {
-        const { error: deleteError } = await supabase.from('community_post_likes').insert({
+        const { error } = await supabase.from('community_post_likes').insert({
           post_id: post.id,
           user_id: user.id,
         });
+        if (error) throw error;
       } else {
-        const { error: deleteError } = await supabase
+        const { error } = await supabase
           .from('community_post_likes')
           .delete()
           .eq('post_id', post.id)
           .eq('user_id', user.id);
+        if (error) throw error;
       }
       onLikeChanged?.();
     } catch (error) {
@@ -180,40 +193,138 @@ export function CommunityPostCard({
     setCommentsCount(prev => prev + 1);
   };
 
-  // Show locked state for gated posts
+  const authorName = post.author?.display_name || post.author?.username || 'User';
+  const avatar = (
+    <div className="w-10 h-10 rounded-full neu-inset flex items-center justify-center flex-shrink-0 overflow-hidden">
+      {post.author?.avatar_url ? (
+        <Image src={post.author.avatar_url} alt="" width={40} height={40} className="object-cover" />
+      ) : (
+        <span className="text-crwn-text-secondary font-semibold">{authorName.charAt(0).toUpperCase()}</span>
+      )}
+    </div>
+  );
+
+  // ------------------------------------------------------------------
+  // The rope: a locked post. Members are enjoying it; this viewer can see that, and
+  // what they are missing, but never the thing itself and never the comments.
+  // ------------------------------------------------------------------
   if (!canView) {
+    const target = entryTierFor(room?.allowed_tier_ids ?? post.allowed_tier_ids, tiers);
+    const currentTier = tiers.find((t) => t.id === tierId) ?? null;
+    const kind = room ? teaserKindFor(post.media_types) : 'text';
+    const rungName = room?.name || target?.name || 'Members';
+    const headline = ropeHeadline(target?.name || rungName, kind);
+    const openRope = () => { if (target) setRopeOpen(true); };
+    const previews = Array.isArray(post.media_previews) ? post.media_previews : [];
+    const imagePreviews = (post.media_types || [])
+      .map((type, i) => (type === 'image' ? previews[i] ?? null : undefined))
+      .filter((v) => v !== undefined) as (string | null)[];
+
     return (
       <div className="neu-raised p-4">
         <div className="flex gap-3">
-          <div className="w-10 h-10 rounded-full neu-inset flex items-center justify-center flex-shrink-0 overflow-hidden">
-            {post.author?.avatar_url ? (
-              <Image src={post.author.avatar_url} alt="" width={40} height={40} className="object-cover" />
-            ) : (
-              <span className="text-crwn-text-secondary font-semibold">
-                {(post.author?.display_name || post.author?.username || 'U').charAt(0).toUpperCase()}
-              </span>
-            )}
-          </div>
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-1">
-              <span className="font-medium text-crwn-text">
-                {post.author?.display_name || post.author?.username || 'User'}
-              </span>
+          {avatar}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-1 flex-wrap">
+              <span className="font-medium text-crwn-text">{authorName}</span>
               {post.is_artist_post && (
                 <span title="Artist"><Crown className="w-4 h-4 text-crwn-gold" /></span>
               )}
               <span className="text-crwn-text-secondary text-sm">•</span>
               <span className="text-crwn-text-secondary text-sm">{formatTimestamp(post.created_at)}</span>
+              <span className="ml-auto inline-flex items-center gap-1 text-xs font-semibold text-crwn-gold bg-crwn-gold/10 px-2 py-0.5 rounded-full">
+                <Lock className="w-3 h-3" /> {rungName}
+              </span>
             </div>
-            <div className="neu-inset p-6 text-center mt-2">
-              <Lock className="w-8 h-8 text-crwn-gold mx-auto mb-2" />
-              <p className="text-crwn-text font-medium mb-1">Exclusive Post</p>
-              <p className="text-crwn-text-secondary text-sm">
-                Subscribe to see this content
-              </p>
+
+            {/* A media post's caption is the sign on the door. A text post's words are the post. */}
+            {kind !== 'text' && post.content && (
+              <p className="text-crwn-text whitespace-pre-wrap mb-3">{post.content}</p>
+            )}
+
+            {kind === 'video' ? (
+              <button onClick={openRope} className="relative block w-full aspect-video rounded-lg overflow-hidden bg-crwn-elevated" aria-label={headline}>
+                {post.thumbnail_url && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={post.thumbnail_url} alt="" className="absolute inset-0 w-full h-full object-cover" />
+                )}
+                <span className="absolute inset-0 flex items-center justify-center">
+                  <span className="w-16 h-16 rounded-full bg-black/60 flex items-center justify-center">
+                    <Play className="w-7 h-7 text-white ml-1" fill="currentColor" />
+                  </span>
+                </span>
+                <span className="absolute bottom-2 left-2 inline-flex items-center gap-1 text-xs font-semibold text-white bg-black/60 px-2 py-1 rounded-full">
+                  <Lock className="w-3 h-3" /> {rungName} members
+                </span>
+              </button>
+            ) : kind === 'image' ? (
+              <button
+                onClick={openRope}
+                className={`grid gap-2 w-full ${imagePreviews.length > 1 ? 'grid-cols-2' : 'grid-cols-1'}`}
+                aria-label={headline}
+              >
+                {imagePreviews.map((src, i) => (
+                  <span key={i} className="relative block aspect-square rounded-lg overflow-hidden bg-crwn-elevated">
+                    {src && (
+                      // A tiny copy made at upload, blurred again here. The original never
+                      // reaches this browser, so there is nothing for devtools to unblur.
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={src} alt="" className="absolute inset-0 w-full h-full object-cover scale-110 blur-xl" />
+                    )}
+                    <span className="absolute inset-0 flex items-center justify-center">
+                      <span className="w-12 h-12 rounded-full bg-black/60 flex items-center justify-center">
+                        <Lock className="w-5 h-5 text-white" />
+                      </span>
+                    </span>
+                  </span>
+                ))}
+              </button>
+            ) : (
+              <button onClick={openRope} className="neu-inset w-full p-5 text-left" aria-label={headline}>
+                <span className="flex items-center gap-2 text-sm text-crwn-text font-medium">
+                  <Lock className="w-4 h-4 text-crwn-gold" />
+                  {post.is_artist_post ? `${authorName} posted in ${rungName}` : `Posted in ${rungName}`}
+                </span>
+                <span className="block mt-3 space-y-2" aria-hidden="true">
+                  <span className="block h-2.5 w-11/12 rounded bg-crwn-elevated" />
+                  <span className="block h-2.5 w-3/4 rounded bg-crwn-elevated" />
+                  <span className="block h-2.5 w-1/2 rounded bg-crwn-elevated" />
+                </span>
+              </button>
+            )}
+
+            {/* Counts only. The comments themselves stay inside the room. */}
+            <div className="flex items-center gap-4 mt-3">
+              <button onClick={openRope} className="flex items-center gap-1 text-sm text-crwn-text-secondary">
+                <Heart className="w-5 h-5" /> <span>{post.likes_count || 0}</span>
+              </button>
+              <button onClick={openRope} className="flex items-center gap-1 text-sm text-crwn-text-secondary">
+                <MessageCircle className="w-5 h-5" /> <span>{post.comments_count || 0}</span>
+              </button>
+              {target && (
+                <button onClick={openRope} className="ml-auto text-sm font-semibold text-crwn-gold hover:underline">
+                  {target.price === 0 ? `Join ${target.name} free` : `Join ${target.name}`}
+                </button>
+              )}
             </div>
+            {!target && (
+              <p className="text-crwn-text-secondary text-sm mt-2">Subscribe to see this content</p>
+            )}
           </div>
         </div>
+
+        {target && (
+          <RoomJoinSheet
+            open={ropeOpen}
+            onClose={() => setRopeOpen(false)}
+            headline={headline}
+            target={target}
+            currentTier={currentTier}
+            artistId={artistId}
+            artistSlug={artistSlug}
+            roomId={room?.id ?? null}
+          />
+        )}
       </div>
     );
   }
@@ -230,7 +341,7 @@ export function CommunityPostCard({
             <Image src={post.author.avatar_url} alt="" width={40} height={40} className="object-cover" />
           ) : (
             <span className="text-crwn-text-secondary font-semibold">
-              {(post.author?.display_name || post.author?.username || 'U').charAt(0).toUpperCase()}
+              {authorName.charAt(0).toUpperCase()}
             </span>
           )}
         </Link>
@@ -242,7 +353,7 @@ export function CommunityPostCard({
               href={`/${artistSlug}`}
               className="font-medium text-crwn-text hover:underline"
             >
-              {post.author?.display_name || post.author?.username || 'User'}
+              {authorName}
             </Link>
             {post.is_artist_post && (
               <span title="Artist">
@@ -276,8 +387,13 @@ export function CommunityPostCard({
             )}
           </div>
 
-          {/* Tier badge if gated but accessible */}
-          {!post.is_free && post.allowed_tier_ids && post.allowed_tier_ids.length > 0 && (
+          {/* Which room this is in, or the old gated marker */}
+          {room ? (
+            <div className="flex items-center gap-1 text-xs text-crwn-gold mb-2">
+              <Lock className="w-3 h-3" />
+              <span>{room.name} room</span>
+            </div>
+          ) : !post.is_free && post.allowed_tier_ids && post.allowed_tier_ids.length > 0 && (
             <div className="flex items-center gap-1 text-xs text-crwn-gold mb-2">
               <Lock className="w-3 h-3" />
               <span>Exclusive</span>
@@ -287,22 +403,20 @@ export function CommunityPostCard({
           {/* Content */}
           <p className="text-crwn-text whitespace-pre-wrap">{post.content}</p>
 
-          {/* Media grid */}
-          {post.media_urls && post.media_urls.length > 0 && (
-            <div className={`mt-3 grid gap-2 ${
-              post.media_urls.length === 1 ? 'grid-cols-1' :
-              post.media_urls.length === 2 ? 'grid-cols-2' :
-              'grid-cols-2'
-            }`}>
-              {post.media_urls.map((url, index) => (
+          {/* Media grid. A room post's media arrive as one-hour signed URLs; a plain <img> is
+              used because those hosts are not next/image remotes. */}
+          {post.media_urls && post.media_urls.some(Boolean) && (
+            <div className={`mt-3 grid gap-2 ${post.media_urls.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
+              {post.media_urls.map((url, index) => url ? (
                 <div key={index} className="relative rounded-lg overflow-hidden max-h-[500px] max-w-[600px] mx-auto flex items-center justify-center">
                   {post.media_types?.[index] === 'video' ? (
                     <AutoPlayVideo src={url} poster={post.thumbnail_url || undefined} />
                   ) : (
-                    <Image src={url} alt="" width={600} height={800} className="w-full h-auto rounded-lg max-h-[500px] object-contain" />
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={url} alt="" className="w-full h-auto rounded-lg max-h-[500px] object-contain" />
                   )}
                 </div>
-              ))}
+              ) : null)}
             </div>
           )}
 

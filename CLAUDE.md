@@ -72,9 +72,15 @@ append, or retire with `support: 'retired'`, never rename. Full doc:
 - **The Vault is a tier-gated artist playlist** (`vaultCollection.ts`). Adding a track gates the
   TRACK for the collection's rungs and never narrows what a member already had. No Vault table,
   route, player or second entitlement.
-- **Recognition V1 is self-visible only**: the fan's own rung and member-since on their card and
-  profile. Day One is `subscriptions.is_founder` (the Founder Window), never an invented cutoff.
-  No public supporter wall, no RLS change.
+- **Recognition: member-since is self-visible, the rung BADGE shows wherever the fan's words
+  show.** The fan's own rung and member-since sit on their card and profile. Day One is
+  `subscriptions.is_founder` (the Founder Window), never an invented cutoff. A tier badge beside
+  a post or comment author comes from `/api/recognition` (labels only, bounded to people who
+  posted or commented on that artist's page). It is the status drop pages advertise, so it is
+  public wherever that comment is public. Inside a gated tier room the comments are members-only,
+  so the badges there are seen by members only. Still no public supporter wall, no RLS change.
+  (Corrected 2026-10-02: this line used to say "self-visible only", which the recognition route
+  contradicted since 2026-09-28.)
 - **`access_config.card_lines = 'prose_only'`** prints only the artist's own lines on the public
   card while structured rows keep powering delivery. GB's four tiers use it; the structured rows
   there are IDENTITY, not copy.
@@ -395,6 +401,28 @@ Two rules on `src/app/[slug]/page.tsx` and everything under it:
   as a pure rendering lens. If you add a surface that reads a SERVER-granted flag
   (`can_view`, a signed URL, a purchase row), it must fall back to tier math when `previewing`,
   or the owner sees an unlocked page while it claims to be a fan's.
+
+## Community tier rooms: the room decides, the rope shows a teaser (founder, 2026-10-02)
+
+One room per membership rung (`community_channels.tier_id`); the artist posts into it and that
+rung plus everyone priced above it get the post. [src/lib/community/rooms.ts](src/lib/community/rooms.ts)
+is the pure brain (room plan, rendering mirror, rope copy, media keys); migration
+[supabase/schema-phase2-community-tier-rooms.sql](supabase/schema-phase2-community-tier-rooms.sql).
+- **The room is the gate, inside `can_read_community_post`, checked BEFORE `is_free`.** A room
+  post also stores `is_free = false` plus the room's list, so a deleted room (FK SET NULL) leaves
+  it locked to the same people.
+- **What the rope may see is decided by `community_posts_feed`, for ROOM posts only:** media
+  types, the video thumbnail, the pre-blurred image previews, and a MEDIA post's caption. A text
+  post's words, the media and the comments never. Never blur the real photo in CSS: the preview
+  is a 32px copy made at upload, so there is nothing to unblur.
+- **Room media are private R2 KEYS** under `community/<artistId>/`, signed by `/api/community/media`
+  after re-reading the view as the caller, and only for posts the ARTIST wrote (SEC-009).
+- **Writes are entitlement-checked in RLS**: comments and likes only on a readable post, a post
+  filed only in a room the caller may post in (rooms are artist-only).
+- **Rooms are additive** (`planTierRooms`): never deactivated, never narrowed. Created by the
+  owner's own community-tab visit or `npx tsx scripts/community-rooms.mjs <slug> --apply`.
+- **The rope never opens a second subscription**: a member on a cheaper paid rung UPGRADES via
+  `/api/stripe/subscription-update`; the headline copy is the founder's ("You're not a member. YET.").
 
 ## Plan limits: only advertise what the product enforces
 

@@ -292,6 +292,10 @@ export interface CommunityPost {
   media_urls: string[] | null;
   media_types: string[] | null;
   thumbnail_url?: string | null;
+  /** The tier room this post is filed in (schema-phase2-community-tier-rooms.sql). */
+  channel_id?: string | null;
+  /** Per media item, the public pre-blurred teaser for an image (null for a video). */
+  media_previews?: (string | null)[] | null;
   is_artist_post: boolean;
   is_free: boolean;
   allowed_tier_ids: string[];

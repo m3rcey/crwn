@@ -115,6 +115,7 @@ Managers under `src/components/artist/`: `MusicManager` (`TrackUploadForm`), `Al
 | Notifications | `NotificationBell`, `notifications.ts`, `/api/notifications/*`; realtime bell | **Production-ready, no push** (dead `/community` link bug) |
 | Community feed | `CommunityFeed`, `CommunityPostCard`, `CommentSection` (inside `/[slug]` Community tab); `community_posts/*` | **Production-ready** |
 | Community channels | `CommunityChannels`; `community_channels/*`; RLS-gated realtime | **Production-ready** |
+| Community tier rooms | One room per rung (`src/lib/community/rooms.ts`, `RoomJoinSheet`, `/api/community/{rooms,media,media-upload}`); a room post is gated by its room, non-members see teasers, room media sit in private R2 | **Built 2026-10-02, waits on `schema-phase2-community-tier-rooms.sql`** |
 | Fan leaderboard | `FanLeaderboard`, `/api/leaderboard` (strips raw spend) | **Production-ready** |
 
 ## Live streaming & booking
