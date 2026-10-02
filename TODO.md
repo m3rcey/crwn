@@ -1180,6 +1180,13 @@ Things that are never finished. Cadence, then the thing.
 
 ## On Claude's plate (not yours)
 
+- **Check Prince Dre's tier-room teasers on his first room post.** His four rooms exist
+      (2026-10-02) but he has no community posts yet, so the locked view has never rendered
+      with real content. When he posts in Silver, Gold or Platinum, open
+      thecrwn.app/princedre?tab=community signed out and confirm: a video shows only its
+      thumbnail and caption, a photo only its blurred preview, a text post only "Dre posted in
+      <room>", counts but no comments, and a tap opens the join sheet.
+
 - **Lifecycle email phase 2** (plan in docs/crwn-brain/35-LIFECYCLE-EMAIL-STRATEGY.md, "Next"):
   code-owned artist emails for the First Revenue steps Rise Mode shows (offer, magnet, sales page,
   follow-up, turn on, test, launch), driven by the same next move; a default free-member nurture
