@@ -79,6 +79,9 @@ export interface ContentProject {
   title: string;
   artFile?: string;
   voteLabel?: string;
+  /** The day the project came out, `YYYY-MM-DD`. The Music tab orders by it and names the
+   *  newest one, so a missing date reads as the oldest release. */
+  releaseDate?: string;
   trackTitles: string[];
 }
 
@@ -258,6 +261,14 @@ export function checkLaunchPartner(c: LaunchPartnerConfig): string[] {
     if (n.steps[0] && /\$\d/.test(n.steps[0].body)) errors.push('nurture message 1: names a price; the first message gives');
   }
   // Copy is checked, not file paths: a beat's filename is not a promise to a fan.
+  for (const p of c.content?.projects ?? []) {
+    if (p.releaseDate === undefined) continue;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(p.releaseDate) || Number.isNaN(Date.parse(p.releaseDate))) {
+      errors.push(`content: project ${p.title} has an unreadable release date "${p.releaseDate}"`);
+    } else if (p.releaseDate > new Date().toISOString().slice(0, 10)) {
+      errors.push(`content: project ${p.title} is dated in the future, so his page would call it released before it is`);
+    }
+  }
   // A drop names a song the launch actually uploads, or it would wait forever with no error.
   const songs = new Set([...(c.content?.tracks ?? []).map((t) => t.title.toLowerCase()), ...(c.vote?.options ?? []).map((o) => o.trackTitle.toLowerCase())]);
   for (const d of c.drops ?? []) if (!songs.has(d.magnetTrackTitle.toLowerCase())) errors.push(`drop: "${d.magnetTrackTitle}" is not a song this launch uploads`);

@@ -85,6 +85,20 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **Decide with Dre how Stompin Thru The Trenches gets announced. It is live now, quietly.**
+      His unreleased 16-song mixtape went up 2026-10-02 behind Platinum ($50), and it is the ONLY
+      thing in his catalog that exists nowhere else: every other tape is free somewhere (Audiomack,
+      DaMixHub, LiveMixtapes, Certified Mixtapes, his YouTube). That makes it the one honest
+      scarcity he has, and right now nobody knows it dropped. Three things to settle with him:
+        1. Does he want a launch moment for it, or is a quiet Platinum drop fine? I can hold it
+           back to Platinum-invisible and release it on a date instead, in one change.
+        2. Its album date reads 2026-10-02 (the day it became available here). Change it if he
+           wants a different release day on his page.
+        3. No song from it is free and it has no drop page, on purpose. If he wants one song as
+           the hook for a post, say which and I will build that drop page.
+      It is also the only reason a fan picks $50 over $25, so how it is announced is worth more
+      than the usual drop.
+
 - [ ] **Approve Prince Dre's VSL storyboard, then fill the four blanks.** Open
       [docs/vsl/prince-dre/storyboard-wireframes.png](docs/vsl/prince-dre/storyboard-wireframes.png)
       and [docs/vsl/prince-dre/STORYBOARD.md](docs/vsl/prince-dre/STORYBOARD.md); edit any frame,

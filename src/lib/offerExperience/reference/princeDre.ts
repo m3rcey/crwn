@@ -37,6 +37,22 @@
 // The drip is not a calendar promise: it is relative to each member and enforced by the oracle,
 // and the copy describes it as "each month you stay", never as a cadence word the checks ban.
 //
+// TWO MORE PROJECTS (founder, 2026-10-02), and the first true scarcity on the page:
+//   STOMPIN THRU THE TRENCHES, 16 songs, has NEVER been released and lives only on CRWN. Every
+//     other tape here can be found free somewhere, which is why no rung was allowed to claim
+//     scarcity. This one has it, so Platinum leads with it and it is the only place that claim
+//     is made (princeDre.test.ts holds the line). Platinum keeps it: it is not in the drip, so
+//     $50 buys the one thing $25 cannot reach, the same way O Block Ass Nigga already works.
+//     NO free song from it, and no drop page: a sample of the only tape nobody else has is the
+//     one giveaway that costs more than it earns.
+//   STREETS DONT LOVE YOU, 5 songs, came out 2018-08-14 on his own YouTube and nowhere else.
+//     Demand puts it 7th of the 9 released tapes (top two songs, views as displayed 2026-10-02:
+//     134K + 67K = 201K, against 2.5M for the top two tapes and 57K for the last). Its title
+//     track and Back Ta Back carry it; the other three sit at 2.6K to 4.9K and its own comments
+//     never ask for the tape. Free on his channel makes it the EASIEST thing he has to find, so
+//     it sits on Silver beside the other easy finds, and its two watched songs go free to Bronze.
+//     Its title track is one recording already on Only The O In My Eyes (SHARED_SONGS).
+//
 // NO PLACEHOLDER AUDIO (founder, 2026-09-29). Since 2026-09-30 his whole catalog is on the page:
 // eight projects, every song real.
 
@@ -91,6 +107,8 @@ const SJ = 'Shotta In Da Jungle';
 const LIL = 'Life I Live';
 const IR = 'Im Reloaded';
 const OBAN = 'O Block Ass Nigga';
+const SDLY = 'Streets Dont Love You';
+const STTT = 'Stompin Thru The Trenches';
 const DIR = 'videos/prince dre';
 /** Each project's songs as the files name them, in track order (`<n> - <song>.wav`). */
 const SONGS: Record<string, string[]> = {
@@ -102,6 +120,17 @@ const SONGS: Record<string, string[]> = {
   [LIL]: ['Life I Live', 'No Choice', 'Ready For War', 'Wonder Why', 'Dogs Cry', 'Who I Am', 'They Be Like', 'Oh Gawd', 'Slums', 'Kid In The Ghetto', 'Come From', 'Not A Worry'],
   [IR]: ['Toxic (Intro)', 'Bout That', 'Be Stupid (Interlude)', 'Murda', 'No Worries', 'Chasin Dough', 'Numbers Dont Lie', 'Profit', 'Dope Man', 'No Basic', 'Members', 'Reloaded'],
   [OBAN]: ['Mighty O Block', 'Always Made It', 'Came For You', 'Keep Goin', 'When It Rains It Pours', 'I Get High', 'Feel It In The Air', 'Dear Mama', 'One Wish', 'Povertys Paradise', 'Save Me', 'Underrated', 'In The O We Trust'],
+  [SDLY]: ['Streets Dont Love You', 'Made Me', 'Letter To The Streets', 'Time Will Tell', 'Back Ta Back'],
+  [STTT]: ['About Us (Intro)', 'My Kitchen', 'Ridin Rims', 'Give A Damn', 'Cdai Speaking', 'IDGAF', 'My Hood', 'Project Chick', 'TrapOrDie', 'Gimme That', 'Bia Bia', 'Paid Shaq Detroit Speaking', 'Who Run It', 'DRose Speaking', 'No Rehearsing (Dipset Anthem)', '(Lihtz) Bittersweet [SouljaMix]'],
+};
+/** When each project came out, for the Music tab's running order and its newest-release card.
+ *  Streets Dont Love You is the founder's date (2026-10-02); the rest were already on his albums.
+ *  Stompin Thru The Trenches has never been released anywhere: its date is the day it went live
+ *  HERE, which is the only place it has ever been available. */
+const RELEASED: Record<string, string> = {
+  [FPOB]: '2013-11-30', [BB]: '2015-01-22', [SJ]: '2015-07-03', [OBAN]: '2016-06-16',
+  [OTOIME]: '2017-05-12', [LIL]: '2018-01-01', [SDLY]: '2018-08-14', [IR]: '2019-06-24',
+  [ROTP]: '2021-01-01', [STTT]: '2026-10-02',
 };
 /** The folder each project lives in, where it differs from its display title. */
 const FOLDER: Record<string, string> = { [ROTP]: 'Return Of The Prince', [FPOB]: 'Fresh Prince Of O Block' };
@@ -111,8 +140,14 @@ const ON_PAGE_AS: Record<string, string> = { 'Wishing Well (Letter To V Roy)': '
 const VOTE_SONGS = new Set(['Wishing Well', 'Kill Or Be Killed', 'In My Eyes']);
 /** Two different recordings share a title across projects; the page has to tell them apart. */
 const RETITLE: Record<string, Record<string, string>> = { [LIL]: { 'Ready For War': 'Ready For War (Life I Live)' } };
+/** "Streets Dont Love You" is ONE recording that appears on two tapes (Only The O In My Eyes
+ *  2017, then the project it titles in 2018). One track row, listed on both albums, uploaded
+ *  once: a second row would split its plays and make the page look like he has two of them.
+ *  It is a Bronze single, so the rung is the same whichever project claims it. */
+const SHARED_SONGS = new Set(['Streets Dont Love You']);
 const PROJECT_RUNG: Record<string, 'Silver' | 'Gold' | 'Platinum'> = {
-  [BB]: 'Silver', [LIL]: 'Silver', [SJ]: 'Gold', [IR]: 'Gold', [OBAN]: 'Platinum', [ROTP]: 'Platinum', [FPOB]: 'Platinum', [OTOIME]: 'Platinum',
+  [BB]: 'Silver', [LIL]: 'Silver', [SDLY]: 'Silver', [SJ]: 'Gold', [IR]: 'Gold',
+  [OBAN]: 'Platinum', [ROTP]: 'Platinum', [FPOB]: 'Platinum', [OTOIME]: 'Platinum', [STTT]: 'Platinum',
 };
 /**
  * FREE in Bronze (founder, 2026-09-30): the two most-watched YouTube videos from every project,
@@ -130,6 +165,13 @@ const PROJECT_RUNG: Record<string, 'Silver' | 'Gold' | 'Platinum'> = {
 export const DRE_BRONZE_SINGLES = [
   'Send It Up', 'Hommie', 'MunnaGang', 'My Savages', 'Hide N Seek', 'Im A Ridah', 'From The O', 'TurntUp4JMunna',
   'Life I Live', 'Come From', 'Chasin Dough', 'Reloaded', 'I Get High', 'Always Made It',
+  // Streets Dont Love You (2026-10-02): its two watched songs, both on his own channel.
+  //   Streets Dont Love You 134K (plus 41K and 2.6K on two more uploads), Back Ta Back 67K
+  //   (feat. Boss Top). Its other three sit at 2.6K to 4.9K.
+  // STOMPIN THRU THE TRENCHES GETS NONE, on purpose: it has never been released, so there are no
+  // views to rank its songs by, and giving a free sample of the one tape that exists nowhere else
+  // is the one place a free song costs more than it earns.
+  'Streets Dont Love You', 'Back Ta Back',
 ];
 /** The Bronze bonus song every vote promises. */
 const BONUS_SONG = 'Hannn';
@@ -142,41 +184,56 @@ const COVER: Record<string, string> = {
   [LIL]: `${DIR}/${LIL}/${LIL} (Cover Art).jpg`,
   [IR]: `${DIR}/${IR}/${IR} (Cover Art).png`,
   [OBAN]: `${DIR}/${OBAN}/${OBAN} (Cover Art).jpg`,
+  [SDLY]: `${DIR}/${SDLY}/${SDLY} (Cover Art).jpg`,
+  [STTT]: `${DIR}/${STTT}/${STTT} (Cover Art).png`,
 };
 const titleOf = (project: string, song: string) => ON_PAGE_AS[song] ?? RETITLE[project]?.[song] ?? song;
 /** A project's songs as they are titled on his page, in track order. */
 const pageTitles = (project: string) => SONGS[project].map((song) => titleOf(project, song));
 const BB_SONGS = pageTitles(BB);
 const SJ_SONGS = pageTitles(SJ);
+const STTT_SONGS = pageTitles(STTT);
+const SDLY_SONGS = pageTitles(SDLY);
 const LIL_SONGS = pageTitles(LIL);
 const IR_SONGS = pageTitles(IR);
 /** Song counts come from the lists, so no copy line can drift from what is uploaded. */
 const N = Object.fromEntries(Object.entries(SONGS).map(([k, v]) => [k, v.length])) as Record<string, number>;
-const SILVER_SONGS = N[BB] + N[LIL];
+const SILVER_SONGS = N[BB] + N[LIL] + N[SDLY];
 /** What Gold hears the day a member joins. The free-member emails read this and DRE_DRIP, so when
  *  Gold changes (founder, 2026-10-02: Stompin Thru The Trenches joins it once uploaded, and Im
  *  Reloaded moves into the drip) the emails name the new music the moment the config does, and
  *  never before the songs are on the page. */
 const DRE_GOLD_DAY_ONE = [SJ, IR];
 const GOLD_SONGS = DRE_GOLD_DAY_ONE.reduce((n, p) => n + N[p], 0);
-const ALL_SONGS = Object.values(N).reduce((a, b) => a + b, 0);
+
 /** The two most-watched from every project: the Bronze singles plus the two vote songs among them. */
 const FREE_SONGS = DRE_BRONZE_SINGLES.length + 2;
 const PROJECTS = Object.keys(SONGS).length;
 const rungOf = (title: string, project: string) =>
   title === BONUS_SONG || DRE_BRONZE_SINGLES.includes(title) ? ('Bronze' as const) : PROJECT_RUNG[project];
-/** Every song to upload (or re-gate), the vote songs excepted: the vote owns those. */
-const CONTENT_TRACKS = [BB, SJ, LIL, IR, OBAN, ROTP, FPOB, OTOIME].flatMap((project) =>
-  SONGS[project]
-    .map((song, i) => ({ song, i, title: titleOf(project, song) }))
-    .filter(({ title }) => !VOTE_SONGS.has(title))
-    .map(({ song, i, title }) => ({
-      title,
-      rung: rungOf(title, project),
-      file: `${DIR}/${FOLDER[project] ?? project}/${i + 1} - ${song}.wav`,
-      artFile: COVER[project],
-    })),
-);
+/** Every project, oldest first: the order the Music tab reads them in. */
+const ALL_PROJECTS = Object.keys(SONGS).sort((a, b) => RELEASED[a].localeCompare(RELEASED[b]));
+/** Every song to upload (or re-gate), the vote songs excepted (the vote owns those) and a shared
+ *  song counted once (the first project that lists it wins; its rung is the same either way). */
+const CONTENT_TRACKS = (() => {
+  const seen = new Set<string>();
+  return ALL_PROJECTS.flatMap((project) =>
+    SONGS[project]
+      .map((song, i) => ({ song, i, title: titleOf(project, song) }))
+      .filter(({ title }) => !VOTE_SONGS.has(title) && !seen.has(title) && (seen.add(title), true))
+      .map(({ song, i, title }) => ({
+        title,
+        rung: rungOf(title, project),
+        file: `${DIR}/${FOLDER[project] ?? project}/${i + 1} - ${song}.wav`,
+        artFile: COVER[project],
+      })),
+  );
+})();
+
+/** Songs ON HIS PAGE: the uploaded set plus the three free vote songs. Derived from
+ *  CONTENT_TRACKS, not from the per-project totals, because one recording sits on two tapes and
+ *  summing the tapes would count it twice and promise a song that is not there. */
+const ALL_SONGS = CONTENT_TRACKS.length + VOTE_SONGS.size;
 
 // WHAT THE COPY SELLS, AND WHY (YouTube comment read, 2026-09-30: 16,445 comments across his 128
 // videos plus 14 third-party uploads of his project songs).
@@ -195,7 +252,7 @@ export const DRE_TIER_PROMISES: Record<string, string> = {
   Bronze: 'His most-watched songs, free.',
   Silver: 'Dre and JB, back to back.',
   Gold: 'A new project each month you stay.',
-  Platinum: 'His whole catalog, one place.',
+  Platinum: 'The tape nobody else has.',
 };
 
 export const DRE_TIER_PRICES_CENTS: Record<string, number> = {
@@ -214,7 +271,7 @@ export const DRE_APPROVED_BENEFITS: Record<string, string[]> = {
     'First word on every drop',
   ],
   Silver: [
-    `Blood Brothaz with JB Binladen, and Life I Live, complete (${SILVER_SONGS} songs)`,
+    `Blood Brothaz with JB Binladen, Life I Live and ${SDLY}, complete (${SILVER_SONGS} songs)`,
     'Behind the scenes from every era',
     'Everything in Bronze',
   ],
@@ -225,6 +282,7 @@ export const DRE_APPROVED_BENEFITS: Record<string, string[]> = {
     'Everything in Silver',
   ],
   Platinum: [
+    `${STTT}: ${N[STTT]} songs you cannot hear anywhere else`,
     `All ${PROJECTS} projects in one place, in order, complete (${ALL_SONGS} songs)`,
     `${OBAN}, his hardest project to find, and the 3 projects Gold waits months for`,
     'First listen to new music here, before anyone else',
@@ -241,7 +299,7 @@ export const DRE_BENEFIT_IDENTITIES: Record<string, { key: string; line: string 
     { key: 'drop_alerts', line: 'First word on every drop' },
   ],
   Silver: [
-    { key: 'exclusive_tracks', line: `Blood Brothaz with JB Binladen, and Life I Live, complete (${SILVER_SONGS} songs)` },
+    { key: 'exclusive_tracks', line: `Blood Brothaz with JB Binladen, Life I Live and ${SDLY}, complete (${SILVER_SONGS} songs)` },
     { key: 'exclusive_posts', line: 'Behind the scenes from every era' },
   ],
   Gold: [
@@ -257,8 +315,8 @@ export const DRE_BENEFIT_IDENTITIES: Record<string, { key: string; line: string 
 /** The funnel's standout item for the PRIMARY offer, shown only where a rung has no full
  *  offer experience. */
 export const DRE_FUNNEL_PRIMARY_ITEM = {
-  title: 'His whole catalog, one place',
-  description: `You have been hunting these tapes across old mixtape sites. Platinum is all ${PROJECTS} projects, ${ALL_SONGS} songs, in one place and in order.`,
+  title: 'The tape nobody else has',
+  description: `${STTT} has never been released anywhere. Platinum is that tape plus all ${PROJECTS} projects, ${ALL_SONGS} songs, in one place and in order.`,
 };
 
 // Dre has not shot his video yet (founder, 2026-09-28): the slot shows the COVER of the video
@@ -270,9 +328,9 @@ const STAND_IN_VSL = {
 };
 
 export const DRE_PLATINUM_OFFER: TierOfferExperience = {
-  promise: 'His whole catalog, one place.',
-  description: `You have been hunting these tapes across old mixtape sites, one song at a time. This is all ${PROJECTS} projects, ${ALL_SONGS} songs, in order and in one place the moment you join: ${ROTP}, ${FPOB}, ${OTOIME}, ${OBAN} (the hardest one to find anywhere), and everything in the levels below.`,
-  cta: `Unlock All ${PROJECTS} Projects`,
+  promise: 'The tape nobody else has.',
+  description: `${STTT} has never been released, anywhere, and this is the only place you can hear it. It comes with the rest: all ${PROJECTS} projects, ${ALL_SONGS} songs, in order and in one place the moment you join, including ${OBAN} (the hardest one to find anywhere) and everything in the levels below.`,
+  cta: 'Unlock the New Mixtape',
   secondaryCue: 'See what you get',
   heroImageUrl: `${OFFER_ART}photo-hero-platinum.webp`,
   vsl: STAND_IN_VSL,
@@ -285,6 +343,7 @@ export const DRE_PLATINUM_OFFER: TierOfferExperience = {
       title: 'All of it, today',
       description: 'Not a sampler. Every song on every project, in order, the moment you join. No waiting.',
       items: [
+        { title: STTT, subtitle: `${N[STTT]} songs, only here`, locked: true, ...(ART[STTT] ? { artUrl: ART[STTT] } : {}) },
         { title: ROTP, subtitle: `${N[ROTP]} songs`, locked: true, artUrl: ART[ROTP] },
         { title: FPOB, subtitle: `${N[FPOB]} songs`, locked: true, artUrl: ART[FPOB] },
         { title: OTOIME, subtitle: `${N[OTOIME]} songs`, locked: true, artUrl: ART[OTOIME] },
@@ -403,7 +462,7 @@ export const DRE_GOLD_OFFER: TierOfferExperience = {
 
 export const DRE_SILVER_OFFER: TierOfferExperience = {
   promise: 'Dre and JB, back to back.',
-  description: `Blood Brothaz, the tape his fans keep asking him to run back with JB Binladen, plus Life I Live. All ${SILVER_SONGS} songs, in one place and in order.`,
+  description: `Blood Brothaz, the tape his fans keep asking him to run back with JB Binladen, plus Life I Live and ${SDLY}. All ${SILVER_SONGS} songs, in one place and in order.`,
   cta: 'Get Blood Brothaz',
   secondaryCue: 'See what you get',
   vsl: { url: null },
@@ -412,10 +471,11 @@ export const DRE_SILVER_OFFER: TierOfferExperience = {
       kind: 'audio',
       truth: 'real',
       title: 'Dre and JB, back to back',
-      description: 'Blood Brothaz complete, plus Life I Live. Both in order, both in one place.',
+      description: `Blood Brothaz complete, plus Life I Live and ${SDLY}. All in order, all in one place.`,
       items: [
         ...BB_SONGS.filter((t) => t !== BONUS_SONG && !DRE_BRONZE_SINGLES.includes(t)).slice(0, 3).map((t) => ({ title: t, subtitle: BB, locked: true })),
-        ...LIL_SONGS.filter((t) => !DRE_BRONZE_SINGLES.includes(t)).slice(0, 2).map((t) => ({ title: t, subtitle: LIL, locked: true })),
+        ...LIL_SONGS.filter((t) => !DRE_BRONZE_SINGLES.includes(t)).slice(0, 1).map((t) => ({ title: t, subtitle: LIL, locked: true })),
+        ...SDLY_SONGS.filter((t) => !DRE_BRONZE_SINGLES.includes(t)).slice(0, 1).map((t) => ({ title: t, subtitle: SDLY, locked: true })),
       ],
       actionLabel: 'Unlock the music',
     },
@@ -551,9 +611,10 @@ export const PRINCE_DRE: LaunchPartnerConfig = {
     tracks: CONTENT_TRACKS,
     // Each project is an album on his page, in track order. The vote projects carry their vote
     // label, so `--unlock-winner` opens the winner's Platinum songs to Gold.
-    projects: [ROTP, FPOB, OTOIME, BB, SJ, LIL, IR, OBAN].map((title) => ({
+    projects: ALL_PROJECTS.map((title) => ({
       title,
       artFile: COVER[title],
+      releaseDate: RELEASED[title],
       ...([ROTP, FPOB, OTOIME].includes(title) ? { voteLabel: title } : {}),
       trackTitles: pageTitles(title),
     })),

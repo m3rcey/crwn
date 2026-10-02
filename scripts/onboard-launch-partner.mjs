@@ -568,17 +568,28 @@ if (C.content) {
   const { data: all } = await db.from('tracks').select('id, title').eq('artist_id', artist.id);
   const idOf = (title) => (all || []).find((x) => x.title.trim().toLowerCase() === title.trim().toLowerCase())?.id;
   for (const p of C.content.projects) {
-    let { data: album } = await db.from('albums').select('id, album_art_url').eq('artist_id', artist.id).eq('title', p.title).maybeSingle();
+    let { data: album } = await db.from('albums').select('id, album_art_url, release_date').eq('artist_id', artist.id).eq('title', p.title).maybeSingle();
     if (!album) {
       const art = p.artFile ? await uploadArt({ trackTitle: p.title, artFile: p.artFile }) : null;
       // The album itself is open to browse; each TRACK carries its own gate, so the vote song
       // plays for anyone and the rest shows its lock.
-      const { data, error } = await db.from('albums').insert(albumInsertPayload({ artistId: artist.id, title: p.title, albumArtUrl: art, access: { isFree: true, allowedTierIds: [] } })).select('id, album_art_url').single();
+      const { data, error } = await db.from('albums').insert({
+        ...albumInsertPayload({ artistId: artist.id, title: p.title, albumArtUrl: art, access: { isFree: true, allowedTierIds: [] } }),
+        ...(p.releaseDate ? { release_date: p.releaseDate } : {}),
+      }).select('id, album_art_url, release_date').single();
       if (error) die(`album ${p.title}: ${error.message}`);
       album = data;
-    } else if (REFRESH_ART && p.artFile) {
-      const art = await uploadArt({ trackTitle: p.title, artFile: p.artFile });
-      await db.from('albums').update({ album_art_url: art }).eq('id', album.id);
+    } else {
+      if (REFRESH_ART && p.artFile) {
+        const art = await uploadArt({ trackTitle: p.title, artFile: p.artFile });
+        await db.from('albums').update({ album_art_url: art }).eq('id', album.id);
+      }
+      // The config owns the release date: his Music tab orders by it and names the newest.
+      if (p.releaseDate && (album.release_date || '').slice(0, 10) !== p.releaseDate) {
+        const { error } = await db.from('albums').update({ release_date: p.releaseDate }).eq('id', album.id).eq('artist_id', artist.id);
+        if (error) die(`album ${p.title} release date: ${error.message}`);
+        console.log(`album "${p.title}" release date -> ${p.releaseDate}`);
+      }
     }
     const ids = p.trackTitles.map(idOf);
     if (ids.some((x) => !x)) die(`album ${p.title}: a listed track is not uploaded`);

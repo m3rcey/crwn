@@ -83,6 +83,46 @@ describe('truth discipline', () => {
     }
   });
 
+  it('a scarcity claim is only ever made about the one tape that has never been released', () => {
+    // Eight of his ten projects can be found free somewhere, so claiming otherwise about them was
+    // the bug this guards. Stompin Thru The Trenches genuinely exists nowhere else (founder,
+    // 2026-10-02), so the claim is allowed for it and nothing else. Structural, not text-split:
+    // the claim may sit on a sibling field of the thing it describes (an item's subtitle beside
+    // its title), so each string is judged together with the object it belongs to.
+    const SCARCE = /nobody else has|cannot hear anywhere else|only here|never been released|hear it anywhere else/i;
+    const NAMES = /stompin|mixtape|tape nobody/i;
+    const offenders: string[] = [];
+    const walk = (node: unknown, context: string) => {
+      if (typeof node === 'string') {
+        if (SCARCE.test(node) && !NAMES.test(node) && !NAMES.test(context)) offenders.push(node);
+        return;
+      }
+      if (Array.isArray(node)) return node.forEach((n) => walk(n, context));
+      if (node && typeof node === 'object') {
+        // An object's own strings are the context for its children: an item's title names the
+        // project its subtitle is talking about.
+        const own = Object.values(node).filter((v) => typeof v === 'string').join(' ');
+        return Object.values(node).forEach((n) => walk(n, `${context} ${own}`));
+      }
+    };
+    walk([DRE_PLATINUM_OFFER, DRE_GOLD_OFFER, DRE_SILVER_OFFER, DRE_APPROVED_BENEFITS, DRE_TIER_PROMISES, DRE_FUNNEL_PRIMARY_ITEM], '');
+    expect(offenders).toEqual([]);
+  });
+
+  it('no song from the unreleased tape is given away free', () => {
+    const free = new Set([...DRE_BRONZE_SINGLES, ...PRINCE_DRE.vote!.options.map((o) => o.trackTitle)]);
+    const stompin = PRINCE_DRE.content!.projects.find((p) => p.title === 'Stompin Thru The Trenches')!;
+    for (const t of stompin.trackTitles) expect(free.has(t), t).toBe(false);
+    expect(PRINCE_DRE.drops!.some((d) => stompin.trackTitles.includes(d.magnetTrackTitle))).toBe(false);
+  });
+
+  it('every project carries a real release date, and the newest is the one that just landed', () => {
+    const dated = PRINCE_DRE.content!.projects.map((p) => [p.title, p.releaseDate] as const);
+    for (const [title, d] of dated) expect(d, title).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    const newest = [...dated].sort((a, b) => b[1]!.localeCompare(a[1]!))[0];
+    expect(newest[0]).toBe('Stompin Thru The Trenches');
+  });
+
   it('every song of every project is uploaded exactly once, and the counts in the copy come from it', () => {
     const titles = PRINCE_DRE.content!.tracks.map((t) => t.title);
     expect(new Set(titles).size).toBe(titles.length);
