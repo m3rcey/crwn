@@ -34,6 +34,16 @@ export function stepGapDays(currentDelay: number | null | undefined, nextDelay: 
   return next > cur ? next - cur : 1;
 }
 
+/**
+ * Some artists open on the fan's name alone ("{{first_name}}" on its own line, Prince Dre's voice).
+ * When the name is unknown that line would read "there" by itself, so it is dropped instead.
+ * "Hey {{first_name}}," is left alone: "Hey there," reads fine.
+ */
+export function withoutBareNameLine(body: string, nameUnknown: boolean): string {
+  if (!nameUnknown) return body;
+  return body.replace(/^[ \t]*\{\{first_name\}\}[ \t]*,?[ \t]*\r?\n(?:[ \t]*\r?\n)?/, '');
+}
+
 export function sequenceStillApplies(triggerType: string | null | undefined, f: FanMembershipFacts): StillAppliesDecision {
   const t = triggerType ?? '';
   if (MEMBER_TRIGGERS.has(t)) {

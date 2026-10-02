@@ -1,6 +1,21 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
-import { sequenceStillApplies, stepGapDays } from './stillApplies';
+import { sequenceStillApplies, stepGapDays, withoutBareNameLine } from './stillApplies';
+
+describe('withoutBareNameLine', () => {
+  const body = '{{first_name}}\n\nYou in now thats wassup';
+  it('drops a greeting that is only the name, when the name is unknown', () => {
+    expect(withoutBareNameLine(body, true)).toBe('You in now thats wassup');
+    expect(withoutBareNameLine('{{first_name}},\n\nHi', true)).toBe('Hi');
+  });
+  it('keeps it when the name is known, and never touches "Hey {{first_name}},"', () => {
+    expect(withoutBareNameLine(body, false)).toBe(body);
+    expect(withoutBareNameLine('Hey {{first_name}},\n\nHi', true)).toBe('Hey {{first_name}},\n\nHi');
+  });
+  it('the cron uses it', () => {
+    expect(readFileSync('src/app/api/cron/sequences/route.ts', 'utf8')).toContain("withoutBareNameLine(step.body, firstName === 'there')");
+  });
+});
 
 describe('stepGapDays: delay_days is "day N", so the wait is the gap', () => {
   it('REGRESSION: a 0/2/5/9/14 nurture sends on days 0, 2, 5, 9 and 14, not 0, 2, 7, 16, 30', () => {

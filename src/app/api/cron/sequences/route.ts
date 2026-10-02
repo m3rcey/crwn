@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { exitConvertedEnrollments } from '@/lib/sequences/goalExit';
-import { sequenceStillApplies, stepGapDays } from '@/lib/sequences/stillApplies';
+import { sequenceStillApplies, stepGapDays, withoutBareNameLine } from '@/lib/sequences/stillApplies';
 import { createClient } from '@supabase/supabase-js';
 import { resend, FROM_EMAIL } from '@/lib/resend';
 import { campaignEmail, resolveTokens } from '@/lib/emails/campaignEmail';
@@ -221,7 +221,7 @@ export async function GET(req: NextRequest) {
       }
 
       // Resolve tokens
-      const personalizedBody = resolveTokens(step.body, {
+      const personalizedBody = resolveTokens(withoutBareNameLine(step.body, firstName === 'there'), {
         first_name: firstName,
         full_name: fanName,
         tier_name: tierName,

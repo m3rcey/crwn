@@ -129,6 +129,12 @@ is closed, so "your music is up" / "your tiers are live" cannot be false when it
   message as the approval read. `checkLaunchPartner` enforces the copy rules (see the
   onboard-icp-artist skill). `DRE_NURTURE` is the worked example: days 1, 3, 6, 10, 16, 24; two
   gives, then Silver (the JB tape), Gold (the drip), the cancel answer, a last word; stops at Silver.
+- **The founder rewrote Dre's six emails into Dre's own voice** (texted, barely punctuated, the
+  fan's name alone on line one), and that voice is now the rule for copy in Dre's name (comment
+  above `DRE_NURTURE`). Every name, count and price is still read from the config, so the founder's
+  planned Gold change (a new mixtape on day one, Im Reloaded into the drip) reaches the emails only
+  when the songs are on the page. The cron drops a name-only first line when it does not know the
+  name (`withoutBareNameLine`).
 - **Fixed in the same pass: every artist sequence ran on a stretched clock.** Builders label
   `delay_days` "day N" and every stored sequence is increasing, but the cron added the whole delay
   after each send, so 0/2/5/9/14 sent on 0/2/7/16/30. `stepGapDays` now waits the gap.

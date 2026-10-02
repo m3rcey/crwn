@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { checkLaunchPartner, type LaunchPartnerConfig } from './launchPartner';
-import { PRINCE_DRE, DRE_NURTURE, DRE_TIER_PRICES_CENTS } from './princeDre';
+import { PRINCE_DRE, DRE_NURTURE, DRE_TIER_PRICES_CENTS, DRE_DRIP } from './princeDre';
 
 // The free-member follow-up (2026-10-02, docs/crwn-brain/35). Before it, every one of Dre's ~20
 // funnels gave a fan one email (the song) and then silence: the only way from free to paid was a
@@ -36,7 +36,17 @@ describe("Dre's follow-up", () => {
     for (const song of ['Round Here', 'Letter To LA', 'Hommie']) expect(text).not.toContain(song);
   });
   it('says rejoining restarts the drip, as the Gold card does', () => {
-    expect(DRE_NURTURE.steps.find((s) => /each month you stay/.test(s.body))?.body).toMatch(/come back, the count starts over/);
+    expect(DRE_NURTURE.steps.find((s) => /each month you stay/.test(s.body))?.body).toMatch(/come back the count starts over/);
+  });
+  it('names the drip from the config, in order, so it follows the catalog and never runs ahead of it', () => {
+    const gold = DRE_NURTURE.steps.find((s) => /each month you stay/.test(s.body))!.body;
+    const at = DRE_DRIP.map((d) => gold.indexOf(d.title));
+    expect(at.every((i) => i > -1)).toBe(true);
+    expect([...at].sort((a, b) => a - b)).toEqual(at);
+    expect(gold).not.toMatch(/Stompin/);
+  });
+  it("is in Dre's voice: the name alone on the first line, no Hey", () => {
+    for (const s of DRE_NURTURE.steps) expect(s.body.startsWith('{{first_name}}\n\n')).toBe(true);
   });
 });
 

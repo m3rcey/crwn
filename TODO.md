@@ -85,17 +85,6 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
-- [ ] **Read Prince Dre's free-member follow-up, then switch it on.** Every fan who joins him free
-      (drops, posters, share pages) gets the song and then nothing; this is six emails in his voice
-      over 24 days, stopping the moment they pay for any tier. Once this item is on master, in a
-      WSL terminal from ~/workspace-crwn, read the dry run (it prints all six messages):
-          npx tsx scripts/onboard-launch-partner.mjs princedre
-      If the words are right, switch it on (every other step re-runs as a no-op):
-          npx tsx scripts/onboard-launch-partner.mjs princedre --apply
-      To change a word, edit DRE_NURTURE in
-      [src/lib/offerExperience/reference/princeDre.ts](src/lib/offerExperience/reference/princeDre.ts)
-      and run it again. Dre can also see and edit it in his Fan CRM, Sequences tab.
-
 - [ ] **Approve Prince Dre's VSL storyboard, then fill the four blanks.** Open
       [docs/vsl/prince-dre/storyboard-wireframes.png](docs/vsl/prince-dre/storyboard-wireframes.png)
       and [docs/vsl/prince-dre/STORYBOARD.md](docs/vsl/prince-dre/STORYBOARD.md); edit any frame,
@@ -1190,6 +1179,14 @@ Things that are never finished. Cadence, then the thing.
 ---
 
 ## On Claude's plate (not yours)
+
+- **When Dre's two new projects are uploaded (Stompin Thru The Trenches + one more), rebuild Gold
+  the way the founder's email draft describes it.** Gold day one becomes Stompin + Shotta In Da
+  Jungle; Im Reloaded moves to the front of the drip (Im Reloaded, Only The O, Fresh Prince, Return
+  Of The Prince). Change `DRE_GOLD_DAY_ONE`, `DRE_DRIP`, the Gold card line and offer copy in
+  princeDre.ts; his free-member emails follow on their own. Moving Im Reloaded behind a delay takes
+  it away from anyone already in Gold, which the script refuses by design: do it only while Gold
+  has zero members, and check that first.
 
 - **Check Prince Dre's tier-room teasers on his first room post.** His four rooms exist
       (2026-10-02) but he has no community posts yet, so the locked view has never rendered
