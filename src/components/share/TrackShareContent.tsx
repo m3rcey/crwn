@@ -11,6 +11,7 @@ import { usePlayer } from '@/hooks/usePlayer';
 import { useToast } from '@/components/shared/Toast';
 import { ShareButtons } from '@/components/shared/ShareButtons';
 import { ShareEarnWrapper } from '@/components/shared/ShareEarnWrapper';
+import { getPersistedReferralCode, getPersistedAttributionSource } from '@/components/shared/ReferralPersist';
 import { ReleaseCredits } from '@/components/share/ReleaseCredits';
 import { Play, Lock, ArrowLeft, Check, Loader2, ShoppingBag } from 'lucide-react';
 import { BackgroundImage } from '@/components/ui/BackgroundImage';
@@ -166,6 +167,9 @@ export function TrackShareContent({ track, artist, tiers }: TrackShareContentPro
         }
       } else {
         // Paid tier — Stripe checkout with return to this page
+        // This page is what TrackShareButton links to with ?ref=, so the sharer's code rides
+        // along exactly as it does from the artist page's tier cards.
+        const q = new URLSearchParams(window.location.search);
         const res = await fetch('/api/stripe/checkout', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -174,6 +178,8 @@ export function TrackShareContent({ track, artist, tiers }: TrackShareContentPro
             artistSlug: artist.slug,
             returnUrl: `/${artist.slug}/track/${track.id}`,
             interval: 'month',
+            referralCode: getPersistedReferralCode(q.get('ref') || ''),
+            attributionSource: getPersistedAttributionSource(q.get('src') || ''),
           }),
         });
         const data = await res.json();
