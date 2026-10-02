@@ -672,6 +672,9 @@ export class PlaybackEngine {
       this.set({ isPlaying: true, isBuffering: false });
       const gen = this.gen;
       this.mark(gen, 'playing');
+      // The audio session exists now, so this is when iOS can actually receive the track
+      // buttons (see bindMediaSession).
+      this.bindMediaSession();
       const from = m.currentTime;
       if (this.env.watchAdvance && this.activeTrace?.trace.gen === gen && this.activeTrace.trace.marks.audible === undefined) {
         this.env.watchAdvance(m, from, () => this.mark(gen, 'audible'));
@@ -950,6 +953,16 @@ export class PlaybackEngine {
   // Media Session: lock screen / headset / OS controls. An enhancement, never the mechanism.
   // ---------------------------------------------------------------------------------------
 
+  /**
+   * Registered at construction AND again every time audio starts ('playing').
+   *
+   * WebKit only tells iOS which buttons to show if its remote-command listener already
+   * exists when setActionHandler runs (NowPlayingManager::addSupportedCommand is a no-op
+   * otherwise), and that listener is created only once a media session exists. A listener
+   * that never received a command falls back to its DEFAULT set, which is +/-10s skip and no
+   * track buttons. Registering once at page load, before any audio, is exactly how iOS ended
+   * up showing +/-10s on the lock screen (2026-10-02). Re-registering is idempotent.
+   */
   private bindMediaSession() {
     const ms = this.env.mediaSession;
     if (!ms) return;

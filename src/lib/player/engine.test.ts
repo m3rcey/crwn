@@ -98,7 +98,7 @@ interface Harness {
   blobs: { url: string; resolve: (v: string | null) => void; signal: AbortSignal }[];
   events: EngineEvent[];
   store: { value: string | null };
-  session: { handlers: Map<string, (d: { seekTime?: number }) => void>; metadata: unknown; playbackState: string };
+  session: { handlers: Map<string, (d: { seekTime?: number }) => void>; registrations: string[]; metadata: unknown; playbackState: string };
   created: number;
 }
 
@@ -109,9 +109,10 @@ function harness(opts: { store?: { value: string | null }; autoBlob?: boolean } 
   const store = opts.store ?? { value: null };
   const session = {
     handlers: new Map<string, (d: { seekTime?: number }) => void>(),
+    registrations: [] as string[],
     metadata: null as unknown,
     playbackState: 'none',
-    setActionHandler(a: string, h: ((d: { seekTime?: number }) => void) | null) { if (h) this.handlers.set(a, h); },
+    setActionHandler(a: string, h: ((d: { seekTime?: number }) => void) | null) { if (h) { this.handlers.set(a, h); this.registrations.push(a); } },
   };
   const h = { created: 0 } as Harness;
   const env: EngineEnv = {
@@ -566,6 +567,20 @@ describe('one element, one owner', () => {
 });
 
 describe('Media Session', () => {
+  it('re-registers the track buttons once audio is playing (WebKit drops them before that)', () => {
+    const h = harness();
+    const atLoad = h.session.registrations.filter((a) => a === 'nexttrack').length;
+    expect(atLoad).toBe(1);
+    const list = [track('a', { presigned: true }), track('b', { presigned: true })];
+    h.engine.play(list[0], list);
+    expect(h.session.registrations.filter((a) => a === 'nexttrack').length).toBe(1); // not yet playing
+    h.media.start();
+    expect(h.session.registrations.filter((a) => a === 'nexttrack').length).toBe(2);
+    expect(h.session.registrations.filter((a) => a === 'previoustrack').length).toBe(2);
+    expect(h.session.registrations).not.toContain('seekforward');
+    expect(h.session.registrations).not.toContain('seekbackward');
+  });
+
   it('lock-screen actions drive the engine and metadata follows the track', () => {
     const h = harness();
     const list = [track('a', { presigned: true }), track('b', { presigned: true })];

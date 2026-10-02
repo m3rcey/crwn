@@ -35,6 +35,11 @@
   unrecorded. Same formula, same do-not-track rule.
 - Latent: `MiniPlayer` and `FullScreenPlayer` called hooks after an early return. Probed on
   production: no crash today. Fixed anyway.
+- **Lock screen showed +/-10s, not next/previous (same day, Josh's iPhone).** WebKit drops a
+  Media Session command registered before its remote-command listener exists and then shows its
+  default set (+/-10s skip). Handlers were registered at page load, before any audio. They are now
+  re-registered on every `playing`. Which app the Now Playing tile opens is decided by iOS; the
+  web has no API for it.
 
 ## 2026-10-02 - Lifecycle emails follow the reader's current situation
 

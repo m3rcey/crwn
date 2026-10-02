@@ -52,6 +52,12 @@ These are platform rules, measured or documented, not bugs to chase:
   Protection). The song resumes where it was; on an iPhone it may come back paused at that spot and
   wait for one tap on play, because Safari does not let a freshly loaded page start sound by itself.
 - **Lock-screen buttons.** CRWN shows previous/next track, not 10-second skips, on purpose: iOS
-  shows one or the other, and a music queue needs the track buttons.
+  shows one or the other, and a music queue needs the track buttons. If you see +/-10 instead,
+  close CRWN fully and reopen it: a copy of the app opened before the 2026-10-02 fix registers
+  the buttons too early, and iOS falls back to its default (+/-10).
+- **Tapping the Now Playing tile.** Which app that opens is decided by iOS, not the web page:
+  the Media Session API has no way to name it. Home-screen web apps share one Apple container,
+  so iOS can open a different home-screen web app. Tell Claude which app opened; if it is
+  another home-screen web app, that is a WebKit bug to report, not something CRWN can set.
 
 If a row fails outside those, tell Claude the row number, the phone, and the iOS/Android version.

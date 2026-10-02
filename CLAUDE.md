@@ -279,6 +279,11 @@ the browser asked for any audio. Rules that keep it fixed:
   prevent that but is Pro-only, and CRWN is on Hobby. The engine saves its session to
   `sessionStorage` and resumes at the same position (paused there when a browser demands a tap).
   `reset()` (sign-out, or a different account in the tab) clears it.
+- **Media Session handlers are re-registered on every `playing`, and never include
+  `seekbackward`/`seekforward`.** WebKit forwards a handler to iOS only if its remote-command
+  listener already exists (created with the first audio session); before that the command is
+  dropped and iOS shows its DEFAULT buttons, +/-10s with no next/previous. Registering only at
+  page load is what put +/-10s on Josh's lock screen. And any seek pair replaces the track pair.
 - **`audio_url_128` is the STREAM COPY, `audio_url_320` is the master.** Uploads land raw in
   both columns; [scripts/transcode-audio.mjs](scripts/transcode-audio.mjs) (`npm run
   transcode:audio -- --apply`, read-only without the flag) gives every wav/aiff/flac stream file
