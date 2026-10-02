@@ -85,6 +85,14 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **Approve Prince Dre's VSL storyboard, then fill the four blanks.** Open
+      [docs/vsl/prince-dre/storyboard-wireframes.png](docs/vsl/prince-dre/storyboard-wireframes.png)
+      and [docs/vsl/prince-dre/STORYBOARD.md](docs/vsl/prince-dre/STORYBOARD.md); edit any frame,
+      line or plate. Then fill the top of
+      [docs/vsl/prince-dre/PROMPT.md](docs/vsl/prince-dre/PROMPT.md): fal budget cap, who edits in
+      Premiere, Dre's written OK to an AI-relocated version of himself, and the final narration.
+      Nothing is generated until you approve; then 5 test stills, one per plate.
+
 - [ ] **Get Prince Dre's written OK that he can sell all eight projects now on his page, and
       confirm the unlock dates.** His whole catalog is live behind his tiers since 2026-09-30 (94 songs).
       Web research turned up other names on some of it; ask his team about each one:
