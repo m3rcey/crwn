@@ -19,9 +19,11 @@ describe('decidePendingApply', () => {
     expect(d).toEqual({ apply: true, source: 'campaign_prize', enrollUpgradeNurture: false });
   });
 
-  it('a scheduled DOWNGRADE is recorded as one and still enrols the upgrade nurture', () => {
+  // This case used to assert `enrollUpgradeNurture: true`, which pinned the bug: a fan who
+  // stepped DOWN to Silver received the seeded "You just upgraded" sequence (2026-10-02).
+  it('a scheduled DOWNGRADE is recorded as one and NEVER enrols the upgrade nurture', () => {
     const d = decidePendingApply({ liveStripePriceId: 'price_silver', pendingTierStripePriceId: 'price_silver', isPrize: false });
-    expect(d).toEqual({ apply: true, source: 'scheduled_downgrade', enrollUpgradeNurture: true });
+    expect(d).toEqual({ apply: true, source: 'scheduled_downgrade', enrollUpgradeNurture: false });
   });
 
   it('a prize is never recorded as a downgrade and never sells the winner an upgrade', () => {

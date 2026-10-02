@@ -1,24 +1,95 @@
 'use client';
 
-import { useState } from 'react';
-import { Loader2, AlertTriangle, Pause } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Loader2, AlertTriangle, Pause, ArrowDown } from 'lucide-react';
 import { FAN_CANCEL_REASONS, PLATFORM_CANCEL_REASONS } from '@/lib/cancellationReasons';
+import { createBrowserSupabaseClient } from '@/lib/supabase/client';
+import { stepDownOffer, type StepDownOffer } from '@/lib/subscriptions/stepDown';
 
 interface CancelModalProps {
   context: 'fan' | 'platform';
   subscriptionId: string;
   itemName: string; // artist name or "CRWN Pro" etc.
+  /** Fan context: the artist and the tier the fan is on, so a cheaper tier can be offered first. */
+  artistId?: string;
+  currentTierId?: string | null;
   onClose: () => void;
   onCanceled: () => void;
 }
 
-export default function CancelModal({ context, subscriptionId, itemName, onClose, onCanceled }: CancelModalProps) {
+const dollars = (cents: number) => `$${(cents / 100).toFixed(cents % 100 === 0 ? 0 : 2)}`;
+
+export default function CancelModal({ context, subscriptionId, itemName, artistId, currentTierId, onClose, onCanceled }: CancelModalProps) {
   const reasons = context === 'fan' ? FAN_CANCEL_REASONS : PLATFORM_CANCEL_REASONS;
   const [selected, setSelected] = useState<string[]>([]);
   const [freeform, setFreeform] = useState('');
   const [loading, setLoading] = useState(false);
   const [pauseLoading, setPauseLoading] = useState(false);
   const [error, setError] = useState('');
+  // Founder decision 2026-10-02: a fan who cancels is offered the next cheaper paid tier first
+  // (stepDown.ts). The change is scheduled in Stripe at the paid boundary, so they keep what
+  // they already paid for and are billed the lower price from then on.
+  const [offer, setOffer] = useState<StepDownOffer | null>(null);
+  const [stepLoading, setStepLoading] = useState(false);
+  const [steppedTo, setSteppedTo] = useState<{ name: string; date: string } | null>(null);
+
+  useEffect(() => {
+    if (context !== 'fan' || !artistId || !currentTierId) return;
+    let live = true;
+    createBrowserSupabaseClient()
+      .from('subscription_tiers')
+      .select('id, name, price, stripe_price_id, is_active')
+      .eq('artist_id', artistId)
+      .eq('is_active', true)
+      .then(({ data }) => {
+        if (live) setOffer(stepDownOffer(data ?? [], currentTierId));
+      });
+    return () => {
+      live = false;
+    };
+  }, [context, artistId, currentTierId]);
+
+  const handleStepDown = async () => {
+    if (!offer || !artistId) return;
+    setStepLoading(true);
+    setError('');
+    try {
+      const res = await fetch('/api/stripe/subscription-update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ newTierId: offer.tierId, artistId }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || 'Could not switch tiers');
+      const date = data.effectiveDate
+        ? new Date(data.effectiveDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric' })
+        : 'your next billing date';
+      setSteppedTo({ name: offer.name, date });
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Something went wrong');
+    } finally {
+      setStepLoading(false);
+    }
+  };
+
+  if (steppedTo) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70">
+        <div className="bg-[#1A1A1A] rounded-2xl border border-[#2a2a2a] w-full max-w-md p-6">
+          <h2 className="text-lg font-semibold text-white mb-2">You&apos;re staying with {itemName}</h2>
+          <p className="text-sm text-[#ccc] mb-6">
+            You keep your current tier until {steppedTo.date}. After that you&apos;re on {steppedTo.name} and pay the lower price. Nothing else changes.
+          </p>
+          <button
+            onClick={onClose}
+            className="w-full py-2.5 bg-[#D4AF37] text-black font-semibold rounded-full text-sm hover:brightness-110 transition-all"
+          >
+            Done
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const toggleReason = (key: string) => {
     setSelected(prev =>
@@ -78,6 +149,35 @@ export default function CancelModal({ context, subscriptionId, itemName, onClose
           <p className="text-sm text-[#ccc] mb-4">
             We&apos;re sorry to see you go. Your feedback helps us improve, so please let us know why you&apos;re canceling.
           </p>
+
+          {/* Step-down offer: the next cheaper paid tier, before the pause and the cancel. */}
+          {context === 'fan' && offer && (
+            <div className="bg-[#D4AF37]/10 border border-[#D4AF37]/30 rounded-xl p-4 mb-4">
+              <div className="flex items-center gap-3 mb-2">
+                <ArrowDown className="w-5 h-5 text-[#D4AF37]" />
+                <p className="text-sm font-medium text-white">
+                  Stay on {offer.name} for {dollars(offer.priceCents)}/mo instead?
+                </p>
+              </div>
+              <p className="text-xs text-[#ccc] mb-3">
+                You keep your current tier until your billing date, then switch to {offer.name} and pay less. You stay a member of {itemName}.
+              </p>
+              <button
+                onClick={handleStepDown}
+                disabled={stepLoading}
+                className="w-full py-2 bg-[#D4AF37] text-black font-semibold rounded-full text-sm hover:brightness-110 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {stepLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Switching...
+                  </>
+                ) : (
+                  `Switch to ${offer.name}`
+                )}
+              </button>
+            </div>
+          )}
 
           {/* Reasons */}
           <div className="space-y-2 mb-4">

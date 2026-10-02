@@ -244,7 +244,7 @@ function TierSongs({ songs, queue }: { songs: Track[]; queue: Track[] }) {
 // tagged url and the attribution the checkout call reads is still on it. Sending them to a
 // bare /login dropped the artist AND the campaign: the deep link worked right up to the
 // moment the fan acted on it.
-function loginWithReturn(): string {
+export function loginWithReturn(): string {
   if (typeof window === 'undefined') return '/login';
   const here = safeInternalPath(`${window.location.pathname}${window.location.search}`);
   return here ? `/login?next=${encodeURIComponent(here)}` : '/login';

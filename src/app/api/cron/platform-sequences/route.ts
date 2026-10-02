@@ -5,6 +5,9 @@ import { renderPlatformSequenceEmail } from '@/lib/emails/platformSequenceEmail'
 import { isEmailSuppressed } from '@/lib/leadMagnets/server';
 import { appendUnsubscribeToken, emailRecipient, CRWN_PLATFORM } from '@/lib/emails/unsubscribeToken';
 import { artForTrigger } from '@/lib/emails/platformSequenceArt';
+import { proBreakEvenGmvCents } from '@/lib/planRecommendation';
+import { decideLifecycleSend, lifecyclePriority } from '@/lib/lifecycle/artistEmailGate';
+import { loadArtistEmailFacts } from '@/lib/lifecycle/artistEmailFacts';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -36,10 +39,29 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ processed: 0 });
   }
 
+  // Trigger per sequence, read once, so the run can be ordered by what matters most.
+  const { data: allSequences } = await supabaseAdmin
+    .from('platform_sequences')
+    .select('id, trigger_type');
+  const triggerBySequence = new Map<string, string>(
+    (allSequences || []).map((s: { id: string; trigger_type: string }) => [s.id, s.trigger_type]),
+  );
+  dueEnrollments.sort(
+    (a, b) =>
+      lifecyclePriority(triggerBySequence.get(a.sequence_id) ?? '') -
+      lifecyclePriority(triggerBySequence.get(b.sequence_id) ?? ''),
+  );
+
   let sentCount = 0;
   let errorCount = 0;
+  let gatedCount = 0;
+  // ONE lifecycle email per artist per run. A second due enrollment is left exactly as it is
+  // (same step, same next_send_at), so the next run picks it up if it still applies then.
+  const emailedThisRun = new Set<string>();
+  const proBreakEven = proBreakEvenGmvCents();
 
   for (const enrollment of dueEnrollments) {
+    if (emailedThisRun.has(enrollment.artist_user_id)) continue;
     try {
       const nextStepNumber = enrollment.current_step + 1;
       const { data: step } = await supabaseAdmin
@@ -70,6 +92,28 @@ export async function GET(req: NextRequest) {
           .update({ status: 'canceled' })
           .eq('id', enrollment.id);
         continue;
+      }
+
+      // RE-DECIDE AT SEND TIME (artistEmailGate.ts). Enrollment happened days ago; the artist may
+      // have closed the gap since, or a different gap may be the real blocker now. Every step is
+      // checked against current canonical facts, so a queued email can no longer describe a
+      // situation the artist is not in. Facts that cannot be read are NOT KNOWN, and the gate
+      // never sells a plan on not-known.
+      const gateSubject = await loadArtistEmailFacts(supabaseAdmin, enrollment.artist_user_id);
+      if (gateSubject) {
+        const decision = decideLifecycleSend(sequence.trigger_type, gateSubject.facts, proBreakEven);
+        if (decision.action !== 'send') {
+          await supabaseAdmin
+            .from('platform_sequence_enrollments')
+            .update(
+              decision.action === 'complete'
+                ? { status: 'completed', completed_at: now, next_send_at: null }
+                : { status: 'canceled', next_send_at: null },
+            )
+            .eq('id', enrollment.id);
+          gatedCount++;
+          continue;
+        }
       }
 
       // Get artist data
@@ -209,6 +253,7 @@ export async function GET(req: NextRequest) {
         }
 
         sentCount++;
+        emailedThisRun.add(enrollment.artist_user_id);
       }
 
       // Schedule next step or complete
@@ -237,5 +282,5 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  return NextResponse.json({ processed: dueEnrollments.length, sent: sentCount, errors: errorCount });
+  return NextResponse.json({ processed: dueEnrollments.length, sent: sentCount, gated: gatedCount, errors: errorCount });
 }

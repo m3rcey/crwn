@@ -41,8 +41,8 @@ export function liveShowAccessEmail(params: {
       </p>
       <p style="color:#A0A0A0;font-size:17px;line-height:1.6;margin:0 0 24px;">
         ${online
-          ? `You are now part of ${artistName}'s free fan community, so you will hear the result and every new drop. Anything your free membership unlocks plays in your account.`
-          : `You are now part of ${artistName}'s free fan community, so you will hear the result and news about upcoming shows.`}
+          ? `You are now part of ${artistName}'s free fan community, so ${artistName} can reach you directly with what fans picked and with every new drop. Anything your free membership unlocks plays in your account.`
+          : `You are now part of ${artistName}'s free fan community, so ${artistName} can reach you directly with what fans picked and with news about upcoming shows.`}
       </p>
       ${signInUrl ? `
       <div style="border-top:1px solid #333;padding-top:24px;">

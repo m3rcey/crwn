@@ -9,32 +9,72 @@ import { TierConfig } from '@/types';
 import Image from 'next/image';
 import { Loader2, X, Image as ImageIcon, Video, Lock } from 'lucide-react';
 import { TierAccessSelect } from '@/components/shared/TierAccessSelect';
+import { OptionSelect } from '@/components/ui/OptionSelect';
 import { readBenefitPointer } from '@/lib/benefitRegistry';
 import { expandFromTier } from '@/lib/tierLadder';
+import type { RoomChannel } from '@/lib/community/rooms';
 
 interface PostComposerProps {
   artistId: string;
   isArtist: boolean;
   tiers: TierConfig[];
+  /** The artist's tier rooms. Empty until the tier-rooms migration is applied. */
+  rooms?: RoomChannel[];
+  /** The room the feed is showing, so a post lands where the artist is looking. */
+  defaultRoomId?: string | null;
   onPostCreated?: () => void;
 }
 
-export function PostComposer({ artistId, isArtist, tiers, onPostCreated }: PostComposerProps) {
+/**
+ * The public teaser for a gated photo: a copy at most 32px on its longest side. At that size
+ * there is no detail left to recover, which is the point. The card blurs it again for looks.
+ */
+async function blurredPreview(file: File): Promise<Blob | null> {
+  const url = URL.createObjectURL(file);
+  try {
+    const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+      const el = new window.Image();
+      el.onload = () => resolve(el);
+      el.onerror = reject;
+      el.src = url;
+    });
+    const scale = 32 / Math.max(img.naturalWidth || 1, img.naturalHeight || 1);
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.max(1, Math.round(img.naturalWidth * scale));
+    canvas.height = Math.max(1, Math.round(img.naturalHeight * scale));
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return null;
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    return await new Promise<Blob | null>((resolve) => canvas.toBlob((b) => resolve(b), 'image/jpeg', 0.7));
+  } catch {
+    return null;
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
+
+export function PostComposer({ artistId, isArtist, tiers, rooms = [], defaultRoomId = null, onPostCreated }: PostComposerProps) {
   const { user, profile } = useAuth();
   const supabase = createBrowserSupabaseClient();
   const { tierId } = useSubscription(artistId);
-  
+
   const [content, setContent] = useState('');
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
   const [mediaPreviews, setMediaPreviews] = useState<string[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   // Fast action from the Promise to Delivery panel (?benefit=exclusive_posts&tier=<id>): the
-  // post starts gated to "this rung and above". The id is matched against the tiers this page
-  // loaded for the artist, and only the artist sees the visibility control at all.
+  // post starts in that rung's room, or, before rooms exist, gated to "this rung and above".
+  // The id is matched against the tiers and rooms this page loaded for the artist, and only
+  // the artist sees the visibility control at all.
   const pointer = typeof window !== 'undefined' && isArtist ? readBenefitPointer(window.location.search) : null;
   const pointerRung = pointer?.benefit === 'exclusive_posts' && tiers.some((t) => t.id === pointer.tierId) ? expandFromTier(tiers, pointer.tierId) : [];
+  const pointerRoom = pointerRung.length ? rooms.find((r) => r.tier_id === pointer?.tierId)?.id ?? null : null;
   const [isFree, setIsFree] = useState(pointerRung.length === 0);
   const [selectedTiers, setSelectedTiers] = useState<string[]>(pointerRung);
+  // '' is a public post (the wall, unchanged). A room id files the post in that room.
+  const [roomChoice, setRoomChoice] = useState<string | null>(null);
+  const roomId = isArtist ? (roomChoice ?? pointerRoom ?? defaultRoomId ?? '') : '';
+  const room = rooms.find((r) => r.id === roomId) ?? null;
   const [error, setError] = useState<string | null>(null);
   
   // Feature 1: Upload Progress
@@ -216,6 +256,44 @@ export function PostComposer({ artistId, isArtist, tiers, onPostCreated }: PostC
     });
   };
 
+  // A room post's media go to the PRIVATE bucket. The server names the key; the browser
+  // PUTs the bytes straight to R2 with progress, and the post stores the key, never a link.
+  const uploadPrivateWithProgress = async (file: File, index: number): Promise<string> => {
+    const res = await fetch('/api/community/media-upload', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ artistId, filename: file.name, contentType: file.type }),
+    });
+    const data = await res.json();
+    if (!res.ok || !data.uploadUrl || !data.key) throw new Error(data.error || 'Upload failed');
+    await new Promise<void>((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.upload.addEventListener('progress', (e) => {
+        if (!e.lengthComputable) return;
+        const percent = Math.round((e.loaded / e.total) * 100);
+        setUploadProgress((prev) => { const next = [...prev]; next[index] = percent; return next; });
+      });
+      xhr.addEventListener('load', () => (xhr.status >= 200 && xhr.status < 300 ? resolve() : reject(new Error(`Upload failed: ${xhr.status}`))));
+      xhr.addEventListener('error', () => reject(new Error('Upload failed')));
+      xhr.open('PUT', data.uploadUrl);
+      xhr.setRequestHeader('Content-Type', file.type);
+      xhr.send(file);
+    });
+    return data.key as string;
+  };
+
+  // The public teaser for one gated photo, in the public bucket on purpose.
+  const uploadPreview = async (file: File): Promise<string | null> => {
+    const blob = await blurredPreview(file);
+    if (!blob) return null;
+    const path = `${artistId}/preview-${Date.now()}-${Math.random().toString(36).slice(2)}.jpg`;
+    const { error: previewError } = await supabase.storage
+      .from('community-media')
+      .upload(path, blob, { contentType: 'image/jpeg' });
+    if (previewError) return null;
+    return supabase.storage.from('community-media').getPublicUrl(path).data.publicUrl;
+  };
+
   const handleSubmit = async () => {
     if (!user || !content.trim()) return;
 
@@ -226,6 +304,7 @@ export function PostComposer({ artistId, isArtist, tiers, onPostCreated }: PostC
       // Upload media files with progress tracking
       const uploadedUrls: string[] = [];
       const uploadedTypes: string[] = [];
+      const uploadedPreviews: (string | null)[] = [];
 
       // Initialize progress tracking
       setUploadProgress(new Array(mediaFiles.length).fill(0));
@@ -239,13 +318,16 @@ export function PostComposer({ artistId, isArtist, tiers, onPostCreated }: PostC
           setError(check.error || 'Invalid file');
           continue;
         }
-        const ext = file.name.split('.').pop();
-        const fileName = `${Date.now()}-${Math.random()}.${ext}`;
-        const path = `${artistId}/${fileName}`;
-        
-        const publicUrl = await uploadFileWithProgress(file, path, i);
-        uploadedUrls.push(publicUrl);
-        uploadedTypes.push(file.type.startsWith('video') ? 'video' : 'image');
+        if (room) {
+          uploadedUrls.push(await uploadPrivateWithProgress(file, i));
+          uploadedPreviews.push(cat === 'image' ? await uploadPreview(file) : null);
+        } else {
+          const ext = file.name.split('.').pop();
+          const fileName = `${Date.now()}-${Math.random()}.${ext}`;
+          const path = `${artistId}/${fileName}`;
+          uploadedUrls.push(await uploadFileWithProgress(file, path, i));
+        }
+        uploadedTypes.push(cat);
       }
 
       // Feature 2: Upload thumbnail if exists
@@ -266,7 +348,9 @@ export function PostComposer({ artistId, isArtist, tiers, onPostCreated }: PostC
       setCurrentUploadIndex(-1);
       setUploadProgress([]);
 
-      // Create post
+      // Create post. A room post carries the room AND a locked copy of the room's list: if
+      // the room is ever deleted, channel_id goes NULL and the post falls back to its own
+      // fields, so it stays locked to the same people instead of going public.
       const { error: insertError } = await supabase
         .from('community_posts')
         .insert({
@@ -277,8 +361,21 @@ export function PostComposer({ artistId, isArtist, tiers, onPostCreated }: PostC
           media_types: uploadedTypes,
           thumbnail_url: thumbnailUrl,
           is_artist_post: isArtist,
-          is_free: isFree,
-          allowed_tier_ids: isFree ? [] : selectedTiers,
+          ...(room
+            ? {
+                channel_id: room.id,
+                is_free: false,
+                allowed_tier_ids: room.allowed_tier_ids || [],
+                media_previews: uploadedPreviews,
+              }
+            : rooms.length > 0
+              // Rooms exist and "Everyone" was picked: a public post, whatever the old
+              // tier control last held (it is not on screen to see).
+              ? { is_free: true, allowed_tier_ids: [] }
+              : {
+                  is_free: isFree,
+                  allowed_tier_ids: isFree ? [] : selectedTiers,
+                }),
         });
 
       if (insertError) throw insertError;
@@ -347,7 +444,7 @@ export function PostComposer({ artistId, isArtist, tiers, onPostCreated }: PostC
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            placeholder={isArtist ? "Share something with your fans..." : "Write something to this artist..."}
+            placeholder={room ? `Share something with your ${room.name} members...` : isArtist ? "Share something with your fans..." : "Write something to this artist..."}
             className="neu-inset w-full px-4 py-3 text-crwn-text placeholder-crwn-text-secondary resize-none focus:outline-none"
             rows={3}
             maxLength={2000}
@@ -455,22 +552,43 @@ export function PostComposer({ artistId, isArtist, tiers, onPostCreated }: PostC
             <div className="mt-3 p-3 neu-inset">
               <div className="flex items-center gap-2 mb-2">
                 <Lock className="w-4 h-4 text-crwn-text-secondary" />
-                <span className="text-sm text-crwn-text-secondary">Post visibility</span>
+                <span className="text-sm text-crwn-text-secondary">{rooms.length ? 'Post to' : 'Post visibility'}</span>
               </div>
-              
-              {/* Cumulative by construction. The checkbox column this replaces let an
-                  artist tick Silver alone, which silently locked out the Gold and Platinum
-                  members who pay MORE. Picking a rung here saves that rung and everyone
-                  above it. */}
-              <TierAccessSelect
-                tiers={tiers}
-                isFree={isFree}
-                allowedTierIds={selectedTiers}
-                onChange={({ isFree: nextFree, allowedTierIds }) => {
-                  setIsFree(nextFree);
-                  setSelectedTiers(allowedTierIds);
-                }}
-              />
+
+              {rooms.length > 0 && (
+                <OptionSelect
+                  options={[
+                    { value: '', label: 'Everyone', hint: 'A public post anyone can see' },
+                    ...rooms.map((r) => ({ value: r.id, label: `${r.name} room`, hint: `${r.name} members and up get the full post` })),
+                  ]}
+                  value={roomId}
+                  onChange={(v) => setRoomChoice(v)}
+                />
+              )}
+
+              {room ? (
+                // What the rope will show, said BEFORE the artist posts, so nothing private
+                // goes in a caption by accident.
+                <p className="text-xs text-crwn-text-secondary mt-2">
+                  {mediaFiles.length > 0
+                    ? `Non-members see your caption and ${mediaFiles.some((f) => f.type.startsWith('video')) ? 'the video cover' : 'a blurred photo'}, then a lock. Keep anything private out of the caption.`
+                    : `Non-members only see that you posted in ${room.name}. The words stay inside the room.`}
+                </p>
+              ) : rooms.length === 0 ? (
+                // Cumulative by construction. The checkbox column this replaces let an
+                // artist tick Silver alone, which silently locked out the Gold and Platinum
+                // members who pay MORE. Picking a rung here saves that rung and everyone
+                // above it.
+                <TierAccessSelect
+                  tiers={tiers}
+                  isFree={isFree}
+                  allowedTierIds={selectedTiers}
+                  onChange={({ isFree: nextFree, allowedTierIds }) => {
+                    setIsFree(nextFree);
+                    setSelectedTiers(allowedTierIds);
+                  }}
+                />
+              ) : null}
             </div>
           )}
 

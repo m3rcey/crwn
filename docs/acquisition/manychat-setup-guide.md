@@ -64,6 +64,13 @@ Meta only forwards **direct messages** to ManyChat. A comment reaches ManyChat o
 **DM the connected account from a different Instagram account.** The contact appears instantly,
 with no automation live.
 
+### Trap 8: instagram.com does not show buttons in automated DMs. Test on a phone.
+
+Confirmed 2026-10-01 on Prince Dre's account. The flow's opening DM arrived on instagram.com with
+its text intact and NO button, even after a refresh, so the run looked like a broken flow. The
+same DM in the Instagram phone app showed the button and it worked. Any test that has to press a
+button (Astra's included) must happen in the phone app; the website only proves the text arrived.
+
 ### Trap 7 — a lapsed plan switches every automation OFF, and renewing does not switch them back on
 
 Confirmed 2026-09-08, after a 13-day outage. A lapsed ManyChat Pro plan does not merely degrade

@@ -32,6 +32,15 @@ fi
 LOG=/tmp/crwn-build-gate-$(basename "$REPO").log      # one log per checkout: sessions build in parallel
 if npm run build >"$LOG" 2>&1; then
   echo "$HASH" > "$CACHE"
+  # 4. Bound the Turbopack build cache. Next 16.3 keeps it by default and it only grows (about
+  #    285 MB after one build, more with every build after). It makes this gate 3-5x faster
+  #    (85 s cold, 15-30 s warm, measured 2026-10-02), so it is capped, not disabled. Every
+  #    checkout runs this gate, so uncapped it cost about 400 MB to 1 GB per worktree.
+  #    `crwn clean` deletes .next outright once a worktree is idle.
+  TP="$REPO/.next/cache/turbopack"
+  if [[ -d "$TP" ]] && (( $(du -sm "$TP" 2>/dev/null | cut -f1) > ${CRWN_BUILD_CACHE_CAP_MB:-768} )); then
+    rm -rf "$TP"
+  fi
   exit 0
 fi
 

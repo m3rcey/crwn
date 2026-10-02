@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { exitConvertedEnrollments } from '@/lib/sequences/goalExit';
+import { sequenceStillApplies } from '@/lib/sequences/stillApplies';
 import { createClient } from '@supabase/supabase-js';
 import { resend, FROM_EMAIL } from '@/lib/resend';
 import { campaignEmail, resolveTokens } from '@/lib/emails/campaignEmail';
@@ -92,6 +93,34 @@ export async function GET(req: NextRequest) {
           .update({ status: 'canceled' })
           .eq('id', enrollment.id);
         continue;
+      }
+
+      // Does this sequence still describe the fan (stillApplies.ts)? A free member who left, a
+      // cart that was paid on another session, a churned fan who came back: each used to keep
+      // getting the email written for the old situation. A failed read is NOT KNOWN and sends,
+      // exactly as before this check existed.
+      {
+        const [{ data: trig }, { data: memberRow, error: memberErr }] = await Promise.all([
+          supabaseAdmin.from('sequences').select('trigger_type').eq('id', enrollment.sequence_id).maybeSingle(),
+          supabaseAdmin
+            .from('subscriptions')
+            .select('tier_id, subscription_tiers!subscriptions_tier_id_fkey(price)')
+            .eq('fan_id', enrollment.fan_id)
+            .eq('artist_id', enrollment.artist_id)
+            .eq('status', 'active')
+            .maybeSingle(),
+        ]);
+        if (!memberErr) {
+          const price = Number((memberRow as { subscription_tiers?: { price?: number | null } | null } | null)?.subscription_tiers?.price) || 0;
+          const verdict = sequenceStillApplies(trig?.trigger_type, { activeMember: !!memberRow, paidMember: !!memberRow && price > 0 });
+          if (verdict !== 'send') {
+            await supabaseAdmin
+              .from('sequence_enrollments')
+              .update(verdict === 'complete' ? { status: 'completed', completed_at: now } : { status: 'canceled' })
+              .eq('id', enrollment.id);
+            continue;
+          }
+        }
       }
 
       // Check fan hasn't unsubscribed from email marketing

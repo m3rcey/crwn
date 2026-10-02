@@ -27,6 +27,14 @@ names and prices, so drift fails `npm test` instead of reaching an artist.
   APPLIED 2026-08-28, enforced in `/api/stripe/checkout`), it is opt-in per tier in `TierManager`,
   and the template's fulfillment note now points the artist at it instead of asserting the cap.
   Never re-add a scarcity claim to a template rung without wiring it to that column.
+- **A launch partner may carry a founder-approved price for a paid rung** (`prices` in its
+  launch config, read through `ladderPricesFor`). Prince Dre's Platinum is $50, not $100
+  (founder, 2026-10-01: an access-first, working-class audience). The template stays the default
+  for everyone else and the ladder must still climb (`checkLaunchPartner`). The launch script
+  reprices only a tier with NO active subscription, creates the new Stripe product and prices
+  first, then moves `price` and its Stripe ids in one update, because checkout charges whatever
+  `stripe_price_id` the tier points at and never re-reads the amount. Its read-back fails if any
+  paid tier's Stripe amount differs from the price fans are shown.
 - The internal keys stay `wave | inner_circle | vault | throne`. They are referenced across the
   calculators, drafts and offer builder, and renaming them moves data for no artist-visible gain.
 - Each rung carries `legacyNames`. The ladder's "already added" check matches those too, so an
@@ -64,9 +72,15 @@ append, or retire with `support: 'retired'`, never rename. Full doc:
 - **The Vault is a tier-gated artist playlist** (`vaultCollection.ts`). Adding a track gates the
   TRACK for the collection's rungs and never narrows what a member already had. No Vault table,
   route, player or second entitlement.
-- **Recognition V1 is self-visible only**: the fan's own rung and member-since on their card and
-  profile. Day One is `subscriptions.is_founder` (the Founder Window), never an invented cutoff.
-  No public supporter wall, no RLS change.
+- **Recognition: member-since is self-visible, the rung BADGE shows wherever the fan's words
+  show.** The fan's own rung and member-since sit on their card and profile. Day One is
+  `subscriptions.is_founder` (the Founder Window), never an invented cutoff. A tier badge beside
+  a post or comment author comes from `/api/recognition` (labels only, bounded to people who
+  posted or commented on that artist's page). It is the status drop pages advertise, so it is
+  public wherever that comment is public. Inside a gated tier room the comments are members-only,
+  so the badges there are seen by members only. Still no public supporter wall, no RLS change.
+  (Corrected 2026-10-02: this line used to say "self-visible only", which the recognition route
+  contradicted since 2026-09-28.)
 - **`access_config.card_lines = 'prose_only'`** prints only the artist's own lines on the public
   card while structured rows keep powering delivery. GB's four tiers use it; the structured rows
   there are IDENTITY, not copy.
@@ -121,6 +135,20 @@ class** (free forever / paid first / member only, how one piece of content is ga
   tiers); malformed entries open immediately rather than stranding a paid tier. Do not implement
   per-tier windows inside `can_play_track` or any gate; the schedule-mutates-fields approach is
   the deliberate design.
+- **The member drip is the ONE exception, and it lives IN the oracle on purpose** (founder,
+  2026-10-01). `tracks.tier_unlock_months` (`{ tierId: months }`,
+  [supabase/schema-phase2-tier-unlock-months.sql](supabase/schema-phase2-tier-unlock-months.sql))
+  opens a track to a tier N months after EACH MEMBER'S OWN start, which a shared schedule cannot
+  express. That is why it is not the waterfall. It is one clause at the END of `can_play_track`,
+  after `allowed_tier_ids` has matched, so it can only delay a tier the track already names,
+  never grant; owner, purchase and public tracks return before it; malformed values fail OPEN.
+  The clock is `COALESCE(started_at, created_at)`, and every paid checkout resets `started_at`,
+  so rejoining restarts the count (copy must say so). `src/lib/memberDrip.ts` is the same rule
+  for RENDERING only ("Unlocks in 12 days"), pinned to the SQL by `memberDrip.test.ts`; the
+  owner preview has no start date and shows the day-one lock. A launch config's `drip` writes the
+  rung AND its delay in one update and refuses to touch a rung that already has the track
+  (`checkLaunchPartner`), because adding a delay to content a tier already holds would take it
+  away from paying members. Behaviour proof: `supabase/verify-tier-unlock-months.sql`.
 
 ## UX Rule — multi-option selectors are DROPDOWNS
 
@@ -265,6 +293,20 @@ applying it at write time.
 Same for any other file you ask him to open: `scripts/*.mjs`, docs, components. When more than one
 SQL file is involved, give the RUN ORDER. Never fence SQL inline (see the TODO.md rule below).
 
+**The link must OPEN, which means it must resolve against the main checkout.** VSCode resolves a
+repo-relative link against `~/workspace-crwn`, so a file that exists only on an unlanded task
+branch opens NOTHING when clicked (2026-10-01: two migrations handed over as `supabase/...` links
+from a worktree; Josh could not open either to copy it). Before handing over any file in a chat
+reply:
+- If the file is on master, link it repo-relative as usual.
+- If it exists only on your task branch, link it by its worktree path:
+  `[.claude/worktrees/<task>/supabase/foo.sql](.claude/worktrees/<task>/supabase/foo.sql)`.
+- **Check the link target exists from the main checkout** (`test -e ~/workspace-crwn/<link>`)
+  before you send it. A link you did not test is a guess.
+TODO.md links stay repo-relative: a TODO item lands in the same commit as its file, so its link
+resolves the moment the item is on master for Josh to read. The trap is only the CHAT reply,
+which he reads before the branch lands.
+
 ## Parallel sessions: one task, one worktree (2026-09-29)
 
 Josh runs several Claude sessions at once. Each extra task runs in its own git worktree and branch
@@ -290,6 +332,15 @@ integration checkout, and its uncommitted files may be another session's work.
 - **Changing dependencies in a task worktree is safe.** `node_modules` there is hardlinked to the
   main checkout's, and the guard gives it its own copy before any dependency-changing npm command
   runs. Never edit files inside `node_modules` by hand.
+- **Worktrees are cleaned up by `crwn clean`, never by hand-rolled `rm -rf`** (2026-10-02). Every
+  worktree's build gate leaves about 400 MB of `.next` (Next 16.3 keeps a Turbopack build cache by
+  default), and an unlinked `node_modules` is 1 GB, so `.claude/worktrees` reached 6.4 GB in three
+  days. [scripts/dev/worktree-clean.mjs](scripts/dev/worktree-clean.mjs) is the one engine, and
+  `crwn land` and `crwn <task>` run it automatically. It removes a worktree only when the worktree
+  is landed, clean, idle and holds no non-cache ignored file. It deletes only `.next` and
+  `node_modules` from other idle worktrees, never touches one in use, and never deletes a branch.
+  "In use" includes Windows-side sessions, which WSL sees only through transcript `cwd` fields.
+  Do not weaken a rule in `decide()` without its test: each one is mutation-tested.
 
 ## TODO.md — you maintain it, Josh works it
 
@@ -359,6 +410,28 @@ Two rules on `src/app/[slug]/page.tsx` and everything under it:
   as a pure rendering lens. If you add a surface that reads a SERVER-granted flag
   (`can_view`, a signed URL, a purchase row), it must fall back to tier math when `previewing`,
   or the owner sees an unlocked page while it claims to be a fan's.
+
+## Community tier rooms: the room decides, the rope shows a teaser (founder, 2026-10-02)
+
+One room per membership rung (`community_channels.tier_id`); the artist posts into it and that
+rung plus everyone priced above it get the post. [src/lib/community/rooms.ts](src/lib/community/rooms.ts)
+is the pure brain (room plan, rendering mirror, rope copy, media keys); migration
+[supabase/schema-phase2-community-tier-rooms.sql](supabase/schema-phase2-community-tier-rooms.sql).
+- **The room is the gate, inside `can_read_community_post`, checked BEFORE `is_free`.** A room
+  post also stores `is_free = false` plus the room's list, so a deleted room (FK SET NULL) leaves
+  it locked to the same people.
+- **What the rope may see is decided by `community_posts_feed`, for ROOM posts only:** media
+  types, the video thumbnail, the pre-blurred image previews, and a MEDIA post's caption. A text
+  post's words, the media and the comments never. Never blur the real photo in CSS: the preview
+  is a 32px copy made at upload, so there is nothing to unblur.
+- **Room media are private R2 KEYS** under `community/<artistId>/`, signed by `/api/community/media`
+  after re-reading the view as the caller, and only for posts the ARTIST wrote (SEC-009).
+- **Writes are entitlement-checked in RLS**: comments and likes only on a readable post, a post
+  filed only in a room the caller may post in (rooms are artist-only).
+- **Rooms are additive** (`planTierRooms`): never deactivated, never narrowed. Created by the
+  owner's own community-tab visit or `npx tsx scripts/community-rooms.mjs <slug> --apply`.
+- **The rope never opens a second subscription**: a member on a cheaper paid rung UPGRADES via
+  `/api/stripe/subscription-update`; the headline copy is the founder's ("You're not a member. YET.").
 
 ## Plan limits: only advertise what the product enforces
 
@@ -1564,6 +1637,11 @@ can no longer cancel the original. It bills forever. Guards, all of which must s
 - `album_tracks` uses `track_number` NOT `position`.
 - `playlist_tracks` uses `position`.
 - Albums use `is_active` (not `is_published`), and have no `slug` field.
+- **Albums are not sold individually** (founder decision, 2026-10-01). Projects reach fans through
+  tier access only. `albums.price` stays in the schema but nothing reads, displays or charges it, so
+  neither `AlbumManager` nor `QuickCreateAlbumModal` offers it any more (it used to promise "Fans
+  can buy the album outright"). Re-adding a price field needs an album checkout, a webhook handler
+  and an entitlement path in `can_play_track` first. Three old rows still carry a value; it is inert.
 
 ### Onboarding Safety Net — DO NOT REMOVE
 
