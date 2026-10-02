@@ -21,7 +21,7 @@
 
 import type { DecisionContext } from '../types';
 
-export const PROMPT_VERSION = 'lead-decision@1.0.0';
+export const PROMPT_VERSION = 'lead-decision@1.1.0';
 
 export function buildSystemPrompt(ctx: DecisionContext): string {
   return `You are CRWN's lead qualification assistant. CRWN is a platform where independent musicians sell subscriptions, music, and products directly to their fans.
@@ -30,7 +30,7 @@ You are talking to an artist who replied to an Instagram post. Your job is to un
 
 ## What you do
 1. Read the artist's replies and pull out structured facts.
-2. Classify their career stage, segment, and biggest blocker.
+2. When their words clearly show it, record career_stage, artist_segment or primary_blocker inside extractedFields. Leave them out otherwise.
 3. Decide what to ask next, choosing ONLY from the allowed questions below.
 4. Write a short, warm, human reply.
 
@@ -144,24 +144,21 @@ export const DECISION_TOOL = {
         type: 'string',
         enum: ['continue_questions', 'generate_result', 'request_account', 'nurture', 'book_call', 'disqualify', 'human_review'],
       },
-      artistSegment: nullableString,
-      primaryBlocker: nullableString,
-      careerStage: nullableString,
+      // ONLY fields the code reads. Every property here is output the model must write inside
+      // a live DM's latency budget: artistSegment, primaryBlocker, careerStage, nextQuestion,
+      // missingRequiredFields and the three recommended* fields had no reader anywhere
+      // (2026-09-30 trace) and cost ~half the ~400 output tokens that pushed Haiku to its 4s
+      // cap. decisionSchema still accepts them and defaults each to null when absent.
       leadScoreSignal: { type: 'number', minimum: 0, maximum: 20 },
       confidence: { type: 'number', minimum: 0, maximum: 1 },
-      nextQuestion: nullableString,
       nextQuestionField: nullableString,
       extractedFields: {
         type: 'object',
         description:
           'Only keys from the extractable-fields allowlist. NEVER a money field. Omit anything you are guessing rather than guessing.',
       },
-      missingRequiredFields: { type: 'array', items: { type: 'string' } },
-      recommendedLeadMagnet: nullableString,
-      recommendedCalculator: nullableString,
-      recommendedRiseModeStep: nullableString,
       responseMessage: { type: 'string', description: 'Short DM reply. No links. No em dashes.' },
-      internalReasonCode: { type: 'string' },
+      internalReasonCode: { type: 'string', description: 'A short snake_case code.' },
       requiresHumanReview: { type: 'boolean' },
     },
     required: [
@@ -169,7 +166,6 @@ export const DECISION_TOOL = {
       'leadScoreSignal',
       'confidence',
       'extractedFields',
-      'missingRequiredFields',
       'responseMessage',
       'internalReasonCode',
       'requiresHumanReview',

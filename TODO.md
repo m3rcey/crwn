@@ -101,15 +101,6 @@ responsible for. Do not work those.
       fails loudly if any remain. Nothing is deleted (to undo, set those ids back to active). The
       code that stops new ones is on the `worktree-email-sequences` branch.
 
-- [ ] **Create Prince Dre's four tier rooms (Bronze, Silver, Gold, Platinum).** The migration
-      is applied (probe-verified 2026-10-02). Other artists get their rooms the next time they
-      open their own community tab; this does Dre's now. Run it only once this item is on
-      master: the script ships in the same commit, and an older deploy would list the rooms as
-      chat channels. In a WSL terminal, from ~/workspace-crwn:
-          npx tsx scripts/community-rooms.mjs princedre --apply
-      Then open thecrwn.app/princedre?tab=community signed out: you should see All / Bronze /
-      Silver / Gold / Platinum with locks, and Dre's posts there show as teasers until you join.
-
 - [ ] **Get Prince Dre's written OK that he can sell all eight projects now on his page, and
       confirm the unlock dates.** His whole catalog is live behind his tiers since 2026-09-30 (94 songs).
       Web research turned up other names on some of it; ask his team about each one:

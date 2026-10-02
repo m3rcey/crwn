@@ -210,8 +210,9 @@ export function DropFunnelClient({ token, artist, magnet, gold, goldItem, silver
   );
 
   const magnetAccess = claimed?.magnet?.trackUrl && isTrackMagnet ? (
-    // The same card the fan saw locked, now playing, with the short-lived signed URL.
-    <MagnetPlayer {...playerProps} src={claimed.magnet.trackUrl} />
+    // The song the fan saw locked, now playing, with the short-lived signed URL. One compact
+    // row, so the offer's buy button under it stays above the fold on a phone and a laptop.
+    <MagnetPlayer {...playerProps} src={claimed.magnet.trackUrl} layout="row" />
   ) : claimed?.magnet?.trackUrl ? (
     // The song plays HERE. The signed URL is short-lived by design; the player mounts it
     // for this visit, and re-access below mints a fresh one any time.
@@ -394,13 +395,13 @@ export function DropFunnelClient({ token, artist, magnet, gold, goldItem, silver
         )}
 
         {phase === 'delivered' && (
-          <div className="space-y-6">
-            <div className="neu-raised rounded-2xl p-6 bg-crwn-card text-center">
+          <div className="space-y-4">
+            <div className="neu-raised rounded-2xl p-4 bg-crwn-card text-center">
               <p className="text-xs uppercase tracking-wide text-crwn-gold mb-2">{isTrackMagnet ? 'Unlocked' : 'Delivered'}</p>
               {!(isTrackMagnet && claimed?.magnet?.trackUrl) ? (
                 <h1 className="text-xl font-bold text-crwn-text">{magnet.title || 'Your drop'}</h1>
               ) : null}
-              <div className="mt-4 flex justify-center">{submitting && !claimed ? <Loader2 className="w-5 h-5 animate-spin text-crwn-gold" /> : magnetAccess}</div>
+              <div className="mt-3 flex justify-center">{submitting && !claimed ? <Loader2 className="w-5 h-5 animate-spin text-crwn-gold" /> : magnetAccess}</div>
               {magnet.kind === 'track' && (
                 <p className="mt-3 text-xs text-crwn-text-secondary">
                   Yours for good: as a free member it plays any time on{' '}

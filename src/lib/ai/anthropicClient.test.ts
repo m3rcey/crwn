@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { APIConnectionError, APIConnectionTimeoutError } from '@anthropic-ai/sdk';
 import { ANTHROPIC_MODEL, DECISION_TIMEOUT_MS, decisionRequestOptions } from './anthropicClient';
 import { categorize } from '../acquisition/claudeDecisionService';
 
@@ -52,5 +53,10 @@ describe('categorize (provider errors)', () => {
     const c = categorize(err(400, 'something about the artist: I have 40k listeners'));
     expect(c).toBe('http_400');
     expect(categorize(Object.assign(new Error('x'), { name: 'APITimeoutError' }))).toBe('timeout');
+  });
+
+  it('labels the SDK timeout as timeout, not unknown (its name is plain "Error")', () => {
+    expect(categorize(new APIConnectionTimeoutError())).toBe('timeout');
+    expect(categorize(new APIConnectionError({ message: 'socket hang up' }))).toBe('connection');
   });
 });
