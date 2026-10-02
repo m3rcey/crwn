@@ -800,18 +800,27 @@ responsible for. Do not work those.
 
 ### P2 — worth doing, nothing breaks if you never do it
 
-- [ ] **Let the WSL disk give space back to C:.** Deleting files inside WSL never shrinks
-      `ext4.vhdx`: on 2026-10-02 it was 20.6 GB on C: with 17 GB actually used, and C: had 16.9 GB
-      free. Worktree caches are now cleaned automatically (`crwn clean`,
-      [docs/PARALLEL_CLAUDE_SESSIONS.md](docs/PARALLEL_CLAUDE_SESSIONS.md)). A sparse VHD then hands
-      freed space back to Windows by itself. This stops every WSL session, so close all Claude
-      sessions first, then in PowerShell run these two lines:
+- [ ] **Compact the WSL disk to give about 6.5 GB back to C:.** Deleting files inside WSL never
+      shrinks `ext4.vhdx`: on 2026-10-02 it was 20.6 GB on C: with 14 GB actually used. Sparse mode
+      is refused on this WSL build ("potential data corruption"), so never use `--allow-unsafe`.
+      Compact it by hand instead, any time C: runs low again. Worktree caches are now cleaned
+      automatically (`crwn clean`, [docs/PARALLEL_CLAUDE_SESSIONS.md](docs/PARALLEL_CLAUDE_SESSIONS.md)).
+      1. Close VS Code and every Claude session: anything open on `\\wsl.localhost` restarts WSL.
+      2. In an ADMIN PowerShell, mark the free space so the compaction can find it, then stop WSL:
 
-          wsl --shutdown
-          wsl --manage Ubuntu --set-sparse true
+             wsl -u root fstrim -av
+             wsl --shutdown
 
-      If it prints a data-corruption warning and asks for `--allow-unsafe`, do NOT force it. Tell
-      Claude, and it will give you the one-off compaction steps instead.
+      3. In the same window, type `diskpart`, then these five lines one at a time:
+
+             select vdisk file="C:\Users\Josh\AppData\Local\Packages\CanonicalGroupLimited.Ubuntu_79rhkp1fndgsc\LocalState\ext4.vhdx"
+             attach vdisk readonly
+             compact vdisk
+             detach vdisk
+             exit
+
+      If `attach` says the file is in use, WSL restarted: run `wsl --shutdown` again and retry.
+      Then tell Claude, and it will check the new size.
 
 - [ ] **Delete the unused Vercel env var `NEW_ARTIST_WEBHOOK_SECRET`.** Nothing reads it since the
       new-artist alert moved into the signup code (2026-09-26). Vercel > crwn > Settings >
