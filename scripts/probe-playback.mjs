@@ -249,6 +249,8 @@ for (let i = 0; i < TRANSITIONS; i++) {
   await sleep(SETTLE_S * 1000);
   const pre = await js(`(() => { const el = window.__pb.els.find(e => !e.paused); if (!el || !isFinite(el.duration)) return null; el.currentTime = Math.max(0, el.duration - 1.5); return { id: el.__pbId, src: el.currentSrc.split('?')[0].split('/').pop() }; })()`);
   if (!pre) { report.transitions.push({ error: 'nothing playing to transition from' }); break; }
+  // The CRWN engine's own view at this moment, when the page has one (absent on the old player).
+  const engineState = await js(`(() => { const e = window.__crwnPlayerEngine; if (!e) return null; const id = (t) => t && t.id.slice(0, 8); return { current: id(e.state.currentTrack), index: e.state.currentIndex, queue: e.state.queue.map(id), prep: e.prep && { track: e.prep.trackId.slice(0, 8), aborted: e.prep.abort.signal.aborted, url: !!e.prep.url }, memory: [...e.memory.keys()].map(k => k.slice(0, 8)) }; })()`);
   const tSeek = await js('performance.now()');
   const preloaded = netSnapshot(); // requests made while the previous track played (preparation)
   const done = await waitFor(`(() => { const ev = window.__pb.events; const end = ev.findIndex(e => e.t >= ${tSeek} && e.type === 'ended'); if (end < 0) return false; return ev.slice(end).some(e => e.type === 'clock-advanced'); })()`, 60000, 20);
@@ -263,6 +265,8 @@ for (let i = 0; i < TRANSITIONS; i++) {
     ended_to_canplay_ms: ms(ended, t('canplay')),
     ended_to_playing_ms: ms(ended, t('playing')),
     ended_to_audible_ms: ms(ended, t('clock-advanced')),
+    engine_at_seek: engineState,
+    engine_traces: await js('window.__crwnPlayerEngine ? window.__crwnPlayerEngine.getTraces().slice(-3) : null'),
     prepared_before_seek: preloaded,
     requests_in_window: netSnapshot(),
   });
@@ -272,7 +276,12 @@ for (let i = 0; i < TRANSITIONS; i++) {
 // ---- tap the NEXT song in the list after the current one has played a while -----------------
 // The acceptance case "tap an already-prepared song". An engine that prepares the next track
 // has it ready; one that does not pays a cold start. Same taps for both.
-{
+try {
+  const home = new URL(URL_).pathname;
+  if ((await js('location.pathname')) !== home) {
+    await js(`window.next.router.push(${JSON.stringify(home)})`);
+    await waitFor(`${ROWS}.length >= 3`, 60000);
+  }
   await sleep(SETTLE_S * 1000);
   const idx = await js(`(() => { const rows = ${ROWS}; return rows.findIndex(r => r.querySelector('.text-crwn-gold')); })()`);
   if (idx >= 0) {
@@ -286,6 +295,9 @@ for (let i = 0; i < TRANSITIONS; i++) {
   } else {
     report.preparedTap = { error: 'could not find the playing row' };
   }
+} catch (e) {
+  // A failure here must not throw away every measurement above it.
+  report.preparedTap = { error: String(e.message || e).slice(0, 200) };
 }
 
 // ---- rapid taps: newest selection must win ---------------------------------------------------
