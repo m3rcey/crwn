@@ -25,23 +25,39 @@ interface TrackRow {
 /**
  * PURE: the one track to send a new member to first, or null.
  *
- * Paid: the newest track this rung unlocks on day one (named in allowed_tier_ids with no member
- * drip delay for it). That is the thing they just paid for. Free, or a paid rung with nothing of
- * its own yet: the newest public track (free, and not inside a members-first window).
+ * In the order that makes the email true for THIS member:
+ *   1. The newest track this rung unlocks that NO cheaper rung already had. That is what they
+ *      just paid for, and it is the only thing a paid welcome can honestly open on. Without it,
+ *      Prince Dre's Silver and Gold both opened on a song his FREE rung already had.
+ *   2. Otherwise the newest track this rung can play at all. A free rung is still a rung: when an
+ *      artist gates songs to their free tier (Dre's Bronze holds 18), those are that member's
+ *      music, and skipping them left his free welcome with nothing to play.
+ *   3. Otherwise the newest public track, free and not inside a members-first window.
  * Conservative on purpose: when in doubt it picks nothing rather than a locked track, because the
  * track page is the gate and a welcome that opens on a lock is worse than one that opens the page.
+ * `lowerTierIds` are the rungs priced BELOW this one; without them step 1 cannot tell what is new.
  */
-export function pickStartHereTrack(tracks: TrackRow[], tierId: string, isPaid: boolean, now: Date): TrackRow | null {
+export function pickStartHereTrack(
+  tracks: TrackRow[],
+  tierId: string,
+  isPaid: boolean,
+  now: Date,
+  lowerTierIds: string[] = [],
+): TrackRow | null {
   const newestFirst = [...tracks].sort((a, b) => (a.created_at < b.created_at ? 1 : -1));
-  if (isPaid) {
-    const unlocked = newestFirst.find((t) => {
-      const allowed = Array.isArray(t.allowed_tier_ids) ? t.allowed_tier_ids : [];
-      if (!allowed.includes(tierId)) return false;
-      const months = t.tier_unlock_months?.[tierId];
-      return !(typeof months === 'number' && months > 0);
-    });
-    if (unlocked) return unlocked;
-  }
+  const allowedOn = (t: TrackRow) => (Array.isArray(t.allowed_tier_ids) ? t.allowed_tier_ids : []);
+  const playableNow = (t: TrackRow) => {
+    if (!allowedOn(t).includes(tierId)) return false;
+    const months = t.tier_unlock_months?.[tierId];
+    return !(typeof months === 'number' && months > 0);
+  };
+  void isPaid;
+  const addedByThisRung = newestFirst.find(
+    (t) => playableNow(t) && !t.is_free && !lowerTierIds.some((id) => allowedOn(t).includes(id)),
+  );
+  if (addedByThisRung) return addedByThisRung;
+  const anythingThisRungPlays = newestFirst.find(playableNow);
+  if (anythingThisRungPlays) return anythingThisRungPlays;
   return (
     newestFirst.find((t) => {
       if (!t.is_free) return false;
@@ -108,7 +124,10 @@ export async function sendMemberWelcome(
         cardLinesModeOf(t.access_config),
       );
 
-    const start = pickStartHereTrack((tracks ?? []) as TrackRow[], tier.id, isPaid, new Date());
+    const lowerTierIds = ((tiers ?? []) as { id: string; price: number }[])
+      .filter((t) => (Number(t.price) || 0) < (Number(tier.price) || 0))
+      .map((t) => t.id);
+    const start = pickStartHereTrack((tracks ?? []) as TrackRow[], tier.id, isPaid, new Date(), lowerTierIds);
     const input: MemberWelcomeInput = {
       fanName,
       artistName: artistProfile?.display_name || 'Your artist',

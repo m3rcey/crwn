@@ -85,9 +85,13 @@ export function memberWelcomeEmail(input: MemberWelcomeInput): RenderedEmail {
     ? `You're in ${input.tierName}. Start here.`
     : `You're in. Here's where to start with ${artist}.`;
 
+  // "Here is the first thing to hear" is only true when there IS one. With nothing to play, the
+  // email promised a song and then handed over a page link instead (Prince Dre's free rung did
+  // exactly that on every join, 2026-10-02).
+  const heard = input.startHere ? 'Here is the first thing to hear.' : 'Here is what that opens up.';
   const opener = input.isPaid
-    ? `You just joined ${input.tierName}. Here is the first thing to hear.`
-    : `You just joined ${artist} on CRWN. Here is the first thing to hear.`;
+    ? `You just joined ${input.tierName}. ${heard}`
+    : `You just joined ${artist} on CRWN. ${heard}`;
 
   const startLine = input.startHere
     ? `Start with "${input.startHere.title}".`

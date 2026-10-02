@@ -62,6 +62,14 @@ describe('memberWelcomeEmail', () => {
     expect(memberWelcomeFrom('Dre "The" <King>\r\nBcc: x')).toBe('Dre The KingBcc: x via CRWN <hello@thecrwn.app>');
   });
 
+  it('promises a song to hear only when it carries one', () => {
+    const withTrack = memberWelcomeEmail({ ...base, startHere: { title: 'Round Here', trackId: 'abc' } });
+    expect(withTrack.text).toContain('Here is the first thing to hear.');
+    const without = memberWelcomeEmail({ ...base, startHere: null });
+    expect(without.text).not.toContain('first thing to hear');
+    expect(without.text).toContain('Here is what that opens up.');
+  });
+
   it('carries no em or en dashes', () => {
     const { subject, html, text } = memberWelcomeEmail({ ...base, isPaid: false, nextRung: { name: 'Silver', priceCents: 1000, headline: null } });
     expect(`${subject}${html}${text}`).not.toMatch(/[–—]/);
@@ -107,5 +115,30 @@ describe('pickStartHereTrack', () => {
 
   it('nothing playable: null, never a locked guess', () => {
     expect(pickStartHereTrack([t('locked', { allowed_tier_ids: ['platinum'] })], 'bronze', false, now)).toBeNull();
+  });
+
+  it('paid: opens on what THIS rung adds, not on a song a cheaper rung already had', () => {
+    // Prince Dre, 2026-10-02: his free rung holds 18 songs, and every paid rung inherits them, so
+    // the newest track a Silver member could play was a Bronze single. Silver's welcome opened on
+    // a song they could already hear for nothing.
+    const tracks = [
+      t('free-rung-single', { allowed_tier_ids: ['bronze', 'silver', 'gold'], created_at: '2026-09-30T00:00:00Z' }),
+      t('silver-only', { allowed_tier_ids: ['silver', 'gold'], created_at: '2026-09-10T00:00:00Z' }),
+    ];
+    expect(pickStartHereTrack(tracks, 'silver', true, now, ['bronze'])?.id).toBe('silver-only');
+    // Gold's own newest is the same Bronze single until Gold has something of its own.
+    expect(pickStartHereTrack(tracks, 'gold', true, now, ['bronze', 'silver'])?.id).toBe('free-rung-single');
+  });
+
+  it('free: a song gated to the free rung counts, so the welcome has something to play', () => {
+    // His Bronze singles are gated to Bronze, not public, and his only three public tracks are his
+    // oldest uploads, outside the newest-50 window the sender reads. The free welcome found nothing.
+    const tracks = [t('bronze-single', { allowed_tier_ids: ['bronze', 'silver'], created_at: '2026-09-30T00:00:00Z' })];
+    expect(pickStartHereTrack(tracks, 'bronze', false, now)?.id).toBe('bronze-single');
+  });
+
+  it('a rung still gets nothing when it can genuinely play nothing', () => {
+    const tracks = [t('platinum-only', { allowed_tier_ids: ['platinum'], created_at: '2026-09-30T00:00:00Z' })];
+    expect(pickStartHereTrack(tracks, 'bronze', false, now, [])).toBeNull();
   });
 });
