@@ -82,14 +82,6 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
-- [ ] **Before Saturday 2026-10-04: stop the "you are ready for Pro" emails going to artists with
-      $0 revenue.** Nine new artists (Prince Dre among them) are mid-sequence, and step 2 ("What
-      stays locked on Launch") goes out from Oct 4. Open and run the whole file in the Supabase SQL
-      editor: [supabase/cancel-zero-revenue-pro-upsell.sql](supabase/cancel-zero-revenue-pro-upsell.sql).
-      Its first result should list 9 rows, all with gmv30d_cents 0; it cancels exactly those and
-      fails loudly if any remain. Nothing is deleted (to undo, set those ids back to active). The
-      code that stops new ones is on the `worktree-email-sequences` branch.
-
 - [ ] **Create Prince Dre's four tier rooms (Bronze, Silver, Gold, Platinum).** The migration
       is applied (probe-verified 2026-10-02). Other artists get their rooms the next time they
       open their own community tab; this does Dre's now. Run it only once this item is on
