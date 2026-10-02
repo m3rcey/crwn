@@ -93,18 +93,6 @@ responsible for. Do not work those.
       Premiere, Dre's written OK to an AI-relocated version of himself, and the final narration.
       Nothing is generated until you approve; then 5 test stills, one per plate.
 
-- [ ] **Get Prince Dre's written OK that he can sell all eight projects now on his page, and
-      confirm the unlock dates.** His whole catalog is live behind his tiers since 2026-09-30 (94 songs).
-      Web research turned up other names on some of it; ask his team about each one:
-        - Blood Brothaz: YouTube Music lists "(P) 2015 Create Music Group", and it is a joint project
-          with JB Binladen (co-owner?).
-        - Life I Live: TSO Music Group / Munna Gang Inc (Apple Music). O Block Ass Nigga: Munna Gang Inc.
-        - Fresh Prince Of O'Block and Only The O In My Eyes: their Spotify albums are region
-          restricted and Only The O was pulled from Apple Music; ask who pulled them and why.
-        - Gold hears the three Platinum-only projects one a month from each member's own signup.
-      He also signs the new artist terms on his next login (he warrants the rights and holds JNW
-      Creative Enterprises harmless), which protects you but does not replace asking.
-
 - [ ] **Have a lawyer read the new artist terms and the hold-harmless clauses.** Every artist now
       signs these before using CRWN, and I wrote them, not counsel:
       [src/lib/legal/artistTerms.ts](src/lib/legal/artistTerms.ts) (the screen they sign, including
