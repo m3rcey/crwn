@@ -129,8 +129,27 @@ is closed, so "your music is up" / "your tiers are live" cannot be false when it
   (day 21-30). Copy in code, goal tier set so it stops the moment they buy.
 - **The paid non-starter nudge.** A paid member who has played nothing by day 3 is the churn
   risk. Needs per-fan play evidence the cron can read.
-- **Cancel confirmation with a step down** ("keep Silver for $10") and one "why?" question. This
-  is a downsell offer; decide it with the founder before building.
+- **The cancel step-down SHIPPED** (founder decision 2026-10-02, "a fan who cancels should be
+  offered a cheaper tier instead"); see the next section.
+
+### Cancel: offer the next cheaper paid tier first (shipped 2026-10-02)
+- `CancelModal` (fan context) shows "Stay on <tier> for $X/mo instead?" ABOVE the reasons, before
+  the pause offer and the cancel button. `stepDownOffer` (`src/lib/subscriptions/stepDown.ts`,
+  pure) picks the NEXT cheaper rung that is paid and can bill; never the free tier (a paid-to-free
+  move is a cancel plus a free join, a different flow) and nothing when no such rung exists.
+- **Building it exposed a money bug, fixed first.** `/api/stripe/subscription-update` recorded a
+  downgrade only as `pending_tier_id` and changed nothing in Stripe; the webhook applies a pending
+  tier only when Stripe bills its price, so a fan who stepped down kept paying the higher price
+  forever. Production had 0 pending rows (2 paid subscriptions), so nobody was overcharged.
+- The downgrade is now a Stripe subscription schedule (`downgradeSchedule.ts` pure,
+  `downgradeServer.ts`): `from_subscription`, phase 0 re-sent unchanged, the lower price for one
+  month, `end_behavior: 'release'`, tagged `crwn_tier_downgrade`. A foreign schedule (a prize) is
+  refused. Upgrade and cancel release a pending step-down first.
+- **Proven on a Stripe test clock**, 17/17: `node scripts/verify-downgrade-schedule.mjs` (needs
+  `STRIPE_TEST_SECRET_KEY`). The paid period is not shortened, the next invoice is the lower price
+  with no proration, the charge still routes to the artist with the platform fee, nothing is
+  refunded, it releases to an ordinary subscription, and a fan who changes their mind can still
+  upgrade or cancel. The harness imports the route's own construction.
 - **Recognition at 3, 6 and 12 months**, self-visible only, fits Recognition V1.
 - **Sequence emails say "just reply"** with no reply-to; replies land at `hello@`. Do not set the
   artist's account email as reply-to (that exposes it). Either route replies or drop the line.

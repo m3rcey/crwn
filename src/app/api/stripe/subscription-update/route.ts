@@ -8,6 +8,7 @@ import { isFreeSubscriptionId } from '@/lib/subscriptions/freeJoin';
 import { exitConvertedEnrollments } from '@/lib/sequences/goalExit';
 import { enrollInSequence } from '@/lib/sequences/enroll';
 import { sendMemberWelcome } from '@/lib/emails/memberWelcomeServer';
+import { scheduleDowngradeInStripe, releaseCrwnDowngrade } from '@/lib/subscriptions/downgradeServer';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -105,6 +106,10 @@ export async function POST(req: NextRequest) {
     }
 
     if (newTier.price > currentTierPrice) {
+      // An upgrade replaces any downgrade the fan had scheduled: release it so Stripe does not
+      // drop them to the lower price at the boundary, and clear the pending row below.
+      const released = await releaseCrwnDowngrade(stripe, stripeSubscriptionId);
+
       // UPGRADE: immediate with prorations
       await stripe.subscriptions.update(
         stripeSubscriptionId,
@@ -116,7 +121,11 @@ export async function POST(req: NextRequest) {
 
       await supabaseAdmin
         .from('subscriptions')
-        .update({ tier_id: newTierId, updated_at: new Date().toISOString() })
+        .update({
+          tier_id: newTierId,
+          ...(released === 'released' ? { pending_tier_id: null, pending_change_date: null } : {}),
+          updated_at: new Date().toISOString(),
+        })
         .eq('id', currentSubscription.id);
 
       // Z8: recorded AFTER Stripe accepted the item change, so this is a confirmed state change
@@ -150,19 +159,40 @@ export async function POST(req: NextRequest) {
 
       return NextResponse.json({ success: true });
     } else {
-      // DOWNGRADE: schedule at period end
-      const periodEnd = new Date((stripeSubscription as any).current_period_end * 1000);
+      // DOWNGRADE at the paid boundary, scheduled IN STRIPE (downgradeServer.ts). This branch used
+      // to write only pending_tier_id and change nothing in Stripe, so the webhook waited forever
+      // for a lower price Stripe was never told to bill: the fan kept paying the higher tier.
+      // Stripe first, then the row; a failure between them leaves a schedule a retry reuses.
+      if (!newTier.stripe_price_id) {
+        return NextResponse.json(
+          { error: 'That tier is not ready to bill yet. Keep your current tier or cancel instead.' },
+          { status: 409 },
+        );
+      }
+      const scheduled = await scheduleDowngradeInStripe(stripe, {
+        stripeSubscriptionId,
+        subscriptionRowId: currentSubscription.id,
+        newTierId,
+        newStripePriceId: newTier.stripe_price_id,
+      });
+      if (!scheduled.ok) {
+        console.error('Downgrade schedule failed:', scheduled.reason, scheduled.message);
+        return NextResponse.json(
+          { error: scheduled.reason === 'foreign_schedule' ? scheduled.message : 'Could not schedule the change. Nothing was changed.' },
+          { status: scheduled.reason === 'foreign_schedule' ? 409 : 502 },
+        );
+      }
 
       await supabaseAdmin
         .from('subscriptions')
         .update({
           pending_tier_id: newTierId,
-          pending_change_date: periodEnd.toISOString(),
+          pending_change_date: scheduled.boundary.toISOString(),
           updated_at: new Date().toISOString(),
         })
         .eq('id', currentSubscription.id);
 
-      return NextResponse.json({ success: true, effectiveDate: periodEnd.toISOString() });
+      return NextResponse.json({ success: true, effectiveDate: scheduled.boundary.toISOString() });
     }
   } catch (error: any) {
     console.error('Subscription update error:', error);

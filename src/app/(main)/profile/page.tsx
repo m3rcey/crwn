@@ -34,7 +34,7 @@ export default function ProfilePage() {
   const [subscriptions, setSubscriptions] = useState<any[]>([]);
   const [subsLoading, setSubsLoading] = useState(true);
   const [portalLoading, setPortalLoading] = useState<string | null>(null);
-  const [cancelSub, setCancelSub] = useState<{ id: string; artistName: string } | null>(null);
+  const [cancelSub, setCancelSub] = useState<{ id: string; artistName: string; artistId: string; tierId: string | null } | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -286,7 +286,7 @@ export default function ProfilePage() {
                       {portalLoading === sub.artist_id ? 'Loading...' : 'Manage'}
                     </button>
                     <button
-                      onClick={() => setCancelSub({ id: sub.id, artistName: artistName })}
+                      onClick={() => setCancelSub({ id: sub.id, artistName: artistName, artistId: sub.artist_id, tierId: sub.tier_id ?? null })}
                       className="px-3 py-1.5 text-xs font-medium text-[#666] border border-crwn-elevated rounded-full hover:text-red-400 hover:border-red-400/50 transition-colors"
                     >
                       Cancel
@@ -354,6 +354,8 @@ export default function ProfilePage() {
           context="fan"
           subscriptionId={cancelSub.id}
           itemName={cancelSub.artistName}
+          artistId={cancelSub.artistId}
+          currentTierId={cancelSub.tierId}
           onClose={() => setCancelSub(null)}
           onCanceled={() => {
             setCancelSub(null);

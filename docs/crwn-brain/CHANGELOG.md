@@ -14,6 +14,10 @@
   card's own lines, and for free members one concrete thing the next rung adds. The artist-page
   Join Free now goes through `joinFreeTier` (artist notified, nurture enrolled, no paid row
   overwritten).
+- **Cancel offers the next cheaper paid tier first** (founder decision). Building it found that a
+  downgrade never reached Stripe (the fan would have kept paying the higher price forever; 0
+  production rows were affected). Downgrades are now a Stripe schedule at the paid boundary,
+  proven 17/17 on a test clock by `scripts/verify-downgrade-schedule.mjs`.
 - **Fixed:** downgraders got "You just upgraded"; the cancel notification never reached the
   artist (wrong id); fan sequences outlived their premise (`sequences/stillApplies.ts`); the vote
   email promised a result notification nobody sends.

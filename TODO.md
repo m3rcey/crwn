@@ -1170,7 +1170,7 @@ Things that are never finished. Cadence, then the thing.
   code-owned artist emails for the First Revenue steps Rise Mode shows (offer, magnet, sales page,
   follow-up, turn on, test, launch), driven by the same next move; a default free-member nurture
   with a goal tier (two gives, then one direct offer); the paid non-starter nudge once per-fan play
-  evidence is readable by a cron. The cancel step-down offer needs your call before it is built.
+  evidence is readable by a cron.
 
 - **The worth result calls an estimate a fact.** With no streaming income given, the DM result
   labels a figure estimated from monthly listeners "What streaming pays you now" and says
