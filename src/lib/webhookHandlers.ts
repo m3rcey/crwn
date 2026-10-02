@@ -8,7 +8,7 @@ import { recoverArtistShareOnRefund } from '@/lib/stripe/refundRecovery';
 import { createNotification, notifyNewSubscriber, notifyNewPurchase, notifySubscriptionCanceled } from '@/lib/notifications';
 import { resend, FROM_EMAIL } from '@/lib/resend';
 import { recruiterArtistSignupEmail } from '@/lib/emails/recruiterArtistSignup';
-import { subscriptionEmail } from '@/lib/emails/subscription';
+import { sendMemberWelcome } from '@/lib/emails/memberWelcomeServer';
 import { artistTierEmail } from '@/lib/emails/artistTier';
 import { purchaseEmail } from '@/lib/emails/purchase';
 import { bookingTokenEmail } from '@/lib/emails/bookingToken';
@@ -366,11 +366,15 @@ export async function handleCheckoutCompleted(supabaseAdmin: AdminClient, sessio
         const artistDisplayName = artistNameData?.display_name || 'an artist';
         const fanEmail = session.customer_email || session.customer_details?.email;
         if (fanEmail) {
-          await resend.emails.send({
-            from: FROM_EMAIL,
-            to: fanEmail,
-            subject: `You're subscribed to ${artistDisplayName} 🎉`,
-            html: subscriptionEmail(fanName, artistDisplayName, tierName),
+          // The member welcome (memberWelcome.ts): one thing to play now, this tier's REAL card
+          // lines, a button to the artist. It replaced a template that listed three hard-coded
+          // perks unrelated to the tier and sent the fan to CRWN's feed. Best-effort inside.
+          await sendMemberWelcome(supabaseAdmin, {
+            fanId: fan_id,
+            fanEmail,
+            fanName,
+            artistId: artist_id,
+            tierId: tier_id,
           });
           // Send receipt with support contact info
           await resend.emails.send({
@@ -871,11 +875,21 @@ export async function handleSubscriptionDeleted(supabaseAdmin: AdminClient, subs
       .eq('id', subData.fan_id)
       .single();
 
-    await notifySubscriptionCanceled(
-      supabaseAdmin,
-      subData.artist_id,
-      fanProfile?.display_name || 'A fan'
-    );
+    // notifications.user_id references profiles(id), so this needs the artist's USER id. It was
+    // passed the artist_profiles id, the insert failed its foreign key, nobody read the error,
+    // and no artist was ever told a member had left (found 2026-10-02).
+    const { data: cancelArtist } = await supabaseAdmin
+      .from('artist_profiles')
+      .select('user_id')
+      .eq('id', subData.artist_id)
+      .maybeSingle();
+    if (cancelArtist?.user_id) {
+      await notifySubscriptionCanceled(
+        supabaseAdmin,
+        cancelArtist.user_id,
+        fanProfile?.display_name || 'A fan'
+      );
+    }
 
     // Insert real-time churn alert AI insight (no AI call, just templated)
     await supabaseAdmin.from('ai_insights').insert({

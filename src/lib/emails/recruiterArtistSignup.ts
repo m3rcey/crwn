@@ -28,7 +28,7 @@ export function recruiterArtistSignupEmail(params: {
           </div>
           <div style="text-align: center; margin-top: 24px;">
             <p style="color: #666; font-size: 11px; margin: 0;">
-              JNW Creative Enterprises, Inc.
+              JNW Creative Enterprises Inc.
               <br/>
               <a href="https://thecrwn.app/terms" style="color: #D4AF37; text-decoration: none;">Terms</a> &middot;
               <a href="https://thecrwn.app/privacy" style="color: #D4AF37; text-decoration: none;">Privacy</a>

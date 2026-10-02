@@ -30,7 +30,6 @@ interface AlbumFormData {
   isAvailableNow: boolean;
   isFree: boolean;
   allowedTierIds: string[];
-  price: string;
 }
 
 export function QuickCreateAlbumModal({
@@ -45,7 +44,6 @@ export function QuickCreateAlbumModal({
   const supabase = createBrowserSupabaseClient();
   const [tiers, setTiers] = useState<SubscriptionTier[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [suggestedPrice, setSuggestedPrice] = useState<number | null>(null);
 
   const [formData, setFormData] = useState<AlbumFormData>({
     title: '',
@@ -55,7 +53,6 @@ export function QuickCreateAlbumModal({
     isAvailableNow: true,
     isFree: true,
     allowedTierIds: [],
-    price: '',
   });
 
   // Fetch tiers
@@ -75,23 +72,6 @@ export function QuickCreateAlbumModal({
     fetchTiers();
   }, [artistProfileId, isOpen, supabase]);
 
-  // Calculate suggested price based on selected tracks
-  useEffect(() => {
-    if (selectedTracks.length > 0) {
-      const totalCents = selectedTracks.reduce((sum, track) => {
-        return sum + (track.price || 0);
-      }, 0);
-      if (totalCents > 0) {
-        // Apply 80% retention (artist keeps 80% of track prices)
-        setSuggestedPrice(Math.round(totalCents * 0.8));
-      } else {
-        setSuggestedPrice(null);
-      }
-    } else {
-      setSuggestedPrice(null);
-    }
-  }, [selectedTracks]);
-
   // Reset form when modal opens
   useEffect(() => {
     if (isOpen) {
@@ -103,7 +83,6 @@ export function QuickCreateAlbumModal({
         isAvailableNow: true,
         isFree: true,
         allowedTierIds: [],
-        price: '',
       });
     }
   }, [isOpen]);
@@ -143,9 +122,6 @@ export function QuickCreateAlbumModal({
         releaseDate = formData.releaseDate || new Date().toISOString().split('T')[0];
       }
 
-      // Calculate price in cents
-      const priceInCents = formData.price ? Math.round(parseFloat(formData.price) * 100) : null;
-
       // Create album
       const { data: album, error: albumError } = await supabase
         .from('albums')
@@ -158,7 +134,6 @@ export function QuickCreateAlbumModal({
           is_free: formData.isFree,
           allowed_tier_ids: formData.isFree ? [] : formData.allowedTierIds,
           is_active: true,
-          price: formData.isFree ? null : priceInCents,
         })
         .select()
         .single();
@@ -343,30 +318,6 @@ export function QuickCreateAlbumModal({
                   <span className="text-crwn-text text-sm">{tier.name} (${(tier.price / 100).toFixed(0)}/mo)</span>
                 </label>
               ))}
-            </div>
-          </div>
-
-          {/* Price */}
-          <div>
-            <label className="block text-sm font-medium text-crwn-text-secondary mb-1">
-              Price (optional one-time purchase)
-            </label>
-            {suggestedPrice && (
-              <p className="text-xs text-crwn-gold mb-2">
-                Suggested: ${(suggestedPrice / 100).toFixed(2)} based on track prices (80% of total)
-              </p>
-            )}
-            <div className="flex items-center gap-2">
-              <span className="text-crwn-text">$</span>
-              <input
-                type="number"
-                step="0.01"
-                min="0"
-                placeholder={suggestedPrice ? `(Suggested: ${(suggestedPrice / 100).toFixed(2)})` : 'Leave empty if not for sale'}
-                value={formData.price}
-                onChange={(e) => setFormData(p => ({ ...p, price: e.target.value }))}
-                className="w-full neu-inset px-4 py-2 text-crwn-text"
-              />
             </div>
           </div>
 

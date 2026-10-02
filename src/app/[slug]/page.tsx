@@ -222,14 +222,18 @@ export default async function ArtistPage({ params, searchParams }: ArtistPagePro
   // Get album track counts (single batched query, not N+1)
   const albumIds = (albums || []).map(a => a.id);
   const albumTrackCounts: Record<string, number> = {};
+  // Which tracks sit on an album: a track on none is a single, for the Music tab's
+  // latest-release card and Singles row (src/lib/artistMusicLayout.ts).
+  const albumTrackIds = new Set<string>();
   if (albumIds.length > 0) {
     const { data: atData } = await supabase
       .from('album_tracks')
-      .select('album_id, track:tracks(is_active)')
+      .select('album_id, track_id, track:tracks(is_active)')
       .in('album_id', albumIds);
     for (const at of (atData || []) as any[]) {
       if (at.track?.is_active !== false) {
         albumTrackCounts[at.album_id] = (albumTrackCounts[at.album_id] || 0) + 1;
+        if (at.track_id) albumTrackIds.add(at.track_id);
       }
     }
   }
@@ -485,6 +489,7 @@ export default async function ArtistPage({ params, searchParams }: ArtistPagePro
           playlists={playlistsWithCounts}
           products={products || []}
           tracks={sortedTracks}
+          albumTrackIds={[...albumTrackIds]}
           isOwner={isOwner}
           commissionRate={artist.referral_commission_rate ?? 0}
           liveSessions={liveSessions || []}

@@ -21,7 +21,7 @@ export default function PartnerTermsPage() {
 
         <div className="prose prose-invert max-w-none space-y-6 text-crwn-text-secondary">
           <h2 className="text-xl font-semibold text-crwn-text">1. The Program</h2>
-          <p>The CRWN Partner Program (&quot;Program&quot;) is operated by JNW Creative Enterprises, Inc. (&quot;CRWN,&quot; &quot;we,&quot; &quot;us&quot;). These terms apply whenever you share a CRWN partner or recruiter link for compensation. They supplement the CRWN <Link href="/terms" className="text-crwn-gold hover:underline">Terms of Service</Link>, which also apply.</p>
+          <p>The CRWN Partner Program (&quot;Program&quot;) is operated by JNW Creative Enterprises Inc. (&quot;CRWN,&quot; &quot;we,&quot; &quot;us&quot;). These terms apply whenever you share a CRWN partner or recruiter link for compensation. They supplement the CRWN <Link href="/terms" className="text-crwn-gold hover:underline">Terms of Service</Link>, which also apply.</p>
 
           <h2 className="text-xl font-semibold text-crwn-text">2. Eligibility</h2>
           <p>You must be at least 18 years old, hold a CRWN account in good standing, and be legally able to receive payments through Stripe. Participating in the Program constitutes acceptance of these terms.</p>
@@ -46,18 +46,18 @@ export default function PartnerTermsPage() {
           <p>Either you or CRWN may end your participation at any time. On termination, compensation already earned under these terms remains payable through the normal payout process unless it was obtained through fraud. Pending referrals that have not yet qualified at termination do not qualify afterward.</p>
 
           <h2 className="text-xl font-semibold text-crwn-text">9. Independent Contractor</h2>
-          <p>You participate as an independent contractor. Nothing in the Program creates an employment, agency, joint venture, or partnership relationship between you and JNW Creative Enterprises, Inc.</p>
+          <p>You participate as an independent contractor. Nothing in the Program creates an employment, agency, joint venture, or partnership relationship between you and JNW Creative Enterprises Inc.</p>
 
           <h2 className="text-xl font-semibold text-crwn-text">10. Changes</h2>
           <p>We may update these terms from time to time. The version in effect when a referral qualifies is the version that applies to that referral. Continued participation after an update constitutes acceptance.</p>
 
           <h2 className="text-xl font-semibold text-crwn-text">11. Contact</h2>
           <p><strong>Support:</strong> support@thecrwn.app</p>
-          <p><strong>Entity:</strong> JNW Creative Enterprises, Inc.</p>
+          <p><strong>Entity:</strong> JNW Creative Enterprises Inc.</p>
         </div>
 
         <div className="mt-12 pt-6 border-t border-crwn-elevated text-center text-xs text-crwn-text-secondary">
-          JNW Creative Enterprises, Inc. © 2026. All rights reserved.
+          JNW Creative Enterprises Inc. © 2026. All rights reserved.
         </div>
       </div>
     </div>

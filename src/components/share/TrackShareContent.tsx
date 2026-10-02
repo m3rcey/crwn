@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
 import { useSubscription } from '@/hooks/useSubscription';
+import { dripLock, dripLabel, unlockMonthsFor } from '@/lib/memberDrip';
 import { useTrackPurchases } from '@/hooks/useTrackPurchases';
 import { usePlayer } from '@/hooks/usePlayer';
 import { useToast } from '@/components/shared/Toast';
@@ -34,6 +35,7 @@ interface TrackShareContentProps {
     allowed_tier_ids: string[] | null;
     price: number | null;
     artist_id: string;
+    tier_unlock_months?: Record<string, number> | null;
   };
   artist: {
     id: string;
@@ -46,7 +48,7 @@ interface TrackShareContentProps {
 
 export function TrackShareContent({ track, artist, tiers }: TrackShareContentProps) {
   const { user } = useAuth();
-  const { tierId, isSubscribed } = useSubscription(artist.id);
+  const { tierId, isSubscribed, startedAt } = useSubscription(artist.id);
   const { purchasedTrackIds, refetch: refetchPurchases } = useTrackPurchases(artist.id);
   const { play } = usePlayer();
   const { showToast } = useToast();
@@ -56,7 +58,12 @@ export function TrackShareContent({ track, artist, tiers }: TrackShareContentPro
 
   const isFree = track.is_free !== false;
   const hasPurchased = purchasedTrackIds.has(track.id) || justPurchased;
-  const hasAccess = isFree || justSubscribed || hasPurchased || (tierId && track.allowed_tier_ids?.includes(tierId));
+  // `audio_url_128` on a `tracks_public` row is the database's own yes (`can_play_track`),
+  // which covers the track's owner. No preview lens exists on this page, so it is trusted as is.
+  // The member drip: the fan's tier is on the track but waits N months from their own start.
+  // can_play_track refuses the audio until then, so the page must not offer Play Now.
+  const drip = hasPurchased ? null : dripLock({ map: track.tier_unlock_months, tierId, serverGranted: !!track.audio_url_128, startedAt });
+  const hasAccess = !drip && (isFree || justSubscribed || hasPurchased || !!track.audio_url_128 || (tierId && track.allowed_tier_ids?.includes(tierId)));
   const canBuy = !isFree && !!track.price && track.price > 0 && !hasPurchased;
   const shareUrl = `https://thecrwn.app/${artist.slug}/track/${track.id}`;
 
@@ -247,6 +254,13 @@ export function TrackShareContent({ track, artist, tiers }: TrackShareContentPro
               <Play className="w-5 h-5" fill="currentColor" />
               Play Now
             </button>
+          ) : drip ? (
+            <div className="mb-4 neu-raised rounded-xl p-4 text-center">
+              <p className="text-crwn-text text-sm font-semibold">{dripLabel(drip)}</p>
+              <p className="text-crwn-text-secondary text-xs mt-1">
+                Your membership unlocks this one. Keep it and it opens on its own.
+              </p>
+            </div>
           ) : canBuy && relevantTiers.length === 0 ? (
             <div className="mb-4">
               <p className="text-crwn-text-secondary text-sm text-center mb-4">
@@ -316,6 +330,11 @@ export function TrackShareContent({ track, artist, tiers }: TrackShareContentPro
                       <p className="text-crwn-text font-semibold">{tier.name}</p>
                       {tier.description && (
                         <p className="text-crwn-text-secondary text-xs mt-0.5 line-clamp-1">{tier.description}</p>
+                      )}
+                      {unlockMonthsFor(track.tier_unlock_months, tier.id) > 0 && (
+                        <p className="text-crwn-gold text-xs mt-0.5">
+                          Opens after month {unlockMonthsFor(track.tier_unlock_months, tier.id)} of your membership
+                        </p>
                       )}
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">

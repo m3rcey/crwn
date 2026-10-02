@@ -2,10 +2,12 @@ import { describe, it, expect } from 'vitest';
 import {
   DRE_PLATINUM_OFFER, DRE_GOLD_OFFER, DRE_SILVER_OFFER, DRE_APPROVED_BENEFITS,
   DRE_BENEFIT_IDENTITIES, DRE_TIER_PRICES_CENTS, DRE_TIER_PROMISES, DRE_FUNNEL_PRIMARY_ITEM,
+  DRE_BRONZE_SINGLES, PRINCE_DRE, DRE_DRIP, DRE_POSTER_LINKS,
 } from './princeDre';
 import { normalizeOfferExperience } from '../normalize';
 import { benefitDelivery } from '../../benefitRegistry';
 import { RECOMMENDED_LADDER } from '../../tierTemplate';
+import { ladderPricesFor } from './launchPartner';
 
 const OFFERS = [
   ['Platinum', DRE_PLATINUM_OFFER],
@@ -25,11 +27,23 @@ describe('Prince Dre reference configs pass the write contract', () => {
 });
 
 describe('the ladder matches the recommended rungs', () => {
-  it('names and prices are the four stock rungs at the recommended prices', () => {
+  it('names are the four stock rungs; prices are the ladder except the founder-approved Platinum', () => {
     const ladder = Object.fromEntries(RECOMMENDED_LADDER.map((r) => [r.name, r.priceCents]));
-    expect(DRE_TIER_PRICES_CENTS).toEqual({ Bronze: 0, Silver: 1000, Gold: 2500, Platinum: 10000 });
-    for (const [name, cents] of Object.entries(DRE_TIER_PRICES_CENTS)) expect(ladder[name]).toBe(cents);
+    // Founder, 2026-10-01: Platinum $50 for Dre's audience; every other rung stays on the ladder.
+    expect(DRE_TIER_PRICES_CENTS).toEqual({ Bronze: 0, Silver: 1000, Gold: 2500, Platinum: 5000 });
+    for (const name of ['Bronze', 'Silver', 'Gold']) expect(ladder[name]).toBe(DRE_TIER_PRICES_CENTS[name]);
+    expect(PRINCE_DRE.prices).toEqual({ Platinum: 5000 });
+    expect(ladderPricesFor(PRINCE_DRE)).toEqual(DRE_TIER_PRICES_CENTS);
     expect(Object.keys(DRE_TIER_PROMISES).sort()).toEqual(Object.keys(DRE_TIER_PRICES_CENTS).sort());
+  });
+
+  it('every price the copy states is the price the tier charges', () => {
+    const copy = JSON.stringify([DRE_PLATINUM_OFFER, DRE_GOLD_OFFER, DRE_SILVER_OFFER, DRE_APPROVED_BENEFITS]);
+    const stated = [...copy.matchAll(/\$(\d+) a month level/g)].map((m) => Number(m[1]) * 100);
+    expect(stated.length).toBeGreaterThan(0);
+    const real = Object.values(DRE_TIER_PRICES_CENTS);
+    for (const cents of stated) expect(real).toContain(cents);
+    expect(copy).not.toContain('$100');
   });
 
   it('every structured identity is a supported registry key standing for an approved line', () => {
@@ -50,9 +64,31 @@ describe('truth discipline', () => {
   ]);
   const lower = everything.toLowerCase();
 
-  it('only the two uploaded real projects are presented as REAL; placeholder slots stay examples', () => {
-    const real = OFFERS.flatMap(([, o]) => o.previews).filter((p) => p.truth === 'real').map((p) => p.title).sort();
-    expect(real).toEqual(['Blood Brothaz, today', 'Shotta In Da Jungle, today']);
+  it('a REAL preview names only songs and projects this launch actually uploads', () => {
+    const uploaded = new Set([
+      ...PRINCE_DRE.content!.tracks.map((t) => t.title),
+      ...PRINCE_DRE.content!.projects.map((p) => p.title),
+      ...PRINCE_DRE.vote!.options.map((o) => o.trackTitle),
+    ]);
+    const real = OFFERS.flatMap(([, o]) => o.previews).filter((p) => p.truth === 'real');
+    expect(real.length).toBeGreaterThan(0);
+    for (const p of real) for (const item of p.items ?? []) expect(uploaded.has(item.title), `${p.title}: ${item.title}`).toBe(true);
+  });
+
+  it('the copy never claims scarcity the research disproved (2026-09-30)', () => {
+    // Every project can be found somewhere (Audiomack, YouTube, Apple Music, LiveMixtapes), so
+    // "never on streaming", "unreleased" and "the public never got" are false.
+    for (const phrase of ['never on streaming', 'unreleased project', 'unreleased sampler', 'public never got']) {
+      expect(lower, phrase).not.toContain(phrase);
+    }
+  });
+
+  it('every song of every project is uploaded exactly once, and the counts in the copy come from it', () => {
+    const titles = PRINCE_DRE.content!.tracks.map((t) => t.title);
+    expect(new Set(titles).size).toBe(titles.length);
+    const onPage = titles.length + PRINCE_DRE.vote!.options.length;
+    expect(everything).toContain(`(${onPage} songs)`);
+    for (const t of DRE_BRONZE_SINGLES) expect(PRINCE_DRE.content!.tracks.find((x) => x.title === t)?.rung, t).toBe('Bronze');
   });
 
   it('the community card survives the write contract with its thread', () => {
@@ -107,5 +143,78 @@ describe('truth discipline', () => {
   it('no em or en dashes, and no Join-tier buttons', () => {
     expect(/[—–]/.test(everything)).toBe(false);
     expect(/Join (Platinum|Gold|Silver|Bronze)/.test(everything)).toBe(false);
+  });
+});
+
+// Founder, 2026-10-01: Gold gets the three remaining projects one a month, counted from each
+// member's OWN start, ending with the best. It replaced the fan vote on a shared calendar. The
+// copy must name the same projects in the same order the config drips them, and must not claim
+// anything the oracle does not do.
+describe('the Gold member drip', () => {
+  const gold = JSON.stringify(DRE_GOLD_OFFER) + DRE_APPROVED_BENEFITS.Gold.join(' ') + DRE_TIER_PROMISES.Gold;
+  const platinum = JSON.stringify(DRE_PLATINUM_OFFER);
+
+  it('drips one project a month for three months to Gold, ending with The Return Of The Prince', () => {
+    expect(DRE_DRIP.map((d) => d.months)).toEqual([1, 2, 3]);
+    expect(DRE_DRIP[DRE_DRIP.length - 1].title).toBe('The Return Of The Prince');
+    expect(PRINCE_DRE.drip).toEqual({ rung: 'Gold', projects: DRE_DRIP.map((d) => ({ title: d.title, months: d.months })) });
+  });
+
+  it('Gold names every drip project, in drip order', () => {
+    const at = DRE_DRIP.map((d) => DRE_APPROVED_BENEFITS.Gold.join(' ').indexOf(d.title));
+    expect(at.every((i) => i >= 0)).toBe(true);
+    expect([...at].sort((a, b) => a - b)).toEqual(at);
+    for (const d of DRE_DRIP) expect(gold).toContain(d.title);
+  });
+
+  it('says the count restarts on rejoining, because started_at resets on every paid checkout', () => {
+    expect(gold).toContain('the count starts again');
+  });
+
+  it('Platinum keeps all of it today and says Gold waits', () => {
+    expect(platinum.toLowerCase()).not.toContain('only in platinum');
+    for (const d of DRE_DRIP) expect(platinum).toContain(d.title);
+  });
+
+  it('no paid offer, card or promise mentions the retired vote or a passed date', () => {
+    const all = gold + platinum + JSON.stringify(DRE_APPROVED_BENEFITS) + JSON.stringify(DRE_TIER_PROMISES);
+    expect(all.toLowerCase()).not.toContain('vote');
+    expect(/October 1(?!\d)/.test(all)).toBe(false);
+    expect(PRINCE_DRE.vote!.retired).toBe(true);
+    expect(DRE_BENEFIT_IDENTITIES.Bronze.map((i) => i.key)).not.toContain('creative_voting');
+  });
+
+  it('every drip project has tracks above Gold to delay, and its Bronze singles stay free', () => {
+    for (const d of DRE_DRIP) {
+      const project = PRINCE_DRE.content!.projects.find((p) => p.title === d.title)!;
+      const rungs = project.trackTitles.map((t) => PRINCE_DRE.content!.tracks.find((x) => x.title === t)?.rung ?? 'vote-song');
+      expect(rungs).toContain('Platinum');
+      expect(rungs).not.toContain('Gold');
+      expect(rungs).not.toContain('Silver');
+    }
+  });
+
+  it('never claims the label album (SOULJA DRE) lives on, is free on, or is heard first on CRWN', () => {
+    // Founder, 2026-10-01: SOULJA DRE is with his label. CRWN carries only the songs that did not
+    // make it, so no fan-facing line may mention the album or a mixtape at all.
+    const copy = JSON.stringify([DRE_GOLD_OFFER, DRE_PLATINUM_OFFER, DRE_SILVER_OFFER, DRE_APPROVED_BENEFITS, DRE_BENEFIT_IDENTITIES, DRE_TIER_PROMISES]).toLowerCase();
+    // "old mixtape sites" (where fans hunt his old tapes) is true and stays; THE mixtape is the album.
+    expect(copy).not.toMatch(/the mixtape/);
+    expect(copy).not.toContain('soulja');
+  });
+});
+
+// The SOULJA DRE posters print these links as QR codes (2026-10-01). Renaming one strands every
+// printed poster, so the song behind a link changes and the link never does.
+describe('the printed poster links', () => {
+  it('are frozen', () => {
+    expect(DRE_POSTER_LINKS).toEqual({ releaseDate: 'princedre-souljadre', outNow: 'princedre-souljadre-album' });
+  });
+  it('are live drops with their own named links', () => {
+    for (const link of Object.values(DRE_POSTER_LINKS)) {
+      const d = PRINCE_DRE.drops!.find((x) => x.linkSlug === link);
+      expect(d, link).toBeDefined();
+      expect(d!.live).toBe(true);
+    }
   });
 });

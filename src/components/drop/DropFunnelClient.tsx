@@ -193,25 +193,26 @@ export function DropFunnelClient({ token, artist, magnet, gold, goldItem, silver
   }, []);
 
   const header = (
-    <div className="flex flex-col items-center text-center gap-2 mb-6">
+    // One line, not a stacked block: every pixel here pushes the opt-in button toward the fold.
+    <div className="flex items-center justify-center gap-3 mb-4">
       {artist.avatarUrl ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={artist.avatarUrl} alt={artist.name} className="w-16 h-16 rounded-full object-cover" />
+        <img src={artist.avatarUrl} alt={artist.name} className="w-10 h-10 rounded-full object-cover" />
       ) : (
-        <div className="w-16 h-16 rounded-full bg-crwn-elevated flex items-center justify-center">
-          <Crown className="w-8 h-8 text-crwn-gold" />
+        <div className="w-10 h-10 rounded-full bg-crwn-elevated flex items-center justify-center">
+          <Crown className="w-5 h-5 text-crwn-gold" />
         </div>
       )}
-      <div>
-        <p className="text-sm text-crwn-text-secondary">A drop from</p>
-        <p className="text-lg font-semibold text-crwn-text">{artist.name}</p>
-      </div>
+      <p className="text-sm text-crwn-text-secondary">
+        A drop from <span className="font-semibold text-crwn-text">{artist.name}</span>
+      </p>
     </div>
   );
 
   const magnetAccess = claimed?.magnet?.trackUrl && isTrackMagnet ? (
-    // The same card the fan saw locked, now playing, with the short-lived signed URL.
-    <MagnetPlayer {...playerProps} src={claimed.magnet.trackUrl} />
+    // The song the fan saw locked, now playing, with the short-lived signed URL. One compact
+    // row, so the offer's buy button under it stays above the fold on a phone and a laptop.
+    <MagnetPlayer {...playerProps} src={claimed.magnet.trackUrl} layout="row" />
   ) : claimed?.magnet?.trackUrl ? (
     // The song plays HERE. The signed URL is short-lived by design; the player mounts it
     // for this visit, and re-access below mints a fresh one any time.
@@ -313,7 +314,7 @@ export function DropFunnelClient({ token, artist, magnet, gold, goldItem, silver
 
   return (
     <div className="min-h-screen bg-crwn-bg text-crwn-text">
-      <div className="max-w-lg mx-auto px-4 py-10">
+      <div className="max-w-lg mx-auto px-4 pt-5 pb-10">
         {header}
 
         {campaign && (phase === 'capture' || phase === 'delivered') && (
@@ -323,7 +324,7 @@ export function DropFunnelClient({ token, artist, magnet, gold, goldItem, silver
         {phase === 'capture' && (
           <div className="neu-raised rounded-2xl p-6 bg-crwn-card text-center">
             {isTrackMagnet ? (
-              <div className="mb-5">
+              <div className="mb-3">
                 <MagnetPlayer
                   {...playerProps}
                   onLockedTap={() => {
@@ -344,25 +345,41 @@ export function DropFunnelClient({ token, artist, magnet, gold, goldItem, silver
                 Get it now
               </button>
             ) : (
-              <div className="mt-5 space-y-3">
-                <input
-                  type="text"
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
-                  placeholder="First name (optional)"
-                  className="w-full rounded-xl bg-crwn-elevated px-4 py-3 text-sm text-crwn-text placeholder:text-crwn-text-secondary outline-none"
-                />
-                <input
-                  ref={emailRef}
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Your email"
-                  className="w-full rounded-xl bg-crwn-elevated px-4 py-3 text-sm text-crwn-text placeholder:text-crwn-text-secondary outline-none"
-                />
+              <div className="mt-4 space-y-3">
+                {/* Name and email on ONE row: the opt-in button must sit above the fold. */}
+                <div className="grid grid-cols-[2fr_3fr] gap-2">
+                  <input
+                    type="text"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    placeholder="First name"
+                    aria-label="First name (optional)"
+                    autoComplete="given-name"
+                    className="w-full min-w-0 rounded-xl bg-crwn-elevated px-3 py-3 text-sm text-crwn-text placeholder:text-crwn-text-secondary outline-none"
+                  />
+                  <input
+                    ref={emailRef}
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Your email"
+                    autoComplete="email"
+                    inputMode="email"
+                    className="w-full min-w-0 rounded-xl bg-crwn-elevated px-3 py-3 text-sm text-crwn-text placeholder:text-crwn-text-secondary outline-none"
+                  />
+                </div>
                 <button
-                  onClick={claim}
-                  disabled={submitting || !email}
+                  // Never dimmed for an empty field: a greyed-out button reads as broken, and it
+                  // is the one thing this page wants tapped. With no email yet, it points there.
+                  onClick={() => {
+                    if (!email.trim()) {
+                      setError('Enter your email to unlock it.');
+                      emailRef.current?.focus();
+                      return;
+                    }
+                    void claim();
+                  }}
+                  disabled={submitting}
                   className="w-full py-3 rounded-full font-semibold bg-crwn-gold text-crwn-bg press-scale disabled:opacity-60"
                 >
                   {/* Benefit-led capture CTA: the fan is unlocking the thing, not filling a form. */}
@@ -378,13 +395,13 @@ export function DropFunnelClient({ token, artist, magnet, gold, goldItem, silver
         )}
 
         {phase === 'delivered' && (
-          <div className="space-y-6">
-            <div className="neu-raised rounded-2xl p-6 bg-crwn-card text-center">
+          <div className="space-y-4">
+            <div className="neu-raised rounded-2xl p-4 bg-crwn-card text-center">
               <p className="text-xs uppercase tracking-wide text-crwn-gold mb-2">{isTrackMagnet ? 'Unlocked' : 'Delivered'}</p>
               {!(isTrackMagnet && claimed?.magnet?.trackUrl) ? (
                 <h1 className="text-xl font-bold text-crwn-text">{magnet.title || 'Your drop'}</h1>
               ) : null}
-              <div className="mt-4 flex justify-center">{submitting && !claimed ? <Loader2 className="w-5 h-5 animate-spin text-crwn-gold" /> : magnetAccess}</div>
+              <div className="mt-3 flex justify-center">{submitting && !claimed ? <Loader2 className="w-5 h-5 animate-spin text-crwn-gold" /> : magnetAccess}</div>
               {magnet.kind === 'track' && (
                 <p className="mt-3 text-xs text-crwn-text-secondary">
                   Yours for good: as a free member it plays any time on{' '}

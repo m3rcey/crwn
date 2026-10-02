@@ -11,6 +11,11 @@
 #   crwn sync                   fast-forward the LOCAL main checkout to origin/master; never touches
 #                               uncommitted files (git refuses, and so does this)
 #   crwn rm <task>              remove a finished worktree (the branch is kept)
+#   crwn clean [--apply]        every task worktree: landed?, dirty?, in use?, disk. A dry run unless
+#                               --apply: removes landed+clean+idle worktrees, deletes idle caches
+#
+# Cleanup also runs on its own, under the same rules: after crwn land (that task only) and when a
+# new task starts (every idle worktree). Branches are never deleted.
 #
 # Worktrees are created by Claude Code's native --worktree; this script only adds the checks
 # around it: WSL only (Windows git corrupts this repo's colon-named files), a fresh base, and a
@@ -75,6 +80,7 @@ Pick a different name, or reopen it with: crwn resume $task"
   g fetch --quiet origin "$BASE" 2>/dev/null || echo "crwn: fetch failed, using cached origin/$BASE" >&2
   g show-ref --verify --quiet "refs/remotes/origin/worktree-$task" 2>/dev/null && [[ -n "$task" ]] \
     && die "origin already has a branch worktree-$task from an earlier task. Pick a different name."
+  sweep --no-fetch --no-sizes --quiet   # landed+idle worktrees and idle caches go before a new one arrives
   echo "crwn: base origin/$BASE $(g rev-parse --short "origin/$BASE"), worktree .claude/worktrees/${task:-<named by Claude>}, branch worktree-${task:-<name>}" >&2
   cd "$ROOT"
   if [[ -n "$task" ]]; then exec claude --worktree "$task" "$@"; else exec claude --worktree "$@"; fi
@@ -84,7 +90,14 @@ cmd_resume() {
   [[ $# -ge 1 ]] || die "usage: crwn resume <task>"
   local task; task=$(task_name "$1"); shift
   if [[ ! -e "$WTS/$task" ]]; then
-    g show-ref --verify --quiet "refs/heads/worktree-$task" || die "no worktree or branch for task '$task' (see: crwn ls)"
+    if ! g show-ref --verify --quiet "refs/heads/worktree-$task"; then
+      # The local branch is gone but origin still has it: recreate it from there, commits intact.
+      g fetch --quiet origin "worktree-$task" 2>/dev/null || true
+      g show-ref --verify --quiet "refs/remotes/origin/worktree-$task" \
+        || die "no worktree or branch for task '$task', here or on origin (see: crwn ls)"
+      g branch --quiet --track "worktree-$task" "origin/worktree-$task"
+      echo "crwn: recreated branch worktree-$task from origin" >&2
+    fi
     g worktree add --quiet "$WTS/$task" "worktree-$task"   # recreate the directory for a kept branch
   fi
   cd "$ROOT"
@@ -101,7 +114,7 @@ cmd_ls() {
       branch)
         br=${val#refs/heads/}
         ab=$(g rev-list --left-right --count "origin/$BASE...$br" 2>/dev/null | awk '{print "+"$2" -"$1}')
-        dirty=$(git -C "$path" status --porcelain 2>/dev/null | wc -l)
+        dirty=$(git --no-optional-locks -C "$path" status --porcelain 2>/dev/null | wc -l)
         if ! g show-ref --verify --quiet "refs/remotes/origin/$br"; then pushed=no
         elif [[ "$(g rev-parse "$br")" == "$(g rev-parse "origin/$br")" ]]; then pushed=yes
         else pushed=behind-local; fi
@@ -148,7 +161,9 @@ then run: crwn land $arg"
   g push origin "$tip:refs/heads/$BASE"
   echo "Landed: the REMOTE origin/$BASE is now $(g rev-parse --short "$tip") (production deploys from it)."
   echo "Your local main checkout ($ROOT) was not touched. Update it when no session there is mid-task: crwn sync"
-  echo "When you are done with the worktree: crwn rm ${arg#worktree-}"
+  # Remove that task's worktree now if it is clean and idle. Otherwise this says what keeps it
+  # (usually its session is still open), and the next sweep removes it.
+  sweep --no-fetch --only "${arg#worktree-}"
 }
 
 cmd_sync() { # fast-forward the LOCAL main checkout to origin/$BASE, never touching uncommitted work
@@ -172,6 +187,19 @@ $hit"
   else
     die "git refused the fast-forward (listed above) because it would overwrite uncommitted work. Nothing was changed. Commit, move or finish those files first, then run crwn sync again."
   fi
+}
+
+# The cleanup engine (scripts/dev/worktree-clean.mjs) run by land and new. Never fails the caller.
+sweep() {
+  command -v node >/dev/null 2>&1 || { echo "crwn: node not found, cleanup skipped" >&2; return 0; }
+  node "$ROOT/scripts/dev/worktree-clean.mjs" --repo "$ROOT" --apply "$@" || echo "crwn: cleanup skipped (see above)" >&2
+}
+
+cmd_clean() {
+  [[ " $* " == *" --apply "* ]] && in_claude_worktree \
+    && die "a task session never cleans up other checkouts. Run crwn clean --apply from the main checkout or a plain terminal."
+  command -v node >/dev/null 2>&1 || die "node not found"
+  exec node "$ROOT/scripts/dev/worktree-clean.mjs" --repo "$ROOT" "$@"
 }
 
 cmd_rm() {
@@ -199,7 +227,8 @@ cmd_rm() {
 }
 
 case "${1:-}" in
-  -h|--help|help) sed -n '2,15p' "$SELF" | sed 's/^# \{0,1\}//' ;;
+  -h|--help|help) sed -n '2,20p' "$SELF" | sed 's/^# \{0,1\}//' ;;
+  clean) shift; cmd_clean "$@" ;;
   ls|list) shift; cmd_ls "$@" ;;
   land) shift; cmd_land "$@" ;;
   sync) shift; cmd_sync "$@" ;;

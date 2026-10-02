@@ -151,7 +151,7 @@ export async function POST(request: NextRequest) {
           <p style="color: #A0A0A0; line-height: 1.6;">If you need to add anything, just reply to this email and it lands on the same thread.</p>
           <p style="color: #A0A0A0; line-height: 1.6; font-size: 13px;">If you did not contact CRWN support, you can ignore this email. Nothing was changed on any account.</p>
           <div style="margin-top: 32px; padding-top: 16px; border-top: 1px solid #333; text-align: center;">
-            <p style="color: #666; font-size: 12px; margin: 0;">JNW Creative Enterprises, Inc. © 2026</p>
+            <p style="color: #666; font-size: 12px; margin: 0;">JNW Creative Enterprises Inc. © 2026</p>
           </div>
         </div>
       `,

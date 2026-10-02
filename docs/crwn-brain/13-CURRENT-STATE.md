@@ -61,7 +61,9 @@ CRWN is **live in production** (`thecrwn.app`) and the core money loop is real a
 
 - **PRE-PMF SURFACE REDUCTION (2026-08-13).** The default product was cut to the path that gets
   3 qualified artists to a first paid member. Four states, never collapsed:
-  - **ACTIVE + visible:** Studio = Music/Albums/Shop/Offer Builder/Live; AccountHub = Rise Mode,
+  - **ACTIVE + visible:** Studio = Music/Albums/Shop/Offer Builder/Live, plus Song Lab for an
+    artist whose `song_lab_enabled` is true (2026-09-30, the one per-artist tile);
+    AccountHub = Rise Mode,
     Studio, Analytics, Fan CRM, Promise Calendar, Fan Proof, the five core tools, page/tiers/
     payouts/billing/referrals, account + support; bottom nav = 3 artist slots, 2 fan slots; fan
     product = Home (next-action), artist pages, Library (with ReferralDashboard = the whole

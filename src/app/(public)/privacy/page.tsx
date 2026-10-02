@@ -17,7 +17,7 @@ export default function PrivacyPage() {
 
         <div className="prose prose-invert max-w-none space-y-6 text-crwn-text-secondary">
           <h2 className="text-xl font-semibold text-crwn-text">1. Introduction</h2>
-          <p>CRWN ("the Platform"), accessible at thecrwn.app, is operated by JNW Creative Enterprises, Inc. This Privacy Policy explains how we collect, use, share, retain, and protect personal information.</p>
+          <p>CRWN ("the Platform"), accessible at thecrwn.app, is operated by JNW Creative Enterprises Inc. This Privacy Policy explains how we collect, use, share, retain, and protect personal information.</p>
 
           <h2 className="text-xl font-semibold text-crwn-text">2. Information We Collect</h2>
           <p><strong>Information You Provide:</strong> Email address, display name, authentication credentials, profile information, content you upload, and payment information processed by Stripe.</p>
@@ -57,11 +57,11 @@ export default function PrivacyPage() {
           <p><strong>Deleting this data:</strong> an artist can disconnect at any time from Fan Automations in CRWN Studio, which stops all replies and erases the stored access token. You can also remove CRWN from your Instagram or Facebook settings under Apps and websites. To delete the comment records or the email and membership created this way, email privacy@thecrwn.app and name the artist; we delete them within 30 to 45 days. Meta acts as the platform through which these messages are sent. We do not sell this information.</p>
 
           <h2 className="text-xl font-semibold text-crwn-text">8. SMS, Mobile Numbers, and Messaging Consent</h2>
-          <p>CRWN is operated by JNW Creative Enterprises, Inc. This section describes how JNW Creative Enterprises, Inc. and CRWN handle mobile phone numbers and text messaging.</p>
+          <p>CRWN is operated by JNW Creative Enterprises Inc. This section describes how JNW Creative Enterprises Inc. and CRWN handle mobile phone numbers and text messaging.</p>
           <p><strong>We do not share, sell, or provide your mobile phone number or messaging consent data to third parties or affiliates for marketing or promotional purposes.</strong> No mobile information is shared with third parties or affiliates for marketing or promotional purposes. Text messaging originator opt-in data and consent are excluded from every category of information we share, and that information is not shared with any third parties.</p>
           <p><strong>When we collect a mobile number:</strong> the only place CRWN asks for one is the optional &quot;Get a call now&quot; request on our public calculators. Providing it is voluntary, you tick a separate, unchecked consent box before submitting, and we store the exact consent wording, its version, and the time you agreed. No part of CRWN requires a phone number, and we do not buy, rent, or import mobile numbers from anyone else.</p>
           <p><strong>How we use it:</strong> so that a CRWN representative can contact you about the request you made. We do not add it to a marketing list, an advertising audience, or a recurring text message program.</p>
-          <p><strong>Our automated text messaging program is internal:</strong> JNW Creative Enterprises, Inc. operates one automated SMS program. When an artist asks to speak with our team, the system sends an operational alert to an authorized JNW Creative Enterprises, Inc. representative so that they can return the call. The alert identifies the lead and includes the callback number the artist submitted. It is sent only to our own authorized personnel, who agreed in advance to receive it. It is not sent to artists, fans, prospects, or customers, and it is never used for marketing or promotion.</p>
+          <p><strong>Our automated text messaging program is internal:</strong> JNW Creative Enterprises Inc. operates one automated SMS program. When an artist asks to speak with our team, the system sends an operational alert to an authorized JNW Creative Enterprises Inc. representative so that they can return the call. The alert identifies the lead and includes the callback number the artist submitted. It is sent only to our own authorized personnel, who agreed in advance to receive it. It is not sent to artists, fans, prospects, or customers, and it is never used for marketing or promotion.</p>
           <p><strong>Message frequency:</strong> message frequency varies and depends on how many artists ask to speak with us. This is a low volume program, and no more than one alert is generated per callback number per day.</p>
           <p><strong>Charges:</strong> message and data rates may apply. Reply STOP to any message to stop receiving them. Reply HELP for help.</p>
           <p><strong>Service providers:</strong> delivering messages requires service providers. Text messages are delivered through Twilio, numbers are stored with Supabase, and email alerts are delivered through Resend. These providers act on our instructions and may use the information only to provide their service to us. That is disclosure to a processor. It is not a sale, and it is not sharing with a third party or affiliate for marketing or promotional purposes.</p>
@@ -82,11 +82,11 @@ export default function PrivacyPage() {
           <h2 className="text-xl font-semibold text-crwn-text">12. Contact</h2>
           <p><strong>Privacy:</strong> privacy@thecrwn.app</p>
           <p><strong>Support:</strong> support@thecrwn.app</p>
-          <p><strong>Entity:</strong> JNW Creative Enterprises, Inc.</p>
+          <p><strong>Entity:</strong> JNW Creative Enterprises Inc.</p>
         </div>
 
         <div className="mt-12 pt-6 border-t border-crwn-elevated text-center text-xs text-crwn-text-secondary">
-          JNW Creative Enterprises, Inc. © 2026. All rights reserved.
+          JNW Creative Enterprises Inc. © 2026. All rights reserved.
         </div>
       </div>
     </div>

@@ -21,7 +21,7 @@ export default function DMCAPage() {
 
           <h2 className="text-xl font-semibold text-crwn-text">DMCA Designated Agent</h2>
           <p><strong>Email:</strong> dmca@thecrwn.app</p>
-          <p><strong>Entity:</strong> JNW Creative Enterprises, Inc.</p>
+          <p><strong>Entity:</strong> JNW Creative Enterprises Inc.</p>
 
           <h2 className="text-xl font-semibold text-crwn-text">Required Information</h2>
           <p>Your DMCA notice must include:</p>
@@ -40,7 +40,7 @@ export default function DMCAPage() {
         </div>
 
         <div className="mt-12 pt-6 border-t border-crwn-elevated text-center text-xs text-crwn-text-secondary">
-          JNW Creative Enterprises, Inc. © 2026. All rights reserved.
+          JNW Creative Enterprises Inc. © 2026. All rights reserved.
         </div>
       </div>
     </div>

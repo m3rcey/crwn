@@ -175,7 +175,12 @@ export async function POST(request: NextRequest) {
   // Welcome email, once, on the completion that actually saved a name. This
   // moved here from /welcome's mount effect, which re-sent on every visit and
   // greeted people by the email-derived seed name instead of the name they chose.
-  if (firstCompletion && user.email) {
+  //
+  // SUPPORTERS ONLY (2026-10-02). This template is written for a fan ("Explore, subscribe to your
+  // favorite artists"), and an artist was getting it seconds before Josh's own artist welcome
+  // below, so every new artist opened two welcomes and the first one was addressed to someone
+  // else. An artist gets exactly one: the founder welcome from sendNewArtistAlerts.
+  if (firstCompletion && user.email && effectiveRole !== 'artist') {
     resend.emails
       .send({
         from: FROM_EMAIL,

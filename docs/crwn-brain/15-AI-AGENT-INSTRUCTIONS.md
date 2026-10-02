@@ -255,7 +255,12 @@ drift the moment anyone adds a test, and a stale count teaches the next agent to
   (Josh confirms). `.claude/hooks/git-guard.mjs` blocks, in code:
   - a master push from a task worktree, and any force, delete or mirror of master;
   - git writes into another session's checkout;
-  - discarding work in the shared main checkout.
+  - discarding work in the shared main checkout;
+  - `crwn clean --apply` from a task session.
+
+  Finished and idle worktrees are cleaned by `crwn clean` (`scripts/dev/worktree-clean.mjs`, run
+  automatically by `crwn land` and `crwn <task>`): landed+clean+idle worktrees are removed, other
+  idle ones lose only `.next` and `node_modules`, and branches are never deleted.
 
   Guide: `docs/PARALLEL_CLAUDE_SESSIONS.md`.
 

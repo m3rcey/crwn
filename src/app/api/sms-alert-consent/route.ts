@@ -12,7 +12,7 @@ import {
 } from '@/lib/sms/alertConsent';
 
 // PUBLIC endpoint (middleware excludes /api/). It backs the form at /sms-alert-consent, where
-// JNW Creative Enterprises, Inc.'s own authorized personnel consent to receive internal
+// JNW Creative Enterprises Inc.'s own authorized personnel consent to receive internal
 // operational lead alerts by SMS. It is public because a Twilio reviewer has no CRWN account and
 // must be able to see the opt-in experience end to end.
 //

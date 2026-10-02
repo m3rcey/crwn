@@ -300,6 +300,9 @@ export function evaluateAll(input, env = process.env) {
       if (crwnAt >= 0 && ['land', 'sync'].includes(seg[crwnAt + 1]) && implementation) {
         return `crwn ${seg[crwnAt + 1]} changes master or the main checkout, which a task session never does. Push your branch and report it; Josh lands it.`;
       }
+      if (crwnAt >= 0 && seg[crwnAt + 1] === 'clean' && seg.includes('--apply') && implementation) {
+        return 'crwn clean --apply removes and trims OTHER task worktrees, which a task session never does. A dry run (crwn clean) is fine; Josh applies it.';
+      }
 
       if (mutatesDeps(seg)) {
         const info = repoInfo(segDir, toLocal);

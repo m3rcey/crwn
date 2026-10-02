@@ -382,7 +382,22 @@ running), **DEAD** (present in the repo, nothing reaches it).
 
 ### D-04 Community channels · LIVE
 - **Does:** persistent tier-gated chat channels with realtime.
-- **Evidence:** **0 channels ever created.**
+- **Evidence:** 1 channel (an open chat channel with 1 message), production read 2026-10-02.
+
+### D-04b Community tier rooms · BUILT, migration pending (2026-10-02)
+- **Does:** one room per membership rung. The artist posts into a room; that rung and every
+  rung above it get the full post and the comments. Everyone else stands at the rope: a video
+  shows its thumbnail, play button and caption; a photo shows its caption and a pre-blurred
+  copy; a text post shows only "posted in Gold"; likes and comments show as COUNTS. A tap opens
+  a sheet ("Gold members are watching this. You're not a member. YET.") that goes straight to
+  checkout, or upgrades a member already on a cheaper paid rung.
+- **Rules:** the room decides the post inside `can_read_community_post`. `community_posts_feed`
+  exposes the teaser fields for room posts only. Room media sit in the private R2 bucket as
+  keys, and `/api/community/media` signs them per request after re-reading the view as the
+  caller. Writes (comments, likes, filing a post in a room) are entitlement-checked in RLS.
+  Rooms are additive only (`planTierRooms`). A comment's tier badge shows wherever the
+  comment shows, so inside a gated room only members see it.
+- **Evidence:** none yet. There are 0 rooms until `schema-phase2-community-tier-rooms.sql` is applied.
 
 ### D-05 Direct messages and voice notes · LIVE (Pro-gated)
 - **Does:** artist to fan DMs, including recorded voice notes, private bucket with signed audio.

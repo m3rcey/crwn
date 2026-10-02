@@ -22,32 +22,30 @@ responsible for. Do not work those.
 
 ### P0 — money flows or acquisition are blocked
 
-- [ ] **Prince Dre has NOT connected Stripe. Get him to do it; his three paid tiers cannot sell
-      until he does.** Checked 2026-09-28: he signed up with Google (princedremusicbusiness@gmail.com)
-      and stopped on the wizard's FIRST screen, so there was no artist row and no Connect account.
-      His page, ladder, offer copy and draft funnel are now built (https://thecrwn.app/princedre).
-      Tell him: sign in, and the wizard resumes at his photo, then asks for music (skippable with
-      "I'll add music later", but see the next item); then its Stripe screen connects Stripe, and CRWN creates his Stripe prices on its own
-      the moment charges are enabled. Nothing for you to run. To confirm afterwards, the last column
-      of this should read "yes" on Silver, Gold and Platinum:
-          npx tsx scripts/onboard-launch-partner.mjs princedre
-      Everything behind the paid tiers is now his real music (the placeholder beats were removed
-      2026-09-29): Silver is Blood Brothaz, Gold adds Shotta In Da Jungle.
-      Two lead magnets are LIVE and both sell into these tiers: the vote
-      (https://thecrwn.app/princedre/join/vote) and "Round Here" on the drop funnel
-      (https://thecrwn.app/drop/princedre-round-here). Every checkout button on both fails until he connects.
+- [ ] **Run the Astra prompt that gives Dre's 16 songs their comment triggers.**
+      [docs/acquisition/astra-princedre-song-comment-triggers.md](docs/acquisition/astra-princedre-song-comment-triggers.md)
+      adds one trigger per song on All Posts or Reels with Dre's 20 replies (your call, 2026-10-01:
+      all posts, accepting that "come thru" or "made my day" will also get a song DM). New Astra
+      chat. Safe to paste again. Send Claude the report.
+- [ ] **Find out when Prince Dre's ManyChat trial ends, and make sure it will not lapse.** His
+      account shows a **TRIAL** badge under his name in ManyChat, not a paid Pro plan. When a
+      ManyChat plan lapses, every automation switches OFF and does NOT switch back on when the plan
+      is renewed: each one has to be turned back on by hand, and nothing in CRWN can see it happen
+      (that is how CRWN's own funnel was dead from 2026-08-26 to 2026-09-08). Ask Dre to confirm a
+      card is on file for the plan that follows the trial, and put the trial's end date in your
+      calendar with a reminder to open his Automations that day and check all 17 read Live.
 
-- [ ] **Get the three vote projects' full songs from Prince Dre's team before October 1, and confirm
-      that date.** Gold promises "the complete winning project, unlocked October 1" and Platinum
-      "all 3 vote projects, complete, the moment Dre adds each one"
-      ([src/lib/offerExperience/reference/princeDre.ts](src/lib/offerExperience/reference/princeDre.ts)).
-      Only one song of each (the vote songs) is uploaded. Ask his team for:
-        1. every song on The Return Of The Prince, Fresh Prince Of O'Block and Only The O In My Eyes, in order
-        2. written confirmation they control the rights to sell those older projects (and Blood
-           Brothaz and Shotta In Da Jungle, which are already live behind Silver and Gold)
-        3. that October 1 is the mixtape date (it is on the vote page as the unlock day)
-      Drop each project in its own folder under videos/prince dre/ and tell me.
-
+- [ ] **Tell Dre how his Gold and Platinum work now, and get his SOULJA DRE cuts.** Live since 2026-10-01:
+      Gold ($25) hears Shotta In Da Jungle and Im Reloaded the day they join, then Only The O In My
+      Eyes after month 1, Fresh Prince Of O'Block after month 2, The Return Of The Prince after month
+      3, counted from each member's own signup. Platinum is now **$50/mo** (was $100; $450/yr) and has
+      all 8 today. The vote page is down. The order was my
+      pick (weakest to best by YouTube views); if he wants another, tell me and I swap it.
+      Cancelling and rejoining restarts the count. SOULJA DRE itself is with his label, so ask him
+      for the songs that did NOT make the album (the posters' free song), plus what he has from each
+      era that is nowhere else: unreleased songs, videos, photos, notepad screenshots, any unreleased
+      project. That is what his monthly drop is made of. And have him record the VSL (script in
+      chat, 2026-10-01).
 
 - [ ] **To finish Team Splits I need a test-mode sandbox. This is the only thing left, and it is
       environment setup, not code.** Nothing to run in SQL.
@@ -86,6 +84,65 @@ responsible for. Do not work those.
           Link it carries: https://thecrwn.app/setup (resumes him on the music screen)
 
 ### P1 — real risk or real friction, but nothing is on fire
+
+- [ ] **Approve Prince Dre's VSL storyboard, then fill the four blanks.** Open
+      [docs/vsl/prince-dre/storyboard-wireframes.png](docs/vsl/prince-dre/storyboard-wireframes.png)
+      and [docs/vsl/prince-dre/STORYBOARD.md](docs/vsl/prince-dre/STORYBOARD.md); edit any frame,
+      line or plate. Then fill the top of
+      [docs/vsl/prince-dre/PROMPT.md](docs/vsl/prince-dre/PROMPT.md): fal budget cap, who edits in
+      Premiere, Dre's written OK to an AI-relocated version of himself, and the final narration.
+      Nothing is generated until you approve; then 5 test stills, one per plate.
+
+- [ ] **Before Saturday 2026-10-04: stop the "you are ready for Pro" emails going to artists with
+      $0 revenue.** Nine new artists (Prince Dre among them) are mid-sequence, and step 2 ("What
+      stays locked on Launch") goes out from Oct 4. Open and run the whole file in the Supabase SQL
+      editor: [supabase/cancel-zero-revenue-pro-upsell.sql](supabase/cancel-zero-revenue-pro-upsell.sql).
+      Its first result should list 9 rows, all with gmv30d_cents 0; it cancels exactly those and
+      fails loudly if any remain. Nothing is deleted (to undo, set those ids back to active). The
+      code that stops new ones is on the `worktree-email-sequences` branch.
+
+- [ ] **Create Prince Dre's four tier rooms (Bronze, Silver, Gold, Platinum).** The migration
+      is applied (probe-verified 2026-10-02). Other artists get their rooms the next time they
+      open their own community tab; this does Dre's now. Run it only once this item is on
+      master: the script ships in the same commit, and an older deploy would list the rooms as
+      chat channels. In a WSL terminal, from ~/workspace-crwn:
+          npx tsx scripts/community-rooms.mjs princedre --apply
+      Then open thecrwn.app/princedre?tab=community signed out: you should see All / Bronze /
+      Silver / Gold / Platinum with locks, and Dre's posts there show as teasers until you join.
+
+- [ ] **Get Prince Dre's written OK that he can sell all eight projects now on his page, and
+      confirm the unlock dates.** His whole catalog is live behind his tiers since 2026-09-30 (94 songs).
+      Web research turned up other names on some of it; ask his team about each one:
+        - Blood Brothaz: YouTube Music lists "(P) 2015 Create Music Group", and it is a joint project
+          with JB Binladen (co-owner?).
+        - Life I Live: TSO Music Group / Munna Gang Inc (Apple Music). O Block Ass Nigga: Munna Gang Inc.
+        - Fresh Prince Of O'Block and Only The O In My Eyes: their Spotify albums are region
+          restricted and Only The O was pulled from Apple Music; ask who pulled them and why.
+        - Gold hears the three Platinum-only projects one a month from each member's own signup.
+      He also signs the new artist terms on his next login (he warrants the rights and holds JNW
+      Creative Enterprises harmless), which protects you but does not replace asking.
+
+- [ ] **Have a lawyer read the new artist terms and the hold-harmless clauses.** Every artist now
+      signs these before using CRWN, and I wrote them, not counsel:
+      [src/lib/legal/artistTerms.ts](src/lib/legal/artistTerms.ts) (the screen they sign, including
+      the First Revenue Launch conditions), section 5 of
+      [src/app/(public)/terms/page.tsx](src/app/(public)/terms/page.tsx) and section 3 of
+      [src/app/(public)/artist-agreement/page.tsx](src/app/(public)/artist-agreement/page.tsx)
+      (both now dated September 30, 2026). If counsel changes the words in substance, bump
+      ARTIST_TERMS_VERSION in the first file and every artist is asked to sign again.
+
+- [ ] **Tell GB his vote funnel already works, then let him decide the general-engagement
+      question.** Song Lab is now reachable for him (Studio tile plus hamburger entry, live
+      2026-09-30) at /studio/lab, which is the only thing that was actually missing.
+      Verified live: thecrwn.app/gb/join/final-vote serves his Hook ballot right now
+      (Hook A / Hook B / Hook C, "Cast my vote"), and a stranger who taps it joins Bronze free
+      and votes in one step. Nothing in his setup needs fixing. What is left is just work he
+      has not done yet: he has one of his three ABC stages built (Hook), so Beat and Melody are
+      two more votes to create, and if he wants a link per stage rather than his one evergreen
+      link, that is one Lead magnet per stage bound to that vote.
+      The real decision for you: he asked whether this should become a general fan-engagement
+      tool (questions, feedback, discussions, not only voting). CRWN already has adjacent
+      surfaces for parts of that, so it is worth deciding deliberately rather than growing into.
 
 - [ ] **Decide whether founder follow-up emails send automatically.** Built 2026-09-29, OFF.
       Every sales_priority lead gets ONE note per journey stage in your name ("Josh at CRWN
@@ -141,9 +198,8 @@ responsible for. Do not work those.
       confirm with his team the tier lines in
       [src/lib/offerExperience/reference/princeDre.ts](src/lib/offerExperience/reference/princeDre.ts)
       (the blueprint says pricing and benefits are approved by them before launch), including the
-      vote copy: "The project with the most votes by October 1 unlocks for Gold" is HIS promise to
-      keep. On October 1 he records the winner in his Song Lab manager (Studio, Lab); CRWN counts
-      the votes and never picks one.
+      member drip: Gold hears one more project each month a member stays (CRWN enforces the
+      timing, so there is nothing for him to do on any date).
 
 - [ ] **Run [supabase/schema-phase2-artist-gate-caller-only.sql](supabase/schema-phase2-artist-gate-caller-only.sql)
       in the Supabase SQL Editor.** This stops the daily "Onboarding is broken" email. The alert
@@ -498,7 +554,7 @@ responsible for. Do not work those.
       512(c) safe harbor requires the designated agent to be registered in the Copyright
       Office's online directory (dmca.copyright.gov, $6, renew every 3 years). Without it,
       hosting user-uploaded music has no takedown shield. Ten minutes, one form, entity
-      JNW Creative Enterprises, Inc., agent email dmca@thecrwn.app.
+      JNW Creative Enterprises Inc., agent email dmca@thecrwn.app.
 
 - [ ] **P2: Read the new Partner Program Terms before recruiting anyone you don't know.**
       /partner and /recruit publicly promise cash and now link /partner-terms (qualifying
@@ -522,7 +578,7 @@ responsible for. Do not work those.
         Terms & Conditions URL:    https://thecrwn.app/terms
       The campaign description and sample messages must MATCH what those pages say, or the
       reviewer rejects it as conflicting information. Describe it as:
-      *JNW Creative Enterprises, Inc., operating the CRWN platform (thecrwn.app), sends
+      *JNW Creative Enterprises Inc., operating the CRWN platform (thecrwn.app), sends
       internal operational alerts to its own authorized personnel. When an artist requests a
       call through a CRWN calculator and qualifies, an alert with the lead's details and
       callback number is sent to an authorized representative so they can return the call.
@@ -537,7 +593,7 @@ responsible for. Do not work those.
 - [ ] **P0: Paste this into Twilio's "How do end-users consent to receive messages?" field.**
       Copy it verbatim; it matches the live page, the privacy policy and the terms, and a
       mismatch between them is the rejection reason:
-        Authorized personnel of JNW Creative Enterprises, Inc. opt in at
+        Authorized personnel of JNW Creative Enterprises Inc. opt in at
         https://thecrwn.app/sms-alert-consent, a publicly accessible web form. The person enters
         their mobile number and actively checks an unchecked consent box reading: "I agree to
         receive low-volume internal CRWN operational lead alerts by SMS from JNW Creative
@@ -1130,6 +1186,12 @@ Things that are never finished. Cadence, then the thing.
 
 ## On Claude's plate (not yours)
 
+- **Lifecycle email phase 2** (plan in docs/crwn-brain/35-LIFECYCLE-EMAIL-STRATEGY.md, "Next"):
+  code-owned artist emails for the First Revenue steps Rise Mode shows (offer, magnet, sales page,
+  follow-up, turn on, test, launch), driven by the same next move; a default free-member nurture
+  with a goal tier (two gives, then one direct offer); the paid non-starter nudge once per-fan play
+  evidence is readable by a cron.
+
 - **The worth result calls an estimate a fact.** With no streaming income given, the DM result
   labels a figure estimated from monthly listeners "What streaming pays you now" and says
   "Streaming currently pays you about $X". Relabel it as an estimate (the calculator's own
@@ -1140,16 +1202,16 @@ Things that are never finished. Cadence, then the thing.
   real votes, put that rollup on his Fan CRM (`/studio/fans`) so he can read it himself for the
   venue push. Not before: a screen with no data behind it is guessing at a layout.
 
-- **Prince Dre's three vote projects** (2026-09-29): the vote is live
-  (https://thecrwn.app/princedre/join/vote); each vote project's album holds only its vote song.
-  When his team's files arrive: add each song to `content.tracks` in
-  [src/lib/offerExperience/reference/princeDre.ts](src/lib/offerExperience/reference/princeDre.ts)
-  at rung `Platinum` and list it on its project, apply, and flip the "All 3 projects" previews from
-  `example` to `real`. On October 1, once Dre records the winner,
-  run [scripts/onboard-launch-partner.mjs](scripts/onboard-launch-partner.mjs)
-  `princedre --apply --unlock-winner` to open that project to Gold. Also: show the Bronze bonus
-  song on the after-vote screen itself; today it plays only once the voter opens the emailed
-  account link.
+- **Player toast for a waiting member.** usePlayer still says "Subscribe to listen" when a
+  waiting Gold member plays a drip track from the library or Explore (the artist page, album,
+  playlist and track page already say "Unlocks in N days"). Low traffic today; fix it when a
+  member first reaches one.
+
+- **Prince Dre's SOULJA DRE cuts, when the files arrive.** The album is with his label (founder,
+  2026-10-01); CRWN gets only the songs that did not make it. Upload the cuts, then swap the
+  placeholder (Hommie) behind both printed poster links in `drops` (DRE_POSTER_LINKS) to a cut
+  song each. Change only magnetTrackTitle/magnetTitle, never the link: the QR codes are printed.
+  Re-run the launch script, scan both posters' codes, and confirm each page plays the new song.
 
 - **After the Meta App Review Astra run:** re-run Part D of [docs/fan-automations/astra-meta-app-review.md](docs/fan-automations/astra-meta-app-review.md) if anything blocks Submit. (Reviewer artist `meta-reviewer` is set up, Stripe-priced, and hidden from Explore, verified 2026-09-27.)
 

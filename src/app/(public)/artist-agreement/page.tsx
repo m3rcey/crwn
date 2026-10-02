@@ -13,7 +13,7 @@ export default function ArtistAgreementPage() {
           ← Back to CRWN
         </Link>
         <h1 className="text-3xl font-bold text-crwn-gold mb-2">Artist Agreement</h1>
-        <p className="text-crwn-text-secondary mb-8">Effective Date: August 25, 2026</p>
+        <p className="text-crwn-text-secondary mb-8">Effective Date: September 30, 2026</p>
 
         <div className="prose prose-invert max-w-none space-y-6 text-crwn-text-secondary">
           <h2 className="text-xl font-semibold text-crwn-text">1. Overview</h2>
@@ -25,7 +25,9 @@ export default function ArtistAgreementPage() {
           <h2 className="text-xl font-semibold text-crwn-text">3. Content Rights and Licensing</h2>
           <p><strong>Ownership:</strong> You retain full ownership of all content you upload to CRWN.</p>
           <p><strong>License:</strong> You grant CRWN a non-exclusive, worldwide, royalty-free license to host, stream, display, and promote your content on the Platform. This license terminates within 30 days of content removal, except for content purchased by fans.</p>
-          <p><strong>Warranties:</strong> You represent that you own or have all necessary rights, licenses, and clearances for your content, including mechanical licenses, sync rights, and sample clearances. You agree to indemnify CRWN against claims arising from your content.</p>
+          <p><strong>Warranties:</strong> You represent that you own or have all necessary rights, licenses, and clearances for your content, including mechanical licenses, sync rights, and sample clearances. You are responsible for paying anyone who is owed a share of your content&apos;s earnings, including producers, featured artists, co-owners, labels, and publishers.</p>
+          <p><strong>Indemnification:</strong> You agree to defend, indemnify, and hold harmless JNW Creative Enterprises Inc., which operates CRWN, and its officers, directors, employees, and agents from and against any claim, lawsuit, demand, damage, loss, liability, settlement, cost, or expense, including reasonable attorneys&apos; fees, arising out of or related to any content you upload or post, including any claim that it infringes or misappropriates another person&apos;s copyright, trademark, right of publicity, or other right, or arising out of your breach of this Agreement. This obligation survives the end of your account.</p>
+          <p><strong>Acceptance:</strong> Before you use CRWN as an artist, you accept the artist terms by signing with your name. CRWN records the version you accepted, the time, and the device it was accepted from. When the artist terms change, you are asked to accept them again.</p>
 
           <h2 className="text-xl font-semibold text-crwn-text">4. Monetization and Fees</h2>
           <table className="w-full text-sm border border-crwn-elevated rounded-lg overflow-hidden">
@@ -71,7 +73,7 @@ export default function ArtistAgreementPage() {
         </div>
 
         <div className="mt-12 pt-6 border-t border-crwn-elevated text-center text-xs text-crwn-text-secondary">
-          JNW Creative Enterprises, Inc. © 2026. All rights reserved.
+          JNW Creative Enterprises Inc. © 2026. All rights reserved.
         </div>
       </div>
     </div>

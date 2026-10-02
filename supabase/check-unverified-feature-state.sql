@@ -209,3 +209,11 @@ SELECT 'schema-phase2-drop-new-artist-trigger.sql' AS migration,
        NOT EXISTS (
          SELECT 1 FROM pg_trigger WHERE tgname = 'trg_notify_new_artist' AND NOT tgisinternal
        ) AS applied;
+
+-- 15. Track-cap comp (2026-09-30). sql-check: a trigger body is invisible to anon.
+--     Expect applied = true after running supabase/schema-phase2-track-cap-comp.sql.
+SELECT 'schema-phase2-track-cap-comp.sql' AS migration,
+       (
+         position('unlimitedTracks' IN pg_get_functiondef('enforce_track_plan_cap()'::regprocedure)) > 0
+         AND EXISTS (SELECT 1 FROM artist_profiles WHERE slug = 'princedre' AND plan_feature_overrides ->> 'unlimitedTracks' = 'true')
+       ) AS applied;

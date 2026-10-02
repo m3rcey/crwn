@@ -46,7 +46,7 @@ describe('CONSENT-001 the page is publicly reachable and reviewer-legible', () =
   });
 
   it('identifies the sending brand and the CRWN platform', () => {
-    expect(ALERT_CONSENT_BRAND).toBe('JNW Creative Enterprises, Inc.');
+    expect(ALERT_CONSENT_BRAND).toBe('JNW Creative Enterprises Inc.');
     expect(page).toContain('ALERT_CONSENT_BRAND');
     expect(page).toContain('operating the CRWN platform (thecrwn.app)');
   });
@@ -61,7 +61,7 @@ describe('CONSENT-001 the page is publicly reachable and reviewer-legible', () =
 
 describe('CONSENT-002 the disclosure carries every element Twilio vets', () => {
   it('the checkbox label names sender, program, frequency, rates, STOP and HELP', () => {
-    expect(ALERT_CONSENT_TEXT).toContain('JNW Creative Enterprises, Inc.');
+    expect(ALERT_CONSENT_TEXT).toContain('JNW Creative Enterprises Inc.');
     expect(ALERT_CONSENT_TEXT).toContain('low-volume internal CRWN operational lead alerts by SMS');
     expect(ALERT_CONSENT_TEXT).toContain('at the mobile number I provide');
     expect(ALERT_CONSENT_TEXT).toContain('Message frequency varies.');

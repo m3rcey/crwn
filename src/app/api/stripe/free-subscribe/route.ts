@@ -4,6 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 import { notifyNewSubscriber } from '@/lib/notifications';
 import { checkRateLimit } from '@/lib/rateLimit';
 import { joinFreeTier } from '@/lib/subscriptions/freeJoin';
+import { sendMemberWelcome } from '@/lib/emails/memberWelcomeServer';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -60,6 +61,14 @@ export async function POST(req: NextRequest) {
           tierRow?.name || 'Free'
         );
       }
+      // The fan's welcome: one thing to play now, what free includes, what the next rung adds.
+      await sendMemberWelcome(supabaseAdmin, {
+        fanId: user.id,
+        fanEmail: user.email ?? null,
+        fanName: fanProfile?.display_name ?? null,
+        artistId: result.artistId,
+        tierId: result.tierId,
+      });
     } catch (e) {
       console.error('Notification error (non-fatal):', e);
     }

@@ -31,7 +31,10 @@ not redefine them.**
     credential-shaped is stripped, so the sales layer is structurally unable to leak
     protected bytes. Entitlement checks are never duplicated in the renderer.
 - **Renderer**: `src/components/offer/TierOfferExperience.tsx`. ONE component for every
-  artist and tier: hero (promise, price, CTA above the fold, "See what you get" cue),
+  artist and tier: hero (price, promise, description, CTA above the fold, "See what you
+  get" cue, then the hero photo UNDER the CTA: above the promise it pushed the buy button
+  below the fold on a laptop, and on every phone on the drop page; measured with
+  `scripts/probe-fan-fold.mjs`, 2026-09-30),
   optional VSL (null url renders NOTHING fan-facing, the ratified VSL-catalog rule; a
   placeholder video is chip-disclosed as an example), ordered previews (kinds: audio,
   video, image, decision, submission, collection, timeline, session, window, status),

@@ -287,10 +287,6 @@ export function TierOfferExperience({ artist, tier, config, actionSlot, onDeclin
     <div className="space-y-6 pb-24">
       {/* ── HERO: promise, price and the benefit CTA, above the fold. ── */}
       <div className="neu-raised rounded-2xl p-6 bg-crwn-card text-center">
-        {config.heroImageUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={config.heroImageUrl} alt="" className="w-full aspect-video object-cover rounded-xl mb-5" />
-        ) : null}
         <p className="text-xs uppercase tracking-wide text-crwn-gold mb-2">
           {tier.name} · {price(tier.priceCents)}
         </p>
@@ -307,6 +303,13 @@ export function TierOfferExperience({ artist, tier, config, actionSlot, onDeclin
             {config.secondaryCue} <ChevronDown className="w-4 h-4" />
           </button>
         )}
+        {/* The photo sits UNDER the action, not above the promise. Above it, a 16:9 image pushed
+            the buy button below the fold on a laptop, and on the drop page (where the unlocked
+            song sits above this card) below the fold on every phone. Measured 2026-09-30. */}
+        {config.heroImageUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={config.heroImageUrl} alt="" className="w-full aspect-video object-cover rounded-xl mt-5" />
+        ) : null}
       </div>
 
       {/* ── VSL. Null url renders NOTHING (the ratified catalog rule); a placeholder

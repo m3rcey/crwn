@@ -123,7 +123,7 @@ export async function notifySubscriptionCanceled(
     'subscription_canceled',
     'Subscription canceled',
     `${fanName} canceled their subscription`,
-    '/profile/analytics'
+    '/studio/analytics'
   );
 }
 

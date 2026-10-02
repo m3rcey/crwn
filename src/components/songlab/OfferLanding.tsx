@@ -288,12 +288,13 @@ export function OfferLanding({
     };
   }, [ballotMode]);
 
-  // Bring the newly revealed identity fields into view without stealing focus (a forced
-  // focus mid-flow is hostile to a screen reader and pops the keyboard over the choices).
+  // Bring the newly revealed fields AND the vote button into view without stealing focus (a
+  // forced focus mid-flow is hostile to a screen reader and pops the keyboard over the choices).
+  // Scrolling only the fields left the button under the fold on every screen size.
   useEffect(() => {
-    if (!selected || signedIn || done || needsSignIn) return;
+    if (!selected || done || needsSignIn) return;
     identityRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  }, [selected, signedIn, done, needsSignIn]);
+  }, [selected, done, needsSignIn]);
 
   const submitBallot = async () => {
     if (busy) return;
@@ -628,7 +629,7 @@ export function OfferLanding({
       <div
         role="radiogroup"
         aria-label={ballot!.question}
-        className={online ? 'space-y-2 mb-4' : 'space-y-3 mb-6'}
+        className={online ? 'space-y-2 mb-4' : 'space-y-3 mb-6 [@media(max-height:700px)]:mb-4'}
       >
         <p className={`${online ? 'text-base' : 'text-lg'} font-semibold text-crwn-text`}>
           {ballotTracks.length ? 'Listen, then tap your pick:' : 'Tap your pick:'}
@@ -711,7 +712,7 @@ export function OfferLanding({
               }}
               // The tick is absolutely placed, not a flex sibling: an inline one would
               // shift the centered title sideways the moment a choice is selected.
-              className={`relative w-full min-h-[72px] pl-5 pr-14 py-5 rounded-2xl text-xl sm:text-2xl font-bold text-center transition focus:outline-none focus-visible:ring-4 focus-visible:ring-crwn-gold/70 ${
+              className={`relative w-full min-h-[72px] pl-5 pr-14 py-5 [@media(max-height:700px)]:min-h-[60px] [@media(max-height:700px)]:py-3.5 rounded-2xl text-xl sm:text-2xl font-bold text-center transition focus:outline-none focus-visible:ring-4 focus-visible:ring-crwn-gold/70 ${
                 isSelected
                   ? 'bg-crwn-gold/15 text-crwn-text ring-2 ring-crwn-gold'
                   : 'bg-crwn-surface text-crwn-text ring-1 ring-white/15 hover:ring-white/30'
@@ -728,8 +729,12 @@ export function OfferLanding({
 
       {/* Labels AND the typed text are centered, matching the rest of the screen (founder
           decision 2026-09-28, replacing the earlier left-aligned inputs). */}
+      {/* The fields a pick reveals, the vote button and its disclosure, as one block: a pick
+          scrolls this whole block into view, so "Cast my vote" is on screen the moment the
+          fields appear. */}
+      <div ref={identityRef}>
       {selected && needsIdentity(signedIn) ? (
-        <div ref={identityRef} className="space-y-4 mb-6">
+        <div className="space-y-4 mb-6">
           <div>
             <label htmlFor="ballot-first-name" className="block text-base font-semibold text-crwn-text mb-1.5">
               First name
@@ -796,9 +801,11 @@ export function OfferLanding({
         {busy ? BALLOT_SUBMITTING_LABEL : BALLOT_CTA_LABEL}
       </button>
 
+      {/* Inside the scrolled block: what a vote joins is read WITH the button, never below it. */}
       <p className="mt-4 text-base text-crwn-text-secondary leading-relaxed">
         {ballotDisclosure(artistName)}
       </p>
+      </div>
 
       {error ? (
         <p className="mt-4 text-lg text-red-400" role="alert">{error}</p>
@@ -826,7 +833,7 @@ function Shell({ children, compact }: { children: React.ReactNode; compact?: boo
   // covers the vote button or the email fields.
   const { currentTrack } = usePlayer();
   return (
-    <div className={`min-h-screen bg-crwn-bg flex flex-col items-center justify-center px-5 ${compact ? 'py-5' : 'py-10'} ${currentTrack ? 'pb-36' : ''}`}>
+    <div className={`min-h-screen bg-crwn-bg flex flex-col items-center justify-center px-5 ${compact ? 'py-5' : 'py-10 [@media(max-height:700px)]:py-5'} ${currentTrack ? 'pb-36' : ''}`}>
       <div className="w-full max-w-md text-center page-fade-in">{children}</div>
     </div>
   );
@@ -851,11 +858,11 @@ function Hero({ artistName, avatarUrl, headline, description, uppercase, compact
           alt={artistName}
           width={size}
           height={size}
-          className={`rounded-full mx-auto object-cover ring-2 ring-crwn-gold/60 ${compact ? 'mb-2' : 'mb-4'}`}
+          className={`rounded-full mx-auto object-cover ring-2 ring-crwn-gold/60 ${compact ? 'mb-2' : 'mb-4 [@media(max-height:700px)]:mb-2 [@media(max-height:700px)]:w-[52px] [@media(max-height:700px)]:h-[52px]'}`}
         />
       ) : null}
       <p className={`text-sm font-semibold tracking-widest uppercase text-crwn-gold ${compact ? 'mb-1.5' : 'mb-3'}`}>{artistName}</p>
-      <h1 className={`${compact ? 'text-2xl sm:text-3xl mb-2' : 'text-3xl sm:text-4xl mb-4'} font-bold text-crwn-text leading-tight ${uppercase ? 'uppercase' : ''}`}>
+      <h1 className={`${compact ? 'text-2xl sm:text-3xl mb-2' : 'text-3xl sm:text-4xl mb-4 [@media(max-height:700px)]:mb-2'} font-bold text-crwn-text leading-tight ${uppercase ? 'uppercase' : ''}`}>
         {headline}
       </h1>
       {description ? (

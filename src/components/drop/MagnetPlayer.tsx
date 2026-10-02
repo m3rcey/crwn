@@ -27,6 +27,7 @@ export function MagnetPlayer({
   durationSec,
   src,
   onLockedTap,
+  layout = 'card',
 }: {
   title: string;
   artistName: string;
@@ -36,6 +37,9 @@ export function MagnetPlayer({
   /** The signed URL. Absent means LOCKED: nothing in the page can play. */
   src?: string | null;
   onLockedTap?: () => void;
+  /** 'row': the unlocked song as one compact line (cover, title, play, seek), used right after
+   *  the claim so the offer's buy button below it stays above the fold. */
+  layout?: 'card' | 'row';
 }) {
   const locked = !src;
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -92,6 +96,121 @@ export function MagnetPlayer({
 
   const pct = duration ? (current / duration) * 100 : 0;
 
+  // LOCKED: compact, so the opt-in button below it stays above the fold on a phone and a laptop
+  // (measured, 2026-09-29). Nothing can play, so there is no transport and no big play button:
+  // the lock sits on the cover, and tapping it points the fan at the email field.
+  if (locked) {
+    return (
+      <div className="relative w-full max-w-sm mx-auto">
+        {/* Larger on a phone, which has room under the fold; a short laptop viewport does not. */}
+        <div className="relative mx-auto w-56 h-56 sm:w-44 sm:h-44">
+          {coverUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={coverUrl} alt="" aria-hidden className="absolute inset-2 w-[calc(100%-1rem)] h-[calc(100%-1rem)] object-cover rounded-2xl blur-xl opacity-50 scale-110" />
+          ) : null}
+          <button
+            type="button"
+            onClick={toggle}
+            aria-label={`${title} is locked. Enter your email below to unlock it`}
+            className="relative block w-full h-full rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/10 bg-crwn-elevated focus:outline-none focus-visible:ring-4 focus-visible:ring-crwn-gold/70"
+          >
+            {coverUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={coverUrl} alt={`${project || title} cover`} className="w-full h-full object-cover" />
+            ) : (
+              <Music className="absolute inset-0 m-auto w-10 h-10 text-crwn-text-secondary" aria-hidden />
+            )}
+            <span className="absolute inset-0 flex items-center justify-center bg-black/25">
+              <span className="w-14 h-14 rounded-full bg-crwn-bg/80 ring-2 ring-crwn-gold flex items-center justify-center">
+                <Lock className="w-6 h-6 text-crwn-gold" aria-hidden />
+              </span>
+            </span>
+          </button>
+        </div>
+        <div className="mt-3 text-center">
+          <p className="text-lg font-bold text-crwn-text leading-tight">{title}</p>
+          <p className="mt-0.5 text-sm text-crwn-text-secondary">
+            {artistName}{project ? ` · ${project}` : ''}{durationSec ? ` · ${fmt(durationSec)}` : ''}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  const seekBar = (
+    <div
+      role="slider"
+      aria-label={`Seek ${title}`}
+      aria-valuemin={0}
+      aria-valuemax={Math.round(duration)}
+      aria-valuenow={Math.round(current)}
+      aria-disabled={locked}
+      tabIndex={locked ? -1 : 0}
+      onClick={seek}
+      onKeyDown={(e) => {
+        const a = audioRef.current;
+        if (locked || !a) return;
+        if (e.key === 'ArrowRight') a.currentTime = Math.min(duration, a.currentTime + 5);
+        if (e.key === 'ArrowLeft') a.currentTime = Math.max(0, a.currentTime - 5);
+      }}
+      className={`h-5 flex items-center ${locked ? 'cursor-default' : 'cursor-pointer'}`}
+    >
+      <div className="relative w-full h-1.5 rounded-full bg-white/10">
+        <div className="absolute inset-y-0 left-0 rounded-full bg-crwn-gold" style={{ width: `${pct}%` }} />
+        {!locked ? (
+          <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-3.5 h-3.5 rounded-full bg-crwn-gold shadow" style={{ left: `${pct}%` }} />
+        ) : null}
+      </div>
+    </div>
+  );
+
+  const playIcon = loading ? (
+    <Loader2 className="w-5 h-5 animate-spin" />
+  ) : playing ? (
+    <Pause className="w-5 h-5" fill="currentColor" />
+  ) : (
+    <Play className="w-5 h-5 ml-0.5" fill="currentColor" />
+  );
+
+  // UNLOCKED, compact: the whole song on one line so the offer below keeps its button above the
+  // fold (the full card is ~520px tall; this is ~100px). Same audio, same controls.
+  if (layout === 'row') {
+    return (
+      <div className="w-full text-left">
+        {src ? <audio ref={audioRef} src={src} preload="metadata" /> : null}
+        <div className="flex items-center gap-3">
+          <div className="relative w-16 h-16 shrink-0 rounded-xl overflow-hidden ring-1 ring-white/10 bg-crwn-elevated">
+            {coverUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={coverUrl} alt={`${project || title} cover`} className="w-full h-full object-cover" />
+            ) : (
+              <Music className="absolute inset-0 m-auto w-6 h-6 text-crwn-text-secondary" aria-hidden />
+            )}
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-base font-bold text-crwn-text leading-tight truncate">{title}</p>
+            <p className="mt-0.5 text-xs text-crwn-text-secondary truncate">
+              {artistName}{project ? ` · ${project}` : ''}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={toggle}
+            aria-label={playing ? `Pause ${title}` : `Play ${title}`}
+            className="w-12 h-12 shrink-0 rounded-full flex items-center justify-center press-scale shadow-lg bg-crwn-gold text-crwn-bg"
+          >
+            {playIcon}
+          </button>
+        </div>
+        <div className="mt-2 flex items-center gap-2 text-[11px] text-crwn-text-secondary tabular-nums">
+          <span>{fmt(current)}</span>
+          <div className="flex-1">{seekBar}</div>
+          <span>{duration ? fmt(duration) : '--:--'}</span>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="relative w-full max-w-sm mx-auto">
       {src ? <audio ref={audioRef} src={src} preload="metadata" /> : null}
@@ -127,30 +246,7 @@ export function MagnetPlayer({
 
       {/* Transport. */}
       <div className="mt-4 px-1">
-        <div
-          role="slider"
-          aria-label={`Seek ${title}`}
-          aria-valuemin={0}
-          aria-valuemax={Math.round(duration)}
-          aria-valuenow={Math.round(current)}
-          aria-disabled={locked}
-          tabIndex={locked ? -1 : 0}
-          onClick={seek}
-          onKeyDown={(e) => {
-            const a = audioRef.current;
-            if (locked || !a) return;
-            if (e.key === 'ArrowRight') a.currentTime = Math.min(duration, a.currentTime + 5);
-            if (e.key === 'ArrowLeft') a.currentTime = Math.max(0, a.currentTime - 5);
-          }}
-          className={`h-5 flex items-center ${locked ? 'cursor-default' : 'cursor-pointer'}`}
-        >
-          <div className="relative w-full h-1.5 rounded-full bg-white/10">
-            <div className="absolute inset-y-0 left-0 rounded-full bg-crwn-gold" style={{ width: `${pct}%` }} />
-            {!locked ? (
-              <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-3.5 h-3.5 rounded-full bg-crwn-gold shadow" style={{ left: `${pct}%` }} />
-            ) : null}
-          </div>
-        </div>
+        {seekBar}
         <div className="flex justify-between text-[11px] text-crwn-text-secondary tabular-nums">
           <span>{fmt(current)}</span>
           <span>{duration ? fmt(duration) : '--:--'}</span>

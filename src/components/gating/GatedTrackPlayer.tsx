@@ -10,6 +10,8 @@ import { useFavorites } from '@/hooks/useFavorites';
 import { TrackActionButtons } from '@/components/shared/TrackActionButtons';
 import { TrackShareButton } from '@/components/shared/TrackShareButton';
 import { useReferralCode } from '@/hooks/useReferralCode';
+import { useToast } from '@/components/shared/Toast';
+import { dripLock, dripLabel } from '@/lib/memberDrip';
 import { Lock, Play, Pause, LockOpen } from 'lucide-react';
 import { hapticMedium } from '@/lib/haptics';
 import Image from 'next/image';
@@ -19,16 +21,22 @@ interface GatedTrackPlayerProps {
   artistId: string;
   artistSlug?: string;
   trackList?: Track[];
+  /**
+   * A narrow row (the Music tab's Top Songs columns): drops like and add-to-playlist so the
+   * title keeps its line. Share stays. Gating and playback are identical either way.
+   */
+  compact?: boolean;
 }
 
-export function GatedTrackPlayer({ track, artistId, artistSlug, trackList }: GatedTrackPlayerProps) {
+export function GatedTrackPlayer({ track, artistId, artistSlug, trackList, compact = false }: GatedTrackPlayerProps) {
   const router = useRouter();
   const { play, pause, currentTrack, isPlaying } = usePlayer();
-  const { isSubscribed, tierId, isLoading } = useSubscription(artistId);
+  const { isSubscribed, tierId, startedAt, isLoading } = useSubscription(artistId);
   const { previewing } = useArtistPreview();
   const { purchasedTrackIds } = useTrackPurchases(artistId);
   const { isLiked, toggleFavorite } = useFavorites();
   const referralCode = useReferralCode();
+  const { showToast } = useToast();
 
   // Early access: if public_release_date is in the future, only tier subscribers can access
   const isEarlyAccess = track.public_release_date && new Date(track.public_release_date) > new Date();
@@ -41,7 +49,20 @@ export function GatedTrackPlayer({ track, artistId, artistSlug, trackList }: Gat
   // In preview the owner's OWN purchase history must not unlock the track: the
   // fan they are previewing has not bought anything.
   const hasPurchased = !previewing && purchasedTrackIds.has(track.id);
-  const canAccess = hasPurchased
+  // 0. The SERVER already granted this viewer the audio. The row comes from `tracks_public`,
+  //    which carries `audio_url_128` only when `can_play_track` says yes, and that oracle
+  //    says yes to the track's OWNER for every track. This is what lets an artist play their
+  //    whole page without subscribing to themselves (founder, 2026-09-30). It never widens
+  //    access: it only stops the UI locking what the database already handed over. In preview
+  //    it is ignored, because the owner is looking through a fan's eyes (remove access only).
+  const serverGranted = !previewing && !!track.audio_url_128;
+  // The member drip: this viewer's tier is on the track but waits N months from their OWN
+  // start (can_play_track enforces it; this only shows the lock it already applies). In
+  // preview there is no start date, so the persona sees it as a day-one member does.
+  const drip = hasPurchased ? null : dripLock({ map: track.tier_unlock_months, tierId, serverGranted, startedAt });
+  const canAccess = drip
+    ? false
+    : serverGranted || hasPurchased
     ? true
     : isEarlyAccess
       ? !!(tierId && track.allowed_tier_ids?.includes(tierId))
@@ -53,6 +74,11 @@ export function GatedTrackPlayer({ track, artistId, artistSlug, trackList }: Gat
 
   const handlePlay = () => {
     hapticMedium();
+    if (drip) {
+      // Already a member: the subscribe page is the wrong door. Say when it opens instead.
+      showToast(dripLabel(drip), 'info');
+      return;
+    }
     if (isLocked) {
       // The locked row IS the subscribe control: it opens the track's own page, where
       // the tiers and the price are. `router.push`, never `window.location.href`: a
@@ -151,7 +177,9 @@ export function GatedTrackPlayer({ track, artistId, artistSlug, trackList }: Gat
             {isLocked ? (
               <span className="text-xs text-crwn-gold flex items-center gap-1">
                 <Lock size={12} />
-                {isEarlyAccess
+                {drip
+                  ? dripLabel(drip)
+                  : isEarlyAccess
                   ? 'Early access: subscribe to listen'
                   : track.price
                     ? `$${(track.price / 100).toFixed(2)} to buy`
@@ -192,14 +220,16 @@ export function GatedTrackPlayer({ track, artistId, artistSlug, trackList }: Gat
             If a locked row ever needs its own control again, give the title its line
             first, because the title is the thing a fan is choosing between. */}
         {/* Track Action Buttons (Like & Add to Playlist) */}
+        {!compact && (
         <div onClick={(e) => e.stopPropagation()}>
-        <TrackActionButtons 
-          trackId={track.id} 
-          size="sm" 
+        <TrackActionButtons
+          trackId={track.id}
+          size="sm"
           isLiked={trackIsLiked}
           onToggleLike={() => toggleFavorite(track.id)}
         />
         </div>
+        )}
 
         {/* Share Button */}
         {artistSlug && (

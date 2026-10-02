@@ -12,11 +12,11 @@
 - "CRWN" very large and bold, centered
 - Crown drawn above the "W"
 - Below: "Your music. Your fans. Your money."
-- Bottom left: "JNW Creative Enterprises, Inc."
+- Bottom left: "JNW Creative Enterprises Inc."
 - Bottom right: "thecrwn.app"
 
 ```
-NANO BANANA PRO PROMPT: "Flat scan of a white sheet of paper filling the entire frame. No desk, no surface, no edges visible, just white paper. Black sharpie marker handwriting. In the center of the page, 'CRWN' written very large and bold in thick black marker, taking up about a third of the page width. A small hand-drawn crown sits on top of the 'W'. Directly below CRWN in smaller but still bold text: 'Your music. Your fans. Your money.' with periods after each phrase. In the bottom left corner in small neat text: 'JNW Creative Enterprises, Inc.' In the bottom right corner in small neat text: 'thecrwn.app'. Nothing else on the page. Minimal, clean, high contrast. The background is pure white (#FFFFFF). The image is shot perfectly straight on, no angle, no shadow, no background elements. Pure white paper fills the entire 3:4 frame edge to edge."
+NANO BANANA PRO PROMPT: "Flat scan of a white sheet of paper filling the entire frame. No desk, no surface, no edges visible, just white paper. Black sharpie marker handwriting. In the center of the page, 'CRWN' written very large and bold in thick black marker, taking up about a third of the page width. A small hand-drawn crown sits on top of the 'W'. Directly below CRWN in smaller but still bold text: 'Your music. Your fans. Your money.' with periods after each phrase. In the bottom left corner in small neat text: 'JNW Creative Enterprises Inc.' In the bottom right corner in small neat text: 'thecrwn.app'. Nothing else on the page. Minimal, clean, high contrast. The background is pure white (#FFFFFF). The image is shot perfectly straight on, no angle, no shadow, no background elements. Pure white paper fills the entire 3:4 frame edge to edge."
 ```
 
 ---

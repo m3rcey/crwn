@@ -112,11 +112,14 @@ fan had no city at all: only paid checkouts carried one. To hand an artist the l
     node scripts/fan-cities.mjs <artistSlug>          (table: fans and paying fans per city)
     node scripts/fan-cities.mjs <artistSlug> --csv    (for a sheet)
 
-### A second lead magnet: the drop funnel (`drop`)
+### More lead magnets: drop funnels (`drops`)
 
-Besides the vote, a launch can run the drop funnel (`/drop/<token>`) with ONE song as the
-magnet. Set `drop: { magnetTrackTitle, magnetTitle, magnetDescription, live: true }`; the
-script points the artist's funnel at that track and turns it on. The fan gives name and email,
+Besides the vote, a launch can run drop funnels (`/drop/<link>`), each with ONE song as the
+magnet. `drops` is a LIST, one entry per song: `{ magnetTrackTitle, magnetTitle,
+magnetDescription, live: true, linkSlug? }`. The script finds each song's funnel by its link,
+then by its song, and creates one when neither exists, so adding an entry adds a funnel and
+never repoints an existing link. Prince Dre runs two: "Round Here" (Gold) and "Letter To LA"
+(Silver, `/drop/princedre-letter-to-la`). The fan gives name and email,
 hears the song through a signed link that expires, joins Bronze, then meets the primary offer
 (Platinum) with the downsell (Gold). **The song keeps its rung gate** on the artist page: pick
 a paid-tier song (Prince Dre's is "Round Here", Gold) and the magnet is a taste of what Gold
@@ -125,9 +128,26 @@ holds, not a giveaway. The claim route is designed for exactly that (see its hea
 **Every funnel link is personalized, never the random token** (founder, 2026-09-29). The script
 sets the drop link to `/drop/<artist slug>-<magnet song>` (`dropLinkSlug`; Prince Dre's is
 `/drop/princedre-round-here`), refusing one another funnel already uses. Name a different one
-with `drop.linkSlug`. Renaming kills the old link, so rename BEFORE the link is shared, and tell
+with that entry's `linkSlug`. Renaming kills the old link, so rename BEFORE the link is shared, and tell
 the founder the new one. The token is a pointer, never authority: drafts still open only for
 their owner, so a readable link exposes nothing.
+
+**The opt-in button sits above the fold, and that is MEASURED** (founder, 2026-09-29). The
+first screen shows the song LOCKED (`MagnetPlayer` without `src`: cover, lock, title, project,
+length, and no audio in the page) above one name + email row and the Unlock button. Keep
+`magnetDescription` to one short line: the player already names the song and project. After
+any change to the drop page, measure every live funnel at 390x745 and 1280x590 with a CDP probe
+that stamps `crwn_dnt` before navigating; the Unlock button's bottom must be under the fold
+height. Measured 2026-09-29: 534px on a phone and 486px on a laptop, for both of Dre's funnels.
+
+**The rule covers every screen AFTER the opt-in too** (founder, 2026-09-30): the drop's unlocked
+screen and its Silver step, the vote page after a pick, and the Gold offer and downsell after a
+vote. The unlocked song is ONE compact row (`MagnetPlayer layout="row"`), and the offer's hero
+photo sits UNDER its buy button, which is what keeps that button on screen. Measure with
+`node scripts/probe-fan-fold.mjs` (Windows node; `--host=http://localhost:<port>` for a local
+`next dev`). It checks 390x745, 375x667, 1280x590 and 1920x872, stamps `crwn_dnt`, and blocks
+every non-GET `/api/` call, answering the claim locally so the post-opt-in screens render with no
+write. Measured 2026-09-30: every state passes at all four sizes.
 
 ### The ladder's music (`content`)
 
@@ -158,6 +178,39 @@ every rung more of the one thing the fans asked for, usually the artist's unrele
 - **The vote's bonus song arrives through the account email**, not on the after-vote screen: the
   voter is a captured contact with no session. Word the copy that way ("unlocks a bonus song in
   the free account we email you"), never "the moment you vote".
+
+### A whole back catalog (founder, 2026-09-30; Prince Dre is the worked example)
+
+When the founder hands over every project (`videos/<artist>/<project>/<n> - <song>.wav` plus a
+cover), research BEFORE placing or writing a word of copy. Send a web-research subagent for, per
+project: where it can be heard today, a 1-5 find-and-listen difficulty, and the two most-watched
+YouTube videos of its songs (with view counts and links, official uploads first).
+
+- **Place projects by difficulty:** the easiest to find go to Silver, the middle to Gold, the
+  hardest to Platinum. The vote projects stay in Platinum (Gold gets the winner): that promise is
+  already live and outranks the difficulty order.
+- **The two most-watched songs of every project go to Bronze**, free. Only a video that verifiably
+  is that project's song counts: pass over a likely remix or an unconfirmed match for the next one
+  down, and write the counts and the passed-over videos in a comment beside the list
+  (`DRE_BRONZE_SINGLES`).
+- **Every Bronze single gets its own drop page** (`drops`, one entry each), so each video's
+  audience has a link to send them to.
+- **The research polices the copy.** Prince Dre's copy said "never on streaming" and
+  "unreleased" until research found every project somewhere (Audiomack, YouTube, Apple Music,
+  LiveMixtapes). Sell the COMPLETE project in one place, never scarcity it does not have;
+  `princeDre.test.ts` refuses those phrases. Put every rights line the research finds (a label, a
+  distributor, a co-owner) in TODO.md for the founder to confirm with the artist.
+- **Two recordings with one title** (Prince Dre's "Ready For War" is on two projects) need two
+  titles on the page; the script matches tracks by title. Retitle the later one
+  (`Ready For War (Life I Live)`) and `checkLaunchPartner` refuses a duplicate.
+- **Derive every count from the song lists** (`N[...]`), never type one: the founder caught a
+  hand-typed total once.
+- **The artist hears everything on their own page** without subscribing: the database already
+  grants the owner, and the page trusts that grant. Nothing to configure.
+- **The artist signs the artist terms** on their next visit (the rights warranty and the
+  hold-harmless). Put the artist in the First Revenue Launch cohort
+  (`artist_profiles.launch_partner = true`) when the founder is running that launch for them, and
+  they sign the launch conditions too. Both are in `src/lib/legal/artistTerms.ts`.
 
 Register the config in `launchPartners.ts`, then:
 

@@ -1,5 +1,42 @@
 # CRWN Brain — Changelog
 
+## 2026-10-02 - Lifecycle emails follow the reader's current situation
+
+**Full doc: 35-LIFECYCLE-EMAIL-STRATEGY.md.**
+- **Artist emails are re-decided at send time** (`lifecycle/artistEmailGate.ts`): one current
+  gap (music, paid tier, payouts, first paid fan), one email per artist per run, closed gaps
+  complete, not-current gaps cancel. The Stripe nudge no longer outlives a connected Stripe.
+- **The Pro upsell needs real revenue.** It went to 10 zero-revenue artists in a week; it now
+  enrolls only at trailing 30-day GMV at or above the Pro break-even. One-off cleanup for the 9
+  still active: `supabase/cancel-zero-revenue-pro-upsell.sql`.
+- **Promise reminder emails start at the first paying member.** One welcome per new artist.
+- **Fans get a real welcome** on every join (free, paid, upgrade): one track to play, the tier
+  card's own lines, and for free members one concrete thing the next rung adds. The artist-page
+  Join Free now goes through `joinFreeTier` (artist notified, nurture enrolled, no paid row
+  overwritten).
+- **Cancel offers the next cheaper paid tier first** (founder decision). Building it found that a
+  downgrade never reached Stripe (the fan would have kept paying the higher price forever; 0
+  production rows were affected). Downgrades are now a Stripe schedule at the paid boundary,
+  proven 17/17 on a test clock by `scripts/verify-downgrade-schedule.mjs`.
+- **Fixed:** downgraders got "You just upgraded"; the cancel notification never reached the
+  artist (wrong id); fan sequences outlived their premise (`sequences/stillApplies.ts`); the vote
+  email promised a result notification nobody sends.
+
+## 2026-09-30 - Fan funnel buttons above the fold, before and after the opt-in
+
+Measured with the new `scripts/probe-fan-fold.mjs` at 390x745, 375x667, 1280x590 and 1920x872.
+- **Drop, after the opt-in:** the Gold buy button sat 489px below a phone fold, because the
+  unlocked song rendered as the full ~520px card and the offer's 16:9 photo sat above its promise.
+  The song is now one compact row (`MagnetPlayer layout="row"`).
+- **Offer hero (drop and vote):** the photo moved UNDER the buy button (doc 32). The vote's Gold
+  offer and downsell were 54 to 74px below a laptop fold.
+- **Vote, after a pick:** revealing the name and email pushed "Cast my vote" 53 to 212px off
+  screen. The pick now scrolls the fields, the button and its disclosure into view as one block.
+- **Live-show ballot (GB):** short viewports (under 700px tall) get tighter spacing; it was 47px
+  below a laptop fold. Phones of normal height keep the large type.
+- Not changed: the vote confirmation screen has no button when the offer has no reward path (all
+  three live votes), by design.
+
 ## 2026-09-29 - DM answer negation, phantom recalculations, and live qualification
 
 **Full doc: 34-FOUNDER-FOLLOW-UP.md (Provenance, Monetization answers).**
@@ -825,7 +862,7 @@ answers correctly. An unknown tier id expands to NOBODY, never everybody.
 could not inspect.** Its documented evidence standard is "a live, publicly-accessible website with
 opt-in functionality", so `/sms-alert-consent` is now that website. This is the same narrow
 2026-08-24 exception, not a new one: recipients are still only authorized personnel of JNW
-Creative Enterprises, Inc., and broad CRWN SMS marketing is still removed. Yesterday's
+Creative Enterprises Inc., and broad CRWN SMS marketing is still removed. Yesterday's
 "consent is a business record outside the product" conclusion is SUPERSEDED, not deleted: it was
 correct about the rules and wrong about what this reviewer would accept.
 
@@ -1050,7 +1087,7 @@ says so.
 ## 2026-08-24 - The legal pages learn to say what CRWN actually does with a phone number
 
 **Founder decision: ONE narrow Twilio A2P 10DLC campaign is authorized, and broad CRWN SMS
-marketing stays removed.** The campaign is registered to **JNW Creative Enterprises, Inc.** (Low
+marketing stays removed.** The campaign is registered to **JNW Creative Enterprises Inc.** (Low
 Volume Standard), and its ONLY recipients are authorized internal company personnel: when a
 qualified artist raises their hand through `CallRequestCard`, an operational alert identifying the
 lead and carrying their callback number reaches a representative who then CALLS them. The artist is
