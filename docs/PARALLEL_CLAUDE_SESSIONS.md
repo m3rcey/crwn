@@ -44,6 +44,8 @@ the same.
 | `wsl scripts/dev/crwn land <task>` | Fast-forward the REMOTE master to that finished task (asks first) |
 | `wsl scripts/dev/crwn sync` | Fast-forward your LOCAL main checkout to the remote master |
 | `wsl scripts/dev/crwn rm <task>` | Remove a finished task's folder (the branch is kept) |
+| `wsl scripts/dev/crwn clean` | Every task worktree: landed or not, dirty or clean, in use or idle, disk. A dry run: changes nothing |
+| `wsl scripts/dev/crwn clean --apply` | Do what the dry run listed (see "Cleanup") |
 
 ## Dependencies (`node_modules`)
 
@@ -60,6 +62,8 @@ worktree its own full copy, automatically. That covers `install`/`i`/`add`, `uni
   shared files.
 - `npm ci` needs no copy: it replaces `node_modules` outright.
 - Builds and test runs never need a copy.
+- A worktree whose `package-lock.json` differs from the main checkout's is NOT linked (it would
+  get the wrong packages). The session is told to run `npm ci` there instead.
 
 Why this design (measured, 2026-09-29):
 - npm and `next build` write new files and never edit an installed file, so sharing is safe for them.
@@ -114,30 +118,138 @@ Otherwise your uncommitted files stay exactly as they are.
 
 Land one task at a time. The next one will be behind master: reconcile it in its session, then land it.
 
-## Cleanup: ending, keeping and removing
+## Cleanup: the worktree lifecycle
 
-There are three separate things to finish, in this order:
+### What a worktree costs, and why it used to run away
 
-1. **Ending the Claude session.** Type `/exit` or close the terminal. Nothing is deleted.
-   Claude then asks whether to keep the worktree:
-   - **Keep**: always pick this until the task has landed. `wsl scripts/dev/crwn resume <task>`
-     reopens it later.
+Measured 2026-10-02:
+- **The checkout itself**: about 125 MB.
+- **`.next`**: about 405 MB after one build, 285 MB of it the Turbopack build cache in
+  `.next/cache/turbopack`. The Stop build gate runs `next build` in every worktree on every
+  turn that touches code, and Next 16.3 keeps that cache by default. It grows with every build
+  after (about 3 to 4 MB per small build, much more after a merge).
+- **`node_modules`**: about 17 MB while it is hardlinked to the main checkout. It becomes a real
+  1 GB in two cases: a task changes dependencies (it gets its own copy), or the main checkout
+  reinstalls (the worktree keeps the OLD files alive, and `crwn clean` reports that as a "stale
+  link").
+
+Nothing ever removed any of it, so `.claude/worktrees` reached 6.4 GB in three days and the WSL
+disk filled C:.
+
+### The lifecycle
+
+1. **Start**: `crwn <task>` creates the worktree. The SessionStart hook hardlinks `node_modules`.
+2. **Work**: the build gate keeps `.next` while the task is active, so builds stay fast (85 s
+   cold, 15 to 30 s warm). The Turbopack cache is capped at 768 MB: past that it is deleted after
+   a passing build, and the next build is cold once. To change the cap, set
+   `CRWN_BUILD_CACHE_CAP_MB`.
+3. **End the session**: type `/exit` or close the terminal. Claude asks whether to keep the
+   worktree:
+   - **Keep**: always pick this until the task has landed.
    - **Remove**: deletes the folder AND the branch, including commits that exist nowhere else.
-     Pick it only for a task you are abandoning, or one that `crwn ls` shows fully landed.
-2. **Removing the folder** once it has landed:
+     Pick it only for a task you are abandoning.
+4. **Idle**: after 12 hours with no use, the next sweep deletes the worktree's `.next` and
+   `node_modules`. Its files and commits stay exactly as they are. Both caches come back on their
+   own when you resume: the hook re-links `node_modules`, and the next build rebuilds `.next`.
+5. **Landed**: once every commit on the branch is in `origin/master`, the worktree is clean, and
+   it is idle, the sweep removes the worktree. **The branch is always kept.**
 
-       wsl scripts/dev/crwn rm manychat-fix
+### When the sweep runs
 
-   This refuses while that task's session is running, and git refuses if anything is uncommitted
-   (it is never forced). The branch is kept, and it tells you whether it is pushed and landed.
-3. **Deleting the branch** (optional, landed branches only):
+- **After `crwn land <task>`, for that task only.** If its session is still open (the usual
+  case), it says so and leaves the worktree. A later sweep removes it.
+- **Every time `crwn <task>` starts a new task**, across all worktrees. Quiet unless it acts.
+- **By hand**, `crwn clean` (see below).
 
-       git branch -d worktree-manychat-fix
+### What the sweep never does
 
-   `-d` refuses unless the branch is merged, so it cannot lose work.
+- **It never touches a worktree that is in use.** Any one of these counts:
+  - a running process has its cwd inside it (a WSL Claude session, a dev server, a build);
+  - a Claude transcript written in the last 12 hours records a cwd inside it. This is how it sees
+    Windows-side sessions, which WSL cannot see as processes;
+  - a file in it changed in the last 12 hours, or git moved its HEAD in that time;
+  - git holds a lock on it with a live pid (a lock whose pid has died is stale and does not count).
+- **It never removes a worktree with an uncommitted or untracked file.** Git refuses that by
+  itself as well, because the sweep never passes `--force`.
+- **It never removes an unlanded worktree**, pushed or not.
+- **It never removes a worktree holding an ignored file that is not a cache.** `git worktree
+  remove` deletes ignored files silently, so a private `.env.local` (one that differs from the main
+  checkout's) or a render output blocks removal. A byte-identical copy of the main checkout's file
+  does not.
+- **It never deletes a branch.**
+- **It re-reads every fact just before each deletion.** A worktree that became busy in between is
+  left alone.
 
-Disk: about 120 MB per worktree, plus about 400 MB after a build, plus about 1 GB if it changed
-dependencies. C: is tight, so `rm` finished tasks.
+Change the 12 hours with `--active-hours N` or `CRWN_ACTIVE_HOURS`.
+
+### Running it by hand
+
+Dry run. It changes nothing and shows each worktree's branch, landed or not, pushed or not, dirty
+or clean, in use (and why), disk use, and the plan:
+
+    wsl scripts/dev/crwn clean
+
+Then do what it listed:
+
+    wsl scripts/dev/crwn clean --apply
+
+Options:
+- `--skip <task>` never touches that task (repeatable).
+- `--only <task>` handles just that one.
+- `--no-sizes` skips the disk measurement.
+- `--no-fetch` judges against the cached `origin/master`.
+
+A task session may run the dry run. `--apply` is refused there (by the script and by git-guard),
+because it changes other sessions' checkouts.
+
+`crwn rm <task>` still removes one finished worktree directly. It refuses while that task's
+session is running, and git refuses if anything is uncommitted.
+
+### Reopening a removed or unmerged task
+
+    wsl scripts/dev/crwn resume <task>
+
+- If the folder is gone, this recreates it from the kept branch, commits intact.
+- If the local branch was deleted but the branch is on origin, it recreates the branch from
+  `origin/worktree-<task>` first.
+
+Through plain git (from the main checkout):
+
+    git worktree add .claude/worktrees/<task> worktree-<task>
+
+Deleting a branch is optional, and only for landed branches:
+
+    git branch -d worktree-<task>
+
+`-d` refuses unless the branch is merged, so it cannot lose work. `git branch -D` is blocked by
+the guard.
+
+### Getting the space back on C:
+
+Deleting files inside WSL does NOT shrink
+`C:\Users\Josh\AppData\Local\Packages\CanonicalGroupLimited.Ubuntu_79rhkp1fndgsc\LocalState\ext4.vhdx`.
+The file only grows. When C: runs low, compact it by hand. This stops every WSL session.
+
+- **Never use sparse mode.** `wsl --manage Ubuntu --set-sparse true` is refused on this WSL build
+  ("potential data corruption"), and `--allow-unsafe` is not worth the risk.
+- `Optimize-VHD` is not installed here, so use `diskpart`, which ships with Windows. Its steps are
+  saved in `C:\Users\Josh\compact-wsl-disk.txt`: attach read-only, compact, detach.
+
+The steps:
+1. Close VS Code and every Claude session. Anything open on `\\wsl.localhost` restarts WSL.
+2. In an admin PowerShell, run these three lines. Do not type the diskpart steps into PowerShell
+   yourself: PowerShell reads them as its own commands.
+
+       wsl -u root fstrim -av
+       wsl --shutdown
+       diskpart /s C:\Users\Josh\compact-wsl-disk.txt
+
+3. It should end with "DiskPart successfully detached the virtual disk file."
+   - "File in use" means WSL restarted. Run the last two lines again.
+   - On any other error, restart Windows, which detaches the disk.
+
+The first run, on 2026-10-02, took the vhdx from 20.56 GB to 17.19 GB with 14 GB in use. The
+vhdx always sits about 3 GB above what `df` reports, because ext4's own structures live there too.
 
 ## The safeguard
 
@@ -147,7 +259,7 @@ in every session. This is code, not an instruction.
 **Blocked from a task session:**
 - a push to master (or `main`, or `origin/HEAD`'s branch);
 - `gh pr merge`;
-- `crwn land` and `crwn sync`;
+- `crwn land`, `crwn sync` and `crwn clean --apply`;
 - any git write into a checkout that is not its own.
 
 **Blocked from anywhere:**

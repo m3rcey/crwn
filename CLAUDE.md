@@ -332,6 +332,15 @@ integration checkout, and its uncommitted files may be another session's work.
 - **Changing dependencies in a task worktree is safe.** `node_modules` there is hardlinked to the
   main checkout's, and the guard gives it its own copy before any dependency-changing npm command
   runs. Never edit files inside `node_modules` by hand.
+- **Worktrees are cleaned up by `crwn clean`, never by hand-rolled `rm -rf`** (2026-10-02). Every
+  worktree's build gate leaves about 400 MB of `.next` (Next 16.3 keeps a Turbopack build cache by
+  default), and an unlinked `node_modules` is 1 GB, so `.claude/worktrees` reached 6.4 GB in three
+  days. [scripts/dev/worktree-clean.mjs](scripts/dev/worktree-clean.mjs) is the one engine, and
+  `crwn land` and `crwn <task>` run it automatically. It removes a worktree only when the worktree
+  is landed, clean, idle and holds no non-cache ignored file. It deletes only `.next` and
+  `node_modules` from other idle worktrees, never touches one in use, and never deletes a branch.
+  "In use" includes Windows-side sessions, which WSL sees only through transcript `cwd` fields.
+  Do not weaken a rule in `decide()` without its test: each one is mutation-tested.
 
 ## TODO.md — you maintain it, Josh works it
 
