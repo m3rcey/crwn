@@ -178,6 +178,14 @@ export function SubscribeButton({ tiers, artistSlug, artistId }: SubscribeButton
           );
         })}
       </div>
+      {/* Risk reversal, under the button where it does its work. It states what CRWN already
+          enforces on a cancellation (access runs to the end of the period already paid for), so it
+          promises nothing new, and it is the one lever every paid tier on the platform was missing:
+          the same fact existed only four questions deep in an offer page's FAQ. Hidden for an
+          artist with no paid tier, who has nothing to cancel. */}
+      {tiers.some((t) => t.price > 0) && (
+        <p className="text-xs text-crwn-text-secondary mt-2">Cancel any time. You keep the month you paid for.</p>
+      )}
       <p className="text-xs text-crwn-text-secondary mt-2">
         By subscribing, you agree to our{' '}
         <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-crwn-gold hover:underline">
