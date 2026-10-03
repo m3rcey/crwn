@@ -156,6 +156,8 @@ export function normalizeOfferExperience(raw: unknown, tierName?: string): TierO
 
   const secondaryCue = str(r.secondaryCue, L.secondaryCue);
   if (secondaryCue) out.secondaryCue = secondaryCue;
+  const reassurance = str(r.reassurance, L.reassurance);
+  if (reassurance) out.reassurance = reassurance;
 
   const heroImage = safePosterUrl(r.heroImageUrl);
   if (heroImage) out.heroImageUrl = heroImage;

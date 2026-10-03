@@ -403,6 +403,9 @@ export function TierOfferExperience({ artist, tier, config, actionSlot, onDeclin
         >
           {config.cta}
         </button>
+        {config.reassurance && (
+          <p className="mt-2 text-xs text-center text-crwn-text-secondary">{config.reassurance}</p>
+        )}
         {onDecline && (
           <button onClick={onDecline} className="mt-3 w-full text-sm text-crwn-text-secondary press-scale">
             {declineLabel || 'Not right now'}

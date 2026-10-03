@@ -121,6 +121,12 @@ export interface TierOfferExperience {
   cta: string;
   /** e.g. "See what you get" (the down-cue). */
   secondaryCue?: string;
+  /** ONE short line under the button, answering "what happens if I do not like it". Risk
+   *  reversal is one of the strongest levers on a paid offer and it does not work buried in an
+   *  FAQ, which is where every CRWN offer had it. It states a fact CRWN already enforces (a
+   *  cancellation keeps access to the end of the period already paid for), so it is never a
+   *  promise the product has to grow into. Kept short on purpose: it sits under a button. */
+  reassurance?: string;
   /** Artwork above the promise (16:9). A public https image only, like every poster: the
    *  normalizer refuses signed or credentialed URLs. */
   heroImageUrl?: string;
@@ -139,6 +145,7 @@ export const OFFER_LIMITS = {
   description: 300,
   cta: 40,
   secondaryCue: 40,
+  reassurance: 90,
   previewTitle: 80,
   previewDescription: 280,
   maxPreviews: 12,

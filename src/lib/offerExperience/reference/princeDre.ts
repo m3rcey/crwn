@@ -37,6 +37,20 @@
 // The drip is not a calendar promise: it is relative to each member and enforced by the oracle,
 // and the copy describes it as "each month you stay", never as a cadence word the checks ban.
 //
+// WHAT EACH RUNG SELLS, AND THE THREE LEVERS ADDED 2026-10-02 (a $100M Offers read of this page):
+//   1. SUPPORTER NUMBER. Every paid rung earns one, so it is keyed on SILVER, the lowest rung that
+//      does, and the rungs above inherit it. It is the Nth person who ever paid Dre, stamped once
+//      and never changed, so the copy says that plainly: a fan choosing between $10 and $50 needs
+//      to know that moving between them later costs nothing.
+//   2. RISK REVERSAL. `reassurance` puts the cancellation fact under the button instead of four
+//      questions deep in an FAQ, which is where it converted nobody.
+//   3. WHERE THE MONEY GOES. "pays Dre directly" is the honest version of funding the work: it is
+//      what Stripe Connect does. No copy may promise he spends it on any particular tape.
+// Deliberately NOT added: a capped founder window (with zero members there is no honest number to
+// cap at, and the supporter number does the same job without expiring), and a members' vote, which
+// waits until Dre sends the unreleased songs it would choose between. A vote with nothing to vote
+// on is the one version of it that backfires.
+//
 // TWO MORE PROJECTS (founder, 2026-10-02), and the first true scarcity on the page:
 //   STOMPIN THRU THE TRENCHES, 16 songs, has NEVER been released and lives only on CRWN. Every
 //     other tape here can be found free somewhere, which is why no rung was allowed to claim
@@ -273,6 +287,7 @@ export const DRE_APPROVED_BENEFITS: Record<string, string[]> = {
   Silver: [
     `Blood Brothaz with JB Binladen, Life I Live and ${SDLY}, complete (${SILVER_SONGS} songs)`,
     'Behind the scenes from every era',
+    'Your supporter number beside your name, and it never changes',
     'Everything in Bronze',
   ],
   Gold: [
@@ -287,7 +302,6 @@ export const DRE_APPROVED_BENEFITS: Record<string, string[]> = {
     `${OBAN}, his hardest project to find, and the 3 projects Gold waits months for`,
     'First listen to new music here, before anyone else',
     'Group listening sessions when Dre opens one',
-    'Platinum recognition',
     'Everything in Gold',
   ],
 };
@@ -301,6 +315,8 @@ export const DRE_BENEFIT_IDENTITIES: Record<string, { key: string; line: string 
   Silver: [
     { key: 'exclusive_tracks', line: `Blood Brothaz with JB Binladen, Life I Live and ${SDLY}, complete (${SILVER_SONGS} songs)` },
     { key: 'exclusive_posts', line: 'Behind the scenes from every era' },
+    // Every paid rung earns a number, so it is keyed on the lowest one and inherited upward.
+    { key: 'member_recognition', line: 'Your supporter number beside your name, and it never changes' },
   ],
   Gold: [
     { key: 'vault_collection', line: 'The Vault: cuts, alternate versions and unreleased videos as Dre adds them' },
@@ -308,7 +324,6 @@ export const DRE_BENEFIT_IDENTITIES: Record<string, { key: string; line: string 
   Platinum: [
     { key: 'early_access', line: 'First listen to new music here, before anyone else' },
     { key: 'group_live_qa', line: 'Group listening sessions when Dre opens one' },
-    { key: 'member_recognition', line: 'Platinum recognition' },
   ],
 };
 
@@ -331,6 +346,7 @@ export const DRE_PLATINUM_OFFER: TierOfferExperience = {
   promise: 'The tape nobody else has.',
   description: `${STTT} has never been released, anywhere, and this is the only place you can hear it. It comes with the rest: all ${PROJECTS} projects, ${ALL_SONGS} songs, in order and in one place the moment you join, including ${OBAN} (the hardest one to find anywhere) and everything in the levels below.`,
   cta: 'Unlock the New Mixtape',
+  reassurance: 'Cancel any time. You keep the month you paid for.',
   secondaryCue: 'See what you get',
   heroImageUrl: `${OFFER_ART}photo-hero-platinum.webp`,
   vsl: STAND_IN_VSL,
@@ -384,6 +400,10 @@ export const DRE_PLATINUM_OFFER: TierOfferExperience = {
   },
   faqs: [
     {
+      q: 'What is the number next to my name?',
+      a: 'It is how early you backed Dre. The first person who ever paid him is 1, the next is 2, and yours is set the day you join. It never changes after that: move up a level, move down a level, stop and come back later, you keep the same number.',
+    },
+    {
       q: 'Why not wait on the $25 level?',
       a: `The $${DRE_TIER_PRICES_CENTS.Gold / 100} a month level gets ${DRIP1.title}, ${DRIP2.title} and ${DRIP3.title} one at a time, a month apart from the day you join, and never gets ${OBAN}. This level gets all ${PROJECTS} projects complete today, and hears new music here first.`,
     },
@@ -398,6 +418,7 @@ export const DRE_GOLD_OFFER: TierOfferExperience = {
   promise: 'A new project each month you stay.',
   description: `Shotta In Da Jungle and Im Reloaded, ${GOLD_SONGS} songs, in one place the moment you join. Then one more full project each month you stay, counted from the day you join: ${DRIP1.title}, then ${DRIP2.title}, and ${DRIP3.title} last.`,
   cta: 'Unlock Two Projects Today',
+  reassurance: 'Cancel any time. You keep the month you paid for.',
   secondaryCue: 'See what you get',
   heroImageUrl: `${OFFER_ART}photo-hero-gold.webp`,
   vsl: STAND_IN_VSL,
@@ -450,6 +471,10 @@ export const DRE_GOLD_OFFER: TierOfferExperience = {
   },
   faqs: [
     {
+      q: 'What is the number next to my name?',
+      a: 'It is how early you backed Dre. The first person who ever paid him is 1, the next is 2, and yours is set the day you join. It never changes after that: move up a level, move down a level, stop and come back later, you keep the same number.',
+    },
+    {
       q: 'When do the other projects open?',
       a: `Counted from the day you join: ${DRIP1.title} after your first month, ${DRIP2.title} after your second, ${DRIP3.title} after your third. If you cancel and come back, the count starts again. If you want all ${PROJECTS} today, the $${DRE_TIER_PRICES_CENTS.Platinum / 100} a month level has every project now.`,
     },
@@ -462,8 +487,9 @@ export const DRE_GOLD_OFFER: TierOfferExperience = {
 
 export const DRE_SILVER_OFFER: TierOfferExperience = {
   promise: 'Dre and JB, back to back.',
-  description: `Blood Brothaz, the tape his fans keep asking him to run back with JB Binladen, plus Life I Live and ${SDLY}. All ${SILVER_SONGS} songs, in one place and in order.`,
+  description: `Blood Brothaz, the tape his fans keep asking him to run back with JB Binladen, plus Life I Live and ${SDLY}. All ${SILVER_SONGS} songs, in one place and in order, and your membership pays Dre directly.`,
   cta: 'Get Blood Brothaz',
+  reassurance: 'Cancel any time. You keep the month you paid for.',
   secondaryCue: 'See what you get',
   vsl: { url: null },
   previews: [
