@@ -115,6 +115,18 @@ route or player.
 
 ## Recognition (D1)
 
+**Supporter numbers (founder decision, 2026-10-02).** `subscriptions.supporter_number` is the Nth
+person who ever PAID an artist, stamped once at the first paid checkout and never changed again:
+upgrade, downgrade, cancel and rejoin all keep it. It renders beside the rung (`Platinum #3`) and
+alone once a membership lapses (`#3`), because being third does not stop being true. ONE sequence
+per artist across all rungs, so moving up the ladder never costs a fan their position, which was
+the flaw in numbering per rung. It was chosen OVER a capped founder window: with no members there
+is no honest number to cap at, a cap that never binds reads as fake and one that binds too early
+caps the best tier, whereas a number has no wrong setting and never expires as urgency. On an
+artist running no founder window it also stands in for Day One, which `is_founder` would otherwise
+never set. Assignment is `assign_supporter_number()` (service_role EXECUTE only) plus a trigger
+freezing the column against browser writes; both are asserted by the migration's self-verify.
+
 V1 is self-visible: the fan's own rung plus "Member since <Month Year>" from their own
 `subscriptions.created_at`, on their tier card (`SubscribeSection`) and under My Subscriptions on
 `/profile`. Day One is the existing `is_founder` flag (`src/lib/recognition/status.ts`), set only by
