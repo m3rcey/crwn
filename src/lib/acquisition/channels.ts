@@ -200,6 +200,28 @@ function complianceFooter(unsubscribeUrl: string): string {
 
 // ---------------------------------------------------------------------------
 
+/**
+ * Would a non-transactional email to this lead be refused right now? null = no, it would go.
+ *
+ * The same questions send() and sendEmail() ask, in the same order, WITHOUT claiming anything. For
+ * a caller that must do something irreversible before sending, e.g. rotating a result link (which
+ * kills the lead's previous link): it asks first, so a refusal costs the lead nothing. send() still
+ * re-checks everything at the moment of sending; this is a courtesy, never the gate.
+ */
+export async function emailBlockedReason(identity: LeadIdentity): Promise<string | null> {
+  if (identity.status === 'opted_out' || identity.status === 'disqualified') return 'opted_out';
+  if (!identity.consentEmail) return 'no_email_consent';
+  if (!identity.email) return 'no_email';
+  const cap = await checkCaps(identity.id);
+  if (!cap.ok) return cap.reason;
+  const { data: suppressed } = await supabaseAdmin
+    .from('email_suppressions')
+    .select('email')
+    .eq('email', identity.email)
+    .maybeSingle();
+  return suppressed ? 'suppressed' : null;
+}
+
 async function checkCaps(identityId: string): Promise<{ ok: true } | { ok: false; reason: string }> {
   const { data } = await supabaseAdmin
     .from('acquisition_events')

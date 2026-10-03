@@ -715,6 +715,10 @@ reads canonical owners and sends through `channels.send()`. Full doc:
   `send:founder_followup:v1:<lead>:<stage>` key; never bump the version casually.
 - Auto-send is gated by `admin_settings.founder_followup` (fails closed). The admin Founder tab's
   "I sent this by hand" claims the same key.
+- **"Email their numbers"** (Leads tab, 2026-10-03) is the hand-pressed link to a DM lead's saved
+  result with the calculator VSL directly under it (`numbersEmail.ts`). The recipient comes from the
+  result row, never the request, and `emailBlockedReason` runs BEFORE the token rotates, because
+  rotating kills the lead's old link. It never quotes the stored headline (some say "$0").
 
 ## Fan Drives (Virality Engine) — the campaign is a DIMENSION, never a source of truth
 

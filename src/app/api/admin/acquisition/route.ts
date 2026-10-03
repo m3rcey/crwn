@@ -21,6 +21,7 @@ import {
   isFounderFollowUpEnabled,
 } from '@/lib/acquisition/founderFollowUpServer';
 import { planRenormalization, applyRenormalization } from '@/lib/acquisition/renormalize';
+import { sendNumbersEmail } from '@/lib/acquisition/numbersEmailServer';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -278,9 +279,9 @@ async function hydrate(sessions: Record<string, unknown>[]): Promise<Record<stri
   const ids = [...new Set(sessions.map((s) => s.lead_identity_id).filter(Boolean))] as string[];
 
   const [{ data: identities }, { data: profiles }, { data: results }] = await Promise.all([
-    supabaseAdmin.from('lead_identities').select('id, instagram_username, email, claimed_at, status').in('id', ids),
+    supabaseAdmin.from('lead_identities').select('id, instagram_username, email, consent_email, claimed_at, status').in('id', ids),
     supabaseAdmin.from('lead_profiles').select('lead_identity_id, lead_score, score_band, monthly_listeners, primary_blocker').in('lead_identity_id', ids),
-    supabaseAdmin.from('lead_magnet_results').select('id, lead_session_id, viewed_at, claimed_at, recalculated_at').in('lead_session_id', sessions.map((s) => s.id as string)),
+    supabaseAdmin.from('lead_magnet_results').select('id, lead_session_id, tool_slug, viewed_at, claimed_at, recalculated_at').in('lead_session_id', sessions.map((s) => s.id as string)),
   ]);
 
   const byIdentity = new Map((identities ?? []).map((i) => [i.id, i]));
@@ -363,6 +364,21 @@ export async function POST(req: NextRequest) {
       const r = await markFounderFollowUpSentByHand(id, admin.id);
       if (!r.ok && r.reason !== 'already_recorded') return NextResponse.json({ error: r.reason }, { status: 409 });
       break;
+    }
+
+    case 'email_numbers': {
+      // `id` is a lead_magnet_results id, a POINTER. The recipient is derived from that row's own
+      // session server-side (numbersEmailServer.ts), never from the request.
+      const r = await sendNumbersEmail(id);
+      await supabaseAdmin.from('agent_action_log').insert({
+        admin_id: admin.id,
+        action_type: 'acquisition_email_numbers',
+        action_label: `Acquisition: email numbers for result ${id}`,
+        action_params: { id, ...(r.sent ? {} : { reason: r.reason }) },
+        result: r.sent ? 'success' : 'failed',
+      });
+      if (!r.sent) return NextResponse.json({ error: r.reason }, { status: 409 });
+      return NextResponse.json({ ok: true, to: r.to });
     }
 
     case 'disqualify': {
