@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { getSignedDownloadUrl } from '@/lib/r2/client';
-import { hasPaidLiveTicket, hasTierAccess } from '@/lib/live/access';
+import { hasLiveSeat, hasTierAccess } from '@/lib/live/access';
 
 // Gated playback for PRERECORDED sessions. Mirrors the access logic of the live
 // token route, but returns a short-lived signed video URL instead of a LiveKit
@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
       const tierAccess = hasTierAccess(session.allowed_tier_ids, sub?.tier_id || null);
 
       // A paid pre-sale ticket keeps replay access to the recording too.
-      const hasTicket = tierAccess ? false : await hasPaidLiveTicket(supabaseAdmin, session.id, user.id);
+      const hasTicket = tierAccess ? false : await hasLiveSeat(supabaseAdmin, session.id, user.id);
 
       if (!tierAccess && !hasTicket) {
         return NextResponse.json(

@@ -49,7 +49,20 @@ describe('the checks actually refuse what they claim to', () => {
     // With no songs uploaded there is nothing to drop either; a drop naming a missing song is refused.
     expect(checkLaunchPartner(c).join()).toContain('is not a song this launch uploads');
     c.drops = undefined;
+    // Same for credits: they name a project, and there are none yet.
+    expect(checkLaunchPartner(c).join()).toContain('is not a project this launch uploads');
+    c.credits = undefined;
     expect(checkLaunchPartner(c)).toEqual([]);
+  });
+  it('refuses a credits offer whose downsell is not cheaper, or whose spots or price are out of range', () => {
+    const c = clone();
+    expect(c.credits).toBeDefined();
+    c.credits = { project: c.credits!.project, founding: { priceCents: 15000, seats: 25 }, supporter: { priceCents: 15000, seats: 50 } };
+    expect(checkLaunchPartner(c).join()).toContain('must cost less than Founding');
+    c.credits = { project: c.credits.project, founding: { priceCents: 25000, seats: 0 } };
+    expect(checkLaunchPartner(c).join()).toContain('seats must be between 1 and 500');
+    c.credits = { project: c.credits.project, founding: { priceCents: 999, seats: 25 } };
+    expect(checkLaunchPartner(c).join()).toContain('between $20 and $1,000');
   });
   it('refuses a project that lists a song the launch does not have', () => {
     const c = clone(); c.content!.projects[0].trackTitles.push('Not A Real Song');

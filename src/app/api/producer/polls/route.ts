@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { isProducerSessionsEnabled, ownsSession } from '@/lib/producer/access';
-import { hasPaidLiveTicket, hasTierAccess } from '@/lib/live/access';
+import { hasLiveSeat, hasTierAccess } from '@/lib/live/access';
 import type { PollOption } from '@/types/producer';
 
 // In-session polls. ADVISORY: a poll never binds the artist, it is a temperature
@@ -41,7 +41,7 @@ async function canReadSessionPolls(sessionId: string, userId: string): Promise<'
     .eq('status', 'active')
     .maybeSingle();
   if (hasTierAccess(session.allowed_tier_ids, sub?.tier_id || null)) return 'ok';
-  if (await hasPaidLiveTicket(supabaseAdmin, session.id, userId)) return 'ok';
+  if (await hasLiveSeat(supabaseAdmin, session.id, userId)) return 'ok';
   return 'no_access';
 }
 

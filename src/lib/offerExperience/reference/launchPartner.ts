@@ -108,6 +108,18 @@ export interface DropConfig {
  *  `delay_days` is day N after the join. It stops the moment the fan holds `goalRung` or higher
  *  (sequences.goal_tier_id), so a fan who buys is never sold the thing they own. Shape, from
  *  docs/crwn-brain/35: two gives before the first ask, one concrete thing per ask, no deadline. */
+/** Project credits (supabase/schema-phase2-project-credits.sql): a one-time product that prints a
+ *  fan's name in one project's credits, numbered. Founding is the offer; Supporter is the downsell
+ *  shown only after "No thanks". The product copy is generated in src/lib/projectCredits/credits.ts,
+ *  never written here, because it must state "recognition only" in words this file's promise check
+ *  would refuse. Created by `npx tsx scripts/project-credits.mjs <key> --apply`. */
+export interface CreditsConfig {
+  /** The project credited: a title in `content.projects`. */
+  project: string;
+  founding: { priceCents: number; seats: number };
+  supporter?: { priceCents: number; seats: number };
+}
+
 export interface NurtureConfig {
   goalRung: PaidRung;
   steps: { delay_days: number; subject: string; body: string }[];
@@ -148,6 +160,7 @@ export interface LaunchPartnerConfig {
    *  active subscription, and moves the price and its Stripe price ids in one update. */
   prices?: Partial<Record<PaidRung, number>>;
   nurture?: NurtureConfig;
+  credits?: CreditsConfig;
 }
 
 /** The drop funnel's public link segment, personalized (founder, 2026-09-29): never the random
@@ -290,6 +303,17 @@ export function checkLaunchPartner(c: LaunchPartnerConfig): string[] {
   const links = (c.drops ?? []).map((d) => dropLinkSlug(c, d));
   for (const link of links) if (!DROP_SLUG_RE.test(link)) errors.push(`drop: link "${link}" is not a clean lowercase slug`);
   if (new Set(links).size !== links.length) errors.push('drop: two funnels share a link');
+  if (c.credits) {
+    const cr = c.credits;
+    if (!(c.content?.projects ?? []).some((p) => p.title === cr.project)) errors.push(`credits: "${cr.project}" is not a project this launch uploads`);
+    for (const [level, o] of [['founding', cr.founding], ['supporter', cr.supporter]] as const) {
+      if (!o) continue;
+      if (!Number.isInteger(o.priceCents) || o.priceCents < 2000 || o.priceCents > 100000) errors.push(`credits: ${level} price must be whole cents between $20 and $1,000`);
+      // The cap is the promise ("25 spots"), and products.max_quantity is what enforces it.
+      if (!Number.isInteger(o.seats) || o.seats < 1 || o.seats > 500) errors.push(`credits: ${level} seats must be between 1 and 500`);
+    }
+    if (cr.supporter && cr.supporter.priceCents >= cr.founding.priceCents) errors.push('credits: the Supporter downsell must cost less than Founding');
+  }
   // A retired vote's copy is never published, so it is not checked as a promise.
   const text = JSON.stringify({ ...c, content: undefined, vote: c.vote && !c.vote.retired ? { ...c.vote, options: c.vote.options.map((o) => o.label) } : undefined });
   if (/[—–]/.test(text)) errors.push('an em or en dash is in the copy');

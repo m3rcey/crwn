@@ -648,6 +648,14 @@ export const PRINCE_DRE: LaunchPartnerConfig = {
   // Founder-approved, 2026-10-01: Platinum at $50 instead of the ladder's $100 (see the header).
   prices: { Platinum: DRE_TIER_PRICES_CENTS.Platinum },
   nurture: DRE_NURTURE,
+  // Project credits on the one tape nobody has heard (founder, 2026-10-03): $250 Founding, 25
+  // numbered spots with a seat at the private listening session; $150 Supporter, 50 spots, shown
+  // only after a "No thanks". Recognition only. Judged on scripts/project-credits.mjs's scorecard.
+  credits: {
+    project: STTT,
+    founding: { priceCents: 25000, seats: 25 },
+    supporter: { priceCents: 15000, seats: 50 },
+  },
   // What each rung holds: every song on every project (see CONTENT_TRACKS). `rung` is the LOWEST
   // rung that hears it; every rung above it is listed on the track too (the gate is an exact
   // match, there is no inheritance). The script only ever ADDS rungs to a track already there.

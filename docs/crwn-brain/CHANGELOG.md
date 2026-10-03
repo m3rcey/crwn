@@ -1,5 +1,17 @@
 # CRWN Brain — Changelog
 
+## 2026-10-03 - Project credits: a fan's name in a project's credits, numbered
+
+**Full doc: 36-PROJECT-CREDITS.md.**
+- **A one-time product, two levels.** Founding Supporter ($250, 25 spots, listed first, a seat at
+  the private listening session) and Supporter ($150, 50 spots), the downsell shown only after
+  "No thanks". Recognition only, stated in words on the offer and on Stripe Checkout.
+- **Fulfilled with nobody lifting a finger.** The webhook numbers the credit, the fan names it,
+  a public card page and story image prove it outside CRWN, and `hasLiveSeat` seats Founding
+  Supporters in the artist's listening session. A refund revokes all of it by derivation.
+- **Judged on rules written first.** `product_offer_events` plus `creditsVerdict`; no verdict
+  below 50 Founding viewers.
+
 ## 2026-10-02 - Free members hear something after the song
 
 **Full doc: 35-LIFECYCLE-EMAIL-STRATEGY.md.**

@@ -4,7 +4,7 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { hasPaidLiveTicket, hasTierAccess } from '@/lib/live/access';
+import { hasLiveSeat, hasTierAccess } from '@/lib/live/access';
 import type { SubmissionKind } from '@/types/producer';
 
 export const SUBMISSION_KINDS: SubmissionKind[] = ['beat', 'vocal', 'idea', 'reference', 'other'];
@@ -86,7 +86,7 @@ export async function canSubmitToSession(
       .maybeSingle();
     allowed =
       hasTierAccess(session.allowed_tier_ids, sub?.tier_id || null) ||
-      (await hasPaidLiveTicket(admin, session.id, userId));
+      (await hasLiveSeat(admin, session.id, userId));
   }
   if (!allowed) return { ok: false, reason: 'no_access', session };
 

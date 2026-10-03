@@ -3,7 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { checkRateLimit } from '@/lib/rateLimit';
 import { canSubmitToSession, ownsSession, isProducerSessionsEnabled } from '@/lib/producer/access';
-import { hasTierAccess, hasPaidLiveTicket } from '@/lib/live/access';
+import { hasTierAccess, hasLiveSeat } from '@/lib/live/access';
 
 // A fan casts one vote in an open poll. Access is the SAME gate as submitting: you
 // must be able to get into the session (free, allowed tier, or paid ticket). One
@@ -89,7 +89,7 @@ export async function POST(req: NextRequest) {
           .maybeSingle();
         allowed =
           hasTierAccess(s.allowed_tier_ids, sub?.tier_id || null) ||
-          (await hasPaidLiveTicket(supabaseAdmin, s.id, user.id));
+          (await hasLiveSeat(supabaseAdmin, s.id, user.id));
       }
       if (!allowed) return NextResponse.json({ error: 'no_access' }, { status: 403 });
     }

@@ -29,6 +29,7 @@ import { recordFirstPaidConversion } from '@/lib/analytics/paidConversion';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { enrollInSequence } from '@/lib/sequences/enroll';
 import { exitConvertedEnrollments } from '@/lib/sequences/goalExit';
+import { assignCreditForPurchase } from '@/lib/projectCredits/server';
 import { decidePendingApply, shouldClearPassedPrizeBoundary } from '@/lib/subscriptions/pendingTierApply';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1052,6 +1053,11 @@ export async function handleProductPurchase(supabaseAdmin: AdminClient, session:
       productTitle,
       deliveryType: (product as { delivery_type?: string | null }).delivery_type,
     });
+
+    // Project credits: a credits product earns a numbered credit on its album. The assigner
+    // decides whether this product is one (an ordinary product returns null), is idempotent per
+    // purchase, and never throws, so it cannot block the money path. Not an earnings write.
+    await assignCreditForPurchase(supabaseAdmin, purchase.id);
   }
 
   // Resolve campaign attribution from UTM params

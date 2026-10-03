@@ -277,6 +277,10 @@ export default async function ArtistPage({ params, searchParams }: ArtistPagePro
     .eq('artist_id', artist.id)
     .eq('is_active', true)
     .order('created_at', { ascending: false });
+  // Project-credits products are sold ONLY on /<slug>/credits/<project>, where the downsell and the
+  // offer tracking live. Filtered here rather than in the query: before the migration the column
+  // does not exist, and naming it would empty every artist's shop.
+  const shopProducts = (products || []).filter((p) => !(p as { credit_level?: string | null }).credit_level);
 
   // Currently-live session (for the "Live now" banner)
   const { data: liveNow } = await supabase
@@ -487,7 +491,7 @@ export default async function ArtistPage({ params, searchParams }: ArtistPagePro
           tiers={tiers}
           albums={albumsWithCounts}
           playlists={playlistsWithCounts}
-          products={products || []}
+          products={shopProducts}
           tracks={sortedTracks}
           albumTrackIds={[...albumTrackIds]}
           isOwner={isOwner}

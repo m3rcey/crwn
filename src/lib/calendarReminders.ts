@@ -20,7 +20,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { resend, FROM_EMAIL } from '@/lib/resend';
 import { calendarReminderEmail, type ReminderLine } from '@/lib/emails/calendarReminder';
 import { relativeDueLabel } from '@/lib/calendar';
-import { paidTicketBuyersBySession } from '@/lib/live/access';
+import { seatHoldersBySession } from '@/lib/live/access';
 import { createNotification } from '@/lib/notifications';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -96,7 +96,7 @@ export async function dispatchCalendarReminders(
     }
     // Ticket holders are NOT necessarily subscribers, so they never appear in
     // subsByArtist. Without this they pay for a session and get no reminder.
-    const ticketBuyers = await paidTicketBuyersBySession(admin, lives!.map((l) => l.id));
+    const ticketBuyers = await seatHoldersBySession(admin, lives!.map((l) => l.id));
     for (const l of lives!) {
       const audienceSubs = subsByArtist.get(l.artist_id) || [];
       const reminded = new Set<string>();

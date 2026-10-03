@@ -85,6 +85,21 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **Run the project credits migration, then tell Claude "credits migration ran".**
+      Open [supabase/schema-phase2-project-credits.sql](supabase/schema-phase2-project-credits.sql)
+      and run it in the Supabase SQL Editor (it ends with a self-check that raises if anything is
+      missing). Nothing is sold until it runs: the page, checkout and live seats all read "none".
+      Claude then probes it and creates Dre's two products once he has said yes (next item).
+- [ ] **Get Prince Dre's yes on project credits for Stompin Thru The Trenches, and a date for the
+      listening session.** What fans would buy: $250 Founding Supporter (25 spots: name listed first
+      and numbered in the Stompin credits, a seat at his private listening session for the tape, a
+      card they can post) and $150 Supporter (50 spots, name and card, no session), shown only to
+      someone who says no to the $250. Recognition only, nothing about money or ownership. The seat
+      is the one promise HE keeps: he schedules a live in Studio, Live, and picks "Seat your
+      Founding Supporters: Stompin Thru The Trenches". Two answers to bring back: yes or no on the
+      prices and spot counts, and roughly when he would host the session (it can be after the
+      first buyers arrive, but the page promises it).
+
 - [ ] **Decide with Dre how Stompin Thru The Trenches gets announced. It is live now, quietly.**
       His unreleased 16-song mixtape went up 2026-10-02 behind Platinum ($50), and it is the ONLY
       thing in his catalog that exists nowhere else: every other tape is free somewhere (Audiomack,
@@ -1196,6 +1211,13 @@ Things that are never finished. Cadence, then the thing.
 ---
 
 ## On Claude's plate (not yours)
+
+- **Project credits go live for Dre once the migration ran AND Dre said yes.** Run
+  `npm run verify:migrations` (four "project credits" lines must read applied), then
+  `npx tsx scripts/project-credits.mjs princedre --apply`, open
+  https://thecrwn.app/princedre/credits/stompin-thru-the-trenches and check the offer, the
+  "No thanks" downsell and the album-page bar. Then read the scorecard (dry run of the same script)
+  whenever traffic is sent; no verdict below 50 Founding viewers.
 
 - **When Dre's two new projects are uploaded (Stompin Thru The Trenches + one more), rebuild Gold
   the way the founder's email draft describes it.** Gold day one becomes Stompin + Shotta In Da

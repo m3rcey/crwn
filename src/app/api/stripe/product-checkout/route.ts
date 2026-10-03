@@ -7,6 +7,10 @@ import { reserveForSaleAtomic, reserveToStripeMetadata } from '@/lib/teamSplits/
 import { teamSplitMoneyKey } from '@/lib/teamSplits/moneyKey';
 import { checkRateLimit } from '@/lib/rateLimit';
 import { validateAndApplyDiscount } from '@/lib/discountCodes';
+import { blocksPurchase, creditsPath, isCreditLevel } from '@/lib/projectCredits/credits';
+import { heldCreditLevels, isOfferPlacement, recordOfferEvent } from '@/lib/projectCredits/server';
+import { hashVisitor } from '@/lib/analytics/visitorHash';
+import { requestHasDnt } from '@/lib/analytics/doNotTrack';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_dummy_key_for_build');
 
@@ -95,6 +99,40 @@ export async function POST(request: NextRequest) {
         { error: 'Artist has not connected Stripe' },
         { status: 400 }
       );
+    }
+
+    // Project credits (supabase/schema-phase2-project-credits.sql). A second purchase of the same
+    // or a lower credit would earn nothing, so it is refused before any money moves. The buyer
+    // returns to the credits page, where they choose how their name appears. Both columns are
+    // undefined until the migration is applied, which reads as an ordinary product.
+    let creditReturnPath: string | null = null;
+    if (product.credit_album_id && isCreditLevel(product.credit_level)) {
+      const held = await heldCreditLevels(svcConnect, fanId, product.credit_album_id);
+      const blocked = blocksPurchase(held, product.credit_level);
+      if (blocked) return NextResponse.json({ error: blocked }, { status: 409 });
+
+      const { data: album } = await svcConnect
+        .from('albums')
+        .select('title')
+        .eq('id', product.credit_album_id)
+        .eq('artist_id', product.artist_id)
+        .maybeSingle();
+      if (album?.title && artist?.slug) creditReturnPath = creditsPath(artist.slug, album.title);
+
+      // Checkout starts are recorded HERE, where a session is really being created, never from a
+      // client beacon. Founder devices are never counted.
+      if (!requestHasDnt(request.headers)) {
+        const visitorHash = await hashVisitor(request.headers);
+        if (visitorHash) {
+          await recordOfferEvent(svcConnect, {
+            productId,
+            eventType: 'offer_checkout_started',
+            placement: isOfferPlacement(body.placement) ? body.placement : 'primary',
+            visitorHash,
+            fanId,
+          });
+        }
+      }
     }
 
     const price = product.price;
@@ -226,8 +264,12 @@ export async function POST(request: NextRequest) {
           utm_campaign: utmCampaign || '',
         },
       },
-      success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/${artist.slug}?purchase=success&product=${productId}`,
-      cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/${artist.slug}?purchase=cancelled`,
+      success_url: creditReturnPath
+        ? `${process.env.NEXT_PUBLIC_BASE_URL}${creditReturnPath}?credited=1`
+        : `${process.env.NEXT_PUBLIC_BASE_URL}/${artist.slug}?purchase=success&product=${productId}`,
+      cancel_url: creditReturnPath
+        ? `${process.env.NEXT_PUBLIC_BASE_URL}${creditReturnPath}`
+        : `${process.env.NEXT_PUBLIC_BASE_URL}/${artist.slug}?purchase=cancelled`,
       metadata: {
         fan_id: fanId,
         product_id: productId,

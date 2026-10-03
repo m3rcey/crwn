@@ -22,6 +22,12 @@ const PROBES = [
   // signal: 200 with [] once applied, 42703 while pending. The assigner's grants and the
   // freeze trigger are invisible here and are asserted by the migration's own self-verify.
   ['supporter numbers', 'subscriptions?select=supporter_number&limit=1', 'schema-phase2-supporter-number.sql'],
+  // Project credits. The product column reads 200 once applied (products has table-level grants);
+  // project_credits and product_offer_events are closed to anon, so 42501 is THEIR applied signal.
+  ['project credits: product columns', 'products?select=credit_level,credit_album_id&limit=1', 'schema-phase2-project-credits.sql'],
+  ['project credits: live seat column', 'live_sessions?select=credit_album_id&limit=1', 'schema-phase2-project-credits.sql'],
+  ['project credits table', 'project_credits?select=id&limit=1', 'schema-phase2-project-credits.sql'],
+  ['product offer events', 'product_offer_events?select=id&limit=1', 'schema-phase2-project-credits.sql'],
   ['plan recommendation columns', 'artist_profiles?select=recommended_plan&limit=1', 'schema-phase2-platform-plan-recommendation.sql'],
   ['support chat tables', 'support_conversations?select=id&limit=1', 'schema-phase2-support-chat.sql'],
   ['funnel events', 'funnel_events?select=id&limit=1', 'schema-phase2-funnel-events.sql'],

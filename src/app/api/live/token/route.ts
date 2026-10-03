@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { liveProvider } from '@/lib/livekit';
-import { hasPaidLiveTicket, hasTierAccess } from '@/lib/live/access';
+import { hasLiveSeat, hasTierAccess } from '@/lib/live/access';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -86,7 +86,7 @@ export async function POST(req: NextRequest) {
     const tierAccess = hasTierAccess(session.allowed_tier_ids, sub?.tier_id || null);
 
     // "Ticket = access": a paid ticket lets a fan in even without the tier.
-    const hasTicket = tierAccess ? false : await hasPaidLiveTicket(supabaseAdmin, session.id, user.id);
+    const hasTicket = tierAccess ? false : await hasLiveSeat(supabaseAdmin, session.id, user.id);
 
     if (!tierAccess && !hasTicket) {
       return NextResponse.json(

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { getSignedDownloadUrl } from '@/lib/r2/client';
-import { hasPaidLiveTicket, hasTierAccess } from '@/lib/live/access';
+import { hasLiveSeat, hasTierAccess } from '@/lib/live/access';
 
 // Mints a short-lived signed download URL for a session's recorded VOD.
 // Owner-only: the artist who owns the session can retrieve the file. This is the
@@ -86,7 +86,7 @@ export async function GET(req: NextRequest) {
         .maybeSingle();
       authorized =
         hasTierAccess(session.allowed_tier_ids, sub?.tier_id || null) ||
-        (await hasPaidLiveTicket(supabaseAdmin, session.id, user.id));
+        (await hasLiveSeat(supabaseAdmin, session.id, user.id));
     }
   }
 

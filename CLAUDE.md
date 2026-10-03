@@ -79,6 +79,8 @@ append, or retire with `support: 'retired'`, never rename. Full doc:
   posted or commented on that artist's page). It is the status drop pages advertise, so it is
   public wherever that comment is public. Inside a gated tier room the comments are members-only,
   so the badges there are seen by members only. Still no public supporter wall, no RLS change.
+  (Project credits are a different thing: a name a fan BOUGHT on one project and chose to print.
+  See "Project credits" below; they do not loosen this rule for membership.)
   **A THIRD status since 2026-10-02: the supporter number** (`subscriptions.supporter_number`,
   [supabase/schema-phase2-supporter-number.sql](supabase/schema-phase2-supporter-number.sql)). The
   Nth person who ever PAID that artist, stamped ONCE at the first paid checkout and never changed:
@@ -98,6 +100,33 @@ append, or retire with `support: 'retired'`, never rename. Full doc:
   there are IDENTITY, not copy.
 - **The panel lives on `/account/tiers`** (`PromiseDeliveryPanel` inside `TierManager`). Not a
   Studio tile, not a hamburger entry, not Rise Mode.
+
+## Project credits: a bought, numbered name on one project, recognition only (founder, 2026-10-03)
+
+A one-time product that prints a fan's name in a project's credits. Full doc:
+`docs/crwn-brain/36-PROJECT-CREDITS.md`; schema
+[supabase/schema-phase2-project-credits.sql](supabase/schema-phase2-project-credits.sql).
+
+- **Recognition only, in words.** Never ownership, equity, royalties or income. `RECOGNITION_ONLY`
+  in `src/lib/projectCredits/credits.ts` is on the offer and in the product copy Stripe shows;
+  `creditProductCopy` generates that copy, so it is never typed into a launch config (whose
+  promise check would refuse the disclaimer's own words).
+- **A product, never a tier.** `products.max_quantity` is the only enforced sale cap, so the spot
+  count is true. No Platinum or membership access rides with it: a one-time purchase cannot
+  grant one.
+- **The webhook numbers it** (`assign_project_credit`, service_role only, idempotent, refuses a
+  foreign album). It is not a money write. **A refund revokes it by DERIVATION**: every reader
+  requires `purchases.status = 'completed'`. Never add a "revoked" flag.
+- **Public means opted in.** Names come only through `publicCredits` and `cleanCreditName`, never
+  from `profiles.display_name`. The card page and image exist only for a listed, standing credit.
+  The browser never names `project_credits` or `product_offer_events` (CREDITS-001).
+- **`hasLiveSeat` is the ONE live seat check** (ticket OR Founding credit via
+  `live_sessions.credit_album_id`). A gate that calls `hasPaidLiveTicket` alone fails CREDITS-005.
+- **The downsell appears only after "No thanks"**, and checkout starts are recorded only inside
+  product-checkout (CREDITS-002). Credits products are filtered out of the ordinary Shop: they are
+  sold only on `/<artist>/credits/<project>`.
+- **The verdict thresholds in `verdict.ts` were fixed before any traffic.** Do not move one after
+  seeing the data. Read it with `npx tsx scripts/project-credits.mjs <key>`.
 
 ## Membership strategy + content classes (release strategy spec, 2026-08-01)
 

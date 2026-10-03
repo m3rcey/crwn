@@ -3,6 +3,8 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import type { Metadata } from 'next';
 import { AlbumShareContent } from '@/components/share/AlbumShareContent';
 import { attachStreamUrls } from '@/lib/storage/signedAudio';
+import Link from 'next/link';
+import { creditsPath } from '@/lib/projectCredits/credits';
 
 interface AlbumPageProps {
   params: Promise<{ slug: string; id: string }>;
@@ -101,7 +103,28 @@ export default async function AlbumPage({ params }: AlbumPageProps) {
     (albumTracks || []).map((at: unknown) => (at as { track: never }).track).filter((t: any) => t && t.is_active !== false)
   );
 
+  // Project credits: when this project sells credits, a slim bar points at its credits page. The
+  // query errors before the migration (the column does not exist), which simply shows no bar.
+  const { data: creditProducts } = await supabase
+    .from('products')
+    .select('id')
+    .eq('artist_id', artist.id)
+    .eq('credit_album_id', id)
+    .eq('is_active', true)
+    .limit(1);
+  const creditsHref = creditProducts?.length ? creditsPath(artist.slug, album.title) : null;
+
   return (
+    <>
+      {creditsHref && (
+        <Link
+          href={creditsHref}
+          prefetch
+          className="block bg-[#D4AF37] px-4 py-2.5 text-center text-sm font-semibold text-black"
+        >
+          {`Get your name in the credits of ${album.title}`}
+        </Link>
+      )}
     <AlbumShareContent
       album={album}
       tracks={playableTracks}
@@ -113,5 +136,6 @@ export default async function AlbumPage({ params }: AlbumPageProps) {
       }}
       tiers={tiers || []}
     />
+    </>
   );
 }

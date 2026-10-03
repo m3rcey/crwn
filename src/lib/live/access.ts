@@ -64,3 +64,88 @@ export function hasTierAccess(
   const allowed: string[] = Array.isArray(allowedTierIds) ? allowedTierIds : [];
   return !!fanTierId && allowed.includes(fanTierId);
 }
+
+/**
+ * Does this user hold a Founding Supporter credit that seats them in this session?
+ *
+ * A session with live_sessions.credit_album_id is the artist's private listening session for that
+ * project, and every Founding Supporter whose purchase still stands holds a seat. The credit must
+ * be from the SESSION's artist, so pointing a session at another artist's album seats nobody.
+ * Schema: supabase/schema-phase2-project-credits.sql. Fails closed: any read error is "no seat",
+ * and the tier gate and paid tickets keep working exactly as before.
+ */
+export async function hasCreditSeat(
+  admin: any,
+  sessionId: string,
+  userId: string
+): Promise<boolean> {
+  if (!sessionId || !userId) return false;
+  try {
+    const { data: session, error } = await admin
+      .from('live_sessions')
+      .select('artist_id, credit_album_id')
+      .eq('id', sessionId)
+      .maybeSingle();
+    if (error || !session?.credit_album_id) return false;
+    const { data } = await admin
+      .from('project_credits')
+      .select('id, purchase:purchases(status)')
+      .eq('fan_id', userId)
+      .eq('artist_id', session.artist_id)
+      .eq('album_id', session.credit_album_id)
+      .eq('level', 'founding');
+    return ((data as any[]) || []).some((r) => r.purchase?.status === 'completed');
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * A seat that is not a tier: a paid ticket OR a Founding Supporter credit. Every gate that used to
+ * ask only for a ticket asks this, so the two paths can never drift apart.
+ */
+export async function hasLiveSeat(
+  admin: any,
+  sessionId: string,
+  userId: string
+): Promise<boolean> {
+  if (await hasPaidLiveTicket(admin, sessionId, userId)) return true;
+  return hasCreditSeat(admin, sessionId, userId);
+}
+
+/**
+ * Batch form of hasLiveSeat for jobs that fan out over sessions (reminders): ticket buyers plus
+ * Founding Supporters of each session's project.
+ */
+export async function seatHoldersBySession(
+  admin: any,
+  sessionIds: string[]
+): Promise<Map<string, string[]>> {
+  const out = await paidTicketBuyersBySession(admin, sessionIds);
+  if (!sessionIds.length) return out;
+  try {
+    const { data: sessions, error } = await admin
+      .from('live_sessions')
+      .select('id, artist_id, credit_album_id')
+      .in('id', sessionIds)
+      .not('credit_album_id', 'is', null);
+    if (error || !sessions?.length) return out;
+    for (const s of sessions as any[]) {
+      const { data } = await admin
+        .from('project_credits')
+        .select('fan_id, purchase:purchases(status)')
+        .eq('artist_id', s.artist_id)
+        .eq('album_id', s.credit_album_id)
+        .eq('level', 'founding');
+      const holders = ((data as any[]) || [])
+        .filter((r) => r.purchase?.status === 'completed')
+        .map((r) => r.fan_id as string);
+      if (!holders.length) continue;
+      const merged = new Set([...(out.get(s.id) || []), ...holders]);
+      out.set(s.id, [...merged]);
+    }
+  } catch {
+    /* reminders still go to ticket buyers */
+  }
+  return out;
+}

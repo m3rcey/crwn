@@ -84,6 +84,30 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
   // tier_config the shared artist context carries. allowed_tier_ids references subscription_tiers.id,
   // so this is the correct source. Falls back to the passed-in tiers if the fetch returns nothing.
   const [tierList, setTierList] = useState<TierConfig[]>(tiers);
+  // Project credits: a live can seat a project's Founding Supporters (live_sessions.credit_album_id,
+  // read by src/lib/live/access.ts). Offered only for projects that HAVE a Founding credits product,
+  // so the control never appears for an artist who does not sell credits.
+  const [creditProjects, setCreditProjects] = useState<{ id: string; title: string }[]>([]);
+  const [creditAlbumId, setCreditAlbumId] = useState<string | null>(null);
+  useEffect(() => {
+    if (!artistId) return;
+    let active = true;
+    (async () => {
+      const { data: rows, error } = await supabase
+        .from('products')
+        .select('credit_album_id')
+        .eq('artist_id', artistId)
+        .eq('credit_level', 'founding')
+        .eq('is_active', true);
+      const ids = [...new Set(((rows as { credit_album_id: string | null }[] | null) || []).map((r) => r.credit_album_id).filter((v): v is string => !!v))];
+      if (error || !ids.length) return; // no credits products, or the migration is not applied
+      const { data: albums } = await supabase.from('albums').select('id, title').in('id', ids).eq('artist_id', artistId);
+      if (active && Array.isArray(albums)) setCreditProjects(albums as { id: string; title: string }[]);
+    })();
+    return () => {
+      active = false;
+    };
+  }, [artistId, supabase]);
   useEffect(() => {
     if (!artistId) return;
     let active = true;
@@ -224,6 +248,7 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
     setMaxSlots(50);
     setIsFree(false);
     setSelectedTiers([]);
+    setCreditAlbumId(null);
     setScheduledAt('');
     setTicketPrice('');
     setAcceptsSubmissions(false);
@@ -398,6 +423,9 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
         price: !isFree && ticketPrice && parseFloat(ticketPrice) > 0
           ? Math.round(parseFloat(ticketPrice) * 100)
           : null,
+        // Founding Supporters of this project hold a seat. Omitted when unset, so the insert is
+        // byte-for-byte what it was for every artist who does not sell project credits.
+        ...(!isFree && creditAlbumId ? { credit_album_id: creditAlbumId } : {}),
         // Executive Producer Session: fans submit beats/vocals/ideas beforehand.
         // Guarded by the dark-launch flag, so this is only ever true when enabled.
         accepts_submissions: producerEnabled && acceptsSubmissions,
@@ -753,6 +781,19 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
                 {!isFree && tierList.length === 0 && (
                   <p className="text-crwn-text-secondary text-sm ml-6">Create subscription tiers first to gate access.</p>
                 )}
+                {!isFree && mode === 'live' && creditProjects.length > 0 && (
+                  <div className="mt-4 ml-6">
+                    <label className="block text-crwn-text-secondary text-sm mb-1">Seat your Founding Supporters</label>
+                    <OptionSelect
+                      options={[
+                        { value: 'none', label: 'No credit seats' },
+                        ...creditProjects.map((p) => ({ value: p.id, label: p.title, hint: 'Every Founding Supporter of this project gets in' })),
+                      ]}
+                      value={creditAlbumId ?? 'none'}
+                      onChange={(v) => setCreditAlbumId(v === 'none' ? null : v)}
+                    />
+                  </div>
+                )}
                 {/* Pre-sale ticket: gated lives only. Lets non-subscribers buy in. */}
                 {!isFree && mode === 'live' && (
                   <div className="mt-4 ml-6">
@@ -863,7 +904,8 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
                 ((mode === 'live' || visibility === 'public') &&
                   !isFree &&
                   selectedTiers.length === 0 &&
-                  !(parseFloat(ticketPrice) > 0)) ||
+                  !(parseFloat(ticketPrice) > 0) &&
+                  !(mode === 'live' && creditAlbumId)) ||
                 // Submissions on, but the rung list narrowed to nobody. Empty means NOBODY
                 // by design (an empty allow list must never read as "everyone"), so saving
                 // this would advertise submissions no one could ever make. Either pick a
