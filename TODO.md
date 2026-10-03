@@ -85,22 +85,6 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
-- [ ] **Compact the WSL disk: C: has 9 GB free and will not get it back on its own.** Worktree
-      cleanup now works (2026-10-03: `.claude/worktrees` went from 6.2 GB to 143 MB, WSL's own
-      usage from 20 GB to 14 GB), but the WSL disk file
-      `C:\Users\Josh\AppData\Local\Packages\CanonicalGroupLimited.Ubuntu_79rhkp1fndgsc\LocalState\ext4.vhdx`
-      is 23.5 GB and is NOT sparse, so space freed inside WSL never returns to Windows until the
-      file is compacted. That needs every Claude session and VSCode window closed and an
-      Administrator PowerShell, which is why it is yours: the same three lines you ran on
-      2026-10-02, in docs/PARALLEL_CLAUDE_SESSIONS.md under "Getting the space back on C:" (they
-      use `C:\Users\Josh\compact-wsl-disk.txt`). About 5 GB comes back (the file settles about
-      3 GB above the 15 GB WSL uses). Below 5 GB free, new task worktrees are now refused, and the
-      refusal prints the same steps. Sparse mode stays off: this WSL build refuses it over data
-      corruption.
-      Also seen 2026-10-03 18:04: C: briefly read 0.3 GB free and was back at 9 GB a minute later,
-      with the WSL disk unchanged. Something on the Windows side took about 8.6 GB for a moment;
-      if it recurs, that is worth a look (Windows Update, a pagefile resize, an antivirus scan).
-
 - [ ] **Confirm two things with Prince Dre about the Stompin credits, which are LIVE on your yes.**
       Live since 2026-10-03 at https://thecrwn.app/princedre/credits/stompin-thru-the-trenches:
       $250 Founding Supporter (25 spots: name first in the Stompin credits, numbered, a seat at his

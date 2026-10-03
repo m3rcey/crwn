@@ -490,7 +490,7 @@ integration checkout, and its uncommitted files may be another session's work.
   grace. Never re-add an hours-long window, a
   file-mtime rule, git-HEAD recency or a pid-less lock as liveness. **Source and cache have separate
   rules**: a landed, clean task loses `.next` at once even while its session is open. A global budget
-  (warn 3 GB, aggressive 4 GB, hard 5 GB) and a C: guard (warn under 10 GB, refuse under 5 GB) run
+  (warn 3 GB, aggressive 4 GB, hard 5 GB) and a C: guard (warn under 20 GB, refuse under 12 GB; founder, 2026-10-03) run
   before every new worktree, including Windows-side `EnterWorktree` through the PreToolUse hook
   `.claude/hooks/worktree-preflight.mjs`. The WSL disk is not sparse, so C: only recovers by a VHDX
   compaction, which is Josh's. Do not weaken a rule in `decide()` or `liveness()` without its test:

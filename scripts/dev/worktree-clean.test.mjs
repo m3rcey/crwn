@@ -137,7 +137,7 @@ test('decide: source and cache have different rules', () => {
 
 test('budget: warning, aggressive, hard limit and C: thresholds', () => {
   const lim = limits({});
-  assert.deepEqual([lim.warnMb, lim.aggressiveMb, lim.hardMb, lim.cWarnGb, lim.cCriticalGb], [3072, 4096, 5120, 10, 5], 'the defaults');
+  assert.deepEqual([lim.warnMb, lim.aggressiveMb, lim.hardMb, lim.cWarnGb, lim.cCriticalGb], [3072, 4096, 5120, 20, 12], 'the defaults');
   const GB = 1024 ** 3;
   const kb = (mb) => mb * 1024;
   assert.deepEqual(budget(kb(1000), 50 * GB, lim, { preflight: true }), { aggressive: false, warn: [], refuse: [] });
@@ -146,9 +146,10 @@ test('budget: warning, aggressive, hard limit and C: thresholds', () => {
   assert.equal(budget(kb(4200), 50 * GB, lim).aggressive, true, 'over 4 GB goes aggressive');
   assert.equal(budget(kb(4600), 50 * GB, lim, { preflight: true }).refuse.length, 1, 'one more ~600 MB worktree would pass 5 GB');
   assert.equal(budget(kb(4600), 50 * GB, lim).refuse.length, 0, 'only a preflight refuses');
-  assert.equal(budget(kb(100), 8 * GB, lim, { preflight: true }).warn.length, 1, 'C: under 10 GB warns');
-  assert.equal(budget(kb(100), 8 * GB, lim, { preflight: true }).refuse.length, 0);
-  assert.match(budget(kb(100), 4 * GB, lim, { preflight: true }).refuse[0], /^C: has 4\.0 GB free/, 'C: under 5 GB refuses');
+  assert.equal(budget(kb(100), 15 * GB, lim, { preflight: true }).warn.length, 1, 'C: under 20 GB warns');
+  assert.equal(budget(kb(100), 15 * GB, lim, { preflight: true }).refuse.length, 0, 'but 15 GB is above the refuse line');
+  assert.match(budget(kb(100), 11.5 * GB, lim, { preflight: true }).refuse[0] || '', /^C: has 11\.5 GB free, below the 12 GB critical level/, 'C: under 12 GB refuses');
+  assert.equal(budget(kb(100), 12.5 * GB, lim, { preflight: true }).refuse.length, 0, 'and 12.5 GB does not');
   assert.equal(budget(kb(100), null, lim, { preflight: true }).refuse.length, 0, 'an unreadable C: is not a refusal');
   assert.equal(limits({ CRWN_WT_HARD_MB: '9000', CRWN_C_CRITICAL_GB: '2' }).hardMb, 9000, 'configurable');
 });

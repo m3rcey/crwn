@@ -218,8 +218,8 @@ Every sweep that applies measures `.claude/worktrees` (disk not shared with the 
 | warning | 3 GB | `CRWN_WT_WARN_MB` | a WARNING line, even in quiet runs |
 | aggressive | 4 GB | `CRWN_WT_AGGRESSIVE_MB` | `.next` also goes from every worktree that is not busy, live and unlanded ones included |
 | hard limit | 5 GB | `CRWN_WT_HARD_MB` | a new worktree is refused if the total plus one more (`CRWN_WT_NEW_MB`, 600 MB) would pass it |
-| C: warning | 10 GB free | `CRWN_C_WARN_GB` | a WARNING line |
-| C: critical | 5 GB free | `CRWN_C_CRITICAL_GB` | a new worktree is refused |
+| C: warning | 20 GB free | `CRWN_C_WARN_GB` | a WARNING line |
+| C: critical | 12 GB free | `CRWN_C_CRITICAL_GB` | a new worktree is refused |
 
 **Before every new worktree** (`crwn <task>`, and the `EnterWorktree` PreToolUse hook
 `.claude/hooks/worktree-preflight.mjs` for Windows-side sessions): sweep, apply the budget,

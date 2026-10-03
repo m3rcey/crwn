@@ -64,8 +64,8 @@ export function limits(env = process.env) {
     aggressiveMb: num(env.CRWN_WT_AGGRESSIVE_MB, 4096), // also delete .next from every worktree not busy
     hardMb: num(env.CRWN_WT_HARD_MB, 5120),           // a new worktree may not push the total past this
     newMb: num(env.CRWN_WT_NEW_MB, 600),              // what one more worktree costs once built (measured ~560)
-    cWarnGb: num(env.CRWN_C_WARN_GB, 10),
-    cCriticalGb: num(env.CRWN_C_CRITICAL_GB, 5),      // refuse a new worktree below this
+    cWarnGb: num(env.CRWN_C_WARN_GB, 20),
+    cCriticalGb: num(env.CRWN_C_CRITICAL_GB, 12),     // refuse a new worktree below this (founder, 2026-10-03)
     graceMinutes: num(env.CRWN_GRACE_MINUTES, 20),    // a new worktree, or a transcript just written
   };
 }
