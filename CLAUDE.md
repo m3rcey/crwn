@@ -486,7 +486,8 @@ integration checkout, and its uncommitted files may be another session's work.
   transcript and a pid-less Windows lock are traces EVERY finished task has, so one day produced
   29 worktrees, 17 GB and C: at 0.5 GB). "Held" means a live process inside it, or a Claude session
   alive now by pid AND process start time (`sessions/<pid>.json` on both sides of WSL; Windows reuses
-  pids), or a live-pid lock, or a 20-minute creation grace. Never re-add an hours-long window, a
+  pids) whose cwd or own recent tool calls are in it, or a live-pid lock, or a 20-minute creation
+  grace. Never re-add an hours-long window, a
   file-mtime rule, git-HEAD recency or a pid-less lock as liveness. **Source and cache have separate
   rules**: a landed, clean task loses `.next` at once even while its session is open. A global budget
   (warn 3 GB, aggressive 4 GB, hard 5 GB) and a C: guard (warn under 10 GB, refuse under 5 GB) run

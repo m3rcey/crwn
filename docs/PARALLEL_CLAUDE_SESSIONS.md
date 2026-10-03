@@ -172,6 +172,11 @@ before sweeping, which no real worktree ever is. History is not liveness.
     one PowerShell `Get-Process` call (about 0.6 s) for Windows. The cwd is the registry's and the
     LAST one in that session's transcript and its subagents' transcripts (`EnterWorktree` moves a
     session after it starts). If Windows cannot answer, the session counts as held;
+  - a live session's own recent tool calls (the commands it ran, the files it read or edited, in the
+    last MB of its transcript) point into it. A Windows session on the main checkout works in a
+    worktree through `wsl.exe ... cd <worktree>` and `\\wsl.localhost` paths, so its cwd never
+    moves (2026-10-02: a land emptied such a worktree's `node_modules` mid-task). Only tool INPUTS
+    count: a tool result such as `git worktree list` names every worktree and is not work in any;
   - a git lock naming a pid that is alive now (with a matching start time when the lock records
     one). A pid-less lock is not evidence of anything by itself;
   - the shell running the sweep is inside it (`crwn land` run from the task's own worktree);

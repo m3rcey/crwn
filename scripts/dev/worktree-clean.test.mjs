@@ -94,6 +94,12 @@ function makeRepo(label) {
         `{"type":"tool_result","content":"{\\"cwd\\":\\"/nowhere\\"}"}\n`);
       fs.utimesSync(f, hoursAgo(hours), hoursAgo(hours));
     },
+    /** A tool call the session made (its input), followed by a tool RESULT that names `listed`. */
+    toolCall(side, sessionId, command, listed = []) {
+      const f = path.join(side === 'win' ? win : wsl, 'projects', 'proj', `${sessionId}.jsonl`);
+      fs.appendFileSync(f, JSON.stringify({ type: 'assistant', cwd: winForm(MAIN), message: { content: [{ type: 'tool_use', name: 'Bash', input: { command } }] } }) + '\n' +
+        JSON.stringify({ type: 'user', cwd: winForm(MAIN), message: { content: [{ type: 'tool_result', tool_use_id: 'toolu_1', content: listed.map((p) => `${p}  abc123 [worktree-x]`).join('\n') }] } }) + '\n');
+    },
     /** A sessions/<pid>.json registry entry, the way Claude writes it. */
     session(side, { pid, procStart, sessionId, cwd, name = sessionId }) {
       const pidDomain = side === 'win' ? 'win32:desktop-test' : linuxPidDomain();
@@ -200,7 +206,7 @@ test('apply: removes what nothing holds; keeps live, busy, dirty and unlanded wo
   const T = {};
   for (const n of ['landed', 'unlanded', 'dirty', 'untracked', 'own-env', 'copied-env', 'busy', 'session-proc',
     'live-linux', 'live-win', 'reused-pid', 'win-unsure', 'stale-linux', 'live-lock', 'dead-lock', 'pidless-lock',
-    'subagent', 'old-transcript', 'recent-transcript', 'fresh', 'skipme', 'gone']) {
+    'subagent', 'old-transcript', 'recent-transcript', 'fresh', 'skipme', 'gone', 'via-wsl-exe', 'listed-only', 'dead-commands']) {
     T[n] = R.task(n, { landed: n !== 'unlanded', ageHours: n === 'fresh' ? 0.05 : 3 });
   }
   fs.appendFileSync(path.join(T.dirty, 'app.ts'), '// work in progress\n');
@@ -229,6 +235,16 @@ test('apply: removes what nothing holds; keeps live, busy, dirty and unlanded wo
   R.winProcess(7171, 'claude', '77');
   R.transcript('win', 'sa', winForm(R.MAIN), 0.5);
   R.transcript('win', 'sa', winForm(T.subagent), 0.5, 'agent-1'); // its Agent works in its own worktree
+  // A live Windows session on the main checkout working in a worktree through wsl.exe: its cwd never
+  // moves, its commands name the worktree. A tool RESULT naming another worktree is not work in it.
+  R.session('win', { pid: 8181, procStart: '88', sessionId: 'vw', cwd: winForm(R.MAIN) });
+  R.winProcess(8181, 'claude', '88');
+  R.transcript('win', 'vw', winForm(R.MAIN), 4);
+  R.toolCall('win', 'vw', `wsl.exe -e bash -lc 'cd ${T['via-wsl-exe']} && node --test'`, [T['listed-only']]);
+  R.toolCall('win', 'vw', 'git worktree list');
+  R.transcript('win', 'dc', winForm(R.MAIN), 4); // the same commands from a session that has exited
+  R.toolCall('win', 'dc', `wsl.exe -e bash -lc 'cd ${T['dead-commands']} && npm test'`);
+  R.session('win', { pid: 9191, procStart: '99', sessionId: 'dc', cwd: winForm(R.MAIN) });
   R.transcript('win', 'ot', winForm(T['old-transcript']), 3); // no live process: history only
   R.transcript('wsl', 'rt', T['recent-transcript'], 0.05); // written 3 minutes ago, no registry entry
   fs.rmSync(T.gone, { recursive: true, force: true }); // deleted by hand: only git's entry remains
@@ -254,12 +270,13 @@ test('apply: removes what nothing holds; keeps live, busy, dirty and unlanded wo
 
   run(['--repo', R.MAIN, '--no-fetch', '--auto', '--quiet', '--skip', 'skipme'], quiet, env);
 
-  for (const n of ['landed', 'copied-env', 'reused-pid', 'stale-linux', 'dead-lock', 'pidless-lock', 'old-transcript']) {
+  assert.match(plan['via-wsl-exe'].why, /live Claude session vw, pid 8181, whose recent commands work in it/);
+  for (const n of ['landed', 'copied-env', 'reused-pid', 'stale-linux', 'dead-lock', 'pidless-lock', 'old-transcript', 'listed-only', 'dead-commands']) {
     assert.equal(exists(T[n]), false, `${n}: landed, clean, nothing holds it now, so it is removed`);
   }
   assert.ok(!sh(R.MAIN, 'worktree', 'list', '--porcelain').includes(T.gone), 'the stale entry was pruned');
 
-  for (const n of ['session-proc', 'live-linux', 'live-win', 'win-unsure', 'live-lock', 'subagent', 'recent-transcript', 'fresh']) {
+  for (const n of ['session-proc', 'live-linux', 'live-win', 'win-unsure', 'live-lock', 'subagent', 'recent-transcript', 'fresh', 'via-wsl-exe']) {
     assert.ok(exists(path.join(T[n], `${n}.ts`)), `${n}: held now, so its source stays`);
     assert.equal(exists(path.join(T[n], '.next')), false, `${n}: landed and clean, so its .next is gone anyway`);
     assert.ok(exists(path.join(T[n], 'node_modules')), `${n}: a live task keeps node_modules`);
@@ -328,8 +345,10 @@ test('preflight refuses a new worktree past the hard limit, and on critical C:, 
     { encoding: 'utf8', env: R.env({ CRWN_C_CRITICAL_GB: '1000000' }) });
   assert.equal(cli.status, REFUSED, 'critical C: exits 3, which crwn and the EnterWorktree hook turn into a refusal');
   assert.match(cli.stdout, /C: has [\d.]+ GB free, below the 1000000 GB critical level/);
+  assert.match(cli.stdout, /wsl -u root fstrim -av/);
   assert.match(cli.stdout, /wsl --shutdown/);
-  assert.match(cli.stdout, /Optimize-VHD/);
+  assert.match(cli.stdout, /diskpart \/s /, 'the safe compaction (Optimize-VHD is not installed, sparse mode is refused)');
+  assert.doesNotMatch(cli.stdout, /Optimize-VHD|set-sparse/);
 });
 
 test('a task session may not hand-apply it, but the lifecycle run is allowed', () => {

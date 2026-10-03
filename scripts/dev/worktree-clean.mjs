@@ -23,7 +23,9 @@
 //   BUSY   a process other than a Claude session has its cwd inside it right now (a build, a dev
 //          server, a test run). Nothing at all is touched.
 //   OWNED  a Claude session whose process is alive right now (verified by pid AND process start
-//          time, because Windows reuses pids) has its cwd there, or a git lock names a live pid,
+//          time, because Windows reuses pids) has its cwd there or its own recent tool calls work
+//          there (a main-checkout session works in a worktree through wsl.exe paths), or a git
+//          lock names a live pid,
 //          or the shell running this sweep is inside it, or it was created minutes ago (a session
 //          still starting has not written its cwd anywhere yet). The SOURCE is preserved. The
 //          build cache is not: once the task is landed and clean its .next goes immediately.
@@ -192,18 +194,48 @@ export function defaultClaudeDirs() {
 
 const readJson = (p) => { try { return JSON.parse(fs.readFileSync(p, 'utf8')); } catch { return null; } };
 
-/** The last cwd a transcript recorded (its tail only: a session's latest position). */
-export function lastCwd(file) {
-  let text;
+/** The last MB of a transcript: a session's recent activity, never its whole history. */
+function readTail(file, bytes = 1 << 20) {
   try {
     const fd = fs.openSync(file, 'r');
     const size = fs.fstatSync(fd).size;
-    const len = Math.min(size, 1 << 20);
+    const len = Math.min(size, bytes);
     const buf = Buffer.alloc(len);
     fs.readSync(fd, buf, 0, len, size - len);
     fs.closeSync(fd);
-    text = buf.toString('utf8');
+    return buf.toString('utf8');
   } catch { return null; }
+}
+
+/**
+ * Worktrees a session's own recent tool calls point into: the commands it ran and the files it read
+ * or edited. A Windows session on the main checkout works in a worktree through `wsl.exe ... cd
+ * <worktree>` and \\wsl.localhost paths, so its cwd never moves (2026-10-02: a land emptied such a
+ * worktree's node_modules mid-task). Only tool INPUTS count: a tool RESULT such as `git worktree
+ * list` names every worktree and is not work in any of them.
+ */
+export function worktreesNamedByToolCalls(file) {
+  const names = new Set();
+  const text = readTail(file);
+  if (!text) return names;
+  for (const line of text.split('\n')) {
+    if (!line.includes('"tool_use"') || !line.includes('worktrees')) continue;
+    let j;
+    try { j = JSON.parse(line); } catch { continue; } // the tail's first line is usually cut
+    if (j.type !== 'assistant' || !Array.isArray(j.message?.content)) continue;
+    for (const b of j.message.content) {
+      if (b?.type !== 'tool_use') continue;
+      const s = JSON.stringify(b.input || {}).replace(/\\\\/g, '/');
+      for (const m of s.matchAll(/\.claude\/+worktrees\/+([A-Za-z0-9._-]+)/g)) names.add(m[1]);
+    }
+  }
+  return names;
+}
+
+/** The last cwd a transcript recorded (its tail only: a session's latest position). */
+export function lastCwd(file) {
+  const text = readTail(file);
+  if (text == null) return null;
   let last = null;
   // [{,] anchors it to a key of the line's own object: a cwd quoted inside a tool result is text.
   for (const m of text.matchAll(/[{,]"cwd":"((?:[^"\\]|\\.)*)"/g)) {
@@ -296,8 +328,14 @@ export function liveSessions(claudeDirs, { env = process.env, procDir = '/proc',
     seen.add(s.sessionId);
     const label = `${state === 'live' ? 'live' : 'probably live (Windows would not confirm)'} Claude session ${s.name || s.sessionId.slice(0, 8)}, pid ${s.pid}`;
     const cwds = new Set([s.cwd]);
-    for (const t of sessionTranscripts(s.claudeDir, s.sessionId)) { const c = lastCwd(t); if (c) cwds.add(c); }
+    const named = new Set();
+    for (const t of sessionTranscripts(s.claudeDir, s.sessionId)) {
+      const c = lastCwd(t);
+      if (c) cwds.add(c);
+      for (const n of worktreesNamedByToolCalls(t)) named.add(n);
+    }
     for (const c of cwds) if (c) owners.push({ cwd: c, why: label });
+    for (const n of named) owners.push({ name: n, why: `${label}, whose recent commands work in it` });
   }
   // A transcript written in the last few minutes by a session with no live registry entry: one that
   // just ended, or a Claude that stopped writing registries. Minutes, never hours.
@@ -345,7 +383,8 @@ export function liveness(wt, ctx) {
   if (wt.locked && lockState(wt.locked, ctx.procDir) === 'live') owned.push(`git lock held by running process (${wt.locked})`);
   const seen = new Set();
   for (const o of ctx.owners) {
-    if (isInside(o.cwd, wt.path) && !seen.has(o.why)) { seen.add(o.why); owned.push(o.why); }
+    const hit = o.name ? path.basename(wt.path) === o.name && path.dirname(wt.path) === ctx.worktreesDir : isInside(o.cwd, wt.path);
+    if (hit && !seen.has(o.why)) { seen.add(o.why); owned.push(o.why); }
   }
   // A brand-new worktree: its session has not recorded a cwd yet. The admin dir's creation time.
   const born = ctx.createdMs?.(wt);
@@ -478,6 +517,16 @@ function findVhdx() {
     }
   }
   return hits;
+}
+/** The saved diskpart steps (attach read-only, compact, detach) that compact it safely. */
+function findDiskpartScript() {
+  let users = [];
+  try { users = fs.readdirSync('/mnt/c/Users'); } catch { return null; }
+  for (const u of users) {
+    const f = path.join('/mnt/c/Users', u, 'compact-wsl-disk.txt');
+    if (fs.existsSync(f)) return f;
+  }
+  return null;
 }
 const winPath = (p) => p.replace(/^\/mnt\/([a-z])\//, (_, d) => `${d.toUpperCase()}:\\`).replace(/\//g, '\\');
 
@@ -667,13 +716,15 @@ export function run(argv, log = console.log, env = process.env) {
     ];
     if (verdict.refuse.some((r) => r.startsWith('C:'))) {
       const v = vhdx[0];
+      const script = findDiskpartScript();
       lines.push(
-        '  3. C: only gets space back when the WSL disk is compacted: this VHDX is not sparse, so deleting files',
-        `     inside WSL does not return it to Windows${v ? ` (${winPath(v.file)} is ${(v.bytes / 1024 ** 3).toFixed(1)} GB)` : ''}.`,
-        '     Close every WSL terminal and VSCode window, then in an Administrator PowerShell:',
+        '  3. C: only gets space back when the WSL disk is compacted: the VHDX is not sparse (and sparse mode is',
+        `     refused on this WSL build), so deleting files inside WSL never returns it to Windows${v ? ` (${winPath(v.file)} is ${(v.bytes / 1024 ** 3).toFixed(1)} GB)` : ''}.`,
+        '     Close VS Code and every Claude session, then in an Administrator PowerShell run these three lines',
+        '     (docs/PARALLEL_CLAUDE_SESSIONS.md, "Getting the space back on C:"):',
+        '       wsl -u root fstrim -av',
         '       wsl --shutdown',
-        `       Optimize-VHD -Path "${v ? winPath(v.file) : '<path to ext4.vhdx>'}" -Mode Full`,
-        '     (no Hyper-V module: diskpart, select vdisk file=..., attach vdisk readonly, compact vdisk, detach vdisk)',
+        `       diskpart /s ${script ? winPath(script) : 'C:\\Users\\<you>\\compact-wsl-disk.txt  (create it first: see that doc section)'}`,
       );
     }
     refused = lines.join('\n');
