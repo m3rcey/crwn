@@ -79,6 +79,18 @@ append, or retire with `support: 'retired'`, never rename. Full doc:
   posted or commented on that artist's page). It is the status drop pages advertise, so it is
   public wherever that comment is public. Inside a gated tier room the comments are members-only,
   so the badges there are seen by members only. Still no public supporter wall, no RLS change.
+  **A THIRD status since 2026-10-02: the supporter number** (`subscriptions.supporter_number`,
+  [supabase/schema-phase2-supporter-number.sql](supabase/schema-phase2-supporter-number.sql)). The
+  Nth person who ever PAID that artist, stamped ONCE at the first paid checkout and never changed:
+  not on upgrade, not on downgrade, not on cancel and rejoin. It is TENURE, not tier, which is what
+  makes it safe beside a rung that moves, so `Platinum #3` becomes `Silver #3` and the 3 stays
+  true. Earned and permanent like Day One, so it outlives the membership and shows alone (`#3`)
+  once the rung lapses. Free members never get one. ONE sequence per artist across every rung,
+  because numbering per rung would cost a fan their position for upgrading. Assigned only by
+  `assign_supporter_number()` (service_role EXECUTE only), with a trigger freezing the column
+  against browser writes, because a fan who could write it would award themselves #1. Never
+  re-derive a position on read: a number that can shift is not an identity. It was chosen OVER a
+  capped founder window, which stays off.
   (Corrected 2026-10-02: this line used to say "self-visible only", which the recognition route
   contradicted since 2026-09-28.)
 - **`access_config.card_lines = 'prose_only'`** prints only the artist's own lines on the public

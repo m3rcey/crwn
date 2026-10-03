@@ -18,6 +18,10 @@
 import { readFileSync } from 'node:fs';
 
 const PROBES = [
+  // Supporter numbers. RLS hands anon an empty list either way, but NAMING the column is the
+  // signal: 200 with [] once applied, 42703 while pending. The assigner's grants and the
+  // freeze trigger are invisible here and are asserted by the migration's own self-verify.
+  ['supporter numbers', 'subscriptions?select=supporter_number&limit=1', 'schema-phase2-supporter-number.sql'],
   ['plan recommendation columns', 'artist_profiles?select=recommended_plan&limit=1', 'schema-phase2-platform-plan-recommendation.sql'],
   ['support chat tables', 'support_conversations?select=id&limit=1', 'schema-phase2-support-chat.sql'],
   ['funnel events', 'funnel_events?select=id&limit=1', 'schema-phase2-funnel-events.sql'],

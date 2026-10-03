@@ -65,7 +65,7 @@ export async function GET(req: NextRequest) {
   const [{ data: subs }, { data: tiers }] = await Promise.all([
     supabaseAdmin
       .from('subscriptions')
-      .select('fan_id, tier_id, status, is_founder')
+      .select('fan_id, tier_id, status, is_founder, supporter_number')
       .eq('artist_id', artistId)
       .in('fan_id', fanIds),
     supabaseAdmin
@@ -80,18 +80,20 @@ export async function GET(req: NextRequest) {
   const topTierId = (tiers || [])[0]?.id ?? null;
   const tierById = new Map((tiers || []).map((t: { id: string; name: string }) => [t.id, t.name]));
 
-  const recognition: Record<string, { labels: string[]; dayOne: boolean; isTopTier: boolean }> = {};
+  const recognition: Record<string, { labels: string[]; dayOne: boolean; isTopTier: boolean; supporterNumber: number | null }> = {};
 
   for (const s of subs || []) {
     const r = deriveRecognition({
       // is_founder may not exist pre-founder-window on some rows; absent reads as false.
       isFounder: (s as { is_founder?: boolean }).is_founder === true,
+      // Absent pre-migration, which reads as "no number" rather than breaking the badge.
+      supporterNumber: (s as { supporter_number?: number | null }).supporter_number ?? null,
       subscriptionStatus: s.status,
       tierName: s.tier_id ? tierById.get(s.tier_id) ?? null : null,
       isTopTier: !!topTierId && s.tier_id === topTierId,
     });
     if (r.isEmpty) continue;
-    recognition[s.fan_id] = { labels: allLabels(r), dayOne: r.dayOne, isTopTier: r.isTopTier };
+    recognition[s.fan_id] = { labels: allLabels(r), dayOne: r.dayOne, isTopTier: r.isTopTier, supporterNumber: r.supporterNumber };
   }
 
   return NextResponse.json({ recognition });

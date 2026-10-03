@@ -18,6 +18,15 @@
 //             ends when the membership does. Inventing permanent Platinum status would
 //             mean a fan who cancelled still outranking one who pays.
 //
+//   Number    EARNED and PERMANENT, like Day One (founder decision, 2026-10-02).
+//             subscriptions.supporter_number is the Nth person who ever PAID this artist,
+//             stamped once at the first paid checkout and never changed again: not on
+//             upgrade, not on downgrade, not on cancel-and-rejoin. It is TENURE, not tier,
+//             which is exactly what makes it safe to show beside a rung that can move.
+//             Platinum #3 becomes Silver #3 if they move down, and the 3 still means the
+//             true thing: they were the third person to back him. It stands in for Day One
+//             on an artist running no founder window, where is_founder is never set.
+//
 // WHAT THIS IS NOT. A label here is community thanks. It never asserts songwriting,
 // production, publishing, master ownership, royalties, revenue participation, approval
 // rights, creative control, or any Team Split entitlement. The label is the artist's own
@@ -26,6 +35,8 @@
 export interface RecognitionInput {
   /** subscriptions.is_founder — set once by the founder window, never cleared. */
   isFounder: boolean;
+  /** subscriptions.supporter_number — the Nth person who ever paid. Null for never-paid. */
+  supporterNumber?: number | null;
   /** 'active' | 'canceled' | 'never' for THIS artist. */
   subscriptionStatus: string | null;
   /** The artist's own name for the rung. Null when there is no live membership. */
@@ -37,6 +48,8 @@ export interface RecognitionInput {
 export interface Recognition {
   /** Earned, permanent. Shown even after a cancellation. */
   dayOne: boolean;
+  /** How early they backed this artist. Earned, permanent, survives every tier move. */
+  supporterNumber: number | null;
   /** The live rung's name, or null. Disappears the moment a membership lapses. */
   tierLabel: string | null;
   /** The top rung specifically, for surfaces that highlight only the highest status. */
@@ -47,6 +60,7 @@ export interface Recognition {
 
 export const EMPTY_RECOGNITION: Recognition = {
   dayOne: false,
+  supporterNumber: null,
   tierLabel: null,
   isTopTier: false,
   isEmpty: true,
@@ -59,12 +73,17 @@ export function deriveRecognition(input: RecognitionInput): Recognition {
   const tierLabel = active && input.tierName ? input.tierName : null;
   const dayOne = !!input.isFounder;
   const isTopTier = active && input.isTopTier;
+  // A number below 1 is not a position, it is a bad write. Treated as absent rather than shown.
+  const n = typeof input.supporterNumber === 'number' && Number.isInteger(input.supporterNumber) && input.supporterNumber >= 1
+    ? input.supporterNumber
+    : null;
 
   return {
     dayOne,
+    supporterNumber: n,
     tierLabel,
     isTopTier,
-    isEmpty: !dayOne && !tierLabel,
+    isEmpty: !dayOne && !tierLabel && n === null,
   };
 }
 
@@ -75,7 +94,9 @@ export function deriveRecognition(input: RecognitionInput): Recognition {
  * allows.
  */
 export function primaryLabel(r: Recognition): string | null {
-  if (r.tierLabel) return r.tierLabel;
+  if (r.tierLabel) return r.supporterNumber ? `${r.tierLabel} #${r.supporterNumber}` : r.tierLabel;
+  // No live rung. The number is still true, and it is the whole reason it is stored.
+  if (r.supporterNumber) return `#${r.supporterNumber}`;
   if (r.dayOne) return 'Day One';
   return null;
 }
@@ -83,8 +104,9 @@ export function primaryLabel(r: Recognition): string | null {
 /** Every label a roomy surface can show, most significant first. */
 export function allLabels(r: Recognition): string[] {
   const out: string[] = [];
-  if (r.tierLabel) out.push(r.tierLabel);
-  if (r.dayOne) out.push('Day One');
+  const primary = primaryLabel(r);
+  if (primary) out.push(primary);
+  if (r.dayOne && primary !== 'Day One') out.push('Day One');
   return out;
 }
 

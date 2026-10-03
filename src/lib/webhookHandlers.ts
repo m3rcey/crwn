@@ -162,6 +162,18 @@ export async function handleCheckoutCompleted(supabaseAdmin: AdminClient, sessio
   } else {
     console.log('Supabase insert success:', JSON.stringify(data));
 
+    // The supporter number: the Nth person who ever PAID this artist, stamped ONCE here and never
+    // changed again (schema-phase2-supporter-number.sql). It rides through every later tier move,
+    // which is the point: it says how early they backed him, not what they pay now. Idempotent, so
+    // a renewal or an upgrade through this same handler re-reads the existing number instead of
+    // issuing a second one. Fail-soft and deliberately after the upsert: a number is recognition,
+    // and nothing about it may ever cost somebody the membership they just paid for.
+    const { error: numberError } = await supabaseAdmin.rpc('assign_supporter_number', {
+      p_fan: fan_id,
+      p_artist: artist_id,
+    });
+    if (numberError) console.error('[supporterNumber] not assigned:', numberError.message);
+
     // Z8: the movement, recorded only once the subscription state is actually committed. A fan
     // clicking checkout is not a transition; a paid subscription that exists is. Same-tier renewals
     // are dropped by the writer, so a resubscribe to the tier they already had records nothing.
