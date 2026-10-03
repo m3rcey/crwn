@@ -14,8 +14,8 @@
   recorded it (the old number exactly). `countsAsPaying` still decides WHO pays. Discount codes
   are not netted (same basis as before).
 - **The facts:** `subscriptions.billing_interval` + `billed_amount_cents`
-  (`schema-phase2-subscription-billing-facts.sql`, PENDING, frozen against browser writes by a
-  trigger), copied from Stripe's own price object by the webhook: after the checkout upsert (one
+  (`schema-phase2-subscription-billing-facts.sql`, APPLIED and probe-verified 2026-10-03, frozen
+  against browser writes by a trigger), copied from Stripe's own price object by the webhook: after the checkout upsert (one
   `subscriptions.retrieve`) and on every `customer.subscription.updated` (off the payload). Both
   writes are separate and fail-soft, so a pending migration can never fail the upsert that grants
   access; a failed read CLEARS the facts so a rejoining fan cannot keep an old subscription's.

@@ -85,14 +85,6 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
-- [ ] **Run [supabase/schema-phase2-subscription-billing-facts.sql](supabase/schema-phase2-subscription-billing-facts.sql) before Prince Dre's first annual sale.**
-      Annual is the default on his checkout, and every MRR number (Home, Analytics, the Constraint
-      Engine) counted an annual member at the monthly price: his annual Platinum fan pays $37 a
-      month and was counted as $50. The code that records what Stripe actually bills is live; this
-      file adds the two columns it writes to. Until it runs nothing breaks, every number just stays
-      on the old list price. Open it in the Supabase SQL Editor and run it; it ends by printing
-      `schema-phase2-subscription-billing-facts: OK`. Tell Claude when it has run.
-
 - [ ] **Confirm two things with Prince Dre about the Stompin credits, which are LIVE on your yes.**
       Live since 2026-10-03 at https://thecrwn.app/princedre/credits/stompin-thru-the-trenches:
       $250 Founding Supporter (25 spots: name first in the Stompin credits, numbered, a seat at his
