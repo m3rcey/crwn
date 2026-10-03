@@ -14,11 +14,13 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Check, Copy, Download, Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { CreditCardPreview } from './CreditCardPreview';
 import {
   CREDIT_LEVEL_LABEL,
   CREDIT_NAME_MAX,
   RECOGNITION_ONLY,
   cardPath,
+  cleanCreditName,
   creditLabel,
   type CreditLevel,
   type PublicCreditList,
@@ -59,20 +61,33 @@ function beacon(productId: string, eventType: 'offer_viewed' | 'offer_declined',
   }
 }
 
+const SHARE_LINE = 'A shareable image of your credit to post anywhere, with a link that proves it is real.';
+
+/** The first name the fan typed on the drop page (or in the URL), kept for the checkout round trip
+ *  so the preview and the name field still have it when Stripe sends them back. Browser-only, and
+ *  only ever a pre-fill: the printed name is whatever the fan saves. */
+const NAME_KEY = 'crwn_credit_name';
+function rememberedName(fromUrl: string | null): string | null {
+  const clean = cleanCreditName(fromUrl);
+  try {
+    if (clean) sessionStorage.setItem(NAME_KEY, clean);
+    return clean ?? cleanCreditName(sessionStorage.getItem(NAME_KEY));
+  } catch {
+    return clean;
+  }
+}
+
 function benefitsFor(level: CreditLevel, artistName: string, albumTitle: string, sessionLabel: string | null): string[] {
   if (level === 'founding') {
     return [
       `Your name in the ${albumTitle} credits as a Founding Supporter, numbered in the order you joined, listed first.`,
       sessionLabel
-        ? `A seat at ${artistName}'s private listening session for ${albumTitle}, ${sessionLabel}.`
-        : `A seat at ${artistName}'s private listening session for ${albumTitle}.`,
-      'Your own credit card to post anywhere, with a link that proves it is real.',
+        ? `A seat in ${artistName}'s private live session on ${albumTitle}, ${sessionLabel}.`
+        : `A seat in ${artistName}'s private live session on ${albumTitle}.`,
+      SHARE_LINE,
     ];
   }
-  return [
-    `Your name in the ${albumTitle} credits as a Supporter, numbered in the order you joined.`,
-    'Your own credit card to post anywhere, with a link that proves it is real.',
-  ];
+  return [`Your name in the ${albumTitle} credits as a Supporter, numbered in the order you joined.`, SHARE_LINE];
 }
 
 export function CreditsOffer({ artist, album, offers, credits, path, sessionLabel }: Props) {
@@ -80,6 +95,10 @@ export function CreditsOffer({ artist, album, offers, credits, path, sessionLabe
   const search = useSearchParams();
   const { user } = useAuth();
   const justCredited = search.get('credited') === '1';
+  const [typedName, setTypedName] = useState<string | null>(null);
+  useEffect(() => {
+    setTypedName(rememberedName(search.get('name')));
+  }, [search]);
 
   const founding = offers.founding && offers.founding.seatsLeft !== 0 ? offers.founding : null;
   const supporter = offers.supporter && offers.supporter.seatsLeft !== 0 ? offers.supporter : null;
@@ -190,7 +209,7 @@ export function CreditsOffer({ artist, album, offers, credits, path, sessionLabe
         </div>
 
         {standing.length > 0 && (
-          <MyCredits credits={standing} artistSlug={artist.slug} albumTitle={album.title} onSaved={async () => setMine(await loadMine())} />
+          <MyCredits credits={standing} artistSlug={artist.slug} albumTitle={album.title} suggestedName={typedName} onSaved={async () => setMine(await loadMine())} />
         )}
         {justCredited && user && mine !== null && standing.length === 0 && (
           <p className="mt-6 rounded-xl bg-[#1A1A1A] p-4 text-sm text-white/70">
@@ -201,13 +220,24 @@ export function CreditsOffer({ artist, album, offers, credits, path, sessionLabe
         {showOffer && shown && (
           <section className="mt-8 rounded-2xl bg-[#1A1A1A] p-5">
             <h2 className="text-xl font-bold">
-              {stage === 'downsell' ? 'Still want your name on it?' : `Put your name on ${album.title}.`}
+              {stage === 'downsell' ? 'Still want your name on it?' : `Get Special Recognition on ${album.title}.`}
             </h2>
             <p className="mt-2 text-sm text-white/70">
               {stage === 'downsell'
-                ? `Supporters are credited on ${album.title} too, listed after the Founding Supporters. No listening session.`
-                : `${artist.name} is crediting the people who backed this project. The number you get is yours for good.`}
+                ? `Supporters are credited on ${album.title} too, listed after the Founding Supporters. No live session.`
+                : `${artist.name} is crediting the people who backed this project. The credit you get is yours for good.`}
             </p>
+            <div className="mt-5">
+              <CreditCardPreview
+                artistName={artist.name}
+                albumTitle={album.title}
+                artUrl={album.artUrl}
+                level={shown.level}
+                number={shown.nextNumber}
+                name={typedName}
+              />
+              <p className="mt-2 text-center text-xs text-white/40">What your credit will look like. You choose the name after you pay.</p>
+            </div>
             <ul className="mt-4 space-y-2">
               {benefitsFor(shown.level, artist.name, album.title, sessionLabel).map((b) => (
                 <li key={b} className="flex gap-2 text-sm">
@@ -252,16 +282,18 @@ function MyCredits({
   credits,
   artistSlug,
   albumTitle,
+  suggestedName,
   onSaved,
 }: {
   credits: MyCredit[];
   artistSlug: string;
   albumTitle: string;
+  suggestedName: string | null;
   onSaved: () => Promise<void>;
 }) {
   // A fan holding both levels shows the Founding one: that is the credit worth printing.
   const credit = credits.find((c) => c.level === 'founding') ?? credits[0];
-  const [name, setName] = useState(credit.name ?? '');
+  const [name, setName] = useState(credit.name ?? suggestedName ?? '');
   const [listed, setListed] = useState(credit.listed || !credit.name);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -307,7 +339,7 @@ function MyCredits({
       />
       <label className="mt-3 flex items-center gap-2 text-sm text-white/80">
         <input type="checkbox" checked={listed} onChange={(e) => setListed(e.target.checked)} className="accent-[#D4AF37]" />
-        Print my name in the credits and make my card public
+        Print my name in the credits and make my credit page public
       </label>
       <button
         type="button"
@@ -322,7 +354,7 @@ function MyCredits({
       {credit.listed && credit.name ? (
         <div className="mt-5 flex flex-wrap gap-2">
           <Link href={card} prefetch className="rounded-full bg-white/10 px-4 py-2 text-sm">
-            View my card
+            View my credit
           </Link>
           <button
             type="button"
@@ -340,7 +372,7 @@ function MyCredits({
           </a>
         </div>
       ) : (
-        <p className="mt-4 text-xs text-white/50">Your card goes public once your name is printed. Until then you are counted, never named.</p>
+        <p className="mt-4 text-xs text-white/50">Your credit page goes public once your name is printed. Until then you are counted, never named.</p>
       )}
     </section>
   );

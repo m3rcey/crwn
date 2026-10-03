@@ -146,7 +146,7 @@ export function creditProductCopy(level: CreditLevel, albumTitle: string, artist
   if (level === 'founding') {
     return {
       title: `Founding Supporter: ${albumTitle}`,
-      description: `Your name in the ${albumTitle} credits as a numbered Founding Supporter, listed first, plus a seat at ${artistName}'s private listening session for it. ${RECOGNITION_ONLY}`,
+      description: `Your name in the ${albumTitle} credits as a numbered Founding Supporter, listed first, plus a seat in ${artistName}'s private live session on it. ${RECOGNITION_ONLY}`,
     };
   }
   return {

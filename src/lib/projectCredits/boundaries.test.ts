@@ -46,8 +46,8 @@ describe('project credits boundaries', () => {
       expect(description).toContain(RECOGNITION_ONLY);
       expect(`${title} ${description}`).not.toMatch(/[–—]/);
     }
-    expect(creditProductCopy('founding', 'X', 'Dre').description).toMatch(/listening session/);
-    expect(creditProductCopy('supporter', 'X', 'Dre').description).not.toMatch(/listening session/);
+    expect(creditProductCopy('founding', 'X', 'Dre').description).toMatch(/live session/);
+    expect(creditProductCopy('supporter', 'X', 'Dre').description).not.toMatch(/live session/);
   });
 
   it('the fan-facing page never promises a membership or income', () => {

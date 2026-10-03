@@ -384,6 +384,26 @@ if (C.drip) {
       }
     }
     console.log(`drip: "${p.title}" ${changed ? (APPLY ? 'now opens' : 'will open') : 'already opens'} to ${C.drip.rung} after month ${p.months} of each membership (${titles.length} tracks)`);
+
+    // A song on this project that is NOT gated above the drip rung (a free single, or a song
+    // shared with a cheaper project) must not keep a drip delay: the drip rung would wait months
+    // for a song a cheaper rung plays today. That happened (2026-10-03): "Streets Dont Love You"
+    // became a Bronze single after its project was dripped, and Gold kept a month-1 wait for it.
+    // Clearing the delay only WIDENS access, so it is always safe to do.
+    for (const tt of project.trackTitles.filter((x) => !titles.includes(x))) {
+      const r = (rows || []).find((x) => x.title.trim().toLowerCase() === tt.trim().toLowerCase());
+      const delays = r?.tier_unlock_months && typeof r.tier_unlock_months === 'object' && !Array.isArray(r.tier_unlock_months) ? { ...r.tier_unlock_months } : null;
+      if (!r || !delays || delays[dripTier] === undefined) continue;
+      delete delays[dripTier];
+      console.log(`drip: "${r.title}" is not gated above ${C.drip.rung}, so ${C.drip.rung} ${APPLY ? 'no longer waits' : 'will stop waiting'} for it`);
+      if (APPLY) {
+        const { error } = await db.from('tracks').update({
+          tier_unlock_months: Object.keys(delays).length ? delays : null,
+          updated_at: new Date().toISOString(),
+        }).eq('id', r.id).eq('artist_id', artist.id);
+        if (error) die(`drip "${r.title}": ${error.message}`);
+      }
+    }
   }
 }
 

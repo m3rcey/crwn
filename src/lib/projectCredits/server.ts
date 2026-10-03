@@ -150,6 +150,9 @@ export interface CreditOffer {
   priceCents: number;
   seatsLeft: number | null;
   cap: number | null;
+  /** The number the next buyer gets, for the preview. Numbers are never reused and every sale
+   *  increments quantity_sold, so sold + 1 is the assigner's next MAX + 1. */
+  nextNumber: number;
 }
 
 export interface CreditsProject {
@@ -211,6 +214,7 @@ export async function loadCreditsProject(admin: Db, slug: string, projectParam: 
       priceCents: p.price,
       seatsLeft: seatsLeft(p.max_quantity, p.quantity_sold),
       cap: p.max_quantity ?? null,
+      nextNumber: (p.quantity_sold || 0) + 1,
     };
   }
   if (!offers.founding && !offers.supporter) return null;
@@ -331,4 +335,72 @@ export async function loadCreditsScorecards(admin: Db): Promise<{ applied: boole
     });
   }
   return { applied: true, scorecards };
+}
+
+export interface CreditsTeaserData {
+  artistName: string;
+  artistSlug: string;
+  albumTitle: string;
+  artUrl: string | null;
+  path: string;
+  priceCents: number;
+  seatsLeft: number | null;
+  cap: number | null;
+  nextNumber: number;
+  sessionLabel: string | null;
+}
+
+/**
+ * The artist's live Founding credits offer, for a teaser on another page (Tiers, Shop, the drop
+ * page). Reads only rows the anon key may already read (products, albums, live_sessions), so the
+ * artist page can call it with its own session client. Null when there is none, sold out included,
+ * and before the migration (the product columns error, which reads as none).
+ */
+export async function loadCreditsTeaser(db: Db, artist: { id: string; slug: string; name: string }): Promise<CreditsTeaserData | null> {
+  try {
+    const { data: products, error } = await db
+      .from('products')
+      .select('price, max_quantity, quantity_sold, credit_album_id')
+      .eq('artist_id', artist.id)
+      .eq('credit_level', 'founding')
+      .eq('is_active', true)
+      .limit(1);
+    const p = (products as any[] | null)?.[0];
+    if (error || !p?.credit_album_id) return null;
+    const left = seatsLeft(p.max_quantity, p.quantity_sold);
+    if (left === 0) return null;
+    const { data: album } = await db
+      .from('albums')
+      .select('title, album_art_url')
+      .eq('id', p.credit_album_id)
+      .eq('artist_id', artist.id)
+      .eq('is_active', true)
+      .maybeSingle();
+    if (!album) return null;
+    const { data: session } = await db
+      .from('live_sessions')
+      .select('scheduled_at')
+      .eq('artist_id', artist.id)
+      .eq('credit_album_id', p.credit_album_id)
+      .eq('status', 'scheduled')
+      .eq('is_active', true)
+      .gte('scheduled_at', new Date().toISOString())
+      .order('scheduled_at', { ascending: true })
+      .limit(1)
+      .maybeSingle();
+    return {
+      artistName: artist.name,
+      artistSlug: artist.slug,
+      albumTitle: album.title,
+      artUrl: album.album_art_url ?? null,
+      path: creditsPath(artist.slug, album.title),
+      priceCents: p.price,
+      seatsLeft: left,
+      cap: p.max_quantity ?? null,
+      nextNumber: (p.quantity_sold || 0) + 1,
+      sessionLabel: session?.scheduled_at ? sessionLabelFor(session.scheduled_at) : null,
+    };
+  } catch {
+    return null;
+  }
 }

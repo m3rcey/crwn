@@ -14,6 +14,26 @@ the calendar, and it drops the date if the session is cancelled or passes.
 
 **The tiers point at it.** Platinum (the Stompin rung, so the warmest buyer) carries an FAQ naming
 the $250 credit, separate from the membership, recognition only.
+
+**Every surface a fan is already on leads to it (2026-10-03).** `CreditsTeaser` on the artist
+page's Tiers and Shop tabs and on the drop page (after the free song, and on the "You are in"
+screen), plus the album-page bar. Each shows a PREVIEW of the fan's own credit and links to the
+credits page; none of them sells. `loadCreditsTeaser` reads only anon-readable rows (products,
+albums, live_sessions), so the artist page calls it with its own session client. The credits page
+shows the same preview above the buy button, with the next number (`quantity_sold + 1`, which is the
+assigner's next number because numbers are never reused).
+
+**The preview carries the fan's name.** The first name typed on the drop page rides to the credits
+page as `?name=` and is kept in sessionStorage across the Stripe round trip, then pre-fills the
+name field after purchase. It is only ever a pre-fill: the printed name is what the fan saves, and
+it goes through `cleanCreditName`. The preview is HTML in their browser, marked "Preview", never an
+image on CRWN's domain, so a typed name can never become a shareable picture of a credit nobody
+bought.
+
+**Wording (founder, 2026-10-03).** Headline "Get Special Recognition on <project>." and "The credit
+you get is yours for good." It is a private LIVE session, not a "listening session": the tape is
+already out to Platinum, so hearing it is not the draw. The proof is "a shareable image of your
+credit", never "credit card", which reads as a payment card.
 **Founder decision:** 2026-10-03, in the Prince Dre money-model work (the high-ticket rail his
 model was missing).
 

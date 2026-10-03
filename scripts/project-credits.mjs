@@ -145,7 +145,7 @@ if (C.credits.session) {
     .maybeSingle();
   const fields = {
     title: want.title,
-    description: `Founding Supporters of ${album.title}${rungIds.length ? ` and ${(want.rungs ?? []).join(' and ')} members` : ''} hear the tape with ${C.displayName}.`,
+    description: `Founding Supporters of ${album.title}${rungIds.length ? ` and ${(want.rungs ?? []).join(' and ')} members` : ''} go live with ${C.displayName}.`,
     scheduled_at: at,
     is_free: false,
     allowed_tier_ids: rungIds,

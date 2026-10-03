@@ -91,12 +91,19 @@ responsible for. Do not work those.
       private listening session) and $150 Supporter (50 spots), shown only after a "No thanks".
       Platinum's FAQ now points at it too. Bring back:
         1. Dre is fine selling it at these prices and spot counts.
-        2. The REAL listening-session date. The page and his Live calendar say Saturday,
+        2. The REAL live-session date. The page and his Live calendar say Saturday,
            November 14 at 8 PM CT, which is a placeholder you picked to see the page. Tell Claude
            the real date and Claude moves it (the page follows automatically). He hosts it from
            Studio, Live; Platinum members are seated alongside Founding Supporters, because
            Platinum already promises it is in every listening room he opens.
 
+- [ ] **Decide whether fans can buy Stompin Thru The Trenches as a whole tape.** Today they cannot:
+      a purchase unlocks one SONG ($3.99 each, $63.84 for all 16), and the only way to the whole
+      tape is Platinum. That is the 2026-10-01 rule "projects reach fans through tiers only".
+      Claude's recommendation: yes, one tape price (around $19.99) for the fan who will never
+      subscribe, AND the $250/$150 credits include the tape (a Founding Supporter who is not on
+      Platinum cannot hear the tape they are credited on). Both need one change to the playback
+      gate, which is a migration you would run. Say yes and a price, or no, and Claude builds it.
 - [ ] **Decide with Dre how Stompin Thru The Trenches gets announced. It is live now, quietly.**
       His unreleased 16-song mixtape went up 2026-10-02 behind Platinum ($50), and it is the ONLY
       thing in his catalog that exists nowhere else: every other tape is free somewhere (Audiomack,

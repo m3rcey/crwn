@@ -8,7 +8,7 @@ import { useSearchParams } from 'next/navigation';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { TierConfig, type Track } from '@/types';
 import { usePlayer } from '@/hooks/usePlayer';
-import { songsNewAtTier } from '@/lib/tierSongs';
+import { unlocksAtTier, type ProjectLike, type TierProject } from '@/lib/tierSongs';
 import { hapticLight, hapticMedium, hapticSuccess, hapticError } from '@/lib/haptics';
 import { getPersistedReferralCode, getPersistedAttributionSource } from '@/components/shared/ReferralPersist';
 import { useTierViewTracker } from '@/hooks/useTierViewTracker';
@@ -204,6 +204,32 @@ interface TierCardsProps {
    *  songs its rung newly unlocks; playability comes from the player's own gate, so a card
    *  can never offer a song the visitor may not hear. */
   tracks?: Track[];
+  /** The artist's projects with their track ids. A card shows the WHOLE projects its rung
+   *  unlocks instead of listing their songs (founder, 2026-10-03). */
+  projects?: ProjectLike[];
+}
+
+function TierProjects({ projects }: { projects: TierProject[] }) {
+  if (!projects.length) return null;
+  return (
+    <div className="mt-4 text-left">
+      <p className="text-[11px] uppercase tracking-wide text-crwn-gold mb-2">Projects you unlock</p>
+      <ul className="space-y-1.5">
+        {projects.map((p) => (
+          <li key={p.id} className="flex items-center gap-2 rounded-lg bg-crwn-elevated px-2 py-1.5">
+            {p.artUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={p.artUrl} alt="" className="w-8 h-8 rounded object-cover flex-shrink-0" />
+            ) : null}
+            <span className="flex-1 min-w-0 truncate text-sm text-crwn-text">{p.title}</span>
+            <span className="flex-shrink-0 text-xs text-crwn-text-secondary">
+              {p.months > 0 ? `${p.songCount} songs, after month ${p.months}` : `${p.songCount} songs`}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
 }
 
 function TierSongs({ songs, queue }: { songs: Track[]; queue: Track[] }) {
@@ -258,7 +284,7 @@ export function loginWithReturn(): string {
   return here ? `/login?next=${encodeURIComponent(here)}` : '/login';
 }
 
-export function TierCards({ tiers, artistSlug, artistId, tracks = [] }: TierCardsProps) {
+export function TierCards({ tiers, artistSlug, artistId, tracks = [], projects = [] }: TierCardsProps) {
   const { embedded } = useArtistPreview();
   const { user } = useAuth();
   const router = useRouter();
@@ -590,7 +616,15 @@ export function TierCards({ tiers, artistSlug, artistId, tracks = [] }: TierCard
                 <p className="text-crwn-muted-tint text-sm mt-2">{tier.description}</p>
               )}
               
-              <TierSongs songs={songsNewAtTier(tracks, tiers, tier.id)} queue={tracks.filter((t) => !!t.audio_url_128)} />
+              {(() => {
+                const unlocks = unlocksAtTier(tracks, tiers, tier.id, projects);
+                return (
+                  <>
+                    <TierProjects projects={unlocks.projects} />
+                    <TierSongs songs={unlocks.songs} queue={tracks.filter((t) => !!t.audio_url_128)} />
+                  </>
+                );
+              })()}
 
               {tier.benefits && tier.benefits.length > 0 && (
                 <ul className="mt-4 space-y-2 flex-1">

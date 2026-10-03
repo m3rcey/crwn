@@ -7,6 +7,9 @@ import { ArtistMusicSection } from '@/components/artist/ArtistMusicSection';
 import { ShopSection } from '@/components/artist/ShopSection';
 import { MemberFilesSection } from '@/components/artist/MemberFilesSection';
 import { TierCards } from '@/components/artist/SubscribeSection';
+import { CreditsTeaser } from '@/components/credits/CreditsTeaser';
+import type { CreditsTeaserData } from '@/lib/projectCredits/server';
+import type { ProjectLike } from '@/lib/tierSongs';
 import { SubscribeCTA } from '@/components/gating';
 import { CommunityFeed } from '@/components/community/CommunityFeed';
 import { ArtistMissions } from '@/components/missions/ArtistMissions';
@@ -62,6 +65,10 @@ interface ArtistProfileContentProps {
   isOwner: boolean;
   commissionRate?: number;
   liveSessions?: LiveSession[];
+  /** Projects with their track ids, so the tier cards can show whole projects. */
+  tierProjects?: ProjectLike[];
+  /** The artist's live project-credits offer, shown on the Tiers and Shop tabs. */
+  creditsTeaser?: CreditsTeaserData | null;
 }
 
 export function ArtistProfileContent({
@@ -75,6 +82,8 @@ export function ArtistProfileContent({
   isOwner,
   commissionRate = 10,
   liveSessions = [],
+  tierProjects = [],
+  creditsTeaser = null,
 }: ArtistProfileContentProps) {
   const { user } = useAuth();
   // While previewing, the owner should be treated as the fan they picked: owner
@@ -255,7 +264,7 @@ export function ArtistProfileContent({
           <section data-tour="artist-page-tiers">
             <h2 className="text-xl font-semibold text-crwn-text mb-4">Subscription Tiers</h2>
             {tiers.length > 0 ? (
-              <TierCards tiers={tiers} artistSlug={artist.slug} artistId={artist.id} tracks={tracks} />
+              <TierCards tiers={tiers} artistSlug={artist.slug} artistId={artist.id} tracks={tracks} projects={tierProjects} />
             ) : (
               <SubscribeCTA
                 artistName={artist.profile?.display_name || 'this artist'}
@@ -263,10 +272,14 @@ export function ArtistProfileContent({
                 tierPrice={undefined}
               />
             )}
+            {creditsTeaser && <CreditsTeaser teaser={creditsTeaser} />}
           </section>
         )}
         {activeTab === 'shop' && (
-          <ShopSection products={products || []} artistId={artist.id} artistSlug={artist.slug} merchStoreUrl={artist.merch_store_url} />
+          <>
+            {creditsTeaser && <div className="mb-8">{<CreditsTeaser teaser={creditsTeaser} />}</div>}
+            <ShopSection products={products || []} artistId={artist.id} artistSlug={artist.slug} merchStoreUrl={artist.merch_store_url} />
+          </>
         )}
 
         {activeTab === 'leaderboard' && (

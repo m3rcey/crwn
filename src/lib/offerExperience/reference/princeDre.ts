@@ -234,14 +234,16 @@ const STTT_SONG_PRICE_CENTS = 399;
 
 // Project credits on Stompin (founder, 2026-10-03; docs/crwn-brain/36-PROJECT-CREDITS.md). Founding
 // is the offer, Supporter the downsell shown after "No thanks". The session date is a PLACEHOLDER
-// Josh chose to see the page with (2026-10-03); the real one comes from Dre. Platinum is seated too,
-// because Platinum already promises it is in every listening room Dre opens.
+// Josh chose to see the page with (2026-10-03); the real one comes from Dre. It is a LIVE session,
+// not a "listening session": the tape is already out to Platinum, so hearing it is not the draw
+// (founder, 2026-10-03). Platinum is seated too, because Platinum already promises it is in every
+// listening room Dre opens.
 export const DRE_CREDITS = {
   project: STTT,
   founding: { priceCents: 25000, seats: 25 },
   supporter: { priceCents: 15000, seats: 50 },
   session: {
-    title: `${STTT}: private listening session`,
+    title: `${STTT}: Founding Supporters live`,
     scheduledAt: '2026-11-14T20:00:00-06:00',
     rungs: ['Platinum' as const],
   },
@@ -434,7 +436,7 @@ export const DRE_PLATINUM_OFFER: TierOfferExperience = {
     },
     {
       q: `Can I get my name on ${STTT}?`,
-      a: `Yes. Dre is crediting the first ${DRE_CREDITS.founding.seats} people who back the tape as Founding Supporters: your name in its credits, numbered, plus a seat at his private listening session for it. It is a one-time $${DRE_CREDITS.founding.priceCents / 100}, separate from your membership, and it is recognition, not a share of anything. Open ${STTT} on his page to see it.`,
+      a: `Yes. Dre is crediting the first ${DRE_CREDITS.founding.seats} people who back the tape as Founding Supporters: your name in its credits, numbered, plus a seat in his private live session on it. It is a one-time $${DRE_CREDITS.founding.priceCents / 100}, separate from your membership, and it is recognition, not a share of anything. Open ${STTT} on his page to see it.`,
     },
     {
       q: 'Why not wait on the $25 level?',

@@ -8,6 +8,7 @@
 // response after a valid email.
 
 import { notFound } from 'next/navigation';
+import { loadCreditsTeaser } from '@/lib/projectCredits/server';
 import { createClient } from '@supabase/supabase-js';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { resolveFunnelOffers, type OfferTierRow } from '@/lib/fanAutomations/offerTiers';
@@ -156,6 +157,9 @@ export default async function DropPage({ params }: { params: Promise<{ token: st
     if (album && album.artist_id === artist.id) magnetProject = album.title ?? null;
   }
 
+  // The artist's project-credits offer, previewed with the fan's own first name after the free song.
+  const creditsTeaser = await loadCreditsTeaser(supabaseAdmin, { id: artist.id, slug: artist.slug, name: artistName });
+
   const experiences = await offerExperiencesForTiers(
     supabaseAdmin,
     artist.id,
@@ -190,6 +194,7 @@ export default async function DropPage({ params }: { params: Promise<{ token: st
       silver={toOffer(silver, benefitLines)}
       experiences={experiences}
       campaign={campaign}
+      creditsTeaser={creditsTeaser}
     />
     </div>
   );

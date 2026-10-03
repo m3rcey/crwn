@@ -125,6 +125,16 @@ A one-time product that prints a fan's name in a project's credits. Full doc:
 - **The downsell appears only after "No thanks"**, and checkout starts are recorded only inside
   product-checkout (CREDITS-002). Credits products are filtered out of the ordinary Shop: they are
   sold only on `/<artist>/credits/<project>`.
+- **A fan finds it from anywhere they already are**: `CreditsTeaser` (a preview of their credit
+  plus one link) sits on the artist page's Tiers and Shop tabs, on the drop page after the free
+  song, and the album page carries a bar. All four only LINK to the credits page, which is the one
+  place that sells. The preview (`CreditCardPreview`) is HTML in the fan's browser, marked
+  "Preview", using the first name they typed on the drop page (`?name=`, kept in sessionStorage
+  across checkout as a pre-fill only). Never render a typed name as an image on CRWN's domain:
+  that is a shareable picture of a credit nobody bought.
+- **It is a LIVE session, not a listening session** (founder, 2026-10-03): the tape is already out
+  to Platinum, so hearing it is not the draw. And it is "a shareable image of your credit", never
+  "credit card".
 - **The verdict thresholds in `verdict.ts` were fixed before any traffic.** Do not move one after
   seeing the data. Josh reads it on /admin (Money Model tab, Project credits panel);
   `loadCreditsScorecards` is the ONE computation behind that panel and the script.
@@ -191,6 +201,15 @@ class** (free forever / paid first / member only, how one piece of content is ga
   rung AND its delay in one update and refuses to touch a rung that already has the track
   (`checkLaunchPartner`), because adding a delay to content a tier already holds would take it
   away from paying members. Behaviour proof: `supabase/verify-tier-unlock-months.sql`.
+  **A drip delay may never make a rung wait for a song a cheaper rung plays today** (found
+  2026-10-03: "Streets Dont Love You" became a Bronze single after its project was dripped, and Gold
+  kept a month-1 wait). The launch script's drip step now CLEARS a delay on any project song not
+  gated above the drip rung (clearing only widens access); production had exactly one, cleared.
+- **Tier cards show WHOLE PROJECTS, not song lists** (founder, 2026-10-03). `unlocksAtTier` in
+  `src/lib/tierSongs.ts` groups what a rung newly unlocks into projects it holds completely (cover,
+  song count, "after month N" for a drip) and lists only the loose songs. A rung that gets a drip
+  project TODAY while the rung below waits names it too, which is what lets Platinum show the
+  projects Gold waits months for. Rendering only: playability stays the player's gate.
 
 ## UX Rule — multi-option selectors are DROPDOWNS
 

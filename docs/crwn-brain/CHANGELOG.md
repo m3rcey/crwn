@@ -1,5 +1,18 @@
 # CRWN Brain — Changelog
 
+## 2026-10-03 - Tier cards show projects; credits reachable from every page; a drip inversion fixed
+
+- **Tier cards list whole projects** ("Projects you unlock": cover, song count, "after month N"),
+  and only loose songs as songs (`unlocksAtTier`). Platinum names the projects Gold waits for.
+- **Project credits are reachable from the Tiers tab, the Shop tab and the drop page**, each with
+  a preview of the fan's own credit (their drop-page first name when known), linking to the one
+  page that sells. The credits page shows the same preview above the button.
+- **Copy:** "Get Special Recognition on ...", "The credit you get is yours for good", a private LIVE
+  session (the tape is already out), "a shareable image of your credit" (not "credit card").
+- **A drip delay made Gold wait a month for a free Bronze song** ("Streets Dont Love You", shared
+  by two projects). Cleared in production (the only one), and the launch script now clears any
+  such delay on a re-run.
+
 ## 2026-10-03 - Josh never runs a command
 
 - **TODO.md hands Josh no commands.** His items are migrations, decisions and account-only actions;

@@ -25,6 +25,8 @@ import { MagnetPlayer } from '@/components/drop/MagnetPlayer';
 import { CampaignBanner } from '@/components/drop/CampaignBanner';
 import type { CampaignPresentation } from '@/lib/campaigns/giveaway';
 import { TierOfferExperience } from '@/components/offer/TierOfferExperience';
+import { CreditsTeaser } from '@/components/credits/CreditsTeaser';
+import type { CreditsTeaserData } from '@/lib/projectCredits/server';
 import { useOfferPurchase, offerPrice } from '@/components/offer/useOfferPurchase';
 import type { TierOfferExperience as OfferConfig } from '@/lib/offerExperience/types';
 
@@ -53,6 +55,8 @@ interface Props {
    *  the funnel renders the full merchandised experience; otherwise the compact card, so
    *  artists without a config are byte-for-byte unchanged. */
   experiences?: Record<string, OfferConfig>;
+  /** The artist's project-credits offer, previewed with the first name the fan typed above. */
+  creditsTeaser?: CreditsTeaserData | null;
   magnet: { kind: 'upload' | 'track' | null; title: string; description: string; coverUrl?: string | null; project?: string | null; durationSec?: number | null };
   gold: DropOfferTier | null;
   goldItem: { title: string; description: string };
@@ -63,7 +67,7 @@ type Phase = 'capture' | 'delivered' | 'silver' | 'joined';
 
 const price = offerPrice;
 
-export function DropFunnelClient({ token, artist, magnet, gold, goldItem, silver, experiences, campaign }: Props) {
+export function DropFunnelClient({ token, artist, magnet, gold, goldItem, silver, experiences, campaign, creditsTeaser = null }: Props) {
   const storageKey = `crwn_drop_${token}`;
   const [phase, setPhase] = useState<Phase>('capture');
   const [email, setEmail] = useState('');
@@ -435,6 +439,7 @@ export function DropFunnelClient({ token, artist, magnet, gold, goldItem, silver
               </a>
             )}
             {error && <p className="text-sm text-red-400">{error}</p>}
+            {creditsTeaser && <CreditsTeaser teaser={creditsTeaser} name={firstName} />}
           </div>
         )}
 
@@ -474,6 +479,7 @@ export function DropFunnelClient({ token, artist, magnet, gold, goldItem, silver
             </a>
           </div>
         )}
+        {phase === 'joined' && creditsTeaser && <CreditsTeaser teaser={creditsTeaser} name={firstName} />}
       </div>
     </div>
   );

@@ -8,6 +8,7 @@ import { SubscribeCTA } from '@/components/gating';
 import { TierConfig, TierBenefit } from '@/types';
 import { BackgroundImage } from '@/components/ui/BackgroundImage';
 import { ArtistProfileContent } from '@/components/artist/ArtistProfileContent';
+import { loadCreditsTeaser } from '@/lib/projectCredits/server';
 import { ShareButtons } from '@/components/shared/ShareButtons';
 import { FoundingBadge } from '@/components/shared/FoundingBadge';
 import { PublicTestimonials } from '@/components/artist/PublicTestimonials';
@@ -225,6 +226,8 @@ export default async function ArtistPage({ params, searchParams }: ArtistPagePro
   // Which tracks sit on an album: a track on none is a single, for the Music tab's
   // latest-release card and Singles row (src/lib/artistMusicLayout.ts).
   const albumTrackIds = new Set<string>();
+  // Which tracks sit on which project, for the tier cards' "Projects you unlock".
+  const projectTrackIds: Record<string, string[]> = {};
   if (albumIds.length > 0) {
     const { data: atData } = await supabase
       .from('album_tracks')
@@ -234,9 +237,16 @@ export default async function ArtistPage({ params, searchParams }: ArtistPagePro
       if (at.track?.is_active !== false) {
         albumTrackCounts[at.album_id] = (albumTrackCounts[at.album_id] || 0) + 1;
         if (at.track_id) albumTrackIds.add(at.track_id);
+        if (at.track_id) (projectTrackIds[at.album_id] ||= []).push(at.track_id);
       }
     }
   }
+  const tierProjects = (albums || []).map((a) => ({
+    id: a.id as string,
+    title: a.title as string,
+    artUrl: (a.album_art_url as string | null) ?? null,
+    trackIds: projectTrackIds[a.id] || [],
+  }));
   const albumsWithCounts = (albums || []).map((album) => ({
     ...album,
     track_count: albumTrackCounts[album.id] || 0,
@@ -281,6 +291,12 @@ export default async function ArtistPage({ params, searchParams }: ArtistPagePro
   // offer tracking live. Filtered here rather than in the query: before the migration the column
   // does not exist, and naming it would empty every artist's shop.
   const shopProducts = (products || []).filter((p) => !(p as { credit_level?: string | null }).credit_level);
+  // ...and pointed at from the Tiers and Shop tabs, so a fan on the artist's own page can find them.
+  const creditsTeaser = await loadCreditsTeaser(supabase, {
+    id: artist.id,
+    slug: artist.slug,
+    name: artist.profile?.display_name || 'This artist',
+  });
 
   // Currently-live session (for the "Live now" banner)
   const { data: liveNow } = await supabase
@@ -497,6 +513,8 @@ export default async function ArtistPage({ params, searchParams }: ArtistPagePro
           isOwner={isOwner}
           commissionRate={artist.referral_commission_rate ?? 0}
           liveSessions={liveSessions || []}
+          tierProjects={tierProjects}
+          creditsTeaser={creditsTeaser}
         />
       </div>
     </div>
