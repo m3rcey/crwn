@@ -20,6 +20,8 @@
 //     applied in production, but a fresh environment may not have it yet).
 
 import { buildRamp, type Ramp } from './revenueRamp';
+import { countsAsPaying } from './campaigns/prizeState';
+import { attachBillingFacts, monthlyValueCents } from './analytics/recurringValue';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Db = { from: (t: string) => any };
@@ -170,25 +172,39 @@ export async function loadRevenueRamp(db: Db, artistId: string): Promise<Ramp | 
 }
 
 /**
- * The artist's live MRR in cents: active subscriptions priced at their tier.
+ * The artist's live MRR in cents, by the SAME rules as the constraint assembler, the roadmap and
+ * /api/analytics: `countsAsPaying` decides who pays, `monthlyValueCents` what each is worth.
+ * (It used to sum list prices over every active row on an active tier, which counted an active
+ * prize member as revenue and dropped a paying member on a retired tier.)
  *
  * Returns null (not zero) on failure, so the bar falls back to counting steps instead of claiming
  * the artist earns nothing. That distinction is the whole point: the Manager's retired
  * `snapshotArtistMetrics` computed this same sum but swallowed errors into 0, which is one of the
- * reasons its outcome loop was retired rather than repaired (2026-08-11). This is now the only
- * live implementation of "the artist's current MRR" in the codebase.
+ * reasons its outcome loop was retired rather than repaired (2026-08-11).
  */
 export async function currentMrrCents(db: Db, artistId: string): Promise<number | null> {
   try {
     const [{ data: subs, error: subErr }, { data: tiers, error: tierErr }] = await Promise.all([
-      db.from('subscriptions').select('tier_id, status').eq('artist_id', artistId).eq('status', 'active'),
-      db.from('subscription_tiers').select('id, price').eq('artist_id', artistId).eq('is_active', true),
+      db
+        .from('subscriptions')
+        .select('id, tier_id, status, prize_campaign_id, pending_change_date')
+        .eq('artist_id', artistId)
+        .eq('status', 'active'),
+      db.from('subscription_tiers').select('id, price').eq('artist_id', artistId),
     ]);
     if (subErr || tierErr) return null;
 
     const price = new Map<string, number>();
     for (const t of tiers ?? []) price.set(String(t.id), Number(t.price) || 0);
-    return (subs ?? []).reduce((sum: number, s: { tier_id: string }) => sum + (price.get(String(s.tier_id)) ?? 0), 0);
+    const now = new Date();
+    const rows = await attachBillingFacts(
+      db,
+      (subs ?? []) as { id: string; tier_id: string | null; status: string | null; prize_campaign_id?: string | null; pending_change_date?: string | null }[],
+    );
+    return rows.reduce((sum: number, s) => {
+      const p = price.get(String(s.tier_id)) ?? 0;
+      return countsAsPaying(s, p, now) ? sum + monthlyValueCents(s, p) : sum;
+    }, 0);
   } catch {
     return null;
   }

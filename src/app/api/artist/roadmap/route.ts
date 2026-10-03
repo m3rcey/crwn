@@ -24,6 +24,7 @@ import { loadFunnelFacts } from '@/lib/funnelReadinessFacts';
 import { FUNNEL_TEST_QUEST_KEY } from '@/lib/guidedSetup/testQuest';
 import { loadDeliveryReport } from '@/lib/benefitReadinessFacts';
 import { countsAsPaying } from '@/lib/campaigns/prizeState';
+import { attachBillingFacts, monthlyValueCents } from '@/lib/analytics/recurringValue';
 import {
   buildRoadmapDefs,
   assembleRoadmap,
@@ -332,11 +333,15 @@ export async function GET() {
       .limit(3),
     supabaseAdmin
       .from('subscriptions')
-      .select('tier_id, status, prize_campaign_id, pending_change_date')
+      .select('id, tier_id, status, prize_campaign_id, pending_change_date')
       .eq('artist_id', artist.id)
       .eq('status', 'active'),
   ]);
-  const subs = (subsRes.data ?? []) as { tier_id: string | null; status: string | null; prize_campaign_id?: string | null; pending_change_date?: string | null }[];
+  // What Stripe bills each membership; tolerant, falls back to the tier price (recurringValue.ts).
+  const subs = await attachBillingFacts(
+    supabaseAdmin,
+    (subsRes.data ?? []) as { id: string; tier_id: string | null; status: string | null; prize_campaign_id?: string | null; pending_change_date?: string | null }[],
+  );
   const tierIds = [...new Set(subs.map((s) => s.tier_id).filter(Boolean))] as string[];
   let mrrCents = 0;
   let paidMembers = 0;
@@ -352,7 +357,7 @@ export async function GET() {
     for (const s of subs) {
       const price = priceById.get(s.tier_id as string) ?? 0;
       if (!countsAsPaying(s, price, now)) continue;
-      mrrCents += price;
+      mrrCents += monthlyValueCents(s, price);
       paidMembers += 1;
     }
   }

@@ -1077,6 +1077,14 @@ Never add a Home recommendation, a Home-only metric, a "vs last month" percentag
 figure, or a `$0` banner before a first paid fan, and never render a failed read as zero.
 `artistHome.test.ts` pins it (mutation-tested).
 
+**MRR is what Stripe BILLS, normalized to a month** (2026-10-03). `monthlyValueCents` in
+[src/lib/analytics/recurringValue.ts](src/lib/analytics/recurringValue.ts) is the ONE value rule
+(annual = billed / 12; the tier price only where nothing is recorded) and `countsAsPaying` the ONE
+who-pays rule; every MRR reader calls both. Never sum a tier's list price into MRR again: that
+counted an annual member at the monthly sticker. The facts (`subscriptions.billing_interval`,
+`billed_amount_cents`) are written ONLY by the webhook, in a separate fail-soft update, and read in a
+separate tolerant query (`attachBillingFacts`), never named in a reader's own select or the upsert.
+
 **The Featured row is the FOUNDER'S DISCRETION** (founder decision, 2026-09-26). Artists do not
 opt in and cannot set it: an artist also needs `artist_profiles.featured_on_home = true`, which
 defaults to false, and Josh flips it from **`/admin?tab=artists`** (every artist on CRWN, with a

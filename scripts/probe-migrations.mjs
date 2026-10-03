@@ -22,6 +22,9 @@ const PROBES = [
   // signal: 200 with [] once applied, 42703 while pending. The assigner's grants and the
   // freeze trigger are invisible here and are asserted by the migration's own self-verify.
   ['supporter numbers', 'subscriptions?select=supporter_number&limit=1', 'schema-phase2-supporter-number.sql'],
+  // Billing facts: same signal as supporter numbers, 200 with [] once applied, 42703 while pending.
+  // The freeze trigger is invisible to anon and is asserted by the migration's own self-verify.
+  ['subscription billing facts', 'subscriptions?select=billing_interval,billed_amount_cents&limit=1', 'schema-phase2-subscription-billing-facts.sql'],
   // Project credits. The product column reads 200 once applied (products has table-level grants);
   // project_credits and product_offer_events are closed to anon, so 42501 is THEIR applied signal.
   ['project credits: product columns', 'products?select=credit_level,credit_album_id&limit=1', 'schema-phase2-project-credits.sql'],

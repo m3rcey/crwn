@@ -26,6 +26,7 @@ import { getArtistFeePercent } from '@/lib/platformTier';
 import { subscriptionEarningNet } from '@/lib/earningsNet';
 import { maybeCreateVipWelcomeTask } from '@/lib/promiseTasks';
 import { recordFirstPaidConversion } from '@/lib/analytics/paidConversion';
+import { billingFactsFromStripe, recordSubscriptionBilling } from '@/lib/analytics/recurringValue';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { enrollInSequence } from '@/lib/sequences/enroll';
 import { exitConvertedEnrollments } from '@/lib/sequences/goalExit';
@@ -174,6 +175,23 @@ export async function handleCheckoutCompleted(supabaseAdmin: AdminClient, sessio
       p_artist: artist_id,
     });
     if (numberError) console.error('[supporterNumber] not assigned:', numberError.message);
+
+    // What Stripe actually bills for this membership (interval + price), so MRR counts an annual
+    // member at a twelfth of the annual price instead of the monthly sticker
+    // (src/lib/analytics/recurringValue.ts). Raw facts from Stripe's own price object; a separate,
+    // fail-soft write after the upsert, because it is reporting and must never cost the fan the
+    // membership they just paid for. A failed read clears the facts (tier-price fallback).
+    let billing: ReturnType<typeof billingFactsFromStripe> = null;
+    try {
+      if (session.subscription) {
+        const live = await stripe.subscriptions.retrieve(session.subscription as string);
+        const item = live.items?.data?.[0];
+        billing = billingFactsFromStripe(item?.price, item?.quantity);
+      }
+    } catch (err) {
+      console.error('[billingFacts] subscription retrieve failed:', err);
+    }
+    await recordSubscriptionBilling(supabaseAdmin, session.subscription as string | null, billing);
 
     // Z8: the movement, recorded only once the subscription state is actually committed. A fan
     // clicking checkout is not a transition; a paid subscription that exists is. Same-tier renewals
@@ -759,6 +777,16 @@ export async function handleSubscriptionUpdated(supabaseAdmin: AdminClient, subs
       }>;
     };
   };
+
+  // Keep what Stripe bills in step with every change (upgrade, downgrade, a scheduled tier
+  // landing, monthly <-> annual). Read straight off the event's own price object, so no API call.
+  // Separate and fail-soft, before the early return below so both branches record it.
+  const billedItem = subscription.items?.data?.[0];
+  await recordSubscriptionBilling(
+    supabaseAdmin,
+    sub.id,
+    billingFactsFromStripe(billedItem?.price, billedItem?.quantity),
+  );
 
   // First, check if there's a pending tier change to apply
   const { data: subData } = await supabaseAdmin

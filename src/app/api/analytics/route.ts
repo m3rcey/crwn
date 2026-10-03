@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import { requireArtistOwner } from '@/lib/apiAuth';
 import { computeChurn, rateChurnAgainstBenchmark, lifespanMonthsFromChurn } from '@/lib/analytics/retention';
 import { countsAsPaying } from '@/lib/campaigns/prizeState';
+import { attachBillingFacts, monthlyValueCents } from '@/lib/analytics/recurringValue';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -145,9 +146,14 @@ export async function GET(req: NextRequest) {
   // only scheduled they still pay their own tier. countsAsPaying is the one rule, shared with
   // the constraint assembler and the roadmap, so MRR cannot read differently on three screens.
   const nowForPrize = new Date();
-  const paidSubs = activeSubs.filter(s => countsAsPaying(s, tierMap[s.tier_id]?.price || 0, nowForPrize));
+  // What Stripe bills each paying membership, normalized to a month (an annual member counts at a
+  // twelfth of the annual price). Tolerant: falls back to the tier price (recurringValue.ts).
+  const paidSubs = await attachBillingFacts(
+    supabaseAdmin,
+    activeSubs.filter(s => countsAsPaying(s, tierMap[s.tier_id]?.price || 0, nowForPrize)),
+  );
   const freeSubs = activeSubs.filter(s => (tierMap[s.tier_id]?.price || 0) === 0);
-  const mrr = paidSubs.reduce((sum, s) => sum + (tierMap[s.tier_id]?.price || 0), 0);
+  const mrr = paidSubs.reduce((sum, s) => sum + monthlyValueCents(s, tierMap[s.tier_id]?.price || 0), 0);
 
   // ARPU: average revenue per PAYING member.
   const arpu = paidSubs.length > 0 ? Math.round(mrr / paidSubs.length) : 0;

@@ -321,6 +321,12 @@ Full spec: `docs/UNIFIED_OPPORTUNITY.md`. `Confirmed`.
 - **A "/mo" figure states how much of itself is recurring.** A share of every total is one-off
   money (member extras always; ticket, tip and seat money when those exist), and a reader hears
   "/mo" as MRR unless the split sits beside the number rather than in a tile further down the page.
+- **Observed MRR is what Stripe bills each paying member, normalized to a month** (2026-10-03).
+  `countsAsPaying` decides who pays; `monthlyValueCents` (`src/lib/analytics/recurringValue.ts`)
+  what each is worth: the recorded recurring price, divided by 12 for a yearly price, falling back
+  to the tier price only where CRWN has not recorded one. An annual member is never counted at the
+  monthly sticker. Discount codes are not netted. Every reader (Artist Home, Analytics, the
+  Constraint Engine, the Revenue Ramp bar) uses both, so the number cannot read differently twice.
 - **Every rate that moves the artist's money is disclosed, and no rate that does not is asserted at
   them.** Member extras, the live cadence and the session seat rate all carried real money with no
   stated rate until 2026-08-14; the seat line alone is about 40% of gross at arena scale.

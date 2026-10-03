@@ -17,6 +17,7 @@ import { readTierEvidence } from '@/lib/analytics/tierEvidence';
 import { computeChurn } from '@/lib/analytics/retention';
 import { onlyFanPromises, summarizePromiseHealth } from '@/lib/fulfillment';
 import { countsAsPaying } from '@/lib/campaigns/prizeState';
+import { attachBillingFacts, monthlyValueCents, type BillingFacts } from '@/lib/analytics/recurringValue';
 // The ONE recipient-eligibility rule, shared with the Promise Calendar and the reminder cron.
 import {
   obligationHasNoEligibleRecipient,
@@ -150,7 +151,7 @@ export async function assembleConstraintEvidence(
       db.from('subscription_tiers').select('id, price').eq('artist_id', artistId).eq('is_active', true),
       db
         .from('subscriptions')
-        .select('tier_id, status, created_at, canceled_at, prize_campaign_id, pending_change_date')
+        .select('id, tier_id, status, created_at, canceled_at, prize_campaign_id, pending_change_date')
         .eq('artist_id', artistId),
     ]);
 
@@ -162,7 +163,7 @@ export async function assembleConstraintEvidence(
     if (subsRes.error) {
       const retry = await db
         .from('subscriptions')
-        .select('tier_id, status, created_at, canceled_at')
+        .select('id, tier_id, status, created_at, canceled_at')
         .eq('artist_id', artistId);
       subRows = retry.data;
     }
@@ -171,7 +172,8 @@ export async function assembleConstraintEvidence(
       (tierRows ?? []).map((r: { id: string; price: number | null }) => [r.id, Number(r.price) || 0]),
     );
 
-    const subs = (subRows ?? []) as {
+    const loadedSubs = (subRows ?? []) as {
+      id?: string | null;
       tier_id: string | null;
       status: string | null;
       created_at: string;
@@ -181,6 +183,9 @@ export async function assembleConstraintEvidence(
       /** On a SCHEDULED prize, the boundary it starts at. Null once active. */
       pending_change_date?: string | null;
     }[];
+    // What Stripe bills each membership (annual members count at a twelfth of the annual price).
+    // Tolerant: without the columns every value falls back to the tier price.
+    const subs: (typeof loadedSubs[number] & BillingFacts)[] = await attachBillingFacts(db, loadedSubs);
     subRowsForEligibility = subs;
 
     const active = subs.filter((s) => s.status === 'active');
@@ -201,7 +206,9 @@ export async function assembleConstraintEvidence(
     freeMembers = active.filter((s) => priceOf(s) === 0).length;
     const paid = active.filter((s) => countsAsPaying(s, priceOf(s), nowForPrize));
     paidMembers = paid.length;
-    mrrCents = paid.reduce((sum, s) => sum + priceOf(s), 0);
+    // Per member, what Stripe actually bills normalized to a month (recurringValue.ts).
+    const monthlyOf = (s: (typeof subs)[number]) => monthlyValueCents(s, priceOf(s));
+    mrrCents = paid.reduce((sum, s) => sum + monthlyOf(s), 0);
 
     // Free joins inside the capture window, matched to the same visitors window.
     freeJoinsInWindow = subs.filter(
@@ -222,7 +229,7 @@ export async function assembleConstraintEvidence(
     if (mrrCents > 0) {
       const paidPrices = [...new Set([...tierPriceById.values()].filter((p) => p > 0))].sort((a, b) => b - a);
       const topTwo = new Set(paidPrices.slice(0, 2));
-      const premiumCents = paid.filter((s) => topTwo.has(priceOf(s))).reduce((sum, s) => sum + priceOf(s), 0);
+      const premiumCents = paid.filter((s) => topTwo.has(priceOf(s))).reduce((sum, s) => sum + monthlyOf(s), 0);
       premiumMrrShare = premiumCents / mrrCents;
     }
 

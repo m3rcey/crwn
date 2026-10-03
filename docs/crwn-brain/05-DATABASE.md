@@ -73,7 +73,7 @@ Ownership is almost always expressed in RLS as `auth.uid() IN (SELECT user_id FR
 |---|---|---|
 | `subscription_tiers` | `schema-ticket5.sql` (+ annual ALTER) | `artist_id`, `name`, `price`(cents), `access_config` jsonb (`{benefits:[]}`), `stripe_price_id`, `stripe_product_id`, `is_active`, `offers_annual`, `annual_discount_percent` |
 | `tier_benefits` | `schema-phase2-*` / `benefitCatalog.ts` | per-tier structured benefits, `benefit_type`, `config` jsonb, `sort_order` |
-| `subscriptions` | `schema-ticket5.sql` | `fan_id`, `artist_id`, `tier_id`, `stripe_subscription_id`(UNIQUE), `status` (`incomplete\|active\|past_due\|canceled\|paused`), period fields, `cancel_at_period_end`, `pending_tier_id`/`pending_change_date` (deferred downgrade). **UNIQUE(fan_id, artist_id)** → resubscribe = upsert |
+| `subscriptions` | `schema-ticket5.sql` | `fan_id`, `artist_id`, `tier_id`, `stripe_subscription_id`(UNIQUE), `status` (`incomplete\|active\|past_due\|canceled\|paused`), period fields, `cancel_at_period_end`, `pending_tier_id`/`pending_change_date` (deferred downgrade). **UNIQUE(fan_id, artist_id)** → resubscribe = upsert. `billing_interval` (month\|year) + `billed_amount_cents`: what Stripe bills, copied by the webhook only, frozen against browser writes (`schema-phase2-subscription-billing-facts.sql`, PENDING); the MRR value rule reads them |
 
 ### Payments / payouts / ledger — ⚠️ mostly no CREATE TABLE migration
 | Table | Migration touching it | Purpose |

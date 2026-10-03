@@ -1,5 +1,30 @@
 # CRWN Brain — Changelog
 
+## 2026-10-03 - MRR counts what Stripe bills, so an annual member is a twelfth of their year
+
+- **The bug:** every MRR reader (constraint assembler, roadmap stats behind Artist Home,
+  `/api/analytics`, the Revenue Ramp bar) summed each paying member's MONTHLY tier list price. An
+  annual member was counted at the monthly sticker (Prince Dre's annual Platinum: $444/yr = $37/mo,
+  counted as $50), and a member kept on an old price after a tier raise was overstated the same
+  way. Annual is the default on his checkout. Production had zero live paying memberships when this
+  shipped (read-only probe: the two paid rows are m3rcey test rows live Stripe answers
+  `resource_missing`), so no number was wrong yet.
+- **The rule, in ONE place:** `src/lib/analytics/recurringValue.ts` `monthlyValueCents` = Stripe's
+  billed recurring price, divided by 12 for a yearly price; the tier price when CRWN has not
+  recorded it (the old number exactly). `countsAsPaying` still decides WHO pays. Discount codes
+  are not netted (same basis as before).
+- **The facts:** `subscriptions.billing_interval` + `billed_amount_cents`
+  (`schema-phase2-subscription-billing-facts.sql`, PENDING, frozen against browser writes by a
+  trigger), copied from Stripe's own price object by the webhook: after the checkout upsert (one
+  `subscriptions.retrieve`) and on every `customer.subscription.updated` (off the payload). Both
+  writes are separate and fail-soft, so a pending migration can never fail the upsert that grants
+  access; a failed read CLEARS the facts so a rejoining fan cannot keep an old subscription's.
+  Readers fetch the facts in a separate tolerant query, never in their own select.
+- **Also aligned:** the Revenue Ramp bar's MRR now uses `countsAsPaying` (it counted an active
+  prize member as revenue) and no longer drops a paying member on a retired tier.
+- Tests: `src/lib/analytics/recurringValue.test.ts`, mutation-tested (assembler back on list price,
+  a billing column in the upsert, null facts skipped instead of cleared: each failed).
+
 ## 2026-10-03 - Artist Home becomes the economic command center
 
 - **Home now answers "how is my fan business doing, and what do I do next"** for an artist, in
@@ -24,11 +49,8 @@
   fan, then reads "Your storefront". Its button is gold only when no move exists.
 - **Fans:** unchanged. Artist reads start only when the session resolves to an artist, and all
   three routes derive (or re-check) the artist from the session.
-- **Drift found, not changed here:** every MRR reader (assembler, roadmap, analytics) counts an
-  annual member at the tier's MONTHLY list price, because `subscriptions` stores no billing
-  interval (Prince Dre's annual Platinum is $37/mo, counted as $50). And
-  `revenueRampSeed.currentMrrCents()` still claims to be "the only live implementation" of MRR
-  while it skips `countsAsPaying`. Tests: `src/lib/artistHome.test.ts` (mutation-tested).
+- **Drift found:** MRR counted annual members at the monthly price; fixed the same day (entry
+  above). Tests: `src/lib/artistHome.test.ts` (mutation-tested).
 
 ## 2026-10-03 - Every artist's drop gets a personal link
 
