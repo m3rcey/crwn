@@ -300,6 +300,11 @@ const DEFAULT_JOBS = [
   "inPlace": true,
   "path": "/princedre?tab=shop",
   "match": "Founding Supporter"
+ },
+ {
+  "name": "ALBUM page (Dre, Stompin): the whole tape",
+  "path": "/princedre/album/3e372e2a-25bb-4f9c-b0ed-66715283db76",
+  "match": "whole tape"
  }
 ];
 const jobsArg = process.argv.find((a) => a.startsWith('--jobs='));

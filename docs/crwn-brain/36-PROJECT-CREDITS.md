@@ -101,8 +101,10 @@ will never subscribe (16 songs at $3.99 is $63.84; Platinum at $50 a month stays
 anyone who wants all 10 projects), and the $250 and $150 credits include the tape, because a
 Founding Supporter who was not on Platinum could not hear the tape they were credited on. One
 migration ([supabase/schema-phase2-tape-purchase.sql](../../supabase/schema-phase2-tape-purchase.sql))
-adds `products.grants_album_id` and one clause to `can_play_track`. Until it is applied, nothing
-claims or sells the tape: `tapeGrantsLive` gates the credits copy, and the script waits.
+adds `products.grants_album_id` and one clause to `can_play_track`. APPLIED and probe-verified
+2026-10-03; the $19.99 product exists and the album page's "Get the whole tape" button measured
+above the fold at every viewport. `tapeGrantsLive` still gates the credits copy, so a schema
+rollback would take the claim down with the grant.
 
 ## Proof that survives a screenshot (2026-10-03)
 
