@@ -176,15 +176,12 @@ responsible for. Do not work those.
       editable). The page still reads "Effective Date: August 25, 2026". Changing a legal date is
       your call, so I did not.
 
-- [ ] **Decide how Prince Dre's Platinum listening sessions run.** Platinum now promises "Group
-      listening sessions when Dre opens one" (no schedule, no cap). CRWN Live is a Pro feature and he
-      is on Launch. Pick one: he moves to Pro ($49/mo + 8%, which the blueprint recommends), you give
-      him the same `plan_feature_overrides.allowsLive` GB has, or he runs sessions outside CRWN. Also
-      confirm with his team the tier lines in
-      [src/lib/offerExperience/reference/princeDre.ts](src/lib/offerExperience/reference/princeDre.ts)
-      (the blueprint says pricing and benefits are approved by them before launch), including the
-      member drip: Gold hears one more project each month a member stays (CRWN enforces the
-      timing, so there is nothing for him to do on any date).
+- [ ] **Confirm Prince Dre's tier lines with him or his team.** The blueprint says pricing and
+      benefits are approved by them before launch. What is live now:
+      [src/lib/offerExperience/reference/princeDre.ts](src/lib/offerExperience/reference/princeDre.ts).
+      Two things worth saying out loud to him: Gold hears one more project each month a member
+      stays (CRWN enforces the timing, so there is nothing for him to do on any date), and
+      Platinum promises group listening sessions, which he can now actually run (see below).
 
 - [ ] **Run [supabase/schema-phase2-artist-gate-caller-only.sql](supabase/schema-phase2-artist-gate-caller-only.sql)
       in the Supabase SQL Editor.** This stops the daily "Onboarding is broken" email. The alert
@@ -812,6 +809,13 @@ responsible for. Do not work those.
       (one automation per video, forever). Do it ONLY for a hero video you want to measure.
 
 ### P2 — worth doing, nothing breaks if you never do it
+
+- [ ] **Prince Dre can go live now. Tell him.** He was comped CRWN Live on 2026-10-02
+      (`plan_feature_overrides.allowsLive`, the same grant GB has), so his Platinum promise of group
+      listening sessions is deliverable instead of aspirational. He starts one from Studio, Live.
+      The first time, he signs the Live-Streaming Agreement screen. Nothing is scheduled and nothing
+      is promised on a date, so he can open a room whenever he wants.
+
 
 - [ ] **Run the 10-minute phone check of the new player once it is live.** Lock screen, background
       and the installed home-screen app cannot be automated from here; desktop and phone-sized
