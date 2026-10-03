@@ -55,6 +55,11 @@ export async function isFounderFollowUpEnabled(): Promise<boolean> {
 
 const TOOL_NAME_OVERRIDES: Record<string, string> = { worth: 'fanbase worth calculator' };
 
+/** The name a lead knows their calculator by. Shared with the hand-sent numbers email. */
+export function leadToolName(slug: string): string | null {
+  return TOOL_NAME_OVERRIDES[slug] ?? getLeadMagnet(slug)?.name ?? null;
+}
+
 const ACTIVITY_LABEL: Record<string, string> = {
   account_created: 'Created their account',
   email_verified: 'Verified their email',
@@ -278,7 +283,7 @@ export async function loadFollowUpEvidence(identityId: string): Promise<FollowUp
         ? {
             id: String(newest.id),
             toolSlug: slug,
-            toolName: TOOL_NAME_OVERRIDES[slug] ?? getLeadMagnet(slug)?.name ?? null,
+            toolName: leadToolName(slug),
             title: s(newest.title),
             builderSaved: !!(inputData && inputData.deliverableValues),
           }

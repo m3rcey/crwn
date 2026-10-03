@@ -747,6 +747,14 @@ async function dispatchToBestChannel(
  * tokens, and a database read must never yield a working link.
  */
 export async function rotateLink(resultId: string, toolSlug: string): Promise<string | null> {
+  const raw = await rotateResultToken(resultId);
+  return raw ? buildResultUrl(toolSlug, raw) : null;
+}
+
+/** Mint a new view token for a result and return the RAW token (only its hash is stored, so the
+ *  previous link stops working). For a caller that needs the token itself, e.g. to carry it onto
+ *  a watch link as well as the result link. null = the write failed. */
+export async function rotateResultToken(resultId: string): Promise<string | null> {
   const { raw, hash } = mintToken();
   const { error } = await supabaseAdmin
     .from('lead_magnet_results')
@@ -758,8 +766,7 @@ export async function rotateLink(resultId: string, toolSlug: string): Promise<st
     })
     .eq('id', resultId);
 
-  if (error) return null;
-  return buildResultUrl(toolSlug, raw);
+  return error ? null : raw;
 }
 
 async function retryOrDeadLetter(row: OutboxRow, reason: string, report: DispatchReport): Promise<void> {

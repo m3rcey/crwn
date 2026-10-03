@@ -92,10 +92,24 @@ interface Row {
   // 'sales_call_unattributed' (booked from the website, nobody to follow up).
   metadata?: { startTime?: string; endTime?: string; uid?: string } | null;
   outcome?: string | null;
-  identity?: { instagram_username?: string; email?: string; claimed_at?: string; status?: string } | null;
+  identity?: { instagram_username?: string; email?: string; consent_email?: boolean; claimed_at?: string; status?: string } | null;
   profile?: { lead_score?: number; score_band?: string; monthly_listeners?: number; primary_blocker?: string } | null;
-  result?: { viewed_at?: string; claimed_at?: string; recalculated_at?: string } | null;
+  result?: { id?: string; tool_slug?: string; viewed_at?: string; claimed_at?: string; recalculated_at?: string } | null;
 }
+
+// Why "Email their numbers" did not send, in plain words. The server refuses BEFORE it mints a new
+// link wherever it can, so every one of these left the lead's existing link working.
+const NUMBERS_REFUSAL: Record<string, string> = {
+  frequency_cap: 'Not sent: they already got a CRWN message in the last 24 hours. Try tomorrow.',
+  lifetime_cap_reached: 'Not sent: they have had the most messages CRWN will send one lead.',
+  no_email_consent: 'Not sent: they never agreed to email.',
+  no_email: 'Not sent: no email on file.',
+  opted_out: 'Not sent: they opted out.',
+  suppressed: 'Not sent: that address unsubscribed or bounced.',
+  no_dm_result: 'Not sent: this result is not tied to a DM lead.',
+  no_lead: 'Not sent: no lead found for this result.',
+  link_mint_failed: 'Not sent: the link could not be created. Try again.',
+};
 
 const OUTCOME_LABEL: Record<string, string> = {
   sales_call_attended: 'Attended',
@@ -184,6 +198,8 @@ export default function AcquisitionView() {
   const [loading, setLoading] = useState(true);
   const [notReady, setNotReady] = useState(false);
   const [busy, setBusy] = useState<string | null>(null);
+  // Per result id: what happened when Josh pressed "Email their numbers".
+  const [numbersNote, setNumbersNote] = useState<Record<string, string>>({});
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -224,6 +240,31 @@ export default function AcquisitionView() {
     });
     setBusy(null);
     load();
+  };
+
+  // Sends the lead a fresh link to their saved result with the calculator VSL right under it.
+  // The server derives the recipient from the result row; the address here is only for the confirm.
+  const emailNumbers = async (r: Row) => {
+    const resultId = r.result?.id;
+    if (!resultId) return;
+    const who = r.identity?.instagram_username ? `@${r.identity.instagram_username}` : 'this lead';
+    if (!window.confirm(`Email ${who} a link to their numbers at ${r.identity?.email ?? 'their email'}?`)) return;
+    setBusy(resultId);
+    try {
+      const res = await fetch('/api/admin/acquisition', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'email_numbers', id: resultId }),
+      });
+      const json = await res.json().catch(() => ({}));
+      const note = res.ok
+        ? `Sent to ${json.to ?? 'their email'}.`
+        : NUMBERS_REFUSAL[json.error] ?? `Not sent: ${json.error ?? 'unknown error'}.`;
+      setNumbersNote((m) => ({ ...m, [resultId]: note }));
+    } catch {
+      setNumbersNote((m) => ({ ...m, [resultId]: 'Not sent: the request failed. Try again.' }));
+    }
+    setBusy(null);
   };
 
   const setCallRequestStatus = async (id: string, status: string) => {
@@ -507,6 +548,26 @@ export default function AcquisitionView() {
                       ? 'Opened result'
                       : r.state?.replace(/_/g, ' ') ?? ''}
                   </div>
+
+                  {view === 'leads' && r.result?.id && r.identity?.email && r.identity.consent_email && (
+                    <div className="shrink-0 flex flex-col items-end gap-1 max-w-xs">
+                      <button
+                        onClick={() => emailNumbers(r)}
+                        disabled={busy === r.result.id}
+                        className="bg-crwn-elevated text-crwn-text hover:text-crwn-gold text-sm px-3 py-2 rounded-full disabled:opacity-50 flex items-center gap-1"
+                      >
+                        {busy === r.result.id ? (
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        ) : (
+                          <Mail className="w-3.5 h-3.5" />
+                        )}
+                        Email their numbers
+                      </button>
+                      {numbersNote[r.result.id] && (
+                        <p className="text-xs text-crwn-text-secondary text-right">{numbersNote[r.result.id]}</p>
+                      )}
+                    </div>
+                  )}
 
                   {view === 'human_review' && (
                     <div className="flex gap-2 shrink-0">

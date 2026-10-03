@@ -108,6 +108,30 @@ delivery result or error), and the exact draft. "Copy draft" for Gmail; **"I sen
 claims the same dedupe key (re-derived server-side, audited in `agent_action_log`), so the
 automation never repeats a note Josh already sent.
 
+## "Email their numbers": the hand-pressed link with the VSL under it (2026-10-03)
+
+Founder ask: "email people a link that shows their numbers with the VSL right up under the link."
+Not a stage and not automated. `/admin` -> Acquisition -> **Leads** tab: every DM lead with a
+saved result and a consented email has an **Email their numbers** button (any band, not only
+sales_priority). It sends from Josh (`FOUNDER_FROM`, replies to him): greeting, one line, a gold
+"See my numbers" button to a freshly minted link to their saved result, and DIRECTLY under it the
+calculator VSL poster (`CALCULATOR_VSL`) linking to `/watch/vsl-calculator?tool=&result=`, so the
+watch page's button continues their own calculator. Copy: `src/lib/acquisition/numbersEmail.ts`
+(pure); send: `numbersEmailServer.ts`; action `email_numbers` on `/api/admin/acquisition`.
+
+- **It never quotes the headline.** Real stored headlines include "About $0 a month is sitting on
+  the table". The page shows the number with its assumptions; the email only gets them there.
+- **The request carries a result id, a pointer.** The recipient comes from that row's own
+  `lead_session_id` -> `lead_identity_id`, never from the request. A web-only result is refused
+  (`no_dm_result`); web captures already get the nurture sequence, which carries the VSLs.
+- **Refuse BEFORE rotating.** Only a token hash is stored, so minting a link kills the lead's
+  previous one. `emailBlockedReason` (channels.ts) asks every question `send()` would ask (opt-out,
+  consent, caps, suppression) first, so a refusal leaves their DM link working. Pinned and
+  mutation-tested in `numbersEmail.test.ts`, together with "nothing between the link and the video".
+- **Not transactional.** The lead did not ask for this email now, so the 24h and lifetime caps
+  apply and the send counts toward them. A second press the same day answers "already got a CRWN
+  message in the last 24 hours". Audited in `agent_action_log` as `acquisition_email_numbers`.
+
 ## Provenance: "did this artist actually tell us this?" (2026-09-29)
 
 A WORTH DM asks two questions (monthly listeners, then "have your fans ever paid you directly?").
