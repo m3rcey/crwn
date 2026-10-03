@@ -256,6 +256,7 @@ async function uploadTrack(o, position, access) {
   const { data: row, error } = await db.from('tracks').insert({
     artist_id: artist.id, title: o.trackTitle, audio_url_128: audioUrl, audio_url_320: audioUrl,
     album_art_url: artUrl, duration: audioDuration(o.file), position, ...access, is_active: true,
+    ...(o.priceCents ? { price: o.priceCents } : {}),
   }).select('id').single();
   if (error) die(`${o.trackTitle} track insert: ${error.message}`);
   if (['wav', 'flac', 'aiff', 'aif'].includes(ext)) {
@@ -305,7 +306,7 @@ if (C.vote?.retired) {
 const tiersFrom = (rung) => LADDER_RUNGS.slice(LADDER_RUNGS.indexOf(rung)).map((r) => tierIds[r]).filter(Boolean);
 const contentIds = {};
 if (C.content) {
-  const { data: have } = await db.from('tracks').select('id, title, is_free, allowed_tier_ids').eq('artist_id', artist.id);
+  const { data: have } = await db.from('tracks').select('id, title, is_free, allowed_tier_ids, price').eq('artist_id', artist.id);
   console.log('');
   for (const [i, t] of C.content.tracks.entries()) {
     if (!existsSync(t.file)) die(`${t.title}: file not found: ${t.file}`);
@@ -327,6 +328,15 @@ if (C.content) {
       if (APPLY) {
         const { error } = await db.from('tracks').update({ ...fieldsForClass('member_only', { tierIds: merged }), updated_at: new Date().toISOString() }).eq('id', found.id).eq('artist_id', artist.id);
         if (error) die(`${found.title} access: ${error.message}`);
+      }
+    }
+    // The config owns a song's one-time price, so a locked row can read "$X to buy" instead of
+    // being a dead end for a fan who will never subscribe.
+    if (t.priceCents && found.price !== t.priceCents) {
+      console.log(`${APPLY ? 'pricing' : 'will price'} "${found.title}" at $${(t.priceCents / 100).toFixed(2)} to buy`);
+      if (APPLY) {
+        const { error } = await db.from('tracks').update({ price: t.priceCents, updated_at: new Date().toISOString() }).eq('id', found.id).eq('artist_id', artist.id);
+        if (error) die(`${found.title} price: ${error.message}`);
       }
     }
     if (REFRESH_ART && t.artFile && APPLY) {

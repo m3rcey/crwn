@@ -70,6 +70,12 @@ export interface ContentTrack {
   file: string;
   artFile?: string;
   placeholder?: boolean;
+  /** One-time price in CENTS, for a song a non-member can buy outright. A locked row then reads
+   *  "$3.99 to buy" instead of being a dead end, which is the only cash a fan who will never
+   *  subscribe can ever give. Gating is untouched: a member still hears it through their rung.
+   *  Only ever put on a song that cannot be heard free somewhere else, or the offer is worse than
+   *  the alternative the fan already has. */
+  priceCents?: number;
 }
 
 /** A project (album) on the artist's page. `voteLabel` ties it to a vote option: when the
@@ -268,6 +274,15 @@ export function checkLaunchPartner(c: LaunchPartnerConfig): string[] {
     } else if (p.releaseDate > new Date().toISOString().slice(0, 10)) {
       errors.push(`content: project ${p.title} is dated in the future, so his page would call it released before it is`);
     }
+  }
+  for (const t of c.content?.tracks ?? []) {
+    if (t.priceCents === undefined) continue;
+    // Stripe's fixed fee eats a third of a $1.99 sale, so a price below $2 mostly pays Stripe.
+    if (!Number.isInteger(t.priceCents) || t.priceCents < 200 || t.priceCents > 50000) {
+      errors.push(`content: ${t.title} has a one-time price outside $2 to $500`);
+    }
+    // A free song cannot be sold, and the checkout route refuses it, so this would be a dead button.
+    if (t.rung === 'Bronze') errors.push(`content: ${t.title} is free to members, so it cannot also be sold`);
   }
   // A drop names a song the launch actually uploads, or it would wait forever with no error.
   const songs = new Set([...(c.content?.tracks ?? []).map((t) => t.title.toLowerCase()), ...(c.vote?.options ?? []).map((o) => o.trackTitle.toLowerCase())]);

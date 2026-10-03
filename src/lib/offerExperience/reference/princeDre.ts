@@ -223,6 +223,15 @@ const GOLD_SONGS = DRE_GOLD_DAY_ONE.reduce((n, p) => n + N[p], 0);
 /** The two most-watched from every project: the Bronze singles plus the two vote songs among them. */
 const FREE_SONGS = DRE_BRONZE_SINGLES.length + 2;
 const PROJECTS = Object.keys(SONGS).length;
+/** A song's one-time price, for the fan who will never subscribe (founder, 2026-10-02).
+ *  ONLY Stompin Thru The Trenches. Every other tape streams free somewhere, so charging for a song
+ *  a fan can already hear is a worse offer than the one they have. A locked Stompin row now reads
+ *  "$3.99 to buy" instead of being a dead end, and it never weakens the membership: 16 songs bought
+ *  one at a time is $63.84, more than a month of Platinum, which is the comparison that makes the
+ *  membership obviously better. $3.99 and not $1.99 because Stripe's fixed 30c takes a third of a
+ *  two dollar sale. */
+const STTT_SONG_PRICE_CENTS = 399;
+
 const rungOf = (title: string, project: string) =>
   title === BONUS_SONG || DRE_BRONZE_SINGLES.includes(title) ? ('Bronze' as const) : PROJECT_RUNG[project];
 /** Every project, oldest first: the order the Music tab reads them in. */
@@ -240,6 +249,7 @@ const CONTENT_TRACKS = (() => {
         rung: rungOf(title, project),
         file: `${DIR}/${FOLDER[project] ?? project}/${i + 1} - ${song}.wav`,
         artFile: COVER[project],
+        ...(project === STTT && rungOf(title, project) !== 'Bronze' ? { priceCents: STTT_SONG_PRICE_CENTS } : {}),
       })),
   );
 })();
@@ -400,6 +410,10 @@ export const DRE_PLATINUM_OFFER: TierOfferExperience = {
   },
   faqs: [
     {
+      q: 'Is there a cheaper way to pay?',
+      a: 'Pay for a year at once and it is 25 percent off, so you get the same thing for nine months of the price. Switch the billing toggle on his page to Annual before you join.',
+    },
+    {
       q: 'What is the number next to my name?',
       a: 'It is how early you backed Dre. The first person who ever paid him is 1, the next is 2, and yours is set the day you join. It never changes after that: move up a level, move down a level, stop and come back later, you keep the same number.',
     },
@@ -470,6 +484,10 @@ export const DRE_GOLD_OFFER: TierOfferExperience = {
     ],
   },
   faqs: [
+    {
+      q: 'Is there a cheaper way to pay?',
+      a: 'Pay for a year at once and it is 25 percent off, so you get the same thing for nine months of the price. Switch the billing toggle on his page to Annual before you join.',
+    },
     {
       q: 'What is the number next to my name?',
       a: 'It is how early you backed Dre. The first person who ever paid him is 1, the next is 2, and yours is set the day you join. It never changes after that: move up a level, move down a level, stop and come back later, you keep the same number.',
