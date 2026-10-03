@@ -13,8 +13,44 @@ still per AI look; motion only for approved stills.
   fal (no people), `R` real insert (comment screenshot, notes-app capture, CRWN screen recording,
   real cover art), `G` graphic PNG layer for the editor.
 - **Text size:** `HOOK` fills the left half or more, `BIG` one line across a third, `SUB` subtitle.
-- Text is white, no outline, **red** only on the key word. The subject sits opposite the text.
+- Text follows the type system below: white, no outline, and the **bold** word in each line is
+  the key word (red dry-brush). The subject sits opposite the text.
 - Every frame is 16:9. "Letterbox" means 2:1 bars inside the 16:9 frame (his cinematic code).
+
+## Type: taken from his own covers (Josh, 2026-10-03)
+
+This replaces the "red condensed headline face plus serif credit lines" that was measured from
+his music videos. His covers show a different and consistent system. References:
+[logo](type-reference/logo-prince-dre.jpg), [How Im Coming](type-reference/how-im-coming.jpg),
+[Twitter Beef](type-reference/twitter-beef.jpg).
+
+Three faces, one job each:
+
+1. **Headline (HOOK, BIG, card prices): a western Tuscan slab serif, all caps, white.** Heavy
+   slab serifs with pointed spurs halfway up the stems, like the PRINCE in his logo and HOW IM
+   COMING. Free near-match: Rye (Google Fonts, open license); the editor may swap in a licensed
+   face that is closer. **Chrome bevel on ONE moment only** (frame 10, the catalog count), the
+   way How Im Coming uses it for a title. Chrome everywhere stops reading as a title.
+2. **Key word: red dry-brush caps**, like the DRE in his logo and TWITTER BEEF: rough edges,
+   splatter, never a smooth marker. The key word switches face as well as colour. There are
+   eight (YEAR, NOBODY, ALL, REAL, MONTH, EVERYTHING, THIS MONTH, BELOW), so the editor can
+   paint them with a real brush and scan them instead of hunting for a font. Numbers (8, 94,
+   prices) stay in the headline face.
+3. **Credits, stamps and subtitles: a small, clean sans in white caps, widely tracked**, like
+   "PRINCE DRE FEAT. THF LIL LAW". Near-match: Montserrat SemiBold, tracking about +250.
+   Subtitles use the same face in sentence case with normal tracking.
+
+- **The red has to be brighter than the red on his covers.** The Twitter Beef blood red measures
+  `#7F0102` (median of its red pixels), 1.8:1 against `#0D0D0D`. That fails the 3:1 rule in
+  PROMPT.md and turns to mud after web compression. Use `#E0262B` (measured 4.15:1) for words. The darker red is fine for
+  splatter and texture.
+- **Frame 5 uses his real logo lockup** (crown over the I, DRE in brush), never retyped. The
+  only copy we have is a crop on a textured background, so it needs a clean file from Dre (PNG
+  with transparency, or vector).
+- Backgrounds his covers already use, and that fit the plates: near-black, blue-purple smoke
+  (How Im Coming) and a dark branch texture (the logo). Keep both behind the left-third type area
+  dark enough for the 3:1 rule.
+- The wireframes show where text sits, not the face. They were not redrawn for this change.
 
 ## Frames
 
@@ -24,15 +60,15 @@ still per AI look; motion only for approved stills.
 | 2 | "from [YEAR] that nobody's ever seen" | P1 + G redaction bar | Macro of a phone screen, a blurred thumbnail under a black redaction bar, right third (text never crosses 52% of the width) | HOOK: "**[YEAR]**" over "NOBODY'S EVER SEEN" | hard cut |
 | 3 | "Not my people. Not my fans. Nobody." | A | Face, right; left clean | BIG: "**NOBODY.**" | hold |
 | 4 | "Stay with me" | A | Push-in on face | SUB only | 2-frame white flash |
-| 5 | "I'm Prince Dre. O'Block." | P2 | Low angle up at a night brick courtyard, sodium light, buildings fill the right | BIG: "PRINCE DRE"; serif credit line: "PARKWAY GARDENS · CHICAGO" | flash |
-| 6 | "dropping since 2013" | R cover art | Fresh Prince Of O'Block cover, 4:3 with vignette | serif stamp: "2013 · FRESH PRINCE OF O'BLOCK" | flash |
+| 5 | "I'm Prince Dre. O'Block." | P2 | Low angle up at a night brick courtyard, sodium light, buildings fill the right | his logo lockup (real file); credit line: "PARKWAY GARDENS · CHICAGO" | flash |
+| 6 | "dropping since 2013" | R cover art | Fresh Prince Of O'Block cover, 4:3 with vignette | credit stamp: "2013 · FRESH PRINCE OF O'BLOCK" | flash |
 | 7 | (same beat, about 1 s each) | R covers | Blood Brothaz, then Return Of The Prince covers | stamps "2015 · BLOOD BROTHAZ", "2021 · THE RETURN OF THE PRINCE" | hard cut |
 | 8 | "Where can I hear all of it?" | R comments | Real comment screenshots slammed in, stacked and tilted (brutalism), names blurred | BIG: "WHERE CAN I HEAR **ALL** OF IT?" | hard cut |
 | 9 | "Tapes scattered on old mixtape sites" | P3 | Dark desk, many browser windows of a phone glow, out of focus | SUB | whip pan |
-| 10 | "So I put it in one place. CRWN." | R screen rec | His real CRWN page scrolling the albums, full frame | BIG: "**8** PROJECTS · **94** SONGS" (ticks up) | hard cut |
+| 10 | "So I put it in one place. CRWN." | R screen rec | His real CRWN page scrolling the albums, full frame | BIG, chrome: "8 PROJECTS · 94 SONGS" (numbers tick up) | hard cut |
 | 11 | "That song you just got?" | R screen rec | The drop page player on the free song | SUB | flash |
 | 12 | "that ain't even the real reason" | P4 | Gimbal walk down a dark hallway toward a door, letterbox | BIG: "THE **REAL** REASON" | hard cut |
-| 13 | "Songs that never came out. Videos nobody saw." | R archive | Dre's real unreleased clips and photos, letterbox, each with a year stamp, RGB-split on entry | serif stamps per item | 1 to 1.5 s cuts |
+| 13 | "Songs that never came out. Videos nobody saw." | R archive | Dre's real unreleased clips and photos, letterbox, each with a year stamp, RGB-split on entry | credit stamps per item | 1 to 1.5 s cuts |
 | 14 | "The notes in my phone where the verses started" | R notes-app | A real notes-app screenshot, filling the frame, slow push | none (the screenshot is the text) | hard cut |
 | 15 | "Every month" | A | Face, right; left clean, slow push | HOOK: "EVERY **MONTH**" | hold |
 | 16 | "Ten dollars a month gets you in" | G price card + P5 | Dark plate; $10 card with the Blood Brothaz cover, left | card: "$10 · BLOOD BROTHAZ + EVERY DROP" | card stacks |
@@ -67,5 +103,6 @@ Cost plan: 5 test stills first (one per plate). Motion only for the plates Josh 
 
 1. Josh approves or edits this board (frame order, the text lines, the five plates).
 2. The fal budget cap (PROMPT.md).
-3. From Dre: the one "[YEAR]" item, his archive dump, a notes-app screenshot he is fine showing.
+3. From Dre: the one "[YEAR]" item, his archive dump, a notes-app screenshot he is fine showing,
+   and a clean file of his logo (transparent PNG or vector) for frame 5.
 4. Commenter names are blurred in frame 8; the comments are real and linked in real-comments.json.

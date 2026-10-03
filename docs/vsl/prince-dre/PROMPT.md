@@ -31,7 +31,7 @@ number and claim must match it), `CLAUDE.md` copy rules (no em dashes), the stor
 - **Light and color:** night, one hard sodium-orange key, blue or teal rim, crushed blacks (35 to 55% of pixels near black in his videos; aim for 20 to 30% so web compression survives), low saturation around 0.25, red/orange against blue.
 - **Transitions:** hard cuts, a 2-frame white flash on era changes, whip pans, an occasional RGB-split glitch.
 - **Places and props:** O'Block brick courtyards and hallways, a studio with a mic, the O-Block chain, a phone glowing in the dark.
-- **Type:** a red condensed headline face, small serif "film credit" lines, bone-white captions, green only for "Soulja" moments.
+- **Type (from his covers, not the videos; Josh, 2026-10-03):** a white western Tuscan slab serif for headlines (chrome on one title moment), red dry-brush caps for the key word, a small widely tracked white sans for credits and subtitles, green only for "Soulja" moments. Full rules, reference covers and the measured red in the "Type" section of [STORYBOARD.md](STORYBOARD.md).
 
 ## Phase A: now, without filming Dre
 

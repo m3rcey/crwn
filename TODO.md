@@ -124,6 +124,8 @@ responsible for. Do not work those.
       line or plate. Then fill the top of
       [docs/vsl/prince-dre/PROMPT.md](docs/vsl/prince-dre/PROMPT.md): fal budget cap, who edits in
       Premiere, Dre's written OK to an AI-relocated version of himself, and the final narration.
+      Also get from Dre a clean file of his logo (transparent PNG or vector): frame 5 uses the
+      real lockup, and the only copy we have sits on a textured background.
       Nothing is generated until you approve; then 5 test stills, one per plate.
 
 - [ ] **Have a lawyer read the new artist terms and the hold-harmless clauses.** Every artist now
