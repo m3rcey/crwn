@@ -89,11 +89,11 @@ responsible for. Do not work those.
       cleanup now works (2026-10-03: `.claude/worktrees` went from 6.2 GB to 143 MB, WSL's own
       usage from 20 GB to 14 GB), but the WSL disk file
       `C:\Users\Josh\AppData\Local\Packages\CanonicalGroupLimited.Ubuntu_79rhkp1fndgsc\LocalState\ext4.vhdx`
-      is 25.2 GB and is NOT sparse, so space freed inside WSL never returns to Windows until the
+      is 23.5 GB and is NOT sparse, so space freed inside WSL never returns to Windows until the
       file is compacted. That needs every Claude session and VSCode window closed and an
       Administrator PowerShell, which is why it is yours: the same three lines you ran on
       2026-10-02, in docs/PARALLEL_CLAUDE_SESSIONS.md under "Getting the space back on C:" (they
-      use `C:\Users\Josh\compact-wsl-disk.txt`). About 7 GB comes back (the file settles about
+      use `C:\Users\Josh\compact-wsl-disk.txt`). About 5 GB comes back (the file settles about
       3 GB above the 15 GB WSL uses). Below 5 GB free, new task worktrees are now refused, and the
       refusal prints the same steps. Sparse mode stays off: this WSL build refuses it over data
       corruption.
