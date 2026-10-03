@@ -623,14 +623,25 @@ export function TierCards({ tiers, artistSlug, artistId, tracks = [] }: TierCard
                   </p>
                 </div>
               ) : (
-                <button
-                  onClick={() => handleTierAction(tier)}
-                  disabled={isLoading === tier.id || subscribedTierId === tier.id}
-                  className={`mt-4 w-full py-2.5 rounded-full font-semibold transition-colors disabled:opacity-50 flex items-center justify-center gap-2 ${getButtonClass(tier)}`}
-                >
-                  {isLoading === tier.id && <Loader2 className="w-4 h-4 animate-spin" />}
-                  {getButtonText(tier)}
-                </button>
+                <>
+                  <button
+                    onClick={() => handleTierAction(tier)}
+                    disabled={isLoading === tier.id || subscribedTierId === tier.id}
+                    className={`mt-4 w-full py-2.5 rounded-full font-semibold transition-colors disabled:opacity-50 flex items-center justify-center gap-2 ${getButtonClass(tier)}`}
+                  >
+                    {isLoading === tier.id && <Loader2 className="w-4 h-4 animate-spin" />}
+                    {getButtonText(tier)}
+                  </button>
+                  {/* Risk reversal, on the card where the decision is made. It states what CRWN
+                      already enforces on a cancellation (access runs to the end of the period
+                      already paid for), so it promises nothing new. Paid rungs only: a free tier
+                      has nothing to cancel, and a member already in is not deciding. */}
+                  {tier.price > 0 && subscribedTierId !== tier.id && (
+                    <p className="mt-2 text-xs text-crwn-text-secondary text-center">
+                      Cancel any time. You keep the month you paid for.
+                    </p>
+                  )}
+                </>
               )}
             </div>
           );
