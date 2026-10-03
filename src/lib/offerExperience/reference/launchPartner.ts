@@ -163,6 +163,11 @@ export interface LaunchPartnerConfig {
    *  Rungs not named keep RECOMMENDED_LADDER's price. The script reprices only a tier with no
    *  active subscription, and moves the price and its Stripe price ids in one update. */
   prices?: Partial<Record<PaidRung, number>>;
+  /** A founder-approved ANNUAL discount per paid rung, in whole percent (founder, 2026-10-03: the
+   *  annual price must read as a whole dollar a month, "$37", never "$37.50"). Rungs not named keep
+   *  the tier's own discount. The script moves the annual Stripe price to match, only on an unsold
+   *  tier, and its read-back fails if Stripe's annual amount differs from the card. */
+  annualDiscounts?: Partial<Record<PaidRung, number>>;
   nurture?: NurtureConfig;
   credits?: CreditsConfig;
   /** A whole project sold once (founder, 2026-10-03): products.grants_album_id, so a completed
@@ -311,6 +316,11 @@ export function checkLaunchPartner(c: LaunchPartnerConfig): string[] {
   const links = (c.drops ?? []).map((d) => dropLinkSlug(c, d));
   for (const link of links) if (!DROP_SLUG_RE.test(link)) errors.push(`drop: link "${link}" is not a clean lowercase slug`);
   if (new Set(links).size !== links.length) errors.push('drop: two funnels share a link');
+  for (const [rung, pct] of Object.entries(c.annualDiscounts ?? {})) {
+    const monthly = ladderPricesFor(c)[rung as PaidRung];
+    if (!Number.isInteger(pct) || pct < 0 || pct > 50) errors.push(`annual: ${rung} discount must be a whole percent from 0 to 50`);
+    else if (!monthly || (monthly * (100 - pct)) % 10000 !== 0) errors.push(`annual: ${pct}% off ${rung} is not a whole dollar a month`);
+  }
   if (c.tape) {
     if (!(c.content?.projects ?? []).some((p) => p.title === c.tape!.project)) errors.push(`tape: "${c.tape.project}" is not a project this launch uploads`);
     if (!Number.isInteger(c.tape.priceCents) || c.tape.priceCents < 500 || c.tape.priceCents > 10000) errors.push('tape: price must be whole cents between $5 and $100');

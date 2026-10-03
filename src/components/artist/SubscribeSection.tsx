@@ -196,6 +196,12 @@ export function SubscribeButton({ tiers, artistSlug, artistId }: SubscribeButton
   );
 }
 
+/** A card price: whole dollars print without cents ("$37", not "$37.00"); anything else keeps
+ *  them ("$9.99"). Founder, 2026-10-03: the prices should read as round numbers. */
+function cardDollars(cents: number): string {
+  return cents % 100 === 0 ? `$${cents / 100}` : `$${(cents / 100).toFixed(2)}`;
+}
+
 interface TierCardsProps {
   tiers: TierConfig[];
   artistSlug: string;
@@ -599,7 +605,9 @@ export function TierCards({ tiers, artistSlug, artistId, tracks = [], projects =
               {(() => {
                 const showAnnual = effectiveInterval(tier) === 'year';
                 const pct = tierAnnualPct(tier);
-                const perMo = showAnnual ? (tier.price * (1 - pct / 100)) / 100 : tier.price / 100;
+                // In whole CENTS, so 26% off $50 is exactly 3700, never 3700.0000000000005.
+                const perMoCents = showAnnual ? Math.round((tier.price * (100 - pct)) / 100) : tier.price;
+                const yearCents = Math.round((tier.price * 12 * (100 - pct)) / 100);
                 // A free rung says FREE, never "$0.00/mo" (founder, 2026-10-03).
                 if (tier.price === 0) {
                   return <p className="text-3xl font-bold text-crwn-text mt-2">FREE</p>;
@@ -607,12 +615,12 @@ export function TierCards({ tiers, artistSlug, artistId, tracks = [], projects =
                 return (
                   <>
                     <p className="text-3xl font-bold text-crwn-text mt-2">
-                      ${perMo.toFixed(2)}
+                      {cardDollars(perMoCents)}
                       <span className="text-sm font-normal text-crwn-muted-tint">/mo</span>
                     </p>
                     {showAnnual && (
                       <p className="text-xs text-crwn-muted-tint mt-1">
-                        ${((tier.price * 12 * (1 - pct / 100)) / 100).toFixed(2)}/year (save ${((tier.price * 12 * (pct / 100)) / 100).toFixed(2)})
+                        {`${cardDollars(yearCents)}/year (save ${cardDollars(tier.price * 12 - yearCents)})`}
                       </p>
                     )}
                     {billingInterval === 'year' && tier.price > 0 && !tierOffersAnnual(tier) && (

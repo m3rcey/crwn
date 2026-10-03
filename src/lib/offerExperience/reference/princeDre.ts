@@ -319,6 +319,19 @@ export const DRE_TIER_PRICES_CENTS: Record<string, number> = {
   Platinum: 5000,
 };
 
+/** Annual discounts (founder, 2026-10-03): whole dollars a month, never ".50", and a bigger
+ *  discount higher up the ladder. Silver $8/mo ($96/yr), Gold $19/mo ($228/yr), Platinum $37/mo
+ *  ($444/yr). The script moves the Stripe annual prices to match; the FAQ below reads these too. */
+export const DRE_ANNUAL_DISCOUNTS = { Silver: 20, Gold: 24, Platinum: 26 } as const;
+
+/** "Is there a cheaper way to pay?", from the same numbers the card and Stripe use. */
+function annualFaq(rung: 'Silver' | 'Gold' | 'Platinum'): string {
+  const month = DRE_TIER_PRICES_CENTS[rung];
+  const pct = DRE_ANNUAL_DISCOUNTS[rung];
+  const year = (month * 12 * (100 - pct)) / 100;
+  return `Pay for a year at once: $${year / 100} instead of $${(month * 12) / 100}, ${pct} percent off, which works out to $${year / 1200} a month. Switch the billing toggle on his page to Annual before you join.`;
+}
+
 // Each card leads with what the fan gets THE MOMENT they join (founder, 2026-09-28); the
 // "Everything in" line is last, because a stranger reads the top of a card, not the bottom.
 export const DRE_APPROVED_BENEFITS: Record<string, string[]> = {
@@ -451,7 +464,7 @@ export const DRE_PLATINUM_OFFER: TierOfferExperience = {
   faqs: [
     {
       q: 'Is there a cheaper way to pay?',
-      a: 'Pay for a year at once and it is 25 percent off, so you get the same thing for nine months of the price. Switch the billing toggle on his page to Annual before you join.',
+      a: annualFaq('Platinum'),
     },
     {
       q: 'What is the number next to my name?',
@@ -532,7 +545,7 @@ export const DRE_GOLD_OFFER: TierOfferExperience = {
   faqs: [
     {
       q: 'Is there a cheaper way to pay?',
-      a: 'Pay for a year at once and it is 25 percent off, so you get the same thing for nine months of the price. Switch the billing toggle on his page to Annual before you join.',
+      a: annualFaq('Gold'),
     },
     {
       q: 'What is the number next to my name?',
@@ -694,6 +707,10 @@ export const PRINCE_DRE: LaunchPartnerConfig = {
   drip: { rung: 'Gold', projects: DRE_DRIP.map((d) => ({ title: d.title, months: d.months })) },
   // Founder-approved, 2026-10-01: Platinum at $50 instead of the ladder's $100 (see the header).
   prices: { Platinum: DRE_TIER_PRICES_CENTS.Platinum },
+  // Founder, 2026-10-03: annual must read as whole dollars a month, no ".50". Exact percentages,
+  // and the discount grows up the ladder so the top rung is the best deal: Silver $8/mo ($96/yr),
+  // Gold $19/mo ($228/yr), Platinum $37/mo ($444/yr).
+  annualDiscounts: { ...DRE_ANNUAL_DISCOUNTS },
   nurture: DRE_NURTURE,
   // Project credits on the one tape nobody has heard (founder, 2026-10-03): $250 Founding, 25
   // numbered spots with a seat at the private listening session; $150 Supporter, 50 spots, shown

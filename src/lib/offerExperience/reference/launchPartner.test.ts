@@ -55,6 +55,15 @@ describe('the checks actually refuse what they claim to', () => {
     c.tape = undefined;
     expect(checkLaunchPartner(c)).toEqual([]);
   });
+  it('refuses an annual discount that is not a whole dollar a month, or not a whole percent', () => {
+    const c = clone();
+    expect(c.annualDiscounts).toEqual({ Silver: 20, Gold: 24, Platinum: 26 });
+    c.annualDiscounts = { Platinum: 25 }; // $37.50
+    expect(checkLaunchPartner(c).join()).toContain('is not a whole dollar a month');
+    c.annualDiscounts = { Gold: 24.5 };
+    expect(checkLaunchPartner(c).join()).toContain('whole percent');
+  });
+
   it('refuses a tape that costs as much as a credit that includes it, or sits outside $5 to $100', () => {
     const c = clone();
     expect(c.tape).toBeDefined();

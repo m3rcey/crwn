@@ -183,6 +183,39 @@ for (const name of LADDER_RUNGS) {
       console.log(`${name}: ${APPLY ? 'repricing' : 'will reprice'} $${found.price / 100} -> $${price / 100}/mo${found.stripe_price_id ? ' (new Stripe product + prices, old ones archived)' : ' (no Stripe price yet)'}`);
       if (APPLY) await repriceTier(found, name, price);
     }
+    // The annual price follows a founder-approved discount (config `annualDiscounts`). Same safety as
+    // a monthly reprice: an unsold tier only (checked above), the new Stripe price exists before the
+    // tier points at it, one update moves the percent and the id together, then the old one is archived.
+    const wantPct = C.annualDiscounts?.[name];
+    if (wantPct !== undefined) {
+      const { data: t } = await db.from('subscription_tiers')
+        .select('id, price, stripe_price_id, stripe_annual_price_id, offers_annual, annual_discount_percent')
+        .eq('id', found.id).single();
+      const wantAnnual = Math.round((t.price * 12 * (100 - wantPct)) / 100);
+      let charges = null;
+      if (t.stripe_annual_price_id) {
+        if (!stripe) die('STRIPE_SECRET_KEY is not in .env.local; cannot move an annual Stripe price');
+        charges = (await stripe.prices.retrieve(t.stripe_annual_price_id)).unit_amount;
+      }
+      const stale = t.annual_discount_percent !== wantPct || (charges !== null && charges !== wantAnnual);
+      if (t.offers_annual !== false && stale) {
+        console.log(`${name}: ${APPLY ? 'moving' : 'will move'} annual to ${wantPct}% off: $${wantAnnual / 100}/year ($${wantAnnual / 1200}/mo)${charges !== null ? `, Stripe was $${charges / 100}` : ''}`);
+        if (APPLY) {
+          const fields = { annual_discount_percent: wantPct };
+          if (t.stripe_price_id) {
+            const monthlyPrice = await stripe.prices.retrieve(t.stripe_price_id);
+            const product = typeof monthlyPrice.product === 'string' ? monthlyPrice.product : monthlyPrice.product.id;
+            const annual = await stripe.prices.create({ product, unit_amount: wantAnnual, currency: 'usd', recurring: { interval: 'year' } });
+            fields.stripe_annual_price_id = annual.id;
+          }
+          const { error } = await db.from('subscription_tiers').update(fields).eq('id', t.id).eq('artist_id', artist.id);
+          if (error) die(`${name} annual: ${error.message} (the new Stripe price exists but nothing points at it; the tier still charges its old annual price)`);
+          if (fields.stripe_annual_price_id && t.stripe_annual_price_id) {
+            await stripe.prices.update(t.stripe_annual_price_id, { active: false }).catch((e) => console.log(`  (could not archive old annual price: ${e.message})`));
+          }
+        }
+      }
+    }
     console.log(`${name}: exists (${found.id}), will set promise + prose`);
     if (APPLY) {
       const { error } = await db.from('subscription_tiers')
@@ -662,12 +695,19 @@ for (const t of tiers) {
 }
 // What a fan is SHOWN must be what Stripe CHARGES, for every paid tier.
 if (stripe) {
-  const { data: priced } = await db.from('subscription_tiers').select('name, price, stripe_price_id').eq('artist_id', artist.id).eq('is_active', true).gt('price', 0);
+  const { data: priced } = await db.from('subscription_tiers').select('name, price, stripe_price_id, stripe_annual_price_id, offers_annual, annual_discount_percent').eq('artist_id', artist.id).eq('is_active', true).gt('price', 0);
   for (const t of priced || []) {
     if (!t.stripe_price_id) continue;
     const sp = await stripe.prices.retrieve(t.stripe_price_id);
     console.log(`${t.name}: shown $${t.price / 100}, Stripe charges $${sp.unit_amount / 100} (${sp.active ? 'active' : 'ARCHIVED'})`);
     if (sp.unit_amount !== t.price || !sp.active) die(`${t.name}: the Stripe price does not match the tier`);
+    // The annual card computes price x 12 x (100 - discount)%; Stripe must charge exactly that.
+    if (t.offers_annual !== false && t.stripe_annual_price_id) {
+      const shown = Math.round((t.price * 12 * (100 - (t.annual_discount_percent ?? 25))) / 100);
+      const ap = await stripe.prices.retrieve(t.stripe_annual_price_id);
+      console.log(`${t.name}: annual shown $${shown / 100}/year, Stripe charges $${ap.unit_amount / 100}/${ap.recurring?.interval} (${ap.active ? 'active' : 'ARCHIVED'})`);
+      if (ap.unit_amount !== shown || ap.recurring?.interval !== 'year' || !ap.active) die(`${t.name}: the annual Stripe price does not match the card`);
+    }
   }
 }
 for (const name of Object.keys(C.offers)) {

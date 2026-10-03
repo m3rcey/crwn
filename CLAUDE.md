@@ -35,6 +35,13 @@ names and prices, so drift fails `npm test` instead of reaching an artist.
   first, then moves `price` and its Stripe ids in one update, because checkout charges whatever
   `stripe_price_id` the tier points at and never re-reads the amount. Its read-back fails if any
   paid tier's Stripe amount differs from the price fans are shown.
+- **A launch partner may also carry founder-approved ANNUAL discounts** (`annualDiscounts`, whole
+  percent per paid rung). The rule is that annual reads as whole dollars a month, never ".50"
+  (founder, 2026-10-03), and `checkLaunchPartner` refuses a percent that breaks it. Prince Dre:
+  Silver 20% ($8/mo), Gold 24% ($19/mo), Platinum 26% ($37/mo). The launch script moves the annual
+  Stripe price the same safe way it moves a monthly one, and its read-back fails if Stripe's annual
+  amount differs from the card. Copy that quotes the annual deal (his FAQ) is built from the same
+  numbers. Cards print whole dollars without cents.
 - The internal keys stay `wave | inner_circle | vault | throne`. They are referenced across the
   calculators, drafts and offer builder, and renaming them moves data for no artist-visible gain.
 - Each rung carries `legacyNames`. The ladder's "already added" check matches those too, so an
