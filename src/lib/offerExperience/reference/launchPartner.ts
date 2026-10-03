@@ -118,6 +118,10 @@ export interface CreditsConfig {
   project: string;
   founding: { priceCents: number; seats: number };
   supporter?: { priceCents: number; seats: number };
+  /** The private listening session Founding Supporters hold a seat in. The script creates or moves
+   *  ONE scheduled live pointed at the project (live_sessions.credit_album_id). `rungs` are paid
+   *  rungs ALSO seated, so a rung that already promises listening rooms is never shut out of one. */
+  session?: { title: string; scheduledAt: string; rungs?: PaidRung[] };
 }
 
 export interface NurtureConfig {
@@ -313,6 +317,12 @@ export function checkLaunchPartner(c: LaunchPartnerConfig): string[] {
       if (!Number.isInteger(o.seats) || o.seats < 1 || o.seats > 500) errors.push(`credits: ${level} seats must be between 1 and 500`);
     }
     if (cr.supporter && cr.supporter.priceCents >= cr.founding.priceCents) errors.push('credits: the Supporter downsell must cost less than Founding');
+    if (cr.session) {
+      const at = Date.parse(cr.session.scheduledAt);
+      if (!Number.isFinite(at) || !/[+-]\d\d:\d\d$|Z$/.test(cr.session.scheduledAt)) errors.push('credits: the session date must carry its timezone offset');
+      if (!cr.session.title.trim()) errors.push('credits: the session needs a title');
+      for (const r of cr.session.rungs ?? []) if (!['Silver', 'Gold', 'Platinum'].includes(r)) errors.push(`credits: ${r} is not a paid rung`);
+    }
   }
   // A retired vote's copy is never published, so it is not checked as a promise.
   const text = JSON.stringify({ ...c, content: undefined, vote: c.vote && !c.vote.retired ? { ...c.vote, options: c.vote.options.map((o) => o.label) } : undefined });

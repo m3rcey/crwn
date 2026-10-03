@@ -12,6 +12,7 @@
 // --repair calls the same assigner the webhook calls; it is idempotent, so a re-run changes nothing.
 
 import { readFileSync } from 'node:fs';
+import { randomUUID } from 'node:crypto';
 import { createClient } from '@supabase/supabase-js';
 import { LAUNCH_PARTNERS } from '../src/lib/offerExperience/reference/launchPartners.ts';
 import { checkLaunchPartner } from '../src/lib/offerExperience/reference/launchPartner.ts';
@@ -119,6 +120,53 @@ for (const level of CREDIT_LEVELS) {
     if (error) die(`${level}: update failed: ${error.message}`);
   }
   products[level] = have;
+}
+
+// ── The listening session Founding Supporters hold a seat in ───────────────────────────────────
+// ONE scheduled live per project, found by credit_album_id, created or moved to the config's date.
+// Founding Supporters are seated through live_sessions.credit_album_id (src/lib/live/access.ts);
+// `rungs` are paid tiers seated alongside them.
+if (C.credits.session) {
+  const want = C.credits.session;
+  const rungIds = [];
+  for (const r of want.rungs ?? []) {
+    const { data: t } = await db.from('subscription_tiers').select('id').eq('artist_id', artist.id).eq('name', r).eq('is_active', true).maybeSingle();
+    if (!t) die(`session: no active ${r} tier to seat`);
+    rungIds.push(t.id);
+  }
+  const at = new Date(want.scheduledAt).toISOString();
+  const { data: have } = await db
+    .from('live_sessions')
+    .select('id, title, scheduled_at, allowed_tier_ids')
+    .eq('artist_id', artist.id)
+    .eq('credit_album_id', album.id)
+    .eq('status', 'scheduled')
+    .eq('is_active', true)
+    .maybeSingle();
+  const fields = {
+    title: want.title,
+    description: `Founding Supporters of ${album.title}${rungIds.length ? ` and ${(want.rungs ?? []).join(' and ')} members` : ''} hear the tape with ${C.displayName}.`,
+    scheduled_at: at,
+    is_free: false,
+    allowed_tier_ids: rungIds,
+    credit_album_id: album.id,
+  };
+  const same = have && have.title === fields.title && new Date(have.scheduled_at).toISOString() === at
+    && JSON.stringify(have.allowed_tier_ids ?? []) === JSON.stringify(rungIds);
+  console.log(`session: ${same ? 'in place' : have ? (APPLY ? 'moving' : 'will move') : (APPLY ? 'scheduling' : 'will schedule')} "${want.title}" for ${want.scheduledAt}${rungIds.length ? `, seating ${(want.rungs ?? []).join(', ')} too` : ''}`);
+  if (APPLY && !same) {
+    const { error } = have
+      ? await db.from('live_sessions').update({ ...fields, updated_at: new Date().toISOString() }).eq('id', have.id)
+      : await db.from('live_sessions').insert({
+          ...fields,
+          artist_id: artist.id,
+          max_slots: 100,
+          status: 'scheduled',
+          room_name: `ls_${randomUUID()}`,
+          source_type: 'live',
+        });
+    if (error) die(`session: ${error.message}`);
+  }
 }
 
 // ── Repair: a completed purchase of a credits product with no credit row ────────────────────────

@@ -31,6 +31,8 @@ interface Props {
   offers: Partial<Record<CreditLevel, CreditOffer>>;
   credits: PublicCreditList;
   path: string;
+  /** The scheduled listening session, already formatted, or null when none is on the calendar. */
+  sessionLabel: string | null;
 }
 
 interface MyCredit {
@@ -57,11 +59,13 @@ function beacon(productId: string, eventType: 'offer_viewed' | 'offer_declined',
   }
 }
 
-function benefitsFor(level: CreditLevel, artistName: string, albumTitle: string): string[] {
+function benefitsFor(level: CreditLevel, artistName: string, albumTitle: string, sessionLabel: string | null): string[] {
   if (level === 'founding') {
     return [
       `Your name in the ${albumTitle} credits as a Founding Supporter, numbered in the order you joined, listed first.`,
-      `A seat at ${artistName}'s private listening session for ${albumTitle}.`,
+      sessionLabel
+        ? `A seat at ${artistName}'s private listening session for ${albumTitle}, ${sessionLabel}.`
+        : `A seat at ${artistName}'s private listening session for ${albumTitle}.`,
       'Your own credit card to post anywhere, with a link that proves it is real.',
     ];
   }
@@ -71,7 +75,7 @@ function benefitsFor(level: CreditLevel, artistName: string, albumTitle: string)
   ];
 }
 
-export function CreditsOffer({ artist, album, offers, credits, path }: Props) {
+export function CreditsOffer({ artist, album, offers, credits, path, sessionLabel }: Props) {
   const router = useRouter();
   const search = useSearchParams();
   const { user } = useAuth();
@@ -205,7 +209,7 @@ export function CreditsOffer({ artist, album, offers, credits, path }: Props) {
                 : `${artist.name} is crediting the people who backed this project. The number you get is yours for good.`}
             </p>
             <ul className="mt-4 space-y-2">
-              {benefitsFor(shown.level, artist.name, album.title).map((b) => (
+              {benefitsFor(shown.level, artist.name, album.title, sessionLabel).map((b) => (
                 <li key={b} className="flex gap-2 text-sm">
                   <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#D4AF37]" />
                   <span>{b}</span>

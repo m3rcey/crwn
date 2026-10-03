@@ -1,8 +1,19 @@
 # 36 · Project Credits
 
-**Status:** built 2026-10-03; [supabase/schema-phase2-project-credits.sql](../../supabase/schema-phase2-project-credits.sql)
-applied and probe-verified the same day. Nothing is on sale until Claude creates the products
-(`scripts/project-credits.mjs <key> --apply`), which waits on the artist's yes.
+**Status:** LIVE for Prince Dre's Stompin Thru The Trenches since 2026-10-03 (founder's yes; Dre
+still to confirm). Migration [supabase/schema-phase2-project-credits.sql](../../supabase/schema-phase2-project-credits.sql)
+applied and probe-verified. The listening session is scheduled for a PLACEHOLDER date
+(2026-11-14, 8 PM CT) until Dre gives the real one.
+
+**The session is config, and the page reads the live.** `credits.session` in a launch config makes
+the script create or move ONE scheduled live with `credit_album_id`; `rungs` seats paid tiers too.
+Dre's seats Platinum, because Platinum already promises it is in every listening room he opens:
+a credits-only room would have broken that promise. The credits page prints the date from the
+scheduled live itself (`sessionLabel`), never from config, so it can only name a date that is on
+the calendar, and it drops the date if the session is cancelled or passes.
+
+**The tiers point at it.** Platinum (the Stompin rung, so the warmest buyer) carries an FAQ naming
+the $250 credit, separate from the membership, recognition only.
 **Founder decision:** 2026-10-03, in the Prince Dre money-model work (the high-ticket rail his
 model was missing).
 

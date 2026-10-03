@@ -232,6 +232,21 @@ const PROJECTS = Object.keys(SONGS).length;
  *  two dollar sale. */
 const STTT_SONG_PRICE_CENTS = 399;
 
+// Project credits on Stompin (founder, 2026-10-03; docs/crwn-brain/36-PROJECT-CREDITS.md). Founding
+// is the offer, Supporter the downsell shown after "No thanks". The session date is a PLACEHOLDER
+// Josh chose to see the page with (2026-10-03); the real one comes from Dre. Platinum is seated too,
+// because Platinum already promises it is in every listening room Dre opens.
+export const DRE_CREDITS = {
+  project: STTT,
+  founding: { priceCents: 25000, seats: 25 },
+  supporter: { priceCents: 15000, seats: 50 },
+  session: {
+    title: `${STTT}: private listening session`,
+    scheduledAt: '2026-11-14T20:00:00-06:00',
+    rungs: ['Platinum' as const],
+  },
+};
+
 const rungOf = (title: string, project: string) =>
   title === BONUS_SONG || DRE_BRONZE_SINGLES.includes(title) ? ('Bronze' as const) : PROJECT_RUNG[project];
 /** Every project, oldest first: the order the Music tab reads them in. */
@@ -416,6 +431,10 @@ export const DRE_PLATINUM_OFFER: TierOfferExperience = {
     {
       q: 'What is the number next to my name?',
       a: 'It is how early you backed Dre. The first person who ever paid him is 1, the next is 2, and yours is set the day you join. It never changes after that: move up a level, move down a level, stop and come back later, you keep the same number.',
+    },
+    {
+      q: `Can I get my name on ${STTT}?`,
+      a: `Yes. Dre is crediting the first ${DRE_CREDITS.founding.seats} people who back the tape as Founding Supporters: your name in its credits, numbered, plus a seat at his private listening session for it. It is a one-time $${DRE_CREDITS.founding.priceCents / 100}, separate from your membership, and it is recognition, not a share of anything. Open ${STTT} on his page to see it.`,
     },
     {
       q: 'Why not wait on the $25 level?',
@@ -651,11 +670,7 @@ export const PRINCE_DRE: LaunchPartnerConfig = {
   // Project credits on the one tape nobody has heard (founder, 2026-10-03): $250 Founding, 25
   // numbered spots with a seat at the private listening session; $150 Supporter, 50 spots, shown
   // only after a "No thanks". Recognition only. Judged on scripts/project-credits.mjs's scorecard.
-  credits: {
-    project: STTT,
-    founding: { priceCents: 25000, seats: 25 },
-    supporter: { priceCents: 15000, seats: 50 },
-  },
+  credits: DRE_CREDITS,
   // What each rung holds: every song on every project (see CONTENT_TRACKS). `rung` is the LOWEST
   // rung that hears it; every rung above it is listed on the track too (the gate is an exact
   // match, there is no inheritance). The script only ever ADDS rungs to a track already there.

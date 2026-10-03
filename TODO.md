@@ -85,15 +85,17 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
-- [ ] **Get Prince Dre's yes on project credits for Stompin Thru The Trenches, and a date for the
-      listening session.** What fans would buy: $250 Founding Supporter (25 spots: name listed first
-      and numbered in the Stompin credits, a seat at his private listening session for the tape, a
-      card they can post) and $150 Supporter (50 spots, name and card, no session), shown only to
-      someone who says no to the $250. Recognition only, nothing about money or ownership. The seat
-      is the one promise HE keeps: he schedules a live in Studio, Live, and picks "Seat your
-      Founding Supporters: Stompin Thru The Trenches". Two answers to bring back: yes or no on the
-      prices and spot counts, and roughly when he would host the session (it can be after the
-      first buyers arrive, but the page promises it).
+- [ ] **Confirm two things with Prince Dre about the Stompin credits, which are LIVE on your yes.**
+      Live since 2026-10-03 at https://thecrwn.app/princedre/credits/stompin-thru-the-trenches:
+      $250 Founding Supporter (25 spots: name first in the Stompin credits, numbered, a seat at his
+      private listening session) and $150 Supporter (50 spots), shown only after a "No thanks".
+      Platinum's FAQ now points at it too. Bring back:
+        1. Dre is fine selling it at these prices and spot counts.
+        2. The REAL listening-session date. The page and his Live calendar say Saturday,
+           November 14 at 8 PM CT, which is a placeholder you picked to see the page. Tell Claude
+           the real date and Claude moves it (the page follows automatically). He hosts it from
+           Studio, Live; Platinum members are seated alongside Founding Supporters, because
+           Platinum already promises it is in every listening room he opens.
 
 - [ ] **Decide with Dre how Stompin Thru The Trenches gets announced. It is live now, quietly.**
       His unreleased 16-song mixtape went up 2026-10-02 behind Platinum ($50), and it is the ONLY
@@ -1189,12 +1191,6 @@ Things that are never finished. Cadence, then the thing.
 ---
 
 ## On Claude's plate (not yours)
-
-- **Project credits go live for Dre the moment you pass on his yes.** The migration is applied and
-  probe-verified (2026-10-03). Then: `npx tsx scripts/project-credits.mjs princedre --apply`, open
-  https://thecrwn.app/princedre/credits/stompin-thru-the-trenches and check the offer, the
-  "No thanks" downsell and the album-page bar. The verdict shows on /admin, Money Model tab
-  (Project credits panel); no verdict below 50 Founding viewers.
 
 - **When Dre's two new projects are uploaded (Stompin Thru The Trenches + one more), rebuild Gold
   the way the founder's email draft describes it.** Gold day one becomes Stompin + Shotta In Da

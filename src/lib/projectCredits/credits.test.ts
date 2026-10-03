@@ -123,6 +123,14 @@ describe('the card footer names a real page', () => {
   });
 });
 
+describe('the session date reads in Central time', () => {
+  it('formats the placeholder the way the page prints it', async () => {
+    const { sessionLabelFor } = await import('./server');
+    expect(sessionLabelFor('2026-11-14T20:00:00-06:00')).toBe('Saturday, November 14 at 8 PM CT');
+    expect(sessionLabelFor('2026-11-15T01:30:00Z')).toBe('Saturday, November 14 at 7:30 PM CT');
+  });
+});
+
 describe('creditsVerdict (pre-committed rules)', () => {
   const base: CreditsFunnel = {
     primaryViewers: 100,

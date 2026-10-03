@@ -157,6 +157,19 @@ export interface CreditsProject {
   album: { id: string; title: string; artUrl: string | null };
   offers: Partial<Record<CreditLevel, CreditOffer>>;
   credits: PublicCreditList;
+  /** When the next listening session that seats this project's Founding Supporters is, read from
+   *  the live itself (never from config), so the page can only name a date that is scheduled. */
+  sessionLabel: string | null;
+}
+
+/** "Saturday, November 14 at 8 PM CT". Central time: every CRWN schedule copy is the artist's clock. */
+export function sessionLabelFor(iso: string): string {
+  const d = new Date(iso);
+  const day = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Chicago', weekday: 'long', month: 'long', day: 'numeric' }).format(d);
+  const time = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Chicago', hour: 'numeric', minute: '2-digit' })
+    .format(d)
+    .replace(':00', '');
+  return `${day} at ${time} CT`;
 }
 
 /**
@@ -209,11 +222,24 @@ export async function loadCreditsProject(admin: Db, slug: string, projectParam: 
     .maybeSingle();
   const name = isPresentableArtistName(profile?.display_name ?? null) ? (profile!.display_name as string) : artist.slug;
 
+  const { data: session } = await admin
+    .from('live_sessions')
+    .select('scheduled_at')
+    .eq('artist_id', artist.id)
+    .eq('credit_album_id', album.id)
+    .eq('status', 'scheduled')
+    .eq('is_active', true)
+    .gte('scheduled_at', new Date().toISOString())
+    .order('scheduled_at', { ascending: true })
+    .limit(1)
+    .maybeSingle();
+
   return {
     artist: { id: artist.id, slug: artist.slug, name, avatarUrl: profile?.avatar_url ?? null },
     album: { id: album.id, title: album.title, artUrl: album.album_art_url ?? null },
     offers,
     credits: publicCredits(await loadProjectCredits(admin, album.id)),
+    sessionLabel: session?.scheduled_at ? sessionLabelFor(session.scheduled_at) : null,
   };
 }
 
