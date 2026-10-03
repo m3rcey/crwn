@@ -206,7 +206,10 @@ then run: crwn land $arg"
   # that moved since the fetch above fails loudly instead of being overwritten. Never --force.
   g push origin "$tip:refs/heads/$BASE"
   echo "Landed: the REMOTE origin/$BASE is now $(g rev-parse --short "$tip") (production deploys from it)."
-  echo "Your local main checkout ($ROOT) was not touched. Update it when no session there is mid-task: crwn sync"
+  # Bring the founder's own checkout to what just landed, so a path I hand him actually opens and
+  # he never has to run anything to see his own repo. Non-fatal: the land already succeeded.
+  echo "Main checkout:"
+  sync_main_checkout || true
   print_handoff_links "$handoff"
   # Remove that task's worktree now if it is clean and idle. Otherwise this says what keeps it
   # (usually its session is still open), and the next sweep removes it. Run from inside the
@@ -218,27 +221,42 @@ then run: crwn land $arg"
   fi
 }
 
-cmd_sync() { # fast-forward the LOCAL main checkout to origin/$BASE, never touching uncommitted work
-  in_claude_worktree && die "a task session never updates the main checkout."
+# Fast-forward the LOCAL main checkout to origin/$BASE. SAFE BY CONSTRUCTION: every unsafe case
+# refuses and changes nothing, and a success never touches uncommitted work. Echoes what happened
+# and returns non-zero instead of dying, so `land` can call it without ever failing a land.
+#
+# WHY LAND CALLS THIS (founder, 2026-10-02). Landing moves ORIGIN, not this checkout, so the
+# founder was left running `crwn sync` by hand to see his own repo. That is the same overhead the
+# self-landing rule removed, wearing a different hat: a migration I handed him would not open,
+# because the file existed on origin and not on his disk. A task session updating the main checkout
+# used to be forbidden, and the reason was protecting another session's work. That reason is
+# already covered here: a modified or staged file makes git refuse the fast-forward, an ignored
+# file that master starts tracking is caught below, and uncommitted work is left exactly as it was.
+sync_main_checkout() {
   local cur; cur=$(g branch --show-current)
-  [[ "$cur" == "$BASE" ]] || die "the main checkout is on '$cur', not $BASE. Not touching it."
-  g fetch --quiet origin "$BASE" || die "fetch failed"
+  [[ "$cur" == "$BASE" ]] || { echo "  main checkout is on '$cur', not $BASE. Not touching it."; return 1; }
+  g fetch --quiet origin "$BASE" || { echo "  fetch failed; main checkout not updated."; return 1; }
   local ahead behind
   ahead=$(g rev-list --count "origin/$BASE..HEAD"); behind=$(g rev-list --count "HEAD..origin/$BASE")
-  [[ "$ahead" -eq 0 ]] || die "local $BASE has $ahead commit(s) that are not on origin. Push or land them first; nothing was changed."
-  [[ "$behind" -gt 0 ]] || { echo "The main checkout is already at origin/$BASE."; return 0; }
+  [[ "$ahead" -eq 0 ]] || { echo "  main checkout has $ahead commit(s) not on origin. Push or land them first; nothing changed."; return 1; }
+  [[ "$behind" -gt 0 ]] || { echo "  main checkout is already current."; return 0; }
   # git refuses by itself to overwrite a modified tracked file or an untracked one. It does NOT
   # refuse to overwrite an IGNORED file that master starts tracking (.env* is ignored), so check that.
   local hit="" f
-  while IFS= read -r f; do [[ -n "$f" && -e "$ROOT/$f" ]] && hit+="  $f"$'\n'; done < <(g diff --name-only --diff-filter=A HEAD "origin/$BASE")
-  [[ -z "$hit" ]] || die "these files exist locally and would be replaced by files $BASE now tracks. Move them yourself first; nothing was changed:
-$hit"
+  while IFS= read -r f; do [[ -n "$f" && -e "$ROOT/$f" ]] && hit+="    $f"$'\n'; done < <(g diff --name-only --diff-filter=A HEAD "origin/$BASE")
+  [[ -z "$hit" ]] || { echo "  these files exist locally and $BASE now tracks them. Move them yourself; nothing changed:"; printf '%s' "$hit"; return 1; }
   local dirty; dirty=$(g status --porcelain | wc -l)
   if g merge --ff-only --quiet "origin/$BASE"; then
-    echo "The main checkout moved to $(g rev-parse --short HEAD) (+$behind commit(s)). Your $dirty uncommitted file(s) were left exactly as they were."
-  else
-    die "git refused the fast-forward (listed above) because it would overwrite uncommitted work. Nothing was changed. Commit, move or finish those files first, then run crwn sync again."
+    echo "  main checkout moved to $(g rev-parse --short HEAD) (+$behind commit(s)). Your $dirty uncommitted file(s) are untouched."
+    return 0
   fi
+  echo "  git refused the fast-forward because it would overwrite uncommitted work. Nothing changed."
+  echo "  Finish or move those files, then: crwn sync"
+  return 1
+}
+
+cmd_sync() { # fast-forward the LOCAL main checkout to origin/$BASE, never touching uncommitted work
+  sync_main_checkout || die "the main checkout was not updated (reason above)."
 }
 
 # The cleanup engine (scripts/dev/worktree-clean.mjs) run by land and new. Never fails the caller.

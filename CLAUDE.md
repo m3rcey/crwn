@@ -364,7 +364,16 @@ integration checkout, and its uncommitted files may be another session's work.
   `scripts/dev/crwn land <task> --yes` (founder decision, 2026-10-02: a land Josh had to run for
   every task was pure overhead, since fast-forward-only is what makes it safe). Land refuses a
   branch that is dirty, unpushed or behind master, and an app change whose `.next/BUILD_ID` is
-  older than its last commit. Never land another session's branch, and never run `crwn sync`.
+  older than its last commit. Never land another session's branch.
+  **Land then brings the MAIN CHECKOUT to what it just landed** (founder, 2026-10-02). Landing moves
+  origin, not Josh's checkout, so leaving him to run `crwn sync` was the same overhead the
+  self-landing rule removed, and it broke every file link handed to him (a migration he had to run
+  would not open, because it existed on origin and not on his disk). `sync_main_checkout` is safe by
+  construction, and that is what makes this allowed: it fast-forwards only, refuses when the checkout
+  is on another branch or holds unpushed commits, refuses when an ignored file would be replaced by
+  one master now tracks, and git itself refuses rather than overwrite modified or staged work.
+  Uncommitted files are left exactly as they are, and a refusal never fails the land. `crwn sync`
+  remains the manual way to do the same thing.
 - **After it lands, finish the job yourself.** Run the follow-up that needs the code on master (a
   setup script, a production read-back, a live page check) instead of handing it to Josh. What
   stays his: SQL migrations, and decisions.
