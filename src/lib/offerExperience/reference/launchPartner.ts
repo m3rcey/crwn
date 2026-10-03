@@ -20,6 +20,7 @@ import { RECOMMENDED_LADDER } from '../../tierTemplate';
 import { normalizeOptions, normalizeOfferSlug, MIN_OPTIONS, MAX_OPTIONS } from '../../songLab/core';
 import { SHARE_TITLE_MAX } from '../../shareMetadata';
 import { slugify } from '../../slugify';
+import { DROP_LINK_RE, personalDropLink } from '../../fanAutomations/dropLink';
 
 export const LADDER_RUNGS = ['Bronze', 'Silver', 'Gold', 'Platinum'] as const;
 export type Rung = (typeof LADDER_RUNGS)[number];
@@ -180,9 +181,10 @@ export interface LaunchPartnerConfig {
  *  token, always `<artist slug>-<magnet song>` unless the config names one. /drop/<this>. It is
  *  a pointer to the funnel row, never authority (drafts still open only for their owner). */
 export function dropLinkSlug(c: LaunchPartnerConfig, d: DropConfig): string {
-  return d.linkSlug ?? `${c.slug}-${slugify(d.magnetTrackTitle)}`;
+  return d.linkSlug ?? personalDropLink(c.slug, d.magnetTrackTitle) ?? `${c.slug}-${slugify(d.magnetTrackTitle)}`;
 }
-const DROP_SLUG_RE = /^[a-z0-9][a-z0-9-]{1,62}[a-z0-9]$/;
+/** The same rule every self-built drop gets on its first activation (fanAutomations/dropLink.ts). */
+const DROP_SLUG_RE = DROP_LINK_RE;
 
 export const LADDER_PRICES_CENTS: Record<Rung, number> = Object.fromEntries(
   LADDER_RUNGS.map((r) => [r, RECOMMENDED_LADDER.find((l) => l.name === r)!.priceCents]),

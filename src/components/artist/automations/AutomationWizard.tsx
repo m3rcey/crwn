@@ -405,6 +405,8 @@ export function AutomationWizard({ ctx, connections, onClose, onSaved, existing 
           onSaved({ id: id!, publicToken, activated: false });
           return;
         }
+        // The first activation gives the drop its personal link (/drop/<artist>-<gift>).
+        if (typeof actData.publicToken === 'string') publicToken = actData.publicToken;
         activated = true;
       }
       showToast(activated ? 'Your funnel is live.' : mode === 'magnet' ? 'Saved. Your gift is ready for the funnel.' : 'Draft saved.', 'success');

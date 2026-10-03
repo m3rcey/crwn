@@ -54,7 +54,7 @@ only for rows the artist featured AND the fan consented to.
 |---|---|---|
 | `POST /api/social-connect/start`, `GET .../callback/{instagram,facebook}`, `/pages`, `/status`, `/media`, `/disconnect` | artist | `requireArtistOwner`; callbacks additionally verify the signed OAuth `state` AND that the live session user equals the state's user |
 | `GET/POST /api/fan-automations`, `PATCH /api/fan-automations/[id]`, `POST .../magnet-upload` | artist | `requireArtistOwner`; tier/track/file pointers validated against owned rows (`automationInput.ts`) |
-| `GET /drop/[token]` + `POST /api/drop/[token]/claim` | fan (public) | unguessable token; claim follows the Song Lab captured-contact boundary (optional session, `identityDecision`, `joinFreeTier`, no session returned) |
+| `GET /drop/[token]` + `POST /api/drop/[token]/claim` | fan (public) | token: random until first activation, then `<artist>-<gift>` (a pointer, never authority; drafts open only for the owner); claim follows the Song Lab captured-contact boundary (optional session, `identityDecision`, `joinFreeTier`, no session returned) |
 | `GET /api/cron/social-token-refresh` | cron | `Bearer $CRON_SECRET` |
 
 Artist surface: `/studio/automations` (HubPage, AccountHub Grow group, not a Studio tile).

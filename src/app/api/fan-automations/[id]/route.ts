@@ -10,6 +10,7 @@ import { createClient } from '@supabase/supabase-js';
 import { requireArtistOwner } from '@/lib/apiAuth';
 import { activationBlockers, validateAutomationInput } from '@/lib/fanAutomations/automationInput';
 import { getActiveConnection } from '@/lib/fanAutomations/connections';
+import { dropLinkCandidates, isPersonalDropLink } from '@/lib/fanAutomations/dropLink';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -27,7 +28,7 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
 
     const { data: existing } = await supabaseAdmin
       .from('fan_automations')
-      .select('id, status, provider, connection_id, dm_message, magnet_kind, gold_tier_id')
+      .select('id, status, provider, connection_id, dm_message, magnet_kind, magnet_title, gold_tier_id, public_token, activated_at')
       .eq('id', id)
       .eq('artist_id', artistId)
       .maybeSingle();
@@ -115,6 +116,23 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
       });
     }
 
+    // The personal link (/drop/<artist>-<gift>), given on the FIRST activation only: until then
+    // the link 404s for everyone but the owner and no DM has carried it, so nothing a fan holds
+    // can break. Once a funnel has been live its link is permanent (src/lib/fanAutomations/dropLink.ts).
+    if (update.status === 'active' && !existing.activated_at && !isPersonalDropLink(existing.public_token)) {
+      const { data: artistRow } = await supabaseAdmin
+        .from('artist_profiles').select('slug').eq('id', artistId).maybeSingle();
+      const giftTitle = typeof update.magnet_title === 'string' ? update.magnet_title : existing.magnet_title;
+      const candidates = dropLinkCandidates(artistRow?.slug || '', giftTitle);
+      if (candidates.length > 0) {
+        const { data: taken } = await supabaseAdmin
+          .from('fan_automations').select('public_token').in('public_token', candidates);
+        const used = new Set((taken || []).map((r: { public_token: string }) => r.public_token));
+        const free = candidates.find((c) => !used.has(c));
+        if (free) update.public_token = free;
+      }
+    }
+
     let { error } = await supabaseAdmin
       .from('fan_automations')
       .update(update)
@@ -130,11 +148,21 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
         .eq('id', id)
         .eq('artist_id', artistId));
     }
+    // Another drop took the same link between the read and this write (23505 on the UNIQUE
+    // token): turn the funnel on under the link it already had rather than fail the activation.
+    if (error && (error as { code?: string }).code === '23505' && 'public_token' in update) {
+      delete update.public_token;
+      ({ error } = await supabaseAdmin
+        .from('fan_automations')
+        .update(update)
+        .eq('id', id)
+        .eq('artist_id', artistId));
+    }
     if (error) {
       console.error('[fan-automations] update failed:', error.code, error.message);
       return NextResponse.json({ error: 'Could not save. Try again.' }, { status: 500 });
     }
-    return NextResponse.json({ ok: true });
+    return NextResponse.json({ ok: true, publicToken: (update.public_token as string | undefined) ?? existing.public_token });
   } catch (err) {
     console.error('[fan-automations] patch error:', err);
     return NextResponse.json({ error: 'Something went wrong. Try again.' }, { status: 500 });

@@ -126,6 +126,15 @@ deliberately NOT a sixth Studio tile.
    weakness); a track magnet must be one of the artist's FREE tracks.
 8. **The delivery email is transactional** (answers the fan's own form submit), checked
    against `email_suppressions` before sending, delivered on-page regardless.
+9. **A drop's link is personal, and permanent once live** (founder ask, 2026-10-03: artists build
+   the same drop pages Prince Dre has). On its FIRST activation a drop whose token is still random
+   gets `/drop/<artist slug>-<gift title>` (`-2`..`-9` if taken; a taken-in-a-race write falls
+   back to the old token instead of failing). Before that moment the link 404s for everyone but
+   the owner and no DM has carried it, so nothing a fan holds can break; after it, the link may be
+   on a poster or in a DM and never changes. One rule for both paths:
+   [src/lib/fanAutomations/dropLink.ts](../../src/lib/fanAutomations/dropLink.ts), read by the
+   activate route and by the launch script's `dropLinkSlug`. The guard is pinned and
+   mutation-tested in `dropLink.test.ts`. The link is a pointer, never authority.
 
 ## Governance hooks
 

@@ -1,5 +1,12 @@
 # CRWN Brain — Changelog
 
+## 2026-10-03 - Every artist's drop gets a personal link
+
+- **A self-built drop page now gets the link Prince Dre's have** (`/drop/<artist>-<song>`) on its
+  first activation, instead of a random token. The drop page itself was already generic: Studio
+  > Fan Automations > New automation > "A link I share" builds the same page. Links already live
+  never change. Rule: `src/lib/fanAutomations/dropLink.ts` (31-FAN-AUTOMATIONS.md rule 9).
+
 ## 2026-10-03 - The whole tape for $19.99, and credits include it
 
 - **A project can be bought whole**, as a product that grants it (`products.grants_album_id`), and
