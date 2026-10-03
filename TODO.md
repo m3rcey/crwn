@@ -810,11 +810,22 @@ responsible for. Do not work those.
 
 ### P2 — worth doing, nothing breaks if you never do it
 
-- [ ] **Prince Dre can go live now. Tell him.** He was comped CRWN Live on 2026-10-02
-      (`plan_feature_overrides.allowsLive`, the same grant GB has), so his Platinum promise of group
-      listening sessions is deliverable instead of aspirational. He starts one from Studio, Live.
-      The first time, he signs the Live-Streaming Agreement screen. Nothing is scheduled and nothing
-      is promised on a date, so he can open a room whenever he wants.
+- [ ] **Two questions for Dre that are worth more than anything left in code.** His money model
+      scores about 6: subscriptions, plus one-time song sales on the unreleased tape ($3.99 each,
+      live 2026-10-02), plus a year-at-once option at 25 percent off. The two gaps left are both his
+      calls, not builds, and together they take it to roughly an 8:
+        1. **Will he run paid producer sessions, and at what price?** CRWN supports them (remote
+           work at a time he picks, so it is not booking an artist). One at $200 to $500 is worth a
+           year of Platinum, and his ceiling today is $600 a year.
+        2. **Will he run one live listening session with a tip goal?** He was comped CRWN Live on
+           2026-10-02 (`plan_feature_overrides.allowsLive`, the same grant GB has), so his Platinum
+           promise of group listening sessions is deliverable instead of aspirational. He starts one
+           from Studio, Live, and signs the Live-Streaming Agreement the first time. Tips are
+           pure-margin cash with nothing to deliver afterwards.
+      Nothing is scheduled and nothing is promised on a date, so he can open a room whenever he
+      wants. The third gap, an upsell at the moment of purchase, is a CRWN build and deliberately
+      not started: he has no buyers yet, and building an upsell for nobody is optimising a stage
+      downstream of the one that is actually failing.
 
 
 - [ ] **Run the 10-minute phone check of the new player once it is live.** Lock screen, background
