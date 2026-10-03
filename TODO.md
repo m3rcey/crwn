@@ -85,11 +85,6 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
-- [ ] **Run the project credits migration, then tell Claude "credits migration ran".**
-      Open [supabase/schema-phase2-project-credits.sql](supabase/schema-phase2-project-credits.sql)
-      and run it in the Supabase SQL Editor (it ends with a self-check that raises if anything is
-      missing). Nothing is sold until it runs: the page, checkout and live seats all read "none".
-      Claude then probes it and creates Dre's two products once he has said yes (next item).
 - [ ] **Get Prince Dre's yes on project credits for Stompin Thru The Trenches, and a date for the
       listening session.** What fans would buy: $250 Founding Supporter (25 spots: name listed first
       and numbered in the Stompin credits, a seat at his private listening session for the tape, a
@@ -202,18 +197,14 @@ responsible for. Do not work those.
       in the Supabase SQL Editor.** This stops the daily "Onboarding is broken" email. The alert
       is real but narrow: creating an artist page FROM THE BROWSER has failed since 2026-08-12,
       while the setup wizard (which creates the page on the server) never broke. It should end
-      with NOTICE `schema-phase2-artist-gate-caller-only: OK`. Then confirm with:
-          npm run verify:migrations
-      and the next morning's canary email should not arrive (or arrives green).
+      with NOTICE `schema-phase2-artist-gate-caller-only: OK`. Tell Claude it ran: Claude probes
+      production to confirm, and the next morning's canary email should not arrive (or arrives green).
 
 - [ ] **ManyChat per-post automations: run the rollout prompt through Astra tonight, then after
       each posting slot through 9/29 8:30 PM.** The Knxwledge pilot PASSED all nine checks.
       Same text every run (it skips done rows and posts not out yet):
       [docs/acquisition/astra-manychat-per-post-rollout.md](docs/acquisition/astra-manychat-per-post-rollout.md)
       Minimum cadence: about 12:30 PM and 8:30 PM Central. Send Claude every report.
-- [ ] **Content test (9/25 to 9/29): rerun the audit each morning** and send Claude the output:
-      `bash -c 'set -a; source ./.env.local; set +a; node scripts/funnel-audit.mjs --since 2026-09-25'`
-      ([scripts/funnel-audit.mjs](scripts/funnel-audit.mjs)).
 - [ ] **Content test attribution: one bio-link edit.** Does not change what a lead sees. (The
       ManyChat body edits that used to be here are now the Astra item under P0.)
       Instagram bio: find the link that carries `utm_content=link_in_bio` (the API reports only
@@ -234,10 +225,8 @@ responsible for. Do not work those.
       blank paper (V1 had four, one completely empty), subjects come out whole so nothing is
       sliced, and the story gets 20 beats over 97s instead of 8 over 30.
       Still $0.00 of API spend, and every number still traces to the script.
-      **I need taste, not correctness.** Name the scene and what is wrong with it, and the fix
-      costs one scene and about 20 seconds:
-      `npm run video:v2-render -- 1-currensy-vs-westside-gunn-volume-vs-scarcity-v2 --scene <n>`
-      Different track: add `--music "Makavhan Zodiae"`. Manual: [docs/VIDEO_PIPELINE.md](docs/VIDEO_PIPELINE.md).
+      **I need taste, not correctness.** Name the scene and what is wrong with it (or a different
+      track), and I re-render it: one scene, about 20 seconds.
 
 
 - [ ] **Decide which of the three remaining Astra audit findings I fix.** The first two are DONE
@@ -259,14 +248,13 @@ responsible for. Do not work those.
         NEXT_PUBLIC_SUPABASE_URL      (the same value Vercel has)
         SUPABASE_SERVICE_ROLE_KEY     (the same value Vercel has)
       Then Actions > transcode-audio > Run workflow once and confirm it prints "converted 0" (or the
-      count of anything uploaded since). Until then a fresh WAV upload streams raw; I can also run
-      it by hand with one plain line from the repo root: npm run transcode:audio -- --apply
+      count of anything uploaded since). Until then a fresh WAV upload streams raw; tell Claude
+      after any upload and Claude converts it by hand.
 
 - [ ] **Founding A&R Week is built and CANNOT go live yet. Five things are missing and four
       of them are yours.** The campaign draft exists for GB and fails closed, so the
       evergreen Go Bad funnel is running normally right now and will keep doing so until
-      every blocker clears. Run `npx tsx scripts/configure-gb-campaign.mjs` any time to
-      re-print the live blocker list.
+      every blocker clears. Ask Claude any time for the live blocker list.
 
       **1. A prize CRWN can actually deliver: DONE.** Your migration went in on 2026-09-04 and
       the whole rail is verified in production. The four below are all that is left, and they
@@ -321,16 +309,11 @@ responsible for. Do not work those.
       2. On that bucket only, either enable the public development URL (gives you a
          `https://pub-<hash>.r2.dev` hostname) or attach a custom domain such as
          `media.thecrwn.app`, which is nicer in an email.
-      3. Add to `.env.local` (and to Vercel when the videos go live):
-             R2_PUBLIC_BUCKET=crwn-public
-             R2_PUBLIC_BASE_URL=https://<the hostname from step 2>
-      4. Upload all five:
-             node scripts/vsl/upload-videos.mjs --go
-         It prints the exact `url:` lines to paste into
-         [`src/lib/vsl/catalog.ts`](src/lib/vsl/catalog.ts). Paste them and push.
-      Verify after: open https://thecrwn.app/watch/vsl-1-fan-worth and confirm it plays and the
-      rail lists all four. Until the urls are set, every video stays dark and the emails read
-      exactly as they do now.
+      3. Send Claude the bucket name and that hostname. Claude sets them in `.env.local`, uploads
+         all five videos, wires the urls into [src/lib/vsl/catalog.ts](src/lib/vsl/catalog.ts),
+         ships it, and confirms https://thecrwn.app/watch/vsl-1-fan-worth plays. Setting the two
+         values in Vercel is the one part that may come back to you, only if the CLI cannot.
+      Until the urls are set, every video stays dark and the emails read exactly as they do now.
 
 - [ ] **Decide where the Calculator VSL sits on the calculator pages.**
       You said it plays after the result and the CTAs. That order is machine-pinned and
@@ -490,10 +473,8 @@ responsible for. Do not work those.
       tokens last about 60 days, and yours was issued 2026-08-26. When it dies, publishing stops
       and the only symptom is an auth error, so this is a diary item rather than something you
       will notice going wrong. Regenerate in the Meta app dashboard, exchange for a long-lived
-      token, and replace the `IG_ACCESS_TOKEN=` line in `.env.local`. Nothing else changes.
-      Check any time with a dry run, which posts nothing:
-        node scripts/test-instagram-carousel-publish.mjs "/mnt/c/Users/Josh/Dropbox/nano banana output/Carousel Posts/Fan Economy/31-mach-hommy-he-set-the-price"
-      It prints the account and the publishing quota if the token is alive.
+      token, and replace the `IG_ACCESS_TOKEN=` line in `.env.local`. Nothing else changes. Then
+      tell Claude: Claude runs the dry run (it posts nothing) that proves the token is alive.
 
 - [ ] **ASK GB (and Julius) whether they want the "Day One A&R" badge at all, and under that
       name.** Nothing is broken; this is a naming and product call only CRWN's artists can make.
@@ -911,7 +892,7 @@ responsible for. Do not work those.
       Between-Tour, Proof of Demand, Executive Producer Session, Royalty Readiness, and the
       /worth page. Put each recording in `Dropbox/CRWN/` and add an entry to
       [scripts/reel/assets.json](scripts/reel/assets.json) (copy an existing `tool-*` entry,
-      set `leadMagnet` to the tool's slug). `npm run reel -- assets` lists what is missing.
+      set `leadMagnet` to the tool's slug), or just drop the files in Dropbox and tell Claude.
 - [ ] **Optional: create the export folder.** Passed reels are also copied to
       `Dropbox/CRWN/content/Reels TikToks Shorts/Fan Economy Reels/` when that folder exists.
 
@@ -1040,8 +1021,8 @@ responsible for. Do not work those.
 - [ ] **Let artists edit their own offer copy (the first slice of the Offer Builder).**
       Today `tier_offer_experiences` is service-role only with no route and no UI, so
       changing GB's promise, description, CTA, preview copy, FAQs or ordering is a
-      concierge edit: I change `src/lib/offerExperience/reference/gb.ts` and run
-      `npx tsx scripts/configure-gb-offer.mjs`. That is the right mode while GB is the
+      concierge edit: I change [src/lib/offerExperience/reference/gb.ts](src/lib/offerExperience/reference/gb.ts)
+      and re-apply it. That is the right mode while GB is the
       only artist on it.
       When it stops being right, the smallest honest version is an owner-authorized
       PATCH route plus one Studio screen for the TEXT fields (promise, description, CTA,
@@ -1075,10 +1056,9 @@ responsible for. Do not work those.
       Three branches are proven against production (anonymous 401, another artist's tier 404,
       own tier reaches Stripe), but no artist has saved a tier since it deployed, so a real
       `synced: true` has never been observed. To close it: open Fan tiers and pricing on a live
-      artist, change a tier description, save, then run
-          npx tsx scripts/probe-gb-stripe-products.mjs
-      and check the Stripe description matches the CRWN one. GB's four are already correct by
-      hand, so use GB and change one word back and forth.
+      artist, change a tier description, save, and tell Claude: Claude checks the Stripe
+      description now matches the CRWN one. GB's four are already correct by hand, so use GB and
+      change one word back and forth.
 
 - [ ] **GB's Bronze says "Day One recognition", and nobody on it can be Day One until you turn
       on the Founder Window.** Since 2026-09-03 every member sees their own rung and "Member since
@@ -1136,11 +1116,9 @@ Things that are never finished. Cadence, then the thing.
 
 ### Daily-ish, now that the Instagram engine is LIVE
 
-- **Queue the day's carousels.** From this machine, because the slides live in Dropbox. Times are
-  your own clock. Dry run first, it writes nothing:
-    node scripts/queue-carousels.mjs --range 31-40 --date 2026-08-27 --start 09:00 --end 12:00
-  Add `--queue` when the schedule reads right, then close the laptop; the cron publishes without
-  you. It refuses a carousel that is already published, a caption over 2,200 characters, and a
+- **Queue the day's carousels.** Tell Claude which carousels, the date and the window (your own
+  clock). Claude dry-runs it from this machine (the slides live in Dropbox), shows you the
+  schedule, and queues it once it reads right; the cron publishes without you. It refuses a carousel that is already published, a caption over 2,200 characters, and a
   `caption.md` that has drifted from its source in the repo.
   **Expect a post to land inside its slot, not on the minute.** Vercel cron timing on this plan is
   best-effort: the first scheduled post went out 26 minutes after its slot. Anything more than 90
@@ -1212,12 +1190,11 @@ Things that are never finished. Cadence, then the thing.
 
 ## On Claude's plate (not yours)
 
-- **Project credits go live for Dre once the migration ran AND Dre said yes.** Run
-  `npm run verify:migrations` (four "project credits" lines must read applied), then
-  `npx tsx scripts/project-credits.mjs princedre --apply`, open
+- **Project credits go live for Dre the moment you pass on his yes.** The migration is applied and
+  probe-verified (2026-10-03). Then: `npx tsx scripts/project-credits.mjs princedre --apply`, open
   https://thecrwn.app/princedre/credits/stompin-thru-the-trenches and check the offer, the
-  "No thanks" downsell and the album-page bar. Then read the scorecard (dry run of the same script)
-  whenever traffic is sent; no verdict below 50 Founding viewers.
+  "No thanks" downsell and the album-page bar. The verdict shows on /admin, Money Model tab
+  (Project credits panel); no verdict below 50 Founding viewers.
 
 - **When Dre's two new projects are uploaded (Stompin Thru The Trenches + one more), rebuild Gold
   the way the founder's email draft describes it.** Gold day one becomes Stompin + Shotta In Da

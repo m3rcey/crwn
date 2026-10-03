@@ -126,7 +126,8 @@ A one-time product that prints a fan's name in a project's credits. Full doc:
   product-checkout (CREDITS-002). Credits products are filtered out of the ordinary Shop: they are
   sold only on `/<artist>/credits/<project>`.
 - **The verdict thresholds in `verdict.ts` were fixed before any traffic.** Do not move one after
-  seeing the data. Read it with `npx tsx scripts/project-credits.mjs <key>`.
+  seeing the data. Josh reads it on /admin (Money Model tab, Project credits panel);
+  `loadCreditsScorecards` is the ONE computation behind that panel and the script.
 
 ## Membership strategy + content classes (release strategy spec, 2026-08-01)
 
@@ -442,6 +443,14 @@ means: a SQL migration to apply, an env var to set in Vercel, a secret to rotate
 or legal decision, a dark-launched flag to flip, anything needing an account you cannot log
 into. If you ship a migration and do not list it, the migration does not get run and the
 feature is silently dead.
+
+**Josh never runs a command** (founder, 2026-10-03: "i shouldnt have to run npx commands
+anymore"). What is his: SQL migrations (a file he opens and runs), decisions, and actions only his
+accounts can do (a dashboard, a token, a secret). Everything runnable (`npx`, `npm run`, `node
+scripts/...`, a probe, a re-render, a queue) is Claude's: run it, or put it under "On Claude's
+plate" and end his item with "tell Claude". A number he needs to watch gets a screen (an /admin
+panel), never a script to run. Same rule in the CHAT reply. `src/lib/todoContract.test.ts`
+fails on a command above "On Claude's plate" (mutation-tested).
 
 Rules:
 - **P0 means "blocks artist acquisition or breaks money flows."** Not "feels urgent." Use the

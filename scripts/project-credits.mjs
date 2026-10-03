@@ -16,7 +16,7 @@ import { createClient } from '@supabase/supabase-js';
 import { LAUNCH_PARTNERS } from '../src/lib/offerExperience/reference/launchPartners.ts';
 import { checkLaunchPartner } from '../src/lib/offerExperience/reference/launchPartner.ts';
 import { CREDIT_LEVELS, creditProductCopy, creditsPath } from '../src/lib/projectCredits/credits.ts';
-import { creditsVerdict, funnelLines } from '../src/lib/projectCredits/verdict.ts';
+import { loadCreditsScorecards } from '../src/lib/projectCredits/server.ts';
 
 const key = process.argv[2];
 const APPLY = process.argv.includes('--apply');
@@ -139,37 +139,13 @@ if (ids.length) {
   }
 }
 
-// ── Scorecard: the pre-committed verdict (src/lib/projectCredits/verdict.ts) ────────────────────
-async function distinct(productId, eventType, placement) {
-  if (!productId) return 0;
-  let q = db.from('product_offer_events').select('visitor_hash').eq('product_id', productId).eq('event_type', eventType);
-  if (placement) q = q.eq('placement', placement);
-  const { data } = await q;
-  return new Set((data || []).map((r) => r.visitor_hash)).size;
+// ── Scorecard: the pre-committed verdict, from the SAME function the admin Money Model tab reads ──
+const { scorecards } = await loadCreditsScorecards(db);
+const card = scorecards.find((c) => c.albumTitle === album.title && c.artistSlug === artist.slug);
+if (!card) {
+  console.log('\nScorecard: no credits products on this project yet.');
+} else {
+  console.log('\nScorecard (distinct visitors; founder devices never counted)');
+  for (const line of card.lines) console.log(`  ${line}`);
+  console.log(`\nVerdict: ${card.verdict.headline}\n  ${card.verdict.next}`);
 }
-async function standing(level) {
-  const { data } = await db
-    .from('project_credits')
-    .select('id, purchase:purchases(status)')
-    .eq('album_id', album.id)
-    .eq('level', level);
-  return (data || []).filter((r) => r.purchase?.status === 'completed').length;
-}
-
-const f = products.founding;
-const s = products.supporter;
-const funnel = {
-  primaryViewers: await distinct(f?.id, 'offer_viewed', 'primary'),
-  primaryCheckouts: await distinct(f?.id, 'offer_checkout_started'),
-  declines: await distinct(f?.id, 'offer_declined', 'primary'),
-  downsellViewers: await distinct(s?.id, 'offer_viewed', 'downsell'),
-  downsellCheckouts: await distinct(s?.id, 'offer_checkout_started'),
-  foundingSold: await standing('founding'),
-  foundingCap: f?.max_quantity ?? null,
-  supporterSold: await standing('supporter'),
-  supporterCap: s?.max_quantity ?? null,
-};
-const verdict = creditsVerdict(funnel);
-console.log('\nScorecard (distinct visitors; founder devices never counted)');
-for (const line of funnelLines(funnel)) console.log(`  ${line}`);
-console.log(`\nVerdict: ${verdict.headline}\n  ${verdict.next}`);

@@ -14,6 +14,8 @@ import {
   type PublicCreditList,
 } from './credits';
 import { isPresentableArtistName } from '@/lib/publicName';
+import { creditsVerdict, funnelLines, type CreditsFunnel, type CreditsVerdict } from './verdict';
+import { creditsPath } from './credits';
 
 type Db = any;
 
@@ -234,4 +236,73 @@ export async function loadListedCredit(
   if (!row) return null;
   const list = publicCredits([row]);
   return list[level][0] ?? null;
+}
+
+export interface CreditsScorecard {
+  artistSlug: string;
+  albumTitle: string;
+  path: string;
+  funnel: CreditsFunnel;
+  verdict: CreditsVerdict;
+  lines: string[];
+}
+
+/**
+ * The pre-committed verdict for every project that sells credits, read on the service role. ONE
+ * computation shared by the admin Money Model tab and scripts/project-credits.mjs, so the screen
+ * and the script can never disagree. `applied: false` means the migration has not run.
+ */
+export async function loadCreditsScorecards(admin: Db): Promise<{ applied: boolean; scorecards: CreditsScorecard[] }> {
+  const { data: products, error } = await admin
+    .from('products')
+    .select('id, artist_id, credit_album_id, credit_level, max_quantity')
+    .not('credit_level', 'is', null);
+  if (error) return { applied: false, scorecards: [] };
+
+  const byAlbum = new Map<string, any[]>();
+  for (const p of (products as any[]) || []) {
+    if (!p.credit_album_id || !isCreditLevel(p.credit_level)) continue;
+    byAlbum.set(p.credit_album_id, [...(byAlbum.get(p.credit_album_id) || []), p]);
+  }
+
+  async function distinct(productId: string | undefined, eventType: OfferEventType, placement?: OfferPlacement) {
+    if (!productId) return 0;
+    let q = admin.from('product_offer_events').select('visitor_hash').eq('product_id', productId).eq('event_type', eventType);
+    if (placement) q = q.eq('placement', placement);
+    const { data } = await q;
+    return new Set(((data as any[]) || []).map((r) => r.visitor_hash)).size;
+  }
+
+  const scorecards: CreditsScorecard[] = [];
+  for (const [albumId, group] of byAlbum) {
+    const f = group.find((p) => p.credit_level === 'founding');
+    const s = group.find((p) => p.credit_level === 'supporter');
+    const [{ data: album }, { data: artist }] = await Promise.all([
+      admin.from('albums').select('title').eq('id', albumId).maybeSingle(),
+      admin.from('artist_profiles').select('slug').eq('id', group[0].artist_id).maybeSingle(),
+    ]);
+    if (!album || !artist) continue;
+    const credits = await loadProjectCredits(admin, albumId);
+    const standing = (level: CreditLevel) => credits.filter((c) => c.level === level && c.purchase_status === 'completed').length;
+    const funnel: CreditsFunnel = {
+      primaryViewers: await distinct(f?.id, 'offer_viewed', 'primary'),
+      primaryCheckouts: await distinct(f?.id, 'offer_checkout_started'),
+      declines: await distinct(f?.id, 'offer_declined', 'primary'),
+      downsellViewers: await distinct(s?.id, 'offer_viewed', 'downsell'),
+      downsellCheckouts: await distinct(s?.id, 'offer_checkout_started'),
+      foundingSold: standing('founding'),
+      foundingCap: f?.max_quantity ?? null,
+      supporterSold: standing('supporter'),
+      supporterCap: s?.max_quantity ?? null,
+    };
+    scorecards.push({
+      artistSlug: artist.slug,
+      albumTitle: album.title,
+      path: creditsPath(artist.slug, album.title),
+      funnel,
+      verdict: creditsVerdict(funnel),
+      lines: funnelLines(funnel),
+    });
+  }
+  return { applied: true, scorecards };
 }

@@ -1,7 +1,8 @@
 # 36 · Project Credits
 
-**Status:** built 2026-10-03, dark until [supabase/schema-phase2-project-credits.sql](../../supabase/schema-phase2-project-credits.sql)
-is applied and `npx tsx scripts/project-credits.mjs <key> --apply` creates the products.
+**Status:** built 2026-10-03; [supabase/schema-phase2-project-credits.sql](../../supabase/schema-phase2-project-credits.sql)
+applied and probe-verified the same day. Nothing is on sale until Claude creates the products
+(`scripts/project-credits.mjs <key> --apply`), which waits on the artist's yes.
 **Founder decision:** 2026-10-03, in the Prince Dre money-model work (the high-ticket rail his
 model was missing).
 
@@ -81,8 +82,10 @@ Founder devices are never counted. Sales come from standing credits, never from 
 | working | sales at 2% or more of Founding viewers |
 | weak | selling, under 2% |
 
-Read it with `npx tsx scripts/project-credits.mjs <key>` (dry run prints the funnel and the
-verdict). Do not move a threshold after seeing the data.
+The founder reads it on **/admin, Money Model tab** (the Project credits panel,
+`/api/admin/project-credits`, admin from the session). `loadCreditsScorecards` in `server.ts` is
+the one computation; the script's dry run prints the same thing for Claude. Do not move a threshold
+after seeing the data.
 
 ## Files
 

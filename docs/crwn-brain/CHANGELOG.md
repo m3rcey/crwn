@@ -1,5 +1,13 @@
 # CRWN Brain — Changelog
 
+## 2026-10-03 - Josh never runs a command
+
+- **TODO.md hands Josh no commands.** His items are migrations, decisions and account-only actions;
+  everything runnable moved to Claude ("tell Claude"). Ten items rewritten, one stale one deleted.
+  `todoContract.test.ts` fails on a command above "On Claude's plate".
+- **The project-credits verdict is on /admin** (Money Model tab), from the same
+  `loadCreditsScorecards` the script prints. The credits migration is applied and probe-verified.
+
 ## 2026-10-03 - Project credits: a fan's name in a project's credits, numbered
 
 **Full doc: 36-PROJECT-CREDITS.md.**

@@ -26,6 +26,7 @@ import ApprovalsManager from '@/components/admin/ApprovalsManager';
 import AcquisitionView from '@/components/admin/AcquisitionView';
 import SupportChatView from '@/components/admin/SupportChatView';
 import MoneyModelView from '@/components/admin/MoneyModelView';
+import ProjectCreditsScorecard from '@/components/admin/ProjectCreditsScorecard';
 import DistributionFinder from '@/components/admin/DistributionFinder';
 import ArtistsView from '@/components/admin/ArtistsView';
 // ManagerOpsView (ARTIST-facing Manager telemetry) was removed from admin navigation by the
@@ -209,6 +210,7 @@ export default function AdminPage() {
 
       {activeTab === 'moneymodel' && (
         <div className="max-w-7xl mx-auto px-4 pb-12">
+          <ProjectCreditsScorecard />
           <MoneyModelView />
         </div>
       )}
