@@ -70,7 +70,17 @@ export default async function CreditCardPage({ params }: Props) {
         <p className="mt-6 text-lg">
           {`${credit.name} is ${creditLabel(credit.level, credit.number)} on ${project.album.title} by ${project.artist.name}.`}
         </p>
-        <p className="mt-2 text-xs text-white/40">Recorded by CRWN. Recognition only.</p>
+        <div className="mx-auto mt-4 max-w-[360px] rounded-xl border border-[#D4AF37]/40 bg-[#1A1A1A] p-4 text-left">
+          <p className="text-sm font-semibold text-[#D4AF37]">Verified by CRWN</p>
+          <p className="mt-1 text-sm text-white/80">{`Credit ID ${credit.code}`}</p>
+          <p className="text-sm text-white/80">
+            {`Credited ${new Date(credit.creditedAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}`}
+          </p>
+          <p className="mt-2 text-xs text-white/50">
+            This page is the proof. A real credit opens here on thecrwn.app with the same name, number
+            and ID as the image. Recognition only.
+          </p>
+        </div>
         <Link
           href={creditsPath(project.artist.slug, project.album.title)}
           prefetch

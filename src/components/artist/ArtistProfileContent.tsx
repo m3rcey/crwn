@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ArrowRight, Lightbulb } from 'lucide-react';
 import { ArtistMusicSection } from '@/components/artist/ArtistMusicSection';
@@ -113,6 +113,24 @@ export function ArtistProfileContent({
     linked ?? (returningFromCheckout ? 'tiers' : 'music'),
   );
 
+  // A tab's content starts under the banner, the photo and the Earn box, about 600px down on a
+  // phone, so a tab's own button landed below the fold (measured, 2026-10-03). Opening a tab from a
+  // link, or tapping one, brings the tab bar to the top so the tab's first screen is its content.
+  // A call to action is always above the fold (CLAUDE.md).
+  const tabBarRef = useRef<HTMLDivElement>(null);
+  const bringTabsUp = (smooth: boolean) => {
+    const el = tabBarRef.current;
+    if (!el || el.getBoundingClientRect().top < 120) return;
+    el.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto', block: 'start' });
+  };
+  useEffect(() => {
+    if (!linked || linked === 'music') return;
+    const t = setTimeout(() => bringTabsUp(false), 50);
+    return () => clearTimeout(t);
+    // Once, for the tab the link named.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Trigger artist page tour on first visit (only when viewing own page)
   const isOwnPage = isArtistProfile;
   const { shouldShowTour: shouldShowArtistPageTour, startStep: artistPageStartStep, markComplete: markArtistPageTourComplete, saveStep: saveArtistPageStep } = useTourCheck('artist_page', user?.id);
@@ -161,13 +179,13 @@ export function ArtistProfileContent({
       )}
 
       {/* Tabs */}
-      <div className="px-4 sm:px-6 lg:px-8 mt-6 mb-3 page-fade-in" data-tour="artist-page-tabs">
+      <div ref={tabBarRef} className="px-4 sm:px-6 lg:px-8 mt-6 mb-3 page-fade-in scroll-mt-2" data-tour="artist-page-tabs">
         <div className="flex gap-6 overflow-x-auto scrollbar-hide border-b border-crwn-elevated/50 pb-2">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               data-tour={tab.tourId}
-              onClick={() => { hapticLight(); setActiveTab(tab.id); }}
+              onClick={() => { hapticLight(); setActiveTab(tab.id); if (tab.id !== 'music') bringTabsUp(true); }}
               className={`text-sm font-medium whitespace-nowrap pb-2 transition-colors border-b-2 ${
                 activeTab === tab.id
                   ? 'text-crwn-gold border-crwn-gold'

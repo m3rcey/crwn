@@ -78,6 +78,14 @@ export function cardPath(artistSlug: string, albumTitle: string, level: CreditLe
   return `${creditsPath(artistSlug, albumTitle)}/${level}/${n}`;
 }
 
+/** The short ID printed on a credit's image and shown on its CRWN page ("CR-1A2B-3C4D"). It is
+ *  the start of the credit row's own id, so it cannot be chosen, and anyone holding the image can
+ *  check it against thecrwn.app. The image is never the proof; the page is. */
+export function creditCode(id: string): string {
+  const hex = id.replace(/[^0-9a-f]/gi, '').slice(0, 8).toUpperCase();
+  return `CR-${hex.slice(0, 4)}-${hex.slice(4, 8)}`;
+}
+
 /** A credit row as the server reads it: the credit joined to its purchase's status. */
 export interface CreditRow {
   level: CreditLevel;

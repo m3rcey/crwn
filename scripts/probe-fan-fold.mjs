@@ -1,5 +1,11 @@
 // Is the fan funnel's primary button above the fold? Measured, not eyeballed.
 //
+// A call to action is ALWAYS above the fold (founder, 2026-10-03, after it was forgotten more
+// than once). Any page change that moves a primary button runs this before it lands, and a page a
+// fan buys on gets a job here. Primary buttons use bg-crwn-gold or neu-button-accent (the tier
+// cards' gold), which is what this finds. A page that scrolls itself on load (the artist page's
+// ?tab= links) is measured with "inPlace": true, where the button sits in the viewport.
+//
 // For each job (a vote page, a drop page, and the screens a fan reaches AFTER opting in), load the
 // page at four viewports and print where the first full-width gold button's bottom edge sits
 // against the fold. The sticky bar on an offer page does not count: it only scrolls back to the
@@ -277,6 +283,23 @@ const DEFAULT_JOBS = [
     "wait": 1200
    }
   ]
+ },
+ {
+  "name": "CREDITS offer (Dre, Stompin)",
+  "path": "/princedre/credits/stompin-thru-the-trenches?name=Probe",
+  "match": "Founding Supporter"
+ },
+ {
+  "name": "ARTIST page Tiers tab (Dre): the top rung's button",
+  "inPlace": true,
+  "path": "/princedre?tab=tiers",
+  "match": "Subscribe|Join"
+ },
+ {
+  "name": "ARTIST page Shop tab (Dre): the credits link",
+  "inPlace": true,
+  "path": "/princedre?tab=shop",
+  "match": "Founding Supporter"
  }
 ];
 const jobsArg = process.argv.find((a) => a.startsWith('--jobs='));
@@ -334,7 +357,7 @@ if (!ck.result?.success) { console.error('DNT cookie failed, refusing to run'); 
 const findFor = (match) => `(() => {
   const els = [...document.querySelectorAll('button, a')].filter((el) => {
     const c = el.className?.toString?.() || '';
-    if (!/\\bbg-crwn-gold\\b/.test(c)) return false;
+    if (!/\\bbg-crwn-gold\\b|\\bneu-button-accent\\b/.test(c)) return false;
     if (${JSON.stringify(match || '')} && !new RegExp(${JSON.stringify(match || '')}, 'i').test(el.innerText)) return false;
     const r = el.getBoundingClientRect();
     if (r.width < 150 || r.height < 30) return false;

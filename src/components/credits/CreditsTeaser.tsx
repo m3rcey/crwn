@@ -1,7 +1,8 @@
 // The way into a project's credits from anywhere else on CRWN: the artist page's Tiers and Shop
 // tabs, and the drop page after the free song. A preview of the fan's own credit (their typed first
 // name when we have it) and one link to the credits page, which is where the buying, the downsell
-// and the offer tracking live. It sells nothing itself.
+// and the offer tracking live. It sells nothing itself. On a phone the words and the button come
+// first and the preview after: a call to action is always above the fold (founder, 2026-10-03).
 
 import Link from 'next/link';
 import { CreditCardPreview } from './CreditCardPreview';
@@ -24,7 +25,7 @@ export function CreditsTeaser({ teaser, name }: { teaser: CreditsTeaserData; nam
           level="founding"
           number={teaser.nextNumber}
           name={name}
-          className="sm:mx-0 sm:w-[200px] sm:shrink-0"
+          className="order-last sm:order-first sm:mx-0 sm:w-[200px] sm:shrink-0"
         />
         <div className="min-w-0 text-left">
           <p className="text-xs uppercase tracking-widest text-[#D4AF37]">Project credits</p>
@@ -38,7 +39,7 @@ export function CreditsTeaser({ teaser, name }: { teaser: CreditsTeaserData; nam
           <Link
             href={href}
             prefetch
-            className="mt-4 inline-block rounded-full bg-[#D4AF37] px-6 py-2.5 text-sm font-semibold text-black"
+            className="mt-4 inline-block rounded-full bg-crwn-gold px-6 py-2.5 text-sm font-semibold text-crwn-bg"
           >
             See the Founding Supporter offer
           </Link>

@@ -1,5 +1,16 @@
 # CRWN Brain — Changelog
 
+## 2026-10-03 - CTAs above the fold, measured; Platinum leads; your own recognition; the members' vote
+
+- **A call to action is always above the fold**, now a written rule with a measurement:
+  probe-fan-fold.mjs gained jobs for the credits page and the artist page's Tiers and Shop tabs.
+  Tier cards put the button under the price; the credits page puts it under the headline.
+- **The Tiers tab leads with Platinum** and the fan swipes down the ladder.
+- **Offers show the fan's own recognition**: their name and next supporter number in the comment
+  preview, and their row in the credits list.
+- **Dre's offers name the members' vote** on unreleased songs (creative_voting, Silver and up).
+- **The credit image carries a QR and a credit ID** that resolve to a "Verified by CRWN" page.
+
 ## 2026-10-03 - Tier cards show projects; credits reachable from every page; a drip inversion fixed
 
 - **Tier cards list whole projects** ("Projects you unlock": cover, song count, "after month N"),

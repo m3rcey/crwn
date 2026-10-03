@@ -5,7 +5,8 @@
 import { createClient } from '@supabase/supabase-js';
 import { isCreditLevel } from '@/lib/projectCredits/credits';
 import { loadCreditsProject, loadListedCredit } from '@/lib/projectCredits/server';
-import { cardFooterLink, creditCardImage } from '@/lib/projectCredits/cardImage';
+import { cardFooterLink, creditCardImage, creditQr } from '@/lib/projectCredits/cardImage';
+import { cardPath } from '@/lib/projectCredits/credits';
 
 export const dynamic = 'force-dynamic';
 
@@ -42,6 +43,7 @@ export async function GET(
   if (!credit) return new Response('Not found', { status: 404 });
 
   const story = new URL(req.url).searchParams.get('format') === 'story';
+  const verifyUrl = `https://thecrwn.app${cardPath(project.artist.slug, project.album.title, credit.level, credit.number)}`;
   return creditCardImage(
     {
       artistName: project.artist.name,
@@ -52,6 +54,8 @@ export async function GET(
       link: cardFooterLink(project.artist.slug, project.album.title, story),
       art: await artDataUrl(project.album.artUrl),
       story,
+      code: credit.code,
+      qr: story ? await creditQr(verifyUrl) : null,
     },
     { 'Cache-Control': 'public, max-age=300, s-maxage=300' },
   );

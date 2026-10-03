@@ -94,6 +94,21 @@ would need its own legal structure and is out of scope.
    'refunded'`; every reader requires `completed`, so the name leaves the list, the card 404s and
    the seat goes. The number is never reused.
 
+## Proof that survives a screenshot (2026-10-03)
+
+Any picture can be edited or generated, so the picture is never the proof: the CRWN page is. The
+story image prints "Scan to verify on CRWN", the credit ID (`creditCode`, "CR-1A2B-3C4D", the start
+of the row's own id so nobody chooses it) and a QR (`creditQr`) that opens the credit's own page.
+That page prints "Verified by CRWN", the same ID and the date it was credited. An edited or
+AI-made card either has no working code, or opens a page showing a different name, number and ID.
+
+## The page layout
+
+Headline, one line, spots left, the BUTTON, then the benefits, the card preview and "How you appear
+on <artist>'s page" (the fan's row in the real credits list, outlined, marked Preview), then the
+button again and "No thanks". The first button is above the fold on a phone, measured by
+`scripts/probe-fan-fold.mjs` (job "CREDITS offer").
+
 ## Measuring it (decided before any traffic)
 
 `product_offer_events` (the `tier_events` twin for a product; `tier_events.tier_id` is NOT NULL):

@@ -53,7 +53,9 @@ describe('project credits boundaries', () => {
   it('the fan-facing page never promises a membership or income', () => {
     const page = readStripped('src/components/credits/CreditsOffer.tsx');
     // The one place those words may appear is RECOGNITION_ONLY itself, which says what this is NOT.
-    expect(page).not.toMatch(/Platinum|Gold|Silver|royalt|profit|equity|invest/i);
+    // Tier names are matched case-SENSITIVELY, as a fan reads them: `bg-crwn-gold` is a class name.
+    expect(page).not.toMatch(/\b(Platinum|Gold|Silver)\b/);
+    expect(page).not.toMatch(/royalt|profit|equity|invest/i);
     expect(page).toContain('RECOGNITION_ONLY');
   });
 });

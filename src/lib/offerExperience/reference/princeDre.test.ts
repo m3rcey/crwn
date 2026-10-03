@@ -218,7 +218,18 @@ describe('the Gold member drip', () => {
 
   it('no paid offer, card or promise mentions the retired vote or a passed date', () => {
     const all = gold + platinum + JSON.stringify(DRE_APPROVED_BENEFITS) + JSON.stringify(DRE_TIER_PROMISES);
-    expect(all.toLowerCase()).not.toContain('vote');
+    // The MEMBERS' vote on unreleased songs (founder, 2026-10-03) is a different, live thing: the
+    // Song Lab decision rail on Silver and up. Its own words are the only "vote" allowed; anything
+    // else still trips this, so the retired free vote cannot creep back into paid copy.
+    const membersVote = [
+      'Vote on which unreleased songs Dre puts out next',
+      'A vote on what Dre releases next',
+      'When he opens a vote, members choose which ones he puts out. One vote each, and every vote counts.',
+      '"actionLabel":"Vote"',
+    ];
+    const rest = membersVote.reduce((s, phrase) => s.split(phrase).join(''), all);
+    expect(rest.toLowerCase()).not.toContain('vote');
+    expect(DRE_BENEFIT_IDENTITIES.Silver.map((i) => i.key)).toContain('creative_voting');
     expect(/October 1(?!\d)/.test(all)).toBe(false);
     expect(PRINCE_DRE.vote!.retired).toBe(true);
     expect(DRE_BENEFIT_IDENTITIES.Bronze.map((i) => i.key)).not.toContain('creative_voting');

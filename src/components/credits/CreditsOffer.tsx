@@ -184,6 +184,18 @@ export function CreditsOffer({ artist, album, offers, credits, path, sessionLabe
 
   const showOffer = shown && !holdsFounding && !(holdsAny && shown.level === 'supporter');
 
+  const buyButton = (offer: CreditOffer) => (
+    <button
+      type="button"
+      onClick={() => buy(offer)}
+      disabled={buying}
+      className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-crwn-gold px-6 py-3 font-semibold text-crwn-bg disabled:opacity-60"
+    >
+      {buying ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+      {`${offer.level === 'founding' ? 'Become a Founding Supporter' : 'Get credited'}, ${dollars(offer.priceCents)}`}
+    </button>
+  );
+
   return (
     <div className="min-h-screen bg-[#0D0D0D] text-white">
       <div className="mx-auto max-w-xl px-4 pb-24 pt-8">
@@ -218,7 +230,7 @@ export function CreditsOffer({ artist, album, offers, credits, path, sessionLabe
         )}
 
         {showOffer && shown && (
-          <section className="mt-8 rounded-2xl bg-[#1A1A1A] p-5">
+          <section className="mt-6 rounded-2xl bg-[#1A1A1A] p-5">
             <h2 className="text-xl font-bold">
               {stage === 'downsell' ? 'Still want your name on it?' : `Get Special Recognition on ${album.title}.`}
             </h2>
@@ -227,7 +239,25 @@ export function CreditsOffer({ artist, album, offers, credits, path, sessionLabe
                 ? `Supporters are credited on ${album.title} too, listed after the Founding Supporters. No live session.`
                 : `${artist.name} is crediting the people who backed this project. The credit you get is yours for good.`}
             </p>
-            <div className="mt-5">
+            {/* The button comes BEFORE the preview and the list: a call to action is always above
+                the fold (founder, 2026-10-03). The value follows for the fan who keeps reading. */}
+            {shown.seatsLeft !== null && shown.cap !== null && (
+              <p className="mt-4 text-sm font-semibold text-[#D4AF37]">
+                {`${shown.seatsLeft} of ${shown.cap} ${CREDIT_LEVEL_LABEL[shown.level]} spots left`}
+              </p>
+            )}
+            {buyButton(shown)}
+            {error && <p className="mt-3 text-sm text-red-400">{error}</p>}
+            <p className="mt-3 text-xs text-white/50">{`One-time payment. ${RECOGNITION_ONLY}`}</p>
+            <ul className="mt-6 space-y-2">
+              {benefitsFor(shown.level, artist.name, album.title, sessionLabel).map((b) => (
+                <li key={b} className="flex gap-2 text-sm">
+                  <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#D4AF37]" />
+                  <span>{b}</span>
+                </li>
+              ))}
+            </ul>
+            <div className="mt-6">
               <CreditCardPreview
                 artistName={artist.name}
                 albumTitle={album.title}
@@ -238,30 +268,8 @@ export function CreditsOffer({ artist, album, offers, credits, path, sessionLabe
               />
               <p className="mt-2 text-center text-xs text-white/40">What your credit will look like. You choose the name after you pay.</p>
             </div>
-            <ul className="mt-4 space-y-2">
-              {benefitsFor(shown.level, artist.name, album.title, sessionLabel).map((b) => (
-                <li key={b} className="flex gap-2 text-sm">
-                  <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#D4AF37]" />
-                  <span>{b}</span>
-                </li>
-              ))}
-            </ul>
-            {shown.seatsLeft !== null && shown.cap !== null && (
-              <p className="mt-4 text-sm font-semibold text-[#D4AF37]">
-                {`${shown.seatsLeft} of ${shown.cap} ${CREDIT_LEVEL_LABEL[shown.level]} spots left`}
-              </p>
-            )}
-            <button
-              type="button"
-              onClick={() => buy(shown)}
-              disabled={buying}
-              className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-[#D4AF37] px-6 py-3 font-semibold text-black disabled:opacity-60"
-            >
-              {buying ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-              {`${shown.level === 'founding' ? 'Become a Founding Supporter' : 'Get credited'}, ${dollars(shown.priceCents)}`}
-            </button>
-            {error && <p className="mt-3 text-sm text-red-400">{error}</p>}
-            <p className="mt-3 text-xs text-white/50">{`One-time payment. ${RECOGNITION_ONLY}`}</p>
+            <CreditsListPreview credits={credits} level={shown.level} number={shown.nextNumber} name={typedName} artistName={artist.name} albumTitle={album.title} />
+            {buyButton(shown)}
             <button type="button" onClick={noThanks} className="mt-4 w-full text-center text-sm text-white/50 hover:text-white">
               No thanks
             </button>
@@ -375,6 +383,47 @@ function MyCredits({
         <p className="mt-4 text-xs text-white/50">Your credit page goes public once your name is printed. Until then you are counted, never named.</p>
       )}
     </section>
+  );
+}
+
+/** How the fan's name would sit in the real credits on the artist's page: the names already
+ *  printed at this level, then their row, outlined and marked as a preview. */
+function CreditsListPreview({
+  credits,
+  level,
+  number,
+  name,
+  artistName,
+  albumTitle,
+}: {
+  credits: PublicCreditList;
+  level: CreditLevel;
+  number: number;
+  name: string | null;
+  artistName: string;
+  albumTitle: string;
+}) {
+  const before = credits[level].slice(-3);
+  return (
+    <div className="mt-6">
+      <p className="text-xs uppercase tracking-widest text-white/50">{`How you appear on ${artistName}'s page`}</p>
+      <div className="mt-2 rounded-xl bg-[#0D0D0D] p-4">
+        <p className="text-sm font-semibold text-[#D4AF37]">{`${albumTitle}: ${CREDIT_LEVEL_LABEL[level]}s`}</p>
+        <ul className="mt-2 divide-y divide-white/5">
+          {before.map((c) => (
+            <li key={c.number} className="flex justify-between py-2 text-sm">
+              <span>{c.name}</span>
+              <span className="text-white/40">{`#${c.number}`}</span>
+            </li>
+          ))}
+          <li className="-mx-2 flex justify-between rounded-lg px-2 py-2 text-sm ring-1 ring-[#D4AF37]/60">
+            <span className={name ? 'text-white' : 'text-white/40'}>{name || 'Your name here'}</span>
+            <span className="text-[#D4AF37]">{`#${number}`}</span>
+          </li>
+        </ul>
+        <p className="mt-2 text-[11px] text-white/40">Preview. Your row appears once you pay and choose to print your name.</p>
+      </div>
+    </div>
   );
 }
 

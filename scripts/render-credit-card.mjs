@@ -7,7 +7,7 @@
 
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { createClient } from '@supabase/supabase-js';
-import { cardFooterLink, creditCardImage } from '../src/lib/projectCredits/cardImage.tsx';
+import { cardFooterLink, creditCardImage, creditQr } from '../src/lib/projectCredits/cardImage.tsx';
 
 const [slug, albumTitle, out = '/tmp/credit-cards'] = process.argv.slice(2);
 if (!slug || !albumTitle) {
@@ -36,7 +36,8 @@ if (album?.album_art_url) {
 mkdirSync(out, { recursive: true });
 const sample = { artistName: profile.display_name, albumTitle, level: 'founding', number: 7, name: 'Keisha M.', art };
 for (const story of [true, false]) {
-  const res = creditCardImage({ ...sample, story, link: cardFooterLink(slug, albumTitle, story) });
+  const qr = story ? await creditQr(`https://thecrwn.app/${slug}/credits/sample/founding/7`) : null;
+  const res = creditCardImage({ ...sample, story, link: cardFooterLink(slug, albumTitle, story), code: 'CR-1A2B-3C4D', qr });
   const file = `${out}/${story ? 'story' : 'preview'}.png`;
   writeFileSync(file, Buffer.from(await res.arrayBuffer()));
   console.log(`wrote ${file}`);

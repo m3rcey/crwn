@@ -57,6 +57,9 @@ interface Props {
   experiences?: Record<string, OfferConfig>;
   /** The artist's project-credits offer, previewed with the first name the fan typed above. */
   creditsTeaser?: CreditsTeaserData | null;
+  /** The supporter number the NEXT paying fan of this artist gets, for the "where you would sit"
+   *  preview on the offer. A preview only: the real number is stamped at checkout. */
+  nextSupporterNumber?: number | null;
   magnet: { kind: 'upload' | 'track' | null; title: string; description: string; coverUrl?: string | null; project?: string | null; durationSec?: number | null };
   gold: DropOfferTier | null;
   goldItem: { title: string; description: string };
@@ -67,7 +70,7 @@ type Phase = 'capture' | 'delivered' | 'silver' | 'joined';
 
 const price = offerPrice;
 
-export function DropFunnelClient({ token, artist, magnet, gold, goldItem, silver, experiences, campaign, creditsTeaser = null }: Props) {
+export function DropFunnelClient({ token, artist, magnet, gold, goldItem, silver, experiences, campaign, creditsTeaser = null, nextSupporterNumber = null }: Props) {
   const storageKey = `crwn_drop_${token}`;
   const [phase, setPhase] = useState<Phase>('capture');
   const [email, setEmail] = useState('');
@@ -262,6 +265,7 @@ export function DropFunnelClient({ token, artist, magnet, gold, goldItem, silver
       onDecline={onDecline}
       declineLabel={declineLabel}
       onVslStart={() => offerBeacon(tier.id, 'tier_vsl_started')}
+      viewer={{ name: firstName || null, supporterNumber: nextSupporterNumber }}
     />
   );
 

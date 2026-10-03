@@ -159,6 +159,17 @@ export default async function DropPage({ params }: { params: Promise<{ token: st
 
   // The artist's project-credits offer, previewed with the fan's own first name after the free song.
   const creditsTeaser = await loadCreditsTeaser(supabaseAdmin, { id: artist.id, slug: artist.slug, name: artistName });
+  // The number the next paying fan gets, so the offer's comment preview can show "Platinum #4"
+  // beside the fan's own name. Numbers are stamped once and never reused, so MAX + 1 is it.
+  const { data: topNumber } = await supabaseAdmin
+    .from('subscriptions')
+    .select('supporter_number')
+    .eq('artist_id', artist.id)
+    .not('supporter_number', 'is', null)
+    .order('supporter_number', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  const nextSupporterNumber = ((topNumber?.supporter_number as number | null) ?? 0) + 1;
 
   const experiences = await offerExperiencesForTiers(
     supabaseAdmin,
@@ -195,6 +206,7 @@ export default async function DropPage({ params }: { params: Promise<{ token: st
       experiences={experiences}
       campaign={campaign}
       creditsTeaser={creditsTeaser}
+      nextSupporterNumber={nextSupporterNumber}
     />
     </div>
   );

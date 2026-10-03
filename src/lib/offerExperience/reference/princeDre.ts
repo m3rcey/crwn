@@ -296,6 +296,22 @@ export const DRE_TIER_PROMISES: Record<string, string> = {
   Platinum: 'The tape nobody else has.',
 };
 
+/** The members' vote on unreleased music (founder, 2026-10-03). One line, used by the card, the
+ *  registry identity and the offer pages, so they can never say different things. */
+const DRE_VOTE_LINE = 'Vote on which unreleased songs Dre puts out next';
+const DRE_VOTE_PREVIEW = {
+  kind: 'decision' as const,
+  truth: 'example' as const,
+  title: 'You pick what comes out next',
+  description: 'Dre has unreleased songs from every era. When he opens a vote, members choose which ones he puts out. One vote each, and every vote counts.',
+  options: [
+    { label: 'Unreleased song A', sublabel: 'From the vault' },
+    { label: 'Unreleased song B', sublabel: 'From the vault' },
+    { label: 'Unreleased song C', sublabel: 'From the vault' },
+  ],
+  actionLabel: 'Vote',
+};
+
 export const DRE_TIER_PRICES_CENTS: Record<string, number> = {
   Bronze: 0,
   Silver: 1000,
@@ -315,6 +331,7 @@ export const DRE_APPROVED_BENEFITS: Record<string, string[]> = {
     `Blood Brothaz with JB Binladen, Life I Live and ${SDLY}, complete (${SILVER_SONGS} songs)`,
     'Behind the scenes from every era',
     'Your supporter number beside your name, and it never changes',
+    DRE_VOTE_LINE,
     'Everything in Bronze',
   ],
   Gold: [
@@ -344,6 +361,10 @@ export const DRE_BENEFIT_IDENTITIES: Record<string, { key: string; line: string 
     { key: 'exclusive_posts', line: 'Behind the scenes from every era' },
     // Every paid rung earns a number, so it is keyed on the lowest one and inherited upward.
     { key: 'member_recognition', line: 'Your supporter number beside your name, and it never changes' },
+    // The vote is the Song Lab decision rail (creative_voting): one counted vote per member, on a
+    // decision Dre opens. Founder, 2026-10-03: every offer page names it. Keyed on Silver so every
+    // paid rung has it. No schedule is promised: it runs when Dre has the unreleased songs ready.
+    { key: 'creative_voting', line: DRE_VOTE_LINE },
   ],
   Gold: [
     { key: 'vault_collection', line: 'The Vault: cuts, alternate versions and unreleased videos as Dre adds them' },
@@ -400,6 +421,7 @@ export const DRE_PLATINUM_OFFER: TierOfferExperience = {
       description: 'When Dre opens a listening room for the next project, Platinum is in it. No fixed schedule is promised; when it happens, you are there.',
       posterUrl: `${OFFER_ART}photo-session-listening.webp`,
     },
+    DRE_VOTE_PREVIEW,
     {
       // Fans do not know Dre has a community on CRWN, so this card introduces it AND shows
       // where they would sit in it. The pill is the real one: /api/recognition labels a
@@ -422,6 +444,7 @@ export const DRE_PLATINUM_OFFER: TierOfferExperience = {
       'Shotta In Da Jungle and Im Reloaded, complete',
       'Blood Brothaz and Life I Live, complete',
       'The Vault as Dre adds to it',
+      'A vote on what Dre releases next',
       `The ${FREE_SONGS} free songs and the bonus song`,
     ],
   },
@@ -476,6 +499,7 @@ export const DRE_GOLD_OFFER: TierOfferExperience = {
       description: 'Counted from the day you join. Each one complete, every song.',
       items: DRE_DRIP.map((d) => ({ title: d.title, subtitle: `After month ${d.months}`, locked: true, artUrl: ART[d.title] })),
     },
+    DRE_VOTE_PREVIEW,
     {
       kind: 'video',
       truth: 'example',
@@ -501,6 +525,7 @@ export const DRE_GOLD_OFFER: TierOfferExperience = {
     items: [
       'Blood Brothaz and Life I Live, complete',
       'Behind the scenes from every era',
+      'A vote on what Dre releases next',
       `The ${FREE_SONGS} free songs and the bonus song`,
     ],
   },
@@ -544,6 +569,7 @@ export const DRE_SILVER_OFFER: TierOfferExperience = {
       ],
       actionLabel: 'Unlock the music',
     },
+    DRE_VOTE_PREVIEW,
   ],
   inherited: {
     heading: 'Also included',

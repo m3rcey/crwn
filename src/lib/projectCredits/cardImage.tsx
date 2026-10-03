@@ -21,6 +21,22 @@ export interface CreditCardInput {
   /** A png/jpeg data URL, or null for a plain panel. */
   art: string | null;
   story: boolean;
+  /** The credit's short ID (creditCode), printed so it can be checked against its CRWN page. */
+  code?: string | null;
+  /** A QR code (png data URL) that opens the credit's own page on thecrwn.app. That page, not the
+   *  picture, is the proof: an edited or generated image either has no working code or opens a
+   *  page that shows a different name. */
+  qr?: string | null;
+}
+
+/** The QR for a credit page, as a png data URL. Dark on white: phone cameras read it reliably. */
+export async function creditQr(url: string): Promise<string | null> {
+  try {
+    const QRCode = (await import('qrcode')).default;
+    return await QRCode.toDataURL(url, { margin: 1, width: 360, errorCorrectionLevel: 'M', color: { dark: '#0D0D0D', light: '#FFFFFF' } });
+  } catch {
+    return null;
+  }
 }
 
 /**
@@ -70,7 +86,17 @@ export function creditCardImage(c: CreditCardInput, headers?: Record<string, str
             {`#${c.number}`}
           </div>
           <div style={{ marginTop: 30, fontSize: 72, textAlign: 'center', display: 'flex' }}>{c.name}</div>
-          <div style={{ marginTop: 'auto', fontSize: 30, color: MUTED, display: 'flex' }}>{c.link}</div>
+          <div style={{ marginTop: 'auto', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', maxWidth: 620 }}>
+              <div style={{ fontSize: 26, color: GOLD, letterSpacing: 3, display: 'flex' }}>SCAN TO VERIFY ON CRWN</div>
+              {c.code ? <div style={{ marginTop: 8, fontSize: 34, color: 'white', letterSpacing: 2, display: 'flex' }}>{`Credit ID ${c.code}`}</div> : null}
+              <div style={{ marginTop: 8, fontSize: 24, color: MUTED, display: 'flex' }}>{c.link}</div>
+            </div>
+            {c.qr ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={c.qr} width={200} height={200} style={{ borderRadius: 12 }} alt="" />
+            ) : null}
+          </div>
         </div>
       ),
       { ...STORY_SIZE, headers },
@@ -91,7 +117,8 @@ export function creditCardImage(c: CreditCardInput, headers?: Record<string, str
           <div style={{ marginTop: 8, fontSize: 40, fontWeight: 700, display: 'flex' }}>{c.albumTitle}</div>
           <div style={{ marginTop: 40, fontSize: 30, color: GOLD, display: 'flex' }}>{creditLabel(c.level, c.number)}</div>
           <div style={{ marginTop: 10, fontSize: 52, display: 'flex' }}>{c.name}</div>
-          <div style={{ marginTop: 40, fontSize: 22, color: MUTED, display: 'flex' }}>{c.link}</div>
+          {c.code ? <div style={{ marginTop: 30, fontSize: 22, color: 'white', display: 'flex' }}>{`Credit ID ${c.code}, verified on CRWN`}</div> : null}
+          <div style={{ marginTop: 10, fontSize: 22, color: MUTED, display: 'flex' }}>{c.link}</div>
         </div>
       </div>
     ),

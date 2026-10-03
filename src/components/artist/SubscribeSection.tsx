@@ -551,10 +551,11 @@ export function TierCards({ tiers, artistSlug, artistId, tracks = [], projects =
           )}
         </div>
       )}
-      {/* Phone: one swipeable row, Bronze to Platinum, with the next card peeking so it reads
-          as a row (founder, 2026-09-30). sm and up: the grid. */}
+      {/* Phone: one swipeable row with the next card peeking so it reads as a row (founder,
+          2026-09-30). The TOP rung leads and the fan swipes down the ladder (founder, 2026-10-03):
+          the first price a fan sees anchors every price after it. sm and up: the grid, same order. */}
       <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory -mx-4 px-4 scroll-px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:overflow-visible sm:mx-0 sm:px-0 sm:pb-0">
-        {tiers.map((tier) => {
+        {[...tiers].sort((x, y) => y.price - x.price).map((tier) => {
           const isThisTierSubscribed = subscribedTierId === tier.id;
           const isAnySubscribed = subscribedTierId !== null;
           
@@ -615,28 +616,9 @@ export function TierCards({ tiers, artistSlug, artistId, tracks = [], projects =
               {tier.description && (
                 <p className="text-crwn-muted-tint text-sm mt-2">{tier.description}</p>
               )}
-              
-              {(() => {
-                const unlocks = unlocksAtTier(tracks, tiers, tier.id, projects);
-                return (
-                  <>
-                    <TierProjects projects={unlocks.projects} />
-                    <TierSongs songs={unlocks.songs} queue={tracks.filter((t) => !!t.audio_url_128)} />
-                  </>
-                );
-              })()}
-
-              {tier.benefits && tier.benefits.length > 0 && (
-                <ul className="mt-4 space-y-2 flex-1">
-                  {tier.benefits.map((benefit, idx) => (
-                    <li key={idx} className="flex items-start gap-2 text-sm text-crwn-text">
-                      <Check className="w-4 h-4 text-crwn-gold flex-shrink-0 mt-0.5" />
-                      <span>{benefit}</span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-              
+              {/* The button sits right under the price, ABOVE everything the rung unlocks: a call to
+                  action is always above the fold (founder, 2026-10-03). On a phone the bottom of
+                  a Platinum card was a full screen below its price. */}
               {/* A paid rung the artist cannot yet be paid for. Server-derived on the page from
                   the charges milestone and the tier's Stripe price; the checkout route re-derives
                   it and refuses anyway, so this only stops offering an action that cannot work.
@@ -677,6 +659,29 @@ export function TierCards({ tiers, artistSlug, artistId, tracks = [], projects =
                   )}
                 </>
               )}
+              
+              {(() => {
+                const unlocks = unlocksAtTier(tracks, tiers, tier.id, projects);
+                return (
+                  <>
+                    <TierProjects projects={unlocks.projects} />
+                    <TierSongs songs={unlocks.songs} queue={tracks.filter((t) => !!t.audio_url_128)} />
+                  </>
+                );
+              })()}
+
+              {tier.benefits && tier.benefits.length > 0 && (
+                <ul className="mt-4 space-y-2 flex-1">
+                  {tier.benefits.map((benefit, idx) => (
+                    <li key={idx} className="flex items-start gap-2 text-sm text-crwn-text">
+                      <Check className="w-4 h-4 text-crwn-gold flex-shrink-0 mt-0.5" />
+                      <span>{benefit}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              
+
             </div>
           );
         })}

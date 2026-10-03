@@ -135,6 +135,12 @@ A one-time product that prints a fan's name in a project's credits. Full doc:
 - **It is a LIVE session, not a listening session** (founder, 2026-10-03): the tape is already out
   to Platinum, so hearing it is not the draw. And it is "a shareable image of your credit", never
   "credit card".
+- **The shareable image is never the proof; the CRWN page is** (founder asked how to stop a
+  Photoshopped or AI-made card, 2026-10-03). The story image carries "Scan to verify on CRWN", a
+  QR to the credit's own page and a credit ID (`creditCode`: the start of the row's own id, so it
+  cannot be chosen). The page shows "Verified by CRWN", the same ID and the credit date. A fake
+  either has no working code or opens a page with a different name. Never add a claim that the
+  picture itself is tamper-proof.
 - **The verdict thresholds in `verdict.ts` were fixed before any traffic.** Do not move one after
   seeing the data. Josh reads it on /admin (Money Model tab, Project credits panel);
   `loadCreditsScorecards` is the ONE computation behind that panel and the script.
@@ -205,11 +211,31 @@ class** (free forever / paid first / member only, how one piece of content is ga
   2026-10-03: "Streets Dont Love You" became a Bronze single after its project was dripped, and Gold
   kept a month-1 wait). The launch script's drip step now CLEARS a delay on any project song not
   gated above the drip rung (clearing only widens access); production had exactly one, cleared.
+- **The Tiers tab leads with the TOP rung** (founder, 2026-10-03): Platinum first, then Gold,
+  Silver, Bronze, on the phone carousel and the desktop grid. Each card's button sits directly
+  under its price, above what the rung unlocks (the CTA rule above).
+- **Offer pages show the fan's OWN recognition**: the demonstrated comment thread's "You" row on
+  a tier offer prints the first name they typed and the number they would get ("Platinum #4",
+  next = MAX(supporter_number) + 1), and the credits page shows their row in the real credits
+  list. Previews only, labelled as such.
 - **Tier cards show WHOLE PROJECTS, not song lists** (founder, 2026-10-03). `unlocksAtTier` in
   `src/lib/tierSongs.ts` groups what a rung newly unlocks into projects it holds completely (cover,
   song count, "after month N" for a drip) and lists only the loose songs. A rung that gets a drip
   project TODAY while the rung below waits names it too, which is what lets Platinum show the
   projects Gold waits months for. Rendering only: playability stays the player's gate.
+
+## UX Rule — a call to action is ALWAYS above the fold (founder, 2026-10-03)
+
+"You keep forgetting this. Never forget it again." Every page a fan or artist can act on puts its
+primary button above the fold on a 390x745 phone (and on 375x667 where it can): the headline, one
+line, the button, THEN the value (previews, lists, benefits, FAQs). A second copy of the button may
+follow the value; the first one never waits for it. This has been rediscovered page by page (the
+calculator email ask, the drop page opt-in, the tier card whose button sat under a screen of
+projects, the credits page whose button sat under its preview), so it is MEASURED, not reasoned:
+[scripts/probe-fan-fold.mjs](scripts/probe-fan-fold.mjs) (Windows node; spawns headless Chrome;
+no writes) prints each page's first full-width `bg-crwn-gold` button against the fold at four
+viewports. A page a fan buys on gets a job there, a primary button uses `bg-crwn-gold` (or the
+probe cannot see it), and any change that moves a primary button runs the probe before it lands.
 
 ## UX Rule — multi-option selectors are DROPDOWNS
 

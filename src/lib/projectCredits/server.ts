@@ -5,6 +5,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import {
+  creditCode,
   isCreditLevel,
   publicCredits,
   resolveProject,
@@ -253,19 +254,20 @@ export async function loadListedCredit(
   albumId: string,
   level: CreditLevel,
   n: number,
-): Promise<{ name: string; number: number; level: CreditLevel } | null> {
+): Promise<{ name: string; number: number; level: CreditLevel; code: string; creditedAt: string } | null> {
   if (!Number.isInteger(n) || n < 1) return null;
   const { data } = await admin
     .from('project_credits')
-    .select('level, credit_number, credit_name, listed, purchase:purchases(status)')
+    .select('id, created_at, level, credit_number, credit_name, listed, purchase:purchases(status)')
     .eq('album_id', albumId)
     .eq('level', level)
     .eq('credit_number', n)
     .maybeSingle();
   const row = toRow(data);
   if (!row) return null;
-  const list = publicCredits([row]);
-  return list[level][0] ?? null;
+  const named = publicCredits([row])[level][0];
+  if (!named) return null;
+  return { ...named, code: creditCode((data as any).id), creditedAt: (data as any).created_at };
 }
 
 export interface CreditsScorecard {

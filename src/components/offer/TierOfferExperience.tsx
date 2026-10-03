@@ -43,6 +43,10 @@ interface Props {
   onVslStart?: () => void;
   /** The sticky/final CTA label defaults to config.cta. */
   price: (cents: number) => string;
+  /** The fan looking at the offer, when known: their first name and the supporter number they
+   *  would get. The demonstrated comment thread's "You" row then shows THEIR name and THEIR pill
+   *  ("Platinum #4"), exactly as /api/recognition would print it beside their comments. */
+  viewer?: { name?: string | null; supporterNumber?: number | null };
 }
 
 /** The one truth chip. Rendered from data, never from a developer remembering. The words
@@ -85,7 +89,7 @@ function DemoButton({ label, onTry }: { label: string; onTry?: () => void }) {
   );
 }
 
-function PreviewBody({ p, onTry }: { p: OfferPreview; onTry?: () => void }) {
+function PreviewBody({ p, onTry, viewer }: { p: OfferPreview; onTry?: () => void; viewer?: Props['viewer'] }) {
   switch (p.kind) {
     case 'decision':
       return (
@@ -170,7 +174,15 @@ function PreviewBody({ p, onTry }: { p: OfferPreview; onTry?: () => void }) {
         // fan's own row is outlined so they can see where they would sit among the others.
         return (
           <div className="mt-3 space-y-2 text-left">
-            {p.thread.map((c, i) => (
+            {p.thread.map((raw, i) => {
+              const c = raw.you
+                ? {
+                    ...raw,
+                    name: viewer?.name?.trim() || raw.name,
+                    badge: raw.badge && viewer?.supporterNumber ? `${raw.badge} #${viewer.supporterNumber}` : raw.badge,
+                  }
+                : raw;
+              return (
               <div
                 key={i}
                 className={`flex gap-3 rounded-xl px-3 py-3 ${c.you ? 'bg-crwn-gold/10 ring-1 ring-crwn-gold/60' : 'bg-crwn-elevated'}`}
@@ -188,7 +200,8 @@ function PreviewBody({ p, onTry }: { p: OfferPreview; onTry?: () => void }) {
                   <p className="mt-0.5 text-sm text-crwn-text-secondary">{c.text}</p>
                 </div>
               </div>
-            ))}
+              );
+            })}
           </div>
         );
       }
@@ -258,7 +271,7 @@ function PreviewBody({ p, onTry }: { p: OfferPreview; onTry?: () => void }) {
   }
 }
 
-export function TierOfferExperience({ artist, tier, config, actionSlot, onDecline, declineLabel, onVslStart, price }: Props) {
+export function TierOfferExperience({ artist, tier, config, actionSlot, onDecline, declineLabel, onVslStart, price, viewer }: Props) {
   const actionRef = useRef<HTMLDivElement>(null);
   const [heroVisible, setHeroVisible] = useState(true);
   const [vslStarted, setVslStarted] = useState(false);
@@ -357,7 +370,7 @@ export function TierOfferExperience({ artist, tier, config, actionSlot, onDeclin
       <div id={`offer-previews-${tier.id}`} className="space-y-4">
         {config.previews.map((p, i) => (
           <PreviewShell key={i} p={p}>
-            <PreviewBody p={p} onTry={scrollToAction} />
+            <PreviewBody p={p} onTry={scrollToAction} viewer={viewer} />
           </PreviewShell>
         ))}
       </div>
