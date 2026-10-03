@@ -1066,6 +1066,17 @@ because every tile in it was a second door to a bottom-nav slot. **Do not re-add
 `/profile/artist` on `/home`, and never pad the Featured row with placeholder tiles**: it shows
 only artists with music AND an avatar AND a presentable name AND `featured_hidden = false`.
 
+**Artist Home is the economic command center, and it decides NOTHING** (founder, 2026-10-03:
+"within five seconds an artist should know how their fan business is doing and the single
+highest-value thing to do next"). Order: money row (only once a fan has paid), the ONE move, the
+storefront card, Featured. The move is Rise Mode's own (`NextMoveCard` over
+`resolveRiseNextMove(..., '/home')`), so the two screens cannot disagree; the money figures are
+read back from `/api/analytics` (earned this month) and `/api/artist/roadmap` `stats` (MRR,
+paying members). [src/lib/artistHome.ts](src/lib/artistHome.ts) only decides what may render.
+Never add a Home recommendation, a Home-only metric, a "vs last month" percentage, a "potential"
+figure, or a `$0` banner before a first paid fan, and never render a failed read as zero.
+`artistHome.test.ts` pins it (mutation-tested).
+
 **The Featured row is the FOUNDER'S DISCRETION** (founder decision, 2026-09-26). Artists do not
 opt in and cannot set it: an artist also needs `artist_profiles.featured_on_home = true`, which
 defaults to false, and Josh flips it from **`/admin?tab=artists`** (every artist on CRWN, with a

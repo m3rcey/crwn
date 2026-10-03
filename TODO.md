@@ -1199,6 +1199,15 @@ Things that are never finished. Cadence, then the thing.
 
 ## On Claude's plate (not yours)
 
+- **MRR counts an annual member at the MONTHLY list price** (found 2026-10-03 building the Home
+  money row). `subscriptions` stores no billing interval, so the constraint assembler, the roadmap
+  stats and /api/analytics all add $50 for an annual Platinum fan of Prince Dre's who pays $37 a
+  month. Harmless while nobody is on annual; it starts overstating Home, Analytics and the
+  Constraint Engine's thresholds the day someone is. Fix at the source (record the interval at
+  checkout, divide the annual price by 12 in the ONE shared reader), never in a display. Also
+  correct `revenueRampSeed.currentMrrCents()`, whose docblock still calls itself the only MRR
+  implementation and which skips `countsAsPaying`.
+
 - **When Dre's two new projects are uploaded (Stompin Thru The Trenches + one more), rebuild Gold
   the way the founder's email draft describes it.** Gold day one becomes Stompin + Shotta In Da
   Jungle; Im Reloaded moves to the front of the drip (Im Reloaded, Only The O, Fresh Prince, Return

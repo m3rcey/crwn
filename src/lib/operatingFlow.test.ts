@@ -228,8 +228,10 @@ describe('the composition is wired, and nothing else became a priority engine', 
   });
 
   it('the canonical CTA carries a returnTo', () => {
-    expect(resolver).toContain('withReturnTo(c.action.href)');
-    expect(resolver).toContain('withReturnTo(step.href)');
+    expect(resolver).toContain('withReturnTo(c.action.href, returnTo)');
+    expect(resolver).toContain('withReturnTo(step.href, returnTo)');
+    // Artist Home passes its own returnTo; every other caller still returns to Rise Mode.
+    expect(resolver).toContain("returnTo = '/profile/artist'");
   });
 
   it('adds no persisted current-constraint state anywhere', () => {

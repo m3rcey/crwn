@@ -65,8 +65,9 @@ CRWN is **live in production** (`thecrwn.app`) and the core money loop is real a
     artist whose `song_lab_enabled` is true (2026-09-30, the one per-artist tile);
     AccountHub = Rise Mode,
     Studio, Analytics, Fan CRM, Promise Calendar, Fan Proof, the five core tools, page/tiers/
-    payouts/billing/referrals, account + support; bottom nav = 3 artist slots, 2 fan slots; fan
-    product = Home (next-action), artist pages, Library (with ReferralDashboard = the whole
+    payouts/billing/referrals, account + support; bottom nav = 3 artist slots, 2 fan slots; artist
+    Home = the command center (2026-10-03: money row once paid, the canonical Rise move,
+    storefront, Featured; `src/lib/artistHome.ts`); fan product = Home, artist pages, Library (with ReferralDashboard = the whole
     Share-to-Earn loop), notifications; admin = 8 tabs (Dashboard scorecard, Acquisition, Lead
     Magnets, Funnel, Pipeline, Support, Money Model, Email Health); promoted calculators = 9
     (worth, vault, share, producer, own, opportunity, live-experience re-promoted 2026-08-16,

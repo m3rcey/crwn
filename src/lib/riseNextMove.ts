@@ -78,13 +78,13 @@ function joinPlain(items: string[]): string {
 }
 
 /** A roadmap step as a move. `detail` is already the one-sentence reason, loss-framed. */
-function roadmapMove(step: RoadmapStep): RiseMove {
+function roadmapMove(step: RoadmapStep, returnTo: string): RiseMove {
   return {
     owner: 'roadmap',
     title: step.label,
     reason: step.detail,
     fact: step.target > 1 ? `${Math.min(step.current, step.target)} of ${step.target} so far.` : null,
-    href: withReturnTo(step.href),
+    href: withReturnTo(step.href, returnTo),
     ctaLabel: 'Do it now',
   };
 }
@@ -92,6 +92,12 @@ function roadmapMove(step: RoadmapStep): RiseMove {
 export function resolveRiseNextMove(
   flow: OperatingFlow,
   roadmap: ArtistRoadmap | null | undefined,
+  /**
+   * Where the destination's X and on-success redirect send the artist. Rise Mode is the default;
+   * Artist Home passes '/home', because a flow started from Home returns to Home (the same rule
+   * that makes a Rise Mode flow return to Rise Mode). It changes the pointer, never the move.
+   */
+  returnTo = '/profile/artist',
 ): RiseNextMove {
   const stage = roadmap ? roadmap.stages[roadmap.currentStageIndex] : null;
   const openSteps = roadmap ? roadmap.stages.flatMap((s) => s.steps).filter((s) => !s.done) : [];
@@ -126,7 +132,7 @@ export function resolveRiseNextMove(
         title: c.action.label,
         reason: c.action.why,
         fact: c.evidence[0]?.label ?? null,
-        href: withReturnTo(c.action.href),
+        href: withReturnTo(c.action.href, returnTo),
         ctaLabel: 'Do it now',
       },
       afterThis: openSteps.find((s) => !isSameWork(s))?.label ?? null,
@@ -138,7 +144,7 @@ export function resolveRiseNextMove(
   if (!next) return base;
   return {
     ...base,
-    move: roadmapMove(next),
+    move: roadmapMove(next, returnTo),
     afterThis: openSteps.find((s) => s.key !== next.key)?.label ?? null,
   };
 }

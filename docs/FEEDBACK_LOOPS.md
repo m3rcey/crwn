@@ -711,7 +711,7 @@ Ranked by probability the artist acts:
 
 | Rank | Placement | Why | What goes there |
 |---|---|---|---|
-| 1 | **Rise Mode next-action slot** (`NextMoveCard`, the whole surface since 2026-08-13) | It is the artist's landing screen and the one place they already look for "what now" | The single constraint reading with one action and its evidence. Replaces `nextStep` when confidence is sufficient |
+| 1 | **Rise Mode next-action slot** (`NextMoveCard`, the whole surface since 2026-08-13; since 2026-10-03 the same card and move also render on `/home`, where every artist lands at login) | It is the one place they already look for "what now", and Home shows it at login | The single constraint reading with one action and its evidence. Replaces `nextStep` when confidence is sufficient |
 | 2 | **Monday email** (`cron/weekly-report` exists at `0 14 * * 1`) | The only channel that reaches an artist who has stopped opening the app, which is exactly the artist a feedback loop must reach | One constraint, one action, one link. Not a metrics digest |
 | 3 | **Promise Calendar** | The artist is already there with the intent to deliver | Completion rate, per-tier health (already computed), the "remove a promise" recommendation |
 | 4 | **In-context, at the moment of the decision** | Highest conversion, lowest reach | Per-rung conversion on the tier editor; open rate on the campaign composer; "your last 3 sends did best on Thursday" |

@@ -1,5 +1,35 @@
 # CRWN Brain — Changelog
 
+## 2026-10-03 - Artist Home becomes the economic command center
+
+- **Home now answers "how is my fan business doing, and what do I do next"** for an artist, in
+  this order: a money row (only once a fan has paid), the ONE canonical move, the storefront, then
+  Featured Artists. Presentation only: `src/lib/artistHome.ts` decides what may render from
+  answers other systems already gave and holds no threshold, ranking or money math.
+- **The move is Rise Mode's move.** Home renders the same `NextMoveCard` from the same
+  `resolveRiseNextMove(resolveOperatingFlow(constraint), roadmap)`, so Home and Rise cannot
+  disagree. `resolveRiseNextMove` gained an optional `returnTo` (default `/profile/artist`); Home
+  passes `/home`, so a flow started on Home returns to Home. The full-roadmap disclosure stays on
+  Rise (Home orients, Rise executes).
+- **Deleted: Home's "Finish setup X/Y" card.** It ranked work from the setup wizard's four steps
+  (`useArtistSetup`), a second progression system that could name a different next step than the
+  roadmap. The roadmap's Foundation stage covers the same work.
+- **Money figures are canonical reads, never computed on Home:** earned this month =
+  `/api/analytics` `revenue.thisMonth` (refund-netted `earnings.net_amount`); monthly recurring and
+  paying members = `/api/artist/roadmap` `stats` (`countsAsPaying`). A failed or pending read
+  renders a skeleton or nothing, never $0; a real $0 renders only when the read succeeded. No
+  "vs last month" percentage (it compared a part month with a whole one). Before a first paid fan
+  there is no money row at all: a "$0" banner is a verdict, not direction.
+- **Storefront:** keeps "Nobody can pay you from a link you never send." until the first paid
+  fan, then reads "Your storefront". Its button is gold only when no move exists.
+- **Fans:** unchanged. Artist reads start only when the session resolves to an artist, and all
+  three routes derive (or re-check) the artist from the session.
+- **Drift found, not changed here:** every MRR reader (assembler, roadmap, analytics) counts an
+  annual member at the tier's MONTHLY list price, because `subscriptions` stores no billing
+  interval (Prince Dre's annual Platinum is $37/mo, counted as $50). And
+  `revenueRampSeed.currentMrrCents()` still claims to be "the only live implementation" of MRR
+  while it skips `countsAsPaying`. Tests: `src/lib/artistHome.test.ts` (mutation-tested).
+
 ## 2026-10-03 - Every artist's drop gets a personal link
 
 - **A self-built drop page now gets the link Prince Dre's have** (`/drop/<artist>-<song>`) on its

@@ -85,6 +85,7 @@ The primary `(main)` sidebar nav is small — **Home, Explore, Studio (artist) /
 | Duplicate `artist/[slug]/*` subroutes | — | `/artist/[slug]/{track,album,post,playlist,book}` | **Legacy/dead** (near-byte-identical dupes, one field drifted; top-level page is a redirect) |
 | Explore / discovery | fan | `(main)/explore` → `/api/explore` | **Partial/Unclear** (ranking logic not deep-verified) |
 | Home feed | fan | `(main)/home` → posts + tracks + (SupporterMode if flag on) | **Production-ready** (Partial where Quest-flag content) |
+| Artist Home command center | artist | `(main)/home` → `/api/artist/constraint` + `/api/artist/roadmap` + `/api/analytics` (revenue.thisMonth), shaped by `src/lib/artistHome.ts` | **Production-ready** (2026-10-03). Money row only after a first paid fan; then the SAME `NextMoveCard` move Rise Mode shows (`resolveRiseNextMove(..., '/home')`); storefront card demoted to utility once paid; Featured last. Presentation only: no engine, no metric of its own |
 | Fan library | fan | `(main)/library` → `PlaylistManager`, `PurchasesSection`; `favorites`, `playlists` | **Production-ready** |
 | Favorites/likes | fan | `useFavorites.ts`; `favorites` | **Production-ready** |
 | Embed player | external | `/embed/[trackId]` (free tracks only, signed audio) | **Production-ready** |

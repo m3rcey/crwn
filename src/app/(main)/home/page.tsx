@@ -6,15 +6,7 @@ import { HelpCircle } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useShowArtistUI } from '@/hooks/useServerRole';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
-import { 
-  Compass, 
-  Library, 
-  Users, 
-  Music,
-  ArrowRight,
-  Sparkles,
-  Loader2
-} from 'lucide-react';
+import { Compass, ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import { FadeIn } from '@/components/ui/FadeIn';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
@@ -23,7 +15,18 @@ import { startTour } from '@/lib/tour';
 import { fanHomeTourSteps } from '@/lib/fanTourSteps';
 import { artistHomeTourSteps } from '@/lib/artistHomeTourSteps';
 import { useTourCheck } from '@/hooks/useTourCheck';
-import { useArtistSetup } from '@/hooks/useArtistSetup';
+import { useArtistContext } from '@/hooks/useArtistContext';
+import { NextMoveCard } from '@/components/artist/NextMoveCard';
+import { resolveOperatingFlow } from '@/lib/constraint/presentation';
+import { resolveRiseNextMove } from '@/lib/riseNextMove';
+import {
+  resolveArtistHome,
+  formatHomeMoney,
+  FIRST_PAID_STEP_KEY,
+  type RoadmapStats,
+} from '@/lib/artistHome';
+import type { ConstraintResult } from '@/lib/constraint/types';
+import type { ArtistRoadmap } from '@/lib/artistRoadmap';
 import { SupporterMode } from '@/components/fan/SupporterMode';
 import { isPresentableArtistName } from '@/lib/publicName';
 
@@ -73,7 +76,73 @@ export default function HomePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [hasArtistProfile, setHasArtistProfile] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
-  const setup = useArtistSetup();
+
+  // ARTIST HOME: the economic command center (2026-10-03). Home decides NOTHING here. It reads
+  // the same two canonical answers Rise Mode reads (Constraint Engine + Roadmap), flattens them
+  // with the same resolver, and adds the one month figure /api/analytics already computes. All
+  // three routes derive the artist from the SESSION (analytics re-checks the id against it), so a
+  // fan never receives an artist's books, and nothing is fetched until the session resolves to an
+  // artist. What may render is decided by `resolveArtistHome` (src/lib/artistHome.ts).
+  const { status: artistStatus, context: artistContext } = useArtistContext();
+  const artistId = artistContext?.artistId ?? null;
+  const [constraintResult, setConstraintResult] = useState<ConstraintResult | null>(null);
+  const [roadmap, setRoadmap] = useState<ArtistRoadmap | null>(null);
+  const [roadmapStats, setRoadmapStats] = useState<RoadmapStats | null>(null);
+  const [canonicalSettled, setCanonicalSettled] = useState(false);
+  // undefined = in flight, null = unavailable. Never collapsed into 0.
+  const [earnedThisMonth, setEarnedThisMonth] = useState<number | null | undefined>(undefined);
+
+  useEffect(() => {
+    if (artistStatus !== 'artist' || !artistId) return;
+    let active = true;
+    const json = (r: Response) => (r.ok ? r.json() : null);
+    // In parallel: the move and the money row must not queue behind each other.
+    Promise.all([
+      fetch('/api/artist/constraint').then(json).catch(() => null),
+      fetch('/api/artist/roadmap').then(json).catch(() => null),
+    ]).then(([c, r]) => {
+      if (!active) return;
+      setConstraintResult(c?.constraint ?? null);
+      setRoadmap(r?.roadmap ?? null);
+      const st = r?.stats;
+      setRoadmapStats(
+        st && typeof st.paidMembers === 'number' && typeof st.mrrCents === 'number'
+          ? { members: Number(st.members) || 0, paidMembers: st.paidMembers, mrrCents: st.mrrCents }
+          : null,
+      );
+      setCanonicalSettled(true);
+    });
+    fetch(`/api/analytics?artistId=${encodeURIComponent(artistId)}`)
+      .then(json)
+      .then((a) => {
+        if (!active) return;
+        const v = a?.revenue?.thisMonth;
+        setEarnedThisMonth(typeof v === 'number' && Number.isFinite(v) ? v : null);
+      })
+      .catch(() => {
+        if (active) setEarnedThisMonth(null);
+      });
+    return () => {
+      active = false;
+    };
+  }, [artistStatus, artistId]);
+
+  const isArtistHome = artistStatus === 'artist';
+  // The SAME move Rise Mode shows, pointed back at Home: a flow started here returns here.
+  const nextMove = resolveRiseNextMove(resolveOperatingFlow(constraintResult), roadmap, '/home');
+  const firstPaidDone = roadmap
+    ? roadmap.stages.flatMap((st) => st.steps).find((st) => st.key === FIRST_PAID_STEP_KEY)?.done ?? null
+    : null;
+  const home = resolveArtistHome({
+    isArtist: isArtistHome,
+    settled: canonicalSettled,
+    haveCanonicalAnswer: Boolean(constraintResult || roadmap),
+    hasMove: Boolean(nextMove.move),
+    stats: roadmapStats,
+    firstPaidDone,
+    earnedThisMonthCents: earnedThisMonth,
+  });
+  const artistSlug = isArtistHome ? artistContext?.slug || null : null;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -226,8 +295,9 @@ export default function HomePage() {
   // it is Rise Mode and shows ONE next move.
   //
   // Nothing was hidden and nothing lost a route. The section was a duplicate index of the tab
-  // bar sitting directly above the tab bar. Artists now land on Rise Mode at login (see the
-  // login page), so /home is a fan surface again, which is what SupporterMode below is for.
+  // bar sitting directly above the tab bar. Everyone lands on /home at login, artists included
+  // (founder, 2026-08-20), so for an artist this page is the command center above: money once a
+  // fan has paid, then the one canonical move, then their storefront, then discovery.
 
   // The grid narrows to the number of complete artists, so the row is always FULL rather
   // than a 3-column layout with a hole in it. That gap is the whole difference between a
@@ -247,7 +317,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 stagger-fade-in">
+    <div className={`max-w-4xl mx-auto ${showArtistUI ? 'space-y-6' : 'space-y-8'} stagger-fade-in`}>
       <ConfirmModal
         isOpen={showTourPrompt}
         title="Welcome to CRWN!"
@@ -266,8 +336,7 @@ export default function HomePage() {
           <h1 className="text-2xl md:text-3xl font-bold text-crwn-text">
             {getGreeting()}{profile?.display_name ? `, ${profile.display_name.split(' ')[0]}` : ''}!
           </h1>
-          {!(setup.isArtist && !setup.loading && setup.steps.filter((s) => s.done).length < setup.steps.length) && (
-            <Link
+          <Link
               href={`/getting-started?role=${profile?.role || 'fan'}`}
               data-tour="home-help"
               className="flex-shrink-0 whitespace-nowrap mt-1 inline-flex items-center gap-1.5 rounded-full bg-crwn-elevated px-3 py-1.5 text-xs font-medium text-crwn-text-secondary hover:text-crwn-gold transition-colors"
@@ -275,101 +344,106 @@ export default function HomePage() {
               <HelpCircle className="w-3.5 h-3.5" />
               Getting started
             </Link>
-          )}
         </div>
-        <p className="text-crwn-text-secondary mt-2">
-          {getDailyWelcome()}
-        </p>
+        {/* The rotating line is written to a FAN ("Today that could be you"). An artist gets their
+            own evidence below instead of a slogan, and the space keeps their next move higher. */}
+        {!showArtistUI && (
+          <p className="text-crwn-text-secondary mt-2">
+            {getDailyWelcome()}
+          </p>
+        )}
       </div>
 
-      {/* Next-action card. The one structural change of the v2 redesign: setup
-          used to hide behind a low-contrast pill top-right while other artists'
-          cards took the prime slot. The next move an artist should make is the
-          first thing under the greeting, full width, with visible progress.
-          Same route, same "Finish setup X/Y" label as the old chip. */}
-      {setup.isArtist && !setup.loading && setup.steps.filter((s) => s.done).length < setup.steps.length && (() => {
-        const done = setup.steps.filter((s) => s.done).length;
-        const total = setup.steps.length;
-        const next = setup.steps.find((s) => !s.done);
-        const stepCopy: Record<string, { title: string; body: string }> = {
-          profile: { title: 'Add your profile photo', body: 'Fans decide in one glance. A page with no face gets skipped.' },
-          monetize: { title: 'Confirm your membership ladder', body: 'Without a paid tier, every superfan visit leaves money uncollected.' },
-          music: { title: 'Upload your first track', body: 'The audio file fans will hear. This one starts free.' },
-          shop: { title: 'Add something to sell', body: 'A page with nothing to buy turns ready-to-pay fans away.' },
-        };
-        const copy = next ? stepCopy[next.key] : undefined;
+      {/* MONEY. Only once a fan has paid (a paying member now, or the roadmap's first-paid
+          fact). Before that a "$0" banner is a verdict, not direction, so the move leads instead.
+          Every figure is a canonical one read back, never computed here:
+            earned this month  /api/analytics revenue.thisMonth (refund-netted earnings ledger)
+            monthly recurring  /api/artist/roadmap stats.mrrCents (countsAsPaying)
+            paying members     /api/artist/roadmap stats.paidMembers
+          No "vs last month" percentage: that would compare a part month with a whole one. */}
+      {home.money && (() => {
+        const m = home.money;
+        const plural = (n: number) => `${n} paying member${n === 1 ? '' : 's'}`;
+        const showEarned = m.earnedThisMonthCents !== null || m.earnedPending;
         return (
-          <div
-            className="rounded-2xl p-6"
+          <section
+            data-home="money"
+            aria-label="Your fan business"
+            className="rounded-2xl p-5"
             style={{
               border: '1px solid var(--crwn-gold-tint-border)',
               background: 'radial-gradient(110% 130% at 12% 0%, rgba(212,175,55,0.16) 0%, rgba(26,26,26,0) 62%), #1a1a1a',
             }}
           >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-crwn-gold">
-                <Sparkles className="w-4 h-4" />
-                <span className="text-xs font-bold uppercase tracking-wider">Finish setup</span>
-              </div>
-              <span className="text-xs text-crwn-gold">{done}/{total}</span>
-            </div>
-            <div className="mt-3 h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(212,175,55,0.16)' }}>
-              <div
-                className="h-full rounded-full bg-crwn-gold transition-all"
-                style={{ width: `${Math.round((done / total) * 100)}%` }}
-              />
-            </div>
-            {copy && (
-              <>
-                <div className="mt-3 text-lg font-semibold text-crwn-text">{copy.title}</div>
-                <p className="mt-1 text-sm text-crwn-muted-tint leading-relaxed">{copy.body}</p>
-              </>
+            <p className="text-xs font-bold uppercase tracking-wider text-crwn-gold">
+              {showEarned ? 'Earned this month' : 'Monthly recurring'}
+            </p>
+            {showEarned && m.earnedThisMonthCents === null ? (
+              <div className="mt-2 h-9 w-32 rounded bg-crwn-elevated animate-pulse" aria-hidden="true" />
+            ) : (
+              <p className="mt-1 text-4xl font-bold text-crwn-text">
+                {formatHomeMoney(showEarned ? (m.earnedThisMonthCents as number) : m.recurringMonthlyCents)}
+              </p>
             )}
-            <Link
-              href="/profile/artist"
-              data-tour="home-help"
-              className="neu-button-accent mt-4 inline-flex h-12 w-full items-center justify-center gap-1.5 text-sm md:w-auto md:px-6"
-            >
-              <Sparkles className="w-4 h-4" />
-              Finish setup {done}/{total}
-            </Link>
-          </div>
+            <div className="mt-2 flex items-center justify-between gap-3">
+              <p className="text-sm text-crwn-text-secondary">
+                {showEarned
+                  ? `${formatHomeMoney(m.recurringMonthlyCents)} monthly recurring · ${plural(m.payingMembers)}`
+                  : plural(m.payingMembers)}
+              </p>
+              <Link prefetch href="/studio/analytics" className="shrink-0 text-xs text-crwn-gold hover:underline">
+                Details
+              </Link>
+            </div>
+          </section>
         );
       })()}
 
-      {/* Your page: a LAUNCHED artist only, and only once setup is finished.
-          ------------------------------------------------------------------
-          Without this an artist who has completed setup meets a greeting and a short
-          Featured row, which is the whole "it looks bare" complaint. Everything else on
-          Home is either fan content or, in the case of the deleted Quick Actions, a second
-          door to a bottom-nav slot.
+      {/* THE ONE MOVE. The same card and the same resolved move as Rise Mode, so the two screens
+          cannot disagree. This replaced a "Finish setup" card driven by the setup wizard's own
+          four steps, a second progression system that could name a different next step than the
+          roadmap. The roadmap's Foundation stage now names the setup work. The full-roadmap
+          disclosure stays on Rise Mode (roadmap={null}): Home orients, Rise executes. */}
+      {isArtistHome && home.showMove && (
+        canonicalSettled ? (
+          <NextMoveCard next={nextMove} roadmap={null} />
+        ) : (
+          <div className="neu-raised rounded-2xl p-6" aria-hidden="true">
+            <div className="h-3 w-40 rounded bg-crwn-elevated animate-pulse" />
+            <div className="mt-4 h-7 w-3/4 rounded bg-crwn-elevated animate-pulse" />
+            <div className="mt-3 h-4 w-full rounded bg-crwn-elevated animate-pulse" />
+            <div className="mt-5 h-10 w-36 rounded-full bg-crwn-elevated animate-pulse" />
+          </div>
+        )
+      )}
 
-          This is neither. The public page is NOT in the tab bar, it is the one thing on
-          this screen that belongs to the artist, and sharing it is the literal first step
-          toward a first paying member: nobody reaches a checkout they were never sent to.
-          Loss-framed per the copy rule, and it states the real URL rather than describing it.
-
-          Shown to EVERY artist with a page, not only once all four setup steps are done
-          (founder ask, 2026-09-26). Shop and Monetize are skippable in the wizard, so the
-          old all-steps gate hid an artist's own page from them indefinitely, and since new
-          artists are no longer on the Featured row this card is how they reach it. While
-          setup is unfinished the Finish setup card above keeps the one gold button. */}
-      {setup.isArtist && !setup.loading && setup.slug && (
+      {/* YOUR PAGE: utility, never the headline once something else is.
+          The public page is not in the tab bar, so this card is how an artist reaches it (new
+          artists are not on the Featured row). Before the first paid fan the loss line stays,
+          because sending the link really is the road to that fan. After it the card is plain
+          utility. The button is gold only when no move holds the screen's one gold button. */}
+      {artistSlug && (
         <section className="neu-raised p-6">
-          <h2 className="text-lg font-semibold text-crwn-text">
-            Nobody can pay you from a link you never send.
-          </h2>
-          <p className="text-crwn-text-secondary text-sm mt-1">
-            This is your storefront. Every subscribe and every sale starts here.
-          </p>
+          {home.storefrontVoice === 'loss' ? (
+            <>
+              <h2 className="text-lg font-semibold text-crwn-text">
+                Nobody can pay you from a link you never send.
+              </h2>
+              <p className="text-crwn-text-secondary text-sm mt-1">
+                This is your storefront. Every subscribe and every sale starts here.
+              </p>
+            </>
+          ) : (
+            <h2 className="text-lg font-semibold text-crwn-text">Your storefront</h2>
+          )}
           <p className="mt-4 font-mono text-sm text-crwn-gold break-all">
-            thecrwn.app/{setup.slug}
+            thecrwn.app/{artistSlug}
           </p>
           <div className="mt-4 flex flex-col sm:flex-row gap-2">
             <Link
-              href={`/${setup.slug}`}
+              href={`/${artistSlug}`}
               className={
-                setup.steps.every((s) => s.done)
+                home.storefrontPrimary
                   ? 'neu-button-accent inline-flex h-11 items-center justify-center gap-1.5 px-6 text-sm'
                   : 'inline-flex h-11 items-center justify-center gap-1.5 rounded-full bg-crwn-elevated px-6 text-sm font-medium text-crwn-text hover:text-crwn-gold transition-colors'
               }
@@ -380,7 +454,7 @@ export default function HomePage() {
             <button
               onClick={async () => {
                 try {
-                  await navigator.clipboard.writeText(`https://thecrwn.app/${setup.slug}`);
+                  await navigator.clipboard.writeText(`https://thecrwn.app/${artistSlug}`);
                   setCopiedLink(true);
                   setTimeout(() => setCopiedLink(false), 1800);
                 } catch {
