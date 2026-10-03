@@ -85,18 +85,6 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
-- [ ] **Run the supporter-number migration, then member badges start counting.** A member gets a
-      permanent number for how early they backed an artist, shown beside their rung wherever they
-      comment: `PLATINUM #3`. Stamped once at the first paid checkout and never changed, so
-      upgrading, downgrading, cancelling and rejoining all keep it. Run in the Supabase SQL Editor:
-      [supabase/schema-phase2-supporter-number.sql](supabase/schema-phase2-supporter-number.sql)
-      It ends with "schema-phase2-supporter-number: OK" and backfills every past paying member in
-      join order (Dre has none yet; GB and the others get theirs). Then confirm with
-          npm run verify:migrations
-      Until it runs every badge reads exactly as it does today and nobody is shown a position.
-      This replaced the "first 100" founder window, which stays off on every tier: with zero
-      members there is no honest number to cap at, and a cap that never binds reads as fake.
-
 - [ ] **Decide with Dre how Stompin Thru The Trenches gets announced. It is live now, quietly.**
       His unreleased 16-song mixtape went up 2026-10-02 behind Platinum ($50), and it is the ONLY
       thing in his catalog that exists nowhere else: every other tape is free somewhere (Audiomack,
