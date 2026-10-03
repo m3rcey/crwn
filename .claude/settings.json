@@ -10,6 +10,16 @@
             "timeout": 120
           }
         ]
+      },
+      {
+        "matcher": "EnterWorktree",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$(cygpath -w \"$CLAUDE_PROJECT_DIR\" 2>/dev/null || printf %s \"$CLAUDE_PROJECT_DIR\")/.claude/hooks/worktree-preflight.mjs\"",
+            "timeout": 120
+          }
+        ]
       }
     ],
     "SessionStart": [

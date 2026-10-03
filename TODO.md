@@ -85,6 +85,20 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **Compact the WSL disk: C: has 9 GB free and will not get it back on its own.** Worktree
+      cleanup now works (2026-10-03: `.claude/worktrees` went from 6.2 GB to 143 MB, WSL's own
+      usage from 20 GB to 14 GB), but the WSL disk file
+      `C:\Users\Josh\AppData\Local\Packages\CanonicalGroupLimited.Ubuntu_79rhkp1fndgsc\LocalState\ext4.vhdx`
+      is 25.1 GB and is NOT sparse, so space freed inside WSL never returns to Windows until the
+      file is compacted. That needs every Claude session and VSCode window closed and an
+      Administrator PowerShell, which is why it is yours: the same fstrim plus compaction you ran
+      on 2026-10-02 (about 11 GB comes back). Below 5 GB free, new task worktrees are now refused,
+      and the refusal prints the compaction steps.
+      Decision attached: WSL can make that file sparse once, so freed space returns by itself and
+      this never needs doing again. Microsoft switched that setting off for a while over
+      data-corruption reports, so it is your call. Tell Claude yes and Claude checks that your WSL
+      version has the fix before giving you the one step.
+
 - [ ] **Confirm two things with Prince Dre about the Stompin credits, which are LIVE on your yes.**
       Live since 2026-10-03 at https://thecrwn.app/princedre/credits/stompin-thru-the-trenches:
       $250 Founding Supporter (25 spots: name first in the Stompin credits, numbered, a seat at his

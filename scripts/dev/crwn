@@ -12,11 +12,12 @@
 #   crwn sync                   fast-forward the LOCAL main checkout to origin/master; never touches
 #                               uncommitted files (git refuses, and so does this)
 #   crwn rm <task>              remove a finished worktree (the branch is kept)
-#   crwn clean [--apply]        every task worktree: landed?, dirty?, in use?, disk. A dry run unless
-#                               --apply: removes landed+clean+idle worktrees, deletes idle caches
+#   crwn clean [--apply]        every task worktree: landed?, dirty?, held by a live session now?, disk,
+#                               and the storage budget. A dry run unless --apply
 #
-# Cleanup also runs on its own, under the same rules: after crwn land (that task only) and when a
-# new task starts (every idle worktree). Branches are never deleted.
+# Cleanup also runs on its own, under the same rules: after every crwn land, and before every new
+# task, which is REFUSED (exit 3, with the reason and the fix) when one more worktree would pass the
+# storage budget or C: is critically low. Branches are never deleted.
 #
 # Worktrees are created by Claude Code's native --worktree; this script only adds the checks
 # around it: WSL only (Windows git corrupts this repo's colon-named files), a fresh base, and a
@@ -81,7 +82,7 @@ Pick a different name, or reopen it with: crwn resume $task"
   g fetch --quiet origin "$BASE" 2>/dev/null || echo "crwn: fetch failed, using cached origin/$BASE" >&2
   g show-ref --verify --quiet "refs/remotes/origin/worktree-$task" 2>/dev/null && [[ -n "$task" ]] \
     && die "origin already has a branch worktree-$task from an earlier task. Pick a different name."
-  sweep --no-fetch --no-sizes --quiet   # landed+idle worktrees and idle caches go before a new one arrives
+  preflight   # finished worktrees and their caches go first; refused if another one is still unsafe
   echo "crwn: base origin/$BASE $(g rev-parse --short "origin/$BASE"), worktree .claude/worktrees/${task:-<named by Claude>}, branch worktree-${task:-<name>}" >&2
   cd "$ROOT"
   if [[ -n "$task" ]]; then exec claude --worktree "$task" "$@"; else exec claude --worktree "$@"; fi
@@ -211,14 +212,10 @@ then run: crwn land $arg"
   echo "Main checkout:"
   sync_main_checkout || true
   print_handoff_links "$handoff"
-  # Remove that task's worktree now if it is clean and idle. Otherwise this says what keeps it
-  # (usually its session is still open), and the next sweep removes it. Run from inside the
-  # landed worktree, its own session is the one running, so it is kept for the next sweep.
-  if [[ -n "$dir" && "$PWD/" == "$dir/"* ]]; then
-    echo "Keeping $dir (this ran from inside it). The next crwn clean removes it once idle."
-  else
-    sweep --no-fetch --only "${arg#worktree-}"
-  fi
+  # Every worktree, this one included. The landed task loses its .next NOW even when its session is
+  # still open (or this ran from inside it), and the whole worktree goes once nothing holds it.
+  # Every land is also a budget check, so finished tasks cannot pile up between new ones.
+  sweep --no-fetch
 }
 
 # Fast-forward the LOCAL main checkout to origin/$BASE. SAFE BY CONSTRUCTION: every unsafe case
@@ -259,15 +256,26 @@ cmd_sync() { # fast-forward the LOCAL main checkout to origin/$BASE, never touch
   sync_main_checkout || die "the main checkout was not updated (reason above)."
 }
 
-# The cleanup engine (scripts/dev/worktree-clean.mjs) run by land and new. Never fails the caller.
+# The cleanup engine (scripts/dev/worktree-clean.mjs) run by land. Never fails the caller.
 sweep() {
   command -v node >/dev/null 2>&1 || { echo "crwn: node not found, cleanup skipped" >&2; return 0; }
-  node "$ROOT/scripts/dev/worktree-clean.mjs" --repo "$ROOT" --apply "$@" || echo "crwn: cleanup skipped (see above)" >&2
+  node "$ROOT/scripts/dev/worktree-clean.mjs" --repo "$ROOT" --auto --quiet "$@" || echo "crwn: cleanup skipped (see above)" >&2
+}
+
+# Before a new worktree: sweep, enforce the budget, refuse if still unsafe. An engine CRASH does not
+# block work (it is not evidence the disk is full), but it says so loudly.
+preflight() {
+  command -v node >/dev/null 2>&1 || { echo "crwn: node not found, disk preflight skipped" >&2; return 0; }
+  local rc=0
+  node "$ROOT/scripts/dev/worktree-clean.mjs" --repo "$ROOT" --preflight --no-fetch --quiet || rc=$?
+  [[ $rc -eq 3 ]] && die "not starting a new task (reason and fix above)."
+  [[ $rc -eq 0 ]] || echo "crwn: WARNING: the disk preflight failed (exit $rc), so disk use was NOT checked before this task" >&2
+  return 0
 }
 
 cmd_clean() {
-  [[ " $* " == *" --apply "* ]] && in_claude_worktree \
-    && die "a task session never cleans up other checkouts. Run crwn clean --apply from the main checkout or a plain terminal."
+  [[ " $* " == *" --apply "* || " $* " == *" --auto "* || " $* " == *" --preflight "* ]] && in_claude_worktree \
+    && die "a task session never runs a hand cleanup of other checkouts (crwn land and new tasks clean up on their own). Run crwn clean --apply from the main checkout."
   command -v node >/dev/null 2>&1 || die "node not found"
   exec node "$ROOT/scripts/dev/worktree-clean.mjs" --repo "$ROOT" "$@"
 }
@@ -297,7 +305,7 @@ cmd_rm() {
 }
 
 case "${1:-}" in
-  -h|--help|help) sed -n '2,20p' "$SELF" | sed 's/^# \{0,1\}//' ;;
+  -h|--help|help) sed -n '2,21p' "$SELF" | sed 's/^# \{0,1\}//' ;;
   clean) shift; cmd_clean "$@" ;;
   ls|list) shift; cmd_ls "$@" ;;
   land) shift; cmd_land "$@" ;;

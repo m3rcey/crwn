@@ -140,39 +140,102 @@ Measured 2026-10-02:
 Nothing ever removed any of it, so `.claude/worktrees` reached 6.4 GB in three days and the WSL
 disk filled C:.
 
+### Why the first cleaner still let it run away (2026-10-03)
+
+The first cleaner (2026-10-02) called a worktree "in use" for 12 hours after any trace of
+activity, and an in-use worktree kept EVERYTHING, caches included. Every trace fires on a
+finished task:
+- a fresh checkout stamps every file with its creation time, so "a file changed within 12h" was
+  true of every worktree for the first 12 hours of its life;
+- the land itself moves HEAD, so "git activity within 12h";
+- the session's transcript names it, so "a Claude session worked in it within 12h";
+- a Windows-side session's lock is `claude session <task>` with no pid, and a pid-less lock
+  counted as in use forever;
+- and the post-land sweep never ran for a task that landed itself: run from inside the worktree it
+  skipped by design, and run from a task session the engine refused `--apply`.
+
+Windows-side sessions also create worktrees with `EnterWorktree`, never through `crwn <task>`, so
+the pre-create sweep never ran for them. Result on 2026-10-03: 29 worktrees, 17 GB, C: from 19.4
+GB free to 0.5 GB in one day. The test suite missed it because it backdated every file two days
+before sweeping, which no real worktree ever is. History is not liveness.
+
+### What "held" means now: current liveness only
+
+- **Busy**: a process that is not a Claude session has its cwd inside it right now (a build, a dev
+  server, a test run). Nothing at all is touched.
+- **Held by a live session**: any one of these, checked at the moment of the sweep:
+  - a Claude session whose process is alive NOW has its cwd there. Claude writes
+    `sessions/<pid>.json` (pid, process start time, cwd) for every session, WSL-side in
+    `~/.claude` and Windows-side in `C:\Users\<you>\.claude`. A pid alone proves nothing (a crashed
+    session's file stays behind, and on 2026-10-03 one dead session's Windows pid belonged to a
+    svchost), so the process's start time must equal the recorded one: `/proc/<pid>/stat` for WSL,
+    one PowerShell `Get-Process` call (about 0.6 s) for Windows. The cwd is the registry's and the
+    LAST one in that session's transcript and its subagents' transcripts (`EnterWorktree` moves a
+    session after it starts). If Windows cannot answer, the session counts as held;
+  - a git lock naming a pid that is alive now (with a matching start time when the lock records
+    one). A pid-less lock is not evidence of anything by itself;
+  - the shell running the sweep is inside it (`crwn land` run from the task's own worktree);
+  - it was created in the last 20 minutes (a session still starting has not recorded its cwd yet),
+    or a transcript with no live registry entry recorded it as its cwd in the last 20 minutes.
+    Minutes, never hours (`CRWN_GRACE_MINUTES`).
+- **Nothing**: everything else, however recently it was used.
+
+**Source and cache have different rules.** A held worktree keeps its files, but once its task is
+landed and clean its `.next` goes immediately, live session or not: a wrong guess about liveness
+may cost a rebuild, never gigabytes. `node_modules` stays while a session holds it (it is a 17 MB
+hardlink, and a follow-up test run needs it).
+
 ### The lifecycle
 
-1. **Start**: `crwn <task>` creates the worktree. The SessionStart hook hardlinks `node_modules`.
+1. **Start**: `crwn <task>` (WSL terminal) or `EnterWorktree` (a Windows-side session) creates the
+   worktree. Both run the disk preflight first (below). The SessionStart hook hardlinks
+   `node_modules`.
 2. **Work**: the build gate keeps `.next` while the task is active, so builds stay fast (85 s
-   cold, 15 to 30 s warm). The Turbopack cache is capped at 768 MB: past that it is deleted after
-   a passing build, and the next build is cold once. To change the cap, set
-   `CRWN_BUILD_CACHE_CAP_MB`.
-3. **End the session**: type `/exit` or close the terminal. Claude asks whether to keep the
-   worktree:
-   - **Keep**: always pick this until the task has landed.
-   - **Remove**: deletes the folder AND the branch, including commits that exist nowhere else.
-     Pick it only for a task you are abandoning.
-4. **Idle**: after 12 hours with no use, the next sweep deletes the worktree's `.next` and
-   `node_modules`. Its files and commits stay exactly as they are. Both caches come back on their
-   own when you resume: the hook re-links `node_modules`, and the next build rebuilds `.next`.
-5. **Landed**: once every commit on the branch is in `origin/master`, the worktree is clean, and
-   it is idle, the sweep removes the worktree. **The branch is always kept.**
+   cold, 15 to 30 s warm). The Turbopack cache is capped at 768 MB per worktree as a secondary
+   bound (`CRWN_BUILD_CACHE_CAP_MB`); the global budget below is the primary one.
+3. **Land**: `crwn land` sweeps every worktree. The landed task loses its `.next` at once, even
+   while its session is still open, and every other finished worktree nothing holds is removed.
+4. **Session ends**: the next sweep (any land, any new task) removes the landed worktree. When
+   Claude asks on exit whether to keep the worktree, pick **Keep** until the task has landed:
+   **Remove** deletes the folder AND the branch, including commits that exist nowhere else.
+5. **Never removed automatically**: dirty, unlanded, or holding a private ignored file. If nothing
+   holds such a worktree, it still loses `.next` and `node_modules`; both come back on their own
+   (the hook re-links `node_modules`, the next build rebuilds `.next`). **The branch is always
+   kept.**
+
+### The storage budget and the C: guard
+
+Every sweep that applies measures `.claude/worktrees` (disk not shared with the main checkout's
+`node_modules`) and the free space on C:, where the WSL disk lives.
+
+| Threshold | Default | Override | What happens |
+|---|---|---|---|
+| warning | 3 GB | `CRWN_WT_WARN_MB` | a WARNING line, even in quiet runs |
+| aggressive | 4 GB | `CRWN_WT_AGGRESSIVE_MB` | `.next` also goes from every worktree that is not busy, live and unlanded ones included |
+| hard limit | 5 GB | `CRWN_WT_HARD_MB` | a new worktree is refused if the total plus one more (`CRWN_WT_NEW_MB`, 600 MB) would pass it |
+| C: warning | 10 GB free | `CRWN_C_WARN_GB` | a WARNING line |
+| C: critical | 5 GB free | `CRWN_C_CRITICAL_GB` | a new worktree is refused |
+
+**Before every new worktree** (`crwn <task>`, and the `EnterWorktree` PreToolUse hook
+`.claude/hooks/worktree-preflight.mjs` for Windows-side sessions): sweep, apply the budget,
+re-measure, and only then allow it. A refusal (exit 3, which the hook turns into a blocked tool
+call) names every worktree still holding space and why, and gives the exact cleanup and VHDX
+compaction steps. A crash of the engine itself lets the worktree through with a loud warning: a
+bug is not evidence the disk is full.
+
+**C: does not recover by itself.** The WSL disk file is not sparse, so space freed inside WSL is
+only returned to Windows by compacting it (every session closed, an Administrator PowerShell). That
+is why the C: guard refuses early instead of trusting a cleanup to fix it.
 
 ### When the sweep runs
 
-- **After `crwn land <task>`, for that task only.** If its session is still open (the usual
-  case), it says so and leaves the worktree. A later sweep removes it.
-- **Every time `crwn <task>` starts a new task**, across all worktrees. Quiet unless it acts.
+- **After every `crwn land`**, across all worktrees.
+- **Before every new worktree**: `crwn <task>` and `EnterWorktree` (refused when still unsafe).
 - **By hand**, `crwn clean` (see below).
 
 ### What the sweep never does
 
-- **It never touches a worktree that is in use.** Any one of these counts:
-  - a running process has its cwd inside it (a WSL Claude session, a dev server, a build);
-  - a Claude transcript written in the last 12 hours records a cwd inside it. This is how it sees
-    Windows-side sessions, which WSL cannot see as processes;
-  - a file in it changed in the last 12 hours, or git moved its HEAD in that time;
-  - git holds a lock on it with a live pid (a lock whose pid has died is stale and does not count).
+- **It never touches a busy worktree**, and never removes one a live session holds.
 - **It never removes a worktree with an uncommitted or untracked file.** Git refuses that by
   itself as well, because the sweep never passes `--force`.
 - **It never removes an unlanded worktree**, pushed or not.
@@ -181,15 +244,13 @@ disk filled C:.
   checkout's) or a render output blocks removal. A byte-identical copy of the main checkout's file
   does not.
 - **It never deletes a branch.**
-- **It re-reads every fact just before each deletion.** A worktree that became busy in between is
-  left alone.
-
-Change the 12 hours with `--active-hours N` or `CRWN_ACTIVE_HOURS`.
+- **It re-reads every fact just before each deletion**, sessions included. A worktree that became
+  busy in between is left alone.
 
 ### Running it by hand
 
 Dry run. It changes nothing and shows each worktree's branch, landed or not, pushed or not, dirty
-or clean, in use (and why), disk use, and the plan:
+or clean, held now (and by what), disk use, the plan, and the storage budget:
 
     wsl scripts/dev/crwn clean
 
@@ -203,8 +264,10 @@ Options:
 - `--no-sizes` skips the disk measurement.
 - `--no-fetch` judges against the cached `origin/master`.
 
-A task session may run the dry run. `--apply` is refused there (by the script and by git-guard),
-because it changes other sessions' checkouts.
+A task session may run the dry run. A hand `--apply` is refused there (by the script and by
+git-guard): broad cleanup is the main checkout's call. The lifecycle runs (`--auto` from
+`crwn land`, `--preflight` from `crwn <task>` and the EnterWorktree hook) are allowed from
+anywhere, because what they may do is decided by the liveness rules, not by who runs them.
 
 `crwn rm <task>` still removes one finished worktree directly. It refuses while that task's
 session is running, and git refuses if anything is uncommitted.

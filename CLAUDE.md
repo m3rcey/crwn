@@ -479,10 +479,21 @@ integration checkout, and its uncommitted files may be another session's work.
   default), and an unlinked `node_modules` is 1 GB, so `.claude/worktrees` reached 6.4 GB in three
   days. [scripts/dev/worktree-clean.mjs](scripts/dev/worktree-clean.mjs) is the one engine, and
   `crwn land` and `crwn <task>` run it automatically. It removes a worktree only when the worktree
-  is landed, clean, idle and holds no non-cache ignored file. It deletes only `.next` and
-  `node_modules` from other idle worktrees, never touches one in use, and never deletes a branch.
-  "In use" includes Windows-side sessions, which WSL sees only through transcript `cwd` fields.
-  Do not weaken a rule in `decide()` without its test: each one is mutation-tested.
+  is landed, clean, held by nothing NOW and holds no non-cache ignored file. It never touches a
+  busy one, never removes a dirty or unlanded one, and never deletes a branch.
+  **Liveness is CURRENT, never historical** (2026-10-03: the first version kept a worktree for 12
+  hours after any trace of activity, and a fresh checkout, the land's own HEAD move, the session's
+  transcript and a pid-less Windows lock are traces EVERY finished task has, so one day produced
+  29 worktrees, 17 GB and C: at 0.5 GB). "Held" means a live process inside it, or a Claude session
+  alive now by pid AND process start time (`sessions/<pid>.json` on both sides of WSL; Windows reuses
+  pids), or a live-pid lock, or a 20-minute creation grace. Never re-add an hours-long window, a
+  file-mtime rule, git-HEAD recency or a pid-less lock as liveness. **Source and cache have separate
+  rules**: a landed, clean task loses `.next` at once even while its session is open. A global budget
+  (warn 3 GB, aggressive 4 GB, hard 5 GB) and a C: guard (warn under 10 GB, refuse under 5 GB) run
+  before every new worktree, including Windows-side `EnterWorktree` through the PreToolUse hook
+  `.claude/hooks/worktree-preflight.mjs`. The WSL disk is not sparse, so C: only recovers by a VHDX
+  compaction, which is Josh's. Do not weaken a rule in `decide()` or `liveness()` without its test:
+  each one is mutation-tested.
 
 ## TODO.md — you maintain it, Josh works it
 

@@ -303,7 +303,7 @@ export function evaluateAll(input, env = process.env) {
         return 'crwn sync moves the main checkout, which other sessions share and a task session never touches. Land your branch with crwn land <task> --yes; Josh syncs the main checkout.';
       }
       if (crwnAt >= 0 && seg[crwnAt + 1] === 'clean' && seg.includes('--apply') && implementation) {
-        return 'crwn clean --apply removes and trims OTHER task worktrees, which a task session never does. A dry run (crwn clean) is fine; Josh applies it.';
+        return 'crwn clean --apply removes and trims OTHER task worktrees, which a task session never does. A dry run (crwn clean) is fine; crwn land already cleans up after itself, and a hand --apply runs from the main checkout.';
       }
 
       if (mutatesDeps(seg)) {
