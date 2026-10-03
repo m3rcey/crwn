@@ -106,6 +106,11 @@ adds `products.grants_album_id` and one clause to `can_play_track`. APPLIED and 
 above the fold at every viewport. `tapeGrantsLive` still gates the credits copy, so a schema
 rollback would take the claim down with the grant.
 
+**`products.is_free` on a product means "anyone may buy it", not "costs nothing".** ShopSection
+shows a product with `is_free = false` and no tiers as "Subscribe to unlock", so the tape went up
+unbuyable from the Shop until a screenshot caught it (2026-10-03). The script now writes
+`is_free: true` on every product it creates or refreshes; checkout never read the flag.
+
 ## Proof that survives a screenshot (2026-10-03)
 
 Any picture can be edited or generated, so the picture is never the proof: the CRWN page is. The

@@ -17,7 +17,8 @@ export function CreditsTeaser({ teaser, name }: { teaser: CreditsTeaserData; nam
     teaser.seatsLeft !== null && teaser.cap !== null ? `, ${teaser.seatsLeft} of ${teaser.cap} spots left` : '';
   return (
     <section className="mt-8 rounded-2xl border border-[#D4AF37]/30 bg-[#1A1A1A] p-5">
-      <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
+      {/* Centred, words and button first, preview after (founder, 2026-10-03). */}
+      <div className="flex flex-col items-center gap-5 text-center">
         <CreditCardPreview
           artistName={teaser.artistName}
           albumTitle={teaser.albumTitle}
@@ -25,9 +26,9 @@ export function CreditsTeaser({ teaser, name }: { teaser: CreditsTeaserData; nam
           level="founding"
           number={teaser.nextNumber}
           name={name}
-          className="order-last sm:order-first sm:mx-0 sm:w-[200px] sm:shrink-0"
+          className="order-last"
         />
-        <div className="min-w-0 text-left">
+        <div className="min-w-0 max-w-xl">
           <p className="text-xs uppercase tracking-widest text-[#D4AF37]">Project credits</p>
           <h3 className="mt-1 text-xl font-bold text-white">{`Get Special Recognition on ${teaser.albumTitle}.`}</h3>
           <p className="mt-2 text-sm text-white/70">

@@ -305,7 +305,11 @@ export function TierCards({ tiers, artistSlug, artistId, tracks = [], projects =
   const [showSuccess, setShowSuccess] = useState(false);
   const [confirmTier, setConfirmTier] = useState<TierConfig | null>(null);
   const [confirmAction, setConfirmAction] = useState<'upgrade' | 'downgrade' | null>(null);
-  const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('month');
+  // Annual is the default (founder, 2026-10-03): the cards open on the 25%-off price. A tier that
+  // does not offer annual still shows and bills monthly through effectiveInterval. Verified that
+  // day: every annual-offering paid tier on CRWN (48) has an annual Stripe price, and Dre's three
+  // charge exactly what the cards show ($90 / $225 / $450 a year).
+  const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('year');
 
   // Tier evidence. Attribution reuses the persisted referral state the checkout call already
   // reads, so a view and the checkout start it leads to carry the same source.
@@ -596,6 +600,10 @@ export function TierCards({ tiers, artistSlug, artistId, tracks = [], projects =
                 const showAnnual = effectiveInterval(tier) === 'year';
                 const pct = tierAnnualPct(tier);
                 const perMo = showAnnual ? (tier.price * (1 - pct / 100)) / 100 : tier.price / 100;
+                // A free rung says FREE, never "$0.00/mo" (founder, 2026-10-03).
+                if (tier.price === 0) {
+                  return <p className="text-3xl font-bold text-crwn-text mt-2">FREE</p>;
+                }
                 return (
                   <>
                     <p className="text-3xl font-bold text-crwn-text mt-2">

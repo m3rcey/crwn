@@ -82,6 +82,8 @@ for (const level of CREDIT_LEVELS) {
     description: copy.description,
     image_url: album.album_art_url,
     is_active: true,
+    // On a product, is_free means "anyone may buy it" (ShopSection), not "costs nothing".
+    is_free: true,
   };
   if (!have) {
     console.log(`${level}: ${APPLY ? 'creating' : 'will create'} "${copy.title}" at $${want.priceCents / 100}, ${want.seats} spots`);
@@ -94,7 +96,6 @@ for (const level of CREDIT_LEVELS) {
           type: 'digital',
           delivery_type: 'instant',
           access_level: 'public',
-          is_free: false,
           allowed_tier_ids: [],
           price: want.priceCents,
           max_quantity: want.seats,
@@ -137,7 +138,9 @@ if (C.tape) {
     const { count: songCount } = await db.from('album_tracks').select('track_id', { count: 'exact', head: true }).eq('album_id', tapeAlbum.id);
     const copy = tapeProductCopy(tapeAlbum.title, C.displayName, songCount ?? 0);
     const { data: haveTape } = await db.from('products').select('id, price, quantity_sold').eq('artist_id', artist.id).eq('grants_album_id', tapeAlbum.id).maybeSingle();
-    const fields = { title: copy.title, description: copy.description, image_url: tapeAlbum.album_art_url, is_active: true };
+    // is_free on a product means "anyone may buy it" (ShopSection), not "costs nothing": false with no
+    // tiers rendered the tape as "Subscribe to unlock" in the Shop (caught by screenshot, 2026-10-03).
+    const fields = { title: copy.title, description: copy.description, image_url: tapeAlbum.album_art_url, is_active: true, is_free: true };
     if (!haveTape) {
       console.log(`tape: ${APPLY ? 'creating' : 'will create'} "${copy.title}" at $${C.tape.priceCents / 100}`);
       if (APPLY) {
@@ -147,7 +150,6 @@ if (C.tape) {
           type: 'digital',
           delivery_type: 'instant',
           access_level: 'public',
-          is_free: false,
           allowed_tier_ids: [],
           price: C.tape.priceCents,
           quantity_sold: 0,
