@@ -100,11 +100,17 @@ export function ArtistProfileContent({
   // ?tab=community is the Promise to Delivery fast action for member posts: the composer lives
   // on this page, so the owner is sent straight to it. A pointer only: unknown values fall
   // through to the normal default.
+  // Any real tab can be linked to (?tab=tiers, ?tab=shop, ?tab=live...), so a post, an email or
+  // a support answer can send a fan straight to it (2026-10-03: only community worked, so a link to
+  // Tiers opened Music). Still a pointer only: an unknown value falls through to the default.
   const requestedTab = searchParams.get('tab');
-  const [activeTab, setActiveTab] = useState<'movement' | 'music' | 'live' | 'tiers' | 'shop' | 'community' | 'leaderboard'>(
+  const LINKABLE_TABS = ['movement', 'music', 'live', 'tiers', 'shop', 'community', 'leaderboard'] as const;
+  type ArtistTab = (typeof LINKABLE_TABS)[number];
+  const linked = (LINKABLE_TABS as readonly string[]).includes(requestedTab ?? '') ? (requestedTab as ArtistTab) : null;
+  const [activeTab, setActiveTab] = useState<ArtistTab>(
     // A join started inside a community room returns to that room (?tab=community&room=),
     // so the explicit tab wins over the checkout default.
-    requestedTab === 'community' ? 'community' : returningFromCheckout ? 'tiers' : 'music',
+    linked ?? (returningFromCheckout ? 'tiers' : 'music'),
   );
 
   // Trigger artist page tour on first visit (only when viewing own page)
