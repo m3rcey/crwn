@@ -284,7 +284,11 @@ export function ArtistProfileContent({
         {activeTab === 'shop' && (
           <>
             {creditsTeaser && <div className="mb-8">{<CreditsTeaser teaser={creditsTeaser} />}</div>}
-            <ShopSection products={products || []} artistId={artist.id} artistSlug={artist.slug} merchStoreUrl={artist.merch_store_url} />
+            {/* With credits on sale, an empty shop's "nothing here yet" would contradict the offer
+                right above it, so the shop renders only when it has something of its own. */}
+            {(!creditsTeaser || (products || []).length > 0 || artist.merch_store_url) && (
+              <ShopSection products={products || []} artistId={artist.id} artistSlug={artist.slug} merchStoreUrl={artist.merch_store_url} />
+            )}
           </>
         )}
 
