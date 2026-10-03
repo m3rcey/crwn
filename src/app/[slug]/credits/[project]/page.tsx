@@ -49,6 +49,7 @@ export default async function CreditsPage({ params }: Props) {
         credits={data.credits}
         path={creditsPath(data.artist.slug, data.album.title)}
         sessionLabel={data.sessionLabel}
+        tapeIncluded={data.tapeIncluded}
       />
     </Suspense>
   );

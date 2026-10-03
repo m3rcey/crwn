@@ -1,5 +1,15 @@
 # CRWN Brain — Changelog
 
+## 2026-10-03 - The whole tape for $19.99, and credits include it
+
+- **A project can be bought whole**, as a product that grants it (`products.grants_album_id`), and
+  a project credit now grants its tape too: one clause in `can_play_track`, bound to the selling
+  artist. Reverses "projects reach fans through tiers only" for products that say so; albums.price
+  stays inert.
+- **Dre's Stompin: $19.99**, offered on the album page only to someone who cannot already play
+  every song. Pending the founder's migration; nothing claims or sells the tape before it.
+- **The credits page is centred** (founder request).
+
 ## 2026-10-03 - CTAs above the fold, measured; Platinum leads; your own recognition; the members' vote
 
 - **A call to action is always above the fold**, now a written rule with a measurement:

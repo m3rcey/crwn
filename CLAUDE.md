@@ -1780,11 +1780,15 @@ can no longer cancel the original. It bills forever. Guards, all of which must s
 - `album_tracks` uses `track_number` NOT `position`.
 - `playlist_tracks` uses `position`.
 - Albums use `is_active` (not `is_published`), and have no `slug` field.
-- **Albums are not sold individually** (founder decision, 2026-10-01). Projects reach fans through
-  tier access only. `albums.price` stays in the schema but nothing reads, displays or charges it, so
-  neither `AlbumManager` nor `QuickCreateAlbumModal` offers it any more (it used to promise "Fans
-  can buy the album outright"). Re-adding a price field needs an album checkout, a webhook handler
-  and an entitlement path in `can_play_track` first. Three old rows still carry a value; it is inert.
+- **A project is sold whole only as a PRODUCT that grants it** (founder, 2026-10-03, reversing
+  2026-10-01's "tier access only" for products that say so). `products.grants_album_id` (a whole
+  tape, Dre's Stompin at $19.99) or `products.credit_album_id` (a project credit, which now includes
+  its tape) make a completed purchase play every track on that album, through ONE clause in
+  `can_play_track` bound to the selling artist's own album
+  ([supabase/schema-phase2-tape-purchase.sql](supabase/schema-phase2-tape-purchase.sql)). The album
+  page offers it only to a viewer who cannot already play every song; checkout refuses a second
+  purchase. `albums.price` stays INERT: nothing reads, displays or charges it, and neither album
+  editor offers it. Never wire a second album-sale path beside the product.
 
 ### Onboarding Safety Net — DO NOT REMOVE
 

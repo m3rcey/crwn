@@ -165,6 +165,10 @@ export interface LaunchPartnerConfig {
   prices?: Partial<Record<PaidRung, number>>;
   nurture?: NurtureConfig;
   credits?: CreditsConfig;
+  /** A whole project sold once (founder, 2026-10-03): products.grants_album_id, so a completed
+   *  purchase plays every track on it (schema-phase2-tape-purchase.sql). Created by
+   *  scripts/project-credits.mjs once that migration is applied. */
+  tape?: { project: string; priceCents: number };
 }
 
 /** The drop funnel's public link segment, personalized (founder, 2026-09-29): never the random
@@ -307,6 +311,12 @@ export function checkLaunchPartner(c: LaunchPartnerConfig): string[] {
   const links = (c.drops ?? []).map((d) => dropLinkSlug(c, d));
   for (const link of links) if (!DROP_SLUG_RE.test(link)) errors.push(`drop: link "${link}" is not a clean lowercase slug`);
   if (new Set(links).size !== links.length) errors.push('drop: two funnels share a link');
+  if (c.tape) {
+    if (!(c.content?.projects ?? []).some((p) => p.title === c.tape!.project)) errors.push(`tape: "${c.tape.project}" is not a project this launch uploads`);
+    if (!Number.isInteger(c.tape.priceCents) || c.tape.priceCents < 500 || c.tape.priceCents > 10000) errors.push('tape: price must be whole cents between $5 and $100');
+    const cheapestCredit = c.credits ? Math.min(c.credits.founding.priceCents, c.credits.supporter?.priceCents ?? Infinity) : Infinity;
+    if (c.tape.priceCents >= cheapestCredit) errors.push('tape: the tape must cost less than any credit that includes it');
+  }
   if (c.credits) {
     const cr = c.credits;
     if (!(c.content?.projects ?? []).some((p) => p.title === cr.project)) errors.push(`credits: "${cr.project}" is not a project this launch uploads`);

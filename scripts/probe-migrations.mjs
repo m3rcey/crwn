@@ -27,6 +27,9 @@ const PROBES = [
   ['project credits: product columns', 'products?select=credit_level,credit_album_id&limit=1', 'schema-phase2-project-credits.sql'],
   ['project credits: live seat column', 'live_sessions?select=credit_album_id&limit=1', 'schema-phase2-project-credits.sql'],
   ['project credits table', 'project_credits?select=id&limit=1', 'schema-phase2-project-credits.sql'],
+  // Whole-tape purchase: the column reads 200 once applied (products has table-level grants).
+  // The oracle clause itself is asserted by the migration's self-verify.
+  ['whole-tape purchase', 'products?select=grants_album_id&limit=1', 'schema-phase2-tape-purchase.sql'],
   ['product offer events', 'product_offer_events?select=id&limit=1', 'schema-phase2-project-credits.sql'],
   ['plan recommendation columns', 'artist_profiles?select=recommended_plan&limit=1', 'schema-phase2-platform-plan-recommendation.sql'],
   ['support chat tables', 'support_conversations?select=id&limit=1', 'schema-phase2-support-chat.sql'],

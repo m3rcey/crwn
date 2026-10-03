@@ -3,7 +3,7 @@
 
 import { describe, expect, it } from 'vitest';
 import { listSourceFiles, readStripped, violation } from '@/lib/architecture/sourceScan';
-import { creditProductCopy, RECOGNITION_ONLY } from './credits';
+import { creditProductCopy, RECOGNITION_ONLY, tapeProductCopy } from './credits';
 
 const DOCS = 'supabase/schema-phase2-project-credits.sql';
 
@@ -48,6 +48,15 @@ describe('project credits boundaries', () => {
     }
     expect(creditProductCopy('founding', 'X', 'Dre').description).toMatch(/live session/);
     expect(creditProductCopy('supporter', 'X', 'Dre').description).not.toMatch(/live session/);
+  });
+
+  it('a credit claims the tape only when the gate grants it, and the tape copy sells songs, not a membership', () => {
+    expect(creditProductCopy('founding', 'X', 'Dre').description).not.toMatch(/whole tape/);
+    expect(creditProductCopy('founding', 'X', 'Dre', true).description).toMatch(/whole tape is yours/);
+    expect(creditProductCopy('supporter', 'X', 'Dre', true).description).toMatch(/whole tape is yours/);
+    const tape = tapeProductCopy('Stompin Thru The Trenches', 'Prince Dre', 16);
+    expect(tape.description).toMatch(/All 16 songs/);
+    expect(`${tape.title} ${tape.description}`).not.toMatch(/[\u2013\u2014]/);
   });
 
   it('the fan-facing page never promises a membership or income', () => {

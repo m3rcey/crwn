@@ -164,6 +164,39 @@ export interface CreditsProject {
   /** When the next listening session that seats this project's Founding Supporters is, read from
    *  the live itself (never from config), so the page can only name a date that is scheduled. */
   sessionLabel: string | null;
+  /** True once the playback gate grants a credit's tape (schema-phase2-tape-purchase.sql). The
+   *  page says "the whole tape is yours" only then. */
+  tapeIncluded: boolean;
+}
+
+/** Whether the playback gate grants a product's album yet. The column arrives with the same
+ *  migration that teaches can_play_track to honour it, so its presence is the answer. */
+export async function tapeGrantsLive(db: Db): Promise<boolean> {
+  try {
+    const { error } = await db.from('products').select('grants_album_id').limit(1);
+    return !error;
+  } catch {
+    return false;
+  }
+}
+
+/** The whole-tape product for one of the artist's albums, or null (none, inactive, or the
+ *  migration not applied). Reads only anon-readable rows. */
+export async function loadTapeOffer(db: Db, artistId: string, albumId: string): Promise<{ productId: string; priceCents: number } | null> {
+  try {
+    const { data, error } = await db
+      .from('products')
+      .select('id, price')
+      .eq('artist_id', artistId)
+      .eq('grants_album_id', albumId)
+      .eq('is_active', true)
+      .limit(1);
+    const p = (data as any[] | null)?.[0];
+    if (error || !p) return null;
+    return { productId: p.id, priceCents: p.price };
+  } catch {
+    return null;
+  }
 }
 
 /** "Saturday, November 14 at 8 PM CT". Central time: every CRWN schedule copy is the artist's clock. */
@@ -245,6 +278,7 @@ export async function loadCreditsProject(admin: Db, slug: string, projectParam: 
     offers,
     credits: publicCredits(await loadProjectCredits(admin, album.id)),
     sessionLabel: session?.scheduled_at ? sessionLabelFor(session.scheduled_at) : null,
+    tapeIncluded: await tapeGrantsLive(admin),
   };
 }
 

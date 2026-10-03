@@ -5,6 +5,8 @@ import { AlbumShareContent } from '@/components/share/AlbumShareContent';
 import { attachStreamUrls } from '@/lib/storage/signedAudio';
 import Link from 'next/link';
 import { creditsPath } from '@/lib/projectCredits/credits';
+import { loadTapeOffer } from '@/lib/projectCredits/server';
+import { TapeBuyBar } from '@/components/credits/TapeBuyBar';
 
 interface AlbumPageProps {
   params: Promise<{ slug: string; id: string }>;
@@ -113,9 +115,22 @@ export default async function AlbumPage({ params }: AlbumPageProps) {
     .eq('is_active', true)
     .limit(1);
   const creditsHref = creditProducts?.length ? creditsPath(artist.slug, album.title) : null;
+  // A project sold whole: offered only to a viewer who cannot already play every song on it (a
+  // member whose rung holds it, or someone who bought it, never sees a second way to pay).
+  const tape = await loadTapeOffer(supabase, artist.id, id);
+  const ownsAll = playableTracks.length > 0 && playableTracks.every((t: any) => !!t.audio_url_128);
 
   return (
     <>
+      {tape && !ownsAll && (
+        <TapeBuyBar
+          productId={tape.productId}
+          priceCents={tape.priceCents}
+          albumTitle={album.title}
+          songCount={playableTracks.length}
+          returnPath={`/${artist.slug}/album/${id}`}
+        />
+      )}
       {creditsHref && (
         <Link
           href={creditsHref}

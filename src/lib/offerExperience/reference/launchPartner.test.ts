@@ -52,8 +52,20 @@ describe('the checks actually refuse what they claim to', () => {
     // Same for credits: they name a project, and there are none yet.
     expect(checkLaunchPartner(c).join()).toContain('is not a project this launch uploads');
     c.credits = undefined;
+    c.tape = undefined;
     expect(checkLaunchPartner(c)).toEqual([]);
   });
+  it('refuses a tape that costs as much as a credit that includes it, or sits outside $5 to $100', () => {
+    const c = clone();
+    expect(c.tape).toBeDefined();
+    c.tape = { project: c.tape!.project, priceCents: c.credits!.supporter!.priceCents };
+    expect(checkLaunchPartner(c).join()).toContain('less than any credit');
+    c.tape = { project: c.tape.project, priceCents: 300 };
+    expect(checkLaunchPartner(c).join()).toContain('between $5 and $100');
+    c.tape = { project: 'Not A Project', priceCents: 1999 };
+    expect(checkLaunchPartner(c).join()).toContain('is not a project this launch uploads');
+  });
+
   it('refuses a credits offer whose downsell is not cheaper, or whose spots or price are out of range', () => {
     const c = clone();
     expect(c.credits).toBeDefined();

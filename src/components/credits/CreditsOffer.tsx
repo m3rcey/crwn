@@ -35,6 +35,8 @@ interface Props {
   path: string;
   /** The scheduled listening session, already formatted, or null when none is on the calendar. */
   sessionLabel: string | null;
+  /** The playback gate grants a credit's tape (schema-phase2-tape-purchase.sql). */
+  tapeIncluded?: boolean;
 }
 
 interface MyCredit {
@@ -77,9 +79,11 @@ function rememberedName(fromUrl: string | null): string | null {
   }
 }
 
-function benefitsFor(level: CreditLevel, artistName: string, albumTitle: string, sessionLabel: string | null): string[] {
+function benefitsFor(level: CreditLevel, artistName: string, albumTitle: string, sessionLabel: string | null, tapeIncluded = false): string[] {
+  const tape = tapeIncluded ? [`The whole ${albumTitle} tape, every song, playing on ${artistName}'s page.`] : [];
   if (level === 'founding') {
     return [
+      ...tape,
       `Your name in the ${albumTitle} credits as a Founding Supporter, numbered in the order you joined, listed first.`,
       sessionLabel
         ? `A seat in ${artistName}'s private live session on ${albumTitle}, ${sessionLabel}.`
@@ -87,10 +91,10 @@ function benefitsFor(level: CreditLevel, artistName: string, albumTitle: string,
       SHARE_LINE,
     ];
   }
-  return [`Your name in the ${albumTitle} credits as a Supporter, numbered in the order you joined.`, SHARE_LINE];
+  return [...tape, `Your name in the ${albumTitle} credits as a Supporter, numbered in the order you joined.`, SHARE_LINE];
 }
 
-export function CreditsOffer({ artist, album, offers, credits, path, sessionLabel }: Props) {
+export function CreditsOffer({ artist, album, offers, credits, path, sessionLabel, tapeIncluded = false }: Props) {
   const router = useRouter();
   const search = useSearchParams();
   const { user } = useAuth();
@@ -198,12 +202,12 @@ export function CreditsOffer({ artist, album, offers, credits, path, sessionLabe
 
   return (
     <div className="min-h-screen bg-[#0D0D0D] text-white">
-      <div className="mx-auto max-w-xl px-4 pb-24 pt-8">
+      <div className="mx-auto max-w-xl px-4 pb-24 pt-8 text-center">
         <Link href={`/${artist.slug}`} className="text-sm text-white/50 hover:text-white">
           {artist.name}
         </Link>
 
-        <div className="mt-4 flex items-center gap-4">
+        <div className="mt-4 flex flex-col items-center gap-3">
           {album.artUrl ? (
             <Image
               src={album.artUrl}
@@ -249,8 +253,8 @@ export function CreditsOffer({ artist, album, offers, credits, path, sessionLabe
             {buyButton(shown)}
             {error && <p className="mt-3 text-sm text-red-400">{error}</p>}
             <p className="mt-3 text-xs text-white/50">{`One-time payment. ${RECOGNITION_ONLY}`}</p>
-            <ul className="mt-6 space-y-2">
-              {benefitsFor(shown.level, artist.name, album.title, sessionLabel).map((b) => (
+            <ul className="mx-auto mt-6 w-fit max-w-full space-y-2 text-left">
+              {benefitsFor(shown.level, artist.name, album.title, sessionLabel, tapeIncluded).map((b) => (
                 <li key={b} className="flex gap-2 text-sm">
                   <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#D4AF37]" />
                   <span>{b}</span>
@@ -329,12 +333,12 @@ function MyCredits({
   }
 
   return (
-    <section className="mt-8 rounded-2xl border border-[#D4AF37]/40 bg-[#1A1A1A] p-5">
+    <section className="mt-8 rounded-2xl border border-[#D4AF37]/40 bg-[#1A1A1A] p-5 text-center">
       <p className="text-xs uppercase tracking-widest text-[#D4AF37]">Your credit</p>
       <h2 className="mt-1 text-2xl font-bold">{creditLabel(credit.level, credit.number)}</h2>
       <p className="mt-1 text-sm text-white/60">{`on ${albumTitle}`}</p>
 
-      <label className="mt-5 block text-sm font-medium" htmlFor="credit-name">
+      <label className="mt-5 block text-left text-sm font-medium" htmlFor="credit-name">
         The name printed in the credits
       </label>
       <input
@@ -345,7 +349,7 @@ function MyCredits({
         placeholder="How you want to be credited"
         className="mt-2 w-full rounded-xl bg-[#0D0D0D] px-4 py-3 text-white outline-none ring-1 ring-white/10 focus:ring-[#D4AF37]"
       />
-      <label className="mt-3 flex items-center gap-2 text-sm text-white/80">
+      <label className="mt-3 flex items-center justify-center gap-2 text-sm text-white/80">
         <input type="checkbox" checked={listed} onChange={(e) => setListed(e.target.checked)} className="accent-[#D4AF37]" />
         Print my name in the credits and make my credit page public
       </label>
@@ -360,7 +364,7 @@ function MyCredits({
       {error && <p className="mt-3 text-sm text-red-400">{error}</p>}
 
       {credit.listed && credit.name ? (
-        <div className="mt-5 flex flex-wrap gap-2">
+        <div className="mt-5 flex flex-wrap justify-center gap-2">
           <Link href={card} prefetch className="rounded-full bg-white/10 px-4 py-2 text-sm">
             View my credit
           </Link>
@@ -407,7 +411,7 @@ function CreditsListPreview({
   return (
     <div className="mt-6">
       <p className="text-xs uppercase tracking-widest text-white/50">{`How you appear on ${artistName}'s page`}</p>
-      <div className="mt-2 rounded-xl bg-[#0D0D0D] p-4">
+      <div className="mt-2 rounded-xl bg-[#0D0D0D] p-4 text-left">
         <p className="text-sm font-semibold text-[#D4AF37]">{`${albumTitle}: ${CREDIT_LEVEL_LABEL[level]}s`}</p>
         <ul className="mt-2 divide-y divide-white/5">
           {before.map((c) => (
@@ -435,14 +439,14 @@ function CreditsList({ credits, albumTitle }: { credits: PublicCreditList; album
   }
   return (
     <section className="mt-10">
-      <h2 className="text-sm uppercase tracking-widest text-white/50">Credits</h2>
+      <h2 className="text-center text-sm uppercase tracking-widest text-white/50">Credits</h2>
       {(['founding', 'supporter'] as const).map((level) => {
         const named = credits[level];
         const hidden = credits.unlisted[level];
         if (!named.length && !hidden) return null;
         return (
-          <div key={level} className="mt-4">
-            <h3 className="font-semibold text-[#D4AF37]">{CREDIT_LEVEL_LABEL[level]}s</h3>
+          <div key={level} className="mt-4 text-left">
+            <h3 className="text-center font-semibold text-[#D4AF37]">{CREDIT_LEVEL_LABEL[level]}s</h3>
             <ul className="mt-2 divide-y divide-white/5">
               {named.map((c) => (
                 <li key={c.number} className="flex justify-between py-2 text-sm">

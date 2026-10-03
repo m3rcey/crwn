@@ -85,6 +85,12 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **Run the whole-tape migration, then tell Claude "tape migration ran".** Open
+      [supabase/schema-phase2-tape-purchase.sql](supabase/schema-phase2-tape-purchase.sql) and run
+      it in the Supabase SQL Editor (it ends with NOTICE `schema-phase2-tape-purchase: OK`). It lets a
+      purchase unlock a whole project: Stompin at $19.99 (your yes, 2026-10-03), and the $250/$150
+      credits then include the tape. Until it runs, nothing sells or claims the tape.
+
 - [ ] **Confirm two things with Prince Dre about the Stompin credits, which are LIVE on your yes.**
       Live since 2026-10-03 at https://thecrwn.app/princedre/credits/stompin-thru-the-trenches:
       $250 Founding Supporter (25 spots: name first in the Stompin credits, numbered, a seat at his
@@ -1198,6 +1204,11 @@ Things that are never finished. Cadence, then the thing.
 ---
 
 ## On Claude's plate (not yours)
+
+- **Once the tape migration ran:** probe it, run `scripts/project-credits.mjs princedre --apply`
+  (creates the $19.99 tape, adds the tape line to both credits), check the Stompin album page shows
+  "Get the whole tape" above the fold (add a probe-fan-fold job for it) and the credits page lists
+  the tape, then buy-path smoke test without paying.
 
 - **When Dre's two new projects are uploaded (Stompin Thru The Trenches + one more), rebuild Gold
   the way the founder's email draft describes it.** Gold day one becomes Stompin + Shotta In Da

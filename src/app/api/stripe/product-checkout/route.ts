@@ -101,6 +101,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // A project sold whole (schema-phase2-tape-purchase.sql). Owning it twice earns nothing, so a
+    // second purchase is refused before any money moves, and the buyer returns to the album.
+    let tapeReturnPath: string | null = null;
+    if (product.grants_album_id) {
+      const { data: owned } = await svcConnect
+        .from('purchases')
+        .select('id')
+        .eq('fan_id', fanId)
+        .eq('product_id', productId)
+        .eq('status', 'completed')
+        .limit(1);
+      if (owned?.length) return NextResponse.json({ error: 'You already own this tape. It plays on the album page.' }, { status: 409 });
+      if (artist?.slug) tapeReturnPath = `/${artist.slug}/album/${product.grants_album_id}`;
+    }
+
     // Project credits (supabase/schema-phase2-project-credits.sql). A second purchase of the same
     // or a lower credit would earn nothing, so it is refused before any money moves. The buyer
     // returns to the credits page, where they choose how their name appears. Both columns are
@@ -266,10 +281,14 @@ export async function POST(request: NextRequest) {
       },
       success_url: creditReturnPath
         ? `${process.env.NEXT_PUBLIC_BASE_URL}${creditReturnPath}?credited=1`
-        : `${process.env.NEXT_PUBLIC_BASE_URL}/${artist.slug}?purchase=success&product=${productId}`,
+        : tapeReturnPath
+          ? `${process.env.NEXT_PUBLIC_BASE_URL}${tapeReturnPath}?purchase=success`
+          : `${process.env.NEXT_PUBLIC_BASE_URL}/${artist.slug}?purchase=success&product=${productId}`,
       cancel_url: creditReturnPath
         ? `${process.env.NEXT_PUBLIC_BASE_URL}${creditReturnPath}`
-        : `${process.env.NEXT_PUBLIC_BASE_URL}/${artist.slug}?purchase=cancelled`,
+        : tapeReturnPath
+          ? `${process.env.NEXT_PUBLIC_BASE_URL}${tapeReturnPath}`
+          : `${process.env.NEXT_PUBLIC_BASE_URL}/${artist.slug}?purchase=cancelled`,
       metadata: {
         fan_id: fanId,
         product_id: productId,

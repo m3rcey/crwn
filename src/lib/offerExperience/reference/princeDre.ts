@@ -699,6 +699,10 @@ export const PRINCE_DRE: LaunchPartnerConfig = {
   // numbered spots with a seat at the private listening session; $150 Supporter, 50 spots, shown
   // only after a "No thanks". Recognition only. Judged on scripts/project-credits.mjs's scorecard.
   credits: DRE_CREDITS,
+  // The whole Stompin tape, once (founder, 2026-10-03, at Claude's recommended $19.99): for the fan
+  // who will never subscribe. 16 songs at $3.99 each is $63.84, so the tape is the honest deal, and
+  // Platinum at $50 a month stays the better one for anyone who wants all 10 projects.
+  tape: { project: STTT, priceCents: 1999 },
   // What each rung holds: every song on every project (see CONTENT_TRACKS). `rung` is the LOWEST
   // rung that hears it; every rung above it is listed on the track too (the gate is an exact
   // match, there is no inheritance). The script only ever ADDS rungs to a track already there.

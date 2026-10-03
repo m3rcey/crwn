@@ -150,15 +150,31 @@ export function seatsLeft(maxQuantity: number | null | undefined, sold: number |
 
 /** The product's own title and description, which Stripe Checkout shows the fan. Generated here
  *  and never typed into a config, so the "recognition only" line is always on the receipt page. */
-export function creditProductCopy(level: CreditLevel, albumTitle: string, artistName: string): { title: string; description: string } {
+export function creditProductCopy(
+  level: CreditLevel,
+  albumTitle: string,
+  artistName: string,
+  includesTape = false,
+): { title: string; description: string } {
+  // The tape line is printed only once the playback gate actually grants it
+  // (schema-phase2-tape-purchase.sql); before that it would be a promise nothing keeps.
+  const tape = includesTape ? ` The whole tape is yours too, every song on ${artistName}'s page.` : '';
   if (level === 'founding') {
     return {
       title: `Founding Supporter: ${albumTitle}`,
-      description: `Your name in the ${albumTitle} credits as a numbered Founding Supporter, listed first, plus a seat in ${artistName}'s private live session on it. ${RECOGNITION_ONLY}`,
+      description: `Your name in the ${albumTitle} credits as a numbered Founding Supporter, listed first, plus a seat in ${artistName}'s private live session on it.${tape} ${RECOGNITION_ONLY}`,
     };
   }
   return {
     title: `Supporter: ${albumTitle}`,
-    description: `Your name in the ${albumTitle} credits as a numbered Supporter. ${RECOGNITION_ONLY}`,
+    description: `Your name in the ${albumTitle} credits as a numbered Supporter.${tape} ${RECOGNITION_ONLY}`,
+  };
+}
+
+/** The whole-tape product's own title and description, which Stripe Checkout shows. */
+export function tapeProductCopy(albumTitle: string, artistName: string, songCount: number): { title: string; description: string } {
+  return {
+    title: `${albumTitle} (the whole tape)`,
+    description: `All ${songCount} songs on ${albumTitle}, playing on ${artistName}'s page whenever you want. One payment, no membership.`,
   };
 }

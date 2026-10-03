@@ -16,7 +16,7 @@ import { randomUUID } from 'node:crypto';
 import { createClient } from '@supabase/supabase-js';
 import { LAUNCH_PARTNERS } from '../src/lib/offerExperience/reference/launchPartners.ts';
 import { checkLaunchPartner } from '../src/lib/offerExperience/reference/launchPartner.ts';
-import { CREDIT_LEVELS, creditProductCopy, creditsPath } from '../src/lib/projectCredits/credits.ts';
+import { CREDIT_LEVELS, creditProductCopy, creditsPath, tapeProductCopy } from '../src/lib/projectCredits/credits.ts';
 import { loadCreditsScorecards } from '../src/lib/projectCredits/server.ts';
 
 const key = process.argv[2];
@@ -62,6 +62,11 @@ const existing = Object.fromEntries((existingRows || []).map((p) => [p.credit_le
 console.log(`${C.displayName}: credits on "${album.title}" | ${APPLY ? 'MODE: APPLY' : 'MODE: DRY RUN (pass --apply to write)'}`);
 console.log(`page: https://thecrwn.app${creditsPath(artist.slug, album.title)}\n`);
 
+// The playback gate grants a product's album once schema-phase2-tape-purchase.sql is applied: only
+// then does a credit's copy say the tape is included, and only then can the tape be sold.
+const tapeLive = !(await db.from('products').select('grants_album_id').limit(1)).error;
+console.log(`whole-tape grants: ${tapeLive ? 'live' : 'NOT YET (schema-phase2-tape-purchase.sql is not applied)'}`);
+
 const products = {};
 for (const level of CREDIT_LEVELS) {
   const want = C.credits[level];
@@ -71,7 +76,7 @@ for (const level of CREDIT_LEVELS) {
     products[level] = have ?? null;
     continue;
   }
-  const copy = creditProductCopy(level, album.title, C.displayName);
+  const copy = creditProductCopy(level, album.title, C.displayName, tapeLive);
   const base = {
     title: copy.title,
     description: copy.description,
@@ -120,6 +125,45 @@ for (const level of CREDIT_LEVELS) {
     if (error) die(`${level}: update failed: ${error.message}`);
   }
   products[level] = have;
+}
+
+// ── The whole tape, sold once (config `tape`) ─────────────────────────────────────────────────────
+if (C.tape) {
+  const { data: tapeAlbum } = await db.from('albums').select('id, title, album_art_url').eq('artist_id', artist.id).eq('title', C.tape.project).maybeSingle();
+  if (!tapeAlbum) die(`tape: "${C.tape.project}" is not uploaded as an album yet`);
+  if (!tapeLive) {
+    console.log(`tape: WAITS for the migration; nothing is sold before the gate can deliver it`);
+  } else {
+    const { count: songCount } = await db.from('album_tracks').select('track_id', { count: 'exact', head: true }).eq('album_id', tapeAlbum.id);
+    const copy = tapeProductCopy(tapeAlbum.title, C.displayName, songCount ?? 0);
+    const { data: haveTape } = await db.from('products').select('id, price, quantity_sold').eq('artist_id', artist.id).eq('grants_album_id', tapeAlbum.id).maybeSingle();
+    const fields = { title: copy.title, description: copy.description, image_url: tapeAlbum.album_art_url, is_active: true };
+    if (!haveTape) {
+      console.log(`tape: ${APPLY ? 'creating' : 'will create'} "${copy.title}" at $${C.tape.priceCents / 100}`);
+      if (APPLY) {
+        const { error } = await db.from('products').insert({
+          ...fields,
+          artist_id: artist.id,
+          type: 'digital',
+          delivery_type: 'instant',
+          access_level: 'public',
+          is_free: false,
+          allowed_tier_ids: [],
+          price: C.tape.priceCents,
+          quantity_sold: 0,
+          grants_album_id: tapeAlbum.id,
+        });
+        if (error) die(`tape insert: ${error.message}`);
+      }
+    } else {
+      const reprice = haveTape.price !== C.tape.priceCents && !(haveTape.quantity_sold > 0);
+      console.log(`tape: in place at $${haveTape.price / 100}${reprice ? `, ${APPLY ? 'repricing' : 'will reprice'} to $${C.tape.priceCents / 100}` : ''}`);
+      if (APPLY) {
+        const { error } = await db.from('products').update({ ...fields, ...(reprice ? { price: C.tape.priceCents } : {}) }).eq('id', haveTape.id);
+        if (error) die(`tape update: ${error.message}`);
+      }
+    }
+  }
 }
 
 // ── The listening session Founding Supporters hold a seat in ───────────────────────────────────

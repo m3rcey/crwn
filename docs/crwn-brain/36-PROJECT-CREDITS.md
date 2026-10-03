@@ -94,6 +94,16 @@ would need its own legal structure and is out of scope.
    'refunded'`; every reader requires `completed`, so the name leaves the list, the card 404s and
    the seat goes. The number is never reused.
 
+## The whole tape, and credits that include it (2026-10-03)
+
+Founder approved Claude's recommendation: the whole Stompin tape for $19.99, once, for the fan who
+will never subscribe (16 songs at $3.99 is $63.84; Platinum at $50 a month stays the better deal for
+anyone who wants all 10 projects), and the $250 and $150 credits include the tape, because a
+Founding Supporter who was not on Platinum could not hear the tape they were credited on. One
+migration ([supabase/schema-phase2-tape-purchase.sql](../../supabase/schema-phase2-tape-purchase.sql))
+adds `products.grants_album_id` and one clause to `can_play_track`. Until it is applied, nothing
+claims or sells the tape: `tapeGrantsLive` gates the credits copy, and the script waits.
+
 ## Proof that survives a screenshot (2026-10-03)
 
 Any picture can be edited or generated, so the picture is never the proof: the CRWN page is. The
