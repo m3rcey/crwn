@@ -338,7 +338,12 @@ repo-relative link against `~/workspace-crwn`, so a file that exists only on an 
 branch opens NOTHING when clicked (2026-10-01: two migrations handed over as `supabase/...` links
 from a worktree; Josh could not open either to copy it). Before handing over any file in a chat
 reply:
-- If the file is on master, link it repo-relative as usual.
+- If the file is in the MAIN CHECKOUT, link it repo-relative as usual. "It landed on master" is
+  NOT the same thing and is the trap: `crwn land` pushes to origin, and the main checkout stays
+  where it was until somebody runs `crwn sync`, so a freshly landed file opens NOTHING (2026-10-02:
+  a migration Josh had to run, landed and linked repo-relative, with his checkout 8 commits
+  behind). `crwn land` now prints the correct link for every SQL file it lands; paste what it
+  prints rather than writing the path from memory.
 - If it exists only on your task branch, link it by its worktree path:
   `[.claude/worktrees/<task>/supabase/foo.sql](.claude/worktrees/<task>/supabase/foo.sql)`.
 - **Check the link target exists from the main checkout** (`test -e ~/workspace-crwn/<link>`)

@@ -125,6 +125,37 @@ cmd_ls() {
   done < <(g worktree list --porcelain)
 }
 
+# A path handed to the founder must resolve in the MAIN checkout, because that is what a markdown
+# link opens for him. Landing moves ORIGIN, not his checkout, so "it landed" does not make a
+# repo-relative link work: it stays broken until `crwn sync`. This prints, for each file, the form
+# that opens TODAY, so a hand-off is never written from memory.
+# $1: newline-separated repo-relative paths. Reads $ROOT. Prints nothing when there are none.
+print_handoff_links() {
+  local list="$1" f wt found
+  [[ -z "$list" ]] && return 0
+  echo
+  echo "SQL to hand over. Link it EXACTLY as printed (these resolve from $ROOT right now):"
+  while IFS= read -r f; do
+    [[ -z "$f" ]] && continue
+    if [[ -e "$ROOT/$f" ]]; then
+      echo "  [$f]($f)"
+      continue
+    fi
+    found=""
+    for wt in "$ROOT"/.claude/worktrees/*/; do
+      [[ -e "$wt$f" ]] || continue
+      found=".claude/worktrees/$(basename "$wt")/$f"
+      break
+    done
+    if [[ -n "$found" ]]; then
+      echo "  [$found]($found)"
+      echo "      (the main checkout does not have this yet; the worktree path opens today)"
+    else
+      echo "  $f  -- NOT on disk anywhere. Hand it over only after: crwn sync"
+    fi
+  done <<< "$list"
+}
+
 cmd_land() {
   [[ $# -ge 1 ]] || die "usage: crwn land <task|branch> [--yes]"
   local arg="$1" yes=""; shift
@@ -162,6 +193,9 @@ then run: crwn land $arg"
   g log --oneline "origin/$BASE..$tip" | sed 's/^/  /'
   g diff --stat "origin/$BASE..$tip" | tail -1 | sed 's/^/  /'
   local dels; dels=$(g diff --diff-filter=D --name-only "origin/$BASE..$tip")
+  # Files the founder has to OPEN after this lands (migrations and one-off SQL). Captured here,
+  # before the push, because afterwards origin/$BASE is $tip and this diff is empty.
+  local handoff; handoff=$(g diff --diff-filter=AM --name-only "origin/$BASE..$tip" -- 'supabase/*.sql')
   [[ -n "$dels" ]] && { echo "  FILES THIS DELETES:"; printf '%s\n' "$dels" | sed 's/^/    /'; }
   if [[ -z "$yes" ]]; then
     [[ -t 0 ]] || die "not a terminal; re-run with --yes to confirm"
@@ -173,6 +207,7 @@ then run: crwn land $arg"
   g push origin "$tip:refs/heads/$BASE"
   echo "Landed: the REMOTE origin/$BASE is now $(g rev-parse --short "$tip") (production deploys from it)."
   echo "Your local main checkout ($ROOT) was not touched. Update it when no session there is mid-task: crwn sync"
+  print_handoff_links "$handoff"
   # Remove that task's worktree now if it is clean and idle. Otherwise this says what keeps it
   # (usually its session is still open), and the next sweep removes it. Run from inside the
   # landed worktree, its own session is the one running, so it is kept for the next sweep.
