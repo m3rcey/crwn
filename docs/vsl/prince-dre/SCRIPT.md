@@ -30,41 +30,41 @@ and Platinum offers. One job: turn that fan into a paying member.
 
 **[0:00 OPEN THE LOOP] Close on camera. Slow. Let it land.**
 
-I got a whole tape nobody ever heard.
-Sixteen songs. Never dropped. Not on YouTube. Not on no mixtape site. Nowhere.
-Stay with me. By the end of this I'm telling you how you get it.
+I got a whole tape aint nobody ever heard.
+It got 16 tracks on it. It aint on YouTube. Not on no mixtape site either. It aint nowhere.
+By the time this video over with  you gon know how to get it.
 
 **[0:12 WHO I AM]**
 
-I'm Prince Dre. O'Block. I been dropping since 2013.
+I'm Prince Dre. You know me, the Fresh Prince Of O'Block. I been dropping since like 2013.
 And for years y'all been asking me the same thing.
-Where can I hear all of it?
-Tapes all over old mixtape sites. Songs missing. Stuff other people uploaded.
+Where can I hear all of the music you dropped?
+For the longest its been random projects here and there all over old mixtape sites. And its shit other people uploaded.
 
 **[0:28 THE PLACE]**
 
-So I put it all in one place. CRWN.
-Ten projects. A hundred and fourteen songs. In order.
-Nine of em you heard of. One you ain't.
+So I put it all in one place, on CRWN.
+It's a lot of projects and a lot of songs. In order.
+A lot of em you heard of, some of em you ain't.
 If you just got a free song from me, thats one of em.
 
 **[0:42 THE REAL REASON]**
 
 But the music ain't even the whole thing.
-I been sitting on stuff from every era.
-Behind the scenes from back then. Pictures nobody ever seen. Videos that never came out.
-Thats going in here.
-And the songs that never dropped? You pick which ones I put out next.
+I been sitting on stuff from every era that I dropped.
+I got behind the scenes stuff, I pictures nobody ever seen. I got Videos that never came out.
+Thats all going in here.
+And the songs that never dropped you pick which ones I put out next.
 
 **[1:02 HOW IT WORKS] Count it off on your fingers if it feels natural.**
 
-Ten dollars a month. Blood Brothaz, me and JB, the whole tape. Life I Live. Streets Dont Love You.
-All the behind the scenes. And you get a vote.
+Ten dollars a month gets you Blood Brothaz with me and JB & Life I Live, and Streets Dont Love You.
+You get behind the scenes content. You get to vote on what unreleased stuff I put out.
 Plus you get a number next to your name. First person who ever paid me is number one.
 Yours never changes. The earlier you in, the lower it is.
-Twenty five. Shotta In Da Jungle and Im Reloaded the day you join. The vault, the videos that
-never came out. And another full project every month you stay.
-Fifty. Everything. All ten. Today. No waiting.
+$25 a month gets you everything I just mentioned plus Shotta In Da Jungle and Im Reloaded the day you join. The vault, the videos that
+never came out. And another full project every month you stay. Only The O in My Eyes first, then Fresh Prince Of O Block, then Return Of The Prince. 
+$50 a month gets you everything without waiting. All of the projects I mentioned plus O Block Ass Nigga. That one is super hard to find. You also get new music before anyone else 
 
 **[1:38 CLOSE THE LOOP] Lean in. Lower your voice a little.**
 
