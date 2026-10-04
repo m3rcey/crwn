@@ -4,6 +4,11 @@ Built 2026-10-01 from the VSL script (the "[YEAR] item on my phone" version) and
 of his 10 official music videos. Wireframes: [storyboard-wireframes.png](storyboard-wireframes.png).
 Real comments for the brutalism inserts: [real-comments.json](real-comments.json).
 
+**OUT OF DATE since 2026-10-03: the script changed** ([SCRIPT.md](SCRIPT.md)). The hook is now
+Stompin Thru The Trenches, not the [YEAR] item, the catalog is 10 projects and 114 songs, and
+"every month" is gone. Frames 1, 2, 10, 12 to 19 and plate P1 get redrawn once Josh approves the
+script. The type system and frames 3 to 9 and 20 carry over.
+
 **Nothing below has been generated.** Josh approves (or edits) this board first. Then one test
 still per AI look; motion only for approved stills.
 

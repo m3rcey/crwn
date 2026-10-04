@@ -10,7 +10,7 @@ Premiere), and everything specific to the original project.
 - **fal budget cap:** $____
 - **Editor:** who cuts in Premiere: ____
 - **AI relocation consent:** has Dre given written OK to an AI-relocated version of himself? yes / not yet. If not yet, Phase B is blocked.
-- **Final narration:** paste the final script, or attach Dre's recording when it exists.
+- **Final narration:** the script is [SCRIPT.md](SCRIPT.md) (2026-10-03); attach Dre's recording when it exists.
 
 ## The job
 

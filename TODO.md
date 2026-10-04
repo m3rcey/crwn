@@ -118,12 +118,17 @@ responsible for. Do not work those.
       It is also the only reason a fan picks $50 over $25, so how it is announced is worth more
       than the usual drop.
 
-- [ ] **Approve Prince Dre's VSL storyboard, then fill the four blanks.** Open
+- [ ] **Approve Prince Dre's VSL script, then the storyboard, then fill the three blanks.** First
+      read [docs/vsl/prince-dre/SCRIPT.md](docs/vsl/prince-dre/SCRIPT.md) (rewritten 2026-10-03
+      around Stompin and his material from every era) and tell Claude yes or what to change;
+      Claude then redraws the storyboard to match. Then open
       [docs/vsl/prince-dre/storyboard-wireframes.png](docs/vsl/prince-dre/storyboard-wireframes.png)
       and [docs/vsl/prince-dre/STORYBOARD.md](docs/vsl/prince-dre/STORYBOARD.md); edit any frame,
       line or plate. Then fill the top of
       [docs/vsl/prince-dre/PROMPT.md](docs/vsl/prince-dre/PROMPT.md): fal budget cap, who edits in
-      Premiere, Dre's written OK to an AI-relocated version of himself, and the final narration.
+      Premiere, and Dre's written OK to an AI-relocated version of himself. Before he films, Dre
+      needs a few behind-the-scenes photos and unreleased videos ready to post, because the script
+      promises them.
       Also get from Dre a clean file of his logo (transparent PNG or vector): frame 5 uses the
       real lockup, and the only copy we have sits on a textured background.
       Nothing is generated until you approve; then 5 test stills, one per plate.
