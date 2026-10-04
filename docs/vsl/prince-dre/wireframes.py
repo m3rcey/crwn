@@ -95,27 +95,28 @@ def redacted(key, size, torn=False):
 # (source, subject, letterbox, lines, label, extra). A line is [(text, face)]:
 # face 'slab' | 'brush' (always the red key word) | 'chrome' | 'strike' (white slab, red strike).
 FRAMES = [
-    ('A/P1', 'dre', False, [[('A WHOLE TAPE', 'slab')], [('NOBODY', 'brush'), (' EVER HEARD', 'slab')]], 'I got a whole tape nobody ever heard', None),
-    ('R+G', 'redacted', False, [[('16 SONGS', 'slab')], [('NEVER', 'brush'), (' DROPPED', 'slab')]], 'Sixteen songs. Never dropped.', None),
-    ('G', 'none', False, [[('NOT ON YOUTUBE', 'strike')], [('NOT ON NO MIXTAPE SITE', 'strike')]], 'Not on YouTube. Not on no mixtape site.', None),
-    ('A', 'dre', False, [[('NOWHERE.', 'brush')]], 'Nowhere. Stay with me.', 'sub:Stay with me'),
-    ('P2', 'courtyard', False, [], "I'm Prince Dre. O'Block.", 'logo'),
-    ('R', 'cover43:FPOB', False, [], 'I been dropping since 2013', "credit:2013 · FRESH PRINCE OF O'BLOCK"),
+    # EVERGREEN (Josh, 2026-10-03): no frame names a current project, shows a count, or puts a
+    # cover on a price card. The hook is an unlabeled disc; only released covers ever appear.
+    ('P1+G', 'disc', False, [[('MUSIC', 'slab')], [('NOBODY', 'brush'), (' EVER HEARD', 'slab')]], 'I got music aint nobody ever heard', None),
+    ('G', 'none', False, [[('NOT ON YOUTUBE', 'strike')], [('NOT ON NO MIXTAPE SITE', 'strike')]], 'It aint on YouTube. Not on no mixtape site.', None),
+    ('A', 'dre', False, [[('NOWHERE.', 'brush')]], 'It aint nowhere. By the time this video over...', 'sub:you gon know how to get it'),
+    ('P2', 'courtyard', False, [], "I'm Prince Dre. The Fresh Prince Of O'Block.", 'logo'),
+    ('R', 'cover43:FPOB', False, [], 'I been dropping since like 2013', "credit:2013 · FRESH PRINCE OF O'BLOCK"),
     ('R', 'cover43:BB', False, [], '(eras, about 1 s each)', 'credit:2015 · BLOOD BROTHAZ'),
-    ('R', 'comments', False, [[('WHERE CAN I HEAR', 'slab')], [('ALL', 'brush'), (' OF IT?', 'slab')]], 'Where can I hear all of it?', None),
-    ('P3', 'courtyard', False, [], 'Tapes all over old mixtape sites', 'sub:(subtitle only)'),
-    ('R', 'screen', False, [[('10 PROJECTS', 'chrome')], [('114 SONGS', 'chrome')]], 'So I put it all in one place', None),
-    ('R+G', 'grid10', False, [[('9 YOU HEARD OF', 'slab')], [('1 YOU ', 'slab'), ("AIN'T", 'brush')]], "Nine you heard of. One you ain't.", None),
+    ('R', 'comments', False, [[('WHERE CAN I HEAR', 'slab')], [('ALL', 'brush'), (' OF IT?', 'slab')]], 'Where can I hear all of the music...?', None),
+    ('P3', 'courtyard', False, [], 'Random projects all over old mixtape sites', 'sub:(subtitle only)'),
+    ('R', 'screen', False, [[('EVERY PROJECT', 'chrome')], [('ONE PLACE', 'chrome')]], 'So I put it all in one place, on CRWN', None),
+    ('R+G', 'grid10', False, [[('SOME YOU HEARD', 'slab')], [('SOME YOU ', 'slab'), ("AIN'T", 'brush')]], "A lot of em you heard of, some you ain't", None),
     ('R', 'player', False, [], 'If you just got a free song from me', 'sub:(subtitle only)'),
-    ('P4', 'courtyard', True, [[('FROM EVERY', 'slab')], [('ERA', 'brush')]], 'Sitting on stuff from every era', None),
+    ('P4', 'courtyard', True, [[('FROM EVERY', 'slab')], [('ERA', 'brush')]], 'Stuff from every era that I dropped', None),
     ('R', 'archive', True, [], 'Pictures nobody ever seen. Videos...', 'credit:PHOTO · NEVER POSTED · 2015'),
-    ('R', 'post', False, [], 'Thats going in here', 'sub:(subtitle only)'),
+    ('R', 'post', False, [], 'Thats all going in here', 'sub:(subtitle only)'),
     ('R', 'vote', False, [[('YOU ', 'slab'), ('PICK', 'brush')], [('WHAT DROPS NEXT', 'slab')]], 'You pick which ones I put out next', None),
     ('G+P5', 'card1', False, [], 'Ten dollars a month', None),
     ('G', 'number', False, [[('YOUR ', 'slab'), ('NUMBER', 'brush')], [('NEVER CHANGES', 'slab')]], 'A number next to your name', None),
-    ('G+P5', 'card2', False, [], 'Twenty five', None),
-    ('G+P5', 'card3', False, [], 'Fifty. Everything. All ten. Today.', None),
-    ('R+G', 'reveal', False, [[('STOMPIN THRU', 'slab')], [('THE TRENCHES', 'slab')], [('$50 · ', 'slab'), ('ONLY', 'brush'), (' HERE', 'slab')]], 'Stompin Thru The Trenches', None),
+    ('G+P5', 'card2', False, [], '$25 a month', None),
+    ('G+P5', 'card3', False, [], '$50 a month: everything, no waiting', None),
+    ('P1+G', 'discreveal', False, [[('AINT NOBODY', 'slab')], [('HEARD IT', 'slab')], [('$50 · ', 'slab'), ('ALL', 'brush'), (' OF IT', 'slab')]], 'That music I told you about. Its in here.', None),
     ('G', 'end', False, [[('PICK YOUR LEVEL', 'slab')], [('BELOW', 'brush')]], 'Pick your level below', 'sub:Cancel whenever you want'),
 ]
 
@@ -177,7 +178,13 @@ def person(d):
 def card(im, d, x, y, w, h, key, price, rows, hot):
     d.rounded_rectangle([x, y, x + w, y + h], 8, fill=(34, 32, 30), outline=RED if hot else GREY, width=2)
     side = w - 24
-    im.paste(cover(key, side), (x + 12, y + 10))
+    if key:
+        im.paste(cover(key, side), (x + 12, y + 10))
+    else:
+        # Evergreen: his mark where a cover would go, so the card never names a project.
+        d.rectangle([x + 12, y + 10, x + 12 + side, y + 10 + side], fill=(22, 22, 22))
+        lg = logo_cutout(int(side * 0.7))
+        im.paste(lg, (x + 12 + (side - lg.width) // 2, y + 10 + (side - lg.height) // 2), lg)
     d.text((x + 12, y + side + 42), price, font=ImageFont.truetype(SLAB, 28), fill=WHITE, anchor='ls')
     yy = y + side + 50
     for row in rows:
@@ -193,10 +200,30 @@ def card(im, d, x, y, w, h, key, price, rows, hot):
 
 
 CARD_DEFS = [
-    ('BB', '$10', ['BLOOD BROTHAZ', 'LIFE I LIVE', 'STREETS DONT LOVE YOU', 'BEHIND THE SCENES', 'A VOTE']),
-    ('SJ', '$25', ['SHOTTA', 'IM RELOADED', 'THE VAULT', 'A PROJECT EVERY', 'MONTH YOU STAY']),
-    ('OBAN', '$50', ['EVERYTHING', 'ALL 10 TODAY']),
+    (None, '$10', ['FULL PROJECTS', 'BEHIND THE SCENES', 'A VOTE', 'YOUR NUMBER']),
+    (None, '$25', ['MORE PROJECTS DAY ONE', 'THE VAULT', 'MORE THE LONGER', 'YOU STAY']),
+    (None, '$50', ['EVERYTHING', 'NO WAITING', 'NEW MUSIC FIRST']),
 ]
+
+
+def disc(im, d, torn):
+    # The unlabeled CD in a jewel case (plate P1), right third. Hook: under a redaction bar.
+    # Payoff: the bar torn off and gold light spilling out of the case.
+    x0, y0, s = int(W * 0.6), int(H * 0.16), int(W * 0.34)
+    if torn:
+        glow = Image.new('RGB', (W, H), (0, 0, 0))
+        ImageDraw.Draw(glow).ellipse([x0 - 30, y0 - 30, x0 + s + 30, y0 + s + 30], fill=(150, 110, 30))
+        im.paste(Image.blend(im, glow.filter(ImageFilter.GaussianBlur(28)), 0.9), (0, 0))
+        d = ImageDraw.Draw(im)
+    d.rectangle([x0, y0, x0 + s, y0 + s], fill=(40, 40, 44), outline=(150, 150, 160), width=2)
+    d.ellipse([x0 + 12, y0 + 12, x0 + s - 12, y0 + s - 12], fill=(205, 205, 212) if torn else (120, 120, 128))
+    c = s // 2
+    d.ellipse([x0 + c - 14, y0 + c - 14, x0 + c + 14, y0 + c + 14], fill=(40, 40, 44))
+    if torn:
+        d.polygon([(x0 - 6, y0 + s * 0.38), (x0 + s * 0.34, y0 + s * 0.30), (x0 + s * 0.26, y0 + s * 0.48), (x0 - 6, y0 + s * 0.54)], fill=(0, 0, 0))
+        d.polygon([(x0 + s * 0.74, y0 + s * 0.50), (x0 + s + 6, y0 + s * 0.44), (x0 + s + 6, y0 + s * 0.60), (x0 + s * 0.82, y0 + s * 0.64)], fill=(0, 0, 0))
+    else:
+        d.rectangle([x0 - 8, y0 + s * 0.40, x0 + s + 8, y0 + s * 0.58], fill=(0, 0, 0))
 
 
 def subject(im, d, subj):
@@ -206,9 +233,8 @@ def subject(im, d, subj):
     elif subj == 'courtyard':
         for k in range(6):
             d.rectangle([W * (0.56 + k * 0.075), H * (0.15 + (k % 2) * 0.1), W * (0.62 + k * 0.075), H], fill=(60 + k * 6, 40, 30))
-    elif subj in ('redacted', 'reveal'):
-        side = int(W * 0.34)
-        im.paste(redacted('STTT', side, torn=(subj == 'reveal')), (int(W * 0.6), (H - side) // 2))
+    elif subj in ('disc', 'discreveal'):
+        disc(im, d, torn=(subj == 'discreveal'))
     elif subj.startswith('cover43'):
         d.rectangle([W * 0.125, 0, W * 0.875, H], fill=(25, 25, 22))
         side = int(H * 0.66)
@@ -232,11 +258,16 @@ def subject(im, d, subj):
         side, gap = 33, 5
         x0 = int(rz) + 4
         y0 = (H - (2 * side + gap)) // 2
-        for k, key in enumerate(CATALOG):
+        # Seven RELEASED covers lit, three unlabeled dark squares for what nobody has heard. Never a
+        # real unreleased cover: that would date the video when the project moves or comes out.
+        released = ['FPOB', 'BB', 'SJ', 'OBAN', 'OTOIME', 'LIL', 'ROTP']
+        for k in range(10):
             x, y = x0 + (k % 5) * (side + gap), y0 + (k // 5) * (side + gap)
-            im.paste(redacted(key, side) if key == 'STTT' else cover(key, side), (x, y))
-        x, y = x0 + 4 * (side + gap), y0 + side + gap
-        d.rectangle([x - 2, y - 2, x + side + 2, y + side + 2], outline=RED, width=2)
+            if k in (3, 7, 9):
+                d.rectangle([x, y, x + side, y + side], fill=(28, 28, 30), outline=RED, width=1)
+                d.rectangle([x, y + side * 0.4, x + side, y + side * 0.58], fill=(0, 0, 0))
+            else:
+                im.paste(cover(released.pop(0), side), (x, y))
     elif subj == 'player':
         x0 = int(rz)
         d.rounded_rectangle([x0, H * 0.12, W - 14, H * 0.88], 10, fill=PANEL)
