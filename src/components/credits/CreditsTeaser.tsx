@@ -6,12 +6,26 @@
 
 import Link from 'next/link';
 import { CreditCardPreview } from './CreditCardPreview';
+import { hasTierAccess } from '@/lib/live/access';
 import { RECOGNITION_ONLY } from '@/lib/projectCredits/credits';
 import type { CreditsTeaserData } from '@/lib/projectCredits/server';
 
 const dollars = (cents: number) => `$${(cents / 100).toFixed(cents % 100 === 0 ? 0 : 2)}`;
 
-export function CreditsTeaser({ teaser, name }: { teaser: CreditsTeaserData; name?: string | null }) {
+export function CreditsTeaser({
+  teaser,
+  name,
+  viewerTierId = null,
+  viewerTierName = null,
+}: {
+  teaser: CreditsTeaserData;
+  name?: string | null;
+  /** The viewer's active tier on this artist (useSubscription). Rendering only: a member the
+   *  session already seats is told they have the seat, never sold it (founder, 2026-10-03). */
+  viewerTierId?: string | null;
+  viewerTierName?: string | null;
+}) {
+  const seated = !!teaser.sessionLabel && (teaser.sessionFree || hasTierAccess(teaser.sessionTierIds, viewerTierId));
   const href = name && name.trim() ? `${teaser.path}?name=${encodeURIComponent(name.trim())}` : teaser.path;
   const spots =
     teaser.seatsLeft !== null && teaser.cap !== null ? `, ${teaser.seatsLeft} of ${teaser.cap} spots left` : '';
@@ -35,7 +49,11 @@ export function CreditsTeaser({ teaser, name }: { teaser: CreditsTeaserData; nam
             {`${teaser.artistName} is crediting the people who backed this project. Founding Supporter, ${dollars(teaser.priceCents)} one time${spots}.`}
           </p>
           {teaser.sessionLabel && (
-            <p className="mt-2 text-sm text-white/70">{`Comes with a seat in ${teaser.artistName}'s private live session, ${teaser.sessionLabel}.`}</p>
+            <p className="mt-2 text-sm text-white/70">
+              {seated
+                ? `You already have your seat in ${teaser.artistName}'s live session on it${viewerTierName ? ` with ${viewerTierName}` : ''}. This is your name in the credits.`
+                : `Comes with a seat in ${teaser.artistName}'s private live session, ${teaser.sessionLabel}.`}
+            </p>
           )}
           <Link
             href={href}

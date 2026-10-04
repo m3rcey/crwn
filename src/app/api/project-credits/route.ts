@@ -11,7 +11,7 @@ import { createClient } from '@supabase/supabase-js';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { checkRateLimit } from '@/lib/rateLimit';
 import { cleanCreditName, creditStands } from '@/lib/projectCredits/credits';
-import { loadFanCredits } from '@/lib/projectCredits/server';
+import { loadFanCredits, viewerAlreadyHolds } from '@/lib/projectCredits/server';
 
 const admin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -35,8 +35,13 @@ export async function GET(req: NextRequest) {
   const album = req.nextUrl.searchParams.get('album') || '';
   if (!UUID.test(album)) return NextResponse.json({ error: 'Missing project' }, { status: 400 });
 
-  const rows = await loadFanCredits(admin, user.id, album);
+  const caller = await createServerSupabaseClient();
+  const [rows, already] = await Promise.all([
+    loadFanCredits(admin, user.id, album),
+    viewerAlreadyHolds(admin, caller, user.id, album),
+  ]);
   return NextResponse.json({
+    already,
     credits: rows.map((r) => ({
       id: r.id,
       level: r.level,

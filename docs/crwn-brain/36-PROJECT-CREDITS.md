@@ -13,7 +13,8 @@ scheduled live itself (`sessionLabel`), never from config, so it can only name a
 the calendar, and it drops the date if the session is cancelled or passes.
 
 **The tiers point at it.** Platinum (the Stompin rung, so the warmest buyer) carries an FAQ naming
-the $250 credit, separate from the membership, recognition only.
+the $250 credit, separate from the membership, recognition only. It sells the NAME: a Platinum
+member already has the seat and the tape (see "Nothing a fan already holds is sold to them").
 
 **Every surface a fan is already on leads to it (2026-10-03).** `CreditsTeaser` on the artist
 page's Tiers and Shop tabs and on the drop page (after the free song, and on the "You are in"
@@ -50,6 +51,27 @@ bought. Two levels per project:
 Supporter is the DOWNSELL: it is shown only after the fan presses "No thanks" on Founding (or
 when Founding has no spots left, as the plain offer). The cheaper level takes away status and the
 session; it never weakens what it does deliver.
+
+**The downsell is a different credit, never a markdown (founder, 2026-10-03).** "No thanks" sits
+at the BOTTOM of the offer, and the first build swapped the words in place: the fan saw the same
+button go from $250 to $150 and read it as "they just discounted it". Now the page scrolls to the
+top of the new offer, which carries the eyebrow "A different credit, not a discount", the headline
+"Not ready for Founding? Be a Supporter.", a line that says what changes, and (after the button) a
+"What Supporter leaves out" list. Both buttons name their level ("Become a Supporter, $150").
+Measured by the `CREDITS downsell` job in [scripts/probe-fan-fold.mjs](../../scripts/probe-fan-fold.mjs).
+
+**Nothing a fan already holds is sold to them (founder, 2026-10-03).** A Platinum member is already
+seated in the session (it lists Platinum) and already plays the tape, so "plus a seat in the live
+session" made them ask why they would pay for a seat they have. `viewerAlreadyHolds` (server.ts,
+read by `GET /api/project-credits` from the session) answers what the signed-in fan holds: the seat
+by the same `hasTierAccess` test every live gate uses, the tape by the album page's rule (every
+track carries a stream locator in `tracks_public` read as the caller). `offerBenefits` and
+`offerLine` in credits.ts (pure, tested, mutation-tested) move those lines to "Already yours with
+Platinum" and pitch the NAME instead; the downsell never tells a seated member "no seat". The
+teaser does the same from `useSubscription` on the artist page, and Dre's Platinum FAQ sells the
+name, not the seat. Rendering only: none of it decides a seat or a play. Consequence the founder
+should know: for a Platinum member the $100 between the levels buys only the Founding title and
+being listed first.
 
 **Recognition only.** Not ownership, equity, royalties or a share of anything. The sentence
 (`RECOGNITION_ONLY` in `src/lib/projectCredits/credits.ts`) is printed on the offer, in the

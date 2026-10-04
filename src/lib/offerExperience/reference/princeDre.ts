@@ -472,7 +472,9 @@ export const DRE_PLATINUM_OFFER: TierOfferExperience = {
     },
     {
       q: `Can I get my name on ${STTT}?`,
-      a: `Yes. Dre is crediting the first ${DRE_CREDITS.founding.seats} people who back the tape as Founding Supporters: your name in its credits, numbered, plus a seat in his private live session on it. It is a one-time $${DRE_CREDITS.founding.priceCents / 100}, separate from your membership, and it is recognition, not a share of anything. Open ${STTT} on his page to see it.`,
+      // Platinum already seats you in the session and plays the tape, so the answer sells the NAME
+      // and never the seat (founder, 2026-10-03: "why would I get this, I already have the session?").
+      a: `Yes. Dre is crediting the first ${DRE_CREDITS.founding.seats} people who back the tape as Founding Supporters: your name in its credits, numbered and listed first, with a shareable image that proves it. You already have the tape and your seat in his live session on it with this level, so the credit is the one thing it adds: your name on the project for good. It is a one-time $${DRE_CREDITS.founding.priceCents / 100}, separate from your membership, and it is recognition, not a share of anything. Open ${STTT} on his page to see it.`,
     },
     {
       q: 'Why not wait on the $25 level?',

@@ -10,6 +10,7 @@ import {
   publicCredits,
   resolveProject,
   seatsLeft,
+  type AlreadyHeld,
   type CreditLevel,
   type CreditRow,
   type PublicCreditList,
@@ -17,6 +18,9 @@ import {
 import { isPresentableArtistName } from '@/lib/publicName';
 import { creditsVerdict, funnelLines, type CreditsFunnel, type CreditsVerdict } from './verdict';
 import { creditsPath } from './credits';
+import { hasTierAccess } from '@/lib/live/access';
+
+export type { AlreadyHeld };
 
 type Db = any;
 
@@ -196,6 +200,60 @@ export async function loadTapeOffer(db: Db, artistId: string, albumId: string): 
     return { productId: p.id, priceCents: p.price };
   } catch {
     return null;
+  }
+}
+
+/**
+ * What a signed-in fan ALREADY holds on this project before buying a credit, so the offer never
+ * sells it to them twice (founder, 2026-10-03: a Platinum member reads "plus a seat in the live
+ * session" and asks why they would pay for a seat they have).
+ *
+ * `session`: the project's next scheduled credit session lets them in already (free, or their
+ * active tier is on its list: the same test hasTierAccess gives every live gate). `tape`: every
+ * song on the project plays for them, read from tracks_public AS THE CALLER, the album page's own
+ * rule. RENDERING ONLY: it moves lines to "Already yours" and never decides a seat or a play.
+ * Fails to "holds nothing", which shows the ordinary offer.
+ */
+export async function viewerAlreadyHolds(admin: Db, caller: Db, fanId: string, albumId: string): Promise<AlreadyHeld> {
+  const none: AlreadyHeld = { tierName: null, session: false, tape: false };
+  try {
+    const { data: album } = await admin.from('albums').select('artist_id').eq('id', albumId).maybeSingle();
+    if (!album) return none;
+    const { data: sub } = await admin
+      .from('subscriptions')
+      .select('tier_id, tier:subscription_tiers!subscriptions_tier_id_fkey(name)')
+      .eq('fan_id', fanId)
+      .eq('artist_id', album.artist_id)
+      .eq('status', 'active')
+      .maybeSingle();
+    const tierId: string | null = sub?.tier_id ?? null;
+    const tier = Array.isArray(sub?.tier) ? sub.tier[0] : sub?.tier;
+
+    const { data: session } = await admin
+      .from('live_sessions')
+      .select('is_free, allowed_tier_ids')
+      .eq('artist_id', album.artist_id)
+      .eq('credit_album_id', albumId)
+      .eq('status', 'scheduled')
+      .eq('is_active', true)
+      .gte('scheduled_at', new Date().toISOString())
+      .order('scheduled_at', { ascending: true })
+      .limit(1)
+      .maybeSingle();
+    const seated = !!session && (!!session.is_free || hasTierAccess(session.allowed_tier_ids, tierId));
+
+    const { data: rows } = await caller
+      .from('album_tracks')
+      .select('track:tracks_public(audio_url_128, is_active)')
+      .eq('album_id', albumId);
+    const tracks = ((rows as any[]) || [])
+      .map((r) => (Array.isArray(r.track) ? r.track[0] : r.track))
+      .filter((t) => t && t.is_active !== false);
+    const tape = tracks.length > 0 && tracks.every((t) => !!t.audio_url_128);
+
+    return { tierName: tierId ? (tier?.name ?? null) : null, session: seated, tape };
+  } catch {
+    return none;
   }
 }
 
@@ -384,6 +442,10 @@ export interface CreditsTeaserData {
   cap: number | null;
   nextNumber: number;
   sessionLabel: string | null;
+  /** Who the session already seats without a credit: a free session, or these tiers. Lets the
+   *  teaser tell a Platinum member they have the seat instead of selling it to them. */
+  sessionFree: boolean;
+  sessionTierIds: string[];
 }
 
 /**
@@ -415,7 +477,7 @@ export async function loadCreditsTeaser(db: Db, artist: { id: string; slug: stri
     if (!album) return null;
     const { data: session } = await db
       .from('live_sessions')
-      .select('scheduled_at')
+      .select('scheduled_at, is_free, allowed_tier_ids')
       .eq('artist_id', artist.id)
       .eq('credit_album_id', p.credit_album_id)
       .eq('status', 'scheduled')
@@ -435,6 +497,8 @@ export async function loadCreditsTeaser(db: Db, artist: { id: string; slug: stri
       cap: p.max_quantity ?? null,
       nextNumber: (p.quantity_sold || 0) + 1,
       sessionLabel: session?.scheduled_at ? sessionLabelFor(session.scheduled_at) : null,
+      sessionFree: !!session?.is_free,
+      sessionTierIds: Array.isArray(session?.allowed_tier_ids) ? session.allowed_tier_ids : [],
     };
   } catch {
     return null;

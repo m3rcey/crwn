@@ -5,6 +5,8 @@ import {
   cleanCreditName,
   creditLabel,
   creditsPath,
+  offerBenefits,
+  offerLine,
   publicCredits,
   projectSlug,
   RECOGNITION_ONLY,
@@ -160,5 +162,46 @@ describe('creditsVerdict (pre-committed rules)', () => {
   it('working at or above 2% of Founding viewers, weak below', () => {
     expect(creditsVerdict(base).key).toBe('working'); // 2 of 100
     expect(creditsVerdict({ ...base, primaryViewers: 200 }).key).toBe('weak'); // 2 of 200
+  });
+});
+
+describe('a credit offer never sells what the viewer already holds (founder, 2026-10-03)', () => {
+  const platinum = { tierName: 'Platinum', session: true, tape: true };
+  const stranger = { tierName: null, session: false, tape: false };
+  const sold = (b: { text: string; held: boolean }[]) => b.filter((x) => !x.held).map((x) => x.text).join(' ');
+  const held = (b: { text: string; held: boolean }[]) => b.filter((x) => x.held).map((x) => x.text).join(' ');
+
+  it('sells the seat and the tape to a fan who has neither', () => {
+    const b = offerBenefits('founding', 'Prince Dre', 'STTT', 'Saturday', true, stranger);
+    expect(sold(b)).toMatch(/A seat in Prince Dre's private live session/);
+    expect(sold(b)).toMatch(/The whole STTT tape/);
+    expect(held(b)).toBe('');
+  });
+
+  it('a seated member is shown the seat and the tape as theirs, never sold them', () => {
+    const b = offerBenefits('founding', 'Prince Dre', 'STTT', 'Saturday', true, platinum);
+    expect(sold(b)).not.toMatch(/seat|whole STTT tape/i);
+    expect(sold(b)).toMatch(/Founding Supporter/);
+    expect(held(b)).toMatch(/Already yours with Platinum: your seat/);
+    expect(held(b)).toMatch(/Already yours: the whole STTT tape/);
+    expect(b[0].held).toBe(false); // the new thing leads
+  });
+
+  it('the downsell says what changes, and never claims a seated member loses the seat', () => {
+    expect(offerLine('downsell', 'Prince Dre', 'STTT', stranger, 25)).toMatch(/after the 25 Founding Supporters, with no seat/);
+    const member = offerLine('downsell', 'Prince Dre', 'STTT', platinum, 25);
+    expect(member).not.toMatch(/no seat/);
+    expect(member).toMatch(/seat stays yours with Platinum/);
+    expect(offerLine('primary', 'Prince Dre', 'STTT', platinum, 25)).toMatch(/already in the live session with Platinum/);
+  });
+
+  it('no line carries a dash between clauses', () => {
+    for (const a of [stranger, platinum, null]) {
+      for (const lvl of ['founding', 'supporter'] as const) {
+        const all = offerBenefits(lvl, 'Dre', 'X', 'Sat', true, a).map((x) => x.text).join(' ');
+        expect(all).not.toMatch(/[\u2013\u2014]/);
+      }
+      for (const st of ['primary', 'downsell'] as const) expect(offerLine(st, 'Dre', 'X', a, 25)).not.toMatch(/[\u2013\u2014]/);
+    }
   });
 });

@@ -130,7 +130,13 @@ A one-time product that prints a fan's name in a project's credits. Full doc:
 - **`hasLiveSeat` is the ONE live seat check** (ticket OR Founding credit via
   `live_sessions.credit_album_id`). A gate that calls `hasPaidLiveTicket` alone fails CREDITS-005.
 - **The downsell appears only after "No thanks"**, and checkout starts are recorded only inside
-  product-checkout (CREDITS-002). Credits products are filtered out of the ordinary Shop: they are
+  product-checkout (CREDITS-002). It is a DIFFERENT credit, never a markdown: the page scrolls to
+  its headline, which says what Supporter leaves out (founder, 2026-10-03: a $250 button turning
+  into $150 in place read as "they just discounted it").
+- **Never sell a fan what they already hold** (founder, 2026-10-03). A Platinum member is already
+  seated in the credit session and already plays the tape, so `offerBenefits`/`offerLine`
+  (credits.ts, mutation-tested) show those as "Already yours" from `viewerAlreadyHolds`, and the
+  pitch is the name. Rendering only, never a gate. Credits products are filtered out of the ordinary Shop: they are
   sold only on `/<artist>/credits/<project>`.
 - **A fan finds it from anywhere they already are**: `CreditsTeaser` (a preview of their credit
   plus one link) sits on the artist page's Tiers and Shop tabs, on the drop page after the free

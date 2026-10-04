@@ -290,6 +290,18 @@ const DEFAULT_JOBS = [
   "match": "Founding Supporter"
  },
  {
+  "name": "CREDITS downsell after No thanks (Dre, in place)",
+  "path": "/princedre/credits/stompin-thru-the-trenches?name=Probe",
+  "steps": [
+   {
+    "clickText": "^No thanks$",
+    "wait": 1500
+   }
+  ],
+  "inPlace": true,
+  "match": "^Become a Supporter"
+ },
+ {
   "name": "ARTIST page Tiers tab (Dre): the top rung's button",
   "inPlace": true,
   "path": "/princedre?tab=tiers",

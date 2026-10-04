@@ -7,12 +7,17 @@
 // numbered by the webhook, the name prints the moment the fan saves it, the card is generated from
 // the row, and the listening-session seat is granted by src/lib/live/access.ts to every standing
 // Founding credit. Nothing on this page may promise more than that. Recognition only.
+//
+// Nothing a fan already holds is sold to them again (founder, 2026-10-03). A Platinum member is
+// already seated in the session and already plays the tape, so for them those lines read "Already
+// yours" and the pitch is the name. And the downsell is a DIFFERENT credit, never a markdown: on
+// "No thanks" the page scrolls to a headline that says what Supporter leaves out.
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Check, Copy, Download, Loader2 } from 'lucide-react';
+import { Check, Copy, Download, Loader2, X } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { CreditCardPreview } from './CreditCardPreview';
 import {
@@ -22,6 +27,9 @@ import {
   cardPath,
   cleanCreditName,
   creditLabel,
+  offerBenefits,
+  offerLine,
+  type AlreadyHeld,
   type CreditLevel,
   type PublicCreditList,
 } from '@/lib/projectCredits/credits';
@@ -63,7 +71,6 @@ function beacon(productId: string, eventType: 'offer_viewed' | 'offer_declined',
   }
 }
 
-const SHARE_LINE = 'A shareable image of your credit to post anywhere, with a link that proves it is real.';
 
 /** The first name the fan typed on the drop page (or in the URL), kept for the checkout round trip
  *  so the preview and the name field still have it when Stripe sends them back. Browser-only, and
@@ -77,21 +84,6 @@ function rememberedName(fromUrl: string | null): string | null {
   } catch {
     return clean;
   }
-}
-
-function benefitsFor(level: CreditLevel, artistName: string, albumTitle: string, sessionLabel: string | null, tapeIncluded = false): string[] {
-  const tape = tapeIncluded ? [`The whole ${albumTitle} tape, every song, playing on ${artistName}'s page.`] : [];
-  if (level === 'founding') {
-    return [
-      ...tape,
-      `Your name in the ${albumTitle} credits as a Founding Supporter, numbered in the order you joined, listed first.`,
-      sessionLabel
-        ? `A seat in ${artistName}'s private live session on ${albumTitle}, ${sessionLabel}.`
-        : `A seat in ${artistName}'s private live session on ${albumTitle}.`,
-      SHARE_LINE,
-    ];
-  }
-  return [...tape, `Your name in the ${albumTitle} credits as a Supporter, numbered in the order you joined.`, SHARE_LINE];
 }
 
 export function CreditsOffer({ artist, album, offers, credits, path, sessionLabel, tapeIncluded = false }: Props) {
@@ -114,6 +106,8 @@ export function CreditsOffer({ artist, album, offers, credits, path, sessionLabe
   const [buying, setBuying] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [mine, setMine] = useState<MyCredit[] | null>(null);
+  const [already, setAlready] = useState<AlreadyHeld | null>(null);
+  const offerRef = useRef<HTMLElement>(null);
 
   const viewed = useRef(new Set<string>());
   useEffect(() => {
@@ -128,6 +122,7 @@ export function CreditsOffer({ artist, album, offers, credits, path, sessionLabe
   const loadMine = useCallback(async (): Promise<MyCredit[]> => {
     const res = await fetch(`/api/project-credits?album=${album.id}`, { cache: 'no-store' });
     const data = await res.json().catch(() => ({}));
+    if (data.already && typeof data.already === 'object') setAlready(data.already as AlreadyHeld);
     return Array.isArray(data.credits) ? data.credits : [];
   }, [album.id]);
 
@@ -186,6 +181,17 @@ export function CreditsOffer({ artist, album, offers, credits, path, sessionLabe
     setStage(stage === 'primary' && founding && supporter ? 'downsell' : 'closed');
   }
 
+  // "No thanks" is pressed at the BOTTOM of the offer. Swapping the words in place left the fan
+  // looking at the same button with a smaller price, which reads as a discount. Take them to the
+  // top of the new offer, where the headline says what is different.
+  useEffect(() => {
+    if (stage !== 'downsell') return;
+    offerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [stage]);
+
+  const seated = !!already?.session;
+  const foundingCap = offers.founding?.cap ?? null;
+
   const showOffer = shown && !holdsFounding && !(holdsAny && shown.level === 'supporter');
 
   const buyButton = (offer: CreditOffer) => (
@@ -196,7 +202,7 @@ export function CreditsOffer({ artist, album, offers, credits, path, sessionLabe
       className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-crwn-gold px-6 py-3 font-semibold text-crwn-bg disabled:opacity-60"
     >
       {buying ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-      {`${offer.level === 'founding' ? 'Become a Founding Supporter' : 'Get credited'}, ${dollars(offer.priceCents)}`}
+      {`Become a ${CREDIT_LEVEL_LABEL[offer.level]}, ${dollars(offer.priceCents)}`}
     </button>
   );
 
@@ -234,14 +240,19 @@ export function CreditsOffer({ artist, album, offers, credits, path, sessionLabe
         )}
 
         {showOffer && shown && (
-          <section className="mt-6 rounded-2xl bg-[#1A1A1A] p-5">
-            <h2 className="text-xl font-bold">
-              {stage === 'downsell' ? 'Still want your name on it?' : `Get Special Recognition on ${album.title}.`}
+          <section
+            key={stage}
+            ref={offerRef}
+            className={`mt-6 scroll-mt-4 rounded-2xl bg-[#1A1A1A] p-5 ${stage === 'downsell' ? 'animate-fade-in-up ring-1 ring-white/10' : ''}`}
+          >
+            {stage === 'downsell' && (
+              <p className="text-xs uppercase tracking-widest text-[#D4AF37]">A different credit, not a discount</p>
+            )}
+            <h2 className={`text-xl font-bold ${stage === 'downsell' ? 'mt-1' : ''}`}>
+              {stage === 'downsell' ? 'Not ready for Founding? Be a Supporter.' : `Get Special Recognition on ${album.title}.`}
             </h2>
             <p className="mt-2 text-sm text-white/70">
-              {stage === 'downsell'
-                ? `Supporters are credited on ${album.title} too, listed after the Founding Supporters. No live session.`
-                : `${artist.name} is crediting the people who backed this project. The credit you get is yours for good.`}
+              {offerLine(stage === 'downsell' ? 'downsell' : 'primary', artist.name, album.title, already, foundingCap)}
             </p>
             {/* The button comes BEFORE the preview and the list: a call to action is always above
                 the fold (founder, 2026-10-03). The value follows for the fan who keeps reading. */}
@@ -253,11 +264,29 @@ export function CreditsOffer({ artist, album, offers, credits, path, sessionLabe
             {buyButton(shown)}
             {error && <p className="mt-3 text-sm text-red-400">{error}</p>}
             <p className="mt-3 text-xs text-white/50">{`One-time payment. ${RECOGNITION_ONLY}`}</p>
-            <ul className="mx-auto mt-6 w-fit max-w-full space-y-2 text-left">
-              {benefitsFor(shown.level, artist.name, album.title, sessionLabel, tapeIncluded).map((b) => (
-                <li key={b} className="flex gap-2 text-sm">
-                  <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#D4AF37]" />
-                  <span>{b}</span>
+            {stage === 'downsell' && (
+              <div className="mx-auto mt-6 w-fit max-w-full text-left">
+                <p className="text-xs uppercase tracking-widest text-white/50">What Supporter leaves out</p>
+                <ul className="mt-2 space-y-2">
+                  <li className="flex gap-2 text-sm text-white/60">
+                    <X className="mt-0.5 h-4 w-4 shrink-0 text-white/40" />
+                    <span>{`The Founding Supporter title, listed first${foundingCap ? ` among ${foundingCap}` : ''}.`}</span>
+                  </li>
+                  {!seated && (
+                    <li className="flex gap-2 text-sm text-white/60">
+                      <X className="mt-0.5 h-4 w-4 shrink-0 text-white/40" />
+                      <span>{`A seat in ${artist.name}'s private live session on ${album.title}.`}</span>
+                    </li>
+                  )}
+                </ul>
+                <p className="mt-5 text-xs uppercase tracking-widest text-white/50">What you get</p>
+              </div>
+            )}
+            <ul className={`mx-auto w-fit max-w-full space-y-2 text-left ${stage === 'downsell' ? 'mt-2' : 'mt-6'}`}>
+              {offerBenefits(shown.level, artist.name, album.title, sessionLabel, tapeIncluded, already).map((b) => (
+                <li key={b.text} className={`flex gap-2 text-sm ${b.held ? 'text-white/50' : ''}`}>
+                  <Check className={`mt-0.5 h-4 w-4 shrink-0 ${b.held ? 'text-white/30' : 'text-[#D4AF37]'}`} />
+                  <span>{b.text}</span>
                 </li>
               ))}
             </ul>

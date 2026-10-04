@@ -178,3 +178,91 @@ export function tapeProductCopy(albumTitle: string, artistName: string, songCoun
     description: `All ${songCount} songs on ${albumTitle}, playing on ${artistName}'s page whenever you want. One payment, no membership.`,
   };
 }
+
+/** What a signed-in fan already holds on a project before buying its credit (viewerAlreadyHolds in
+ *  server.ts reads it). Rendering only: it never decides a seat or a play. */
+export interface AlreadyHeld {
+  /** Their active tier on this artist, for "with Platinum". Null when they hold none. */
+  tierName: string | null;
+  /** The project's credit session already lets them in (free, or their tier is on its list). */
+  session: boolean;
+  /** Every song on the project already plays for them. */
+  tape: boolean;
+}
+
+export interface OfferBenefit {
+  text: string;
+  /** The viewer holds this already. It is shown as theirs, never sold to them. */
+  held: boolean;
+}
+
+const SHARE_LINE = 'A shareable image of your credit to post anywhere, with a link that proves it is real.';
+
+/**
+ * The lines under a credit offer, new things first. Nothing the viewer already holds is sold to them
+ * again (founder, 2026-10-03: a Platinum member read "plus a seat in the live session" and asked why
+ * they would pay for a seat they have). A held seat or tape moves to the end as "Already yours".
+ */
+export function offerBenefits(
+  level: CreditLevel,
+  artistName: string,
+  albumTitle: string,
+  sessionLabel: string | null,
+  tapeIncluded: boolean,
+  already: AlreadyHeld | null,
+): OfferBenefit[] {
+  const out: OfferBenefit[] = [
+    {
+      text:
+        level === 'founding'
+          ? `Your name in the ${albumTitle} credits as a Founding Supporter, numbered in the order you joined, listed first.`
+          : `Your name in the ${albumTitle} credits as a Supporter, numbered in the order you joined.`,
+      held: false,
+    },
+    { text: SHARE_LINE, held: false },
+  ];
+  if (level === 'founding' && !already?.session) {
+    out.push({
+      text: sessionLabel
+        ? `A seat in ${artistName}'s private live session on ${albumTitle}, ${sessionLabel}.`
+        : `A seat in ${artistName}'s private live session on ${albumTitle}.`,
+      held: false,
+    });
+  }
+  if (tapeIncluded && !already?.tape) {
+    out.push({ text: `The whole ${albumTitle} tape, every song, playing on ${artistName}'s page.`, held: false });
+  }
+  if (already?.session) {
+    const via = already.tierName ? ` with ${already.tierName}` : '';
+    out.push({ text: `Already yours${via}: your seat in ${artistName}'s live session on ${albumTitle}.`, held: true });
+  }
+  if (tapeIncluded && already?.tape) {
+    out.push({ text: `Already yours: the whole ${albumTitle} tape plays for you.`, held: true });
+  }
+  return out;
+}
+
+/**
+ * The line under the offer's headline. The downsell's says what is DIFFERENT, so a smaller price
+ * never reads as the same thing marked down (founder, 2026-10-03).
+ */
+export function offerLine(
+  stage: 'primary' | 'downsell',
+  artistName: string,
+  albumTitle: string,
+  already: AlreadyHeld | null,
+  foundingCap: number | null,
+): string {
+  const via = already?.tierName ? ` with ${already.tierName}` : '';
+  if (stage === 'downsell') {
+    if (already?.session) {
+      return `Your name still goes in the ${albumTitle} credits, numbered, listed after the Founding Supporters. Your live session seat stays yours${via}.`;
+    }
+    const founders = foundingCap ? `the ${foundingCap} Founding Supporters` : 'the Founding Supporters';
+    return `Your name still goes in the ${albumTitle} credits, numbered. Supporters are listed after ${founders}, with no seat in the live session.`;
+  }
+  if (already?.session) {
+    return `You are already in the live session${via}. This is your name on the project: credited, numbered, and yours for good.`;
+  }
+  return `${artistName} is crediting the people who backed this project. The credit you get is yours for good.`;
+}

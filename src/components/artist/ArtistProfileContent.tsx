@@ -29,6 +29,7 @@ import { ArtistRoadCampaign } from '@/components/artist/ArtistRoadCampaign';
 import type { ClipperRateStep } from '@/lib/clipperRate';
 import { useAuth } from '@/hooks/useAuth';
 import { useArtistPreview } from '@/hooks/useArtistPreview';
+import { useSubscription } from '@/hooks/useSubscription';
 import { startTour } from '@/lib/tour';
 import { getArtistPageTourSteps } from '@/lib/artistPageTourSteps';
 import { useTourCheck } from '@/hooks/useTourCheck';
@@ -91,6 +92,8 @@ export function ArtistProfileContent({
   // fan-only blocks they normally never see appear.
   const { previewing } = useArtistPreview();
   const isArtistProfile = isOwner && !previewing;
+  // The credits teaser tells a member their tier already seats them instead of selling the seat.
+  const { tierId: viewerTierId, tierName: viewerTierName } = useSubscription(artist.id);
   const router = useRouter();
   const searchParams = useSearchParams();
   const returningFromCheckout = searchParams.get('subscription') === 'success' || searchParams.get('subscription') === 'canceled';
@@ -296,12 +299,12 @@ export function ArtistProfileContent({
                 tierPrice={undefined}
               />
             )}
-            {creditsTeaser && <CreditsTeaser teaser={creditsTeaser} />}
+            {creditsTeaser && <CreditsTeaser teaser={creditsTeaser} viewerTierId={viewerTierId} viewerTierName={viewerTierName} />}
           </section>
         )}
         {activeTab === 'shop' && (
           <>
-            {creditsTeaser && <div className="mb-8">{<CreditsTeaser teaser={creditsTeaser} />}</div>}
+            {creditsTeaser && <div className="mb-8">{<CreditsTeaser teaser={creditsTeaser} viewerTierId={viewerTierId} viewerTierName={viewerTierName} />}</div>}
             {/* With credits on sale, an empty shop's "nothing here yet" would contradict the offer
                 right above it, so the shop renders only when it has something of its own. */}
             {(!creditsTeaser || (products || []).length > 0 || artist.merch_store_url) && (
