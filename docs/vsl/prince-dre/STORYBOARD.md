@@ -50,7 +50,9 @@ Three faces, one job each:
 - Backgrounds his covers already use, and that fit the plates: near-black, blue-purple smoke
   (How Im Coming) and a dark branch texture (the logo). Keep both behind the left-third type area
   dark enough for the 3:1 rule.
-- The wireframes show where text sits, not the face. They were not redrawn for this change.
+- The wireframes are drawn in this type system (Rye, Knewave as the brush stand-in, Montserrat,
+  his real logo in frame 5) by [wireframes.py](wireframes.py). Edit FRAMES there and rerun it to
+  redraw the sheet.
 
 ## Frames
 
