@@ -1,18 +1,24 @@
-# Storyboard wireframes for the Prince Dre VSL: composition, text placement and the type system
-# from his own covers (STORYBOARD.md "Type"). Windows Python + Pillow:
+# Storyboard wireframes for the Prince Dre VSL (STORYBOARD.md): composition, text placement and
+# the type system from his own covers. Windows Python + Pillow:
 #   python docs/vsl/prince-dre/wireframes.py
 # Fonts are open-license Google Fonts, downloaded once into a temp folder (never committed):
 # Rye (Tuscan slab headline), Knewave (stand-in for the red dry-brush key word), Montserrat
 # (tracked credits and subtitles). Frame 5 cuts his real logo out of type-reference/.
+# Cover art is read from `videos/` under DRE_MEDIA (default: this repo). Those files are not
+# committed, so a fresh worktree draws grey boxes unless DRE_MEDIA points at the main checkout.
+#
+# THE ONE LAYOUT RULE (Josh, 2026-10-03): nothing passes behind a letter. Text lives in the left
+# 52% of the frame, every subject starts at RIGHT_ZONE or later.
 import os
 import tempfile
 import urllib.request
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, 'storyboard-wireframes.png')
 LOGO = os.path.join(HERE, 'type-reference', 'logo-prince-dre.jpg')
+MEDIA = os.environ.get('DRE_MEDIA') or os.path.normpath(os.path.join(HERE, '..', '..', '..'))
 FONT_DIR = os.environ.get('DRE_FONTS') or os.path.join(tempfile.gettempdir(), 'dre-vsl-fonts')
 FONTS = {
     'Rye-Regular.ttf': 'ofl/rye/Rye-Regular.ttf',
@@ -28,6 +34,7 @@ for name, path in FONTS.items():
 SLAB = os.path.join(FONT_DIR, 'Rye-Regular.ttf')
 BRUSH = os.path.join(FONT_DIR, 'Knewave-Regular.ttf')
 SANS_PATH = os.path.join(FONT_DIR, 'Montserrat[wght].ttf')
+FACE = {'slab': SLAB, 'chrome': SLAB, 'strike': SLAB, 'brush': BRUSH}
 
 
 def sans(size, weight='SemiBold'):
@@ -37,42 +44,87 @@ def sans(size, weight='SemiBold'):
 
 
 W, H = 480, 270
-TEXT_RIGHT = W * 0.52          # text never crosses 52% of the width (subject sits right)
+TEXT_RIGHT = W * 0.52
+RIGHT_ZONE = W * 0.55
 BG, WHITE, RED = (13, 13, 13), (245, 245, 242), (224, 38, 43)   # #E0262B, 4.15:1 on #0D0D0D
-ORANGE, GREY = (210, 120, 40), (70, 70, 66)
+ORANGE, GREY, PANEL = (210, 120, 40), (70, 70, 66), (30, 30, 30)
 
-# (source, subject, letterbox, lines, label, extra)
-# A line is [(text, face)], face 'slab' | 'brush' | 'chrome'. Brush is always the red key word.
+PD = 'videos/prince dre'
+COVERS = {
+    'STTT': f'{PD}/Stompin Thru The Trenches/Stompin Thru The Trenches (Cover Art).png',
+    'BB': f'{PD}/Blood Brothaz/Blood Brothaz (Cover Art).jpg',
+    'SJ': f'{PD}/Shotta In Da Jungle/Shotta In Da Jungle (Cover Art).jpg',
+    'LIL': f'{PD}/Life I Live/Life I Live (Cover Art).jpg',
+    'IR': f'{PD}/Im Reloaded/Im Reloaded (Cover Art).png',
+    'OBAN': f'{PD}/O Block Ass Nigga/O Block Ass Nigga (Cover Art).jpg',
+    'SDLY': f'{PD}/Streets Dont Love You/Streets Dont Love You (Cover Art).jpg',
+    'ROTP': 'videos/output/Prince Dre - The Return Of The Prince.jpg',
+    'FPOB': 'videos/output/Prince Dre - Fresh Prince Of O Block.jpg',
+    'OTOIME': 'videos/output/prince dre - Only The O In My Eyes.jpg',
+}
+# Release order, Stompin last: the grid in frame 11 reads oldest to newest.
+CATALOG = ['FPOB', 'BB', 'SJ', 'OBAN', 'OTOIME', 'LIL', 'SDLY', 'IR', 'ROTP', 'STTT']
+_cover_cache = {}
+
+
+def cover(key, size):
+    if (key, size) not in _cover_cache:
+        path = os.path.join(MEDIA, COVERS[key])
+        if os.path.exists(path):
+            im = Image.open(path).convert('RGB')
+            side = min(im.size)
+            im = im.crop(((im.width - side) // 2, (im.height - side) // 2, (im.width + side) // 2, (im.height + side) // 2))
+            im = im.resize((size, size), Image.LANCZOS)
+        else:
+            im = Image.new('RGB', (size, size), (90, 90, 90))
+        _cover_cache[(key, size)] = im
+    return _cover_cache[(key, size)]
+
+
+def redacted(key, size, torn=False):
+    im = cover(key, size).filter(ImageFilter.GaussianBlur(size / 14)) if not torn else cover(key, size).copy()
+    d = ImageDraw.Draw(im)
+    if torn:
+        d.polygon([(0, size * 0.40), (size * 0.38, size * 0.34), (size * 0.30, size * 0.50), (0, size * 0.55)], fill=(0, 0, 0))
+        d.polygon([(size * 0.72, size * 0.52), (size, size * 0.46), (size, size * 0.60), (size * 0.80, size * 0.64)], fill=(0, 0, 0))
+    else:
+        d.rectangle([0, size * 0.40, size, size * 0.58], fill=(0, 0, 0))
+    return im
+
+
+# (source, subject, letterbox, lines, label, extra). A line is [(text, face)]:
+# face 'slab' | 'brush' (always the red key word) | 'chrome' | 'strike' (white slab, red strike).
 FRAMES = [
-    ('A/P1', 'right', False, [[('SOMETHING', 'slab')], [('ON MY PHONE', 'slab')]], 'I got something on my phone', 'phone'),
-    ('P1+G', 'center', False, [[('[YEAR]', 'brush')], [("NOBODY'S EVER SEEN", 'slab')]], 'from [YEAR]...', 'redact'),
-    ('A', 'right', False, [[('NOBODY.', 'brush')]], 'Not my people. Nobody.', None),
-    ('A', 'right', False, [], 'Stay with me', 'sub'),
-    ('P2', 'full', False, [], "I'm Prince Dre. O'Block.", 'logo'),
-    ('R', 'cover43', False, [], 'since 2013', "credit:2013 · FRESH PRINCE OF O'BLOCK"),
-    ('R', 'cover43', False, [], '(eras, ~1s each)', 'credit:2015 · BLOOD BROTHAZ'),
+    ('A/P1', 'dre', False, [[('A WHOLE TAPE', 'slab')], [('NOBODY', 'brush'), (' EVER HEARD', 'slab')]], 'I got a whole tape nobody ever heard', None),
+    ('R+G', 'redacted', False, [[('16 SONGS', 'slab')], [('NEVER', 'brush'), (' DROPPED', 'slab')]], 'Sixteen songs. Never dropped.', None),
+    ('G', 'none', False, [[('NOT ON YOUTUBE', 'strike')], [('NOT ON NO MIXTAPE SITE', 'strike')]], 'Not on YouTube. Not on no mixtape site.', None),
+    ('A', 'dre', False, [[('NOWHERE.', 'brush')]], 'Nowhere. Stay with me.', 'sub:Stay with me'),
+    ('P2', 'courtyard', False, [], "I'm Prince Dre. O'Block.", 'logo'),
+    ('R', 'cover43:FPOB', False, [], 'I been dropping since 2013', "credit:2013 · FRESH PRINCE OF O'BLOCK"),
+    ('R', 'cover43:BB', False, [], '(eras, about 1 s each)', 'credit:2015 · BLOOD BROTHAZ'),
     ('R', 'comments', False, [[('WHERE CAN I HEAR', 'slab')], [('ALL', 'brush'), (' OF IT?', 'slab')]], 'Where can I hear all of it?', None),
-    ('P3', 'full', False, [], 'Tapes scattered on old sites', 'sub'),
-    ('R', 'screen', False, [[('8 PROJECTS', 'chrome')], [('94 SONGS', 'chrome')]], 'So I put it in one place', None),
-    ('R', 'screen', False, [], 'That song you just got?', 'sub'),
-    ('P4', 'full', True, [[('THE ', 'slab'), ('REAL', 'brush')], [('REASON', 'slab')]], "that ain't the real reason", None),
-    ('R', 'archive', True, [], 'Songs that never came out', 'credit:2019 · UNRELEASED'),
-    ('R', 'notes', False, [], 'The notes in my phone', None),
-    ('A', 'right', False, [[('EVERY', 'slab')], [('MONTH', 'brush')]], 'Every month', None),
+    ('P3', 'courtyard', False, [], 'Tapes all over old mixtape sites', 'sub:(subtitle only)'),
+    ('R', 'screen', False, [[('10 PROJECTS', 'chrome')], [('114 SONGS', 'chrome')]], 'So I put it all in one place', None),
+    ('R+G', 'grid10', False, [[('9 YOU HEARD OF', 'slab')], [('1 YOU ', 'slab'), ("AIN'T", 'brush')]], "Nine you heard of. One you ain't.", None),
+    ('R', 'player', False, [], 'If you just got a free song from me', 'sub:(subtitle only)'),
+    ('P4', 'courtyard', True, [[('FROM EVERY', 'slab')], [('ERA', 'brush')]], 'Sitting on stuff from every era', None),
+    ('R', 'archive', True, [], 'Pictures nobody ever seen. Videos...', 'credit:PHOTO · NEVER POSTED · 2015'),
+    ('R', 'post', False, [], 'Thats going in here', 'sub:(subtitle only)'),
+    ('R', 'vote', False, [[('YOU ', 'slab'), ('PICK', 'brush')], [('WHAT DROPS NEXT', 'slab')]], 'You pick which ones I put out next', None),
     ('G+P5', 'card1', False, [], 'Ten dollars a month', None),
-    ('G+P5', 'card2', False, [], 'Twenty-five', None),
-    ('G+P5', 'card3', False, [], 'Fifty', None),
-    ('P1+G', 'center', False, [[('FIRST DROP · MEMBERS', 'slab')], [('THIS MONTH', 'brush')]], 'That thing from [YEAR]', 'redact'),
-    ('G', 'none', False, [[('PICK YOUR LEVEL', 'slab')], [('BELOW', 'brush')]], 'Pick your level below', 'arrow'),
+    ('G', 'number', False, [[('YOUR ', 'slab'), ('NUMBER', 'brush')], [('NEVER CHANGES', 'slab')]], 'A number next to your name', None),
+    ('G+P5', 'card2', False, [], 'Twenty five', None),
+    ('G+P5', 'card3', False, [], 'Fifty. Everything. All ten. Today.', None),
+    ('R+G', 'reveal', False, [[('STOMPIN THRU', 'slab')], [('THE TRENCHES', 'slab')], [('$50 · ', 'slab'), ('ONLY', 'brush'), (' HERE', 'slab')]], 'Stompin Thru The Trenches', None),
+    ('G', 'end', False, [[('PICK YOUR LEVEL', 'slab')], [('BELOW', 'brush')]], 'Pick your level below', 'sub:Cancel whenever you want'),
 ]
-FACE = {'slab': SLAB, 'chrome': SLAB, 'brush': BRUSH}
 
 
 def line_width(d, line, size):
     return sum(d.textlength(t, font=ImageFont.truetype(FACE[f], size)) for t, f in line)
 
 
-def fit(d, line, max_w, start=64, floor=14):
+def fit(d, line, max_w, start=56, floor=14):
     size = start
     while size > floor and line_width(d, line, size) > max_w:
         size -= 1
@@ -91,21 +143,17 @@ def chrome(im, xy, text, font):
     g = ImageDraw.Draw(grad)
     for y in range(top, bot + 1):
         t = (y - top) / max(1, bot - top)
-        if t < 0.5:
-            v = int(250 - 120 * (t / 0.5))      # bright top falling to the band
-        else:
-            v = int(95 + 150 * ((t - 0.5) / 0.5))  # dark band rising to a bright lip
+        v = int(250 - 120 * (t / 0.5)) if t < 0.5 else int(95 + 150 * ((t - 0.5) / 0.5))
         g.line([0, y, im.size[0], y], fill=(v, v, min(255, v + 12)))
     im.paste(grad, (0, 0), mask)
 
 
-def tracked(d, xy, text, font, fill, track=0.25, anchor_center=False):
+def tracked(d, xy, text, font, fill, track=0.25, center=False):
     # Montserrat with +250 tracking: Pillow has no letter-spacing, so set each glyph.
-    size = font.size
-    widths = [d.textlength(ch, font=font) + size * track for ch in text]
+    widths = [d.textlength(ch, font=font) + font.size * track for ch in text]
     x, y = xy
-    if anchor_center:
-        x -= (sum(widths) - size * track) / 2
+    if center:
+        x -= (sum(widths) - font.size * track) / 2
     for ch, w in zip(text, widths):
         d.text((x, y), ch, font=font, fill=fill)
         x += w
@@ -117,67 +165,143 @@ def logo_cutout(target_w):
     alpha = src.point(lambda v: 255 if v > 175 else (0 if v < 120 else int((v - 120) * 255 / 55)))
     logo = Image.new('RGBA', src.size, WHITE + (0,))
     logo.putalpha(alpha)
-    h = int(src.size[1] * target_w / src.size[0])
-    return logo.resize((target_w, h), Image.LANCZOS)
+    return logo.resize((target_w, int(src.size[1] * target_w / src.size[0])), Image.LANCZOS)
+
+
+def person(d):
+    d.rectangle([W * 0.62, H * 0.12, W * 0.92, H], fill=GREY)
+    d.ellipse([W * 0.69, H * 0.0, W * 0.85, H * 0.32], fill=(95, 95, 90))
+    d.rectangle([W * 0.92, H * 0.1, W * 0.94, H * 0.9], fill=ORANGE)
+
+
+def card(im, d, x, y, w, h, key, price, rows, hot):
+    d.rounded_rectangle([x, y, x + w, y + h], 8, fill=(34, 32, 30), outline=RED if hot else GREY, width=2)
+    side = w - 24
+    im.paste(cover(key, side), (x + 12, y + 10))
+    d.text((x + 12, y + side + 42), price, font=ImageFont.truetype(SLAB, 28), fill=WHITE, anchor='ls')
+    yy = y + side + 50
+    for row in rows:
+        if row == 'EVERYTHING':
+            d.text((x + 12, yy + 16), row, font=ImageFont.truetype(BRUSH, 16), fill=RED, anchor='ls')
+            yy += 20
+        else:
+            size = 7
+            while size > 5 and sum(d.textlength(ch, font=sans(size)) + size * 0.15 for ch in row) > w - 24:
+                size -= 1
+            tracked(d, (x + 12, yy), row, sans(size), WHITE, 0.15)
+            yy += 11
+
+
+CARD_DEFS = [
+    ('BB', '$10', ['BLOOD BROTHAZ', 'LIFE I LIVE', 'STREETS DONT LOVE YOU', 'BEHIND THE SCENES', 'A VOTE']),
+    ('SJ', '$25', ['SHOTTA', 'IM RELOADED', 'THE VAULT', 'A PROJECT EVERY', 'MONTH YOU STAY']),
+    ('OBAN', '$50', ['EVERYTHING', 'ALL 10 TODAY']),
+]
+
+
+def subject(im, d, subj):
+    rz = RIGHT_ZONE
+    if subj == 'dre':
+        person(d)
+    elif subj == 'courtyard':
+        for k in range(6):
+            d.rectangle([W * (0.56 + k * 0.075), H * (0.15 + (k % 2) * 0.1), W * (0.62 + k * 0.075), H], fill=(60 + k * 6, 40, 30))
+    elif subj in ('redacted', 'reveal'):
+        side = int(W * 0.34)
+        im.paste(redacted('STTT', side, torn=(subj == 'reveal')), (int(W * 0.6), (H - side) // 2))
+    elif subj.startswith('cover43'):
+        d.rectangle([W * 0.125, 0, W * 0.875, H], fill=(25, 25, 22))
+        side = int(H * 0.66)
+        im.paste(cover(subj.split(':')[1], side), ((W - side) // 2, int(H * 0.06)))
+    elif subj == 'comments':
+        for k in range(4):
+            x, y = int(rz) + 8 + k * 12, 20 + k * 52
+            d.rounded_rectangle([x, y, W - 6, y + 40], 6, fill=(245, 245, 245))
+            d.rectangle([x + 6, y + 8, x + 30, y + 32], fill=(150, 150, 150))
+            for j in range(2):
+                d.line([x + 38, y + 14 + j * 12, W - 30 - j * 30, y + 14 + j * 12], fill=(120, 120, 120), width=3)
+    elif subj == 'screen':
+        x0 = int(rz)
+        d.rectangle([x0, H * 0.1, W - 14, H * 0.9], fill=(26, 26, 26), outline=(212, 175, 55), width=2)
+        side = 44
+        for k, key in enumerate(['FPOB', 'BB', 'SJ', 'OBAN', 'IR', 'ROTP']):
+            cx, cy = x0 + 12 + (k % 3) * (side + 10), int(H * 0.2) + (k // 3) * (side + 30)
+            im.paste(cover(key, side), (cx, cy))
+            d.line([cx, cy + side + 8, cx + side - 8, cy + side + 8], fill=(150, 150, 150), width=3)
+    elif subj == 'grid10':
+        side, gap = 33, 5
+        x0 = int(rz) + 4
+        y0 = (H - (2 * side + gap)) // 2
+        for k, key in enumerate(CATALOG):
+            x, y = x0 + (k % 5) * (side + gap), y0 + (k // 5) * (side + gap)
+            im.paste(redacted(key, side) if key == 'STTT' else cover(key, side), (x, y))
+        x, y = x0 + 4 * (side + gap), y0 + side + gap
+        d.rectangle([x - 2, y - 2, x + side + 2, y + side + 2], outline=RED, width=2)
+    elif subj == 'player':
+        x0 = int(rz)
+        d.rounded_rectangle([x0, H * 0.12, W - 14, H * 0.88], 10, fill=PANEL)
+        side = 90
+        im.paste(cover('SJ', side), (x0 + 20, int(H * 0.18)))
+        d.line([x0 + 20, H * 0.18 + side + 22, W - 34, H * 0.18 + side + 22], fill=(110, 110, 110), width=4)
+        d.line([x0 + 20, H * 0.18 + side + 22, x0 + 80, H * 0.18 + side + 22], fill=(212, 175, 55), width=4)
+        d.ellipse([x0 + 20, H * 0.18 + side + 34, x0 + 48, H * 0.18 + side + 62], fill=(212, 175, 55))
+    elif subj == 'archive':
+        for k, (dx, dy, tone) in enumerate([(0.42, 0.16, (88, 78, 70)), (0.60, 0.26, (70, 64, 60)), (0.74, 0.14, (100, 90, 80))]):
+            x, y = W * dx, H * dy
+            d.rectangle([x, y, x + W * 0.2, y + H * 0.46], fill=tone, outline=(230, 225, 215), width=3)
+        d.rectangle([W * 0.6 + 3, H * 0.26, W * 0.8 + 3, H * 0.72], outline=RED, width=1)
+    elif subj == 'post':
+        x0 = int(rz)
+        d.rounded_rectangle([x0, H * 0.1, W - 14, H * 0.9], 10, fill=PANEL)
+        d.ellipse([x0 + 14, H * 0.16, x0 + 40, H * 0.16 + 26], fill=(95, 95, 90))
+        d.line([x0 + 50, H * 0.16 + 13, x0 + 120, H * 0.16 + 13], fill=(200, 200, 200), width=4)
+        d.rectangle([x0 + 14, H * 0.32, W - 28, H * 0.72], fill=(80, 72, 66))
+        d.rounded_rectangle([x0 + 14, H * 0.77, x0 + 100, H * 0.77 + 18], 9, fill=(212, 175, 55))
+        tracked(d, (x0 + 22, H * 0.77 + 4), 'MEMBERS', sans(8), (20, 20, 20), 0.2)
+    elif subj == 'vote':
+        x0 = int(rz)
+        d.rounded_rectangle([x0, H * 0.1, W - 14, H * 0.9], 10, fill=PANEL)
+        for k in range(3):
+            y = H * 0.18 + k * 44
+            d.rounded_rectangle([x0 + 12, y, W - 26, y + 34], 6, outline=(212, 175, 55) if k == 1 else GREY, width=2)
+            tracked(d, (x0 + 22, y + 11), f'UNRELEASED SONG {"ABC"[k]}', sans(8), WHITE, 0.15)
+        d.rounded_rectangle([x0 + 12, H * 0.72, W - 26, H * 0.72 + 26], 13, fill=(212, 175, 55))
+        tracked(d, ((x0 + W - 14) / 2, H * 0.72 + 7), 'VOTE', sans(10), (20, 20, 20), 0.2, center=True)
+    elif subj == 'number':
+        x0 = int(rz)
+        for k, (name, pill, you) in enumerate([('Tay', 'GOLD #7', False), ('You', 'SILVER #1', True), ('Mook', 'BRONZE', False)]):
+            y = H * 0.16 + k * 66
+            d.rounded_rectangle([x0, y, W - 14, y + 54], 8, fill=(48, 44, 30) if you else PANEL, outline=(212, 175, 55) if you else None, width=2)
+            d.ellipse([x0 + 10, y + 12, x0 + 38, y + 40], fill=(95, 95, 90))
+            d.text((x0 + 46, y + 14), name, font=sans(12, 'Bold'), fill=WHITE)
+            pw = d.textlength(pill, font=sans(9)) + 18
+            d.rounded_rectangle([x0 + 90, y + 13, x0 + 90 + pw, y + 31], 9, fill=RED if you else (90, 90, 90))
+            d.text((x0 + 99, y + 16), pill, font=sans(9), fill=WHITE)
+            d.line([x0 + 46, y + 42, W - 40, y + 42], fill=(110, 110, 110), width=3)
+        tracked(d, (x0, H - 16), 'EXAMPLE', sans(7), (150, 150, 150), 0.2)
+    elif subj.startswith('card'):
+        n = int(subj[-1])
+        w, h = 132, 236
+        for k in range(n):
+            key, price, rows = CARD_DEFS[k]
+            card(im, d, 24 + k * 146, 17, w, h, key, price, rows, hot=(k == n - 1))
+    elif subj == 'end':
+        d.polygon([(W * 0.82, H * 0.5), (W * 0.92, H * 0.5), (W * 0.87, H * 0.7)], fill=RED)
 
 
 def frame(spec):
     src, subj, lbox, lines, label, extra = spec
     im = Image.new('RGB', (W, H), BG)
     d = ImageDraw.Draw(im)
-    if subj == 'right':
-        d.rectangle([W * 0.62, H * 0.12, W * 0.92, H], fill=GREY)
-        d.ellipse([W * 0.69, H * 0.0, W * 0.85, H * 0.32], fill=(95, 95, 90))
-        d.rectangle([W * 0.92, H * 0.1, W * 0.94, H * 0.9], fill=ORANGE)
-        if extra == 'phone':
-            d.rounded_rectangle([W * 0.66, H * 0.45, W * 0.76, H * 0.8], 6, fill=(200, 215, 230))
-    elif subj == 'full':
-        for k in range(6):
-            d.rectangle([W * (0.56 + k * 0.075), H * (0.15 + (k % 2) * 0.1), W * (0.62 + k * 0.075), H], fill=(60 + k * 6, 40, 30))
-        d.rectangle([0, 0, W, H], outline=ORANGE, width=2)
-    elif subj == 'center':
-        d.rounded_rectangle([W * 0.56, H * 0.08, W * 0.86, H * 0.92], 10, fill=(30, 30, 34))
-        d.rectangle([W * 0.6, H * 0.2, W * 0.82, H * 0.6], fill=(80, 80, 90))
-        if extra == 'redact':
-            d.rectangle([W * 0.58, H * 0.35, W * 0.84, H * 0.47], fill=(0, 0, 0))
-    elif subj == 'cover43':
-        d.rectangle([W * 0.125, 0, W * 0.875, H], fill=(25, 25, 22))
-        d.rectangle([W * 0.3, H * 0.1, W * 0.7, H * 0.72], fill=(110, 70, 50))
-    elif subj == 'comments':
-        for k in range(4):
-            x, y = 70 + k * 22, 20 + k * 52
-            d.rounded_rectangle([x + 200, y, x + 420, y + 40], 6, fill=(245, 245, 245))
-            d.rectangle([x + 206, y + 8, x + 230, y + 32], fill=(150, 150, 150))
-    elif subj == 'screen':
-        d.rectangle([W * 0.08, H * 0.08, W * 0.92, H * 0.92], fill=(26, 26, 26), outline=(212, 175, 55), width=2)
-        for k in range(4):
-            d.rectangle([W * (0.12 + k * 0.2), H * 0.58, W * (0.28 + k * 0.2), H * 0.86], fill=(90, 70, 50))
-    elif subj == 'archive':
-        d.rectangle([W * 0.2, H * 0.15, W * 0.8, H * 0.78], fill=(70, 60, 55))
-        d.rectangle([W * 0.2 + 3, H * 0.15, W * 0.8 + 3, H * 0.78], outline=RED, width=1)
-    elif subj == 'notes':
-        d.rounded_rectangle([W * 0.3, H * 0.04, W * 0.7, H * 1.0], 10, fill=(250, 245, 225))
-        for k in range(7):
-            d.line([W * 0.34, H * (0.15 + k * 0.1), W * (0.6 - (k % 3) * 0.05), H * (0.15 + k * 0.1)], fill=(60, 60, 60), width=3)
-    elif subj.startswith('card'):
-        n = int(subj[-1])
-        for k in range(n):
-            x = 30 + k * 145
-            d.rounded_rectangle([x, 50, x + 130, 235], 8, fill=(34, 32, 30), outline=RED if k == n - 1 else GREY, width=2)
-            d.rectangle([x + 15, 62, x + 115, 140], fill=(110, 70, 50))
-            d.text((x + 15, 180), ['$10', '$25', '$50'][k], font=ImageFont.truetype(SLAB, 30), fill=WHITE, anchor='ls')
-            tracked(d, (x + 15, 192), ['BLOOD BROTHAZ', 'NEW EACH MONTH', 'EVERYTHING'][k], sans(8), WHITE, 0.2)
-            if k == 2:
-                d.text((x + 15, 225), 'TODAY', font=ImageFont.truetype(BRUSH, 20), fill=RED, anchor='ls')
+    subject(im, d, subj)
     if lbox:
         d.rectangle([0, 0, W, 24], fill=(0, 0, 0))
         d.rectangle([0, H - 24, W, H], fill=(0, 0, 0))
 
-    # Headline lines, left aligned in the left region, each fitted so it never crosses 52%.
-    max_w = (W * 0.72 if subj == 'none' else TEXT_RIGHT) - 24
-    y = 38 if subj != 'none' else 70
-    if lbox:
-        y = 34
+    # Headline lines, left aligned, each fitted so it never crosses 52%. Text-only frames (no
+    # subject at all) may run wider.
+    max_w = (W * 0.86 if subj == 'none' else W * 0.72 if subj == 'end' else TEXT_RIGHT) - 24
+    y = 34 if lbox else (64 if subj in ('none', 'end') else 30)
     for line in lines:
         size = fit(d, line, max_w)
         y += int(size * 0.95)
@@ -188,19 +312,23 @@ def frame(spec):
                 chrome(im, (x, y), text, f)
             else:
                 d.text((x, y), text, font=f, fill=RED if face == 'brush' else WHITE, anchor='ls')
+            if face == 'strike':
+                mid = y - size * 0.32
+                d.line([x - 4, mid + 3, x + d.textlength(text, font=f) + 4, mid - 3], fill=RED, width=max(2, size // 16))
             x += d.textlength(text, font=f)
-        y += int(size * 0.2)
+        y += int(size * 0.35)
 
     if extra == 'logo':
         lg = logo_cutout(150)
         im.paste(lg, (24, 26), lg)
         tracked(d, (24, H - 34), 'PARKWAY GARDENS · CHICAGO', sans(11), WHITE)
-    if extra and extra.startswith('credit:'):
-        tracked(d, (24, H - 34), extra[7:], sans(11), WHITE)
-    if extra == 'sub':
-        tracked(d, (W // 2, H - 40), '(subtitle only)', sans(14, 'Medium'), WHITE, track=0.0, anchor_center=True)
-    if extra == 'arrow':
-        d.polygon([(W * 0.82, H * 0.55), (W * 0.92, H * 0.55), (W * 0.87, H * 0.75)], fill=RED)
+    elif extra and extra.startswith('credit:'):
+        tracked(d, (24, H - (50 if lbox else 34)), extra[7:], sans(11), WHITE)
+    elif extra and extra.startswith('sub:'):
+        text = extra[4:]
+        f = sans(14, 'Medium')
+        cx = (24 + TEXT_RIGHT) / 2 if subj not in ('none', 'end') else W / 2
+        d.text((cx, H - 40), text, font=f, fill=WHITE, anchor='mm')
     return im
 
 
@@ -209,11 +337,12 @@ def legend(sheet, x, y):
     d.text((x, y + 30), 'HEADLINE', font=ImageFont.truetype(SLAB, 30), fill=(20, 20, 20), anchor='ls')
     d.text((x + 200, y + 30), 'KEY WORD', font=ImageFont.truetype(BRUSH, 30), fill=RED, anchor='ls')
     tracked(d, (x + 380, y + 10), 'CREDIT LINE', sans(16), (20, 20, 20))
-    d.text((x + 560, y + 26), 'Rye  ·  Knewave (stand-in for dry brush)  ·  Montserrat SemiBold +250  ·  red #E0262B',
+    d.text((x + 560, y + 26), 'Rye  ·  Knewave (stand-in for dry brush)  ·  Montserrat SemiBold +250  ·  red #E0262B  ·  text stays in the left 52%',
            font=sans(16, 'Medium'), fill=(80, 80, 80), anchor='ls')
 
 
-cols, rows = 4, 5
+cols = 4
+rows = (len(FRAMES) + cols - 1) // cols
 pad, cap, head = 14, 40, 110
 sheet = Image.new('RGB', (cols * (W + pad) + pad, head + rows * (H + cap + pad) + pad), (245, 242, 235))
 ds = ImageDraw.Draw(sheet)

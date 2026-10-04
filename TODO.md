@@ -118,10 +118,9 @@ responsible for. Do not work those.
       It is also the only reason a fan picks $50 over $25, so how it is announced is worth more
       than the usual drop.
 
-- [ ] **Approve Prince Dre's VSL script, then the storyboard, then fill the three blanks.** First
-      read [docs/vsl/prince-dre/SCRIPT.md](docs/vsl/prince-dre/SCRIPT.md) (rewritten 2026-10-03
-      around Stompin and his material from every era) and tell Claude yes or what to change;
-      Claude then redraws the storyboard to match. Then open
+- [ ] **Approve Prince Dre's VSL storyboard, then fill the three blanks.** The script
+      ([docs/vsl/prince-dre/SCRIPT.md](docs/vsl/prince-dre/SCRIPT.md)) is approved and the board
+      was redrawn to match it on 2026-10-03 (22 frames). Open
       [docs/vsl/prince-dre/storyboard-wireframes.png](docs/vsl/prince-dre/storyboard-wireframes.png)
       and [docs/vsl/prince-dre/STORYBOARD.md](docs/vsl/prince-dre/STORYBOARD.md); edit any frame,
       line or plate. Then fill the top of
